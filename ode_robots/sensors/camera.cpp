@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-05 14:32:55  martius
+ *   Revision 1.2  2010-03-16 15:41:23  martius
+ *   Camera is working now! Using the new lpzviewer it is possible to run render it at
+ *    the control cycle independent of the graphics
+ *
+ *   Revision 1.1  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -32,11 +36,11 @@
 
 #include <selforg/position.h>
 #include <osg/Matrix>
-#include <osg/Vec3>
-#include <osg/Texture2D>
-#include <osg/Texture>
+#include <osg/Camera>
+#include <osg/Image>
 
 #include "osgprimitive.h"
+#include "robotcameramanager.h"
 #include "primitive.h"
 #include "pos.h"
 #include "axis.h"
@@ -44,8 +48,8 @@
 
 namespace lpzrobots {
   
-  Camera::Camera( Type type, int width, int height, float fov, float drawSize)
-    : type (type), width(width), height(height), fov(fov), drawSize(drawSize) {
+  Camera::Camera( int width, int height, float fov, float drawSize, float anamorph)
+    : width(width), height(height), fov(fov), drawSize(drawSize), anamorph(anamorph) {
     // image = new sensor[width*height];
     sensorBody1 = 0;
     sensorBody2 = 0;
@@ -69,32 +73,17 @@ namespace lpzrobots {
       sensorBody2 = new OSGCylinder(drawSize/3, drawSize / 2.0);
       sensorBody1->init(osgHandle);
       sensorBody2->init(osgHandle);
-      sensorBody1->setColor(Color(0.2, 0.2, 0.2));
+      // sensorBody1->setColor(Color(0.2, 0.2, 0.2));
       sensorBody2->setColor(Color(0, 0, 0));
-    }    
+    }        
 
-    // Create the texture to render to
-    texture = new osg::Texture2D;
-    texture->setTextureSize(width, height);
-    texture->setInternalFormat(GL_RGBA);
-    texture->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::LINEAR);
-    texture->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::LINEAR);
-
-    //texture->setShadowComparison(true);
-    //texture->setShadowTextureMode(Texture::LUMINANCE);
-        
-    /*    transform = new Transform(body, screenQuad, pose);
-    OdeHandle myOdeHandle(odeHandle);  
-    transform->init(odeHandle, 0, osgHandle, 
-    Primitive::Draw);*/
-    
-
-    // set up the render to texture camera.
+    // set up the render to texture (image) camera.
     cam = new osg::Camera;
     cam->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // set up projection.
-    cam->setProjectionMatrixAsPerspective(fov/2, (double)width/(double)height,0.1,30);    
+    float ratio = (double)width/(double)height;
+    cam->setProjectionMatrixAsPerspective(fov/ratio, anamorph*ratio,0.1,30);    
     // set view
     cam->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
     osg::Matrix p = pose * body->getPose();
@@ -104,61 +93,33 @@ namespace lpzrobots {
     
     // Frame buffer objects are the best option
     cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);    
-    // We need to render to the texture BEFORE we render to the screen
+    // We need to render to the texture BEFORE we render to the screen 
+    //  (does not matter because we do it offscreen)
     cam->setRenderOrder(osg::Camera::PRE_RENDER);    
-    // The camera will render into the texture that we created earlier
-    cam->attach(osg::Camera::COLOR_BUFFER, texture);
-    // Add world to be drawn to the texture
-    cam->addChild(osgHandle.world);
-    
-    // view->addSlave(cam,false); // this was a test as a child view (but does not work)
-    osgHandle.root->addChild(cam);
-
-    if(showImage){
-      // Then we create the camera that will overlay a quad on the screen 
-      //  displaying the texture we rendered.
-
-      float overlayWidth=width/2;
-      float overlayHeight=height/2;
-      // set up place to show
-      osg::ref_ptr<osg::Geometry> screenQuad;
-      screenQuad = osg::createTexturedQuadGeometry(osg::Vec3(),
-                                                   osg::Vec3(overlayWidth, 0.0, 0.0),
-                                                   osg::Vec3(0.0, overlayHeight, 0.0));
-      osg::ref_ptr<osg::Geode> quadGeode = new osg::Geode;
-      quadGeode->addDrawable(screenQuad.get());
-      osg::StateSet *quadState = quadGeode->getOrCreateStateSet();
-      quadState->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
-      quadState->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
-
-
-      osg::ref_ptr<osg::Camera> orthoCamera = new osg::Camera;
-      // We don't want to apply perspective, just overlay using orthographic
-      orthoCamera->setProjectionMatrix(osg::Matrix::ortho2D(0, overlayWidth, 0, overlayHeight));
-      
-      orthoCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
-      orthoCamera->setViewMatrix(osg::Matrix::identity());
-      
-      
-      orthoCamera->setViewport(0, 400, overlayWidth, overlayHeight);      
-      // Make sure to render this after rendering the scene
-      // in order to overlay the quad on top
-      orthoCamera->setRenderOrder(osg::Camera::POST_RENDER);
-      
-      // Render only the quad
-      orthoCamera->addChild(quadGeode.get());
-      osgHandle.root->addChild(orthoCamera.get());      
-    }
-
+    // Add world to be drawn to the texture/image
+    cam->addChild(osgHandle.scene->world_noshadow);
+  
+    ccd = new osg::Image;
+    ccd->allocateImage(width, height, 1, GL_RGB, GL_UNSIGNED_BYTE);    
+    // The camera will render into the image and its copied on each time it is rendered
+    cam->attach(osg::Camera::COLOR_BUFFER, ccd);   
+        
+    cameraImages.push_back(CameraImage(ccd,showImage));
 
     initialised = true;
-
+    
+    this->osgHandle.scene->robotCamManager->addCamera(this);
   }
   
   bool Camera::sense(const GlobalData& globaldata){
     return true;
   }
-  
+
+
+  const unsigned char* Camera::getData() const {
+    return ccd->data();    
+  };  
+
   void Camera::update(){  
     osg::Matrix p = pose * body->getPose();
     if(sensorBody1) {          

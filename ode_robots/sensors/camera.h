@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-05 14:32:55  martius
+ *   Revision 1.2  2010-03-16 15:41:11  martius
+ *   Camera is working now! Using the new lpzviewer it is possible to run render it at
+ *    the control cycle independent of the graphics
+ *
+ *   Revision 1.1  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -38,15 +42,17 @@
 #ifndef   	CAMERA_H_
 # define   	CAMERA_H_
 
-#include <osg/Matrix>
-#include <osg/Camera>
-// #include <osgViewer/View>
+#include "osgforwarddecl.h"
 
 #include "osghandle.h"
 #include "odehandle.h"
 
+#include <osg/Matrix>
+
+
 namespace osg {
-class Texture2D;
+class Camera;
+class Image;
 }
 
 namespace lpzrobots {
@@ -60,18 +66,23 @@ namespace lpzrobots {
   */
   class Camera {
   public:  
-    enum Type { Isotrop, Foveal }; // Todo: check real names
+    //    enum Type { Isotrop, Foveal }; // Todo: check real names
 
-    /** @param type type of CCD
-        @param width number of pixels horizontally
+
+    typedef std::pair<osg::Image*,bool> CameraImage;
+    typedef std::vector<CameraImage > CameraImages;
+
+    /** @param width number of pixels horizontally
         @param height number of pixels vertically
         @param fov field of view (opening angle of lenses)
         @param drawSize size of visual appearance of camera
+        @param anamorph ratio of focal length in vertical and horizontal direction
     */
-    Camera( Type type = Isotrop, 
-            int width = 320, int height = 200, 
+    Camera( int width = 256, int height = 128, 
             float fov = 90, 
-            float drawSize=0.2);
+            float drawSize=0.2,
+            float anamorph=1
+            );
     virtual ~Camera();
   
     virtual void init(const OdeHandle& odeHandle,
@@ -83,20 +94,26 @@ namespace lpzrobots {
     virtual bool sense(const GlobalData& globaldata);
 
 
+    virtual CameraImages getImages() { return cameraImages;}
+    virtual osg::Camera* getRRTCam() { return cam;}
+
+    virtual const unsigned char* getData() const;
+
     virtual void update();
 
   private:
-    //    osgViewer::View* view;
-    Type type; 
+    // Type type; 
     int width;
     int height;
     float fov;
     bool draw;
     float drawSize;
+    float anamorph;
     bool showImage;
     
-    osg::Texture2D* texture;
     osg::Camera* cam;
+    osg::Image* ccd;
+    CameraImages cameraImages;
 
     Primitive* body;
     osg::Matrix pose;
