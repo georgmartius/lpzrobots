@@ -21,16 +21,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-05 14:28:41  martius
+ *   Revision 1.2  2010-03-16 17:12:08  martius
+ *   includes of ode/ changed to ode-dbl/
+ *   more testing code added
+ *
+ *   Revision 1.1  2010/03/05 14:28:41  martius
  *   test simulation for camera and other sensors
  *
  *
  *
  ***************************************************************************/
 #include <stdio.h>
-
-// include ode library
-#include <ode/ode.h>
 
 // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/noisegenerator.h>
@@ -71,11 +72,16 @@ public:
 
   PassiveBox* box;
   Camera* cam;
+  Camera* cam2;
   
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
+
+    global.odeConfig.setParam("controlinterval",100);
+
+    
 
     // use Playground as boundary:
     playground = new Playground(odeHandle, osgHandle,
@@ -104,13 +110,24 @@ public:
     box = new PassiveBox(odeHandle, osgHandle);
     box->setPose(osg::Matrix::rotate(M_PI/2, 1,0,0) * osg::Matrix::translate(-3,0,0.5));
     global.obstacles.push_back(box);
-    // osgViewer::ViewerBase::Views views;
+    cam = new Camera(512,64,90);
+
+//     osgViewer::ViewerBase::Views views;
 //     viewer->getViews(views);
 //     assert(views.size()>0); 
-//     cam = new Camera(views[0]);
-    cam = new Camera();
-    cam->init(odeHandle, osgHandle, box->getMainPrimitive(), 
+
+    cam->init(odeHandle, osgHandle.changeColor(Color(0,0,0)), box->getMainPrimitive(), 
               osg::Matrix::translate(0,0,0.5), true, true);
+
+    cam2 = new Camera(256,256,90);
+
+//     osgViewer::ViewerBase::Views views;
+//     viewer->getViews(views);
+//     assert(views.size()>0); 
+
+    cam2->init(odeHandle, osgHandle.changeColor(Color(0.5,0,0)), box->getMainPrimitive(), 
+               osg::Matrix::translate(0,0,0.5)*osg::Matrix::rotate(M_PI/2, 0,1,0), true, true);
+
     
 
     b = new OSGBoxTex(5,1,2);
@@ -130,6 +147,7 @@ public:
     b->setMatrix(osg::Matrix::rotate(globalData.time/2,1,0,0)*osg::Matrix::translate(0,-2,2));
     box->setPose(osg::Matrix::rotate(M_PI/2, 1,0,0) * osg::Matrix::rotate(globalData.time/3,0,0,1) * osg::Matrix::translate(-3,0,0.6));
     cam->update();
+    cam2->update();
   }
 
   // add own key handling stuff here, just insert some case values

@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-10-27 13:15:28  guettler
+ *   Revision 1.3  2010-03-16 17:12:08  martius
+ *   includes of ode/ changed to ode-dbl/
+ *   more testing code added
+ *
+ *   Revision 1.2  2009/10/27 13:15:28  guettler
  *   test for MatrixVis
  *
  *   Revision 1.1  2009/10/27 11:40:36  guettler
@@ -118,8 +122,6 @@
 #include <stdio.h>
 
 // include ode library
-#include <ode/ode.h>
-
 // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/noisegenerator.h>
 

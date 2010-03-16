@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2008-11-14 11:23:05  martius
+ *   Revision 1.21  2010-03-16 17:12:08  martius
+ *   includes of ode/ changed to ode-dbl/
+ *   more testing code added
+ *
+ *   Revision 1.20  2008/11/14 11:23:05  martius
  *   added centered Servos! This is useful for highly nonequal min max values
  *   skeleton has now also a joint in the back
  *
@@ -116,9 +120,9 @@ public:
     //   optional parameters radius and mass,where the latter is not used here) )
     // - set Pose(Position) of sphere 
     // - add sphere to list of obstacles
-    for(int i=0; i<8; i++){
-      PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
-      s->setPosition(osg::Vec3(5,0,i*3)); 
+    for(int i=0; i<2; i++){
+      PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 0.5);
+      s->setPosition(osg::Vec3(0,3,i*3)); 
       global.obstacles.push_back(s);    
     }
 
@@ -210,6 +214,7 @@ public:
 int main (int argc, char **argv)
 { 
   ThisSim sim;
+  sim.setGroundTexture("Images/yellow_velour.rgb");
   return sim.run(argc, argv) ? 0 : 1;
 }
  

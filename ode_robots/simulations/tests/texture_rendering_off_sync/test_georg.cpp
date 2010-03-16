@@ -263,6 +263,7 @@ int main(int argc, char** argv)
       // The camera will render into the texture that we created earlier
       cam->attach(osg::Camera::COLOR_BUFFER, texture);
     }
+
     // Add world to be drawn to the texture
     osg::Node* g = loadedModel2.get();    
     //    osg::StateSet *gState = g->getOrCreateStateSet();
