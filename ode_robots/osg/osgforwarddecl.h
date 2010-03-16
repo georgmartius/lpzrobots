@@ -25,7 +25,15 @@
  *  instead of the real osg header files.                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-11-07 13:18:04  martius
+ *   Revision 1.4  2010-03-16 15:47:46  martius
+ *   osgHandle has now substructures osgConfig and osgScene
+ *    that minimized amount of redundant data (this causes a lot of changes)
+ *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
+ *    Main idea is to have a world without shadow all the time avaiable for the
+ *    Robot cameras (since they do not see the right shadow for some reason)
+ *   tidied up old files
+ *
+ *   Revision 1.3  2007/11/07 13:18:04  martius
  *   vec4
  *
  *   Revision 1.2  2006/07/14 12:23:35  martius
@@ -50,6 +58,7 @@
 
 namespace osg{
   class Geode;
+  class Node;
   class Group;
 
   class ShapeDrawable;

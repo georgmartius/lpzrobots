@@ -26,7 +26,15 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.4  2009-10-06 11:50:56  robot12
+ *  Revision 1.5  2010-03-16 15:48:02  martius
+ *  osgHandle has now substructures osgConfig and osgScene
+ *   that minimized amount of redundant data (this causes a lot of changes)
+ *  Scenegraph is slightly changed. There is a world and a world_noshadow now.
+ *   Main idea is to have a world without shadow all the time avaiable for the
+ *   Robot cameras (since they do not see the right shadow for some reason)
+ *  tidied up old files
+ *
+ *  Revision 1.4  2009/10/06 11:50:56  robot12
  *  some bugfixes
  *
  *  Revision 1.3  2009/09/17 14:13:09  guettler
@@ -117,7 +125,7 @@ namespace lpzrobots {
         else
           noGraphics = true;
         // inform osg relevant stuff that no graphics is used
-        osgHandle.noGraphics=noGraphics;
+        osgHandle.cfg->noGraphics=noGraphics;
       }
 
       void setTaskNameSuffix(std::string nameSuffix) {
@@ -147,7 +155,7 @@ namespace lpzrobots {
         if (taskId!=0) {
           noGraphics = true;
           // inform osg relevant stuff that no graphics is used
-          osgHandle.noGraphics=noGraphics;
+          osgHandle.cfg->noGraphics=noGraphics;
         }
       }
 
@@ -172,7 +180,7 @@ namespace lpzrobots {
         if (taskId!=0) {
           noGraphics = true;
           // inform osg relevant stuff that no graphics is used
-          osgHandle.noGraphics=noGraphics;
+          osgHandle.cfg->noGraphics=noGraphics;
         }
         return result;
       }

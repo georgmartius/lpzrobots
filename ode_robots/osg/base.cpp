@@ -24,7 +24,15 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.44  2010-03-10 10:43:52  guettler
+ *   Revision 1.45  2010-03-16 15:47:46  martius
+ *   osgHandle has now substructures osgConfig and osgScene
+ *    that minimized amount of redundant data (this causes a lot of changes)
+ *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
+ *    Main idea is to have a world without shadow all the time avaiable for the
+ *    Robot cameras (since they do not see the right shadow for some reason)
+ *   tidied up old files
+ *
+ *   Revision 1.44  2010/03/10 10:43:52  guettler
  *   SoftShadowMap uses now parameter shadowsize (was not set yet)
  *
  *   Revision 1.43  2010/03/07 22:39:08  guettler
@@ -232,6 +240,7 @@
 #include <iostream>
 #include <assert.h>
 #include <osg/Node>
+#include <osg/CameraNode>
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Texture2D>
@@ -257,7 +266,6 @@
 
 #include <osgGA/AnimationPathManipulator>
 
-#include "shadowcallback.h"
 #include "base.h"
 #include "osgprimitive.h"
 #include "primitive.h"
@@ -308,16 +316,17 @@ namespace lpzrobots {
   "}\n";
 
      Base::Base(const std::string& caption)
-      : ground(0), caption(caption), groundTexture("Images/greenground.rgb"), shadowedScene(0),
-      lightSource(0), groundScene(0), transform(0), hud(0), timestats(0),
-      captionline(0), statisticLine(0), plane(0), hUDStatisticsManager(0), ReceivesShadowTraversalMask(0x1),
-      CastsShadowTraversalMask(0x2), shadowTexSize(2048), useNVidia(1)
-    {
-    }
+       : ground(0), caption(caption), groundTexture("Images/greenground.rgb"), 
+         hud(0), timestats(0), captionline(0), statisticLine(0), 
+         plane(0), hUDStatisticsManager(0), ReceivesShadowTraversalMask(0x1),
+         CastsShadowTraversalMask(0x2), shadowTexSize(2048), useNVidia(1)
+     {
+     }
 
 
   Base::~Base(){
     if(plane) delete plane;
+    if(dummy) dummy->unref();
     if(ground ){
       dGeomDestroy(ground);
     }
@@ -348,7 +357,7 @@ namespace lpzrobots {
   // make the shadow prenumba a little bit sharper then default (0.005)
   float softnessWidth = 0.002;
 
-  shadowedScene = new osgShadow::ShadowedScene;
+  osgShadow::ShadowedScene* shadowedScene = new osgShadow::ShadowedScene;
 
   shadowedScene->setReceivesShadowTraversalMask(ReceivesShadowTraversalMask);
   shadowedScene->setCastsShadowTraversalMask(CastsShadowTraversalMask);
@@ -414,7 +423,7 @@ namespace lpzrobots {
         }
         
         if (useNVidia!=0)
-          pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f));     
+          // pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f));     
         //        pssm->setPolygonOffset(osg::Vec2(1.0f,4.0f)); 
 /*        double polyoffsetfactor = pssm->getPolygonOffset().x();
         double polyoffsetunit   = pssm->getPolygonOffset().y();
@@ -599,10 +608,11 @@ namespace lpzrobots {
     }
   }
 
-  void Base::makeScene(){
-    osgHandle.root = new Group; // master node containing scene but also hud and other stuff
-    osgHandle.world = new Group;// actual world with sky, ground, scene and so on.
-    osgHandle.scene = new Group;// actual scene with robots and stuff
+  void Base::makeScene(OsgScene* scene){
+    scene->root = new Group; // master node containing scene but also hud and other stuff
+    scene->world = new Group;// actual world with sky, ground, scene and so on.
+    scene->world_noshadow = new Group;// like world but without shadow
+    scene->scene = new Group;// actual scene with robots and stuff
     // the base and sky subgraphs go to set the earth sky of the
     // model and clear the color and depth buffer for us, by using
     // osg::Depth, and setting their bin numbers to less than 0,
@@ -610,59 +620,70 @@ namespace lpzrobots {
     ClearNode* clearNode = new ClearNode;
 
     // use a transform to make the sky and base around with the eye point.
-    transform = new osg::Transform;//MoveEarthySkyWithEyePointTransform;
-
+    scene->worldtransform = new osg::Transform;//MoveEarthySkyWithEyePointTransform;
     // add the transform to the earth sky.
-    clearNode->addChild(transform);
-
-    osgHandle.world->addChild(clearNode);    
-    
+    clearNode->addChild(scene->worldtransform);
     // transform's value isn't known until in the cull traversal so its bounding
     // volume can't be determined, therefore culling will be invalid,
     // so switch it off, this cause all our parents to switch culling
     // off as well. But don't worry culling will be back on once underneath
     // this node or any other branch above this transform.
-
-    transform->setCullingActive(false);
-
+    scene->worldtransform->setCullingActive(false);
     // add the sky and base layer.
-    transform->addChild(makeSky());  // bin number -2 so drawn first.
+    scene->world->addChild(clearNode);    
 
-    groundScene = makeGround();
-    int shadowType=(int)osgHandle.shadowType;
+    // do the same clearnote and transform for world_noshadow
+    ClearNode* clearNodeNS = new ClearNode;
+    osg::Transform* transformNS = new osg::Transform;
+    clearNodeNS->addChild(transformNS);
+    transformNS->setCullingActive(false);
+    // add the sky and base layer.
+    scene->world_noshadow->addChild(clearNodeNS);    
+  
+    osg::Node* sky = makeSky();
+    scene->worldtransform->addChild(sky); // bin number -2 so drawn first.
+    transformNS->addChild(sky);          // bin number -2 so drawn first.
+    
+    scene->groundScene = makeGround();
+    int shadowType=(int)osgHandle.cfg->shadowType;
     // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
     if (shadowType!=3)
-    	transform->addChild(groundScene); // bin number -1 so draw second.
+      scene->worldtransform->addChild(scene->groundScene); // bin number -1 so draw second.
+    // add it anyway to the noshadow world
+    transformNS->addChild(scene->groundScene);     
 
-    lightSource = makeLights(osgHandle.world->getOrCreateStateSet());
-    transform->addChild(lightSource);
+    scene->lightSource = makeLights(scene->world->getOrCreateStateSet());
+    scene->worldtransform->addChild(scene->lightSource);
+    transformNS->addChild(makeLights(scene->world_noshadow->getOrCreateStateSet()));    
 
     if(shadowType){
-      // enable shadows
-      // shadowedScene;
-
-      // transform the Vec4 in a Vec3
-      //osg::Vec3 posOfLight;
-      // posOfLight=lightSource->getLight()->getPosition();
-
-      // create the shadowed scene, using textures
-      //shadowedScene = createShadowedScene(scene,posOfLight,1);
-	  // create root of shadowedScene
-      shadowedScene = createShadowedScene(osgHandle.scene,lightSource,(int)osgHandle.shadowType);
+      // create root of shadowedScene
+      scene->shadowedSceneRoot = new osg::Group;
+      scene->shadowedSceneRoot->addChild(scene->scene);
+      scene->shadowedScene = createShadowedScene(scene->shadowedSceneRoot,
+                                                 scene->lightSource,(int)osgHandle.cfg->shadowType);
 
       // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
       if (shadowType==3)
-      	osgHandle.scene->addChild(groundScene); // bin number -1 so draw second.
-      
-      // add the shadowed scene to the root
-      osgHandle.world->addChild(shadowedScene);
+      	scene->shadowedSceneRoot->addChild(scene->groundScene); // bin number -1 so draw second.      
+
+      scene->root->addChild(scene->world);
     }else {
-      osgHandle.world->addChild(osgHandle.scene);
+      scene->root->addChild(scene->world_noshadow);
     }
-    osgHandle.root->addChild(osgHandle.world);
+
+    // add the shadowed scene to the world
+    scene->world->addChild(scene->shadowedScene);    
+    // add the normal scene to the root
+    scene->world_noshadow->addChild(scene->scene);    
     
+    dummy=new osg::Group; // we uses this hack to prevent the nodes from being deleted
+    dummy->addChild(scene->world);
+    dummy->addChild(scene->world_noshadow);
+
+
     hud = createHUD();
-    if(hud) osgHandle.root->addChild(hud);    
+    if(hud) scene->root->addChild(hud);    
   }
 
   Node* Base::makeSky() {
@@ -943,56 +964,61 @@ namespace lpzrobots {
 
   void Base::changeShadowTechnique()
   {
-	  std::string shadowName;
-	  int shadowType = ++(osgHandle.shadowType);
-	  switch (shadowType) {
-	  case 6:
-            shadowType=0; // max shadowtype at the moment: 5
-	  case 0:
-            osgHandle.world->removeChild(shadowedScene);
-            shadowedScene->unref();
-            osgHandle.world->addChild(osgHandle.scene);
-            shadowName = std::string("NoShadow");
-            break;
-	  case 1:
-	  case 2:
-            shadowType=3; // temporarily disable volume shadows (1) and ShadowTextue (2)
-	  case 3:
-            osgHandle.world->removeChild(osgHandle.scene);
-            shadowedScene = createShadowedScene(osgHandle.scene,lightSource, shadowType);
-            // add the shadowed scene to the root
-            osgHandle.world->addChild(shadowedScene);
-            // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
-            transform->removeChild(groundScene);
-            groundScene = makeGround(); // this is usually not needed!
-            osgHandle.scene->addChild(groundScene); // bin number -1 so draw second.
-            shadowName = std::string("ParallelSplitShadowMap");
-            break;
-	  case 4:
-            osgHandle.world->removeChild(shadowedScene);
-            shadowedScene->unref();
-            shadowedScene = createShadowedScene(osgHandle.scene,lightSource, shadowType);
-            // add the shadowed scene to the root
-            osgHandle.world->addChild(shadowedScene);
-            osgHandle.scene->removeChild(groundScene);
-            groundScene = makeGround(); // this is usually not needed!
-            transform->addChild(groundScene); // bin number -1 so draw second.
-            shadowName = std::string("SoftShadowMap");
-            break;
-	  case 5:
-            osgHandle.world->removeChild(shadowedScene);
-            shadowedScene->unref();
-            shadowedScene = createShadowedScene(osgHandle.scene,lightSource, shadowType);
-            // add the shadowed scene to the root
-            osgHandle.world->addChild(shadowedScene);
-            shadowName = std::string("ShadowMap (simple)");
-            break; 
-          default:
-            shadowName = std::string("NoShadow");
-            break;
-          }
-	  printf("Changed shadowType to %i (%s)\n",shadowType,shadowName.c_str());
-	  osgHandle.shadowType=shadowType;
+    OsgScene* scene = osgHandle.scene;
+    std::string shadowName;
+    int shadowType = ++(osgHandle.cfg->shadowType);
+    switch (shadowType) {
+    case 6:
+      shadowType=0; // max shadowtype at the moment: 5
+    case 0:
+      scene->root->removeChild(scene->world);
+      scene->root->addChild(scene->world_noshadow);
+      shadowName = std::string("NoShadow");
+      break;
+    case 1:
+    case 2:
+      shadowType=3; // temporarily disable volume shadows (1) and ShadowTextue (2)
+    case 3:
+      scene->root->removeChild(scene->world_noshadow);
+      scene->root->addChild(scene->world);
+      if(scene->shadowedScene) {
+        scene->world->removeChild(scene->shadowedScene);
+        scene->shadowedScene->unref();
+      }
+      scene->shadowedSceneRoot = new osg::Group;
+      scene->shadowedSceneRoot->addChild(scene->groundScene);
+      scene->shadowedSceneRoot->addChild(scene->scene);
+                 
+      scene->shadowedScene = createShadowedScene(scene->shadowedSceneRoot,scene->lightSource, 
+                                                 shadowType);
+      scene->world->addChild(scene->shadowedScene);
+      // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
+      scene->worldtransform->removeChild(scene->groundScene);
+      shadowName = std::string("ParallelSplitShadowMap");
+      break;
+    case 4:
+      scene->world->removeChild(scene->shadowedScene);
+      scene->shadowedScene->unref();
+      scene->shadowedScene = createShadowedScene(scene->scene,scene->lightSource, shadowType);
+      scene->world->addChild(scene->shadowedScene);
+      scene->worldtransform->addChild(scene->groundScene); // bin number -1 so draw second.
+      scene->shadowedSceneRoot->removeChild(scene->groundScene);
+      shadowName = std::string("SoftShadowMap");
+      break;
+    case 5:
+      scene->world->removeChild(scene->shadowedScene);
+      scene->shadowedScene->unref();
+      scene->shadowedScene = createShadowedScene(scene->scene,scene->lightSource, shadowType);
+      // add the shadowed scene to the root
+      scene->world->addChild(scene->shadowedScene);
+      shadowName = std::string("ShadowMap (simple)");
+      break; 
+    default:
+      shadowName = std::string("NoShadow");
+      break;
+    }
+    printf("Changed shadowType to %i (%s)\n",shadowType,shadowName.c_str());
+    osgHandle.cfg->shadowType=shadowType;
   }
 
 // Helper

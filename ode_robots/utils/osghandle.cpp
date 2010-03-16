@@ -22,7 +22,15 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-03-07 22:48:23  guettler
+ *   Revision 1.9  2010-03-16 15:48:02  martius
+ *   osgHandle has now substructures osgConfig and osgScene
+ *    that minimized amount of redundant data (this causes a lot of changes)
+ *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
+ *    Main idea is to have a world without shadow all the time avaiable for the
+ *    Robot cameras (since they do not see the right shadow for some reason)
+ *   tidied up old files
+ *
+ *   Revision 1.8  2010/03/07 22:48:23  guettler
  *   moved shadow to OsgHandle.shadowType (TODO: move it to OsgConfig)
  *
  *   Revision 1.7  2010/03/05 14:32:55  martius
@@ -74,35 +82,87 @@
 
 #include <osg/Group>
 #include <osg/ShapeDrawable>
+#include <osg/BlendFunc>
+#include <osgGA/StateSetManipulator>
+
 #include "osghandle.h"
+#include "robotcameramanager.h"
 
 namespace lpzrobots {
 
-  OsgHandle::OsgHandle( ) : drawBoundings(false), scene(0), normalState(0), transparentState(0), noGraphics(false) {};
+  OsgHandle::OsgHandle( ) 
+    : drawBoundings(false), scene(0), parent(0) {
+  };
 
 
+  void OsgHandle::init(){
+    cfg = new OsgConfig();
 
-  OsgHandle::OsgHandle( osg::Group* root, osg::Group* world, osg::Group* scene, 
-                        osg::TessellationHints* tesselhints[3], 
-                        osg::StateSet* normalState, osg::StateSet* transparentState,
-                        const Color& color, int shadowType)
-  {
-    this->root = root;
-    this->world = world;
-    this->scene = scene;
-    for(int i=0; i<3; i++){
-      this->tesselhints[i] = tesselhints[i];
+    cfg->normalState = new osg::StateSet();
+    cfg->normalState->ref();
+    
+    // set up blending for transparent stateset
+    osg::StateSet* stateset = new osg::StateSet();
+    osg::BlendFunc* transBlend = new osg::BlendFunc;
+    transBlend->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
+    stateset->setAttributeAndModes(transBlend, osg::StateAttribute::ON);
+    stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+    //stateset->setRenderBinDetails(5,"RenderBin");
+    stateset->setMode(GL_CULL_FACE,osg::StateAttribute::ON); // disable backface because of problems
+    
+    cfg->transparentState = stateset;
+    cfg->transparentState->ref();
+
+    for(int i=0; i<3; i++) {
+      cfg->tesselhints[i] = new osg::TessellationHints();
+      cfg->tesselhints[i]->ref();
     }
-    this->normalState = normalState;
-    this->transparentState = transparentState;
-    this->color = color;
-    drawBoundings=false;
-    noGraphics=false;
-    this->shadowType=shadowType;
+    cfg->tesselhints[0]->setDetailRatio(0.1f); // Low
+    cfg->tesselhints[1]->setDetailRatio(1.0f); // Middle
+    cfg->tesselhints[2]->setDetailRatio(3.0f); // High
+
+    scene = new OsgScene(); 
+    scene->robotCamManager = new RobotCameraManager();    
+
+    color = Color(1,1,1,1);
   }
 
+  void OsgHandle::close(){
+    if(cfg->normalState)
+      cfg->normalState->unref();
+    if(cfg->transparentState)
+      cfg->transparentState->unref();
+    for(int i=0; i<3; i++) {
+      if(cfg->tesselhints[i])
+	cfg->tesselhints[i]->unref();
+    }
+  }
+
+
+   
+//   OsgHandle::OsgHandle( osg::Group* root, osg::Group* world, osg::Group* scene, 
+//                         osg::TessellationHints* tesselhints[3], 
+//                         osg::StateSet* normalState, osg::StateSet* transparentState,
+//                         const Color& color, int shadowType)
+//   {
+//     this->root = root;
+//     this->world = world;
+//     this->worldNoShadow = world;
+//     this->scene = scene;
+//     this->robotCamManager = 0;
+//     for(int i=0; i<3; i++){
+//       this->tesselhints[i] = tesselhints[i];
+//     }
+//     this->normalState = normalState;
+//     this->transparentState = transparentState;
+//     this->color = color;
+//     drawBoundings=false;
+//     noGraphics=false;
+//     this->shadowType=shadowType;
+//   }
+
   OsgHandle::~OsgHandle(){
-    // we should not delete any of the refs, because they are redundant
+    // we should not delete any of the refs, because they are global
   }
 
   OsgHandle OsgHandle::changeColor(const Color& color) const {

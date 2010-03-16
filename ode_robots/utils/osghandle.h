@@ -20,7 +20,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-03-07 22:48:23  guettler
+ *   Revision 1.9  2010-03-16 15:48:02  martius
+ *   osgHandle has now substructures osgConfig and osgScene
+ *    that minimized amount of redundant data (this causes a lot of changes)
+ *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
+ *    Main idea is to have a world without shadow all the time avaiable for the
+ *    Robot cameras (since they do not see the right shadow for some reason)
+ *   tidied up old files
+ *
+ *   Revision 1.8  2010/03/07 22:48:23  guettler
  *   moved shadow to OsgHandle.shadowType (TODO: move it to OsgConfig)
  *
  *   Revision 1.7  2010/03/05 14:32:55  martius
@@ -78,44 +86,86 @@
 #include "osgforwarddecl.h"
 #include "color.h"
 
+namespace osgShadow {
+  class ShadowedScene;
+}
+
 namespace lpzrobots {
 
-/** Data structure for accessing the ODE */
+  class RobotCameraManager;
+
+
+  /** Data structure containing some configuration variables for OSG */
+  struct OsgConfig {
+    OsgConfig() : normalState(0), transparentState(0), noGraphics(false) {}
+    osg::TessellationHints* tesselhints[3];  
+    osg::StateSet* normalState;  
+    osg::StateSet* transparentState;  
+    int shadowType;
+    bool noGraphics;        
+  };
+
+  /** Data structure containing the scene notes (e.g. with and without shadow)*/
+  struct OsgScene {
+    OsgScene() :  root(0), world(0),world_noshadow(0),scene(0),
+                  shadowedScene(0), shadowedSceneRoot(0), groundScene(0), 
+                  lightSource(0), worldtransform(0),
+                  robotCamManager(0) {}
+    osg::Group* root;  // master note (contains world,hud..)
+    osg::Group* world; // world note  (contains ground,sky and shadowed scene)
+    osg::Group* world_noshadow; // world note without shadow (contains ground,sky and scene)
+    osg::Group* scene; // actual scene for robots and stuff    
+
+    osgShadow::ShadowedScene* shadowedScene;
+    osg::Group* shadowedSceneRoot; // root node of shadowed scene 
+    osg::Node* groundScene;
+
+    osg::LightSource* lightSource;  // the light source
+    osg::Transform* worldtransform; // unit transformation at the moment
+
+    RobotCameraManager* robotCamManager; // manages robot cameras and their display
+  };
+
+  
+
+
+/** Data structure for accessing the OpenSceneGraph */
 class OsgHandle
 {
 public:
   OsgHandle();
 
-  /**
-   * TODO: Separation of OSGHandle and OSGConfig
-   * @param root
-   * @param world
-   * @param scene
-   * @param tesselhints
-   * @param normalState
-   * @param transparentState
-   * @param color
-   * @param shadowType
-   * @return
-   */
-  OsgHandle( osg::Group* root, osg::Group* world, osg::Group* scene, 
-             osg::TessellationHints* tesselhints[3], 
-	     osg::StateSet* normalState, osg::StateSet* transparentState, 
-	     const Color& color, int shadowType);
+  // Georg: removed. Brauchen wir den wirklich?
+//   /**
+//    * TODO: Separation of OSGHandle and OSGConfig
+//    * @param root
+//    * @param world
+//    * @param scene
+//    * @param tesselhints
+//    * @param normalState
+//    * @param transparentState
+//    * @param color
+//    * @param shadowType
+//    * @return
+//    */
+//   OsgHandle( osg::Group* root, osg::Group* world, osg::Group* scene, 
+//              osg::TessellationHints* tesselhints[3], 
+// 	     osg::StateSet* normalState, osg::StateSet* transparentState, 
+// 	     const Color& color, int shadowType);
 
   ~OsgHandle();
 
+  void init();
+  void close();
+
   /// decides whether to draw bounding boxes 
   bool drawBoundings;   
-  osg::Group* root;  // master note (contains world,hud..)
-  osg::Group* world; // world note  (contains ground,sky and scene)
-  osg::Group* scene; // actual scene for robots and stuff
-  osg::TessellationHints* tesselhints[3];  
-  osg::StateSet* normalState;  
-  osg::StateSet* transparentState;  
-  Color color;
-  bool noGraphics;
-  int shadowType;
+
+  Color color;    
+
+  OsgConfig* cfg;
+  OsgScene*  scene;
+  osg::Group* parent; // the place there individual osgprimitives are added
 
   // returns a new osghandle with only the color changed
   OsgHandle changeColor(const Color& color) const;
@@ -123,6 +173,8 @@ public:
   OsgHandle changeAlpha(double alpha) const; 
   
 };
+
+
 
 }
 

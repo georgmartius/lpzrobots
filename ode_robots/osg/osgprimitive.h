@@ -27,7 +27,15 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-03-07 22:45:35  guettler
+ *   Revision 1.9  2010-03-16 15:47:46  martius
+ *   osgHandle has now substructures osgConfig and osgScene
+ *    that minimized amount of redundant data (this causes a lot of changes)
+ *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
+ *    Main idea is to have a world without shadow all the time avaiable for the
+ *    Robot cameras (since they do not see the right shadow for some reason)
+ *   tidied up old files
+ *
+ *   Revision 1.8  2010/03/07 22:45:35  guettler
  *   - OSGMesh supports now virtual initialisation (necessary for Meshes not visible)
  *
  *   Revision 1.7  2009/07/30 11:34:15  guettler
@@ -166,7 +174,7 @@ namespace lpzrobots {
 
     std::vector<TextureDescr > textures; 
 
-    const OsgHandle* osgHandle;
+    OsgHandle osgHandle;
   };
 
   /**

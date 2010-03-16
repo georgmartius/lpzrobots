@@ -23,7 +23,15 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-07-30 11:36:01  guettler
+ *   Revision 1.8  2010-03-16 15:47:46  martius
+ *   osgHandle has now substructures osgConfig and osgScene
+ *    that minimized amount of redundant data (this causes a lot of changes)
+ *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
+ *    Main idea is to have a world without shadow all the time avaiable for the
+ *    Robot cameras (since they do not see the right shadow for some reason)
+ *   tidied up old files
+ *
+ *   Revision 1.7  2009/07/30 11:36:01  guettler
  *   added check if noGraphics in OsgHandle is set
  *
  *   Revision 1.6  2009/03/13 09:19:53  martius
@@ -130,23 +138,23 @@ namespace lpzrobots {
   }
 
 
-  void OSGHeightField::init(const OsgHandle& osgHandle, Quality quality){
-    this->osgHandle=&osgHandle;
-    assert(osgHandle.scene || this->osgHandle->noGraphics);
+  void OSGHeightField::init(const OsgHandle& _osgHandle, Quality quality){
+    osgHandle=_osgHandle;
+    assert(osgHandle.parent || osgHandle.cfg->noGraphics);
     transform = new MatrixTransform;
-    if (this->osgHandle->noGraphics)
+    if (osgHandle.cfg->noGraphics)
       return;
     geode = new Geode;  
     transform->addChild(geode.get());
-    osgHandle.scene->addChild(transform.get());
+    osgHandle.parent->addChild(transform.get());
 
-    shape = new ShapeDrawable(field, osgHandle.tesselhints[quality]);
+    shape = new ShapeDrawable(field, osgHandle.cfg->tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
-      shape->setStateSet(osgHandle.transparentState);
+      shape->setStateSet(osgHandle.cfg->transparentState);
     }else{
-      shape->setStateSet(osgHandle.normalState);
+      shape->setStateSet(osgHandle.cfg->normalState);
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);

@@ -24,7 +24,15 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.27  2010-03-09 11:53:41  martius
+ *   Revision 1.28  2010-03-16 15:47:46  martius
+ *   osgHandle has now substructures osgConfig and osgScene
+ *    that minimized amount of redundant data (this causes a lot of changes)
+ *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
+ *    Main idea is to have a world without shadow all the time avaiable for the
+ *    Robot cameras (since they do not see the right shadow for some reason)
+ *   tidied up old files
+ *
+ *   Revision 1.27  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.26  2010/03/07 22:39:08  guettler
@@ -201,10 +209,10 @@ namespace lpzrobots
 
     /// create the ground plane
     virtual void makePhysicsScene(); 
-    /** creates the base screne graph with world, sky and floor and shadow and HUD
-        The scene is stored in osgHandle
+    /** creates the base scene graph with world, sky and floor and shadow and HUD
+        and stores it in scene
      */
-    virtual void makeScene();
+    virtual void makeScene(OsgScene* scene);
     virtual osg::Node* makeSky();
     virtual osg::Node* makeGround();
     virtual osg::Node* createHUD();
@@ -261,10 +269,8 @@ namespace lpzrobots
     std::string caption;
     std::string groundTexture;
 
-    osgShadow::ShadowedScene* shadowedScene;
-    osg::LightSource* lightSource;
-    osg::Node* groundScene;
-    osg::Transform* transform;
+    osg::Group* dummy;
+
     osg::Node* hud;
     osgText::Text* timestats;
     osgText::Text* captionline;

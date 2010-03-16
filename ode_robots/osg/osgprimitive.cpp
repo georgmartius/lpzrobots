@@ -27,7 +27,15 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2010-03-15 09:06:07  guettler
+ *   Revision 1.21  2010-03-16 15:47:46  martius
+ *   osgHandle has now substructures osgConfig and osgScene
+ *    that minimized amount of redundant data (this causes a lot of changes)
+ *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
+ *    Main idea is to have a world without shadow all the time avaiable for the
+ *    Robot cameras (since they do not see the right shadow for some reason)
+ *   tidied up old files
+ *
+ *   Revision 1.20  2010/03/15 09:06:07  guettler
  *   improved lightning for meshes
  *
  *   Revision 1.18  2010/03/12 13:57:50  guettler
@@ -198,7 +206,7 @@ namespace lpzrobots {
   /******************************************************************************/
 
 
-  OSGPrimitive::OSGPrimitive() : osgHandle(0) {
+  OSGPrimitive::OSGPrimitive() {
     setTexture("Images/really_white.rgb",1,1);
   }
 
@@ -252,7 +260,7 @@ namespace lpzrobots {
   }
   
   void OSGPrimitive::applyTextures(){
-    if (this->osgHandle->noGraphics)
+    if (osgHandle.cfg->noGraphics)
       return;
     // this is only the default implementation. For Non-ShapeDrawables this most prob. be overloaded
     if(textures.size() > 0){
@@ -270,7 +278,7 @@ namespace lpzrobots {
   }
 
   void OSGPrimitive::setColor(const Color& color){
-    if (!this->osgHandle || this->osgHandle->noGraphics)
+    if (!osgHandle.cfg->noGraphics)
       return;
     if(shape.valid())
       shape->setColor(color);
@@ -281,7 +289,7 @@ namespace lpzrobots {
   OSGDummy::OSGDummy(){}
   
   void OSGDummy::init(const OsgHandle& osgHandle, Quality quality){
-    this->osgHandle=&osgHandle;
+    this->osgHandle=osgHandle;
   }
   
   void OSGDummy::setMatrix( const osg::Matrix& m4x4 ) {
@@ -308,24 +316,24 @@ namespace lpzrobots {
   }
 
   void OSGPlane::init(const OsgHandle& osgHandle, Quality quality){
-    this->osgHandle=&osgHandle;
-    assert(osgHandle.scene || this->osgHandle->noGraphics);
+    this->osgHandle=osgHandle;
+    assert(osgHandle.parent || osgHandle.cfg->noGraphics);
     transform = new MatrixTransform;
-    if (!this->osgHandle || this->osgHandle->noGraphics)
+    if (osgHandle.cfg->noGraphics)
       return;
     geode = new Geode;  
     transform->addChild(geode.get());
-    osgHandle.scene->addChild(transform.get());
+    osgHandle.parent->addChild(transform.get());
   
-    //  shape = new ShapeDrawable(new InfinitePlane(), osgHandle.tesselhints);
+    //  shape = new ShapeDrawable(new InfinitePlane(), osgHandle.cfg->tesselhints);
     shape = new ShapeDrawable(new Box(Vec3(0.0f, 0.0f, 0.0f), 
-				      100, 100, 0.01), osgHandle.tesselhints[quality]);
+				      100, 100, 0.01), osgHandle.cfg->tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
-      shape->setStateSet(osgHandle.transparentState);
+      shape->setStateSet(osgHandle.cfg->transparentState);
     }else{
-      shape->setStateSet(osgHandle.normalState);
+      shape->setStateSet(osgHandle.cfg->normalState);
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
@@ -342,24 +350,24 @@ namespace lpzrobots {
   }
 
   void OSGBox::init(const OsgHandle& osgHandle, Quality quality){
-    this->osgHandle=&osgHandle;
-    assert(osgHandle.scene || this->osgHandle->noGraphics);
+    this->osgHandle=osgHandle;
+    assert(osgHandle.parent || osgHandle.cfg->noGraphics);
     transform = new MatrixTransform;
-    if (!this->osgHandle || this->osgHandle->noGraphics)
+    if (osgHandle.cfg->noGraphics)
       return;
     geode = new Geode;  
     transform->addChild(geode.get());
-    osgHandle.scene->addChild(transform.get());
+    osgHandle.parent->addChild(transform.get());
 
     box = new Box(Vec3(0.0f, 0.0f, 0.0f), 
 		  dim.x(), dim.y(), dim.z());
-    shape = new ShapeDrawable(box, osgHandle.tesselhints[quality]);
+    shape = new ShapeDrawable(box, osgHandle.cfg->tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
-      shape->setStateSet(osgHandle.transparentState);
+      shape->setStateSet(osgHandle.cfg->transparentState);
     }else{
-      shape->setStateSet(osgHandle.normalState);
+      shape->setStateSet(osgHandle.cfg->normalState);
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
@@ -371,7 +379,7 @@ namespace lpzrobots {
   }
   void OSGBox::setDim(Vec3 d){
     dim = d;
-    if (!this->osgHandle || this->osgHandle->noGraphics)
+    if (osgHandle.cfg->noGraphics)
       return;
     box->setHalfLengths(d/2);
   }
@@ -385,12 +393,12 @@ namespace lpzrobots {
   }
 
   void OSGBoxTex::init(const OsgHandle& osgHandle, Quality quality){
-    this->osgHandle=&osgHandle;
-    assert(osgHandle.scene || this->osgHandle->noGraphics);
+    this->osgHandle=osgHandle;
+    assert(osgHandle.parent || osgHandle.cfg->noGraphics);
     transform = new MatrixTransform;
-    if (!this->osgHandle || this->osgHandle->noGraphics)
+    if (osgHandle.cfg->noGraphics)
       return;
-    osgHandle.scene->addChild(transform.get());
+    osgHandle.parent->addChild(transform.get());
     Vec3 half = dim*(-0.5);    
     Vec3 dx(dim.x(),0.0f,0.0f);
     Vec3 dy(0.0f,dim.y(),0.0f);
@@ -438,9 +446,9 @@ namespace lpzrobots {
     }
     
     if(osgHandle.color.alpha() < 1.0){
-      transform->setStateSet(osgHandle.transparentState);
+      transform->setStateSet(osgHandle.cfg->transparentState);
     }else{
-      transform->setStateSet(osgHandle.normalState);
+      transform->setStateSet(osgHandle.cfg->normalState);
     }
     transform->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 							   StateAttribute::ON);
@@ -464,22 +472,23 @@ namespace lpzrobots {
   }
 
   void OSGSphere::init(const OsgHandle& osgHandle, Quality quality){
-    this->osgHandle=&osgHandle;
-    assert(osgHandle.scene || this->osgHandle->noGraphics);
+    this->osgHandle=osgHandle;
+    assert(osgHandle.parent || osgHandle.cfg->noGraphics);
     transform = new MatrixTransform;
-    if (!this->osgHandle || this->osgHandle->noGraphics)
+    if (osgHandle.cfg->noGraphics)
       return;
     geode = new Geode;  
     transform->addChild(geode.get());
-    osgHandle.scene->addChild(transform.get());
+    osgHandle.parent->addChild(transform.get());
 
-    shape = new ShapeDrawable(new Sphere(Vec3(0.0f, 0.0f, 0.0f), radius), osgHandle.tesselhints[quality]);
+    shape = new ShapeDrawable(new Sphere(Vec3(0.0f, 0.0f, 0.0f), radius), 
+                              osgHandle.cfg->tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
-      shape->setStateSet(osgHandle.transparentState);
+      shape->setStateSet(osgHandle.cfg->transparentState);
     }else{
-      shape->setStateSet(osgHandle.normalState);
+      shape->setStateSet(osgHandle.cfg->normalState);
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
@@ -492,23 +501,23 @@ namespace lpzrobots {
   }
 
   void OSGCapsule::init(const OsgHandle& osgHandle, Quality quality){
-    this->osgHandle=&osgHandle;
-    assert(osgHandle.scene || this->osgHandle->noGraphics);
+    this->osgHandle=osgHandle;
+    assert(osgHandle.parent || osgHandle.cfg->noGraphics);
     transform = new MatrixTransform;
-    if (!this->osgHandle || this->osgHandle->noGraphics)
+    if (osgHandle.cfg->noGraphics)
       return;
     geode = new Geode;  
     transform->addChild(geode.get());
-    osgHandle.scene->addChild(transform.get());
+    osgHandle.parent->addChild(transform.get());
 
     shape = new ShapeDrawable(new Capsule(Vec3(0.0f, 0.0f, 0.0f), 
-					  radius, height), osgHandle.tesselhints[quality]);
+					  radius, height), osgHandle.cfg->tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
-      shape->setStateSet(osgHandle.transparentState);
+      shape->setStateSet(osgHandle.cfg->transparentState);
     }else{
-      shape->setStateSet(osgHandle.normalState);
+      shape->setStateSet(osgHandle.cfg->normalState);
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
@@ -521,23 +530,23 @@ namespace lpzrobots {
   }
 
   void OSGCylinder::init(const OsgHandle& osgHandle, Quality quality){
-    this->osgHandle=&osgHandle;
-    assert(osgHandle.scene || this->osgHandle->noGraphics);
+    this->osgHandle=osgHandle;
+    assert(osgHandle.parent || osgHandle.cfg->noGraphics);
     transform = new MatrixTransform;
-    if (!this->osgHandle || this->osgHandle->noGraphics)
+    if (osgHandle.cfg->noGraphics)
       return;
     geode = new Geode;  
     transform->addChild(geode.get());
-    osgHandle.scene->addChild(transform.get());
+    osgHandle.parent->addChild(transform.get());
 
     shape = new ShapeDrawable(new Cylinder(Vec3(0.0f, 0.0f, 0.0f), 
-					   radius, height), osgHandle.tesselhints[quality]);
+					   radius, height), osgHandle.cfg->tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
-      shape->setStateSet(osgHandle.transparentState);
+      shape->setStateSet(osgHandle.cfg->transparentState);
     }else{
-      shape->setStateSet(osgHandle.normalState);
+      shape->setStateSet(osgHandle.cfg->normalState);
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
@@ -562,12 +571,12 @@ namespace lpzrobots {
 
 
   void OSGMesh::internInit(const OsgHandle& osgHandle, bool loadAndDisplayMesh, Quality quality) {
-    this->osgHandle=&osgHandle;
-       assert(osgHandle.scene || this->osgHandle->noGraphics);
+    this->osgHandle=osgHandle;
+       assert(osgHandle.parent || osgHandle.cfg->noGraphics);
        transform = new MatrixTransform;
-       if (!this->osgHandle || this->osgHandle->noGraphics)
+       if (osgHandle.cfg->noGraphics)
          return;
-       osgHandle.scene->addChild(transform.get());
+       osgHandle.parent->addChild(transform.get());
        if (loadAndDisplayMesh) {
          scaletrans = new MatrixTransform;
          scaletrans->setMatrix(osg::Matrix::scale(scale,scale,scale));

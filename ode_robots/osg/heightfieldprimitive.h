@@ -23,7 +23,15 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-09 11:53:41  martius
+ *   Revision 1.5  2010-03-16 15:47:46  martius
+ *   osgHandle has now substructures osgConfig and osgScene
+ *    that minimized amount of redundant data (this causes a lot of changes)
+ *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
+ *    Main idea is to have a world without shadow all the time avaiable for the
+ *    Robot cameras (since they do not see the right shadow for some reason)
+ *   tidied up old files
+ *
+ *   Revision 1.4  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.3  2007/07/17 07:18:19  martius
@@ -73,7 +81,6 @@ namespace lpzrobots {
     OSGHeightField* osgheightfield;
     dTriMeshDataID data;
     
-    OSGPrimitive* test[20];
   };
 
 

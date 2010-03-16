@@ -23,7 +23,15 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2010-03-11 15:17:19  guettler
+ *   Revision 1.29  2010-03-16 15:47:46  martius
+ *   osgHandle has now substructures osgConfig and osgScene
+ *    that minimized amount of redundant data (this causes a lot of changes)
+ *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
+ *    Main idea is to have a world without shadow all the time avaiable for the
+ *    Robot cameras (since they do not see the right shadow for some reason)
+ *   tidied up old files
+ *
+ *   Revision 1.28  2010/03/11 15:17:19  guettler
  *   -BoundingShape can now be set from outside (see XMLBoundingShape)
  *   -Mesh can be created without Body and Geom.
  *
@@ -757,7 +765,7 @@ namespace lpzrobots{
     odeHandleChild.space = 0;
     // the root node for the child is the transform node of the parent
     OsgHandle osgHandleChild(osgHandle);
-    osgHandleChild.scene = parent->getOSGPrimitive()->getTransform();
+    osgHandleChild.parent = parent->getOSGPrimitive()->getTransform();
     assert(osgHandleChild.scene);
     // initialise the child
     child->init(odeHandleChild, mass, osgHandleChild, (mode & ~Primitive::Body) | Primitive::Child );
