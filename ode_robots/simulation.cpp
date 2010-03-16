@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.118  2010-03-07 22:38:49  guettler
+ *   Revision 1.119  2010-03-16 17:10:25  martius
+ *   new lpzviewer class
+ *   osgHandle changed (osgconfig/osgscene)
+ *   robotcameramanager added
+ *
+ *   Revision 1.118  2010/03/07 22:38:49  guettler
  *   moved shadow to OsgHandle.shadowType (TODO: move it to OsgConfig)
  *
  *   Revision 1.117  2010/03/05 14:32:55  martius
@@ -601,7 +606,6 @@
 #include <osg/Version>
 #include <osg/ShapeDrawable>
 #include <osg/ArgumentParser>
-#include <osg/BlendFunc>
 #include <osg/AlphaFunc>
 #include <osgUtil/SceneView>
 // #include <osgUtil/Optimizer>
@@ -609,10 +613,15 @@
 #include <osgDB/FileUtils>
 #include <osgGA/StateSetManipulator>
 
+
 #include <osgShadow/ShadowedScene>
+
+#include "lpzviewer.h"
 
 #include "primitive.h"
 #include "abstractobstacle.h"
+
+#include "robotcameramanager.h"
 
 #include "cameramanipulatorTV.h"
 #include "cameramanipulatorFollow.h"
@@ -659,7 +668,6 @@ namespace lpzrobots {
       globalconfigurables(globalData.globalconfigurables)
   {
     // default values are set in Base::Base()
-    addParameter("Shadow",&(osgHandle.shadowType));
     addParameter("ShadowTextureSize",&shadowTexSize);
     addParameter("UseNVidia",&useNVidia);
     addParameterDef("WindowWidth",&windowWidth,640);
@@ -755,6 +763,10 @@ namespace lpzrobots {
 
     /**************** OpenSceneGraph-Section   ***********************/
 
+    osgHandle.init();
+    addParameter("Shadow",&(osgHandle.cfg->shadowType));
+
+
     osgDB::FilePathList l = osgDB::getDataFilePathList();
 #ifdef PREFIX
     l.push_back(PREFIX+string("/share/lpzrobots/data"));// installation path
@@ -811,8 +823,8 @@ namespace lpzrobots {
       }
 
       // construct the viewer.
-      viewer = new Viewer(*arguments);
-      if(useOsgThread && !osgHandle.shadowType==3){ // ParallelSplitShadowMap does not support threads
+      viewer = new LPZViewer(*arguments);
+      if(useOsgThread && !osgHandle.cfg->shadowType==3){ // ParallelSplitShadowMap does not support threads
 	viewer->setThreadingModel(Viewer::CullDrawThreadPerContext);
       }else{
 	viewer->setThreadingModel(Viewer::SingleThreaded);
@@ -864,43 +876,27 @@ namespace lpzrobots {
     printf ( "Press h      on the graphics window for help.\n\n" );
     printf ( "Random number seed: %li\n", globalData.odeConfig.randomSeed);
 
-    for(int i=0; i<3; i++) {
-      osgHandle.tesselhints[i] = new TessellationHints();
-      osgHandle.tesselhints[i]->ref();
-    }
-    osgHandle.tesselhints[0]->setDetailRatio(0.1f); // Low
-    osgHandle.tesselhints[1]->setDetailRatio(1.0f); // Middle
-    osgHandle.tesselhints[2]->setDetailRatio(3.0f); // High
-
-    osgHandle.color = Color(1,1,1,1);
-
     makePhysicsScene();
     if (!noGraphics) {
-      makeScene();
-      if (!osgHandle.scene)
+      makeScene(osgHandle.scene);
+      if (!osgHandle.scene->scene)
 	return false;
-
-      osgHandle.normalState = new StateSet();
-      osgHandle.normalState->ref();
-
-      // set up blending for transparent stateset
-      osg::StateSet* stateset = new StateSet();
-      osg::BlendFunc* transBlend = new osg::BlendFunc;
-      transBlend->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-      stateset->setAttributeAndModes(transBlend, osg::StateAttribute::ON);
-      stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-      //stateset->setRenderBinDetails(5,"RenderBin");
-      stateset->setMode(GL_CULL_FACE,osg::StateAttribute::ON); // disable backface because of problems
-      osgHandle.transparentState = stateset;
-      osgHandle.transparentState->ref();
+      osgHandle.parent=osgHandle.scene->scene;
+      
+      // add the display node to show what the robot cameras see
+      osgHandle.scene->root->addChild(osgHandle.scene->robotCamManager->getDisplay());
 
       keyswitchManipulator = new osgGA::KeySwitchMatrixManipulator;
 
       // setup the camera manipulators
-      keyswitchManipulator->addMatrixManipulator( '1', "Static", new CameraManipulator(osgHandle.scene, globalData, cameraHandle) );
-      keyswitchManipulator->addMatrixManipulator( '2', "Follow", new CameraManipulatorFollow(osgHandle.scene, globalData, cameraHandle) );
-      keyswitchManipulator->addMatrixManipulator( '3', "TV", new CameraManipulatorTV(osgHandle.scene, globalData, cameraHandle) );
-      keyswitchManipulator->addMatrixManipulator( '4', "Race", new CameraManipulatorRace(osgHandle.scene, globalData, cameraHandle) );
+      keyswitchManipulator->addMatrixManipulator( '1', "Static", 
+          new CameraManipulator(osgHandle.scene->scene, globalData, cameraHandle) );
+      keyswitchManipulator->addMatrixManipulator( '2', "Follow", 
+          new CameraManipulatorFollow(osgHandle.scene->scene, globalData, cameraHandle) );
+      keyswitchManipulator->addMatrixManipulator( '3', "TV", 
+          new CameraManipulatorTV(osgHandle.scene->scene, globalData, cameraHandle) );
+      keyswitchManipulator->addMatrixManipulator( '4', "Race", 
+          new CameraManipulatorRace(osgHandle.scene->scene, globalData, cameraHandle) );
 
       keyswitchManipulator->selectMatrixManipulator(2);
       viewer->setCameraManipulator( keyswitchManipulator );
@@ -945,11 +941,14 @@ namespace lpzrobots {
     if(!noGraphics) {
       // optimize the scene graph, remove redundant nodes and state etc.
       // osgUtil::Optimizer optimizer;
-      // optimizer.optimize(osgHandle.root);
+      // optimizer.optimize(osgHandle.scene->root);
 
 
       // add model to viewer.
-      viewer->setSceneData(osgHandle.root);
+      viewer->setSceneData(osgHandle.scene->root);
+      
+      // add overlay from cameras
+      viewer->setOffScreenData(osgHandle.scene->robotCamManager->getOffScreen());
 
       // create the windows and run the threads.
       viewer->realize();
@@ -1047,8 +1046,13 @@ namespace lpzrobots {
 // 	  }
 // 	}
 
+ 	// for all agents: robots internal stuff and control step if at controlInterval
 // 	PARALLEL VERSION
 	if ( (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
+          // render offscreen cameras (robot sensor cameras) (does not work in nographics mode)
+          if(!noGraphics)
+            viewer->renderOffScreen();
+
 	  QP(PROFILER.beginBlock("controller                   "));
 	  if (useQMPThreads)
 	  {
@@ -1415,16 +1419,9 @@ namespace lpzrobots {
       delete global.environment;
       global.environment=0;
     }
-
-    if(osgHandle.normalState)
-      osgHandle.normalState->unref();
-    if(osgHandle.transparentState)
-      osgHandle.transparentState->unref();
-    for(int i=0; i<3; i++) {
-      if(osgHandle.tesselhints[i])
-	osgHandle.tesselhints[i]->unref();
-    }
+    
     global.agents.clear();
+    osgHandle.close();
     odeHandle.close();
   }
 
@@ -1525,13 +1522,13 @@ namespace lpzrobots {
     }
     noGraphics = contains(argv, argc, "-nographics")!=0;
     // inform osg relevant stuff that no graphics is used
-    osgHandle.noGraphics=noGraphics;
+    osgHandle.cfg->noGraphics=noGraphics;
     pause = contains(argv, argc, "-pause")!=0;
 
     index = contains(argv, argc, "-shadow");
     if(index && (argc > index)) {
-      osgHandle.shadowType= atoi(argv[index]);
-      printf("shadowType=%i\n",osgHandle.shadowType);
+      osgHandle.cfg->shadowType= atoi(argv[index]);
+      printf("shadowType=%i\n",osgHandle.cfg->shadowType);
     }
 
     index = contains(argv, argc, "-shadowsize");
@@ -1540,7 +1537,7 @@ namespace lpzrobots {
       printf("shadowTexSize=%i\n",shadowTexSize);
     }
     if(contains(argv, argc, "-noshadow")!=0) {
-      osgHandle.shadowType=0;
+      osgHandle.cfg->shadowType=0;
       printf("using no shadow\n");
     }
 

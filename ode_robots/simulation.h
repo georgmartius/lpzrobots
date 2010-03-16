@@ -28,7 +28,12 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.42  2010-03-05 14:32:55  martius
+ *   Revision 1.43  2010-03-16 17:10:25  martius
+ *   new lpzviewer class
+ *   osgHandle changed (osgconfig/osgscene)
+ *   robotcameramanager added
+ *
+ *   Revision 1.42  2010/03/05 14:32:55  martius
  *   camera sensor added
  *   for that the scenegraph structure was changed into root, world, scene
  *   camera does not work with shadows
@@ -287,7 +292,7 @@
 class PlotOption; // selforg
 
 namespace lpzrobots {
-  class ExtendedViewer;
+  class LPZViewer;
 }
 /*** end of forward declarations ***/
 
@@ -457,7 +462,7 @@ namespace lpzrobots {
   protected:
     SimulationState state;
     osg::ArgumentParser* arguments;
-    osgViewer::Viewer* viewer;
+    LPZViewer* viewer; // inherited from osgViewer::Viewer
     osgGA::KeySwitchMatrixManipulator* keyswitchManipulator;
 
     static int ctrl_C;
