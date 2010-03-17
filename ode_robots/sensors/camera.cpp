@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-03-16 23:24:38  martius
+ *   Revision 1.4  2010-03-17 17:26:36  martius
+ *   robotcameramanager uses keyboard and respects resize
+ *   (robot) camera is has a conf object
+ *   image processing implemented, with a few standard procedures
+ *
+ *   Revision 1.3  2010/03/16 23:24:38  martius
  *   scaling added
  *   eventhandling in robotcameramanager added
  *
@@ -45,36 +50,45 @@
 
 #include "osgprimitive.h"
 #include "robotcameramanager.h"
+#include "imageprocessor.h"
 #include "primitive.h"
 #include "pos.h"
 #include "axis.h"
+#include <selforg/stl_adds.h>
 
 
 namespace lpzrobots {
   
-  Camera::Camera( int width, int height, float fov, float drawSize, float anamorph)
-    : width(width), height(height), fov(fov), drawSize(drawSize), anamorph(anamorph) {
-    // image = new sensor[width*height];
+  
+  void Camera::PostDrawCallback::operator () (const osg::Camera& /*camera*/) const {          
+    // start the image processing chain now
+    FOREACH(ImageProcessors, cam->conf.processors, ip){      
+      (*ip)->process();
+    }
+  }    
+
+  Camera::Camera( const CameraConf& conf)
+    : conf(conf) {
     sensorBody1 = 0;
     sensorBody2 = 0;
+    ccd = 0;
   }
 
   Camera::~Camera(){
     //    delete[] image;
+    if(sensorBody1) delete sensorBody1;
+    if(sensorBody2) delete sensorBody2;
   }
   
   void Camera::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-                    Primitive* body, const osg::Matrix& pose,
-                    bool draw, bool showImage){
+                    Primitive* body, const osg::Matrix& pose){
     this->osgHandle = osgHandle;
-    this->draw = draw;
-    this->showImage = showImage;
     this->body=body;
     this->pose=pose;
     
-    if(draw){
-      sensorBody1 = new OSGBox(drawSize, drawSize, drawSize / 6.0);
-      sensorBody2 = new OSGCylinder(drawSize/3, drawSize / 2.0);
+    if(conf.draw){
+      sensorBody1 = new OSGBox(conf.camSize, conf.camSize, conf.camSize / 6.0);
+      sensorBody2 = new OSGCylinder(conf.camSize/3, conf.camSize / 2.0);
       sensorBody1->init(osgHandle);
       sensorBody2->init(osgHandle);
       // sensorBody1->setColor(Color(0.2, 0.2, 0.2));
@@ -86,14 +100,14 @@ namespace lpzrobots {
     cam->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // set up projection.
-    float ratio = (double)width/(double)height;
-    cam->setProjectionMatrixAsPerspective(fov/ratio, anamorph*ratio,0.1,30);    
+    float ratio = (double)conf.width/(double)conf.height;
+    cam->setProjectionMatrixAsPerspective(conf.fov/ratio, conf.anamorph*ratio,0.1,30);    
     // set view
     cam->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
     osg::Matrix p = pose * body->getPose();
     cam->setViewMatrixAsLookAt(Pos(0,0,0)*p, Pos(Axis(0,0,1)*p), Pos(Axis(0,1,0)*p));
 
-    cam->setViewport(0, 0, width, height);
+    cam->setViewport(0, 0, conf.width, conf.height);
     
     // Frame buffer objects are the best option
     cam->setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);    
@@ -104,31 +118,33 @@ namespace lpzrobots {
     cam->addChild(osgHandle.scene->world_noshadow);
   
     ccd = new osg::Image;
-    ccd->allocateImage(width, height, 1, GL_RGB, GL_UNSIGNED_BYTE);    
+    ccd->allocateImage(conf.width, conf.height, 1, GL_RGB, GL_UNSIGNED_BYTE);    
     // The camera will render into the image and its copied on each time it is rendered
     cam->attach(osg::Camera::COLOR_BUFFER, ccd);   
-        
-    cameraImages.push_back(CameraImage(ccd,showImage,1));
+    cam->setPostDrawCallback(new PostDrawCallback(this));
 
+        
+    cameraImages.push_back(CameraImage(ccd, conf.show, conf.scale, conf.name));
+
+    FOREACH(ImageProcessors, conf.processors, ip){      
+      cameraImages.push_back((*ip)->init(cameraImages));
+    }
+ 
     initialised = true;
     
     this->osgHandle.scene->robotCamManager->addCamera(this);
   }
-  
-  bool Camera::sense(const GlobalData& globaldata){
-    return true;
-  }
-
-
-  const unsigned char* Camera::getData() const {
-    return ccd->data();    
-  };  
+   
+  // const unsigned char* Camera::getData() const {
+//     return ccd->data();    
+//   };  
 
   void Camera::update(){  
     osg::Matrix p = pose * body->getPose();
     if(sensorBody1) {          
-      sensorBody1->setMatrix(osg::Matrix::translate(0, 0, drawSize/12.0) * p);
-      sensorBody2->setMatrix(osg::Matrix::translate(0,-drawSize/6.0,drawSize/6.0 + drawSize/4.0) * p);
+      sensorBody1->setMatrix(osg::Matrix::translate(0, 0, conf.camSize/12.0) * p);
+      sensorBody2->setMatrix(osg::Matrix::translate(0,-conf.camSize/6.0,
+                                                    conf.camSize/6.0 + conf.camSize/4.0) * p);
     }
     cam->setViewMatrixAsLookAt(Pos(0,0,0)*p, Pos(0,0,1)*p, Pos(Axis(0,1,0)*p));
   }

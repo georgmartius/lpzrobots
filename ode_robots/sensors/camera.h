@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-03-16 23:24:38  martius
+ *   Revision 1.4  2010-03-17 17:26:36  martius
+ *   robotcameramanager uses keyboard and respects resize
+ *   (robot) camera is has a conf object
+ *   image processing implemented, with a few standard procedures
+ *
+ *   Revision 1.3  2010/03/16 23:24:38  martius
  *   scaling added
  *   eventhandling in robotcameramanager added
  *
@@ -52,10 +57,10 @@
 #include "odehandle.h"
 
 #include <osg/Matrix>
+#include <osg/Camera>
 
 
 namespace osg {
-class Camera;
 class Image;
 }
 
@@ -65,61 +70,93 @@ namespace lpzrobots {
   class OSGBox;
   class Transform;
 
+  class ImageProcessor;
+  typedef std::vector<ImageProcessor* > ImageProcessors;
+
+
+  struct CameraConf {
+    int width;       ///< horizontal resolution (power of 2)
+    int height;      ///< vertical resolution (power of 2)
+    float fov;       ///< field of view in degree (opening angle of lenses)
+    float draw;      ///< whether to draw a physical camera object
+    float camSize;   ///< size of the physical camera object
+    float anamorph;  ///< anamorph ratio of focal length in vertical and horizontal direction
+    bool show;       ///< whether to show the image on the screen
+    float scale;     ///< scaling for display
+    std::string name; ///< name of the camera
+    ImageProcessors processors; ///< list of image processors that filter the raw image
+  };
 
   /** Camera Sensor. Implements a simulated camera with full OpenGL rendering.
   */
   class Camera {
   public:  
-    //    enum Type { Isotrop, Foveal }; // Todo: check real names
+    struct PostDrawCallback : public osg::Camera::DrawCallback {
+      PostDrawCallback(Camera* cam):
+        cam(cam) { }
+      virtual void operator () (const osg::Camera& /*camera*/) const;
+      Camera* cam;
+    };
+
+
+    /// structure to store the image data and information for display
     struct CameraImage{
-      CameraImage(osg::Image* i, bool e, float s){
-	img=i; enabled=e; scale=s;
+      CameraImage(){};
+      CameraImage(osg::Image* img, bool show, float scale, const std::string& name)
+        : img(img), show(show), scale(scale), name(name){
       }
       osg::Image* img;
-      bool enabled;
-      float scale;
+      bool show;       ///< whether to show the image on the screen
+      float scale;     ///< scaling for display
+      std::string name; ///< name of the image
     };
 
     typedef std::vector<CameraImage > CameraImages;
 
-    /** @param width number of pixels horizontally
-        @param height number of pixels vertically
-        @param fov field of view (opening angle of lenses)
-        @param drawSize size of visual appearance of camera
-        @param anamorph ratio of focal length in vertical and horizontal direction
-    */
-    Camera( int width = 256, int height = 128, 
-            float fov = 90, 
-            float drawSize=0.2,
-            float anamorph=1
-            );
+    /** Creates a camera. 
+        Note that the order in which the image processors are positioned 
+         in conf.imageProcessors matters.
+        The resulting CameraImages are stored in a list (see getImages) and 
+        usually the processors use the last image in this list (result of last processing).
+     */
+
+    Camera( const CameraConf& conf = getDefaultConf() );
+
+    static CameraConf getDefaultConf(){
+      CameraConf c;
+      c.width     = 256;
+      c.height    = 128;
+      c.fov       = 90;
+      c.camSize   = 0.2;
+      c.draw      = true;
+      c.anamorph  = 1;
+      c.show      = true;
+      c.scale     = 1.0;
+      c.name      = "raw";
+      return c;
+    }
+
     virtual ~Camera();
-  
+
+    /** initializes the camera. The OSG camera is created and the 
+        raw image and the imageprocessor is initialized.
+     */
     virtual void init(const OdeHandle& odeHandle,
 		      const OsgHandle& osgHandle, 
 		      Primitive* body, 
-		      const osg::Matrix& pose,
-                      bool draw = true, bool showImage = true);
+		      const osg::Matrix& pose);
   
-    virtual bool sense(const GlobalData& globaldata);
+    // virtual bool sense(const GlobalData& globaldata);
 
+    /// all images (raw and processed)
+    virtual const CameraImages& getImages() const  { return cameraImages;}
 
-    virtual CameraImages getImages() { return cameraImages;}
     virtual osg::Camera* getRRTCam() { return cam;}
-
-    virtual const unsigned char* getData() const;
 
     virtual void update();
 
   private:
-    // Type type; 
-    int width;
-    int height;
-    float fov;
-    bool draw;
-    float drawSize;
-    float anamorph;
-    bool showImage;
+    CameraConf conf;
     
     osg::Camera* cam;
     osg::Image* ccd;

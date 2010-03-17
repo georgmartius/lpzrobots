@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-03-16 15:48:02  martius
+ *   Revision 1.10  2010-03-17 17:26:36  martius
+ *   robotcameramanager uses keyboard and respects resize
+ *   (robot) camera is has a conf object
+ *   image processing implemented, with a few standard procedures
+ *
+ *   Revision 1.9  2010/03/16 15:48:02  martius
  *   osgHandle has now substructures osgConfig and osgScene
  *    that minimized amount of redundant data (this causes a lot of changes)
  *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
@@ -155,7 +160,11 @@ public:
 
   ~OsgHandle();
 
+  /// initialization of the structure
   void init();
+  /// set up robotcameramanager (must be called after init but before usage of the structure)
+  void setup(int windowW, int windowH);
+  /// deletes all internal variables
   void close();
 
   /// decides whether to draw bounding boxes 

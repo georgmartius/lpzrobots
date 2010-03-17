@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-03-16 17:12:08  martius
+ *   Revision 1.3  2010-03-17 17:26:36  martius
+ *   robotcameramanager uses keyboard and respects resize
+ *   (robot) camera is has a conf object
+ *   image processing implemented, with a few standard procedures
+ *
+ *   Revision 1.2  2010/03/16 17:12:08  martius
  *   includes of ode/ changed to ode-dbl/
  *   more testing code added
  *
@@ -53,6 +58,7 @@
 #include <ode_robots/joint.h>
 
 #include <ode_robots/camera.h>
+#include <ode_robots/imageprocessors.h>
 
 
 #include <ode_robots/nimm2.h>
@@ -80,6 +86,8 @@ public:
     setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
 
     global.odeConfig.setParam("controlinterval",100);
+    fprintf(stderr, "****\nAttention, the controlinterval is set to 100\n");
+    fprintf(stderr, " see the independend update of robot cameras\n****\n");
 
     
 
@@ -110,25 +118,35 @@ public:
     box = new PassiveBox(odeHandle, osgHandle);
     box->setPose(osg::Matrix::rotate(M_PI/2, 1,0,0) * osg::Matrix::translate(-3,0,0.5));
     global.obstacles.push_back(box);
-    cam = new Camera(512,64,90);
+    CameraConf camc = Camera::getDefaultConf();
+    camc.width = 512;
+    camc.height = 64;
+    
+    cam = new Camera(camc);
 
 //     osgViewer::ViewerBase::Views views;
 //     viewer->getViews(views);
 //     assert(views.size()>0); 
 
     cam->init(odeHandle, osgHandle.changeColor(Color(0,0,0)), box->getMainPrimitive(), 
-              osg::Matrix::translate(0,0,0.5), true, true);
+              osg::Matrix::translate(0,0,0.5));
 
-    cam2 = new Camera(256,256,90);
+    CameraConf camc2 = Camera::getDefaultConf();
+    camc2.width  = 256;
+    camc2.height = 256;
+    camc2.scale  = .5;
+    //    camc2.processors.push_back(new BWImageProcessor(true,1));
+    camc2.processors.push_back(new HSVImgProc(true,1));
+    camc2.processors.push_back(new ColorFilterImgProc(true,1, 6));
+    cam2 = new Camera(camc2);
 
 //     osgViewer::ViewerBase::Views views;
 //     viewer->getViews(views);
 //     assert(views.size()>0); 
 
     cam2->init(odeHandle, osgHandle.changeColor(Color(0.5,0,0)), box->getMainPrimitive(), 
-               osg::Matrix::translate(0,0,0.5)*osg::Matrix::rotate(M_PI/2, 0,1,0), true, true);
+               osg::Matrix::translate(0,0,0.5)*osg::Matrix::rotate(M_PI/2, 0,1,0));
 
-    
 
     b = new OSGBoxTex(5,1,2);
     b->setTexture(0,"Images/dusty.rgb",1,1);

@@ -38,8 +38,7 @@
 namespace lpzrobots {
 
   RobotCameraManager::Overlay::Overlay(const Camera::CameraImage& image) :
-    img(image.img), show(image.enabled), scale(image.scale), 
-    texture(0),overlay(0) {
+    camImg(image), texture(0),overlay(0) {
   }
 
   RobotCameraManager::Overlay::~Overlay(){
@@ -47,12 +46,13 @@ namespace lpzrobots {
 
 
   
-  RobotCameraManager::RobotCameraManager(){
+  RobotCameraManager::RobotCameraManager(int windowWidth, int windowHeight)
+    : enabled(true), scale(1.0),
+      windowWidth(windowWidth), windowHeight(windowHeight) 
+  {
     // create nodes
     display = new osg::Group();
     offscreen = new osg::Group();
-    enabled=true;
-    scale=1;
   }
 
   void RobotCameraManager::addCamera(Camera* cam){
@@ -84,13 +84,14 @@ namespace lpzrobots {
   void RobotCameraManager::updateView(){
     display->removeChildren(0,display->getNumChildren());
     if(!enabled) return;
-    int screenW=800, screenH=600;
-    int x=screenW,y=screenH;
-    int maxheight_in_row=0;
+    int border=10;
+    int padding=2;
+    int x=windowWidth-border,y=windowHeight-border;
+    int maxheight_in_row=0;    
     FOREACH(RobotCams,cameras,rc){
       FOREACH(Overlays, rc->overlays, ol){
-        if(ol->show){
-          osg::Image* img = ol->img;
+        if(ol->camImg.show){
+          osg::Image* img = ol->camImg.img;
           //          if(!ol->texture){
           // Create the texture to render to
           ol->texture = new osg::Texture2D;
@@ -102,23 +103,23 @@ namespace lpzrobots {
           //ol->texture->setShadowComparison(true);
           //ol->texture->setShadowTextureMode(Texture::LUMINANCE);
           // }
-          ol->overlayWidth  = img->s();
-          ol->overlayHeight = img->t();                      
-          if(x-ol->overlayWidth<0){
-            y-=maxheight_in_row+10;
-            x=0;
+          ol->overlayW  = img->s()*ol->camImg.scale*scale;
+          ol->overlayH  = img->t()*ol->camImg.scale*scale;                      
+          if(x-ol->overlayW-border<0){
+            y-= maxheight_in_row+border;
+            x = windowWidth-border;
             maxheight_in_row=0;
           }
-          maxheight_in_row = std::max(maxheight_in_row,ol->overlayHeight);
-          ol->overlayX=x - ol->overlayWidth;
-          ol->overlayY=y - ol->overlayHeight;
-          x-=ol->overlayWidth+10;
+          maxheight_in_row = std::max(maxheight_in_row,ol->overlayH);
+          ol->overlayX=x - ol->overlayW;
+          ol->overlayY=y - ol->overlayH;
+          x-=ol->overlayW+border;
           
           // set up place to show
           osg::ref_ptr<osg::Geometry> screenQuad;
           screenQuad = osg::createTexturedQuadGeometry(osg::Vec3(),
-                                                       osg::Vec3(ol->overlayWidth, 0.0, 0.0),
-                                                       osg::Vec3(0.0, ol->overlayHeight, 0.0));
+                                                       osg::Vec3(ol->overlayW, 0.0, 0.0),
+                                                       osg::Vec3(0.0, ol->overlayH, 0.0));
           osg::ref_ptr<osg::Geode> quadGeode = new osg::Geode;
           quadGeode->addDrawable(screenQuad.get());
           osg::StateSet *quadState = quadGeode->getOrCreateStateSet();
@@ -127,12 +128,14 @@ namespace lpzrobots {
                    
           osg::ref_ptr<osg::Camera> orthoCamera = new osg::Camera;
           // We don't want to apply perspective, just overlay using orthographic
-          orthoCamera->setProjectionMatrix(osg::Matrix::ortho2D(0, ol->overlayWidth, 0, ol->overlayHeight));
+          orthoCamera->setProjectionMatrix(osg::Matrix::ortho2D(-padding, ol->overlayW+padding, 
+                                                                -padding, ol->overlayH+padding));
           
           orthoCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
           orthoCamera->setViewMatrix(osg::Matrix::identity());
                     
-          orthoCamera->setViewport(ol->overlayX, ol->overlayY, ol->overlayWidth, ol->overlayHeight);
+          orthoCamera->setViewport(ol->overlayX, ol->overlayY, 
+                                   ol->overlayW+2*padding, ol->overlayH+2*padding);
           // Make sure to render this after rendering the scene
           //  in order to overlay the quad on top
           orthoCamera->setRenderOrder(osg::Camera::POST_RENDER);          
@@ -151,18 +154,16 @@ namespace lpzrobots {
     bool handled = false;
     switch(ea.getEventType()) {
     case(osgGA::GUIEventAdapter::KEYDOWN): {
-      printf("Key: %i\n", ea.getKey());
       switch(ea.getKey()) {
       case 15 : // Ctrl - o
 	enabled = !enabled;
-	updateView();
 	handled= true;
 	break;
-      case 20 : // Ctrl - +
-	scale *= 1.5;
+      case 40 : // (
+	scale /= 1.5;
 	handled=true;
 	break;
-      case 21 : // Ctrl - +
+      case 41 : // )
 	scale *= 1.5;
 	handled=true;
 	break;
@@ -171,11 +172,17 @@ namespace lpzrobots {
       }
     } break;
     case(osgGA::GUIEventAdapter::RESIZE):
-      printf("%lf %lf\n", ea.getXmin(), ea.getXmax());
-      return true;      
+      if(ea.getXmax() != windowWidth || ea.getYmax() != windowHeight){
+        windowWidth  = ea.getWindowWidth();
+        windowHeight = ea.getWindowHeight();
+        printf("resuze %i %i\n", windowWidth, windowHeight);
+	handled=true;
+      }
     default:
       break;
     }
+    if(handled) updateView();
+
     return handled;
   }
     
@@ -186,3 +193,4 @@ namespace lpzrobots {
 
 
 }
+

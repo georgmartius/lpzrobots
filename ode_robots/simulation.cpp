@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.120  2010-03-17 09:33:16  martius
+ *   Revision 1.121  2010-03-17 17:26:36  martius
+ *   robotcameramanager uses keyboard and respects resize
+ *   (robot) camera is has a conf object
+ *   image processing implemented, with a few standard procedures
+ *
+ *   Revision 1.120  2010/03/17 09:33:16  martius
  *   removed memory leaks and some small bugs
  *   valgrind suppression file is updated
  *
@@ -772,7 +777,6 @@ namespace lpzrobots {
     osgHandle.init();
     addParameter("Shadow",&(osgHandle.cfg->shadowType));
 
-
     osgDB::FilePathList l = osgDB::getDataFilePathList();
 #ifdef PREFIX
     l.push_back(PREFIX+string("/share/lpzrobots/data"));// installation path
@@ -799,7 +803,8 @@ namespace lpzrobots {
       }
     }
     // process cmdline (possibly overwrite values from cfg file
-    processCmdLine(argc, argv);
+    processCmdLine(argc, argv);    
+    osgHandle.setup(windowWidth, windowHeight);
 
     if(!noGraphics) {
       // create fake command line options to make osg do what we want
@@ -856,6 +861,10 @@ namespace lpzrobots {
 
       // add the record camera path handler
       viewer->addEventHandler(this);
+
+      // add the record camera path handler
+      viewer->addEventHandler(osgHandle.scene->robotCamManager);
+
       // add callback for video recording
     #if OPENSCENEGRAPH_MAJOR_VERSION == 2 &&  OPENSCENEGRAPH_MINOR_VERSION <= 4
       viewer->getCamera()->setPostDrawCallback(videostream.get());
@@ -1522,8 +1531,8 @@ namespace lpzrobots {
     if(resolindex && argc > resolindex) {
       sscanf(argv[resolindex],"%ix%i", &windowWidth,&windowHeight);
     }
-    windowWidth = windowWidth < 64 ? 64 : (windowWidth > 1600 ? 1600 : windowWidth);
-    windowHeight = windowHeight < 64 ? 64 : (windowHeight > 1200 ? 1200 : windowHeight);
+    windowWidth = windowWidth < 64 ? 64 : (windowWidth > 3200 ? 3200 : windowWidth);
+    windowHeight = windowHeight < 64 ? 64 : (windowHeight > 2400 ? 2400 : windowHeight);
 
     if(contains(argv, argc, "-fs")){
       windowHeight=-1;

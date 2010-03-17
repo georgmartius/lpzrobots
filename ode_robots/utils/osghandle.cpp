@@ -22,7 +22,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-03-17 08:46:08  martius
+ *   Revision 1.11  2010-03-17 17:26:36  martius
+ *   robotcameramanager uses keyboard and respects resize
+ *   (robot) camera is has a conf object
+ *   image processing implemented, with a few standard procedures
+ *
+ *   Revision 1.10  2010/03/17 08:46:08  martius
  *   tidy up
  *
  *   Revision 1.9  2010/03/16 15:48:02  martius
@@ -98,6 +103,7 @@ namespace lpzrobots {
   };
 
 
+
   void OsgHandle::init(){
     cfg = new OsgConfig();
 
@@ -125,7 +131,6 @@ namespace lpzrobots {
     cfg->tesselhints[2]->setDetailRatio(3.0f); // High
 
     scene = new OsgScene(); 
-    scene->robotCamManager = new RobotCameraManager();    
 
     color = Color(1,1,1,1);
   }
@@ -139,14 +144,17 @@ namespace lpzrobots {
       if(cfg->tesselhints[i])
 	cfg->tesselhints[i]->unref();
     }
-    delete cfg;
-    delete scene->robotCamManager;
+    delete cfg;    
+    // don't delete the camManager because it is deleted automatically (eventhandler)
+    // delete scene->robotCamManager; 
     if(scene->world) scene->world->unref();
     if(scene->world_noshadow) scene->world_noshadow->unref();
     delete scene;
   }
 
-
+  void OsgHandle::setup(int windowW, int windowH){
+    scene->robotCamManager = new RobotCameraManager(windowW, windowH);    
+  }
    
 //   OsgHandle::OsgHandle( osg::Group* root, osg::Group* world, osg::Group* scene, 
 //                         osg::TessellationHints* tesselhints[3], 

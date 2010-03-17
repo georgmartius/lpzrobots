@@ -40,12 +40,10 @@ namespace lpzrobots {
     struct Overlay {
       Overlay(const Camera::CameraImage& image);
       ~Overlay();
-      osg::Image* img;
-      bool show;
-      float scale;
+      Camera::CameraImage camImg;
       osg::Texture2D* texture;
-      int overlayWidth;
-      int overlayHeight;
+      int overlayW;
+      int overlayH;
       int overlayX;
       int overlayY;
       osg::Node* overlay; 
@@ -58,7 +56,7 @@ namespace lpzrobots {
     typedef std::vector<RobotCam> RobotCams;
     
   public:
-    RobotCameraManager();
+    RobotCameraManager(int windowWidth, int windowHeight);
     virtual void addCamera(Camera* cam);
     virtual void removeCamera(Camera* cam);
 
@@ -81,6 +79,8 @@ namespace lpzrobots {
 
     bool enabled;
     float scale;
+    int windowWidth;
+    int windowHeight;
   };
 
 
