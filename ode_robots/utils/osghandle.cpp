@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-03-16 15:48:02  martius
+ *   Revision 1.10  2010-03-17 08:46:08  martius
+ *   tidy up
+ *
+ *   Revision 1.9  2010/03/16 15:48:02  martius
  *   osgHandle has now substructures osgConfig and osgScene
  *    that minimized amount of redundant data (this causes a lot of changes)
  *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
@@ -136,6 +139,11 @@ namespace lpzrobots {
       if(cfg->tesselhints[i])
 	cfg->tesselhints[i]->unref();
     }
+    delete cfg;
+    delete scene->robotCamManager;
+    if(scene->world) scene->world->unref();
+    if(scene->world_noshadow) scene->world_noshadow->unref();
+    delete scene;
   }
 
 
