@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2010-03-16 17:12:08  martius
+ *   Revision 1.22  2010-03-17 09:33:16  martius
+ *   removed memory leaks and some small bugs
+ *   valgrind suppression file is updated
+ *
+ *   Revision 1.21  2010/03/16 17:12:08  martius
  *   includes of ode/ changed to ode-dbl/
  *   more testing code added
  *
@@ -120,13 +124,12 @@ public:
     //   optional parameters radius and mass,where the latter is not used here) )
     // - set Pose(Position) of sphere 
     // - add sphere to list of obstacles
-    for(int i=0; i<2; i++){
+    for(int i=0; i<4; i++){
       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 0.5);
       s->setPosition(osg::Vec3(0,3,i*3)); 
       global.obstacles.push_back(s);    
     }
-
-    
+        
     // Spherical Robot with axis (gyro) sensors:
     // - get default configuration for robot
     // - create pointer to spherical robot (with odeHandle, osgHandle and configuration)
@@ -154,10 +157,10 @@ public:
     controller->setParam("rootE",3);    // model and contoller learn with square rooted error
     global.configs.push_back ( controller );
 
-    //  SineController (produces just sine waves)
-    // controller = new SineController();  
-    // controller->setParam("sinerate", 40);  
-    // controller->setParam("phaseshift", 0.0);
+//     //  SineController (produces just sine waves)
+//     controller = new SineController();  
+//     controller->setParam("sinerate", 40);  
+//     controller->setParam("phaseshift", 0.0);
     
     // create pointer to one2onewiring which uses colored-noise 
     One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
@@ -168,7 +171,7 @@ public:
     OdeAgent* agent = new OdeAgent ( plotoptions );
     agent->init ( controller , sphere1 , wiring );
     // the following line will enable a position tracking of the robot, which is written into a file
-    agent->setTrackOptions(TrackRobot(true, true, true, false, "Sphere_zaxis", 20)); 
+    //agent->setTrackOptions(TrackRobot(true, true, true, false, "Sphere_zaxis", 20)); 
     global.agents.push_back ( agent );
       
     // display all parameters of all configurable objects on the console

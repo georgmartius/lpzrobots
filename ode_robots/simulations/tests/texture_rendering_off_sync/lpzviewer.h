@@ -19,9 +19,14 @@ public:
 
   virtual ~LPZViewer();
 
+  /** call this function to render the cameras off screen.
+      If no off screen nodes are supplied than nothing is done      
+   */
   virtual void renderOffScreen();
 
+  /// adds a render to texture camera 
   void addOffScreenRRTNode(osg::Node* node);
+  /// removes a render to texture camera 
   void removeOffScreenRRTNode(osg::Node* node);
 
 protected:

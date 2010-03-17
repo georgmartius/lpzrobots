@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2008-09-16 14:55:20  martius
+ *   Revision 1.16  2010-03-17 09:33:16  martius
+ *   removed memory leaks and some small bugs
+ *   valgrind suppression file is updated
+ *
+ *   Revision 1.15  2008/09/16 14:55:20  martius
  *   different params and cmdline options
  *
  *   Revision 1.14  2008/05/01 22:03:56  martius
@@ -93,7 +97,7 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 double velScale = 4;
-double power    = 4;
+double powerValue = 4;
 double powerRatio = 0.5;
 double eps       = 0.01;
 
@@ -168,7 +172,7 @@ public:
       /******* S L I D E R - w H E E L I E *********/
       mySliderWheelieConf.segmNumber=12;
       mySliderWheelieConf.jointLimitIn=M_PI/3;
-      mySliderWheelieConf.motorPower=power; // 2 
+      mySliderWheelieConf.motorPower=powerValue; // 2 
       mySliderWheelieConf.powerRatio=powerRatio; // 2; 
       mySliderWheelieConf.frictionGround=0.5;
       mySliderWheelieConf.sliderLength=0.5;
@@ -230,7 +234,7 @@ public:
     if(!f) return;
     //    fprintf(f,"#C power powerRatio eps velScale seed reinf_ps\n"); 
     fprintf(f,"%f %f %f %f %li %f\n",
-	    power, powerRatio, eps, velScale, 
+	    powerValue, powerRatio, eps, velScale, 
 	    globalData.odeConfig.randomSeed, 
 	    totalReinforcement/globalData.time); 
     fclose(f);    
@@ -258,12 +262,12 @@ int main (int argc, char **argv)
   ThisSim sim;
   int index = ThisSim::contains(argv,argc,"--vals");
   if(index >0 && argc>index+3) {
-    power      = atof(argv[index++]);
+    powerRatio = atof(argv[index++]);
     powerRatio = atof(argv[index++]);
     eps        = atof(argv[index++]);
     velScale   = atof(argv[index++]);
     printf("Params: P %f, PF %f, eps %f, VS %f\n", 
-	   power, powerRatio, eps, velScale);
+	   powerValue, powerRatio, eps, velScale);
   }
   
   // run simulation

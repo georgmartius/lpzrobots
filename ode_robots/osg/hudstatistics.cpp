@@ -25,7 +25,11 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-03-07 22:41:42  guettler
+ *   Revision 1.11  2010-03-17 09:33:16  martius
+ *   removed memory leaks and some small bugs
+ *   valgrind suppression file is updated
+ *
+ *   Revision 1.10  2010/03/07 22:41:42  guettler
  *   added #include <cstdio> to get compiled with gcc 4.4
  *
  *   Revision 1.9  2010/01/27 10:15:38  martius
@@ -95,16 +99,21 @@
 using namespace osg;
 
 namespace lpzrobots {
-
+  
   HUDStatisticsManager::HUDStatisticsManager(osg::Geode* geode, osgText::Font* font) : geode(geode), font(font), textColor(0.0,0.0,0.2,1.0)
-{
-  xInitPosition = 500.0f;
-  yInitPosition = 27.0f;
-  zInitPosition = 0.0f;
-  yOffset = 18.0f;
-  fontsize=12;
-  statTool = new StatisticTools();
-}
+  {
+    xInitPosition = 500.0f;
+    yInitPosition = 27.0f;
+    zInitPosition = 0.0f;
+    yOffset = 18.0f;
+    fontsize=12;
+    statTool = new StatisticTools();
+  }
+  
+  HUDStatisticsManager::~HUDStatisticsManager() {
+    delete(statTool);
+  }
+
 
 StatisticMeasure* HUDStatisticsManager::getMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
 

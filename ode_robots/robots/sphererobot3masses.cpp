@@ -19,7 +19,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2010-03-16 18:33:09  martius
+ *   Revision 1.23  2010-03-17 09:33:16  martius
+ *   removed memory leaks and some small bugs
+ *   valgrind suppression file is updated
+ *
+ *   Revision 1.22  2010/03/16 18:33:09  martius
  *   axisShift called axesShift now and it is initialized now!
  *
  *   Revision 1.21  2009/12/08 13:56:15  der
@@ -203,6 +207,9 @@ namespace lpzrobots {
   {
     destroy(); 
     if(conf.irSensorTempl) delete conf.irSensorTempl;
+    FOREACH(std::list<Sensor*>, conf.sensors, s){
+      if(*s) delete *s;
+    }
   }
 
   void Sphererobot3Masses::update()

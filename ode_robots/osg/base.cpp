@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.45  2010-03-16 15:47:46  martius
+ *   Revision 1.46  2010-03-17 09:33:16  martius
+ *   removed memory leaks and some small bugs
+ *   valgrind suppression file is updated
+ *
+ *   Revision 1.45  2010/03/16 15:47:46  martius
  *   osgHandle has now substructures osgConfig and osgScene
  *    that minimized amount of redundant data (this causes a lot of changes)
  *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
@@ -325,12 +329,17 @@ namespace lpzrobots {
 
 
   Base::~Base(){
+  }
+
+  void Base::base_close(){
     if(plane) delete plane;
     if(dummy) dummy->unref();
     if(ground ){
       dGeomDestroy(ground);
     }
+    if(hUDStatisticsManager) delete hUDStatisticsManager;
   }
+
 
   /** Shadow types: 1 - LightSpacePerspectiveShadowMap 
    * 2 - ShadowTextue 3 - ParallelSplitShadowMap
@@ -983,7 +992,6 @@ namespace lpzrobots {
       scene->root->addChild(scene->world);
       if(scene->shadowedScene) {
         scene->world->removeChild(scene->shadowedScene);
-        scene->shadowedScene->unref();
       }
       scene->shadowedSceneRoot = new osg::Group;
       scene->shadowedSceneRoot->addChild(scene->groundScene);
@@ -998,7 +1006,6 @@ namespace lpzrobots {
       break;
     case 4:
       scene->world->removeChild(scene->shadowedScene);
-      scene->shadowedScene->unref();
       scene->shadowedScene = createShadowedScene(scene->scene,scene->lightSource, shadowType);
       scene->world->addChild(scene->shadowedScene);
       scene->worldtransform->addChild(scene->groundScene); // bin number -1 so draw second.
@@ -1007,7 +1014,6 @@ namespace lpzrobots {
       break;
     case 5:
       scene->world->removeChild(scene->shadowedScene);
-      scene->shadowedScene->unref();
       scene->shadowedScene = createShadowedScene(scene->scene,scene->lightSource, shadowType);
       // add the shadowed scene to the root
       scene->world->addChild(scene->shadowedScene);

@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-10-23 13:07:47  martius
+ *   Revision 1.11  2010-03-17 09:33:16  martius
+ *   removed memory leaks and some small bugs
+ *   valgrind suppression file is updated
+ *
+ *   Revision 1.10  2009/10/23 13:07:47  martius
  *   *** empty log message ***
  *
  *   Revision 1.9  2009/05/11 17:06:24  martius
@@ -154,7 +158,7 @@ public:
     
     bool substances = true;
     bool transforms = false;
-    bool motors     = false;
+    bool motors     = true;
     bool schlange   = false;
     
     s3=0;
@@ -402,7 +406,6 @@ public:
 int main (int argc, char **argv)
 { 
   ThisSim sim;
-  return sim.run(argc, argv) ? 0 : 1;
-
+  return sim.run(argc, argv) ? 0 : 1;  
 }
  

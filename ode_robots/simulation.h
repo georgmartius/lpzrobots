@@ -28,7 +28,11 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.43  2010-03-16 17:10:25  martius
+ *   Revision 1.44  2010-03-17 09:33:16  martius
+ *   removed memory leaks and some small bugs
+ *   valgrind suppression file is updated
+ *
+ *   Revision 1.43  2010/03/16 17:10:25  martius
  *   new lpzviewer class
  *   osgHandle changed (osgconfig/osgscene)
  *   robotcameramanager added
@@ -466,6 +470,7 @@ namespace lpzrobots {
     osgGA::KeySwitchMatrixManipulator* keyswitchManipulator;
 
     static int ctrl_C;
+    char** orig_argv;
 
     // multiprocessoring stuff
     pthread_t odeThread;

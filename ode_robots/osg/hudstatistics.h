@@ -25,7 +25,11 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-01-27 10:14:46  martius
+ *   Revision 1.8  2010-03-17 09:33:16  martius
+ *   removed memory leaks and some small bugs
+ *   valgrind suppression file is updated
+ *
+ *   Revision 1.7  2010/01/27 10:14:46  martius
  *   moved WindowStatistics up and added function to obtain it
  *
  *   Revision 1.6  2009/09/03 11:37:06  martius
@@ -130,7 +134,7 @@ public:
    */
   HUDStatisticsManager(osg::Geode* geode, osgText::Font* font);
 
-  virtual ~HUDStatisticsManager() {}
+  virtual ~HUDStatisticsManager();
 
   	/**
 	 * adds a variable to observe (on the window) and measure the value

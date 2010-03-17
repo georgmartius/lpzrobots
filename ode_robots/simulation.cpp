@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.119  2010-03-16 17:10:25  martius
+ *   Revision 1.120  2010-03-17 09:33:16  martius
+ *   removed memory leaks and some small bugs
+ *   valgrind suppression file is updated
+ *
+ *   Revision 1.119  2010/03/16 17:10:25  martius
  *   new lpzviewer class
  *   osgHandle changed (osgconfig/osgscene)
  *   robotcameramanager added
@@ -737,6 +741,8 @@ namespace lpzrobots {
   }
 
   bool Simulation::init(int argc, char** argv) {
+    orig_argv = argv;
+
     QMP_CRITICAL(20);
     /**************** ODE-Section   ***********************/
     odeHandle.init(&globalData.time);
@@ -907,6 +913,8 @@ namespace lpzrobots {
 
     state=initialised;
     QMP_END_CRITICAL(20);
+    if(orig_argv != argv) free(argv); // we created a new argv pointer in insertCmdLineOption
+
     return true;
   }
 
@@ -1423,6 +1431,8 @@ namespace lpzrobots {
     global.agents.clear();
     osgHandle.close();
     odeHandle.close();
+    
+    base_close();
   }
 
 
@@ -1437,13 +1447,13 @@ namespace lpzrobots {
     nargv=(char**)malloc(sizeof(char*)*nargc);
     memcpy(nargv,argv,sizeof(char*)*argc); // copy existing arguments
     memset(nargv+ argc,0,numnew*sizeof(char*)); // set all new args to 0
-    nargv[argc++]=strdup("--window");
-    nargv[argc++]=strdup("-1");
-    nargv[argc++]=strdup("-1");
+    nargv[argc++]=(char*)"--window";
+    nargv[argc++]=(char*)"-1";
+    nargv[argc++]=(char*)"-1";
     nargv[argc++]=strdup(itos(windowWidth).c_str());
     nargv[argc++]=strdup(itos(windowHeight).c_str());
-    assert(argc<=nargc);
-    argv=nargv;
+    argc=nargc; 
+    argv=nargv; // this is definite memory loss
   }
 
 

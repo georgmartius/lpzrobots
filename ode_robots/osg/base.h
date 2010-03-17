@@ -24,7 +24,11 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2010-03-16 15:47:46  martius
+ *   Revision 1.29  2010-03-17 09:33:16  martius
+ *   removed memory leaks and some small bugs
+ *   valgrind suppression file is updated
+ *
+ *   Revision 1.28  2010/03/16 15:47:46  martius
  *   osgHandle has now substructures osgConfig and osgScene
  *    that minimized amount of redundant data (this causes a lot of changes)
  *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
@@ -259,6 +263,9 @@ namespace lpzrobots
      * 2 - ShadowTextue
      */
     virtual void changeShadowTechnique();
+
+    /// deletes the stuff that is created on makescene and the like
+    virtual void base_close();
 
     dGeomID ground;
 

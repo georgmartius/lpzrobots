@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-04-02 13:36:48  fhesse
+ *   Revision 1.6  2010-03-17 09:33:16  martius
+ *   removed memory leaks and some small bugs
+ *   valgrind suppression file is updated
+ *
+ *   Revision 1.5  2009/04/02 13:36:48  fhesse
  *   constructor, create() and setPose() adapted to allow replacing
  *   during siumulation; if mass=0.0 elements without a body are
  *   generated (as in PassiveBox)
@@ -87,7 +91,6 @@ class PassiveCapsule : public AbstractObstacle{
   };
 
   ~PassiveCapsule(){
-    if(capsule) delete capsule;
   }
 
   /**
@@ -119,11 +122,6 @@ class PassiveCapsule : public AbstractObstacle{
       capsule->init(odeHandle, mass, osgHandle);
     }
     obstacle_exists=true;
-  };
-
-  virtual void destroy(){
-    if(capsule) delete capsule;    
-    obstacle_exists=false;
   };
 
 };
