@@ -25,6 +25,8 @@
 
 #include "imageprocessor.h"
 
+#include <selforg/stl_adds.h>
+
 #define MIN3(x,y,z) x<y ? (x<z ? x : z) : (y<z ? y : z)
 #define MAX3(x,y,z) x>y ? (x>z ? x : z) : (y>z ? y : z)
 
@@ -33,6 +35,8 @@ namespace lpzrobots {
   /** Standard image processor - convenience class for 1 to 1 image processing. 
       The last image of the stack is the source (output of last processor).
       Simpler to implement than ImageProcessor.
+      @param show whether do display the resulting image on the screen
+      @param scale how to scale the display
       @see ImageProcessor
    */
   struct StdImageProcessor : public ImageProcessor {
@@ -40,7 +44,8 @@ namespace lpzrobots {
       _dest.show  = show;
       _dest.scale = scale;
     };
-    virtual ~StdImageProcessor() {};
+    virtual ~StdImageProcessor() {
+    };
 
     /// overload this function and initialise the dest.img and the dest.name 
     virtual void initDestImage(Camera::CameraImage& dest, const Camera::CameraImage& src) = 0;
@@ -58,7 +63,7 @@ namespace lpzrobots {
       return _dest;
     }
         
-    virtual void process(){            
+    virtual void process(){
       process(_src.img, _dest.img);
       _dest.img->dirty();         
     }
@@ -72,14 +77,24 @@ namespace lpzrobots {
 
   /// black and white image @see StdImageProcessor
   struct BWImageProcessor : public StdImageProcessor {
-    BWImageProcessor(bool show, float scale)
-      : StdImageProcessor(show,scale) {}
+    enum ChannelMask {Red = 1, Green = 2, Blue = 4, Hue = 1, Saturation = 2, Value = 4};
+
+    /// @param channelmask which channels to consider, @see BWImageProcessor::ChannelMask
+    BWImageProcessor(bool show, float scale, char channelmask = 7)
+      : StdImageProcessor(show,scale), channelmask(channelmask) {}    
 
     virtual ~BWImageProcessor() {}
     
     virtual void initDestImage(Camera::CameraImage& dest, const Camera::CameraImage& src){
       dest.img->allocateImage(src.img->s(), src.img->t(), 1, GL_LUMINANCE, GL_UNSIGNED_BYTE);    
-      dest.name  = src.name + "_bw"; 
+      dest.name  = "bw(" + src.name + ")"; 
+      red   = (channelmask & 1);
+      green = (channelmask & 2);
+      blue  = (channelmask & 4);
+      numchannels = red+green+blue;
+      printf("BWImageProcessor: Select: Red %i, Green %i, Blue %i : numchannels %i\n", 
+             red, green, blue,numchannels);
+      if(numchannels==0) numchannels=1; // avoid division by 0
     }
     
     virtual void process(const osg::Image* src, osg::Image* dest){      
@@ -88,27 +103,35 @@ namespace lpzrobots {
         const unsigned char* sdata = src->data(0, r);
         unsigned char* ddata = dest->data(0, r);
         for(int c=0; c < src->s(); ++c) {
-          (*ddata) =  (*(sdata) + *(sdata+1) + *(sdata+2))/3;
+          (*ddata) =  (*(sdata)*red + *(sdata+1)*green + *(sdata+2)*blue)/numchannels;
           sdata+=3;
           ddata++;
         }
       }
     }
+    bool red, green, blue;
+    char numchannels;
+    char channelmask;
   };
 
-  /// converts the image to a HSV coded image @see StdImageProcessor
+  /** converts the image to a HSV coded image @see StdImageProcessor.
+      If this image is shown the h,s,v is displayed by r,g,b!
+      The h (hue) values are @see HSVColors
+  */
+
   struct HSVImgProc : public StdImageProcessor {
+    enum Colors {Red=0, Yellow=30, Green=60, Cyan=90, 
+                 Blue=120, Magenta=150, Red2=180, Gray=255, Span=30};
 
     HSVImgProc(bool show, float scale)
       : StdImageProcessor(show,scale) {
-      sat_Threshold = val_Threshold = 50;
     }
 
     virtual ~HSVImgProc() {}
     
     virtual void initDestImage(Camera::CameraImage& dest, const Camera::CameraImage& src){
       dest.img->allocateImage(src.img->s(), src.img->t(), 1, GL_RGB, GL_UNSIGNED_BYTE);    
-      dest.name  = src.name + "_hsv"; 
+      dest.name  = "hsv(" + src.name + ")";
     }
     
     virtual void process(const osg::Image* src, osg::Image* dest){      
@@ -125,11 +148,11 @@ namespace lpzrobots {
       }
     }
 
-    // Todo: make hue continuous
-    /** converts RGB to HSV color model
-        r,g,b values are from 0 to 255
-        h = [0,6], s = [0,255], v = [0,255]
-        0-6 -> colors 6: gray
+    /** converts RGB to HSV color model;
+        r,g,b values are from 0 to 255;
+        h = [0,180]+255, s = [0,255], v = [0,255];
+        h is the standard hue value/2 (since 360 cannot be represented) 
+        and 255 if undefined (gray)
     */
     void RGBtoHSV( unsigned char r, unsigned char g, unsigned char b, 
                    unsigned char& h, unsigned char& s, unsigned char& v ) {
@@ -140,46 +163,43 @@ namespace lpzrobots {
       max = MAX3( r, g, b );
       v = max;                               // v
       delta = max - min;
-      if( max != 0 ) {
-        s = int(float(delta) / float(max)*255);               // s
-        if (s<sat_Threshold){
-          h = 6; //gray
-          return;
-        }
-      } else {
-        // r = g = b = 0                // s = 0, v is undefined
-        s = 0;
-        h = 6; // gray
+      if( max != 0 ){
+        s = 255.0*delta / max;	    	     // s
+      }
+      if( max == 0 || delta == 0){
+        // r = g = b		             // s = 0, h is undefined
+        s = 0;        
+        h = 255;
         return;
       }
-      if (v<val_Threshold) {
-        h = 6; // gray
-        return;
-      }
+
       if( r == max )
         hue = float( g - b ) / delta;        // between yellow & magenta
       else if( g == max )
         hue = 2.0 + float( b - r ) / delta;     // between cyan & yellow
       else
         hue = 4.0 + float( r - g ) / delta;     // between magenta & cyan
+      hue *=30; // this is 60 in full range 
       if( hue < 0 )
-        hue += 6;
-      h= char(hue+0.5);
+        hue += 180;
+      h = int(hue);
     }
-
-    int sat_Threshold;
-    int val_Threshold;
-
   };
 
 
   /** filters for a specific color (requires HSV, so use HSVImgProc before) 
+      @param minhue minimal hue value to pass through @see HSVImgProc::Colors
+      @param maxhue maximal hue value to pass through @see HSVImgProc::Colors
+      @param satThreshold minimal saturation required to be considered as a color
+      @param valThreshold minimal "value" required to be considered as a color
       @see HSVImgProc
       @see StdImageProcessor
   */
   struct ColorFilterImgProc : public StdImageProcessor {
-    ColorFilterImgProc(bool show, float scale, int hue)
-      : StdImageProcessor(show,scale), hue(hue) {
+    ColorFilterImgProc(bool show, float scale, int minhue, int maxhue, 
+                       int sat_threshold=100, int val_threshold=50)
+      : StdImageProcessor(show,scale), 
+        minhue(minhue), maxhue(maxhue), sat_threshold(sat_threshold), val_threshold(val_threshold) {
     }
     
     virtual ~ColorFilterImgProc() {}
@@ -187,7 +207,7 @@ namespace lpzrobots {
     virtual void initDestImage(Camera::CameraImage& dest, const Camera::CameraImage& src){
       dest.img->allocateImage(src.img->s(), src.img->t(), 1, GL_LUMINANCE, GL_UNSIGNED_BYTE);    
           //      dest.img->allocateImage(16, 1, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE);    
-      dest.name  = src.name + "_spots"; 
+      dest.name  = "spots(" + src.name + ")"; 
     }
     
     virtual void process(const osg::Image* src, osg::Image* dest){      
@@ -197,7 +217,8 @@ namespace lpzrobots {
         const unsigned char* sdata = src->data(0, r);
         unsigned char* ddata = dest->data(0, r);
         for(int c=0; c < src->s(); ++c) {
-          if(*(sdata) == hue){
+          if(*(sdata) >= minhue && *(sdata) < maxhue 
+             && *(sdata+1) > sat_threshold && *(sdata+2) > val_threshold){
             (*ddata) = *(sdata+2);
           } else{
             (*ddata) = 0;
@@ -207,8 +228,137 @@ namespace lpzrobots {
         }
       }
     }
-    int hue;
+    int minhue;
+    int maxhue;
+    int sat_threshold;
+    int val_threshold;
   };
+
+
+
+  /** creates a lightsensitive sensorline. It requires a black and white source, 
+      e.g. provided by BWImageProcessor, ColorFilterImgProc
+      @param num number of segments of the sensor line
+      @param factor factor for average pixel value (rescaling)
+      @see StdImageProcessor
+  */
+  struct LineImgProc : public StdImageProcessor {
+    LineImgProc(bool show, float scale, int num, double factor = 100.0)
+      : StdImageProcessor(show,scale), num(num), factor(factor) {
+    }
+    
+    virtual ~LineImgProc() {}
+    
+    virtual void initDestImage(Camera::CameraImage& dest, const Camera::CameraImage& src){
+      dest.img->allocateImage(num, 1, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE);    
+      dest.name  = "line(" + src.name + ")"; 
+    }
+    
+    virtual void process(const osg::Image* src, osg::Image* dest){      
+      // actually we need HSV but there is no coding for it
+      assert(src && src->getPixelFormat()==GL_LUMINANCE  && src->getDataType()==GL_UNSIGNED_BYTE);
+
+      int w = src->s();
+      int h = src->t();
+      int size = w/num; // size of one segment
+      int numpixel_per_segm = size*h;
+      int segmentvalue;
+      unsigned char* destdata = dest->data();
+      for(int k=0; k<num; k++){
+        int sum = 0;
+        for(int j=0; j<h; j++){
+          const unsigned char* pixel = src->data(k*size, j);
+          for(int i=0; i< size; i++){
+            sum += *pixel;
+            pixel++;
+          }
+        }
+        segmentvalue = (double)sum*factor/(double)numpixel_per_segm; 
+        destdata[k] = std::min(segmentvalue,255);
+      }      
+    }
+    int num;
+    double factor;
+  };
+
+  /** time average of image @see StdImageProcessor.
+  */
+
+  struct AvgImgProc : public StdImageProcessor {
+
+    /// @param time length of averageing (time=1: no averaging)
+    AvgImgProc(bool show, float scale, int time)
+      : StdImageProcessor(show,scale), time(time) {
+      if(time<1) time =1;
+      factor = 1.0/(float)time;
+    }
+
+    virtual ~AvgImgProc() {}
+    
+    virtual void initDestImage(Camera::CameraImage& dest, const Camera::CameraImage& src){
+      assert(src.img && src.img->getDataType()==GL_UNSIGNED_BYTE);
+      dest.img->allocateImage(src.img->s(), src.img->t(), 1, src.img->getPixelFormat(), 
+                              GL_UNSIGNED_BYTE);    
+      dest.name  = "avg(" + std::itos(time) +  "," + src.name + ")";
+    }
+    
+    virtual void process(const osg::Image* src, osg::Image* dest){            
+      for(int r=0; r < src->t(); ++r) {
+        const unsigned char* sdata = src->data(0, r);
+        unsigned char* ddata = dest->data(0, r);
+        for(unsigned int c=0; c < src->getRowSizeInBytes(); ++c) {
+          *ddata =  ((float)*sdata)*factor + ((float)*ddata)*(1-factor);
+          sdata++;
+          ddata++;
+        }
+      }
+    }
+    
+    int time; 
+    float factor;
+  };
+
+      
+//   /** Testing code
+//   */
+//   struct TestLineImgProc : public StdImageProcessor {
+//     TestLineImgProc(bool show, float scale, int num)
+//       : StdImageProcessor(show,scale), num(num) {
+//     }
+    
+//     virtual ~TestLineImgProc() {}
+    
+//     virtual void initDestImage(Camera::CameraImage& dest, const Camera::CameraImage& src){
+//       dest.img->allocateImage(src.img->s(), src.img->t(), 1, GL_LUMINANCE, GL_UNSIGNED_BYTE);    
+//       dest.name  = "testline(" + src.name + ")"; 
+//     }
+    
+//     virtual void process(const osg::Image* src, osg::Image* dest){      
+//       // actually we need HSV but there is no coding for it
+//       assert(src && src->getPixelFormat()==GL_LUMINANCE  && src->getDataType()==GL_UNSIGNED_BYTE);
+
+//       int w = src->s();
+//       int h = src->t();
+//       int size = w/num; // size of one segment
+//       int numpixel_per_segm = size*h;
+//       for(int k=0; k<num; k++){
+//         int sum = 0;
+//         for(int j=0; j<h; j++){
+//           const unsigned char* pixel = src->data(k*size, j);
+//           unsigned char* destdata = dest->data(k*size, j);
+//           for(int i=0; i< size; i++){
+//             *destdata= (k*111+*pixel)%256;
+//             pixel++;
+//             destdata++;
+//           }
+//         }
+//       }      
+//     }
+//     int num;
+//   };
+
+
+
 
 }
 

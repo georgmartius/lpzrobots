@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-17 17:26:36  martius
+ *   Revision 1.5  2010-03-19 17:46:21  martius
+ *   camerasensors added
+ *   camera works great now. Near and far plane fixed by hand and optimal positioning
+ *   many image processings added
+ *
+ *   Revision 1.4  2010/03/17 17:26:36  martius
  *   robotcameramanager uses keyboard and respects resize
  *   (robot) camera is has a conf object
  *   image processing implemented, with a few standard procedures
@@ -48,8 +53,8 @@
  *
  *                                                                 *
  ***************************************************************************/
-#ifndef CAMERA_H_
-#define CAMERA_H_
+#ifndef __CAMERA_H_
+#define __CAMERA_H_
 
 #include "osgforwarddecl.h"
 
@@ -78,17 +83,18 @@ namespace lpzrobots {
     int width;       ///< horizontal resolution (power of 2)
     int height;      ///< vertical resolution (power of 2)
     float fov;       ///< field of view in degree (opening angle of lenses)
+    float anamorph;  ///< anamorph ratio of focal length in vertical and horizontal direction
+    float behind;    ///< distance of which the camera is behind the actually drawn position (to aviod near clipping)
     float draw;      ///< whether to draw a physical camera object
     float camSize;   ///< size of the physical camera object
-    float anamorph;  ///< anamorph ratio of focal length in vertical and horizontal direction
     bool show;       ///< whether to show the image on the screen
     float scale;     ///< scaling for display
     std::string name; ///< name of the camera
     ImageProcessors processors; ///< list of image processors that filter the raw image
   };
 
-  /** Camera Sensor. Implements a simulated camera with full OpenGL rendering.
-  */
+  /** A Robot Camera. Implements a simulated camera with full OpenGL rendering.
+   */
   class Camera {
   public:  
     struct PostDrawCallback : public osg::Camera::DrawCallback {
@@ -127,9 +133,10 @@ namespace lpzrobots {
       c.width     = 256;
       c.height    = 128;
       c.fov       = 90;
+      c.anamorph  = 1;
+      c.behind    = 0.04; // since the nearplane is at 0.05
       c.camSize   = 0.2;
       c.draw      = true;
-      c.anamorph  = 1;
       c.show      = true;
       c.scale     = 1.0;
       c.name      = "raw";
@@ -151,10 +158,14 @@ namespace lpzrobots {
     /// all images (raw and processed)
     virtual const CameraImages& getImages() const  { return cameraImages;}
 
+    /// last image of processing stack
+    virtual const osg::Image* getImage() const  { return cameraImages.back().img;}
+
     virtual osg::Camera* getRRTCam() { return cam;}
 
     virtual void update();
 
+    bool isInitialized() { return initialized; }
   private:
     CameraConf conf;
     
@@ -170,10 +181,9 @@ namespace lpzrobots {
     OsgHandle osgHandle;
     Transform* transform;
 
-    bool initialised;
-
+    bool initialized;
   };  
 
 }
 
-#endif 	    /* !CAMERA_H_ */
+#endif 	    /* __CAMERA_H_ */

@@ -23,7 +23,12 @@
  *    without modifiing them.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-10-09 17:17:19  martius
+ *   Revision 1.5  2010-03-19 17:46:21  martius
+ *   camerasensors added
+ *   camera works great now. Near and far plane fixed by hand and optimal positioning
+ *   many image processings added
+ *
+ *   Revision 1.4  2009/10/09 17:17:19  martius
  *   This does not work with configurables and inspectable robots
  *   comments added.
  *
@@ -76,7 +81,7 @@ namespace lpzrobots {
     /// adds a motor to the robot. Must be called before placement of the robot, otherwise it has no affect
     virtual void addMotor(Motor* motor);
 
-    virtual void update(){ robot->update(); }
+    virtual void update();
 
     virtual void place(const osg::Matrix& pose);
 

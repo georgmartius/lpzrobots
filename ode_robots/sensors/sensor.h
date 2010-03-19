@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-11-07 13:22:47  martius
+ *   Revision 1.5  2010-03-19 17:46:21  martius
+ *   camerasensors added
+ *   camera works great now. Near and far plane fixed by hand and optimal positioning
+ *   many image processings added
+ *
+ *   Revision 1.4  2007/11/07 13:22:47  martius
  *   *** empty log message ***
  *
  *   Revision 1.3  2007/08/23 15:39:05  martius
@@ -53,8 +58,7 @@ namespace lpzrobots {
   // forward declaration 
   class Primitive;
 
-  /** Abstract class for sensors 
-      that have no specific position at the robots skeleton  
+  /** Abstract class for sensors that can be plugged into a robot
   */
   class Sensor {
   public:  
@@ -79,6 +83,10 @@ namespace lpzrobots {
     /** returns a list of sensor values (usually in the range [0,1] )
      */
     virtual std::list<sensor> get() const  = 0;
+
+    /** to update any visual appearance       
+     */
+    virtual void update() {};
 
     /** writes the sensor values (usually in the range [0,1] ) 
 	into the giben sensor array and returns the number of sensors written

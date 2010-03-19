@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-03-17 17:26:36  martius
+ *   Revision 1.4  2010-03-19 17:46:21  martius
+ *   camerasensors added
+ *   camera works great now. Near and far plane fixed by hand and optimal positioning
+ *   many image processings added
+ *
+ *   Revision 1.3  2010/03/17 17:26:36  martius
  *   robotcameramanager uses keyboard and respects resize
  *   (robot) camera is has a conf object
  *   image processing implemented, with a few standard procedures
@@ -85,8 +90,8 @@ public:
   {
     setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
 
-    global.odeConfig.setParam("controlinterval",100);
-    fprintf(stderr, "****\nAttention, the controlinterval is set to 100\n");
+    global.odeConfig.setParam("controlinterval",20);
+    fprintf(stderr, "****\nAttention, the controlinterval is set to 20\n");
     fprintf(stderr, " see the independend update of robot cameras\n****\n");
 
     
@@ -107,6 +112,7 @@ public:
     }
 
     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), "Robot");
+    vehicle->setColor(Color(1,1,0));
     vehicle->place(Pos(-3,2,0.3));
     AbstractController *controller = new InvertMotorSpace(10);
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -118,26 +124,16 @@ public:
     box = new PassiveBox(odeHandle, osgHandle);
     box->setPose(osg::Matrix::rotate(M_PI/2, 1,0,0) * osg::Matrix::translate(-3,0,0.5));
     global.obstacles.push_back(box);
-    CameraConf camc = Camera::getDefaultConf();
-    camc.width = 512;
-    camc.height = 64;
-    
-    cam = new Camera(camc);
-
-//     osgViewer::ViewerBase::Views views;
-//     viewer->getViews(views);
-//     assert(views.size()>0); 
-
-    cam->init(odeHandle, osgHandle.changeColor(Color(0,0,0)), box->getMainPrimitive(), 
-              osg::Matrix::translate(0,0,0.5));
 
     CameraConf camc2 = Camera::getDefaultConf();
     camc2.width  = 256;
     camc2.height = 256;
     camc2.scale  = .5;
     //    camc2.processors.push_back(new BWImageProcessor(true,1));
-    camc2.processors.push_back(new HSVImgProc(true,1));
-    camc2.processors.push_back(new ColorFilterImgProc(true,1, 6));
+    camc2.processors.push_back(new HSVImgProc(false,1));
+    //    camc2.processors.push_back(new BWImageProcessor(true,1, BWImageProcessor::Saturation));
+    camc2.processors.push_back(new ColorFilterImgProc(true,.5, 
+                                                      HSVImgProc::Red+20, HSVImgProc::Green-20,100));
     cam2 = new Camera(camc2);
 
 //     osgViewer::ViewerBase::Views views;
@@ -146,6 +142,14 @@ public:
 
     cam2->init(odeHandle, osgHandle.changeColor(Color(0.5,0,0)), box->getMainPrimitive(), 
                osg::Matrix::translate(0,0,0.5)*osg::Matrix::rotate(M_PI/2, 0,1,0));
+
+    CameraConf camc = Camera::getDefaultConf();
+    camc.width = 512;
+    camc.height = 64;
+    camc.scale  = .9;    
+    cam = new Camera(camc);
+    cam->init(odeHandle, osgHandle.changeColor(Color(0,0,0)), box->getMainPrimitive(), 
+              osg::Matrix::translate(0,0,0.5));
 
 
     b = new OSGBoxTex(5,1,2);
@@ -196,6 +200,12 @@ public:
 	}
     }
     return false;
+  }
+  
+  virtual void end(GlobalData& globalData){
+    delete cam;
+    delete cam2;
+    delete b;    
   }
 };
 

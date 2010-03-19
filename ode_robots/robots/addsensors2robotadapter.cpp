@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-09 11:53:41  martius
+ *   Revision 1.5  2010-03-19 17:46:21  martius
+ *   camerasensors added
+ *   camera works great now. Near and far plane fixed by hand and optimal positioning
+ *   many image processings added
+ *
+ *   Revision 1.4  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.3  2007/11/07 13:20:16  martius
@@ -77,6 +82,12 @@ namespace lpzrobots {
     motors.push_back(motor); 
   }
 
+  void AddSensors2RobotAdapter::update(){      
+    robot->update(); 
+    FOREACHC(list<Sensor*>, sensors, i){
+      (*i)->update();
+    }
+  }
 
   int AddSensors2RobotAdapter::getSensorNumber(){ 
     int s=0;

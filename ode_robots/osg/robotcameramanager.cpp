@@ -61,6 +61,7 @@ namespace lpzrobots {
     robotcam.cam    = cam;
     const Camera::CameraImages& imgs = cam->getImages();
     FOREACHC(Camera::CameraImages, imgs, it){
+      it->img->ref(); // add one to the reference counter, because otherwise it is deleted
       robotcam.overlays.push_back(*it);
     }
     cameras.push_back(robotcam);

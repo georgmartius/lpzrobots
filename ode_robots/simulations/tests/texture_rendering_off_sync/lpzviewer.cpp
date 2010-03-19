@@ -41,12 +41,13 @@ void LPZViewer::removeOffScreenRRTNode(osg::Node* node){
 void LPZViewer::renderOffScreen()
 {
   if (_done || offScreenNodes->getNumChildren() == 0) return;
-    osg::Node* origNode = _camera->getChild(0);
-    _camera->setChild(0,offScreenNodes);
-    //    printf("before offscreen\n");    
-    offScreenRenderingTraversals();
-    //printf("after offscreen\n");
-    _camera->setChild(0,origNode);
+
+  osg::Node* origNode = _camera->getChild(0);
+  _camera->setChild(0,offScreenNodes);
+  //    printf("before offscreen\n");    
+  offScreenRenderingTraversals();
+  //printf("after offscreen\n");
+  _camera->setChild(0,origNode);
 }
 
 
@@ -54,7 +55,7 @@ void LPZViewer::offScreenRenderingTraversals()
 {        
  
   /*** This is copied from ViewerBase::renderingTraversals() and 
-       statistics and swapbuffer and so on is removed.       
+       statistics and swapbuffer and so on are removed.       
    */
 
     if (_done) return;

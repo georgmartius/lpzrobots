@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-17 17:26:36  martius
+ *   Revision 1.5  2010-03-19 17:46:21  martius
+ *   camerasensors added
+ *   camera works great now. Near and far plane fixed by hand and optimal positioning
+ *   many image processings added
+ *
+ *   Revision 1.4  2010/03/17 17:26:36  martius
  *   robotcameramanager uses keyboard and respects resize
  *   (robot) camera is has a conf object
  *   image processing implemented, with a few standard procedures
@@ -75,9 +80,13 @@ namespace lpzrobots {
   }
 
   Camera::~Camera(){
-    //    delete[] image;
+    if(ccd) ccd->unref();
     if(sensorBody1) delete sensorBody1;
     if(sensorBody2) delete sensorBody2;
+    FOREACH(ImageProcessors, conf.processors, ip){ 
+      if (*ip) delete *ip;
+    }
+
   }
   
   void Camera::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
@@ -90,10 +99,11 @@ namespace lpzrobots {
       sensorBody1 = new OSGBox(conf.camSize, conf.camSize, conf.camSize / 6.0);
       sensorBody2 = new OSGCylinder(conf.camSize/3, conf.camSize / 2.0);
       sensorBody1->init(osgHandle);
-      sensorBody2->init(osgHandle);
+      sensorBody2->init(osgHandle.changeColor(Color(0, 0, 0)));
       // sensorBody1->setColor(Color(0.2, 0.2, 0.2));
-      sensorBody2->setColor(Color(0, 0, 0));
+
     }        
+    conf.behind -= conf.camSize/2 + conf.camSize/6;
 
     // set up the render to texture (image) camera.
     cam = new osg::Camera;
@@ -101,11 +111,13 @@ namespace lpzrobots {
 
     // set up projection.
     float ratio = (double)conf.width/(double)conf.height;
-    cam->setProjectionMatrixAsPerspective(conf.fov/ratio, conf.anamorph*ratio,0.1,30);    
+    cam->setProjectionMatrixAsPerspective(conf.fov/ratio, conf.anamorph*ratio,0.05,50);        
+    cam->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR); 
+
     // set view
     cam->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
     osg::Matrix p = pose * body->getPose();
-    cam->setViewMatrixAsLookAt(Pos(0,0,0)*p, Pos(Axis(0,0,1)*p), Pos(Axis(0,1,0)*p));
+    cam->setViewMatrixAsLookAt(Pos(0,0,-conf.behind)*p, Pos(Axis(0,0,1)*p), Pos(Axis(0,1,0)*p));
 
     cam->setViewport(0, 0, conf.width, conf.height);
     
@@ -129,10 +141,9 @@ namespace lpzrobots {
     FOREACH(ImageProcessors, conf.processors, ip){      
       cameraImages.push_back((*ip)->init(cameraImages));
     }
- 
-    initialised = true;
-    
+  
     this->osgHandle.scene->robotCamManager->addCamera(this);
+    initialized = true;
   }
    
   // const unsigned char* Camera::getData() const {
@@ -146,7 +157,7 @@ namespace lpzrobots {
       sensorBody2->setMatrix(osg::Matrix::translate(0,-conf.camSize/6.0,
                                                     conf.camSize/6.0 + conf.camSize/4.0) * p);
     }
-    cam->setViewMatrixAsLookAt(Pos(0,0,0)*p, Pos(0,0,1)*p, Pos(Axis(0,1,0)*p));
+    cam->setViewMatrixAsLookAt(Pos(0,0,-conf.behind)*p, Pos(0,0,1)*p, Pos(Axis(0,1,0)*p));
   }
   
 }

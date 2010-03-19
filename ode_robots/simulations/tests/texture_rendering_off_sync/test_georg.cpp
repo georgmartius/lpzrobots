@@ -123,76 +123,22 @@ int main(int argc, char** argv)
         keyswitchManipulator->addMatrixManipulator( '2', "Flight", new osgGA::FlightManipulator() );
         keyswitchManipulator->addMatrixManipulator( '3', "Drive", new osgGA::DriveManipulator() );
         keyswitchManipulator->addMatrixManipulator( '4', "Terrain", new osgGA::TerrainManipulator() );
-
-        std::string pathfile;
-        char keyForAnimationPath = '5';
-        while (arguments.read("-p",pathfile))
-        {
-            osgGA::AnimationPathManipulator* apm = new osgGA::AnimationPathManipulator(pathfile);
-            if (apm || !apm->valid()) 
-            {
-                unsigned int num = keyswitchManipulator->getNumMatrixManipulators();
-                keyswitchManipulator->addMatrixManipulator( keyForAnimationPath, "Path", apm );
-                keyswitchManipulator->selectMatrixManipulator(num);
-                ++keyForAnimationPath;
-            }
-        }
-
         viewer.setCameraManipulator( keyswitchManipulator.get() );
     }
 
     // add the state manipulator
-    viewer.addEventHandler( new osgGA::StateSetManipulator(viewer.getCamera()->getOrCreateStateSet()) );
-    
-    // add the thread model handler
+    viewer.addEventHandler( new osgGA::StateSetManipulator(viewer.getCamera()->getOrCreateStateSet()) );    
     viewer.addEventHandler(new osgViewer::ThreadingHandler);
-
-    // add the window size toggle handler
     viewer.addEventHandler(new osgViewer::WindowSizeHandler);
-        
-    // add the stats handler
     viewer.addEventHandler(new osgViewer::StatsHandler);
-
-    // add the help handler
     viewer.addEventHandler(new osgViewer::HelpHandler(arguments.getApplicationUsage()));
-
-    // add the record camera path handler
     viewer.addEventHandler(new osgViewer::RecordCameraPathHandler);
-
-    // add the LOD Scale handler
-    viewer.addEventHandler(new osgViewer::LODScaleHandler);
-    
-
+    viewer.addEventHandler(new osgViewer::LODScaleHandler);    
     viewer.realize();    
+
 
     unsigned int width=512;
     unsigned int height=512;
-
-    osg::ref_ptr<osg::GraphicsContext> pbuffer;
-    osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
-    traits->x = 0;
-    traits->y = 0;
-    traits->width = width;
-    traits->height = height;
-    traits->red = 8;
-    traits->green = 8;
-    traits->blue = 8;
-    traits->alpha = 8;
-    traits->windowDecoration = false;
-    traits->pbuffer = true;
-    traits->doubleBuffer = true;
-    traits->sharedContext = 0 ; //orig_camera->getGraphicsContext();
-
-    pbuffer = osg::GraphicsContext::createGraphicsContext(traits.get());
-    if (pbuffer.valid())
-    {
-        osg::notify(osg::NOTICE)<<"Pixel buffer has been created successfully."<<std::endl;
-    }
-    else
-    {
-        osg::notify(osg::NOTICE)<<"Pixel buffer has not been created successfully."<<std::endl;
-        return 1;
-    }
         
     // load the data
     osg::ref_ptr<osg::Node> loadedModel = osgDB::readNodeFiles(arguments);
