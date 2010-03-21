@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-03-19 17:46:21  martius
+ *   Revision 1.6  2010-03-21 21:48:59  martius
+ *   camera sensor bugfixing (reference to osghandle)
+ *   twowheeled robot added (nimm2 with camera)
+ *   sense function added to robots (before control): sensors (type Sensor) are checked here
+ *   position and optical flow camera sensors added
+ *
+ *   Revision 1.5  2010/03/19 17:46:21  martius
  *   camerasensors added
  *   camera works great now. Near and far plane fixed by hand and optimal positioning
  *   many image processings added
@@ -47,6 +53,8 @@
  *******************************************`********************************/
 
 #include "camera.h"
+
+#include <assert.h>
 
 #include <selforg/position.h>
 #include <osg/Matrix>
@@ -91,6 +99,7 @@ namespace lpzrobots {
   
   void Camera::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
                     Primitive* body, const osg::Matrix& pose){
+    assert(body);
     this->osgHandle = osgHandle;
     this->body=body;
     this->pose=pose;
@@ -98,8 +107,8 @@ namespace lpzrobots {
     if(conf.draw){
       sensorBody1 = new OSGBox(conf.camSize, conf.camSize, conf.camSize / 6.0);
       sensorBody2 = new OSGCylinder(conf.camSize/3, conf.camSize / 2.0);
-      sensorBody1->init(osgHandle);
-      sensorBody2->init(osgHandle.changeColor(Color(0, 0, 0)));
+      sensorBody1->init(this->osgHandle);
+      sensorBody2->init(this->osgHandle.changeColor(Color(0, 0, 0)));
       // sensorBody1->setColor(Color(0.2, 0.2, 0.2));
 
     }        

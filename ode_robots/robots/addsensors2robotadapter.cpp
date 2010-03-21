@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-03-19 17:46:21  martius
+ *   Revision 1.6  2010-03-21 21:48:59  martius
+ *   camera sensor bugfixing (reference to osghandle)
+ *   twowheeled robot added (nimm2 with camera)
+ *   sense function added to robots (before control): sensors (type Sensor) are checked here
+ *   position and optical flow camera sensors added
+ *
+ *   Revision 1.5  2010/03/19 17:46:21  martius
  *   camerasensors added
  *   camera works great now. Near and far plane fixed by hand and optimal positioning
  *   many image processings added
@@ -57,7 +63,8 @@ namespace lpzrobots {
 			  const std::list<Motor*>& motors, 
 			  bool sensors_before_rest)
     : OdeRobot(odeHandle, osgHandle, robot->getName(), robot->getRevision()),
-    robot(robot), sensors(sensors), sensors_before_rest(sensors_before_rest)  
+      robot(robot), sensors(sensors), sensors_before_rest(sensors_before_rest),
+      initialized(false)
   {  
     assert(robot);
   };
@@ -72,17 +79,20 @@ namespace lpzrobots {
   }
 
   void AddSensors2RobotAdapter::addSensor(Sensor* sensor){
+    assert(!initialized);
     assert(sensor); 
     sensors.push_back(sensor);
   }
 
 
   void AddSensors2RobotAdapter::addMotor(Motor* motor){
+    assert(!initialized);
     assert(motor);
     motors.push_back(motor); 
   }
 
   void AddSensors2RobotAdapter::update(){      
+    assert(initialized);
     robot->update(); 
     FOREACHC(list<Sensor*>, sensors, i){
       (*i)->update();
@@ -90,6 +100,7 @@ namespace lpzrobots {
   }
 
   int AddSensors2RobotAdapter::getSensorNumber(){ 
+    assert(initialized);
     int s=0;
     FOREACHC(list<Sensor*>, sensors, i){
       s += (*i)->getSensorNumber();
@@ -98,6 +109,7 @@ namespace lpzrobots {
   }
 
   int AddSensors2RobotAdapter::getSensors(sensor* sensors_, int sensornumber){
+    assert(initialized);
     int len = 0;
     
     if(!sensors_before_rest){
@@ -114,6 +126,7 @@ namespace lpzrobots {
   };
 
   int AddSensors2RobotAdapter::getMotorNumber() {
+    assert(initialized);
     int s=0;
     FOREACHC(list<Motor*>, motors, i){
       s += (*i)->getMotorNumber();
@@ -122,6 +135,7 @@ namespace lpzrobots {
   }
 
   void AddSensors2RobotAdapter::setMotors(const motor* motors_, int motornumber) {
+    assert(initialized);
     int len = 0;
     assert(motornumber >= robot->getMotorNumber());
     robot->setMotors(motors_, robot->getMotorNumber());
@@ -141,12 +155,20 @@ namespace lpzrobots {
     FOREACH(list<Motor*>, motors, i){
       (*i)->init(p);
     }
+    initialized=true;
   }
 
-  void AddSensors2RobotAdapter::doInternalStuff(GlobalData& globalData){
+
+  void AddSensors2RobotAdapter::sense(GlobalData& globalData){
+    assert(initialized);
     FOREACH(list<Sensor*>, sensors, i){
       (*i)->sense(globalData);
     }
+    robot->doInternalStuff(globalData);
+  }
+
+  void AddSensors2RobotAdapter::doInternalStuff(GlobalData& globalData){
+    assert(initialized);
     FOREACH(list<Motor*>, motors, i){
       (*i)->act(globalData);
     }

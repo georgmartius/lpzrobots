@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2008-05-14 14:36:28  martius
+ *   Revision 1.11  2010-03-21 21:48:59  martius
+ *   camera sensor bugfixing (reference to osghandle)
+ *   twowheeled robot added (nimm2 with camera)
+ *   sense function added to robots (before control): sensors (type Sensor) are checked here
+ *   position and optical flow camera sensors added
+ *
+ *   Revision 1.10  2008/05/14 14:36:28  martius
  *   *** empty log message ***
  *
  *   Revision 1.9  2008/05/07 16:45:52  martius
@@ -199,12 +205,19 @@ namespace lpzrobots {
      */
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){ return false; };
 
-    /** this function is called in each timestep after control. It
-	should perform robot-internal checks and actions, 
-	like acting and sensing of internal motors/sensors etc.
+    /** this function is called each controlstep before control. 
+	This is the place the perform active sensing (e.g. Image processing)
 	@param globalData structure that contains global data from the simulation environment
     */
-    virtual void doInternalStuff(GlobalData& globalData) = 0;
+    virtual void sense(GlobalData& globalData) {};
+
+    /** this function is called in each simulation timestep (always after control). It
+	should perform robot-internal checks and actions
+	like resetting certain sensors or implement velocity dependend friction and the like.
+	The attached Motors should act here.
+	@param globalData structure that contains global data from the simulation environment
+    */
+    virtual void doInternalStuff(GlobalData& globalData) {};
 
     /** sets color of the robot
 	@param col Color struct with desired Color

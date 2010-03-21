@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-03-19 17:46:21  martius
+ *   Revision 1.6  2010-03-21 21:48:59  martius
+ *   camera sensor bugfixing (reference to osghandle)
+ *   twowheeled robot added (nimm2 with camera)
+ *   sense function added to robots (before control): sensors (type Sensor) are checked here
+ *   position and optical flow camera sensors added
+ *
+ *   Revision 1.5  2010/03/19 17:46:21  martius
  *   camerasensors added
  *   camera works great now. Near and far plane fixed by hand and optimal positioning
  *   many image processings added
@@ -63,7 +69,7 @@ namespace lpzrobots {
   class Sensor {
   public:  
     /// defines which dimensions should be sensed. The meaning is sensor specific.
-    enum Dimensions { X = 1, Y = 2, Z = 4 };
+    enum Dimensions { X = 1, Y = 2, Z = 4, XY = X | Y, XZ = X | Z, YZ = Y | Z, XYZ = X | Y | Z };
 
     Sensor() {}
     virtual ~Sensor() {}

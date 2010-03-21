@@ -23,7 +23,13 @@
  *    without modifiing them.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-03-19 17:46:21  martius
+ *   Revision 1.6  2010-03-21 21:48:59  martius
+ *   camera sensor bugfixing (reference to osghandle)
+ *   twowheeled robot added (nimm2 with camera)
+ *   sense function added to robots (before control): sensors (type Sensor) are checked here
+ *   position and optical flow camera sensors added
+ *
+ *   Revision 1.5  2010/03/19 17:46:21  martius
  *   camerasensors added
  *   camera works great now. Near and far plane fixed by hand and optimal positioning
  *   many image processings added
@@ -95,6 +101,7 @@ namespace lpzrobots {
     virtual int getMotorNumber();
     virtual void setMotors(const motor* motors_, int motornumber);
 
+    void sense(GlobalData& globalData);
     void doInternalStuff(GlobalData& globalData);
 
     virtual Primitive* getMainPrimitive() const { return robot->getMainPrimitive();}
@@ -104,6 +111,7 @@ namespace lpzrobots {
     std::list<Sensor*> sensors;
     std::list<Motor*> motors;
     bool sensors_before_rest;
+    bool initialized;
   };
 
 }

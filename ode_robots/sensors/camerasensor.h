@@ -40,8 +40,8 @@ namespace lpzrobots {
     /** Creates a camera sensor from a camera. The camera will be initialized in init().
         @param pose position and orientation of camera wrt the primitive that is given at init()
      */ 
-    CameraSensor(Camera* camera, const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-                 const osg::Matrix& pose);
+    CameraSensor(Camera* camera, const OdeHandle& odeHandle, 
+		 const OsgHandle& osgHandle, const osg::Matrix& pose);
 
 
     virtual ~CameraSensor();
@@ -71,9 +71,9 @@ namespace lpzrobots {
 
   protected:
     Camera* camera;    
-    const OdeHandle& odeHandle;
-    const OsgHandle& osgHandle;
-    const osg::Matrix& pose;
+    OdeHandle odeHandle;
+    OsgHandle osgHandle;
+    osg::Matrix pose;
   };  
 
 }

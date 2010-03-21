@@ -18,6 +18,9 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
+ *   DESCRIPTION                                                           *
+ *   A collection of simple image processing filters/processors            *
+ *   that can be plugged into a camera                                     *
  *
  *******************************************`********************************/
 #ifndef __IMAGEPROCESSORS
@@ -243,7 +246,7 @@ namespace lpzrobots {
       @see StdImageProcessor
   */
   struct LineImgProc : public StdImageProcessor {
-    LineImgProc(bool show, float scale, int num, double factor = 100.0)
+    LineImgProc(bool show, float scale, int num, double factor = 20.0)
       : StdImageProcessor(show,scale), num(num), factor(factor) {
     }
     

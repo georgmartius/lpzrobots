@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.121  2010-03-17 17:26:36  martius
+ *   Revision 1.122  2010-03-21 21:48:59  martius
+ *   camera sensor bugfixing (reference to osghandle)
+ *   twowheeled robot added (nimm2 with camera)
+ *   sense function added to robots (before control): sensors (type Sensor) are checked here
+ *   position and optical flow camera sensors added
+ *
+ *   Revision 1.121  2010/03/17 17:26:36  martius
  *   robotcameramanager uses keyboard and respects resize
  *   (robot) camera is has a conf object
  *   image processing implemented, with a few standard procedures
@@ -1076,11 +1082,12 @@ namespace lpzrobots {
 	    // PARALLEL VERSION (QMP)
             QMP_SHARE(globalData);
             // there is a problem with the useOdeThread in the loop (not static)
-            if (useOdeThread)
+            if (useOdeThread) // whether to use a separate thread for ode
             {
               QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED)
               {
                 QMP_USE_SHARED(globalData, GlobalData);
+		globalData.agents[i]->getRobot()->sense(globalData);
                 globalData.agents[i]->stepOnlyWiredController(globalData.odeConfig.noise, globalData.time);
               }
               QMP_END_PARALLEL_FOR;
@@ -1088,6 +1095,7 @@ namespace lpzrobots {
               QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED)
               {
                 QMP_USE_SHARED(globalData, GlobalData);
+		globalData.agents[i]->getRobot()->sense(globalData);
                 globalData.agents[i]->step(globalData.odeConfig.noise, globalData.time);
               }
               QMP_END_PARALLEL_FOR;
@@ -1097,10 +1105,12 @@ namespace lpzrobots {
             // there is a problem with the useOdeThread in the loop (not static)
             if (useOdeThread) {
               FOREACH(OdeAgentList, globalData.agents, i) {
+		(*i)->getRobot()->sense(globalData);
                 (*i)->stepOnlyWiredController(globalData.odeConfig.noise, globalData.time);
               }
             } else {
               FOREACH(OdeAgentList, globalData.agents, i) {
+		(*i)->getRobot()->sense(globalData);
                 (*i)->step(globalData.odeConfig.noise, globalData.time);
               }
             }
