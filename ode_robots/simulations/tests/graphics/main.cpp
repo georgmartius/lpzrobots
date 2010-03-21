@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-03-09 11:53:41  martius
+ *   Revision 1.1  2010-03-21 10:19:56  martius
+ *   test_graphics moved to tests/graphics
+ *
+ *   Revision 1.6  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.5  2010/03/05 14:32:55  martius

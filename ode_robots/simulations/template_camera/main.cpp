@@ -21,22 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-20 17:14:26  martius
+ *   Revision 1.2  2010-03-21 10:19:56  martius
+ *   test_graphics moved to tests/graphics
+ *
+ *   Revision 1.1  2010/03/20 17:14:26  martius
  *   simulation with camera
- *
- *   Revision 1.3  2010/03/17 17:26:36  martius
- *   robotcameramanager uses keyboard and respects resize
- *   (robot) camera is has a conf object
- *   image processing implemented, with a few standard procedures
- *
- *   Revision 1.2  2010/03/16 17:12:08  martius
- *   includes of ode/ changed to ode-dbl/
- *   more testing code added
- *
- *   Revision 1.1  2010/03/05 14:28:41  martius
- *   test simulation for camera and other sensors
- *
- *
  *
  ***************************************************************************/
 #include <stdio.h>
@@ -68,6 +57,7 @@
 #include <ode_robots/camerasensors.h>
 
 #include <ode_robots/nimm2.h>
+#include <ode_robots/twowheeled.h>
 #include <ode_robots/addsensors2robotadapter.h>
 
 // fetch all the stuff of lpzrobots into scope
@@ -104,47 +94,59 @@ public:
     }
 
 
-    // this robot will get a camera 
-    OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), "Seeing_Robot");
-    CameraConf camc = Camera::getDefaultConf();
-    camc.width = 256;
-    camc.height = 64;
-    camc.scale  = 1;
-    camc.fov    =  90;
-    camc.camSize = 0.08;
-    camc.processors.push_back(new HSVImgProc(false,1));
-    //    camc2.processors.push_back(new BWImageProcessor(true,1, BWImageProcessor::Saturation));
-    camc.processors.push_back(new ColorFilterImgProc(true,.5, 
-                                                      HSVImgProc::Red+20, HSVImgProc::Green-20,100));
-    //    camc.processors.push_back(new LineImgProc(true,10, 16));    
-    camc.processors.push_back(new LineImgProc(true,20, 2, 5.0));    
-    //    camc.processors.push_back(new AvgImgProc(true,20, 15));    
-    Camera* cam = new Camera(camc);
-    CameraSensor* camsensor = 
-      new DirectCameraSensor(cam, odeHandle, osgHandle.changeColor(Color(0.2,0.2,0.2)), 
-                             osg::Matrix::rotate(M_PI/2,0,0,1)*osg::Matrix::translate(-0.15,0,0.45));
-    std::list<Sensor*> sensors;
-    sensors.push_back(camsensor);
-    // we put the camerasensor now onto the robot (which does not support it by itself)
-    OdeRobot* robot = new AddSensors2RobotAdapter( odeHandle, osgHandle, vehicle, sensors);
-    robot->place(Pos(-3,-1,0.3));
-    //AbstractController *controller = new InvertMotorSpace(10);
-    //AbstractController *controller = new SineController();
-    AbstractController *controller = new Braitenberg(Braitenberg::Aggressive, 2, 3);
-    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    OdeAgent* agent = new OdeAgent(plotoptions);
-    agent->init(controller, robot, wiring);
-    global.configs.push_back(controller);
-    global.agents.push_back(agent);
+//     // this robot will get a camera 
+//     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), "Seeing_Robot");
+//     CameraConf camc = Camera::getDefaultConf();
+//     camc.width = 256;
+//     camc.height = 64;
+//     camc.scale  = 1;
+//     camc.fov    =  90;
+//     camc.camSize = 0.08;
+//     camc.processors.push_back(new HSVImgProc(false,1));
+//     //    camc2.processors.push_back(new BWImageProcessor(true,1, BWImageProcessor::Saturation));
+//     camc.processors.push_back(new ColorFilterImgProc(true,.5, 
+//                                                       HSVImgProc::Red+20, HSVImgProc::Green-20,100));
+//     //    camc.processors.push_back(new LineImgProc(true,10, 16));    
+//     camc.processors.push_back(new LineImgProc(true,20, 2));    
+//     //    camc.processors.push_back(new AvgImgProc(true,20, 15));    
+//     Camera* cam = new Camera(camc);
+//     CameraSensor* camsensor = 
+//       new DirectCameraSensor(cam, odeHandle, osgHandle.changeColor(Color(0.2,0.2,0.2)), 
+//                              osg::Matrix::rotate(M_PI/2,0,0,1)*osg::Matrix::translate(-0.15,0,0.45));
+//     std::list<Sensor*> sensors;
+//     sensors.push_back(camsensor);
+//     // we put the camerasensor now onto the robot (which does not support it by itself)
+//     OdeRobot* robot = new AddSensors2RobotAdapter( odeHandle, osgHandle, vehicle, sensors);
+//     robot->place(Pos(-3,-1,0.3));
+//     //AbstractController *controller = new InvertMotorSpace(10);
+//     //AbstractController *controller = new SineController();
+//     AbstractController *controller = new Braitenberg(Braitenberg::Aggressive, 2, 3);
+//     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+//     OdeAgent* agent = new OdeAgent(plotoptions);
+//     agent->init(controller, robot, wiring);
+//     global.configs.push_back(controller);
+//     global.agents.push_back(agent);
+
+//     {
+//       // this robot has no camera
+//       OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), "Robot");
+//       vehicle->setColor(Color(1,1,0));
+//       vehicle->place(Pos(-3,2,0.3));
+//       AbstractController *controller = new InvertMotorSpace(10);
+//       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+//       OdeAgent* agent = new OdeAgent();
+//       agent->init(controller, vehicle, wiring);
+//       global.agents.push_back(agent);
+//     }
 
     {
-      // this robot has no camera
-      OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), "Robot");
-      vehicle->setColor(Color(1,1,0));
-      vehicle->place(Pos(-3,2,0.3));
+      // this robot has a camera by itself
+      OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, TwoWheeled::getDefaultConf(), "Twowheeled");
+      vehicle->setColor(Color(1,.7,0));
+      vehicle->place(Pos(-3,4,0.3));
       AbstractController *controller = new InvertMotorSpace(10);
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      OdeAgent* agent = new OdeAgent();
+      OdeAgent* agent = new OdeAgent(plotoptions);
       agent->init(controller, vehicle, wiring);
       global.agents.push_back(agent);
     }
