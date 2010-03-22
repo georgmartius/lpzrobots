@@ -22,7 +22,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-03-17 17:26:36  martius
+ *   Revision 1.12  2010-03-22 14:33:19  martius
+ *   osghandle changeColor() with single rgba values
+ *   camerasensors windowfunction bug
+ *
+ *   Revision 1.11  2010/03/17 17:26:36  martius
  *   robotcameramanager uses keyboard and respects resize
  *   (robot) camera is has a conf object
  *   image processing implemented, with a few standard procedures
@@ -184,6 +188,12 @@ namespace lpzrobots {
   OsgHandle OsgHandle::changeColor(const Color& color) const {
     OsgHandle copy(*this);
     copy.color = color;
+    return copy;
+  }
+
+  OsgHandle OsgHandle::changeColor(double r, double g, double b, double a) const {
+    OsgHandle copy(*this);
+    copy.color = Color(r,g,b,a);
     return copy;
   }
 

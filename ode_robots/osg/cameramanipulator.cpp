@@ -23,7 +23,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2010-03-07 22:40:43  guettler
+ *   Revision 1.22  2010-03-22 14:33:19  martius
+ *   osghandle changeColor() with single rgba values
+ *   camerasensors windowfunction bug
+ *
+ *   Revision 1.21  2010/03/07 22:40:43  guettler
  *   plot out XML notation strings for camera position and view (TODO: support for extended modes)
  *
  *   Revision 1.20  2010/01/29 14:16:27  martius
@@ -673,8 +677,7 @@ namespace lpzrobots {
 	Pos p = camHandle.watchingAgent->getRobot()->getPosition();
 	camHandle.manipulationViz = new OSGSphere(0.1);
 	camHandle.manipulationViz->init(osgHandle);
-	camHandle.manipulationViz->setColor(Color(camHandle.doManipulation==camHandle.Translational,
-	    camHandle.doManipulation==camHandle.Rotational,0));
+        //	camHandle.manipulationViz->init(osgHandle.changeColor(camHandle.doManipulation==camHandle.Translational, camHandle.doManipulation==camHandle.Rotational,0));
 	camHandle.manipulationViz->setMatrix(osg::Matrix::translate(camHandle.manipulationPoint));
 	Pos force = (camHandle.manipulationPoint-p);
 	double factor = force.length()>10 ? 10/force.length() : 1;
@@ -690,7 +693,6 @@ namespace lpzrobots {
 	dBodyAddTorque ( body->getBody() , -0.1*vel[0] , -0.1*vel[1] , -0.1*vel[2]);
 	vel = dBodyGetLinearVel( body->getBody());
 	dBodyAddForce ( body->getBody() , -0.1*vel[0] , -0.1*vel[1] , -0.1*vel[2]);
-
       }
     }
   }

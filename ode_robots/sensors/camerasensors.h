@@ -232,8 +232,11 @@ namespace lpzrobots {
       bool success = calcImgCOG(img, x, y);
       int k=0;
       if(last && success){
-	if(dims & X) data[k++] = (lastX-x)*factor* (window ? windowfunc(x) : 1);
-	if(dims & Y) data[k++] = (lastY-y)*factor* (window ? windowfunc(y) : 1);	       
+        // check if the apparent shift is infeasible, then leave the old sensor value.
+        if(fabs(lastX-x) < 0.4 && fabs(lastY-y) < 0.4) {
+          if(dims & X) data[k++] = (lastX-x)*factor* (window ? windowfunc(x) : 1);
+          if(dims & Y) data[k++] = (lastY-y)*factor* (window ? windowfunc(y) : 1);
+        }else{printf("too large!\n");}
       }else{
 	if(dims & X) data[k++] = 0;
 	if(dims & Y) data[k++] = 0;	
@@ -252,7 +255,7 @@ namespace lpzrobots {
     
     /// window function for the interval -1 to 1, with ramps from 0.5 off center
     double windowfunc(double x){
-      if(x>-.5 && x<0.5) return x;
+      if(x>-0.5 && x<0.5) return 1.0;
       if(x<-0.5) return 2+ 2*x;
       if(x>0.5)  return 2- 2*x;
     }

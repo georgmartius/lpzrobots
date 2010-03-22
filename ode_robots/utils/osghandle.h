@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-03-17 17:26:36  martius
+ *   Revision 1.11  2010-03-22 14:33:19  martius
+ *   osghandle changeColor() with single rgba values
+ *   camerasensors windowfunction bug
+ *
+ *   Revision 1.10  2010/03/17 17:26:36  martius
  *   robotcameramanager uses keyboard and respects resize
  *   (robot) camera is has a conf object
  *   image processing implemented, with a few standard procedures
@@ -178,6 +182,8 @@ public:
 
   // returns a new osghandle with only the color changed
   OsgHandle changeColor(const Color& color) const;
+  // returns a new osghandle with only the color changed
+  OsgHandle changeColor(double r, double g, double b, double a=1.0) const;
   // returns a new osghandle with only the alpha channel changed
   OsgHandle changeAlpha(double alpha) const; 
   

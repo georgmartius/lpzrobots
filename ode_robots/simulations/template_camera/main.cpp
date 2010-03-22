@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-03-21 21:48:59  martius
+ *   Revision 1.4  2010-03-22 14:33:19  martius
+ *   osghandle changeColor() with single rgba values
+ *   camerasensors windowfunction bug
+ *
+ *   Revision 1.3  2010/03/21 21:48:59  martius
  *   camera sensor bugfixing (reference to osghandle)
  *   twowheeled robot added (nimm2 with camera)
  *   sense function added to robots (before control): sensors (type Sensor) are checked here
@@ -105,8 +109,14 @@ public:
     }
 
     if(twowheeled) {
-      // this robot has a camera by itself
-      OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, TwoWheeled::getDefaultConf(), "Twowheeled");
+      // the twowheeled robot is derived from Nimm2 and has a camera onboard
+      TwoWheeledConf twc = TwoWheeled::getDefaultConf();
+      // here we can change e.g. the image processing
+      //    // for example we could exchange the light detection sensor to have 4 sensors
+      //    twc.camcfg.processors.pop_back(); // remove the standard LineImgProc
+      //    // and add a new one
+      //    twc.camcfg.processors.push_back(new LineImgProc(true,20, 4); 
+      OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, "Twowheeled");
       vehicle->setColor(Color(1,.7,0));
       vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1)*osg::Matrix::translate(3,4,0.3));
       //      AbstractController *controller = new InvertMotorSpace(10);
@@ -119,18 +129,20 @@ public:
 
     if(nimm2vision){
       // This code shows how to add a camera to an existing robot.
-      // this robot will get a camera 
-      OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), "Seeing_Nimm2");
+      // Here we have the most flexibility on which camera sensor we use and so on
+      OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), 
+                                    "Seeing_Nimm2");
       CameraConf camc = Camera::getDefaultConf();
       camc.width = 256;
       camc.height = 64;
       camc.scale  = 1;
-      camc.fov    =  90;
+      camc.fov    =  120;
       camc.camSize = 0.08;
       camc.processors.push_back(new HSVImgProc(false,1));
       //    camc2.processors.push_back(new BWImageProcessor(true,1, BWImageProcessor::Saturation));
       camc.processors.push_back(new ColorFilterImgProc(true,.5, 
-						       HSVImgProc::Red+20, HSVImgProc::Green-20,100));
+						       HSVImgProc::Red+20, 
+                                                       HSVImgProc::Green-20,100));
       CameraSensor* camsensor;
       /// Left and right side brighness (of Yelllow)
       if(0){
@@ -141,7 +153,7 @@ public:
 	  new DirectCameraSensor(cam, odeHandle, osgHandle.changeColor(Color(0.2,0.2,0.2)), 
 				 osg::Matrix::rotate(M_PI/2,0,0,1)*osg::Matrix::translate(-0.15,0,0.45));
       }
-      /// Position of Yellow object
+      /// Using the position of Yellow object
       if(0){
 	Camera* cam = new Camera(camc);
 	camsensor = 
@@ -166,7 +178,8 @@ public:
       //AbstractController *controller = new InvertMotorSpace(10);
       AbstractController *controller = new SineController();
       controller->setParam("amplitude",0.4);
-      controller->setParam("phaseshift",0.1);
+      controller->setParam("phaseshift",2);
+      controller->setParam("period",300);
       //AbstractController *controller = new Braitenberg(Braitenberg::Aggressive, 2, 3);
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
       OdeAgent* agent = new OdeAgent(plotoptions);

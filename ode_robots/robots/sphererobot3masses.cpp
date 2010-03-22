@@ -19,7 +19,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2010-03-17 09:33:16  martius
+ *   Revision 1.24  2010-03-22 14:33:19  martius
+ *   osghandle changeColor() with single rgba values
+ *   camerasensors windowfunction bug
+ *
+ *   Revision 1.23  2010/03/17 09:33:16  martius
  *   removed memory leaks and some small bugs
  *   valgrind suppression file is updated
  *
@@ -224,6 +228,9 @@ namespace lpzrobots {
       }
     }
     irSensorBank.update();
+    FOREACH(std::list<Sensor*>, conf.sensors, s){
+      (*s)->update();
+    }
   }
   
   /**
@@ -293,6 +300,10 @@ namespace lpzrobots {
     }
 
     irSensorBank.reset();
+    FOREACH(list<Sensor*>, conf.sensors, s){
+      (*s)->sense(global);
+    }
+
   }
 
   int Sphererobot3Masses::getMotorNumber(){
