@@ -4,9 +4,6 @@
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
  *                                                                         *
- ** Started on  Mon Oct 15 16:48:03 2007 Georg Martius *
- ** Last update Mon Oct 15 16:48:03 2007 Georg Martius *
- *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
@@ -123,8 +120,8 @@ namespace lpzrobots {
       assert(camera);
       num = bool(dims & X) + bool(dims & Y);
       data = new sensor[num]; 
+      memset(data,0,sizeof(sensor)*num);
     }
-
 
     virtual ~PositionCameraSensor(){
       delete[] data;
@@ -197,11 +194,12 @@ namespace lpzrobots {
   }; 
 
   /** This CameraSensor calculates the global optical flow of the camera image
-      using the center of gravity method. The velocity is by default smoothly windowed
-       to avoid step-like artefacts at the border
+      using the center of gravity method. It requires objects to be bright on black ground.
+      The velocity is by default smoothly windowed
+      to avoid step-like artefacts at the border.
       Probably you want to use an image processor like ColorFilterImgProc before. 
    */
-  class OpticalFlowCameraSensor : public PositionCameraSensor {
+  class MotionCameraSensor : public PositionCameraSensor {
   public:  
 
     /** The camera image should be black and white 
@@ -209,19 +207,21 @@ namespace lpzrobots {
         @see CameraSensor for further parameter explanation.
         @param dims dimensions to return the position (X means horizonal, Y vertical)
 	@param factor factor for measured velocity (velocity is in framesize/frame
+	@param avg averaging time window (1: no averaging)
 	@param window whether to apply a windowing function to avoid edge effects
 	@param clipsize value at which the values are clipped, e.g. [-1.5,1.5] 
      */
-    OpticalFlowCameraSensor(Camera* camera, const OdeHandle& odeHandle, 
-			    const OsgHandle& osgHandle, const osg::Matrix& pose, 
-			    Dimensions dims = X, double factor=5.0, bool window = true, 
-			    double clipsize=1.5)
+    MotionCameraSensor(Camera* camera, const OdeHandle& odeHandle, 
+		       const OsgHandle& osgHandle, const osg::Matrix& pose, 
+		       int avg = 2, Dimensions dims = X, double factor = 5.0, 
+		       bool window = true, double clipsize = 1.5)
       : PositionCameraSensor(camera, odeHandle, osgHandle, pose, dims), factor(factor), 
 	window(true), clipsize(clipsize), last(false), lastX(0), lastY(0)
     {
+      lambda = 1/(double)avg;
     }
 
-    virtual ~OpticalFlowCameraSensor(){
+    virtual ~MotionCameraSensor(){
     }
     
     /// Performs the calculations
@@ -234,9 +234,11 @@ namespace lpzrobots {
       if(last && success){
         // check if the apparent shift is infeasible, then leave the old sensor value.
         if(fabs(lastX-x) < 0.4 && fabs(lastY-y) < 0.4) {
-          if(dims & X) data[k++] = (lastX-x)*factor* (window ? windowfunc(x) : 1);
-          if(dims & Y) data[k++] = (lastY-y)*factor* (window ? windowfunc(y) : 1);
-        }else{printf("too large!\n");}
+          if(dims & X) { data[k] = lambda*(lastX-x)*factor* (window ? windowfunc(x) : 1) 
+	      + (1- lambda)*data[k]; k++; }
+          if(dims & Y) { data[k] = lambda*(lastY-y)*factor* (window ? windowfunc(y) : 1)
+	      + (1- lambda)*data[k]; k++; }
+        }
       }else{
 	if(dims & X) data[k++] = 0;
 	if(dims & Y) data[k++] = 0;	
@@ -257,11 +259,12 @@ namespace lpzrobots {
     double windowfunc(double x){
       if(x>-0.5 && x<0.5) return 1.0;
       if(x<-0.5) return 2+ 2*x;
-      if(x>0.5)  return 2- 2*x;
+      else return 2- 2*x; // (x>0.5)
     }
 
   protected:
     double factor;
+    double lambda;
     bool window;
     double clipsize;
     bool   last;  ///< whether last image had a valid position 

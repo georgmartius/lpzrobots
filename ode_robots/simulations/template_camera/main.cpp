@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-22 14:33:19  martius
+ *   Revision 1.5  2010-03-23 07:32:48  martius
+ *   global colorbased optical flow is now called motioncamerasensor
+ *   optical flow camerasensor started
+ *
+ *   Revision 1.4  2010/03/22 14:33:19  martius
  *   osghandle changeColor() with single rgba values
  *   camerasensors windowfunction bug
  *
@@ -165,9 +169,9 @@ public:
       if(1){
 	Camera* cam = new Camera(camc);
 	camsensor = 
-	  new OpticalFlowCameraSensor(cam, odeHandle, osgHandle.changeColor(Color(0.2,0.2,0.2)),
-				      osg::Matrix::rotate(M_PI/2,0,0,1)
-				      *osg::Matrix::translate(-0.15,0,0.45));
+	  new MotionCameraSensor(cam, odeHandle, osgHandle.changeColor(Color(0.2,0.2,0.2)),
+				 osg::Matrix::rotate(M_PI/2,0,0,1)
+				 *osg::Matrix::translate(-0.15,0,0.45), 3);
       }
       std::list<Sensor*> sensors;
       sensors.push_back(camsensor);
