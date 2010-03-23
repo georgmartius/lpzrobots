@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.122  2010-03-21 21:48:59  martius
+ *   Revision 1.123  2010-03-23 13:38:45  martius
+ *   graphics update function called for offscreen rendering
+ *   indentation fixed
+ *
+ *   Revision 1.122  2010/03/21 21:48:59  martius
  *   camera sensor bugfixing (reference to osghandle)
  *   twowheeled robot added (nimm2 with camera)
  *   sense function added to robots (before control): sensors (type Sensor) are checked here
@@ -660,7 +664,7 @@
 #include "install_prefix.conf"
 
 /**
-Namespace for the 3D robot simulator ode_robots
+   Namespace for the 3D robot simulator ode_robots
 */
 namespace lpzrobots {
 
@@ -741,8 +745,7 @@ namespace lpzrobots {
     QMP_END_CRITICAL(21);
 
 
-    if(viewer)
-    {
+    if(viewer) {
       // do not destroy window if in taskedmode, just do it at the end
       if (!inTaskedMode)
         delete viewer;
@@ -872,11 +875,11 @@ namespace lpzrobots {
       viewer->addEventHandler(osgHandle.scene->robotCamManager);
 
       // add callback for video recording
-    #if OPENSCENEGRAPH_MAJOR_VERSION == 2 &&  OPENSCENEGRAPH_MINOR_VERSION <= 4
+#if OPENSCENEGRAPH_MAJOR_VERSION == 2 &&  OPENSCENEGRAPH_MINOR_VERSION <= 4
       viewer->getCamera()->setPostDrawCallback(videostream.get());
-    #else
+#else
       viewer->getCamera()->setFinalDrawCallback(videostream);
-    #endif
+#endif
     }else{
       globalData.odeConfig.realTimeFactor=0;
     }
@@ -928,8 +931,8 @@ namespace lpzrobots {
 
     state=initialised;
     QMP_END_CRITICAL(20);
-    if(orig_argv != argv) free(argv); // we created a new argv pointer in insertCmdLineOption
-
+    // we created a new argv pointer in insertCmdLineOption
+    if(orig_argv != argv) free(argv);     
     return true;
   }
 
@@ -940,8 +943,7 @@ namespace lpzrobots {
     if(!init(argc, argv))
       return false;
 
-    if (!inTaskedMode)
-    {
+    if (!inTaskedMode) {
       initializeConsole();
       QP(PROFILER.init());
     }
@@ -954,10 +956,11 @@ namespace lpzrobots {
     setCameraHomePos (Pos(0, -20, 3),  Pos(0, 0, 0));
 
     start(odeHandle, osgHandle, globalData);
-//     // register global configurables with plotEngines
+//   Does not work anymore, because the we cannot add configurables after initialization
+//   // register global configurables with plotEngines
 //     FOREACH (OdeAgentList, globalData.agents, a) {
-//       FOREACH (std::list<const Configurable*>, globalconfigurables, c){
-// 	(*a)->addConfigurable(*c);
+//       FOREACH (std::list<const Configurable*>, global.globalconfigurables, c){
+//  	(*a)->addConfigurable(*c);
 //       }
 //     }
 
@@ -965,7 +968,6 @@ namespace lpzrobots {
       // optimize the scene graph, remove redundant nodes and state etc.
       // osgUtil::Optimizer optimizer;
       // optimizer.optimize(osgHandle.scene->root);
-
 
       // add model to viewer.
       viewer->setSceneData(osgHandle.scene->root);
@@ -992,17 +994,16 @@ namespace lpzrobots {
     // TODO: clean the restart thing! Make it independent of drawinterval!
     while ( ( noGraphics || !viewer->done()) &&
 	    (!simulation_time_reached || restart(odeHandle,osgHandle,globalData)) ) {
-      if (simulation_time_reached)
-        {
-          printf("%li min simulation time reached (%li steps) -> simulation cycle (%i) stopped\n",
-		 (globalData.sim_step/6000), globalData.sim_step, currentCycle);
-          // start a new cycle, set timer to 0 and so on...
-          simulation_time_reached = false;
-          globalData.time = 0;
-          globalData.sim_step=0;
-          this->currentCycle++;
-          resetSyncTimer();
-        }
+      if (simulation_time_reached) {
+        printf("%li min simulation time reached (%li steps) -> simulation cycle (%i) stopped\n",
+               (globalData.sim_step/6000), globalData.sim_step, currentCycle);
+        // start a new cycle, set timer to 0 and so on...
+        simulation_time_reached = false;
+        globalData.time = 0;
+        globalData.sim_step=0;
+        this->currentCycle++;
+        resetSyncTimer();
+      }
       if(!loop())
 	break;
     }
@@ -1073,8 +1074,12 @@ namespace lpzrobots {
 // 	PARALLEL VERSION
 	if ( (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
           // render offscreen cameras (robot sensor cameras) (does not work in nographics mode)
-          if(!noGraphics)
+          if(!noGraphics && viewer->needForOffScreenRendering()){
+            QP(PROFILER.beginBlock("offScreenRendering           "));
+            updateGraphics();
             viewer->renderOffScreen();
+            QP(PROFILER.endBlock("offScreenRendering           "));
+          }
 
 	  QP(PROFILER.beginBlock("controller                   "));
 	  if (useQMPThreads)
@@ -1158,17 +1163,18 @@ namespace lpzrobots {
 	  odeStep();
 
  	// call all registered physical callbackable classes
-  QP(PROFILER.beginBlock("physicsCB                    "));
-  /*if (useQMPThreads!=0)*/
-  callBackQMP(Base::PHYSICS_CALLBACKABLE);
-  /*else*/
-  //  callBack(Base::PHYSICS_CALLBACKABLE);
-  QP(PROFILER.endBlock("physicsCB                    "));
-
+        QP(PROFILER.beginBlock("physicsCB                    "));
+        /*if (useQMPThreads!=0)*/
+        callBackQMP(Base::PHYSICS_CALLBACKABLE);
+        /*else*/
+        //  callBack(Base::PHYSICS_CALLBACKABLE);
+        QP(PROFILER.endBlock("physicsCB                    "));
+        
 	// remove old signals from sound list
 	globalData.sounds.remove_if(Sound::older_than(globalData.time));
       }
 
+      // graphics rendering
       if(t==(globalData.odeConfig.drawInterval-1) && !noGraphics) {
 	if(useOsgThread){
 	  QP(PROFILER.beginBlock("graphics aync"));
@@ -1179,18 +1185,7 @@ namespace lpzrobots {
 	}
 	QP(PROFILER.beginBlock("graphicsUpdate               "));
 	/************************** Update the scene ***********************/
-	FOREACH(ObstacleList, globalData.obstacles, i) {
-	  (*i)->update();
-	}
-	FOREACH(OdeAgentList, globalData.agents, i) {
-	  (*i)->getRobot()->update();
-	}
-	// draw sound blobs
-	if(!globalData.sounds.empty()){
-	  FOREACH(SoundList, globalData.sounds, i){
-	    i->render(osgHandle);
-	  }
-	}
+        updateGraphics();
 
 	// update the camera
 	osgGA::MatrixManipulator* mm = keyswitchManipulator->getCurrentMatrixManipulator();
@@ -1204,8 +1199,8 @@ namespace lpzrobots {
 		     truerealtimefactor,pause);
 
 	// call all registered graphical callbackable classes
-  callBack(Base::GRAPHICS_CALLBACKABLE);
-  QP(PROFILER.endBlock("graphicsUpdate               "));
+        callBack(Base::GRAPHICS_CALLBACKABLE);
+        QP(PROFILER.endBlock("graphicsUpdate               "));
 
 	//        onPostDraw(*(viewer->getCamera()));*/
         if(useOsgThread){
@@ -1216,9 +1211,9 @@ namespace lpzrobots {
 	  QP(PROFILER.endBlock("graphics                     "));
 	}
 
-      }
+      } // end graphics rendering
 
-    }
+    } // end for t drawinterval
     /************************** Time Syncronisation ***********************/
     // Time syncronisation of real time and simulations time
     long elapsed = timeOfDayinMS() - realtimeoffset;
@@ -1257,6 +1252,24 @@ namespace lpzrobots {
 
     return run;
   }
+
+
+  void Simulation::updateGraphics(){
+    /************************** Update the scene ***********************/
+    FOREACH(ObstacleList, globalData.obstacles, i) {
+      (*i)->update();
+    }
+    FOREACH(OdeAgentList, globalData.agents, i) {
+      (*i)->getRobot()->update();
+    }
+    // draw sound blobs
+    if(!globalData.sounds.empty()){
+      FOREACH(SoundList, globalData.sounds, i){
+        i->render(osgHandle);
+      }
+    }
+  }
+
 
   bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&) {
     bool handled = false;
