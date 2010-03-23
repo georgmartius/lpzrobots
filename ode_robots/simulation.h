@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.44  2010-03-17 09:33:16  martius
+ *   Revision 1.45  2010-03-23 13:37:48  martius
+ *   added graphics update function since we need to call it also for offscreen rendering
+ *
+ *   Revision 1.44  2010/03/17 09:33:16  martius
  *   removed memory leaks and some small bugs
  *   valgrind suppression file is updated
  *
@@ -375,8 +378,9 @@ namespace lpzrobots {
     virtual bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&);
     virtual void getUsage (osg::ApplicationUsage & au) const;
     virtual void accept(osgGA::GUIEventHandlerVisitor& v);
-
     virtual bool init(int argc, char** argv);
+
+    virtual void updateGraphics(); ///< update the graphics objects
 
     /** define the home position and view orientation of the camera.
 	view.x is the heading angle in degree. view.y is the tilt angle in degree (nick),
