@@ -37,12 +37,14 @@ namespace lpzrobots {
   {
     if(conf.useCamera){
       cam = new Camera(this->conf.camcfg);
-      camsensor = new DirectCameraSensor(cam, this->odeHandle, 
-					 this->osgHandle.changeColor(Color(0.2,0.2,0.2)), 
-					 osg::Matrix::rotate(M_PI/2,0,0,1)
-					 *osg::Matrix::translate(-0.15,0,0.45));
+      if(!conf.camSensor)
+        conf.camSensor = new DirectCameraSensor();
       
-      this->conf.sensors.push_back(camsensor);
+      conf.camSensor->setInitData( cam, this->odeHandle, 
+                                   this->osgHandle.changeColor(Color(0.2,0.2,0.2)), 
+                                   conf.camPos);
+      
+      this->conf.sensors.push_back(conf.camSensor);
     }else{ // delete the processors
       FOREACH(ImageProcessors, conf.camcfg.processors, ip){      
 	if(*ip) delete *ip;

@@ -37,6 +37,10 @@ namespace lpzrobots {
     Nimm2Conf n2cfg;   ///< configuration for underlying nimm2 robot    
     CameraConf camcfg; ///< camera config. Allows to change the image processing
     bool useCamera;    ///< whether to use the camera
+    osg::Matrix camPos; ///< relative pose of the camera
+    /** camera sensor (converts image to sensor data) 
+        (if NULL then DirectCameraSensor() is used) */
+    CameraSensor* camSensor; 
     /// list of sensors that are mounted at the robot. (e.g.\ AxisOrientationSensor)
     std::list<Sensor*> sensors; 
     /// adds a sensor to the list of sensors
@@ -73,7 +77,10 @@ namespace lpzrobots {
                              HSVImgProc::Red+20, HSVImgProc::Green-20,100));
       // only two sensors for left and right visual field
       conf.camcfg.processors.push_back(new LineImgProc(true,20, 2));    
-      conf.useCamera=true;
+      conf.useCamera = true;
+      conf.camPos    = osg::Matrix::rotate(M_PI/2,0,0,1) 
+        * osg::Matrix::translate(-0.20,0,0.40);
+      conf.camSensor = 0;      
       return conf;
     }
 

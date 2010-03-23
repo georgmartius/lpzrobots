@@ -28,12 +28,20 @@
 namespace lpzrobots {
 
 
-  CameraSensor::CameraSensor(Camera* camera,
-                             const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-                             const osg::Matrix& pose)
-    : camera(camera), odeHandle(odeHandle), osgHandle(osgHandle), pose(pose) {
-    assert(camera);
+  CameraSensor::CameraSensor()
+    : camera(0), isInitDataSet(false) {    
   }
+
+  void CameraSensor::setInitData(Camera* camera, const OdeHandle& odeHandle, 
+                                 const OsgHandle& osgHandle, const osg::Matrix& pose){
+    assert(camera);
+    this->camera    = camera;
+    this->odeHandle = odeHandle;
+    this->osgHandle = osgHandle;
+    this->pose      = pose;
+    isInitDataSet   = true;
+  }
+
 
   CameraSensor::~CameraSensor() {
     if(camera) delete camera;
@@ -49,8 +57,9 @@ namespace lpzrobots {
   }
 
   void CameraSensor::init(Primitive* own){
+    assert(isInitDataSet && "initialize the camerasensor with setInitData()!");
     camera->init(odeHandle, osgHandle, own, pose);
-    init_sensor();
+    intern_init();
   }
 
   /// we update the camera's visual appearance

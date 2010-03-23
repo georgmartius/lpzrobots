@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-03-19 17:46:21  martius
+ *   Revision 1.6  2010-03-23 18:43:54  martius
+ *   lpzviewer: added checking function
+ *   camerasensor new initialization
+ *   twowheeled allows full customization of camera
+ *   optical flow improved multiscale check
+ *
+ *   Revision 1.5  2010/03/19 17:46:21  martius
  *   camerasensors added
  *   camera works great now. Near and far plane fixed by hand and optimal positioning
  *   many image processings added
@@ -91,6 +97,9 @@ namespace lpzrobots {
     float scale;     ///< scaling for display
     std::string name; ///< name of the camera
     ImageProcessors processors; ///< list of image processors that filter the raw image
+
+    /// removes and deletes all  processor
+    void removeProcessors();
   };
 
   /** A Robot Camera. Implements a simulated camera with full OpenGL rendering.

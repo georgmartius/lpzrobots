@@ -41,6 +41,9 @@ namespace lpzrobots {
 
     virtual ~LPZViewer();
 
+    /// is there a need to do an offscreen rendering?
+    bool needForOffScreenRendering();
+
     /** call this function to render the off screen scene.
         If no off screen nodes are supplied than nothing is done      
     */

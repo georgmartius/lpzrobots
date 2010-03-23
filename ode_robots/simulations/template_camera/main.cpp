@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-03-23 07:32:48  martius
+ *   Revision 1.6  2010-03-23 18:43:54  martius
+ *   lpzviewer: added checking function
+ *   camerasensor new initialization
+ *   twowheeled allows full customization of camera
+ *   optical flow improved multiscale check
+ *
+ *   Revision 1.5  2010/03/23 07:32:48  martius
  *   global colorbased optical flow is now called motioncamerasensor
  *   optical flow camerasensor started
  *
@@ -69,6 +75,7 @@
 #include <ode_robots/camera.h>
 #include <ode_robots/imageprocessors.h>
 #include <ode_robots/camerasensors.h>
+#include <ode_robots/opticalflow.h>
 
 #include <ode_robots/nimm2.h>
 #include <ode_robots/twowheeled.h>
@@ -95,7 +102,6 @@ public:
     setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
 
     global.odeConfig.setParam("controlinterval",4);
-    global.odeConfig.setParam("noise",0);
 
     // use Playground as boundary:
     playground = new Playground(odeHandle, osgHandle,
@@ -114,12 +120,15 @@ public:
 
     if(twowheeled) {
       // the twowheeled robot is derived from Nimm2 and has a camera onboard
+      //  we can change the imageprocessing and the camerasensor in the cfg
       TwoWheeledConf twc = TwoWheeled::getDefaultConf();
       // here we can change e.g. the image processing
       //    // for example we could exchange the light detection sensor to have 4 sensors
       //    twc.camcfg.processors.pop_back(); // remove the standard LineImgProc
       //    // and add a new one
       //    twc.camcfg.processors.push_back(new LineImgProc(true,20, 4); 
+      //    set a different camerasensor
+      //    twc.camSensor = new MotionCameraSensor(3);
       OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, "Twowheeled");
       vehicle->setColor(Color(1,.7,0));
       vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1)*osg::Matrix::translate(3,4,0.3));
@@ -138,7 +147,7 @@ public:
                                     "Seeing_Nimm2");
       CameraConf camc = Camera::getDefaultConf();
       camc.width = 256;
-      camc.height = 64;
+      camc.height = 128;
       camc.scale  = 1;
       camc.fov    =  120;
       camc.camSize = 0.08;
@@ -148,31 +157,36 @@ public:
 						       HSVImgProc::Red+20, 
                                                        HSVImgProc::Green-20,100));
       CameraSensor* camsensor;
-      /// Left and right side brighness (of Yelllow)
+      /// Left and right side brighness (of Yellow)
       if(0){
 	camc.processors.push_back(new LineImgProc(true,20, 2));    
-	//camc.processors.push_back(new AvgImgProc(true,20, 15));    
-	Camera* cam = new Camera(camc);
-	camsensor = 
-	  new DirectCameraSensor(cam, odeHandle, osgHandle.changeColor(Color(0.2,0.2,0.2)), 
-				 osg::Matrix::rotate(M_PI/2,0,0,1)*osg::Matrix::translate(-0.15,0,0.45));
+	//camc.processors.push_back(new AvgImgProc(true,20, 15));    	
+	camsensor = new DirectCameraSensor();
       }
       /// Using the position of Yellow object
       if(0){
-	Camera* cam = new Camera(camc);
-	camsensor = 
-	  new PositionCameraSensor(cam, odeHandle, osgHandle.changeColor(Color(0.2,0.2,0.2)), 
-				   osg::Matrix::rotate(M_PI/2,0,0,1)
-				   *osg::Matrix::translate(-0.15,0,0.45));	
+	camsensor = new PositionCameraSensor();
       }
-      /// Motion detection (global optical flow)
+      /// Motion detection (global optical flow if Yellow object(s))
+      if(0){
+	camsensor = new MotionCameraSensor(3);
+      }
+      /// Optical flow of raw image
       if(1){
-	Camera* cam = new Camera(camc);
-	camsensor = 
-	  new MotionCameraSensor(cam, odeHandle, osgHandle.changeColor(Color(0.2,0.2,0.2)),
-				 osg::Matrix::rotate(M_PI/2,0,0,1)
-				 *osg::Matrix::translate(-0.15,0,0.45), 3);
+        camc.processors.clear(); // no preprocessing
+        OpticalFlowConf ofc = OpticalFlow::getDefaultConf();
+        // ofc.points = OpticalFlow::getDefaultPoints(3);
+        ofc.dims   = Sensor::X;
+        ofc.verbose = 1;
+        ofc.maxFlow = 0.12;
+        ofc.fieldSize = 24;
+	camsensor = new OpticalFlow(ofc);
       }
+      Camera* cam = new Camera(camc);
+      osg::Matrix camPos = osg::Matrix::rotate(M_PI/2,0,0,1)
+        * osg::Matrix::translate(-0.2,0,0.40);
+      OsgHandle camOsgHandle = osgHandle.changeColor(Color(0.2,0.2,0.2));
+      camsensor->setInitData(cam, odeHandle, camOsgHandle,camPos);
       std::list<Sensor*> sensors;
       sensors.push_back(camsensor);
       // we put the camerasensor now onto the robot (which does not support it by itself)
@@ -186,7 +200,7 @@ public:
       controller->setParam("period",300);
       //AbstractController *controller = new Braitenberg(Braitenberg::Aggressive, 2, 3);
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      OdeAgent* agent = new OdeAgent(plotoptions);
+      OdeAgent* agent = new OdeAgent(plotoptions,0); // no noise
       agent->init(controller, robot, wiring);
       global.configs.push_back(controller);
       global.agents.push_back(agent);

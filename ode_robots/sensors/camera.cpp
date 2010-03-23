@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-03-21 21:48:59  martius
+ *   Revision 1.7  2010-03-23 18:43:54  martius
+ *   lpzviewer: added checking function
+ *   camerasensor new initialization
+ *   twowheeled allows full customization of camera
+ *   optical flow improved multiscale check
+ *
+ *   Revision 1.6  2010/03/21 21:48:59  martius
  *   camera sensor bugfixing (reference to osghandle)
  *   twowheeled robot added (nimm2 with camera)
  *   sense function added to robots (before control): sensors (type Sensor) are checked here
@@ -72,7 +78,13 @@
 
 namespace lpzrobots {
   
-  
+  void CameraConf::removeProcessors() {
+    FOREACH(ImageProcessors, processors, p){
+      if(*p) delete *p;
+    }
+    processors.clear();
+  }
+
   void Camera::PostDrawCallback::operator () (const osg::Camera& /*camera*/) const {          
     // start the image processing chain now
     FOREACH(ImageProcessors, cam->conf.processors, ip){      
@@ -91,10 +103,7 @@ namespace lpzrobots {
     if(ccd) ccd->unref();
     if(sensorBody1) delete sensorBody1;
     if(sensorBody2) delete sensorBody2;
-    FOREACH(ImageProcessors, conf.processors, ip){ 
-      if (*ip) delete *ip;
-    }
-
+    conf.removeProcessors();
   }
   
   void Camera::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 

@@ -48,11 +48,8 @@ namespace lpzrobots {
         @param maxValue pixel value that corresponds to 1
         (for minValue =-256 and maxValue=256 the sensor values are in [0,1)
      */
-    DirectCameraSensor(Camera* camera, const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-                       const osg::Matrix& pose, int minValue=-256, int maxValue=256)
-      : CameraSensor(camera, odeHandle, osgHandle, pose), 
-        minValue(minValue), maxValue(maxValue) {
-      assert(camera);
+    DirectCameraSensor(int minValue=-256, int maxValue=256)
+      : minValue(minValue), maxValue(maxValue) {
     }
 
 
@@ -60,7 +57,7 @@ namespace lpzrobots {
       delete[] data;
     }
 
-    virtual void init_sensor(){
+    virtual void intern_init(){
       assert(camera->isInitialized());
       const osg::Image* img = camera->getImage();
       assert(img && img->getPixelFormat()==GL_LUMINANCE  && img->getDataType()==GL_UNSIGNED_BYTE);
@@ -114,10 +111,8 @@ namespace lpzrobots {
         @see CameraSensor for further parameter explanation.
         @param dims dimensions to return the position (X means horizonal, Y vertical)
      */
-    PositionCameraSensor(Camera* camera, const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-			 const osg::Matrix& pose, Dimensions dims = XY )
-      : CameraSensor(camera, odeHandle, osgHandle, pose), dims(dims){
-      assert(camera);
+    PositionCameraSensor(Dimensions dims = XY )
+      : dims(dims) {
       num = bool(dims & X) + bool(dims & Y);
       data = new sensor[num]; 
       memset(data,0,sizeof(sensor)*num);
@@ -127,7 +122,7 @@ namespace lpzrobots {
       delete[] data;
     }
 
-    virtual void init_sensor(){
+    virtual void intern_init(){
       assert(camera->isInitialized());
       const osg::Image* img = camera->getImage();
       assert(img && img->getPixelFormat()==GL_LUMINANCE  && img->getDataType()==GL_UNSIGNED_BYTE);
@@ -211,11 +206,9 @@ namespace lpzrobots {
 	@param window whether to apply a windowing function to avoid edge effects
 	@param clipsize value at which the values are clipped, e.g. [-1.5,1.5] 
      */
-    MotionCameraSensor(Camera* camera, const OdeHandle& odeHandle, 
-		       const OsgHandle& osgHandle, const osg::Matrix& pose, 
-		       int avg = 2, Dimensions dims = X, double factor = 5.0, 
-		       bool window = true, double clipsize = 1.5)
-      : PositionCameraSensor(camera, odeHandle, osgHandle, pose, dims), factor(factor), 
+    MotionCameraSensor(int avg = 2, Dimensions dims = X, double factor = 5.0, 
+                       bool window = true, double clipsize = 1.5)
+      : PositionCameraSensor(dims), factor(factor), 
 	window(true), clipsize(clipsize), last(false), lastX(0), lastY(0)
     {
       lambda = 1/(double)avg;

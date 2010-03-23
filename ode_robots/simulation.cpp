@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.123  2010-03-23 13:38:45  martius
+ *   Revision 1.124  2010-03-23 18:43:54  martius
+ *   lpzviewer: added checking function
+ *   camerasensor new initialization
+ *   twowheeled allows full customization of camera
+ *   optical flow improved multiscale check
+ *
+ *   Revision 1.123  2010/03/23 13:38:45  martius
  *   graphics update function called for offscreen rendering
  *   indentation fixed
  *
@@ -1202,11 +1208,10 @@ namespace lpzrobots {
         callBack(Base::GRAPHICS_CALLBACKABLE);
         QP(PROFILER.endBlock("graphicsUpdate               "));
 
-	//        onPostDraw(*(viewer->getCamera()));*/
         if(useOsgThread){
 	  pthread_create (&osgThread, NULL, osgStep_run,this);
 	}else{
-  	QP(PROFILER.beginBlock("graphics                     "));
+          QP(PROFILER.beginBlock("graphics                     "));
 	  osgStep();
 	  QP(PROFILER.endBlock("graphics                     "));
 	}
@@ -1217,7 +1222,7 @@ namespace lpzrobots {
     /************************** Time Syncronisation ***********************/
     // Time syncronisation of real time and simulations time
     long elapsed = timeOfDayinMS() - realtimeoffset;
-    // simulation speed (calculates more precise again if not pause or max speed)
+    // simulation speed (calculate more precisely again if not pause or max speed)
     if(!pause) truerealtimefactor = (globalData.time*1000.0 - simtimeoffset)/(elapsed+1);
     if(globalData.odeConfig.realTimeFactor==0.0){
       // get refresh rate of fps/2 frames in full speed
@@ -1248,7 +1253,6 @@ namespace lpzrobots {
     } else if (pause) {
       usleep(10000);
     }
-
 
     return run;
   }

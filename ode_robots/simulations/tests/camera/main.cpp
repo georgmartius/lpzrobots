@@ -21,10 +21,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-21 10:17:06  martius
+ *   Revision 1.2  2010-03-23 18:43:54  martius
+ *   lpzviewer: added checking function
+ *   camerasensor new initialization
+ *   twowheeled allows full customization of camera
+ *   optical flow improved multiscale check
+ *
+ *   Revision 1.1  2010/03/21 10:17:06  martius
  *   test simulation for camera
- *   beginning with `CVS:' are removed automatically CVS: CVS: Committing in . CVS: CVS: Added Files:
- *   ----------------------------------------------------------------------
  *
  *   Revision 1.4  2010/03/19 17:46:21  martius
  *   camerasensors added

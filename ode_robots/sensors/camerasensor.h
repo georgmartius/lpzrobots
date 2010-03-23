@@ -32,27 +32,34 @@ namespace lpzrobots {
 
 
   /** This to connect a Camera as a sensor to a robot. 
-      Essentially it implements the conversion from the 2D image to a list of double sensor values. 
+      Essentially it implements the conversion from the 2D image 
+      to a list of double sensor values. 
+      The initialization is a bit confusing: use the contructor (of a inherited class)
+      to provide custom parameter; setInitData sets the handles and the camera
+      which has to be called before the normal initialization of the Sensor (via init()).
+      A subclass has to overload intern_init() to initialize intern structures
+       (e.g. number of channels), sense() and get().
+      
    */
   class CameraSensor : public Sensor {
   public:  
 
-    /** Creates a camera sensor from a camera. The camera will be initialized in init().
-        @param pose position and orientation of camera wrt the primitive that is given at init()
+    /** Creates a camera sensor. Use setInitData() to make it useable.        
      */ 
-    CameraSensor(Camera* camera, const OdeHandle& odeHandle, 
-		 const OsgHandle& osgHandle, const osg::Matrix& pose);
-
+    CameraSensor();
 
     virtual ~CameraSensor();
 
-    /// this function initialized the camera (no need to overload)
-    virtual void init(Primitive* own);
+    /** sets the initial data structures like the camera. 
+        The camera will be initialized in init() (don't initialize it before).
+        @param pose position and orientation of camera wrt. 
+        the primitive that is given at init()
+     */ 
+    virtual void setInitData(Camera* camera, const OdeHandle& odeHandle, 
+                             const OsgHandle& osgHandle, const osg::Matrix& pose);
 
-    /** overload this function to initialized you data structures.
-        Use camera->getImage() to get the image from the camera
-    */
-    virtual void init_sensor() = 0;
+    /// this function initialized the camera (no need to overload) (Sensor interface)
+    virtual void init(Primitive* own);
 
     /// overload this function an process the image (use camera->getImage())
     virtual bool sense(const GlobalData& globaldata) = 0;
@@ -70,10 +77,17 @@ namespace lpzrobots {
     virtual std::list<sensor> get() const;
 
   protected:
+    /** overload this function to initialized you data structures.
+        Use camera->getImage() to get the image from the camera
+    */
+    virtual void intern_init() = 0;
+
+
     Camera* camera;    
     OdeHandle odeHandle;
     OsgHandle osgHandle;
     osg::Matrix pose;
+    bool isInitDataSet;
   };  
 
 }

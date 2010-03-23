@@ -59,10 +59,14 @@ namespace lpzrobots {
     offScreenGroup = 0;
   }
 
+  bool LPZViewer::needForOffScreenRendering(){
+    return !_done && offScreenGroup && offScreenGroup->getNumChildren() != 0; 
+  }
+
 
   void LPZViewer::renderOffScreen()
   {
-    if (_done || !offScreenGroup || offScreenGroup->getNumChildren() == 0) return;
+    if(!needForOffScreenRendering()) return;
     osg::Node* origNode = _camera->getChild(0);
     _camera->setChild(0,offScreenGroup);
     // printf("offscreen rendering \n");    

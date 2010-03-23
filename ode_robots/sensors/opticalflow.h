@@ -36,6 +36,25 @@
 
 namespace lpzrobots {
 
+  /// configuration object for OpticalFlow
+  struct OpticalFlowConf {
+    /// dimensions to return the flow (X means horizonal, Y vertical)
+    Sensor::Dimensions dims;
+    /** points to measure optical flow in normalized coordinates [-1,1]
+        however the points are placed sufficiently away from the border to have no
+        boundary effects.*/
+    std::list<Pos> points;
+    /** maximum fraction of the image dimension to consider for 
+        a possible flow. Larger values increase the computational demand and move the
+        points more to the center (since we don't want edge effects)*/
+    double maxFlow; 
+    /** size (edge length) of the measurement field (block) in pixel 
+        (if 0 then 1/12th of width) */
+    int fieldSize; 
+    /// verbosity level (0: quite, 1: initialization values, 2: warnings, 3: debug)
+    int verbose; 
+  };
+
   /** This CameraSensor calculates the optical flow at few points of the image
       based on a box matching technique.       
       This can be applied directly to the camera image.
@@ -43,27 +62,42 @@ namespace lpzrobots {
   class OpticalFlow : public CameraSensor {
   public:  
 
-    struct Field {
-      int x;     // middle position x
-      int y;     // middle position y
-      int size;  // size of field
-    };
-    struct Shift {
-      Shift() : x(0), y(0) {}
+    struct Vec2i {
+      Vec2i() : x(0), y(0) {}
+      Vec2i(int x, int y) : x(x), y(y) {}
       int x;
       int y;
+      Vec2i operator + (const Vec2i& v) const;
+      Vec2i operator * (int i) const;
     };
 
+    typedef std::list< std::pair<Vec2i,int> > FlowDelList;
+
     /** @see CameraSensor for further parameter explanation.
-        @param points number of points to calculate the flow (horizontally placed)
-        @param dims dimensions to return the flow (X means horizonal, Y vertical)
      */
-    OpticalFlow(Camera* camera, const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		const osg::Matrix& pose, int points, Dimensions dims = XY );
+    OpticalFlow(OpticalFlowConf conf = getDefaultConf());
 
     virtual ~OpticalFlow();
 
-    virtual void init_sensor();
+    /** calculates default positions for optical flow detection.
+        The points are in aranged horizontally in a line at the vertical center.
+        For num 2 the points are at the border, 
+        3 points there is additioanlly one is the center and so on.      
+     */
+    static std::list<Pos> getDefaultPoints(int num);
+
+    /// the default config has 2 points in and calculates the flow in X and Y
+    static OpticalFlowConf getDefaultConf(){
+      OpticalFlowConf c;
+      c.dims    = XY;
+      c.points  = getDefaultPoints(2);
+      c.fieldSize = 24; 
+      c.maxFlow = 0.15;
+      c.verbose = 1;
+      return c;
+    }
+
+    virtual void intern_init();
     
     /// Performs the calculations
     virtual bool sense(const GlobalData& globaldata);
@@ -72,21 +106,23 @@ namespace lpzrobots {
        compares a small part of two given images 
        and returns the average absolute difference.
        Field center, size and shift have to be choosen, 
-       so that no clipping is required
-       
-       \param field Field specifies position(center) and size of subimage 
+       so that no clipping is required!
+       \param field specifies position(center) of subimage to use for comparison
+       \param size specifies the size of the field edged in pixels
        \param d_x shift in x direction
        \param d_y shift in y direction   
     */    
-    double compareSubImg(unsigned char* const I1, unsigned char* const I2, 
-			 const Field* field, int width, int height, int bytesPerPixel,
-			 int d_x,int d_y);
+    static double compareSubImg(const unsigned char* const I1, 
+                                const unsigned char* const I2, 
+                                const Vec2i& field, int size, int width, int height, 
+                                int bytesPerPixel, int d_x,int d_y);
 
     /* calculates the optimal transformation for one field in RGB 
      *   using all three color channels
      */
-    Shift calcFieldTransRGB(const Field* field);
-     
+    Vec2i calcFieldTransRGB(const Vec2i& field, const osg::Image* current, 
+                            const osg::Image* last) const;
+    
     virtual int getSensorNumber() const {
       return num;
     };
@@ -94,11 +130,17 @@ namespace lpzrobots {
     virtual int get(sensor* sensors, int length) const;
 
   protected:
+    OpticalFlowConf conf;
     int num;
-    int points;
-    Dimensions dims;
+    std::list<Vec2i> fields; // fields in image coordinates
     sensor* data;
-    osg::Image* last;
+    osg::Image* lasts[4];
+    std::vector<Vec2i> oldFlows;
+    int maxShiftX;
+    int maxShiftY;
+    int width;
+    int height;
+    int cnt;
   }; 
 
 
