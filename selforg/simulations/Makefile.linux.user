@@ -16,10 +16,10 @@ LIBS   += -lm  -l$(SELFORGLIB) -lpthread
 INC    += 
 
 # -pg for profiling
-CPPFLAGS = -Wall -I. -g -pthread $(INC)
+CBASEFLAGS = -Wall -pipe -Wno-deprecated -pthread -I. $(INC)
+CPPFLAGS = $(CBASEFLAGS) -g -O
 ## Optimisation
-## Optimisation
-CPPFLAGS_OPT = -Wall -I. -O3 -pthread -DUNITTEST -DNDEBUG $(INC)
+CPPFLAGS_OPT = $(CBASEFLAGS) -O3 -DUNITTEST -DNDEBUG
 
 
 CXX = g++

@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-23 18:42:26  martius
+ *   Revision 1.2  2010-03-24 16:51:38  martius
+ *   QuickMP uses now the number of processors in the system
+ *   optical flow improved
+ *   video recording works with offscreen rendering
+ *   Make system: Optimization -O1 is switched on by default (add a debug version without optimization)
+ *
+ *   Revision 1.1  2010/03/23 18:42:26  martius
  *   new simulation for vision
  *
  *
@@ -32,6 +38,7 @@
 #include <selforg/noisegenerator.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/semox.h>
+#include <selforg/crossmotorcoupling.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/selectiveone2onewiring.h>
@@ -70,8 +77,10 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
-    int numSeeingRobots=1;
-    int numBlindRobots=1;
+    int numSeeingRobots=2;
+    int numBlindRobots=0;
+
+    int numBalls=5;
 
     setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
 
@@ -84,10 +93,10 @@ public:
     global.obstacles.push_back(playground);
 
     // add passive spheres as obstacles
-    for (int i=0; i< 1/*2*/; i+=1){
+    for (int i=0; i< numBalls; i++){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(1,1,0)), 0.3);
       // s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
-      s1->setPosition(osg::Vec3(0,0,1+i*5));
+      s1->setPosition(osg::Vec3(0,-2+i,1));
       s1->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s1);
     }
@@ -95,7 +104,7 @@ public:
     for(int i=0; i<numSeeingRobots; i++){
       // the twowheeled robot is derived from Nimm2 and has a camera onboard
       TwoWheeledConf twc = TwoWheeled::getDefaultConf();
-      twc.n2cfg.force=3;
+      twc.n2cfg.force=2;
       twc.n2cfg.speed=8;
 
 
@@ -106,10 +115,9 @@ public:
       twc.camcfg.removeProcessors();      
 
       OpticalFlowConf ofc = OpticalFlow::getDefaultConf();
-      // ofc.points = OpticalFlow::getDefaultPoints(3);
-      ofc.dims   = Sensor::X;
-      ofc.verbose   = 2;
-      //ofc.points  = getDefaultPoints(3);      
+      ofc.dims    = Sensor::X;
+      ofc.verbose = 1;
+      ofc.points  = OpticalFlow::getDefaultPoints(3);      
       twc.camSensor     = new OpticalFlow(ofc);
 
       OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, 
@@ -120,12 +128,19 @@ public:
       
       SeMoXConf cc = SeMoX::getDefaultConf();
       cc.modelExt = true;
-      AbstractController *controller = new SeMoX(cc);
+      SeMoX *semox = new SeMoX(cc);
+      CrossMotorCoupling* controller = new CrossMotorCoupling(semox, semox, 0.1);
+      std::list<int> perm;
+      perm += 0;
+      perm += 1;
+      controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));        
+      //      controller->setParam("rootE",1);
       
       // AbstractController *controller = new Braitenberg(Braitenberg::Aggressive, 2, 3);
-      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.1),
-                                                          new select_from_to(2,3));
-      OdeAgent* agent = new OdeAgent(plotoptions, 0); // no noise
+//       AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.1),
+//                                                           new select_from_to(2,3));
+      AbstractWiring* wiring = new One2OneWiring(new NoNoise());
+      OdeAgent* agent = new OdeAgent( i==0 ? plotoptions : std::list<PlotOption>());
       agent->init(controller, vehicle, wiring);
       global.configs.push_back(controller);
       global.agents.push_back(agent);
@@ -148,7 +163,7 @@ public:
     showParams(global.configs);
   }
 
-  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {    
   }
   
   virtual void end(GlobalData& globalData){

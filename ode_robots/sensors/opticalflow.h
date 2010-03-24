@@ -51,7 +51,8 @@ namespace lpzrobots {
     /** size (edge length) of the measurement field (block) in pixel 
         (if 0 then 1/12th of width) */
     int fieldSize; 
-    /// verbosity level (0: quite, 1: initialization values, 2: warnings, 3: debug)
+    /** verbosity level 
+        (0: quite, 1: initialization values, 2: warnings, 3: info, 4: debug) */
     int verbose; 
   };
 
@@ -69,6 +70,7 @@ namespace lpzrobots {
       int y;
       Vec2i operator + (const Vec2i& v) const;
       Vec2i operator * (int i) const;
+      Vec2i operator / (int i) const;
     };
 
     typedef std::list< std::pair<Vec2i,int> > FlowDelList;
@@ -101,7 +103,15 @@ namespace lpzrobots {
     
     /// Performs the calculations
     virtual bool sense(const GlobalData& globaldata);
+    
+    virtual int getSensorNumber() const {
+      return num;
+    };
 
+    virtual int get(sensor* sensors, int length) const;
+
+
+  protected:
     /**
        compares a small part of two given images 
        and returns the average absolute difference.
@@ -117,17 +127,12 @@ namespace lpzrobots {
                                 const Vec2i& field, int size, int width, int height, 
                                 int bytesPerPixel, int d_x,int d_y);
 
-    /* calculates the optimal transformation for one field in RGB 
+    /** calculates the optimal transformation for one field in RGB 
      *   using all three color channels
+     * @param minerror (is to return the minimum error achieved during the matching)
      */
     Vec2i calcFieldTransRGB(const Vec2i& field, const osg::Image* current, 
-                            const osg::Image* last) const;
-    
-    virtual int getSensorNumber() const {
-      return num;
-    };
-
-    virtual int get(sensor* sensors, int length) const;
+                            const osg::Image* last, double& minerror) const;
 
   protected:
     OpticalFlowConf conf;
@@ -141,6 +146,7 @@ namespace lpzrobots {
     int width;
     int height;
     int cnt;
+    double avgerror; // average minimum matching error
   }; 
 
 

@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.124  2010-03-23 18:43:54  martius
+ *   Revision 1.125  2010-03-24 16:51:38  martius
+ *   QuickMP uses now the number of processors in the system
+ *   optical flow improved
+ *   video recording works with offscreen rendering
+ *   Make system: Optimization -O1 is switched on by default (add a debug version without optimization)
+ *
+ *   Revision 1.124  2010/03/23 18:43:54  martius
  *   lpzviewer: added checking function
  *   camerasensor new initialization
  *   twowheeled allows full customization of camera
@@ -1598,6 +1604,8 @@ namespace lpzrobots {
       }
     }
 
+    // initialize QuickMP with the number of processors
+    QMP_SET_NUM_THREADS(0);
     index = contains(argv, argc, "-threads");
     if (index) {
       if(argc > index){
@@ -1605,11 +1613,11 @@ namespace lpzrobots {
 	if (threads==1)
 	{ // if set to 1, disable use of QMP
 	  useQMPThreads=false;
-	  printf("Number of threads=1, using no QMP.\n");
-	} else
-	{
+	  printf("Disabling QuickMP multithreading.\n");
+	} else {
+          useQMPThreads=true;
 	  QMP_SET_NUM_THREADS(threads);
-	  printf("Number of threads=%i\n", threads);
+          printf("Number of QuickMP threads=%i\n", QMP_GET_MAX_THREADS());
 	}
       }
     }
@@ -1817,7 +1825,7 @@ namespace lpzrobots {
     printf("\t-drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
     printf("\t-simtime min\tlimited simulation time in minutes\n");
     printf("\t-savecfg\tsafe the configuration file with the values given by the cmd line\n");
-    printf("\t-threads N\tnumber of threads to use (default is the number of processors)\n");
+    printf("\t-threads N\tnumber of threads to use (0: number of processors (default))\n");
     printf("\t-odethread\t* if given the ODE runs in its own thread. -> Sensors are delayed by 1\n");
     printf("\t-osgthread\t* if given the OSG runs in its own thread (recommended)\n");
     printf("\t* this parameter can be set in the configuration file ~/.lpzrobots/ode_robots.cfg\n");

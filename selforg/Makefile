@@ -19,9 +19,10 @@ OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
 
 
 # use -pg for profiling
-CFLAGS = -Wall -g -pipe -Wno-deprecated
+CBASEFLAGS = -Wall -pipe -Wno-deprecated
+CFLAGS = $(CBASEFLAGS) -g -O
 # Optimisation 
-CFLAGS_OPT = -Wall -pipe -Wno-deprecated -O -DNDEBUG
+CFLAGS_OPT = $(CBASEFLAGS) -O3 -DNDEBUG
 # additional inc paths
 INC +=  -I. -Iinclude
 

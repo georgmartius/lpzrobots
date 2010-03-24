@@ -69,10 +69,15 @@ namespace lpzrobots {
     if(!needForOffScreenRendering()) return;
     osg::Node* origNode = _camera->getChild(0);
     _camera->setChild(0,offScreenGroup);
+    osg::Camera::DrawCallback* origFDC = _camera->getFinalDrawCallback();
+    _camera->setFinalDrawCallback(0);
+
     // printf("offscreen rendering \n");    
     updateTraversal(); // we don't need that (simulationTime of OSG is anyway to updated)
     offScreenRenderingTraversals();
     _camera->setChild(0,origNode);
+    _camera->setFinalDrawCallback(origFDC);
+
   }
 
 

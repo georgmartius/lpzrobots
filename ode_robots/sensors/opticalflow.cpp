@@ -33,9 +33,12 @@ namespace lpzrobots {
   OpticalFlow::Vec2i OpticalFlow::Vec2i::operator * (int i) const {
     return Vec2i(x*i,y*i);
   }
+  OpticalFlow::Vec2i OpticalFlow::Vec2i::operator / (int i) const {
+    return Vec2i(x/i,y/i);
+  }
 
   OpticalFlow::OpticalFlow(OpticalFlowConf conf)
-    : conf(conf), fields(0), data(0), cnt(4) {
+    : conf(conf), fields(0), data(0), cnt(4), avgerror(-1) {
     num = conf.points.size() * (bool(conf.dims & X) + bool(conf.dims & Y));
     data = new sensor[num]; 
     memset(data,0,sizeof(sensor)*num);    
@@ -53,7 +56,7 @@ namespace lpzrobots {
 
   list<Pos> OpticalFlow::getDefaultPoints(int num){
     list<Pos> ps;
-    if(num<1) {
+    if(num<=1) {
       ps += Pos(0,0,0); // only center
     }else{
       double spacing = 2.0/(num-1);
@@ -101,46 +104,48 @@ namespace lpzrobots {
     
   /// Performs the calculations
   bool OpticalFlow::sense(const GlobalData& globaldata){
-    const osg::Image* img = camera->getImage();
-    //     char name[128];
-    //     sprintf(name,"testOF_%06ld.jpg", globaldata.sim_step);
-    //     if(!osgDB::writeImageFile( *img, name )){
-    //       fprintf(stderr, "OF: Cannot write to file %s\n", name);
-    //       return false;
-    //     }
-    
-    if(conf.verbose>2) printf("OF Sense\n");      
+    const osg::Image* img = camera->getImage();    
     int k=0; // sensor buffer index
-    int i=0; // field index   
+    int i=0; // field index       
+    // do not use quickmp here because the sense function is already in a quickmp loop.
     FOREACHC(list<Vec2i>, fields, f){
       FlowDelList flows;
-      // we do an optical flow to a cascade of previous frames
+      // we do optical flow detection with a cascade of delays (1,2,4)
       for(int t=1; t<=4; t*=2){        
-        Vec2i flow = calcFieldTransRGB(*f, img, lasts[(cnt-t)%4]);
+        double minerror;
+        Vec2i flow = calcFieldTransRGB(*f, img, lasts[(cnt-t)%4], minerror);
+        if(avgerror<0) avgerror = minerror;
+        else avgerror = 0.99*avgerror + minerror*0.01;
+        // if the flow is too high, then do not continue (at the end of the loop)
         bool stophere = (fabs(flow.x) > maxShiftX/2  || fabs(flow.y) > maxShiftY/2);
         // if maximum shift then prob. something is wrong (e.g. black image)
-        //  so keep the discounted old flow
-        if (t==1 && (fabs(flow.x) == maxShiftX  || fabs(flow.y) == maxShiftY)){
-          flow.x = oldFlows[i].x*0.2; // take take of the later scales!
-          flow.y = oldFlows[i].y*0.2;   
+        //  so skip this value
+        if (stophere && (fabs(flow.x) == maxShiftX || fabs(flow.y) == maxShiftY)){
           if(conf.verbose>1) printf("OF Warning: maximal shift (%i)\n", i);
-        }else{
-          if(conf.verbose>2) 
-            printf("OF detect %i(%i): %3i, %3i\n", i, t, flow.x, flow.y); 
+          break;
         }
+        if( minerror > avgerror*3){
+          if(conf.verbose>2) printf("OF Warning: bad quality %i(%i) badness %lf\n", 
+                                    i, t, minerror/avgerror);
+          if(stophere) break; else continue;
+        }
+        if(conf.verbose>3) 
+          printf("OF detect %i(%i): %3i,%3i (%3i,%3i) error: %lf (%lf)\n",
+                 i, t, flow.x*4/t, flow.y*4/t,flow.x, flow.y,minerror, avgerror); 
+        
         flows.push_back(pair<Vec2i, int>(flow,t));          
-        // if the flow is too high, then do not continue
         if (stophere) break;
       }
       
-      // we combine the flows the different delays
-      Vec2i flow; // now in double
-      FOREACH(FlowDelList, flows, fl){
-        flow = flow + fl->first*(5-fl->second); // delay 1 is scaled by 4 and delay 4 stays
+      // we combine the flows with different delays and the old flow is always in
+      Vec2i flow=oldFlows[i];
+      FOREACHC(FlowDelList, flows, fl){// delay 1 is scaled by 4 and delay 4 stays
+        flow = flow + (fl->first*(4/fl->second)); 
       }
-      
-      if(conf.dims & X) data[k++] = (flow.x/(double)maxShiftX)/flows.size();
-      if(conf.dims & Y) data[k++] = (flow.y/(double)maxShiftY)/flows.size();
+      flow = flow/(flows.size()+1);
+      //      if(conf.dims & X) data[k++] = (flow.x/(double)maxShiftX)/lenp1;
+      if(conf.dims & X) data[k++] = flow.x/(double)maxShiftX;
+      if(conf.dims & Y) data[k++] = flow.y/(double)maxShiftY;
       oldFlows[i] = flow; // save the flow
       i++;
     }
@@ -187,12 +192,13 @@ namespace lpzrobots {
   // this is taken from Georg's vid.stab video stabilization tool
   OpticalFlow::Vec2i OpticalFlow::calcFieldTransRGB(const Vec2i& field, 
                                                     const osg::Image* current,
-                                                    const osg::Image* previous) const {
+                                                    const osg::Image* previous,
+                                                    double& minerror) const {
     Vec2i t;
     const unsigned char *I_c = current->data(), *I_p = previous->data();
     int i, j;
   
-    double minerror = 1e20;  
+    minerror = 1e20;  
     // check only every second step
     for (i = -maxShiftX; i <= maxShiftX; i += 2) {
       for (j=-maxShiftY; j <= maxShiftY; j += 2) {      

@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-12-01 15:51:11  martius
+ *   Revision 1.11  2010-03-24 16:51:38  martius
+ *   QuickMP uses now the number of processors in the system
+ *   optical flow improved
+ *   video recording works with offscreen rendering
+ *   Make system: Optimization -O1 is switched on by default (add a debug version without optimization)
+ *
+ *   Revision 1.10  2009/12/01 15:51:11  martius
  *   fix: initIntern of One2OneWiring is called from this initIntern
  *
  *   Revision 1.9  2009/08/05 22:45:25  martius
@@ -74,7 +80,7 @@
  ***************************************************************************/
 
 #include "selectiveone2onewiring.h"
-#include "assert.h"
+#include <assert.h>
 #include <cstring>
 
 /// constructor
@@ -82,6 +88,7 @@ SelectiveOne2OneWiring::SelectiveOne2OneWiring(NoiseGenerator* noise,
 					       select_predicate* sel_sensor,
 					       int plotMode)
   : One2OneWiring(noise, plotMode), sel_sensor(sel_sensor) {
+  assert(sel_sensor);
 }
 
 SelectiveOne2OneWiring::~SelectiveOne2OneWiring(){

@@ -21,14 +21,14 @@ find_h_files = $(wildcard $(dir)/*.h)
 HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 
 # -pg for profiling
-CPPFLAGS = -Wall -g -pipe -I. -pthread $(INC) -Wno-deprecated
+CPPBASEFLAG = -Wall -Wno-deprecated -pipe -I. -pthread $(INC) 
+CPPFLAGS = $(CPPBASEFLAG) -g -O
 
 ## Optimisation
-CPPFLAGS_OPT = -Wall -I. -pipe -pthread $(INC) -O -DNDEBUG -Wno-deprecated
+CPPFLAGS_OPT = $(CPPBASEFLAG) -O3 -DNDEBUG
 
 ## Optimisation
-CPPFLAGS_PROF = -Wall -I. -pipe -pthread $(INC) -O -DQPROF -Wno-deprecated
-
+CPPFLAGS_PROF = $(CPPBASEFLAG)-O -DQPROF
 
 # used for single file compilation
 CXX = g++

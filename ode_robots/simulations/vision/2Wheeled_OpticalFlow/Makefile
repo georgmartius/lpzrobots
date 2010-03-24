@@ -39,7 +39,7 @@ CXX = g++
 ODEFLAGS = $(shell ode-dbl-config --cflags)
 CPPBASEFLAGS = $(ODEFLAGS) -pthread $(INC) -Wno-deprecated -Wall
 # -pg for profiling
-CPPFLAGS = $(CPPBASEFLAGS) -g 
+CPPFLAGS = $(CPPBASEFLAGS) -g -O1
 ## Optimisation
 CPPFLAGS_OPT = $(CPPBASEFLAGS) -O3 -DNDEBUG
 

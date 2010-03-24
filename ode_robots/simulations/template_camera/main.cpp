@@ -21,7 +21,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-03-23 18:43:54  martius
+ *   Revision 1.7  2010-03-24 16:51:38  martius
+ *   QuickMP uses now the number of processors in the system
+ *   optical flow improved
+ *   video recording works with offscreen rendering
+ *   Make system: Optimization -O1 is switched on by default (add a debug version without optimization)
+ *
+ *   Revision 1.6  2010/03/23 18:43:54  martius
  *   lpzviewer: added checking function
  *   camerasensor new initialization
  *   twowheeled allows full customization of camera
@@ -105,7 +111,8 @@ public:
 
     // use Playground as boundary:
     playground = new Playground(odeHandle, osgHandle,
-				osg::Vec3(10, .2, 1));
+				osg::Vec3(10, .2, 1.4));
+    playground->setTexture("Images/wall.rgb");
     playground->setPosition(osg::Vec3(0,0,0.1));
     global.obstacles.push_back(playground);
 
@@ -175,9 +182,9 @@ public:
       if(1){
         camc.processors.clear(); // no preprocessing
         OpticalFlowConf ofc = OpticalFlow::getDefaultConf();
-        // ofc.points = OpticalFlow::getDefaultPoints(3);
+        ofc.points = OpticalFlow::getDefaultPoints(1);
         ofc.dims   = Sensor::X;
-        ofc.verbose = 1;
+        ofc.verbose = 3;
         ofc.maxFlow = 0.12;
         ofc.fieldSize = 24;
 	camsensor = new OpticalFlow(ofc);

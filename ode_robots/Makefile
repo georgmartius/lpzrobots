@@ -4,7 +4,13 @@
 
 #
 # $Log$
-# Revision 1.29  2010-03-09 11:53:41  martius
+# Revision 1.30  2010-03-24 16:51:38  martius
+# QuickMP uses now the number of processors in the system
+# optical flow improved
+# video recording works with offscreen rendering
+# Make system: Optimization -O1 is switched on by default (add a debug version without optimization)
+#
+# Revision 1.29  2010/03/09 11:53:41  martius
 # renamed globally ode to ode-dbl
 #
 # Revision 1.28  2010/03/05 14:32:55  martius
@@ -44,7 +50,7 @@ UTILS = install_prefix.conf
 ODEFLAGS = $(shell ode-dbl-config --cflags)
 CPPBASEFLAG = -Wall -Wno-deprecated -pipe -I. $(ODEFLAGS) -pthread $(INC) 
 
-CPPFLAGS = -g $(CPPBASEFLAG)
+CPPFLAGS = -g -O1 $(CPPBASEFLAG)
 
 ## Optimisation
 CPPFLAGS_OPT = $(CPPBASEFLAG) -O -DNDEBUG
