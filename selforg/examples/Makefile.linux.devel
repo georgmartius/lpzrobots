@@ -6,30 +6,36 @@
 include Makefile.conf
 
 EXEC_OPT = $(EXEC)_opt
+EXEC_DBG = $(EXEC)_dbg
 
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
 SELFORGLIB = selforg
 SELFORGLIB_OPT = selforg_opt
-LIBSELFORG = lib$(SELFORGLIB).a
+SELFORGLIB_DBG = selforg_dbg
 
 LIBS   += -lm -L$(SELFORG)/ -l$(SELFORGLIB) -lpthread
 INC    += -I$(SELFORG)/include
 
 # -pg for profiling
-CPPFLAGS = -Wall -I. -g -pthread $(INC)
+CBASEFLAGS = -Wall -pipe -Wno-deprecated -pthread -I. $(INC)
+CPPFLAGS = $(CBASEFLAGS) -g -O
+## DEBUG
+CPPFLAGS_DBG = $(CBASEFLAGS) -g
 ## Optimisation
-CPPFLAGS_OPT = -Wall -I. -O3 -pthread -DUNITTEST -DNDEBUG $(INC)
+CPPFLAGS_OPT = $(CBASEFLAGS) -O3 -DUNITTEST -DNDEBUG
 
-# cc = g++ $(CFLAGS) $(INC) -c
-# cc = g++ $(CFLAGS) -c -O -g3 -pg
 CXX = g++
-
-#CC = g++ -g3 -pg  
 
 $(EXEC): Makefile.depend $(OFILES) libselforg
 	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC)
+
+$(EXEC_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
+$(EXEC_DBG): SELFORGLIB = $(SELFORGLIB_DBG)
+$(EXEC_DBG): Makefile.depend $(OFILES) libselforg_dbg
+	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC_DBG)
+
 
 $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
@@ -40,9 +46,11 @@ $(EXEC_OPT): Makefile.depend $(OFILES) libselforg_opt
 libselforg: 
 	cd $(SELFORG) && make
 
+libselforg_dbg: 
+	cd $(SELFORG) && make dbg
+
 libselforg_opt: 
 	cd $(SELFORG) && make opt
-
 
 depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null

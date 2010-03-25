@@ -9,6 +9,7 @@ SELFORG=../selforg
 INCLUDEDIR=include/$(PACKAGE_NAME)
 REVINCLUDEDIR=../..
 LIB=lib$(PACKAGE_NAME).a
+LIB_DBG=lib$(PACKAGE_NAME)_dbg.a
 LIB_OPT=lib$(PACKAGE_NAME)_opt.a
 LIB_PROF=lib$(PACKAGE_NAME)_prof.a
 
@@ -23,6 +24,9 @@ HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 # -pg for profiling
 CPPBASEFLAG = -Wall -Wno-deprecated -pipe -I. -pthread $(INC) 
 CPPFLAGS = $(CPPBASEFLAG) -g -O
+
+## Debug (no optimization)
+CPPFLAGS_DBG = $(CPPBASEFLAG) -g
 
 ## Optimisation
 CPPFLAGS_OPT = $(CPPBASEFLAG) -O3 -DNDEBUG
@@ -46,6 +50,10 @@ prof: $(UTILS) libselforg $(LIB_PROF)
 
 $(LIB): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
 	$(AR) $(LIB) $(OFILES)
+
+$(LIB_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
+$(LIB_DBG): Makefile.depend $(SELFORG)/libselforg_dbg.a $(OFILES)
+	$(AR) $(LIB_DBG) $(OFILES)
 
 $(LIB_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(LIB_OPT): Makefile.depend $(SELFORG)/libselforg_opt.a $(OFILES)
@@ -81,7 +89,7 @@ search:
 
 
 clean-all: clean
-	rm -f $(LIB) $(LIB_OPT) $(LIB_PROF)
+	rm -f $(LIB) $(LIB_DBG) $(LIB_OPT) $(LIB_PROF)
 
 clean:
 	rm -f Makefile.depend

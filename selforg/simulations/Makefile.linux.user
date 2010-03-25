@@ -10,7 +10,7 @@ OFILES = $(addsuffix .o, $(FILES))
 
 SELFORGLIB = selforg
 SELFORGLIB_OPT = selforg_opt
-LIBSELFORG = lib$(SELFORGLIB).a
+SELFORGLIB_DBG = selforg_dbg
 
 LIBS   += -lm  -l$(SELFORGLIB) -lpthread
 INC    += 
@@ -18,6 +18,8 @@ INC    +=
 # -pg for profiling
 CBASEFLAGS = -Wall -pipe -Wno-deprecated -pthread -I. $(INC)
 CPPFLAGS = $(CBASEFLAGS) -g -O
+## DEBUG
+CPPFLAGS_DBG = $(CBASEFLAGS) -g
 ## Optimisation
 CPPFLAGS_OPT = $(CBASEFLAGS) -O3 -DUNITTEST -DNDEBUG
 
@@ -26,6 +28,11 @@ CXX = g++
 
 $(EXEC): Makefile.depend $(OFILES)
 	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC)
+
+$(EXEC_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
+$(EXEC_DBG): SELFORGLIB = $(SELFORGLIB_DBG)
+$(EXEC_DBG): Makefile.depend $(OFILES)
+	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC_DBG)
 
 $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
