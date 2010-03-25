@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.125  2010-03-24 16:51:38  martius
+ *   Revision 1.126  2010-03-25 16:39:20  martius
+ *   commented Critical Section 20 since it produced an error
+ *
+ *   Revision 1.125  2010/03/24 16:51:38  martius
  *   QuickMP uses now the number of processors in the system
  *   optical flow improved
  *   video recording works with offscreen rendering
@@ -769,7 +772,7 @@ namespace lpzrobots {
   bool Simulation::init(int argc, char** argv) {
     orig_argv = argv;
 
-    QMP_CRITICAL(20);
+    //    QMP_CRITICAL(20);
     /**************** ODE-Section   ***********************/
     odeHandle.init(&globalData.time);
     // redirect ODE messages to our print function (writes into file ode.msg)
@@ -942,7 +945,7 @@ namespace lpzrobots {
     }
 
     state=initialised;
-    QMP_END_CRITICAL(20);
+    //    QMP_END_CRITICAL(20);
     // we created a new argv pointer in insertCmdLineOption
     if(orig_argv != argv) free(argv);     
     return true;
