@@ -21,7 +21,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-03-25 16:38:07  martius
+ *   Revision 1.1  2010-03-25 16:38:07  martius
  *   vision experiments
  *
  *   Revision 1.2  2010/03/24 16:51:38  martius
@@ -62,7 +62,6 @@
 #include <ode_robots/camera.h>
 #include <ode_robots/imageprocessors.h>
 #include <ode_robots/camerasensors.h>
-#include <ode_robots/opticalflow.h>
 
 #include <ode_robots/twowheeled.h>
 
@@ -93,6 +92,9 @@ public:
 
     global.odeConfig.setParam("controlinterval",4);
 
+    addParameterDef("attraction", &attraction, 0.001);
+    global.configs.push_back(this);
+
     // use Playground as boundary:
     playground = new Playground(odeHandle, osgHandle,
 				osg::Vec3(10, .2, 1));
@@ -103,7 +105,7 @@ public:
     for (int i=0; i< numBalls; i++){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(1,1,0)), 0.3);
       // s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
-      s1->setPosition(osg::Vec3(0,-2+i,1));
+      s1->setPosition(osg::Vec3(i%5,-2+i/5,1));
       s1->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s1);
     }
@@ -118,13 +120,10 @@ public:
       twc.camcfg.height = 128;
       twc.camcfg.fov    = 120;      
       // get rid of the image processing
-      twc.camcfg.removeProcessors();      
-
-      OpticalFlowConf ofc = OpticalFlow::getDefaultConf();
-      ofc.dims    = Sensor::X;
-      ofc.verbose = 1;
-      ofc.points  = OpticalFlow::getDefaultPoints(3);      
-      twc.camSensor     = new OpticalFlow(ofc);
+      delete twc.camcfg.processors.back();
+      twc.camcfg.processors.pop_back();
+            
+      twc.camSensor     = new MotionCameraSensor(2, MotionCameraSensor::Size);
 
       OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, 
                                          "CamRobot_" + itos(i));
@@ -170,7 +169,16 @@ public:
     showParams(global.configs);
   }
 
-  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {    
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+    // move all balls to robot
+    Pos rpos = (*globalData.agents.begin())->getRobot()->getPosition();
+    FOREACH(ObstacleList, globalData.obstacles, o){
+      PassiveSphere* s = dynamic_cast<PassiveSphere*>(*o);
+      if(s){
+        Pos spos = s->getMainPrimitive()->getPosition();
+        s->getMainPrimitive()->applyForce((rpos-spos)*attraction);
+      }
+    }
   }
   
   virtual void end(GlobalData& globalData){
@@ -183,8 +191,8 @@ public:
     myLight->setLightNum(1);
     myLight->setPosition(osg::Vec4(1.0,1.0,1.0,0.0f));
     myLight->setDirection(osg::Vec3(-1.0, -1.0, -1.0));
-    myLight->setAmbient(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
-    myLight->setDiffuse(osg::Vec4(.8f,.8f,.8f,1.0f));
+    myLight->setAmbient(osg::Vec4(.9f,.9f,.9f,.9f));
+    myLight->setDiffuse(osg::Vec4(.7f,.7f,.7f,.7f));
     myLight->setConstantAttenuation(1.0f);
 
     osg::LightSource* lightS = new osg::LightSource;
@@ -196,7 +204,7 @@ public:
     return lightS;
   }
 
-
+  paramval attraction;
 };
 
 
