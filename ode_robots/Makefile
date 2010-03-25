@@ -4,7 +4,10 @@
 
 #
 # $Log$
-# Revision 1.30  2010-03-24 16:51:38  martius
+# Revision 1.31  2010-03-25 16:39:51  martius
+# primitive has addForce/addTorque function
+#
+# Revision 1.30  2010/03/24 16:51:38  martius
 # QuickMP uses now the number of processors in the system
 # optical flow improved
 # video recording works with offscreen rendering
@@ -28,14 +31,17 @@
 #
 #
 
+
+PACKAGE_NAME=ode_robots
 LPZROBOTS=..
 ODEROBOTS=.
 SELFORG=../selforg
 INCLUDEDIR=include/ode_robots
 REVINCLUDEDIR=../..
-LIB=libode_robots.a
-LIB_OPT=libode_robots_opt.a
-LIB_PROF=libode_robots_prof.a
+LIB=lib$(PACKAGE_NAME).a
+LIB_DBG=lib$(PACKAGE_NAME)_dbg.a
+LIB_OPT=lib$(PACKAGE_NAME)_opt.a
+LIB_PROF=lib$(PACKAGE_NAME)_prof.a
 
 include Makefile.conf
 
@@ -52,8 +58,11 @@ CPPBASEFLAG = -Wall -Wno-deprecated -pipe -I. $(ODEFLAGS) -pthread $(INC)
 
 CPPFLAGS = -g -O1 $(CPPBASEFLAG)
 
+## Debug (no optimization
+CPPFLAGS_DBG = $(CPPBASEFLAG) -g
+
 ## Optimisation
-CPPFLAGS_OPT = $(CPPBASEFLAG) -O -DNDEBUG
+CPPFLAGS_OPT = $(CPPBASEFLAG) -O3 -DNDEBUG
 
 ## Optimisation
 CPPFLAGS_PROF = $(CPPBASEFLAG) -pg -O -DQPROF
@@ -68,12 +77,18 @@ AR = ar -rs
 
 lib: $(UTILS) libselforg $(LIB)
 
+dbg: $(UTILS) libselforg_dbg $(LIB_DBG)
+
 opt: $(UTILS) libselforg_opt $(LIB_OPT)
 
 prof: $(UTILS) libselforg $(LIB_PROF)
 
 $(LIB): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
 	$(AR) $(LIB) $(OFILES)
+
+$(LIB_DBG): CPPFLAGS = $(CPPFLAGS_OPT)
+$(LIB_DBG): Makefile.depend $(SELFORG)/libselforg_dbg.a $(OFILES)
+	$(AR) $(LIB_DBG) $(OFILES)
 
 $(LIB_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(LIB_OPT): Makefile.depend $(SELFORG)/libselforg_opt.a $(OFILES)
@@ -85,6 +100,9 @@ $(LIB_PROF): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
 
 libselforg:	
 	+cd $(SELFORG) && make libselforg.a		
+
+libselforg_dbg:	
+	+cd $(SELFORG) && make libselforg_dbg.a		
 
 libselforg_opt:	
 	+cd $(SELFORG) && make libselforg_opt.a		
@@ -114,7 +132,7 @@ search:
 
 
 clean-all: clean
-	rm -f $(LIB) $(LIB_OPT) $(LIB_PROF)
+	rm -f $(LIB) $(LIB_DBG) $(LIB_OPT) $(LIB_PROF)
 
 clean:
 	rm -f Makefile.depend

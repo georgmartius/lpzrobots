@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.29  2010-03-16 15:47:46  martius
+ *   Revision 1.30  2010-03-25 16:39:51  martius
+ *   primitive has addForce/addTorque function
+ *
+ *   Revision 1.29  2010/03/16 15:47:46  martius
  *   osgHandle has now substructures osgConfig and osgScene
  *    that minimized amount of redundant data (this causes a lot of changes)
  *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
@@ -369,6 +372,20 @@ namespace lpzrobots{
     else return Pos(0,0,0);
   }
   
+  bool Primitive::applyForce(osg::Vec3 force){
+    if(body){
+      dBodyAddForce(body, force.x(),force.y(),force.z()); 
+      return true;
+    } else return false;
+  }
+
+  bool Primitive::applyTorque(osg::Vec3 torque){
+    if(body){
+      dBodyAddTorque(body, torque.x(), torque.y(), torque.z()); 
+      return true;
+    } else return false;
+  }
+
 
   dGeomID Primitive::getGeom() const { 
    return geom;    

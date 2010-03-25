@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2010-03-11 15:17:19  guettler
+ *   Revision 1.24  2010-03-25 16:39:51  martius
+ *   primitive has addForce/addTorque function
+ *
+ *   Revision 1.23  2010/03/11 15:17:19  guettler
  *   -BoundingShape can now be set from outside (see XMLBoundingShape)
  *   -Mesh can be created without Body and Geom.
  *
@@ -268,10 +271,18 @@ public:
   virtual Pos getPosition() const;
   /// returns the pose
   virtual osg::Matrix getPose() const;
-  // returns the velocity
+  /// returns the velocity
   virtual Pos getVel() const;  
-  // returns the angular velocity
+  /// returns the angular velocity
   virtual Pos getAngularVel() const;
+
+  /** apply a force (in world coordinates) to the primitive and 
+      returns true if it was possible */
+  virtual bool applyForce(osg::Vec3 force);
+  /** apply a torque (in world coordinates) to the primitive and 
+      returns true if it was possible
+   */
+  virtual bool applyTorque(osg::Vec3 torque);
 
   /// sets the mass of the body (uniform)
   virtual void setMass(double mass) = 0;

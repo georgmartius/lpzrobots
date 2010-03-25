@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.46  2010-03-17 09:33:16  martius
+ *   Revision 1.47  2010-03-25 16:39:51  martius
+ *   primitive has addForce/addTorque function
+ *
+ *   Revision 1.46  2010/03/17 09:33:16  martius
  *   removed memory leaks and some small bugs
  *   valgrind suppression file is updated
  *
@@ -997,7 +1000,8 @@ namespace lpzrobots {
       scene->shadowedSceneRoot->addChild(scene->groundScene);
       scene->shadowedSceneRoot->addChild(scene->scene);
                  
-      scene->shadowedScene = createShadowedScene(scene->shadowedSceneRoot,scene->lightSource, 
+      scene->shadowedScene = createShadowedScene(scene->shadowedSceneRoot,
+                                                 scene->lightSource, 
                                                  shadowType);
       scene->world->addChild(scene->shadowedScene);
       // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene

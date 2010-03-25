@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-03-24 16:51:38  martius
+ *   Revision 1.8  2010-03-25 16:39:51  martius
+ *   primitive has addForce/addTorque function
+ *
+ *   Revision 1.7  2010/03/24 16:51:38  martius
  *   QuickMP uses now the number of processors in the system
  *   optical flow improved
  *   video recording works with offscreen rendering
@@ -164,22 +167,20 @@ public:
 						       HSVImgProc::Red+20, 
                                                        HSVImgProc::Green-20,100));
       CameraSensor* camsensor;
-      /// Left and right side brighness (of Yellow)
-      if(0){
+      int sensorType = 4;
+      switch(sensorType) {
+      case 1: /// Left and right side brighness (of Yellow)
 	camc.processors.push_back(new LineImgProc(true,20, 2));    
 	//camc.processors.push_back(new AvgImgProc(true,20, 15));    	
 	camsensor = new DirectCameraSensor();
-      }
-      /// Using the position of Yellow object
-      if(0){
-	camsensor = new PositionCameraSensor();
-      }
-      /// Motion detection (global optical flow if Yellow object(s))
-      if(0){
-	camsensor = new MotionCameraSensor(3);
-      }
-      /// Optical flow of raw image
-      if(1){
+        break;
+      case 2: /// Using the position of Yellow object
+	camsensor = new PositionCameraSensor(PositionCameraSensor::PositionAndSize);
+        break;
+      case 3: /// Motion detection (global optical flow if Yellow object(s))
+	camsensor = new MotionCameraSensor(3, MotionCameraSensor::PositionAndSize);
+        break;
+      case 4: /// Optical flow of raw image
         camc.processors.clear(); // no preprocessing
         OpticalFlowConf ofc = OpticalFlow::getDefaultConf();
         ofc.points = OpticalFlow::getDefaultPoints(1);
@@ -188,6 +189,9 @@ public:
         ofc.maxFlow = 0.12;
         ofc.fieldSize = 24;
 	camsensor = new OpticalFlow(ofc);
+        break;
+      default:
+        assert(0);
       }
       Camera* cam = new Camera(camc);
       osg::Matrix camPos = osg::Matrix::rotate(M_PI/2,0,0,1)
