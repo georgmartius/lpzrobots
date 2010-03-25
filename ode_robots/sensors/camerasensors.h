@@ -105,21 +105,25 @@ namespace lpzrobots {
    */
   class PositionCameraSensor : public CameraSensor {
   public:  
-
+    /** additional sensor values. Size is the size of the object (only one value,
+        independent of the dimensions */
+    enum Values { None = 0, Position = 1, Size = 2, PositionAndSize = 3 };
+    
     /** The camera image should be black and white 
 	(e.g. @see BWImageProcessor or ColorFilterImgProc)
         @see CameraSensor for further parameter explanation.
+        @param values sensor values to compute
         @param dims dimensions to return the position (X means horizonal, Y vertical)
      */
-    PositionCameraSensor(Dimensions dims = XY )
-      : dims(dims) {
-      num = bool(dims & X) + bool(dims & Y);
+    PositionCameraSensor(Values values = Position, Dimensions dims = XY )
+      : dims(dims), values(values) {
+      num = (bool(dims & X) + bool(dims & Y))*bool(values & Position) + bool(values & Size);
       data = new sensor[num]; 
       memset(data,0,sizeof(sensor)*num);
     }
 
     virtual ~PositionCameraSensor(){
-      delete[] data;
+      if(data) delete[] data;
     }
 
     virtual void intern_init(){
@@ -134,17 +138,22 @@ namespace lpzrobots {
       const osg::Image* img = camera->getImage();
       double x;
       double y;      
-      calcImgCOG(img, x, y);
+      double size;      
+      calcImgCOG(img, x, y, size);
       int k=0;
-      if(dims & X) data[k++] = x;
-      if(dims & Y) data[k++] = y;      
+      if(values & Position){
+        if(dims & X) data[k++] = x;
+        if(dims & Y) data[k++] = y;
+      }
+      if(values & Size) data[k++] = size;
       return true;
     }
 
     /** calculates the Center of Gravity of an image normalized to -1 to 1
 	@return false if image is image
     */
-    static bool calcImgCOG(const osg::Image* img, double& x, double& y, int threshold = 1){
+    static bool calcImgCOG(const osg::Image* img, double& x, double& y, double& size, 
+                           int threshold = 1){
       int w = img->s();
       int h = img->t();
       double centerX = w/2.0;
@@ -162,11 +171,13 @@ namespace lpzrobots {
 	}
       }
       if(sum<threshold){
-	x = y = 0;
+	x = y = size = 0;
 	return false;
       }else{
 	x /= sum * centerX; // normalize to -1 to 1 
 	y /= sum * centerY; // normalize to -1 to 1 
+        // the /255 would be correct, but then the values is so small
+        size = double(sum) / (w*h) / 100; 
 	return true;
       }
     }
@@ -183,6 +194,7 @@ namespace lpzrobots {
       return num;
     }
   protected:
+    Values values;
     int num;
     Dimensions dims;
     sensor* data;
@@ -190,8 +202,7 @@ namespace lpzrobots {
 
   /** This CameraSensor calculates the global optical flow of the camera image
       using the center of gravity method. It requires objects to be bright on black ground.
-      The velocity is by default smoothly windowed
-      to avoid step-like artefacts at the border.
+      The velocity is by default windowed to avoid step-like artefacts at the border.
       Probably you want to use an image processor like ColorFilterImgProc before. 
    */
   class MotionCameraSensor : public PositionCameraSensor {
@@ -201,17 +212,22 @@ namespace lpzrobots {
 	(e.g. @see BWImageProcessor or ColorFilterImgProc)
         @see CameraSensor for further parameter explanation.
         @param dims dimensions to return the position (X means horizonal, Y vertical)
+        @param values additional sensor values
 	@param factor factor for measured velocity (velocity is in framesize/frame
 	@param avg averaging time window (1: no averaging)
 	@param window whether to apply a windowing function to avoid edge effects
 	@param clipsize value at which the values are clipped, e.g. [-1.5,1.5] 
      */
-    MotionCameraSensor(int avg = 2, Dimensions dims = X, double factor = 5.0, 
-                       bool window = true, double clipsize = 1.5)
-      : PositionCameraSensor(dims), factor(factor), 
+    MotionCameraSensor(int avg = 2, Values values=None, Dimensions dims = X, 
+                       double factor = 5.0, bool window = true, double clipsize = 1.5)
+      : PositionCameraSensor(values, dims), factor(factor), 
 	window(true), clipsize(clipsize), last(false), lastX(0), lastY(0)
     {
       lambda = 1/(double)avg;
+      num += bool(dims & X) + bool(dims & Y);
+      delete[] data;
+      data = new sensor[num]; 
+      memset(data,0,sizeof(sensor)*num); 
     }
 
     virtual ~MotionCameraSensor(){
@@ -222,7 +238,8 @@ namespace lpzrobots {
       const osg::Image* img = camera->getImage();
       double x;
       double y;      
-      bool success = calcImgCOG(img, x, y);
+      double size;      
+      bool success = calcImgCOG(img, x, y, size);
       int k=0;
       if(last && success){
         // check if the apparent shift is infeasible, then leave the old sensor value.
@@ -236,6 +253,12 @@ namespace lpzrobots {
 	if(dims & X) data[k++] = 0;
 	if(dims & Y) data[k++] = 0;	
       }
+      if(values & Position){
+        if(dims & X) data[k++] = x;
+        if(dims & Y) data[k++] = y;
+      }
+      if(values & Size) data[k++] = size;	
+        
       if(clipsize!=0){
 	for(int i=0; i<num; i++){
 	  data[i] = clip(data[i],-clipsize,clipsize);
