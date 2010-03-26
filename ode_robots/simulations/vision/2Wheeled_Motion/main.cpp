@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-25 16:38:07  martius
+ *   Revision 1.2  2010-03-26 14:17:15  martius
+ *   fourwheeled in 2wheeled mode addded
+ *
+ *   Revision 1.1  2010/03/25 16:38:07  martius
  *   vision experiments
  *
  *   Revision 1.2  2010/03/24 16:51:38  martius
@@ -55,6 +58,8 @@
 
 // used arena
 #include <ode_robots/playground.h>
+#include <ode_robots/octaplayground.h> // arena
+
 // used passive spheres
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
@@ -64,6 +69,8 @@
 #include <ode_robots/camerasensors.h>
 
 #include <ode_robots/twowheeled.h>
+#include <ode_robots/addsensors2robotadapter.h>
+#include <ode_robots/fourwheeled.h>
 
 
 #include <osg/Light>
@@ -76,17 +83,19 @@ using namespace std;
 class ThisSim : public Simulation {
 public:
 
-
-  AbstractObstacle* playground;
-
   
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
-    int numSeeingRobots=1;
-    int numBlindRobots=0;
+    int numSeeing2wheeled = 0;
+    int numSeeing4wheeled = 1;
+    int numBlindRobots    = 0;
 
-    int numBalls=5;
+    int numBalls          = 5;
+
+    bool useSquareGround  = false;
+    bool useCorridor      = true;
+    double radius         = 10;
 
     setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
 
@@ -95,22 +104,40 @@ public:
     addParameterDef("attraction", &attraction, 0.001);
     global.configs.push_back(this);
 
-    // use Playground as boundary:
-    playground = new Playground(odeHandle, osgHandle,
-				osg::Vec3(10, .2, 1));
-    playground->setPosition(osg::Vec3(0,0,0.1));
-    global.obstacles.push_back(playground);
+    if(useSquareGround){
+      // use Playground as boundary:
+      Playground* playground = new Playground(odeHandle, osgHandle,
+                                              osg::Vec3(10, .2, 1));
+      playground->setPosition(osg::Vec3(0,0,0.1));
+      playground->setGroundSubstance(Substance(0.8,0,40,0.5));
+      global.obstacles.push_back(playground);
+    }else if(useCorridor){       // use circular Corridor 
+      // outer ground
+      OdeHandle wallHandle = odeHandle;
+      wallHandle.substance.toMetal(0.1);
+      OctaPlayground* outer = new OctaPlayground(wallHandle, osgHandle, 
+                                                 osg::Vec3(radius+1, 0.2, 1), 12);
+      outer->setPosition(osg::Vec3(0,0,0.1));
+      outer->setGroundSubstance(Substance(0.3,0.005,40,0.5));
+      global.obstacles.push_back(outer);
+      // inner walls (without ground
+      OctaPlayground* inner = new OctaPlayground(wallHandle, osgHandle, 
+                                                 osg::Vec3(radius-2, 0.2, 1), 12, false);
+      inner->setPosition(osg::Vec3(0,0,0.1));
+      global.obstacles.push_back(inner);
+    }
 
     // add passive spheres as obstacles
     for (int i=0; i< numBalls; i++){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(1,1,0)), 0.3);
-      // s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
-      s1->setPosition(osg::Vec3(i%5,-2+i/5,1));
+      // s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));      
+      if(useCorridor) s1->setPosition(osg::Vec3(sin(i/3.0)*radius,cos(i/3.0)*radius,1));
+      else  s1->setPosition(osg::Vec3(i%5,-2+i/5,1));
       s1->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s1);
     }
 
-    for(int i=0; i<numSeeingRobots; i++){
+    for(int i=0; i<numSeeing2wheeled; i++){
       // the twowheeled robot is derived from Nimm2 and has a camera onboard
       TwoWheeledConf twc = TwoWheeled::getDefaultConf();
       twc.n2cfg.force=2;
@@ -123,13 +150,17 @@ public:
       delete twc.camcfg.processors.back();
       twc.camcfg.processors.pop_back();
             
-      twc.camSensor     = new MotionCameraSensor(2, MotionCameraSensor::Size);
+      twc.camSensor     = new MotionCameraSensor(2, MotionCameraSensor::Size | MotionCameraSensor::SizeChange);
 
       OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, 
                                          "CamRobot_" + itos(i));
       vehicle->setColor(Color(1,.7,0));
-      vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1)
-                     *osg::Matrix::translate(3,-4+2*i,0.3));
+      if(useCorridor) 
+        vehicle->place(osg::Vec3(sin(i/2.0-1)*radius,cos(i/2.0-1)*radius,0.3));
+      else
+        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1) 
+                       * osg::Matrix::translate(3,-4+2*i,0.3));
+
       
       SeMoXConf cc = SeMoX::getDefaultConf();
       cc.modelExt = true;
@@ -146,7 +177,58 @@ public:
 //       AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.1),
 //                                                           new select_from_to(2,3));
       AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
-      OdeAgent* agent = new OdeAgent( i==0 ? plotoptions : std::list<PlotOption>(),0.5);
+      OdeAgent* agent = new OdeAgent( i==0 ? plotoptions : std::list<PlotOption>(),0.1);
+      agent->init(controller, vehicle, wiring);
+      global.configs.push_back(controller);
+      global.agents.push_back(agent);
+    }
+
+    /// FOURWHEELED
+    for(int i=0; i<numSeeing4wheeled; i++){
+      CameraConf camcfg = Camera::getDefaultConf();
+      camcfg.width  = 256;
+      camcfg.height = 128;
+      camcfg.fov    = 120;      
+      camcfg.camSize = 0.08;
+      camcfg.processors.push_back(new HSVImgProc(false,1));
+      // filter only Yellow color
+      camcfg.processors.push_back(new ColorFilterImgProc(true, .5, 
+                                  HSVImgProc::Red+20, HSVImgProc::Green-20,100));
+      Camera* cam = new Camera(camcfg);
+      CameraSensor* camSensor = new MotionCameraSensor(2, MotionCameraSensor::SizeChange);
+      camSensor->setInitData(cam, odeHandle, osgHandle, osg::Matrix::rotate(M_PI/2,0,0,1)* 
+                             osg::Matrix::translate(-0.20,0,0.40));
+      std::list<Sensor*> sensors;
+      sensors.push_back(camSensor);      
+      FourWheeledConf fwc = FourWheeled::getDefaultConf();
+      fwc.twoWheelMode = true;
+      fwc.useBumper    = false;
+      OdeRobot* robot = new FourWheeled(odeHandle, osgHandle, 
+                                        fwc, 
+                                        "4WCamRobot_" + itos(i));
+      OdeRobot* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle, robot, sensors);
+      vehicle->setColor(Color(1,.7,0));
+      if(useCorridor) 
+        vehicle->place(osg::Vec3(sin(i/2.0-1)*radius,cos(i/2.0-1)*radius,0.3));
+      else
+        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1) 
+                       * osg::Matrix::translate(3,-4+2*i,0.3));
+
+      
+      SeMoXConf cc = SeMoX::getDefaultConf();
+      cc.modelExt = true;
+      SeMoX *semox = new SeMoX(cc);
+      //      AbstractController* controller = semox;
+      CrossMotorCoupling* controller = new CrossMotorCoupling(semox, semox, 0.0);
+      std::list<int> perm;
+      perm += 1;
+      perm += 0;
+      controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));        
+      //  controller->setParam("rootE",3);
+      controller->setParam("gamma_teach",0.005);
+      
+      AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
+      OdeAgent* agent = new OdeAgent( i==0 ? plotoptions : std::list<PlotOption>(),0.1);
       agent->init(controller, vehicle, wiring);
       global.configs.push_back(controller);
       global.agents.push_back(agent);
