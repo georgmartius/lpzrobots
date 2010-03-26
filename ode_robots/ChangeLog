@@ -1,3 +1,10 @@
+2010-03-25 martius
+	long time no update in the Changelog file. Almost everthing changed ;-)
+	Main points
+	1. Camera Support
+	2. Normal target is with -O1 and there is an additional debug target
+	
+	
 2008-04-17 martius
 	1. OSG2 port
 	New viewer is used. 

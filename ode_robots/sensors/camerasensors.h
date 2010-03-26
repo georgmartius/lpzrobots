@@ -107,17 +107,19 @@ namespace lpzrobots {
   public:  
     /** additional sensor values. Size is the size of the object (only one value,
         independent of the dimensions */
-    enum Values { None = 0, Position = 1, Size = 2, PositionAndSize = 3 };
+    enum ValueTypes { None = 0, Position = 1, Size = 2, SizeChange = 4 };
+    typedef short Values; ///< combination of ValueTypes
     
     /** The camera image should be black and white 
 	(e.g. @see BWImageProcessor or ColorFilterImgProc)
         @see CameraSensor for further parameter explanation.
-        @param values sensor values to compute
+        @param values sensor values to compute (@see PositionCameraSensor::ValueTypes)
         @param dims dimensions to return the position (X means horizonal, Y vertical)
      */
     PositionCameraSensor(Values values = Position, Dimensions dims = XY )
-      : dims(dims), values(values) {
-      num = (bool(dims & X) + bool(dims & Y))*bool(values & Position) + bool(values & Size);
+      : dims(dims), values(values), oldsize(0) {
+      num = (bool(dims & X) + bool(dims & Y))*bool(values & Position) +
+        bool(values & Size) + bool(values & SizeChange);
       data = new sensor[num]; 
       memset(data,0,sizeof(sensor)*num);
     }
@@ -129,7 +131,8 @@ namespace lpzrobots {
     virtual void intern_init(){
       assert(camera->isInitialized());
       const osg::Image* img = camera->getImage();
-      assert(img && img->getPixelFormat()==GL_LUMINANCE  && img->getDataType()==GL_UNSIGNED_BYTE);
+      assert(img && img->getPixelFormat()==GL_LUMINANCE  && 
+             img->getDataType()==GL_UNSIGNED_BYTE);
     };
 
     
@@ -146,6 +149,8 @@ namespace lpzrobots {
         if(dims & Y) data[k++] = y;
       }
       if(values & Size) data[k++] = size;
+      if(values & SizeChange) data[k++] = (size - oldsize)*10;
+      oldsize = size;
       return true;
     }
 
@@ -194,10 +199,11 @@ namespace lpzrobots {
       return num;
     }
   protected:
-    Values values;
     int num;
     Dimensions dims;
+    Values values;
     sensor* data;
+    double oldsize;
   }; 
 
   /** This CameraSensor calculates the global optical flow of the camera image
@@ -212,7 +218,7 @@ namespace lpzrobots {
 	(e.g. @see BWImageProcessor or ColorFilterImgProc)
         @see CameraSensor for further parameter explanation.
         @param dims dimensions to return the position (X means horizonal, Y vertical)
-        @param values additional sensor values
+        @param values additional sensor values, @see PositionCameraSensor::Values
 	@param factor factor for measured velocity (velocity is in framesize/frame
 	@param avg averaging time window (1: no averaging)
 	@param window whether to apply a windowing function to avoid edge effects
@@ -258,6 +264,7 @@ namespace lpzrobots {
         if(dims & Y) data[k++] = y;
       }
       if(values & Size) data[k++] = size;	
+      if(values & SizeChange) data[k++] = (size - oldsize)*10;
         
       if(clipsize!=0){
 	for(int i=0; i<num; i++){
@@ -268,6 +275,7 @@ namespace lpzrobots {
       lastX = x;
       lastY = y;
       last  = success;
+      oldsize = size;
       return true;
     }
     

@@ -22,7 +22,11 @@
  *  A robot with 4 wheels based on nimm4 with IR sensors                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-05-11 17:03:07  martius
+ *   Revision 1.5  2010-03-26 14:18:07  martius
+ *   fourwheeled has a 2 wheeled mode
+ *   camera position/motion sensor meansure size change
+ *
+ *   Revision 1.4  2009/05/11 17:03:07  martius
  *   minor substance change
  *
  *   Revision 1.3  2008/04/23 07:17:16  martius
@@ -55,6 +59,8 @@ namespace lpzrobots {
     double force;
     double speed;
     bool sphereWheels;
+    bool useBumper;
+    bool twoWheelMode; /// < if true then the robot emulates 2 wheels
     bool irFront;
     bool irBack;
     bool irSide;
@@ -81,16 +87,18 @@ namespace lpzrobots {
 
     static FourWheeledConf getDefaultConf(){
       FourWheeledConf conf;
-      conf.size=1;
-      conf.force=3;
-      conf.speed=15;
-      conf.sphereWheels=true;
-      conf.irFront=false;
-      conf.irBack=false;
-      conf.irSide=false;
-      conf.irRangeFront=3;
-      conf.irRangeSide=2;
-      conf.irRangeBack=2;
+      conf.size         = 1;
+      conf.force        = 3;
+      conf.speed        = 15;
+      conf.sphereWheels = true;
+      conf.twoWheelMode = false;
+      conf.useBumper    = true;
+      conf.irFront      = false;
+      conf.irBack       = false;
+      conf.irSide       = false;
+      conf.irRangeFront = 3;
+      conf.irRangeSide  = 2;
+      conf.irRangeBack  = 2;
       conf.wheelSubstance.toRubber(40);
       return conf;
     }
@@ -103,13 +111,11 @@ namespace lpzrobots {
     virtual void update();
 
     virtual int getSensorNumber();
+    virtual int getMotorNumber();
 
-    /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
-    */
     virtual int getSensors(sensor* sensors, int sensornumber);
+    
+    virtual void setMotors(const motor* motors, int motornumber);
 
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.

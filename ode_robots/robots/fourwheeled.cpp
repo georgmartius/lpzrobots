@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-03-21 21:48:59  martius
+ *   Revision 1.10  2010-03-26 14:18:07  martius
+ *   fourwheeled has a 2 wheeled mode
+ *   camera position/motion sensor meansure size change
+ *
+ *   Revision 1.9  2010/03/21 21:48:59  martius
  *   camera sensor bugfixing (reference to osghandle)
  *   twowheeled robot added (nimm2 with camera)
  *   sense function added to robots (before control): sensors (type Sensor) are checked here
@@ -88,12 +92,23 @@ namespace lpzrobots {
   }
 
   int FourWheeled::getSensorNumber(){ 
-    return Nimm4::getSensorNumber() + irSensorBank.size();
+    if(conf.twoWheelMode){
+      assert(Nimm4::getSensorNumber() == 4);
+      return 2 + irSensorBank.size();
+    }else
+      return Nimm4::getSensorNumber() + irSensorBank.size();
   }
 
-  int FourWheeled::getSensors(sensor* sensors, int sensornumber){
-    int len = Nimm4::getSensors(sensors,sensornumber);
-
+  int FourWheeled::getSensors(sensor* sensors, int sensornumber){   
+    int len = 0;
+    if(conf.twoWheelMode){
+      sensor nimm4s[4];
+      Nimm4::getSensors(nimm4s,4);
+      sensors[len++] = (nimm4s[0]+nimm4s[2])/2;
+      sensors[len++] = (nimm4s[1]+nimm4s[3])/2;
+    } else 
+      len = Nimm4::getSensors(sensors,sensornumber);
+    
     // ask sensorbank for sensor values (from infrared sensors)
     //  sensor+len is the starting point in the sensors array
     if (conf.irFront || conf.irSide || conf.irBack){
@@ -102,9 +117,31 @@ namespace lpzrobots {
     return len;
   };
 
+  int FourWheeled::getMotorNumber(){ 
+    if(conf.twoWheelMode)
+      return 2;
+    else 
+      return Nimm4::getMotorNumber();
+  }
+
+  void FourWheeled::setMotors(const motor* motors, int motornumber){
+    if(conf.twoWheelMode){
+      motor nimm4m[4];
+      nimm4m[0] = motors[0];
+      nimm4m[2] = motors[0];
+      nimm4m[1] = motors[1];
+      nimm4m[3] = motors[1];
+      Nimm4::setMotors(nimm4m,4);
+    }else 
+       Nimm4::setMotors(motors,motornumber);
+    
+  }
+
+
   void FourWheeled::update(){
     Nimm4::update();
-    bumpertrans->update();
+    if(conf.useBumper)
+      bumpertrans->update();
     // update sensorbank with infrared sensors
     irSensorBank.update();
   }
@@ -121,12 +158,13 @@ namespace lpzrobots {
     Nimm4::create(pose);
     // create frame to not fall on back
 
-    
-    bumper = new Box(0.1 , width+2*wheelthickness+radius, length+0.7*width);
-    bumper->setTexture("Images/wood.rgb");
-    bumpertrans = new Transform(object[0], bumper,				
-				Matrix::translate(width*0.6-radius, 0, 0));
-    bumpertrans->init(odeHandle, 0, osgHandle);        
+    if(conf.useBumper){
+      bumper = new Box(0.1 , width+2*wheelthickness+radius, length+0.7*width);
+      bumper->setTexture("Images/wood.rgb");
+      bumpertrans = new Transform(object[0], bumper,				
+                                  Matrix::translate(width*0.6-radius, 0, 0));
+      bumpertrans->init(odeHandle, 0, osgHandle);        
+    }
 
     
 
