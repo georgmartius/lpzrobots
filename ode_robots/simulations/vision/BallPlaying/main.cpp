@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-29 16:26:45  martius
+ *   Revision 1.2  2010-03-29 17:19:59  martius
+ *   added two wheeled
+ *
+ *   Revision 1.1  2010/03/29 16:26:45  martius
  *   new simulation for Ball playing
  *
  *   Revision 1.3  2010/03/29 07:17:36  martius
@@ -94,7 +97,8 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
-    int numSeeing4wheeled = 1;
+    int numSeeing2wheeled = 1;
+    int numSeeing4wheeled = 0;
     int numBlindRobots    = 0;
 
     int numBalls          = 5;
@@ -155,6 +159,54 @@ public:
     }
 
 
+    /// TWOWHEELED
+    for(int i=0; i<numSeeing2wheeled; i++){
+      // the twowheeled robot is derived from Nimm2 and has a camera onboard
+      TwoWheeledConf twc = TwoWheeled::getDefaultConf();
+      twc.n2cfg.force=2;
+      twc.n2cfg.speed=8;
+
+      twc.camcfg.width  = 256;
+      twc.camcfg.height = 128;
+      twc.camcfg.fov    = 120;      
+      // get rid of the image processing
+      delete twc.camcfg.processors.back();
+      twc.camcfg.processors.pop_back();
+            
+      twc.camSensor     = new MotionCameraSensor(2, MotionCameraSensor::Position | 
+                                                       MotionCameraSensor::Size | 
+                                                       MotionCameraSensor::SizeChange);
+
+      OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, 
+                                         "CamRobotTwo_" + itos(i));
+      vehicle->setColor(Color(1,.7,0));
+      if(useCorridor) 
+        vehicle->place(osg::Vec3(sin(i/2.0-1)*radius,cos(i/2.0-1)*radius,0.3));
+      else
+        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1) 
+                       * osg::Matrix::translate(3,-4+2*i,0.3));
+
+      SeMoXHebModConf cc = SeMoXHebMod::getDefaultConf();
+      cc.modelExt = true;
+      SeMoXHebMod *semox = new SeMoXHebMod(cc);
+      controller = semox;
+//       CrossMotorCoupling* controller = new CrossMotorCoupling(semox, semox, 0.0);
+//       std::list<int> perm;
+//       perm += 1;
+//       perm += 0;
+//       controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));        
+//       controller->setParam("gamma_teach",0.005);
+      controller->setParam("gamma_teach",0.005);
+      //  controller->setParam("rootE",3);
+      
+      AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
+      OdeAgent* agent = new OdeAgent( i==0 ? plotoptions : std::list<PlotOption>(),0.1);
+      agent->init(controller, vehicle, wiring);
+      global.configs.push_back(controller);
+      global.agents.push_back(agent);
+    }
+
+
     /// FOURWHEELED
     for(int i=0; i<numSeeing4wheeled; i++){
       CameraConf camcfg = Camera::getDefaultConf();
@@ -210,6 +262,7 @@ public:
     }
 
 
+
     for(int i=0; i<numBlindRobots; i++){
       // this robot has no camera
       OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), 
@@ -231,11 +284,14 @@ public:
       SeMoXHebMod* semox = dynamic_cast<SeMoXHebMod*>(controller);
       if(semox){
         matrix::Matrix desired = semox->getLastSensorValues();
-        // size: \dot size = -(size - 1) // set point is 1
-        desired.val(5,0) += - (desired.val(4,0)-1)* sizefactor;
+//         // size: \dot size = -(size - 1) // set point is 1
+//         desired.val(5,0) += - (desired.val(4,0)-1)* sizefactor;
+        // size: \dot size = -(size - 1) // set point is 0.3
+        desired.val(5,0) += - (desired.val(4,0)-0.3)* sizefactor;
         // position: \dot pos = -(pos) // set point is 0
         desired.val(2,0) += - (desired.val(3,0)) * posfactor;
         semox->setSensorTeaching(desired);
+        // TODO also teach forward driving for 2wheeled
       }
     }
     // ball friction and move all balls to robot
