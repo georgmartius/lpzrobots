@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-03-09 11:53:41  martius
+ *   Revision 1.9  2010-03-29 11:41:12  martius
+ *   todo comment moved
+ *
+ *   Revision 1.8  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.7  2008/09/11 15:24:01  martius
@@ -82,6 +85,8 @@ In general:
 
 namespace lpzrobots {
 
+  //      Todo: maybe add bounce
+
   class GlobalData;
   class Substance;
 
@@ -125,9 +130,7 @@ namespace lpzrobots {
      The energy lost though damping is \f[ W_1^D = W_i*(1-e_i) \f]. 
      The final damping is now: \f[ kd = (1-e) = W^D/W = \frac{(1-e_1)/kp_1 + (1-e_2)/kp_2}{1/kp_1 + 1/kp_2} 
      = \frac{(1-e_1)kp_2 + (1-e_2)kp_1}{kp_1+kp_2}\f].
-     
-     Todo: maybe add bounce
-  */
+ */
   class Substance {
   public:
     Substance();
