@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-03-26 14:17:15  martius
+ *   Revision 1.3  2010-03-29 07:17:36  martius
+ *   nimm4 body inverted
+ *
+ *   Revision 1.2  2010/03/26 14:17:15  martius
  *   fourwheeled in 2wheeled mode addded
  *
  *   Revision 1.1  2010/03/25 16:38:07  martius
@@ -196,8 +199,8 @@ public:
                                   HSVImgProc::Red+20, HSVImgProc::Green-20,100));
       Camera* cam = new Camera(camcfg);
       CameraSensor* camSensor = new MotionCameraSensor(2, MotionCameraSensor::SizeChange);
-      camSensor->setInitData(cam, odeHandle, osgHandle, osg::Matrix::rotate(M_PI/2,0,0,1)* 
-                             osg::Matrix::translate(-0.20,0,0.40));
+      camSensor->setInitData(cam, odeHandle, osgHandle, osg::Matrix::rotate(-M_PI/2,0,0,1)
+			     * osg::Matrix::translate(0.2,0, 0.40) );
       std::list<Sensor*> sensors;
       sensors.push_back(camSensor);      
       FourWheeledConf fwc = FourWheeled::getDefaultConf();
