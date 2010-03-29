@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2010-03-09 11:53:41  martius
+ *   Revision 1.18  2010-03-29 07:11:53  martius
+ *   changed rotation of main body, such that forward driving is positive
+ *
+ *   Revision 1.17  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.16  2009/05/11 17:03:07  martius
@@ -263,13 +266,13 @@ namespace lpzrobots {
     wheelHandle.substance = wheelsubstance;
     // create cylinder for main body
     // initialize it with ode-, osghandle and mass
-    // rotate and place body (here by 90° around the y-axis)
+    // rotate and place body (here by -90° around the y-axis)
     // use texture 'wood' for capsule 
     // put it into object[0]
     Capsule* cap = new Capsule(width/2, length);
-    cap->getOSGPrimitive()->setTexture("Images/wood.rgb");
+    cap->setTexture("Images/wood.rgb");
     cap->init(odeHandle, cmass, osgHandle);    
-    cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);    
+    cap->setPose(Matrix::rotate(-M_PI/2, 0, 1, 0) * pose);    
     object[0]=cap;
     
     // create wheels
@@ -280,7 +283,7 @@ namespace lpzrobots {
       // rotate and place body (here by 90Deg around the x-axis)
       // set texture for wheels
       Sphere* sph = new Sphere(radius);
-      sph->getOSGPrimitive()->setTexture("Images/wood.rgb");
+      sph->setTexture("Images/wood.rgb");
       sph->init(wheelHandle, wmass, osgHandle.changeColor(Color(0.8,0.8,0.8)));    
       Vec3 wpos = Vec3( ((i-1)/2==0?-1:1)*length/2.0, 
 			((i-1)%2==0?-1:1)*(width*0.5+wheelthickness), 
