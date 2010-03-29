@@ -23,7 +23,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-03-29 11:41:12  martius
+ *   Revision 1.10  2010-03-29 16:28:21  martius
+ *   abstract ground rembers groundsubstance
+ *   comments and typos
+ *   osgprimitive uses white for empty texture
+ *
+ *   Revision 1.9  2010/03/29 11:41:12  martius
  *   todo comment moved
  *
  *   Revision 1.8  2010/03/09 11:53:41  martius
@@ -195,10 +200,18 @@ namespace lpzrobots {
 	WARNING: this sets the collisionCallback. This will not convert to other
 	substances without manually setting the callback to 0
      */
-    void toNoContact();
-    
-    
-      
+    void toNoContact();      
+  };
+
+
+  class DebugSubstance : public Substance {
+  public:
+    DebugSubstance();
+    DebugSubstance( float roughness, float slip, float hardness, float elasticity);
+  protected:
+    static int dbg_output(dSurfaceParameters& params, GlobalData& globaldata, void *userdata, 
+                      dContact* contacts, int numContacts,
+                      dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2);
   };
 
 }

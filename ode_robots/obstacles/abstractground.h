@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-04-02 10:12:25  martius
+ *   Revision 1.12  2010-03-29 16:28:21  martius
+ *   abstract ground rembers groundsubstance
+ *   comments and typos
+ *   osgprimitive uses white for empty texture
+ *
+ *   Revision 1.11  2009/04/02 10:12:25  martius
  *   Texture handling changed
  *
  *   Revision 1.10  2008/04/17 15:59:00  martius
@@ -164,6 +169,7 @@ public:
     double groundLength;
     double groundWidth;
     double wallThickness;
+    Substance groundSubstance;
     std::string wallTextureFileName;
     Color groundColor;
     std::string groundTextureFileName;

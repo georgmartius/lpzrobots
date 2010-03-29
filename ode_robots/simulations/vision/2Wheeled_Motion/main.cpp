@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-03-29 07:17:36  martius
+ *   Revision 1.4  2010-03-29 16:28:21  martius
+ *   abstract ground rembers groundsubstance
+ *   comments and typos
+ *   osgprimitive uses white for empty texture
+ *
+ *   Revision 1.3  2010/03/29 07:17:36  martius
  *   nimm4 body inverted
  *
  *   Revision 1.2  2010/03/26 14:17:15  martius
@@ -100,7 +105,10 @@ public:
     bool useCorridor      = true;
     double radius         = 10;
 
-    setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
+    if(useCorridor)
+      setCameraHomePos(Pos(-2.14663, 10.6543, 2.19406),  Pos(131.61, -13.1261, 0));
+    else
+      setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
 
     global.odeConfig.setParam("controlinterval",4);
 
@@ -153,7 +161,8 @@ public:
       delete twc.camcfg.processors.back();
       twc.camcfg.processors.pop_back();
             
-      twc.camSensor     = new MotionCameraSensor(2, MotionCameraSensor::Size | MotionCameraSensor::SizeChange);
+      twc.camSensor     = new MotionCameraSensor(2, MotionCameraSensor::Size | 
+                                                 MotionCameraSensor::SizeChange);
 
       OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, 
                                          "CamRobot_" + itos(i));

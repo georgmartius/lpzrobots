@@ -24,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-09-11 15:24:01  martius
+ *   Revision 1.9  2010-03-29 16:28:21  martius
+ *   abstract ground rembers groundsubstance
+ *   comments and typos
+ *   osgprimitive uses white for empty texture
+ *
+ *   Revision 1.8  2008/09/11 15:24:01  martius
  *   motioncallback resurrected
  *   noContact substance
  *   use slider center of the connecting objects for slider drawing
@@ -239,6 +244,28 @@ namespace lpzrobots {
   void Substance::toNoContact(){
     toDefaultSubstance();
     setCollisionCallback(dummyCallBack,0);
+  }
+
+  DebugSubstance::DebugSubstance(){
+    setCollisionCallback(&dbg_output, 0);
+  } 
+
+  DebugSubstance::DebugSubstance( float roughness, float slip, 
+                                  float hardness, float elasticity):
+    Substance(roughness, slip, hardness, elasticity) {
+    setCollisionCallback(dbg_output, 0 );
+    
+  }
+
+  int DebugSubstance::dbg_output(dSurfaceParameters& params, GlobalData& globaldata, 
+                             void *userdata, dContact* contacts, int numContacts,
+                             dGeomID o1, dGeomID o2, 
+                             const Substance& s1, const Substance& s2){
+    dSurfaceParameters sp;
+    getSurfaceParams(sp, s1, s2, globaldata.odeConfig.simStepSize);
+    printSurfaceParams(sp);
+
+    return 1;
   }
   
 }

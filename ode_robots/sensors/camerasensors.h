@@ -249,11 +249,15 @@ namespace lpzrobots {
       int k=0;
       if(last && success){
         // check if the apparent shift is infeasible, then leave the old sensor value.
-        if(fabs(lastX-x) < 0.4 && fabs(lastY-y) < 0.4) {
-          if(dims & X) { data[k] = lambda*(lastX-x)*factor* (window ? windowfunc(x) : 1) 
-	      + (1- lambda)*data[k]; k++; }
-          if(dims & Y) { data[k] = lambda*(lastY-y)*factor* (window ? windowfunc(y) : 1)
-	      + (1- lambda)*data[k]; k++; }
+        if(fabs(x - lastX) < 0.4 && fabs(y - lastY) < 0.4) {
+          if(dims & X) { 
+            data[k] = lambda*(x - lastX)*factor* (window ? windowfunc(x) : 1) 
+	      + (1- lambda)*data[k]; k++; 
+          }
+          if(dims & Y) { 
+            data[k] = lambda*(y - lastY)*factor* (window ? windowfunc(y) : 1)
+	      + (1- lambda)*data[k]; k++; 
+          }
         }
       }else{
 	if(dims & X) data[k++] = 0;

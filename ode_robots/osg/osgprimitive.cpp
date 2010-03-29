@@ -27,7 +27,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2010-03-16 15:47:46  martius
+ *   Revision 1.22  2010-03-29 16:28:21  martius
+ *   abstract ground rembers groundsubstance
+ *   comments and typos
+ *   osgprimitive uses white for empty texture
+ *
+ *   Revision 1.21  2010/03/16 15:47:46  martius
  *   osgHandle has now substructures osgConfig and osgScene
  *    that minimized amount of redundant data (this causes a lot of changes)
  *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
@@ -239,7 +244,8 @@ namespace lpzrobots {
    setTexture(filename,1,1);
   }
 
- void OSGPrimitive::setTexture(const std::string& filename, double repeatOnR, double repeatOnS){
+ void OSGPrimitive::setTexture(const std::string& filename, 
+                               double repeatOnR, double repeatOnS){
    setTexture(0,filename,repeatOnR,repeatOnS);
   }
 
@@ -248,7 +254,10 @@ namespace lpzrobots {
     if((signed)textures.size()<=surface){
       textures.resize(surface+1);
     }
-    textures[surface]=TextureDescr(filename, repeatOnR, repeatOnS);    
+    if(!filename.empty())
+      textures[surface]=TextureDescr(filename, repeatOnR, repeatOnS);    
+    else 
+      textures[surface]=TextureDescr("Images/really_white.rgb", 1, 1);    
     if(transform.valid()){ // is the object already initialized?
       applyTextures();
     }
