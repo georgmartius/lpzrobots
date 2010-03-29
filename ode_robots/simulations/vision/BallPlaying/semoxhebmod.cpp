@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-29 16:26:45  martius
+ *   Revision 1.2  2010-03-29 17:20:23  martius
+ *   put back M in teaching
+ *
+ *   Revision 1.1  2010/03/29 16:26:45  martius
  *   new simulation for Ball playing
  *
  *   Revision 1.4  2010/01/26 09:42:57  martius
@@ -354,7 +357,7 @@ void SeMoXHebMod::management(){
   if(dampController){
     Matrix oldC = C;
     C *= 1 - dampController * managementInterval;
-    for(int i=0; i< min(C.getM(),C.getN()); i++){
+    for(unsigned int i=0; i< min(C.getM(),C.getN()); i++){
       C.val(i,i) = oldC.val(i,i);
     }
   }
@@ -417,12 +420,12 @@ void SeMoXHebMod::setMotorTeaching(const matrix::Matrix& teaching){
 void SeMoXHebMod::setSensorTeaching(const matrix::Matrix& teaching){
   assert(teaching.getM() == number_sensors && teaching.getN() == 1);  
 //   // new version  
-//   const Matrix& error = teaching - getLastSensorValues();
-//   const Matrix& eta   = (M.pseudoInverse(0.001)*error).mapP(0.2,clip); // small errors only
-//   y_teaching = (getLastMotorValues() + eta).mapP(0.95, clip); 
   const Matrix& error = teaching - getLastSensorValues();
-  const Matrix& eta   = (A.pseudoInverse(0.001)*error);
+  const Matrix& eta   = (M.pseudoInverse(0.001)*error).mapP(0.2,clip); // small errors only
   y_teaching = (getLastMotorValues() + eta).mapP(0.85, clip); 
+//   const Matrix& error = teaching - getLastSensorValues();
+//   const Matrix& eta   = (A.pseudoInverse(0.001)*error);
+//   y_teaching = (getLastMotorValues() + eta).mapP(0.85, clip); 
   //  y_teaching = (A.pseudoInverse(0.001) * (teaching-B)).mapP(0.95, clip); 
   intern_useTeaching=true;  
 }
