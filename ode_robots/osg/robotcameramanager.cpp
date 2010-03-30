@@ -176,7 +176,6 @@ namespace lpzrobots {
       if(ea.getXmax() != windowWidth || ea.getYmax() != windowHeight){
         windowWidth  = ea.getWindowWidth();
         windowHeight = ea.getWindowHeight();
-        printf("resuze %i %i\n", windowWidth, windowHeight);
 	handled=true;
       }
     default:
