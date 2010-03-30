@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.4  2009-10-27 11:35:40  guettler
+ *  Revision 1.5  2010-03-30 13:18:06  robot14
+ *  fixed
+ *
+ *  Revision 1.4  2009/10/27 11:35:40  guettler
  *  typo: abstract --> matrix
  *
  *  Revision 1.3  2009/10/22 15:53:08  robot14
@@ -46,15 +49,15 @@
  **************************************************************************/
 
 #include "MatrixPipeFilter.h"
-#include "MatrixPlotChannel.h"
-#include "MatrixElementPlotChannel.h"
+
 #include "DefaultPlotChannel.h"
 #include <iostream>
 
+using namespace std;
 
 MatrixPipeFilter::MatrixPipeFilter(AbstractPipeReader* apr) :
   AbstractPipeFilter(apr) {
-  std::cout << "new MatrixPipeFilter()" << std::endl;
+  if (debug) cout << "new MatrixPipeFilter()" << endl;
   QObject::connect(apr,SIGNAL(newData()),this,SLOT(updateChannels()), Qt::DirectConnection);
 	// TODO Auto-generated constructor stub
 
@@ -68,45 +71,74 @@ AbstractPlotChannel* MatrixPipeFilter::createChannel(std::string name)
 {
     //if (name.find("A[0,1]")==0) return (new MotorSpeedPlotChannel("motorCspeedX"));
 	//test
-	std::cout << name << std::endl;
+	if (debug) cout << name << endl;
 	/*
-	 * Looking for new matrix _A_[x,y] (and not A[x_]_)
+	 * Looking for new vector
 	 */
-	if (name.at(0) == toupper(name.at(0)) && name.at(3) != ']' /*ERSTER BUCHSTABE IN name großgeschrieben*/){
-	  // empty vector or new matrix
-	  if (matrices.size() == 0 || name.at(0) != matrices.back()->getChannelName().at(0)){
-	    MatrixPlotChannel* maPloChannel = new MatrixPlotChannel(name.substr(0,1));
-	    matrices.push_back(maPloChannel);
-	  }
-	  //A[x,0] : new row channel (active + add) new elementplotchannel to active rowchannel
-	  if (name.substr(4,1) == "0"){
-	    MatrixPlotChannel* rowChannel = new MatrixPlotChannel("0");
-	    matrices.back()->addRow(rowChannel);
-	  }
-	  MatrixElementPlotChannel* elementChannel = new MatrixElementPlotChannel( name );
+	if (name.at(3) == ']') {
+    // empty vector or new vector
+    if (vectors.size() == 0 || name.at(0) != vectors.back()->getChannelName().at(0)) {
+      VectorPlotChannel* vePloChannel = new VectorPlotChannel(name.substr(0, 1));
+      if (debug) cout << "push_back new vpc" << endl;
+      vectors.push_back(vePloChannel);
+    }
+    //A[x,0] : new row channel (active + add) new elementplotchannel to active rowchannel
+    //    if (name.substr(4,1) == "0"){
+    //      VectorPlotChannel* rowChannel = new VectorPlotChannel("0");
+    //      vectors.back()->addRow(rowChannel);
+    //    }
+    if (debug) cout << "new VEPC" << endl;
+    VectorElementPlotChannel* elementChannel = new VectorElementPlotChannel(name);
+    if (debug) cout << "vectors back" << endl;
+    vectors.back()->addElement(elementChannel);
 
-	  matrices.back()->getLastRow()->addPlotChannel(elementChannel);
+    // eigentlichen Channel hinzufügen
+    // überlegen: evtl. Dimension der Matrix in der Hierarchie berücksichtigen (mxn)
+    // addRow(GroupChannel*) verwenden usw.
+    if (debug) cout << "return VEPC" << endl;
+    return elementChannel;
+  } else
+	/*
+   * Looking for new matrix _A_[x,y] (and not A[x_]_)
+   */
+  if (name.at(0) == toupper(name.at(0)) && name.at(3) != ']' /*ERSTER BUCHSTABE IN name großgeschrieben*/) {
+    // empty vector or new matrix
+    if (debug) cout << "test new matrix" << endl;
+    if (matrices.size() == 0 || name.at(0) != matrices.back()->getChannelName().at(0)) {
+      MatrixPlotChannel* maPloChannel = new MatrixPlotChannel(name.substr(0, 1));
+      matrices.push_back(maPloChannel);
+    }
+    //A[x,0] : new row channel (active + add) new elementplotchannel to active rowchannel
+    if (name.substr(4, 1) == "0") {
+      MatrixPlotChannel* rowChannel = new MatrixPlotChannel("0");
+      matrices.back()->addRow(rowChannel);
+    }
+    MatrixElementPlotChannel* elementChannel = new MatrixElementPlotChannel(name);
 
-		// eigentlichen Channel hinzufügen
-		// überlegen: evtl. Dimension der Matrix in der Hierarchie berücksichtigen (mxn)
-		// addRow(GroupChannel*) verwenden usw.
+    matrices.back()->getLastRow()->addPlotChannel(elementChannel);
 
-		return elementChannel;
-	}
-	else // default
-		return new DefaultPlotChannel(name);
+    // eigentlichen Channel hinzufügen
+    // überlegen: evtl. Dimension der Matrix in der Hierarchie berücksichtigen (mxn)
+    // addRow(GroupChannel*) verwenden usw.
+
+    return elementChannel;
+  } else
+    // default
+    return new DefaultPlotChannel(name);
 }
 
 std::vector<MatrixPlotChannel*> MatrixPipeFilter::getMatrixChannels(){
 	return matrices;
 }
 
+std::vector<VectorPlotChannel*> MatrixPipeFilter::getVectorChannels(){
+  return vectors;
+}
 
 void MatrixPipeFilter::updateChannels() {
      std::cout << "MatrixPipeFilter: updateChannels()" << std::endl;
 
     std::list<double> dataList = (apr->getDataLine());
-    int index=0;
     std::list<int>::const_iterator index_it=channelIndexList.begin();
     std::list<AbstractPlotChannel*>::const_iterator channel_it=channelList.begin();
 

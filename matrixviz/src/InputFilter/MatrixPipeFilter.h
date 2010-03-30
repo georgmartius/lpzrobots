@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2009-10-22 15:53:08  robot14
+ *  Revision 1.4  2010-03-30 13:18:06  robot14
+ *  fixed
+ *
+ *  Revision 1.3  2009/10/22 15:53:08  robot14
  *  first version of texture visualisation
  *
  *  Revision 1.2  2009/10/02 15:25:40  robot14
@@ -47,6 +50,10 @@
 /*
  *
  */
+#include "MatrixPlotChannel.h"
+#include "MatrixElementPlotChannel.h"
+#include "VectorPlotChannel.h"
+#include "VectorElementPlotChannel.h"
 #include "AbstractPipeFilter.h"
 //#include "AbstractPipeReader.h"
 #include <vector>
@@ -54,7 +61,6 @@
 /**
  * forward declaration, because not needed directly here
  */
-class MatrixPlotChannel;
 
 
 class MatrixPipeFilter: public AbstractPipeFilter {
@@ -68,6 +74,7 @@ public:
 	virtual AbstractPlotChannel* createChannel(std::string name);
 
 	virtual std::vector<MatrixPlotChannel*> getMatrixChannels();
+	virtual std::vector<VectorPlotChannel*> getVectorChannels();
 
 public slots:
 	/**
@@ -83,6 +90,10 @@ public slots:
 
 protected:
 	std::vector<MatrixPlotChannel*> matrices; //get
+	std::vector<VectorPlotChannel*> vectors;
+
+private:
+	static const bool debug = true;
 };
 
 #endif /* MATRIXPIPEFILTER_H_ */
