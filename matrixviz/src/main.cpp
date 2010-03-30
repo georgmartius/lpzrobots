@@ -49,7 +49,6 @@ int main(int argc, char *argv[])
 
 
   MatrixVisualizer gui;
-  gui.show();
 
   return app.exec();
 }

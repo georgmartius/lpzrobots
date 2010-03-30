@@ -34,8 +34,10 @@
 
 //class AbstractPlotChannel;
 
-#include "MatrixPlotChannel.h"
-#include "AbstractVisualisation.h" //Abstract~
+#include "Channel/MatrixPlotChannel.h"
+#include "Channel/VectorPlotChannel.h"
+#include "ColorPalette.h"
+#include "visualisations/AbstractVisualisation.h" //Abstract~
 
 #include "AbstractRobotSubWidget.h"
 
@@ -48,8 +50,15 @@ class VisualiserSubWidget: public AbstractRobotSubWidget {
 Q_OBJECT
 
 public:
-  VisualiserSubWidget(MatrixPlotChannel *channel, QWidget *parent = 0);
+  VisualiserSubWidget(MatrixPlotChannel *channel, int x = 0, int y = 0, int width = 0, int heigt = 0,
+      QString cPFilePath = 0, QWidget *parent = 0);
+  VisualiserSubWidget(VectorPlotChannel *channel, int x = 0, int y = 0, int width = 0, int heigt = 0,
+      QString cPFilePath = 0, QWidget *parent = 0);
   virtual ~VisualiserSubWidget();
+  QString getChannelName();
+  QString getColorPaletteFilepath();
+  int getVisMode();
+  QString getMode();
 
 
 public slots:
@@ -59,16 +68,25 @@ public slots:
 protected:
 
   QComboBox *vizChoice;
+  virtual void closeEvent(QCloseEvent * event);
 
 private:
 
   QWidget *visualisation;
   QVBoxLayout *mainLayout;
+  QHBoxLayout *visLayout;
 
-  MatrixPlotChannel *channel;
+  MatrixPlotChannel *matrixChannel;
+  VectorPlotChannel *vectorChannel;
+  ColorPalette *colorPalette;
 
   void initGui();
   void initVisTypes();
+  static const bool debug = false;
+
+signals:
+  void windowClosed(VisualiserSubWidget* window);
+  void sendQuit();
 
 };
 

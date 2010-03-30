@@ -25,7 +25,10 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-10-14 12:22:31  robot14
+ *   Revision 1.4  2010-03-30 13:21:10  robot14
+ *   added vector support
+ *
+ *   Revision 1.3  2009/10/14 12:22:31  robot14
  *   *** empty log message ***
  *
  *   Revision 1.2  2009/10/02 15:25:40  robot14
@@ -43,13 +46,19 @@
 #include "AbstractRobotGUI.h"
 
 #include "MatrixPipeFilter.h"
+//#include "VectorPipeFilter.h"
 #include "SimplePipeReader.h"
 
-
+#include "VisualiserSubWidget.h"
 #include "MatrixElementPlotChannel.h"
 #include "MatrixPlotChannel.h"
+#include "VectorElementPlotChannel.h"
+#include "VectorPlotChannel.h"
+#include "configFile.h"
 #include <list>
 #include <vector>
+
+class configFile;
 
 class MatrixVisualizer: public AbstractRobotGUI
 {
@@ -60,27 +69,39 @@ public:
 	MatrixVisualizer(QWidget *parent = 0);
 	virtual ~MatrixVisualizer();
 
+	 VectorPlotChannel* getVectorPlotChannel(QString name);
+	 MatrixPlotChannel* getMatrixPlotChannel(QString name);
+	 void connectWindowForUpdate(VisualiserSubWidget *vis);
 
 private:
 	MatrixPipeFilter* matrix_filter;
+//	VectorPipeFilter* vector_filter;
 	std::list<AbstractPlotChannel*> channelList;
 	std::vector<MatrixPlotChannel*> matrices;
+	std::vector<VectorPlotChannel*> vectors;
 	QButtonGroup *visButtons;
 	// QButtonGroup::buttonClicked() emits for each button...
-	int help;
+	QButtonGroup *vecButtons;
 
 	QVBoxLayout* main_layout;
 	QComboBox *matChoice;
 	QComboBox *vizChoice;
 
 	QHBoxLayout* makeButtons();
+	configFile* config;
 
 	void initGui();
 	void linkChannels();
+	static const bool debug = true;
 
+protected:
+	virtual void closeEvent(QCloseEvent * event);
 
 private slots:
   void visualize(QAbstractButton * button);
+
+signals:
+  void sendQuit();
 
 };
 

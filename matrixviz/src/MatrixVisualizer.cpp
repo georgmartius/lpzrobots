@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-10-22 15:53:08  robot14
+ *   Revision 1.5  2010-03-30 13:21:10  robot14
+ *   added vector support
+ *
+ *   Revision 1.4  2009/10/22 15:53:08  robot14
  *   first version of texture visualisation
  *
  *   Revision 1.3  2009/10/14 12:22:31  robot14
@@ -40,25 +43,30 @@
 
 //#include <QProgressBar>
 #include <QString>
-#include "VisualiserSubWidget.h"
 //#include "timer.h"
 
 #include <iostream>
 
 using namespace std;
 
+
 MatrixVisualizer::MatrixVisualizer(QWidget *parent) : AbstractRobotGUI(parent) {
 
   pipe_reader = new SimplePipeReader();
+//  vector_filter = new VectorPipeFilter(pipe_reader);
   matrix_filter = new MatrixPipeFilter(pipe_reader);
-  help = 1;
 
   pipe_reader->start();
   cout << "Here I AM!!!" << endl;
 
-  channelList = matrix_filter->getChannelList();
+  channelList = matrix_filter->getChannelList(); //obsolete?
   matrices = matrix_filter->getMatrixChannels();
+  vectors = matrix_filter->getVectorChannels();
+
   initGui();
+  config = new configFile();
+  config->load(this);
+  connect(this, SIGNAL(sendQuit()), config, SLOT(doQuit()));
 }
 
 MatrixVisualizer::~MatrixVisualizer() {
@@ -75,6 +83,7 @@ void MatrixVisualizer::initGui() {
   setLayout(main_layout);
   // nach pack() ähnlichem gucken!
   resize(150,150); //adjustSize ();
+  show();
 }
 
 QHBoxLayout* MatrixVisualizer::makeButtons(){
@@ -82,12 +91,13 @@ QHBoxLayout* MatrixVisualizer::makeButtons(){
   //QGroupBox *gb = new QGroupBox(QString("View-Settings"));
   QHBoxLayout *chooseBoxL = new QHBoxLayout;
   QVBoxLayout *matrBox = new QVBoxLayout;
-  //QVBoxLayout *vecBox = new QVBoxLayout;
+  QVBoxLayout *vecBox = new QVBoxLayout;
 
   //matChoice = new QComboBox();
   //vizChoice = new QComboBox();
   //QPushButton *button1 = new QPushButton("One");
   visButtons = new QButtonGroup();
+  vecButtons = new QButtonGroup();
   visButtons->setExclusive(false);
 
   int id = 0;
@@ -98,31 +108,54 @@ QHBoxLayout* MatrixVisualizer::makeButtons(){
     matrBox->addWidget(pB);
     visButtons->addButton(pB);
     //connect(visButtons, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(visualize(QAbstractButton *)));
-    connect(visButtons, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(visualize(QAbstractButton *)));
+
     id++;
   }
+  connect(visButtons, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(visualize(QAbstractButton *)));
+
+  if(debug) cout << "size of Vectors: " << vectors.size() << endl;
+  for(vector<VectorPlotChannel*>::iterator i = vectors.begin(); i != vectors.end(); i++){
+    if(debug) cout << "addButton for vector" << endl;
+      QString qs( (*i)->getChannelName().c_str() );
+      //matChoice->addItem(qs);   //TODO
+      QPushButton *pB = new QPushButton(qs);
+      vecBox->addWidget(pB);
+      vecButtons->addButton(pB);
+      //connect(visButtons, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(visualize(QAbstractButton *)));
+//      connect(visButtons, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(visualize(QAbstractButton *)));
+      id++;
+    }
+  connect(vecButtons, SIGNAL(buttonClicked(QAbstractButton *)), this, SLOT(visualize(QAbstractButton *)));
 
   //chooseBoxL->addWidget(matChoice);
   //chooseBoxL->addWidget(vizChoice);
   chooseBoxL->addLayout(matrBox);
+  chooseBoxL->addLayout(vecBox);
 
   //gb->setLayout(chooseBoxL);
   return chooseBoxL;
 }
 
 void MatrixVisualizer::visualize(QAbstractButton * button){
-  if ( help == visButtons->buttons().size()){
-    help = 1;
+  // contains the button to a matrix or a vector
+  if ( (button->text() == "A") || (button->text() == "C") || (button->text() == "R") ){
     int id = visButtons->buttons().indexOf(button);
     VisualiserSubWidget *vis = new VisualiserSubWidget(matrices.at(id));
+    config->newOpenedWindow(vis);
 
     vis->show();
     connect( pipe_reader, SIGNAL(newData()), vis, SLOT(updateViewableChannels()), Qt::DirectConnection);
+  }else {
+    int id = vecButtons->buttons().indexOf(button);
+    VisualiserSubWidget *vis = new VisualiserSubWidget(vectors.at(id));
+    config->newOpenedWindow(vis);
+
+    vis->show();
+    connect( pipe_reader, SIGNAL(newData()), vis, SLOT(updateViewableChannels()), Qt::DirectConnection);
+  }
 
 //    Timer *timer = new Timer(vis);
 //    timer->start();
-
-  }else help++;
 }
 
 void MatrixVisualizer::linkChannels() {
@@ -135,3 +168,28 @@ void MatrixVisualizer::linkChannels() {
 
 }
 
+void MatrixVisualizer::connectWindowForUpdate(VisualiserSubWidget *vis){
+  connect( pipe_reader, SIGNAL(newData()), vis, SLOT(updateViewableChannels()), Qt::DirectConnection);
+}
+
+VectorPlotChannel* MatrixVisualizer::getVectorPlotChannel(QString name){
+  for(vector<VectorPlotChannel*>::iterator i = vectors.begin(); i != vectors.end(); i++){
+      QString vecName( (*i)->getChannelName().c_str() );
+      if(vecName == name) return (*i);
+    }
+  return 0;
+}
+
+MatrixPlotChannel* MatrixVisualizer::getMatrixPlotChannel(QString name){
+  for(vector<MatrixPlotChannel*>::iterator i = matrices.begin(); i != matrices.end(); i++){
+      QString matName( (*i)->getChannelName().c_str() );
+      if(matName == name) return (*i);
+    }
+  return 0;
+}
+
+void MatrixVisualizer::closeEvent(QCloseEvent * event){
+  if(debug) cout << "MatrixVis::closeEvent" << endl;
+  emit sendQuit();
+  event->accept();
+}
