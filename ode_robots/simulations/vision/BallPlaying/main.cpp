@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-03-29 17:19:59  martius
+ *   Revision 1.3  2010-03-30 14:33:05  martius
+ *   nice working version for fourwheeled
+ *
+ *   Revision 1.2  2010/03/29 17:19:59  martius
  *   added two wheeled
  *
  *   Revision 1.1  2010/03/29 16:26:45  martius
@@ -56,6 +59,7 @@
 #include <selforg/sinecontroller.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/selectiveone2onewiring.h>
+#include <selforg/selectivenoisewiring.h>
 
 #include "semoxhebmod.h"
 
@@ -90,6 +94,11 @@
 using namespace lpzrobots;
 using namespace std;
 
+template<typename T> 
+std::vector<T> mkVector(const T* v, int len){
+  return std::vector<T>(v,v+len);  
+}
+
 class ThisSim : public Simulation {
 public:
 
@@ -97,8 +106,8 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
-    int numSeeing2wheeled = 1;
-    int numSeeing4wheeled = 0;
+    int numSeeing2wheeled = 0;
+    int numSeeing4wheeled = 1;
     int numBlindRobots    = 0;
 
     int numBalls          = 5;
@@ -113,11 +122,12 @@ public:
       setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
 
     global.odeConfig.setParam("controlinterval",4);
+    global.odeConfig.setParam("noise",0.05);
 
     addParameterDef("attraction", &attraction, 0.000);
     addParameterDef("friction", &friction, 1);
 
-    addParameterDef("sizefactor", &sizefactor, 0);
+    addParameterDef("sizefactor", &sizefactor, .5);
     addParameterDef("posfactor", &posfactor, 1);
 
     global.configs.push_back(this);
@@ -127,13 +137,12 @@ public:
       Playground* playground = new Playground(odeHandle, osgHandle,
                                               osg::Vec3(10, .2, 1));
       playground->setPosition(osg::Vec3(0,0,0.1));
-      playground->setGroundSubstance(DebugSubstance(0,0.00,40,0.0));
-      //      playground->setGroundSubstance(Substance(0.8,0,40,0.5));
+      playground->setGroundSubstance(Substance(0.8,0,40,0.5));
       global.obstacles.push_back(playground);
     }else if(useCorridor){       // use circular Corridor 
       // outer ground
       OdeHandle wallHandle = odeHandle;
-      wallHandle.substance.toMetal(0.1);
+      wallHandle.substance.toSnow(.3);
       OctaPlayground* outer = new OctaPlayground(wallHandle, osgHandle.changeAlpha(0.2), 
                                                  osg::Vec3(radius+2, 0.2, 1), 12);
       outer->setTexture("");
@@ -196,7 +205,7 @@ public:
 //       perm += 0;
 //       controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));        
 //       controller->setParam("gamma_teach",0.005);
-      controller->setParam("gamma_teach",0.005);
+      controller->setParam("gamma_teach",0.01);
       //  controller->setParam("rootE",3);
       
       AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
@@ -226,9 +235,10 @@ public:
 			     * osg::Matrix::translate(0.2,0, 0.40) );
       std::list<Sensor*> sensors;
       sensors.push_back(camSensor);      
-      FourWheeledConf fwc = FourWheeled::getDefaultConf();
+      FourWheeledConf fwc = FourWheeled::getDefaultConf();      
       fwc.twoWheelMode = true;
       fwc.useBumper    = false;
+      fwc.force        = 5;
       OdeRobot* robot = new FourWheeled(odeHandle, osgHandle, 
                                         fwc, 
                                         "4WCamRobot_" + itos(i));
@@ -245,6 +255,7 @@ public:
       cc.modelExt = true;
       SeMoXHebMod *semox = new SeMoXHebMod(cc);
       controller = semox;
+//       controller = new SineController();
 //       CrossMotorCoupling* controller = new CrossMotorCoupling(semox, semox, 0.0);
 //       std::list<int> perm;
 //       perm += 1;
@@ -254,8 +265,12 @@ public:
       controller->setParam("gamma_teach",0.005);
       //  controller->setParam("rootE",3);
       
-      AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
-      OdeAgent* agent = new OdeAgent( i==0 ? plotoptions : std::list<PlotOption>(),0.1);
+      double noise[] = {.5,.5};      
+      AbstractWiring* wiring = new SelectiveNoiseWiring(new WhiteUniformNoise(),
+                                                        mkVector(noise,2));
+      
+      //    AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
+      OdeAgent* agent = new OdeAgent( i==0 ? plotoptions : std::list<PlotOption>());
       agent->init(controller, vehicle, wiring);
       global.configs.push_back(controller);
       global.agents.push_back(agent);
@@ -284,14 +299,12 @@ public:
       SeMoXHebMod* semox = dynamic_cast<SeMoXHebMod*>(controller);
       if(semox){
         matrix::Matrix desired = semox->getLastSensorValues();
-//         // size: \dot size = -(size - 1) // set point is 1
-//         desired.val(5,0) += - (desired.val(4,0)-1)* sizefactor;
-        // size: \dot size = -(size - 1) // set point is 0.3
-        desired.val(5,0) += - (desired.val(4,0)-0.3)* sizefactor;
+        // size: \dot size = -(size - 1) // set point is 1
+        desired.val(5,0) += - (desired.val(4,0)-1)* sizefactor;
+        // desired.val(5,0) += - (desired.val(4,0)-0.3)* sizefactor;// set point is 0.3
         // position: \dot pos = -(pos) // set point is 0
         desired.val(2,0) += - (desired.val(3,0)) * posfactor;
         semox->setSensorTeaching(desired);
-        // TODO also teach forward driving for 2wheeled
       }
     }
     // ball friction and move all balls to robot
