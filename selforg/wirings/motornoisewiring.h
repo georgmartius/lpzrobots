@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-03-31 15:47:11  martius
+ *   Revision 1.3  2010-03-30 08:48:01  martius
+ *   intern function are called now
+ *
+ *   Revision 1.2  2009/03/31 15:47:11  martius
  *   works now
  *
  *   Revision 1.1  2009/03/31 07:36:18  martius
@@ -52,16 +55,16 @@ public:
   }
   virtual ~MotorNoiseWiring(){}
 
-  virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0){
-    One2OneWiring::init(robotsensornumber, robotmotornumber, randGen);
+  virtual bool initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen=0){
+    One2OneWiring::initIntern(robotsensornumber, robotmotornumber, randGen);
     if(mNoiseGen)
       mNoiseGen->init(rmotornumber, randGen);
     return true;
   }
   
-  virtual bool wireMotors(motor* rmotors, int rmotornumber,
-			  const motor* cmotors, int cmotornumber){
-    One2OneWiring::wireMotors(rmotors, rmotornumber, cmotors, cmotornumber);
+  virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
+                                const motor* cmotors, int cmotornumber){
+    One2OneWiring::wireMotorsIntern(rmotors, rmotornumber, cmotors, cmotornumber);
     if(mNoiseGen)
       mNoiseGen->add(rmotors, noiseStrength);  
     return true; 
