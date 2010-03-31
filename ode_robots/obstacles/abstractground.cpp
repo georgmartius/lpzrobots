@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2010-03-29 16:28:21  martius
+ *   Revision 1.20  2010-03-31 07:38:21  martius
+ *   changed wall texture
+ *
+ *   Revision 1.19  2010/03/29 16:28:21  martius
  *   abstract ground rembers groundsubstance
  *   comments and typos
  *   osgprimitive uses white for empty texture
@@ -134,7 +137,7 @@ namespace lpzrobots {
       groundWidth(groundWidth), wallThickness(wallThickness), 
       groundSubstance(odeHandle.substance) {
     groundPlane=0;
-    wallTextureFileName="Images/wall.rgb";
+    wallTextureFileName="Images/wall.jpg"; // was: wall.rgb 
     groundTextureFileName="Images/greenground.rgb";
     groundColor=Color(1.0f,1.0f,1.0f);
   };
