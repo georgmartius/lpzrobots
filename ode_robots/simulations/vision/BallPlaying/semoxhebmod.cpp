@@ -17,7 +17,10 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-03-29 17:20:23  martius
+ *   Revision 1.3  2010-03-31 11:32:48  martius
+ *   clipping at 0.9
+ *
+ *   Revision 1.2  2010/03/29 17:20:23  martius
  *   put back M in teaching
  *
  *   Revision 1.1  2010/03/29 16:26:45  martius
@@ -422,7 +425,8 @@ void SeMoXHebMod::setSensorTeaching(const matrix::Matrix& teaching){
 //   // new version  
   const Matrix& error = teaching - getLastSensorValues();
   const Matrix& eta   = (M.pseudoInverse(0.001)*error).mapP(0.2,clip); // small errors only
-  y_teaching = (getLastMotorValues() + eta).mapP(0.85, clip); 
+  //  y_teaching = (getLastMotorValues() + eta).mapP(0.85, clip); 
+  y_teaching = (getLastMotorValues() + eta).mapP(0.90, clip); 
 //   const Matrix& error = teaching - getLastSensorValues();
 //   const Matrix& eta   = (A.pseudoInverse(0.001)*error);
 //   y_teaching = (getLastMotorValues() + eta).mapP(0.85, clip); 
