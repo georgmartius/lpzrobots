@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-03-30 14:33:05  martius
+ *   Revision 1.4  2010-03-31 11:31:51  martius
+ *   4 experiments working
+ *
+ *   Revision 1.3  2010/03/30 14:33:05  martius
  *   nice working version for fourwheeled
  *
  *   Revision 1.2  2010/03/29 17:19:59  martius
@@ -60,6 +63,7 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/selectiveone2onewiring.h>
 #include <selforg/selectivenoisewiring.h>
+#include <selforg/semox.h>
 
 #include "semoxhebmod.h"
 
@@ -99,22 +103,61 @@ std::vector<T> mkVector(const T* v, int len){
   return std::vector<T>(v,v+len);  
 }
 
+enum Version {V1, V2, V3, V4};
+
 class ThisSim : public Simulation {
 public:
+  ThisSim(Version v)
+    : version(v) {}
 
   AbstractController* controller;
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     int numSeeing2wheeled = 0;
-    int numSeeing4wheeled = 1;
+    int numSeeing4wheeled = 2;
     int numBlindRobots    = 0;
+    bool seeingAreRed     = false;
+    addParameterDef("sizesetpoint", &sizeSetPoint, 1);
 
-    int numBalls          = 5;
+    int numBalls          = 0;
 
-    bool useSquareGround  = false;
-    bool useCorridor      = true;
+    bool useRoundGround   = true;
+    double radiusRound    = 8;
+    bool useCorridor      = false;
     double radius         = 10;
+
+    switch(version){
+    case V1:
+      // V1:  useCorridor (10), 1x 4wheeled, 5 Balls (0.85 teaching clip)
+      numSeeing4wheeled = 1;
+      sizeSetPoint      = 1;
+      numBalls          = 5;      
+      useRoundGround    = false;
+      useCorridor       = true;
+      break;
+    case V2:
+      // V2:  useRound (8), 1x 4wheeled, 3 Balls (0.9 teaching clip)
+      numSeeing4wheeled = 1;
+      sizeSetPoint      = 1;
+      numBalls          = 3;      
+      break;
+    case V3:
+      // V3:  useRound (8), 3x 4wheeled, 1 Balls (0.9 teaching clip) sizesetpoint = 2
+      numSeeing4wheeled = 3;
+      sizeSetPoint      = 2;
+      numBalls          = 1;      
+      break;
+    case V4:
+      // V4:  useRound (8), 2x 4wheeled red, 1xblind (0.9 teaching clip) sizesetpoint = .2
+      numSeeing2wheeled = 0;
+      numSeeing4wheeled = 2;
+      numBlindRobots    = 1;
+      seeingAreRed      = true;
+      sizeSetPoint      = .2;
+      numBalls          = 0;
+      break;
+    }
 
     if(useCorridor)
       setCameraHomePos(Pos(-7.38466, 10.1764, 3.17434),  Pos(-96.9417, -12.6582, 0));
@@ -127,22 +170,22 @@ public:
     addParameterDef("attraction", &attraction, 0.000);
     addParameterDef("friction", &friction, 1);
 
-    addParameterDef("sizefactor", &sizefactor, .5);
+    addParameterDef("sizefactor", &sizefactor, 1);
     addParameterDef("posfactor", &posfactor, 1);
 
     global.configs.push_back(this);
 
-    if(useSquareGround){
+    OdeHandle wallHandle = odeHandle;
+    wallHandle.substance.toSnow(.3);
+    if(useRoundGround){
       // use Playground as boundary:
-      Playground* playground = new Playground(odeHandle, osgHandle,
-                                              osg::Vec3(10, .2, 1));
+      OctaPlayground* playground = new OctaPlayground(wallHandle, osgHandle, 
+                                                      osg::Vec3(radiusRound, 0.2, 1), 12);
       playground->setPosition(osg::Vec3(0,0,0.1));
-      playground->setGroundSubstance(Substance(0.8,0,40,0.5));
+      playground->setGroundSubstance(Substance(0.4,0.005,40,0.5));
       global.obstacles.push_back(playground);
     }else if(useCorridor){       // use circular Corridor 
       // outer ground
-      OdeHandle wallHandle = odeHandle;
-      wallHandle.substance.toSnow(.3);
       OctaPlayground* outer = new OctaPlayground(wallHandle, osgHandle.changeAlpha(0.2), 
                                                  osg::Vec3(radius+2, 0.2, 1), 12);
       outer->setTexture("");
@@ -240,10 +283,12 @@ public:
       fwc.useBumper    = false;
       fwc.force        = 5;
       OdeRobot* robot = new FourWheeled(odeHandle, osgHandle, 
-                                        fwc, 
-                                        "4WCamRobot_" + itos(i));
+                                        fwc, "4W_CamRobot_" + itos(i));
       OdeRobot* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle, robot, sensors);
-      vehicle->setColor(Color(1,.7,0));
+      if(seeingAreRed)
+        vehicle->setColor(Color(1,0,0));
+      else
+        vehicle->setColor(Color(1,.7,0));
       if(useCorridor) 
         vehicle->place(osg::Vec3(sin(i/2.0+.5)*radius,cos(i/2.0+.5)*radius,0.3));
       else
@@ -256,16 +301,10 @@ public:
       SeMoXHebMod *semox = new SeMoXHebMod(cc);
       controller = semox;
 //       controller = new SineController();
-//       CrossMotorCoupling* controller = new CrossMotorCoupling(semox, semox, 0.0);
-//       std::list<int> perm;
-//       perm += 1;
-//       perm += 0;
-//       controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));        
-//       controller->setParam("gamma_teach",0.005);
-      controller->setParam("gamma_teach",0.005);
+      controller->setParam("gamma_teach",0.01);
       //  controller->setParam("rootE",3);
       
-      double noise[] = {.5,.5};      
+      double noise[] = {1,1};      
       AbstractWiring* wiring = new SelectiveNoiseWiring(new WhiteUniformNoise(),
                                                         mkVector(noise,2));
       
@@ -280,11 +319,23 @@ public:
 
     for(int i=0; i<numBlindRobots; i++){
       // this robot has no camera
-      OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), 
-                                    "BlindRobot_" + itos(i));
+      FourWheeledConf fwc = FourWheeled::getDefaultConf();      
+      fwc.twoWheelMode = true;
+      fwc.useBumper    = false;
+      fwc.force        = 4;
+      OdeRobot* vehicle = new FourWheeled(odeHandle, osgHandle, fwc, 
+                                          "BlindRobot_" + itos(i));
       vehicle->setColor(Color(1,1,0));
       vehicle->place(Pos(-3,-4+2*i,0.3));
-      AbstractController *controller = new InvertMotorSpace(10);
+      //      AbstractController *controller = new InvertMotorSpace(10);
+      SeMoX *semox = new SeMoX();
+      CrossMotorCoupling* controller = new CrossMotorCoupling(semox, semox, 0.0);
+      std::list<int> perm;
+      perm += 1;
+      perm += 0;
+      controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));        
+      controller->setParam("gamma_teach",0.003);
+
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
       OdeAgent* agent = new OdeAgent();
       agent->init(controller, vehicle, wiring);
@@ -299,8 +350,8 @@ public:
       SeMoXHebMod* semox = dynamic_cast<SeMoXHebMod*>(controller);
       if(semox){
         matrix::Matrix desired = semox->getLastSensorValues();
-        // size: \dot size = -(size - 1) // set point is 1
-        desired.val(5,0) += - (desired.val(4,0)-1)* sizefactor;
+        // size: \dot size = -(size - 2) // set point is 2
+        desired.val(5,0) += - (desired.val(4,0)-sizeSetPoint)* sizefactor;
         // desired.val(5,0) += - (desired.val(4,0)-0.3)* sizefactor;// set point is 0.3
         // position: \dot pos = -(pos) // set point is 0
         desired.val(2,0) += - (desired.val(3,0)) * posfactor;
@@ -343,17 +394,38 @@ public:
 
     return lightS;
   }
+  paramval sizeSetPoint;
 
   paramval attraction;
   paramval friction;
   paramval sizefactor;
   paramval posfactor;
+
+  Version version;
 };
 
 
 int main (int argc, char **argv)
 {
-  ThisSim sim;
+  Version version=V1;
+  int index;
+  index= Simulation::contains(argv, argc, "-v1");
+  if( index > 0 && argc >= index){
+    version=V1;
+  }
+  index= Simulation::contains(argv, argc, "-v2");
+  if( index > 0 && argc >= index){
+    version=V2;
+  }
+  index= Simulation::contains(argv, argc, "-v3");
+  if( index > 0 && argc >= index){
+    version=V3;
+  }
+  index= Simulation::contains(argv, argc, "-v4");
+  if( index > 0 && argc >= index){
+    version=V4;
+  }
+  ThisSim sim(version);
   return sim.run(argc, argv) ? 0 : 1;
 
 }
