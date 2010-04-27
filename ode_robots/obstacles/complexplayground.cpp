@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-03-13 09:19:53  martius
+ *   Revision 1.6  2010-04-27 14:40:02  martius
+ *   depth==0 is ignored for drawing but used for bounding box
+ *
+ *   Revision 1.5  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -169,9 +172,9 @@ namespace lpzrobots {
     createGround();
     
     FOREACH(list<PolyLine>, polylines, p){
-      //      if(p->line_style==0){
+      if(p->depth>0){
 	createPolyline(*p);
-	//      }
+      }
     }        
     obstacle_exists=true;
   };
