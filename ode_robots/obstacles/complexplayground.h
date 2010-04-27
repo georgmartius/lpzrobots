@@ -23,7 +23,10 @@
  *   Playground that is loaded from xfig file with polylines               *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-08-28 09:23:14  martius
+ *   Revision 1.2  2010-04-27 14:42:18  martius
+ *   some comments added
+ *
+ *   Revision 1.1  2007/08/28 09:23:14  martius
  *   initial
  *
  *                                                                 *
@@ -156,10 +159,12 @@ namespace lpzrobots {
     std::list<Pos> points;
   };
 
-  /** Playground that uses xfig file with polylines
-      linetype 0 is normal line
+  /** Playground that uses an xfig file with polylines
+      linetype 0 is normal wall
       linetype 1 is border
-      thickness is used as well, thickness is multiplied with wallthickness
+      thickness is used as well, thickness is multiplied with wallthickness.
+      depth is used as a height value and is multiplied with heightfactor.
+      The entire size can be scaled with a global factor
   */
   class ComplexPlayground : public AbstractGround {
 
@@ -171,7 +176,10 @@ namespace lpzrobots {
     std::list<PolyLine> polylines;
    
   public:
-  
+    /**
+       @param factor global factor for the entire playground
+       @heightfactor factor for depth value of xfig line to determine wall height       
+     */  
     ComplexPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
 		      const std::string filename, 
 		      double factor = 1, double heightfactor=0.02, bool createGround=true);
