@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-10-14 09:58:42  martius
+ *   Revision 1.13  2010-04-28 07:57:41  guettler
+ *   getInternalParams: additional check if m->first is valid
+ *
+ *   Revision 1.12  2009/10/14 09:58:42  martius
  *   added support for description strings that are exported using the infolines
  *
  *   Revision 1.11  2009/08/10 07:37:48  guettler
@@ -99,7 +102,7 @@ Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
 Inspectable::iparamvallist Inspectable::getInternalParams() const {
   iparamvallist vallist;
   FOREACHC(imatrixpairlist, mapOfMatrices, m){
-    if(m->second.first->isVector() || !m->second.second){    
+    if(m->second.first && (m->second.first->isVector() || !m->second.second)){    
       vallist+= m->second.first->convertToList();
     } else {
 	vallist+=store4x4AndDiagonal(*(m->second.first));
