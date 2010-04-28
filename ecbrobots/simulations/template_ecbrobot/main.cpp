@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-08-11 15:50:19  guettler
+ *   Revision 1.7  2010-04-28 08:15:49  guettler
+ *   - twowheeledrobotchain as example
+ *   - some enhancements made to CheatedECB
+ *
+ *   Revision 1.6  2009/08/11 15:50:19  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -72,6 +76,8 @@ using namespace std;
 #include "ecb.h"
 #include "ecbcommunicator.h"
 #include "commanddefs.h"
+
+static int zeroRange = 0.00;
 /**
  * Simple cheat to get motors motorsStopped without implemented start and stop command.
  */
@@ -86,7 +92,10 @@ class CheatedECB : public ECB {
 
     virtual void sendMotorValuesPackage() {
       // at first start of ECB, it must be initialized with a reset-command
-      assert(initialised && failureCounter <= globalData->maxFailures);
+      if (!(initialised && failureCounter <= globalData->maxFailures)) {
+        sendResetECB();
+        return;
+      }
 
       if (globalData->debug)
         cout << "ECB(" << dnsName << "): sendMotorPackage()!" << endl;
@@ -102,9 +111,9 @@ class CheatedECB : public ECB {
       FOREACH (list<motor>,motorList,m) {
         // Agent and Controller process with double-values
         // The ECB(hardware) has to work with byte-values
-        if (motorsStopped)
+        if (motorsStopped || ((*m)>=-zeroRange && (*m)<=zeroRange))
           event->commPackage.data[i++] = convertToByte(0);
-        else
+        else 
           event->commPackage.data[i++] = convertToByte((*m));
       }
       informMediator(event);
@@ -115,8 +124,7 @@ class CheatedECB : public ECB {
      */
     virtual void stopMotors() {
       motorsStopped=true;
-      if (initialised && failureCounter <= globalData->maxFailures)
-        sendMotorValuesPackage();
+      sendMotorValuesPackage();
     }
 
     /**
@@ -125,7 +133,7 @@ class CheatedECB : public ECB {
     virtual void startMotors() {
       motorsStopped=false;
     }
-
+    
   private:
     bool motorsStopped;
 };
@@ -161,68 +169,76 @@ class MyECBManager : public ECBManager {
      * @return true if initialisation was successful
      */
     virtual bool start(GlobalData& global) {
-
+      
       // set specific communication values
+   //   global.baudrate = 460800;
       global.baudrate = 57600;
+      
       global.portName = "/dev/ttyUSB0";
       global.maxFailures = 4;
       global.serialReadTimeout = 100;
-      global.verbose = true;
-      global.debug = true;
+      global.verbose = false;
+      global.debug = false;
       global.cycleTime = 50;
       global.noise = 0.05;
       global.plotOptions.push_back(PlotOption(GuiLogger, 1));
 
-      // create new controller
-     // BasicControllerConf conConf = BasicController::getDefaultConf();
-     // AbstractController* myCon1 = new MyController(new BasicController(conConf));
-      AbstractController* myCon1 = new InvertMotorNStep(InvertMotorNStep::getDefaultConf());
-   //    AbstractController* myCon1 = new SineController();
-      myCon1->setParam("period",150);
-      // create new wiring
-      AbstractWiring* myWiring1 = new One2OneWiring(new WhiteNormalNoise());
-      // create new robot
-      ECBRobot* myRobot1 = new ECBRobot(global);
-      // 2 ECBs will be added to robot
-      ECBConfig ecbc1 = ECB::getDefaultConf();
-//      ECB* myECB1 = new CheatedECB("NIMM2_PRIMUS", global, ecbc1);
-      ECB* myECB1 = new CheatedECB(" NIMM2_SECUNDUS", global, ecbc1);
-//      ECB* myECB1 = new CheatedECB("NIMM2_TERTIUS", global, ecbc1);
-//      ECB* myECB1 = new CheatedECB("XBEE_S1_ECB", global, ecbc1);
-//      ECB* myECB1 = new CheatedECB("XBEE_S1_MODUL_00", global, ecbc1);
-      myRobot1->addECB(myECB1);
-      // ECBConfig ecbc2 = ECB::getDefaultConf();
-      //myRobot1->addECB ( 2,ecbc2 );
+      int numberNimm2 = 3;
+      for (int nimm2Index=0; nimm2Index< numberNimm2; nimm2Index++) {
+//        if (nimm2Index!=2)
+//          continue;
+        // create new controller
+        InvertMotorNStepConf conConf = InvertMotorNStep::getDefaultConf();
+        conConf.initialC = matrix::Matrix(2,2);
+        conConf.initialC.val(0,0)= 1.0;
+        conConf.initialC.val(1,1)= 1.0;
+        conConf.initialC.val(1,0)= -0.07;
+        conConf.initialC.val(0,1)= -0.07;
+        
+        AbstractController* myCon = new InvertMotorNStep(conConf);      
+//        AbstractController* myCon = new SineController();
+        myCon->setParam("epsA",0);
+        myCon->setParam("epsC",0);
 
-      // create new agent
-      ECBAgent* myAgent1 = new ECBAgent(PlotOption(GuiLogger_File, 5), global.noise);
-      // init agent with controller, robot and wiring
-      myAgent1->init(myCon1, myRobot1, myWiring1);
+        // create new wiring
+        AbstractWiring* myWiring = new One2OneWiring(new WhiteNormalNoise());
+        // create new robot
+        ECBRobot* myRobot = new ECBRobot(global);
 
-      // create new controller with example parameter changes
-      //       AbstractController* myCon2 = new InvertMotorSpace ( 10 );
-      //       myCon2->setParam ( "s4delay",2.0 );
-      //       myCon2->setParam ( "s4avg",2.0 );
-      //       // create new wiring
-      //       AbstractWiring* myWiring2 = new One2OneWiring ( new WhiteNormalNoise() );
-      //       // create new robot
-      //       ECBRobot* myRobot2 = new ECBRobot ( global );
-      //       // 2 ECBs will be added to robot
-      //       ECBConfig ecbc3 = ECB::getDefaultConf();
-      //       myRobot1->addECB ( 3,ecbc3 );
-      //       ECBConfig ecbc4 = ECB::getDefaultConf();
-      //       myRobot1->addECB ( 4,ecbc4 );
-      //
-      //       // create new agent
-      //       ECBAgent* myAgent2 = new ECBAgent();
-      //       // init agent with controller, robot and wiring
-      //       myAgent2->init ( myCon2,myRobot2,myWiring2 );
+        // create ECB
+        ECBConfig ecbConf = ECB::getDefaultConf();
+        ecbConf.maxNumberSensors = 2; // no infrared sensors
+        string* DNSName;
+        switch (nimm2Index) {
+          case 0:
+//            DNSName = new string("NIMM2_PRIMUS");
+            DNSName = new string("NIMM2_PRIMUS");
+            break;
+          case 1:
+            DNSName = new string("NIMM2_SECUNDUS");
+            break;
+          case 2:
+            DNSName = new string("NIMM2_TERTIUS");
+            break;
+          default:
+            break;
+        }
+        ECB* myECB = new CheatedECB(*DNSName, global, ecbConf);
+        myRobot->addECB(myECB);
+
+        // create new agent
+        ECBAgent* myAgent = new ECBAgent(PlotOption(GuiLogger_File, 5), global.noise);
+        // init agent with controller, robot and wiring
+        myAgent->init(mycon, myRobot, myWiring);
+
+       // register agents
+        global.agents.push_back(myAgent);
+   
+      }
+ 
 
 
-      // register agents
-      global.agents.push_back(myAgent1);
-      //  global.agents.push_back ( myAgent2 );
-
+ 
       return true;
     }
 
