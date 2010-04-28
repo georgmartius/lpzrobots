@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2009-08-18 14:44:17  guettler
+ *   Revision 1.19  2010-04-28 08:09:30  guettler
+ *   - bugfixes
+ *   - stopMotors is now invoked by ECBCommunicator
+ *
+ *   Revision 1.18  2009/08/18 14:44:17  guettler
  *   implemented case COMMAND_MOTOR_CURRENT_LIMIT
  *
  *   Revision 1.17  2009/08/11 19:31:53  guettler
@@ -151,6 +155,12 @@ namespace lpzrobots {
   bool ECBCommunicator::loop() {
     assert ( globalData->comm==this );
     if (globalData->pause) {
+      // tell every ECB to stop motors
+      // stop all motors of a robot
+      FOREACH(ECBAgentList, globalData->agents, it)
+      {
+        (*it)->getRobot()->stopMotors();
+      }
       serialPortThread->pause();
       timerThread.stopTimer();
       threadsStoppedWhilePaused = true;
@@ -607,6 +617,12 @@ namespace lpzrobots {
   }
 
   void ECBCommunicator::newDataReceived(std::vector<uint8> receiveBuffer) {
+    // if in pause mode, ignore package
+    if (globalData->pause)
+    {
+      cout << "package received, but not handled while in pause mode" << endl;
+      return;
+    }
     if (globalData->debug)
       printBuffer(receiveBuffer);
     // Eine Nachricht vom Microcontroller wurde empfangen

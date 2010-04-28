@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-08-11 15:49:05  guettler
+ *   Revision 1.8  2010-04-28 08:09:30  guettler
+ *   - bugfixes
+ *   - stopMotors is now invoked by ECBCommunicator
+ *
+ *   Revision 1.7  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -115,7 +119,7 @@ namespace lpzrobots {
           count++;
       }
       numberECBInitialised = count;
-      if (numberECBInitialised == ECBlist.size()) {
+      if (numberECBInitialised == ECBlist.size() && getMotorNumber()>0 && getSensorNumber() >0) {
         if (globalData.debug)
           cout << "ECBRobot: Found all (" << numberECBInitialised << ") initialised ECBs." << endl;
         removeInfoLines();
@@ -129,7 +133,7 @@ namespace lpzrobots {
       initialised = false;
       isResetECBs = false;
       return false;
-    } else // initialise && ! resetECBs
+    } else // initialised && ! resetECBs
       return true;
   }
   

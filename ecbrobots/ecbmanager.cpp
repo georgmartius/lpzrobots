@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-08-11 15:49:05  guettler
+ *   Revision 1.10  2010-04-28 08:09:30  guettler
+ *   - bugfixes
+ *   - stopMotors is now invoked by ECBCommunicator
+ *
+ *   Revision 1.9  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -279,12 +283,8 @@ namespace lpzrobots
     if (c == CTRL('C'))
     {
       globalData.pause = true;
-      
-      // stop all motors of a roboter
-      FOREACH(ECBAgentList, globalData.agents, it)
-      {
-        (*it)->getRobot()->stopMotors();
-      }
+      // "stop all motors" moved to ECBCommunicator
+
       usleep(200000);
       
       restoreConsole();
