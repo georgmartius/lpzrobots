@@ -10,7 +10,7 @@ EXEC = start
 EXEC_OPT = start_opt
 
 LPZROBOTS  = ../../..
-ECBROBOTS  = $(LPZROBOTS)/ecbrobots
+ECBROBOTS  = $(LPZROBOTS)/ecb_robots
 SELFORG    = $(LPZROBOTS)/selforg
 
 ECBROBOTSLIB := ecbrobots

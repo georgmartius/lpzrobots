@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-03-25 11:22:35  robot1
+ *   Revision 1.2  2010-04-28 08:07:59  guettler
+ *   some updates
+ *
+ *   Revision 1.1  2009/03/25 11:22:35  robot1
  *   neue Version
  *
  *   Revision 1.6  2008/08/12 12:22:50  guettler
@@ -77,7 +80,7 @@ class MySimpleController : public AbstractControllerAdapter
       global.configs.push_back ( this );
       global.configs.push_back ( controller );
 
-      this->addParameterDef ( "speedFactor", &speedFactor, 0.5 );
+      this->addParameterDef ( "speedFactor", &speedFactor, 0.7 );
     }
 
     /// return the name of the object
@@ -169,12 +172,11 @@ class MyECBManager : public ECBManager
     virtual bool start ( GlobalData& global ) {
 
       // set specific communication values
-      global.baudrate = 38400;
+      global.baudrate = 57600;
 //       global.portName = "/dev/ttyS0";
       global.portName = "/dev/ttyUSB0";
-      global.masterAddress=0;
       global.maxFailures=4;
-      global.serialReadTimeout=50;
+      global.serialReadTimeout=200;
       global.verbose = false;
       global.debug = true;
       global.benchmarkMode=false;
@@ -201,14 +203,15 @@ class MyECBManager : public ECBManager
       ECBConfig ecbc1 = ECB::getDefaultConf();
 /*      SphericalRobotECB* sp_robot = new SphericalRobotECB ( 1, global, ecbc1 );
       myRobot1->addECB ( sp_robot );*/
-         myRobot1->addECB ( 1,ecbc1 );
+        ECB* ecb1 = new ECB("SPHERE1", global, ecbc1);
+         myRobot1->addECB ( ecb1 );
 
 //       ECBConfig ecbc2 = ECB::getDefaultConf();
 //       myRobot1->addECB ( 2,ecbc2 );
 
 
       // create new agent
-      ECBAgent* myAgent1 = new ECBAgent ( PlotOption ( GuiLogger , Controller, 5) );
+      ECBAgent* myAgent1 = new ECBAgent ( PlotOption ( GuiLogger, 5) );
 //       ECBAgent* myAgent1 = new ECBAgent(global.plotOptions);
 
       // init agent with controller, robot and wiring
