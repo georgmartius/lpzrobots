@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.126  2010-03-25 16:39:20  martius
+ *   Revision 1.127  2010-05-03 10:51:41  guettler
+ *   noGraphics is set after init of OsgConfig
+ *
+ *   Revision 1.126  2010/03/25 16:39:20  martius
  *   commented Critical Section 20 since it produced an error
  *
  *   Revision 1.125  2010/03/24 16:51:38  martius
@@ -800,6 +803,7 @@ namespace lpzrobots {
 
     osgHandle.init();
     addParameter("Shadow",&(osgHandle.cfg->shadowType));
+    osgHandle.cfg->noGraphics = noGraphics;
 
     osgDB::FilePathList l = osgDB::getDataFilePathList();
 #ifdef PREFIX

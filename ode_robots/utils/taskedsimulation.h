@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.5  2010-03-16 15:48:02  martius
+ *  Revision 1.6  2010-05-03 10:51:41  guettler
+ *  noGraphics is set after init of OsgConfig
+ *
+ *  Revision 1.5  2010/03/16 15:48:02  martius
  *  osgHandle has now substructures osgConfig and osgScene
  *   that minimized amount of redundant data (this causes a lot of changes)
  *  Scenegraph is slightly changed. There is a world and a world_noshadow now.
@@ -125,7 +128,7 @@ namespace lpzrobots {
         else
           noGraphics = true;
         // inform osg relevant stuff that no graphics is used
-        osgHandle.cfg->noGraphics=noGraphics;
+        //osgHandle.cfg->noGraphics=noGraphics;
       }
 
       void setTaskNameSuffix(std::string nameSuffix) {
