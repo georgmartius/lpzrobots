@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-04-28 08:16:25  guettler
+ *   Revision 1.2  2010-05-07 05:20:33  guettler
+ *   added measures to manager
+ *
+ *   Revision 1.1  2010/04/28 08:16:25  guettler
  *   simulation for twowheeledrobotchain
  *
  *   Revision 1.6  2009/08/11 15:50:19  guettler
@@ -69,6 +72,7 @@
 #include <selforg/oneactivemultipassivecontroller.h>
 #include <selforg/mutualinformationcontroller.h>
 #include <selforg/statistictools.h>
+#include <selforg/statisticmeasure.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -156,6 +160,13 @@ class MyController : public AbstractControllerAdapter {
 
 class MyECBManager : public ECBManager {
 
+  protected:
+    StatisticTools* stattools;
+    StatisticMeasure* mi0;
+    StatisticMeasure* mi1;
+    double mi01Value;
+    StatisticMeasure* mi01;
+
   public:
 
     MyECBManager() {
@@ -182,22 +193,23 @@ class MyECBManager : public ECBManager {
       global.verbose = false;
       global.debug = false;
       global.cycleTime = 50;
-      global.noise = 0.05;
+      global.noise = 0.1;
       global.plotOptions.push_back(PlotOption(GuiLogger, 1));
 
       StatisticTools* stattools = new StatisticTools();
 
       int numberNimm2 = 3;
-      for (int nimm2Index=0; nimm2Index< numberNimm2; nimm2Index++) {
-        if (nimm2Index!=2)
-          continue;
+      for (int nimm2Index=0; nimm2Index< numberNimm2; nimm2Index++)
+      {
+       // if (nimm2Index!=2)
+//          continue;
         // create new controller
         InvertMotorNStepConf conConf = InvertMotorNStep::getDefaultConf();
         conConf.initialC = matrix::Matrix(2,2);
-        conConf.initialC.val(0,0)= 1.0;
-        conConf.initialC.val(1,1)= 1.0;
-        conConf.initialC.val(1,0)= -0.07;
-        conConf.initialC.val(0,1)= -0.07;
+        conConf.initialC.val(0,0)= 1.2;
+        conConf.initialC.val(1,1)= 1.2;
+        conConf.initialC.val(1,0)= -0.37;
+        conConf.initialC.val(0,1)= -0.37;
         
         AbstractController* myCon = new InvertMotorNStep(conConf);
         AbstractMultiController* onamupa = new OneActiveMultiPassiveController(myCon, "SOController");
@@ -235,18 +247,20 @@ class MyECBManager : public ECBManager {
         myRobot->addECB(myECB);
 
         // create new agent
-        ECBAgent* myAgent = new ECBAgent(PlotOption(GuiLogger_File, 5), global.noise);
+//        ECBAgent* myAgent = new ECBAgent(PlotOption(GuiLogger_File, 5), global.noise);
+        ECBAgent* myAgent = new ECBAgent(PlotOption(NoPlot), global.noise);
         // init agent with controller, robot and wiring
         myAgent->init(onamupa, myRobot, myWiring);
         myAgent->addInspectable(stattools);
         myAgent->addCallbackable(stattools);
-        double& mi0 = stattools->addMeasure(micon->getMI(0),"MI0", ID, 1);
-        double& mi1 = stattools->addMeasure(micon->getMI(1),"MI1", ID, 1);
+        mi0 = stattools->getMeasure(micon->getMI(0),"MI0", ID, 1);
+        mi1 = stattools->getMeasure(micon->getMI(1),"MI1", ID, 1);
+        mi01 = stattools->getMeasure(mi01Value,"MI01", ID, 1);
 
        // register agents
         global.agents.push_back(myAgent);
    
-      }
+      }//for
  
 
 
@@ -260,7 +274,7 @@ class MyECBManager : public ECBManager {
      @param control indicates that robots have been controlled this timestep
      */
     virtual void addCallback(GlobalData& globalData, bool pause, bool control) {
-
+      mi01Value = (mi0->getValue() + mi1->getValue())/2;
     }
 
     /** add own key handling stuff here, just insert some case values
