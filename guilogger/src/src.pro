@@ -37,4 +37,6 @@ warn_on \
 thread \
 qt
 TARGET = bin/guilogger
+target.path = /usr/bin
 QT += qt3support
+INSTALLS += target
