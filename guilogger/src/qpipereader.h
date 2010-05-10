@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "qdatasource.h"
+#include <stdio.h>
 
 /** \brief Class for reading blocks/lines from a pipe (e.g. stdin)
   * \author Dominic Schneider

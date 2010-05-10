@@ -20,6 +20,7 @@
 
 #include "channeldata.h"
 #include "stl_adds.h"
+#include <stdio.h>
 
 ChannelData::ChannelData(int buffersize)
   : numchannels(0), buffersize(0), time(0), initialized(false){

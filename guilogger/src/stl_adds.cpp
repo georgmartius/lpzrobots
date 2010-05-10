@@ -1,5 +1,6 @@
 
 #include "stl_adds.h"
+#include <stdio.h>
 
 namespace std {
   

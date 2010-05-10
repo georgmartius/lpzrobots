@@ -1,6 +1,7 @@
 
 #include "gnuplot.h"
 #include "stl_adds.h"
+#include <stdio.h>
 
 Gnuplot::Gnuplot(const PlotInfo* plotInfo)
   : plotInfo(plotInfo), pipe(0) {
