@@ -1,6 +1,6 @@
-guilogger (0.6-1ubuntu1) lucid; urgency=low
+guilogger (0.6-2) unstable; urgency=low
 
-  * Switch to dpkg-source 3.0 (quilt) format
+  * Switch to dpkg-source 3.0 (native) format
 
  -- Georg <georg@ubuntu-vbox>  Tue, 11 May 2010 11:37:19 +0200
 
