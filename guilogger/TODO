@@ -1,5 +1,1 @@
-Bugs:
-  - save config file ignores user defined stuff in Misc and GNUPlot section
-  - save config does not remove channels
-  - pipemode: slider value (displayed below) is not the correct update interval?!
-  
+Improve documentation and an example how to integrate it.

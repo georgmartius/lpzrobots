@@ -1,0 +1,17 @@
+Source: guilogger
+Section: math
+Priority: optional
+Maintainer: Georg Martius <georg.martius@web.de>
+Build-Depends: debhelper (>= 7), 
+ libqt4-dev, qt4-qmake, libqt4-qt3support
+Standards-Version: 3.8.4
+Homepage: http://robot.informatik.uni-leipzig.de/software
+
+Package: guilogger
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, gnuplot
+Description: Displays variing values online using gnuplot
+ A tool that coordinates multiple gnuplot windows to display 
+ a set of variing values online. A QT-fontend allows to select the
+ values that are to be displayed. Very easy to use via pipe, such that
+ it can be integrated very easily into your program.
