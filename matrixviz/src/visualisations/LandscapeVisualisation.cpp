@@ -15,15 +15,31 @@
 using namespace std;
 
 LandscapeVisualisation::LandscapeVisualisation(MatrixPlotChannel *channel, ColorPalette *colorPalette, QWidget *parent)
-: QGLWidget(parent){
+: AbstractVisualisation(channel, colorPalette, parent){
 
   if(debug) cout << "TextureVisualisation Konstruktor" << endl;
-  this->channel = channel;
-  this->colorPalette = colorPalette;
+//  this->channel = channel;
+//  this->colorPalette = colorPalette;
   object = 0;
-  maxX = this->channel->getDimension(0);
-  maxY = this->channel->getDimension(1);
-  rotX = rotY = 10;
+  maxX = this->matrixChannel->getDimension(0);
+  maxY = this->matrixChannel->getDimension(1);
+  rotX = rotY = 0;
+  zoom = 1.;
+  //setUpdatesEnabled(true);
+  setMouseTracking(true); // enables tooltips while mousemoving over widget
+}
+
+LandscapeVisualisation::LandscapeVisualisation(VectorPlotChannel *channel, ColorPalette *colorPalette, QWidget *parent)
+: AbstractVisualisation(channel, colorPalette, parent){
+
+  if(debug) cout << "TextureVisualisation Konstruktor" << endl;
+//  this->channel = channel;
+//  this->colorPalette = colorPalette;
+  object = 0;
+//  maxX = this->matrixChannel->getDimension(0);
+//  maxY = this->matrixChannel->getDimension(1);
+  rotX = rotY = 0;
+  zoom = 1.;
   //setUpdatesEnabled(true);
   setMouseTracking(true); // enables tooltips while mousemoving over widget
 }
@@ -40,6 +56,7 @@ void LandscapeVisualisation::initializeGL(){
 //  object = makeObject();    // Generate an OpenGL display list
   glEnable(GL_DEPTH_TEST);
   glShadeModel( GL_SMOOTH );
+//  glHint(GL_POLYGON_SMOOTH_HINT, GL_DONT_CARE);
 }
 
 void LandscapeVisualisation::resizeGL(int w, int h){
@@ -48,15 +65,17 @@ void LandscapeVisualisation::resizeGL(int w, int h){
   glMatrixMode( GL_PROJECTION);
   glLoadIdentity();
 
-  //seitenverhältnis
+//  //seitenverhältnis
 //  if(w <= h)
 //    glOrtho(-1.0 * maxX, 1.0 * maxX, -1.0 * maxY, 1.0 * maxY, maxY, maxY);
 //  else
 //    glOrtho(-1.0 * maxX, 1.0 * maxX, -1.0 * maxY, 1.0 * maxY, maxY, maxY);
-  gluPerspective(50.f,(GLfloat) w/(GLfloat) h, 1.f,7.f);
-  glTranslatef(.5f * maxX, .5f * maxY, -.0f); //move to the center
+
+  gluPerspective(30.f,(GLfloat) w/(GLfloat) h, .2f,50.f);
+//  glTranslatef(.5f * maxX, .5f * maxY, -.0f); //move to the center
+
 //  glFrustum(-1.0 * maxX, 1.0 * maxX, -1.0 * maxY, 1.0 * maxY, maxY, maxY);
-//  glFrustum(-50, 50, -50, 50, 4, 4);
+//  glFrustum(-50, 50, -50, 50, .2, 4);
   glMatrixMode( GL_MODELVIEW);
 }
 
@@ -66,22 +85,23 @@ void LandscapeVisualisation::paintGL(){
   glLoadIdentity();
 
   gluLookAt(
-      5.0f, 5.0f, 5.0f,
+      5.0f /* cos(rotX)*/, 5.0f /* sin(rotX)*/, -5.0f, // x - 5.f * cos rotX , y - 5.f *Ssin rotwinkel
       0.0f, 0.0f, 0.0f,
       0.0f, 1.0f, 0.0f);
 
-//  glRotatef((GLfloat) rotX, 1.f,0.f,0.f); //fläche senken x achse
-//  glRotatef((GLfloat) rotY, 0.0f, 1.0f, 0.0f); // drehen y achse
+  glRotatef(rotX* -1.f, 1.f,0.f,1.f); // neigen.. rotation um die x,-z-achse
+  glRotatef((GLfloat) rotY, 0.0f, 1.0f, 0.0f); // drehen y achse
 
-  glTranslatef(-.5f * maxX, -.5f * maxY, -.0f); // put the object in center
-  glScalef(0.25f,0.25f,0.25f);
+  glTranslatef(((-.5f * maxX) + .5f)*zoom, 0.f, ((.5f * maxY) - .5f)*zoom); // put the object in center
+//  glScalef(0.25f,0.25f,0.25f);
+  glScalef( zoom, zoom,zoom);
 
   for (int i = 0; i < maxX - 1; i++)
     for (int j = 0; j < maxY - 1; j++) {
-      double p00 = channel->getValue(i, j),
-          p10 = channel->getValue(i + 1, j),
-          p11 = channel->getValue(i + 1, j + 1),
-          p01 = channel->getValue(i, j + 1);
+      double p00 = matrixChannel->getValue(i, j),
+          p10 = matrixChannel->getValue(i + 1, j),
+          p11 = matrixChannel->getValue(i + 1, j + 1),
+          p01 = matrixChannel->getValue(i, j + 1);
       QColor cP00 = colorPalette->pickColor(p00),
           cP10 = colorPalette->pickColor(p10),
           cP11 = colorPalette->pickColor(p11),
@@ -113,6 +133,11 @@ void LandscapeVisualisation::paintGL(){
         glEnd();
       }
     }
+}
+
+void LandscapeVisualisation::divideAndDrawTriangle(VERTEX* v1, VERTEX* v2, VERTEX* v3){
+  // y -> values TODO
+
 }
 
 GLuint LandscapeVisualisation::makeObject() { //obsolete
@@ -151,13 +176,21 @@ void LandscapeVisualisation::mouseMoveEvent ( QMouseEvent *event ){
 //  setToolTip((const QString) tTip);  // shows up ToolTip "M[x,y]"
   //if ( debug) cout << "MouseCoords: " << event->x() << ", " << event->y() << endl;
   if(event->buttons() == Qt::LeftButton && ( event->x() != mouseX || event->y() != mouseY)){
-    rotX += (event->x() - mouseY) / 2;
-    rotY += (event->y() - mouseX) / 2;
+    rotX += (event->y() - mouseY) / 2; //variable umbenennen.. rot um z in xyebene
+    rotY += (event->x() - mouseX)/2;
 //    if(debug) cout << "rotX= " << rotX << " rotY= " << rotY << endl;
-    mouseX = event->x();
     mouseY = event->y();
+    mouseX = event->x();
     updateGL();
   }
+}
+
+void LandscapeVisualisation::wheelEvent(QWheelEvent * event){
+  if(debug) cout << event->delta() << endl;
+  zoom += ((event->delta() / 120) * 0.1);
+  if ( zoom < 0.) zoom = 0.;
+  updateGL();
+  event->accept();
 }
 
 void LandscapeVisualisation::mousePressEvent ( QMouseEvent *event ){

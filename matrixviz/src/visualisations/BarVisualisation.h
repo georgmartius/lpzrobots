@@ -26,13 +26,11 @@ protected:
    void initializeGL();
    void resizeGL(int w, int h);
    void paintGL();
-   virtual GLuint   makeObject();
    void mouseMoveEvent ( QMouseEvent *event ); // TODO mousePressed...
    void wheelEvent(QWheelEvent * event);
    void mousePressEvent ( QMouseEvent *event );
 
 private:
-   GLuint object;
    int maxX, maxY;
    int visMode; // 0 = landscape 1 = bar
    int inputMode; // 0 = matrix 1 = vector(s)
@@ -41,6 +39,7 @@ private:
    int mouseX, mouseY;
    const static bool debug = true;
    void drawBar(double value);
+   bool lightOn;
 };
 
 

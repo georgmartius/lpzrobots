@@ -36,29 +36,32 @@
 using namespace std;
 
 TextureVisualisation::TextureVisualisation(MatrixPlotChannel *channel, ColorPalette *colorPalette, QWidget *parent)
-: QGLWidget(parent){
+: AbstractVisualisation(channel, colorPalette, parent){
 
   if(debug) cout << "TextureVisualisation Konstruktor" << endl;
-  this->channel = channel;
+  this->matrixChannel = channel;
   this->colorPalette = colorPalette;
-  object = 0;
-  maxX = channel->getDimension(0);
-  maxY = channel->getDimension(1);
+  this->vectorChannel = NULL;
+  object = NULL;
+  maxX = matrixChannel->getDimension(0);
+  maxY = matrixChannel->getDimension(1);
   //setUpdatesEnabled(true);
   setMouseTracking(true); // enables tooltips while mousemoving over widget
 }
 
 TextureVisualisation::TextureVisualisation(VectorPlotChannel *channel, ColorPalette *colorPalette, QWidget *parent)
-: QGLWidget(parent){
+: AbstractVisualisation(channel, colorPalette, parent){
 
   if(debug) cout << "TextureVisualisation Konstruktor" << endl;
-  this->channel = channel;
+  this->vectorChannel = channel;
   this->colorPalette = colorPalette;
-  object = 0;
-  maxX = channel->getSize();
-  maxY = channel->getBufferSize();
+  this->matrixChannel = NULL;
+  object = NULL;
+  maxX = vectorChannel->getSize();
+  maxY = vectorChannel->getBufferSize();
   //setUpdatesEnabled(true);
   setMouseTracking(true); // enables tooltips while mousemoving over widget
+  if(debug) cout << "TextureVisualisation Konstruktor" << endl;
 }
 
 TextureVisualisation::~TextureVisualisation(){
@@ -68,7 +71,7 @@ TextureVisualisation::~TextureVisualisation(){
 }
 
 void TextureVisualisation::initializeGL(){
-  if(debug) cout << "TextureVisualisation Konstruktor" << endl;
+  if(debug) cout << "TextureVisualisation initializeGL" << endl;
   qglClearColor( Qt::black);    // Let OpenGL clear to black
   object = makeObject();    // Generate an OpenGL display list
   glShadeModel( GL_FLAT );
@@ -104,14 +107,14 @@ void TextureVisualisation::paintGL(){
   glLoadIdentity();
   glBindTexture(GL_TEXTURE_2D, texName);
 
-  MatrixPlotChannel* matrixChannel = dynamic_cast<MatrixPlotChannel*> (channel);
-  VectorPlotChannel* vectorChannel = dynamic_cast<VectorPlotChannel*> (channel);
+//  MatrixPlotChannel* matrixChannel = dynamic_cast<MatrixPlotChannel*> (channel);
+//  VectorPlotChannel* vectorChannel = dynamic_cast<VectorPlotChannel*> (channel);
 
   GLubyte subTex[maxX][maxY][3];
   for (int i = 0; i < maxX; i++)
     for (int j = 0; j < maxY; j++) {
       QColor color;
-      if(matrixChannel != 0) color = colorPalette->pickColor(matrixChannel->getValue(i, j));
+      if(matrixChannel != NULL) color = colorPalette->pickColor(matrixChannel->getValue(i, j));
       else color = colorPalette->pickColor(vectorChannel->getValue(i, j));
       subTex[i][j][0] = (GLubyte) color.red();
       subTex[i][j][1] = (GLubyte) color.green();
@@ -152,13 +155,15 @@ GLuint TextureVisualisation::makeObject() {//TODO paintEvent here..
 
 
 void TextureVisualisation::mouseMoveEvent ( QMouseEvent *event ){
-  QString tTip = channel->getChannelName().c_str();
+  QString tTip;
+  if(matrixChannel != NULL) tTip = matrixChannel->getChannelName().c_str();
+  else tTip = vectorChannel->getChannelName().c_str();
   double xStep = width() / maxX;
   double yStep = height() / maxY;
-  if ( dynamic_cast<MatrixPlotChannel*> (channel) != 0){
+  if ( matrixChannel != NULL){
     tTip += "[" + QString::number( (int) (event->y() / yStep)) + ","
           + QString::number( (int) (event->x() / xStep) ) + "]";
-  }else{
+  }else{  // fehlerhaft!!
     tTip += "[" + QString::number( (int) (event->y() / yStep)) + "]:"
               + QString::number( (int) (event->x() / xStep) );
   }

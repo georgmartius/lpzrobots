@@ -25,7 +25,10 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-30 13:19:09  robot14
+ *   Revision 1.2  2010-05-11 16:51:47  robot14
+ *   first working version
+ *
+ *   Revision 1.1  2010/03/30 13:19:09  robot14
  *   first version
  *
  *
@@ -122,8 +125,8 @@ void configFile::save(){
     win.setAttribute("visMode", (*it)->getVisMode());
     win.setAttribute("X", (*it)->pos().x());
     win.setAttribute("Y", (*it)->pos().y());
-    win.setAttribute("width", (*it)->size().width());
-    win.setAttribute("height", (*it)->size().height());
+    win.setAttribute("width", (*it)->getSize().width());
+    win.setAttribute("height", (*it)->getSize().height());
     win.setAttribute("colorPaletteFile", (*it)->getColorPaletteFilepath());
     root.appendChild(win);
   }

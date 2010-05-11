@@ -16,14 +16,14 @@ using namespace std;
 BarVisualisation::BarVisualisation(MatrixPlotChannel *channel, ColorPalette *colorPalette, QWidget *parent)
 : AbstractVisualisation(channel, colorPalette, parent){
 
-  if(debug) cout << "TextureVisualisation Konstruktor" << endl;
+  if(debug) cout << "BarVisualisation Konstruktor" << endl;
 //  this->channel = channel;
 //  this->colorPalette = colorPalette;
-  object = 0;
   zoom = 1.;
   maxX = this->matrixChannel->getDimension(0);
   maxY = this->matrixChannel->getDimension(1);
   rotX = rotY = 0;
+  lightOn = true;
   //setUpdatesEnabled(true);
   setMouseTracking(true); // enables tooltips while mousemoving over widget
 }
@@ -32,35 +32,45 @@ BarVisualisation::BarVisualisation(VectorPlotChannel *channel, ColorPalette *col
 : AbstractVisualisation(channel, colorPalette, parent){
 
   // TODO
-  if(debug) cout << "TextureVisualisation Konstruktor" << endl;
+  if(debug) cout << "BarVisualisation Konstruktor" << endl;
 //  this->channel = channel;
 //  this->colorPalette = colorPalette;
-  object = 0;
   zoom = 1.;
 //  maxX = this->matrixChannel->getDimension(0);
 //  maxY = this->matrixChannel->getDimension(1);
   rotX = rotY = 0;
+  lightOn = true;
   //setUpdatesEnabled(true);
   setMouseTracking(true); // enables tooltips while mousemoving over widget
 }
 
 BarVisualisation::~BarVisualisation(){
-  if(debug) cout << "LandscapeVisualisation Destruktor" << endl;
+  if(debug) cout << "BarVisualisation Destruktor" << endl;
   makeCurrent();
-//  glDeleteLists( object, 1 );
 }
 
 void BarVisualisation::initializeGL(){
-  if(debug) cout << "LandscapeVisualisation Konstruktor" << endl;
+  if(debug) cout << "BarVisualisation Konstruktor" << endl;
   qglClearColor( Qt::black);    // Let OpenGL clear to black
-//  object = makeObject();    // Generate an OpenGL display list
+  glClearDepth(1.0f);
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_COLOR_MATERIAL);
+//  glDepthFunc(GL_LEQUAL);
   glShadeModel( GL_SMOOTH );
-//  glHint(GL_POLYGON_SMOOTH_HINT, GL_DONT_CARE);
+  glHint(GL_POLYGON_SMOOTH_HINT, GL_DONT_CARE);
+//  GLfloat LightAmbient[]= { .5f, .5f, .5f, .1f };
+  GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
+  GLfloat LightPosition[]= { 5.0f, .0f, 5.0f, 1.0f };
+
+//  glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
+  glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
+  glLightfv(GL_LIGHT1, GL_POSITION,LightPosition);
+  glEnable(GL_LIGHT1);
+  glEnable(GL_LIGHTING);
 }
 
 void BarVisualisation::resizeGL(int w, int h){
-  if(debug) cout << "LandscapeVisualisation resizeGL" << endl;
+  if(debug) cout << "BarVisualisation resizeGL" << endl;
   glViewport(0, 0, (GLint) w, (GLint) h);
   glMatrixMode( GL_PROJECTION);
   glLoadIdentity();
@@ -71,7 +81,7 @@ void BarVisualisation::resizeGL(int w, int h){
 }
 
 void BarVisualisation::paintGL(){
-  if(debug) cout << "LandscapeVisualisation PaintGL" << endl;
+  if(debug) cout << "BarVisualisation PaintGL" << endl;
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   glLoadIdentity();
 
@@ -92,6 +102,7 @@ void BarVisualisation::paintGL(){
       QColor color = colorPalette->pickColor(val);
 
       qglColor(color);
+
       drawBar(val);
       glTranslatef(1.f, .0f, .0f);
     }
@@ -102,84 +113,99 @@ void BarVisualisation::paintGL(){
 void BarVisualisation::drawBar(double value){
   glBegin(GL_QUADS); //Y -> value
 
+  if(value > 0){
      // Front Face
+     glNormal3f(0.f,0.f,1.f);
      glVertex3f(.0f, .0f, 1.0f);
      glVertex3f( 1.0f, .0f, 1.0f);
      glVertex3f( 1.0f, (GLfloat) (value), 1.0f);
      glVertex3f(.0f, (GLfloat) (value), 1.0f);
 
      // Back Face
+     glNormal3f(0.f,0.f,-1.f);
      glVertex3f(.0f, .0f, .0f);
      glVertex3f(.0f, (GLfloat) (value), .0f);
      glVertex3f( 1.0f, (GLfloat) (value), .0f);
      glVertex3f( 1.0f, .0f, .0f);
 
      // Top Face
+     glNormal3f(0.f,1.f,0.f);
      glVertex3f(.0f, (GLfloat) (value), .0f);
      glVertex3f(.0f, (GLfloat) (value), 1.0f);
      glVertex3f( 1.0f, (GLfloat) (value), 1.0f);
      glVertex3f( 1.0f, (GLfloat) (value), .0f);
 
      // Bottom Face
+     glNormal3f(0.f,-1.f,0.f);
      glVertex3f(.0f, .0f, .0f);
      glVertex3f( 1.0f, .0f, .0f);
      glVertex3f( 1.0f, .0f, 1.0f);
      glVertex3f(.0f, .0f, 1.0f);
 
      // Right Face
+     glNormal3f(1.f,0.f,0.f);
      glVertex3f( 1.0f, .0f, .0f);
      glVertex3f( 1.0f, (GLfloat) (value), .0f);
      glVertex3f( 1.0f, (GLfloat) (value), 1.0f);
      glVertex3f( 1.0f, .0f, 1.0f);
 
      // Left Face
+     glNormal3f(-1.f,0.f,0.f);
      glVertex3f(.0f, .0f, .0f);
      glVertex3f(.0f, .0f, 1.0f);
      glVertex3f(.0f, (GLfloat) (value), 1.0f);
      glVertex3f(.0f, (GLfloat) (value), .0f);
+  }else{
+    // Front Face
+    glNormal3f(0.f, 0.f, 1.f);
+    glVertex3f(.0f, (GLfloat) (value), 1.0f);
+    glVertex3f(1.0f, (GLfloat) (value), 1.0f);
+    glVertex3f(1.0f, 0.f, 1.0f);
+    glVertex3f(.0f, 0.f, 1.0f);
 
+    // Back Face
+    glNormal3f(0.f, 0.f, -1.f);
+    glVertex3f(.0f, (GLfloat) (value), .0f);
+    glVertex3f(.0f, 0.f, .0f);
+    glVertex3f(1.0f, 0.f, .0f);
+    glVertex3f(1.0f, (GLfloat) (value), .0f);
+
+    // Top Face
+    glNormal3f(0.f, 1.f, 0.f);
+    glVertex3f(.0f, 0.f, .0f);
+    glVertex3f(.0f, 0.f, 1.0f);
+    glVertex3f(1.0f, 0.f, 1.0f);
+    glVertex3f(1.0f, 0.f, .0f);
+
+    // Bottom Face
+    glNormal3f(0.f, -1.f, 0.f);
+    glVertex3f(.0f, (GLfloat) (value), .0f);
+    glVertex3f(1.0f, (GLfloat) (value), .0f);
+    glVertex3f(1.0f, (GLfloat) (value), 1.0f);
+    glVertex3f(.0f, (GLfloat) (value), 1.0f);
+
+    // Right Face
+    glNormal3f(1.f, 0.f, 0.f);
+    glVertex3f(1.0f, .0f, .0f);
+    glVertex3f(1.0f, 0.f, 1.0f);
+    glVertex3f(1.0f, (GLfloat) (value), 1.0f);
+    glVertex3f(1.0f, (GLfloat) (value), .0f);
+
+    // Left Face
+    glNormal3f(-1.f, 0.f, 0.f);
+    glVertex3f(.0f, .0f, .0f);
+    glVertex3f(.0f, (GLfloat) (value), .0f);
+    glVertex3f(.0f, (GLfloat) (value), 1.0f);
+    glVertex3f(.0f, 0.f, 1.0f);
+  }
    glEnd();
-}
-
-GLuint BarVisualisation::makeObject() { //obsolete
-  if(debug) cout << "LandscapeVisualisation makeObject" << endl;
-  GLuint list;
-
-  list = glGenLists(1);
-
-  glNewList(list, GL_COMPILE);
-
-  //qglColor(Qt::white); // Shorthand for glColor3f or glIndex
-
-  glEnable(GL_TEXTURE_2D);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-  //glBindTexture(GL_TEXTURE_2D, texName);
-  glBegin( GL_QUADS); // Draw A Quadab
-  glTexCoord2d(0.0,0.0);glVertex2f(-1.0f, 1.0f); // Top Left
-  glTexCoord2d(0.0155*maxX,0.0);glVertex2f(1.0f, 1.0f); // Top Right
-  glTexCoord2d(0.0155*maxX,0.0155*maxY);glVertex2f(1.0f, -1.0f); // Bottom Right
-  glTexCoord2d(0.0,0.0155*maxY);glVertex2f(-1.0f, -1.0f); // Bottom Left
-  glEnd(); // Done Drawing The Quad
-  glFlush();
-  glDisable(GL_TEXTURE_2D);
-  glEndList();
-
-  return list;
 }
 
 
 void BarVisualisation::mouseMoveEvent ( QMouseEvent *event ){
-//  QString tTip = channel->getChannelName().c_str();
-//  double xStep = width() / channel->getDimension(0);
-//  double yStep = height() / channel->getDimension(1);
-//  tTip += "[" + QString::number( (int) (event->x() / xStep)) + ","
-//       + QString::number( (int) (event->y() / yStep) ) + "]";
-//  setToolTip((const QString) tTip);  // shows up ToolTip "M[x,y]"
-  //if ( debug) cout << "MouseCoords: " << event->x() << ", " << event->y() << endl;
   if(event->buttons() == Qt::LeftButton && ( event->x() != mouseX || event->y() != mouseY)){
     rotX += (event->y() - mouseY) / 2; //variable umbenennen.. rot um z in xyebene
-    rotY += (event->x() - mouseX)/2;
-//    if(debug) cout << "rotX= " << rotX << " rotY= " << rotY << endl;
+    rotY += (event->x() - mouseX) / 2;
     mouseY = event->y();
     mouseX = event->x();
     updateGL();

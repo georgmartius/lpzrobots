@@ -44,7 +44,7 @@ using namespace std;
 ColorPalette::ColorPalette(QWidget *parent)
 : QWidget(parent){
   if( debug) cout << "in CP Konstrunktor" << endl;
-  resize(30,150);
+//  setContentsMargins(0,0,0,0);
   setMaximumWidth(30);
   setMouseTracking(true); // enables tooltips while mousemoving over widget
   if( debug) cout << "struct matrixviz::STOP num1, num2, num3;" << endl;
@@ -66,6 +66,7 @@ ColorPalette::ColorPalette(QWidget *parent)
   initMaxMin();
   currentPath = "";
   stopList = new QListWidget();
+//  currentFunction = 1;
 }
 
 ColorPalette::~ColorPalette(){}
@@ -106,10 +107,27 @@ QColor ColorPalette::pickColor(double val){
   return QColor(r,g,b);
 }
 
+double ColorPalette::getNextStopPosition(double fromVal, double toVal){
+  if(fromVal > toVal){
+    double nextStop = fromVal;
+    for( int i = 0; i < stops->size(); i++){
+        if(stops->at(i)->pos < fromVal && stops->at(i)->pos > toVal) nextStop = stops->at(i)->pos;
+      }
+    return nextStop;
+  }else{
+  // fromVal < toVal
+    for (int i = 0; i < stops->size(); i++) {
+      if (stops->at(i)->pos > fromVal && stops->at(i)->pos < toVal)
+        return stops->at(i)->pos;
+    }
+    return toVal;
+  }
+}
+
 void ColorPalette::paintEvent(QPaintEvent *){
   QPainter painter ( this );
   double step = (max - min) / height();
-  for ( int i = 0; i < height(); i++){
+  for ( int i = 0; i <= height(); i++){
     painter.setPen(pickColor(min + i * step));
     painter.drawLine(0, height() - i, width(), height() - i);
   }
@@ -133,13 +151,13 @@ void ColorPalette::resizeEvent(QResizeEvent *event){
   event->accept();
 }
 
-void ColorPalette::mouseDoubleClickEvent(QMouseEvent *){
-//  ColorPaletteDialog *dialog = new ColorPaletteDialog(stops);
-  QWidget *config = makeConfigBox();
-  config->show();
-//  connect(dialog, SIGNAL(refresh()), this, SLOT(refresh())); //oder so vll
-  repaint();
-}
+//void ColorPalette::mouseDoubleClickEvent(QMouseEvent *){
+////  ColorPaletteDialog *dialog = new ColorPaletteDialog(stops);
+//  QWidget *config = makeConfigBox();
+//  config->show();
+////  connect(dialog, SIGNAL(refresh()), this, SLOT(refresh())); //oder so vll
+//  repaint();
+//}
 
 void ColorPalette::mouseMoveEvent ( QMouseEvent *event ){
   //event->x/y();
@@ -165,21 +183,66 @@ QWidget* ColorPalette::makeConfigBox(){
 
   QWidget *configBox = new QWidget();
   QVBoxLayout *mainWindow = new QVBoxLayout();
-  QHBoxLayout *loadSaveButtonLayout = new QHBoxLayout();
 
+  /*
+   * min & max manipulation
+   */
+  QHBoxLayout *minMaxLayout = new QHBoxLayout();
+  minEdit = new QLineEdit(QString::number(min, 'f'));
+  minEdit->setInputMask("#09.00000");// O_o
+  minEdit->setMinimumSize ( 50, 20 );
+  connect(minEdit, SIGNAL(textChanged ( const QString &)), this, SLOT(setMin( const QString &)));
+  maxEdit = new QLineEdit(QString::number(max, 'f'));
+  maxEdit->setInputMask("#09.00000");// O_o
+  maxEdit->setMinimumSize ( 50, 20 );
+  connect(maxEdit, SIGNAL(textChanged ( const QString &)), this, SLOT(setMax( const QString &)));
+  QPushButton *autoMinMax = new QPushButton("auto");
+  connect(autoMinMax, SIGNAL(pressed()), this, SLOT(autoSetMinMax()));
+  minMaxLayout->addWidget(minEdit);
+  minMaxLayout->addWidget(new QLabel("->"));
+  minMaxLayout->addWidget(maxEdit);
+  minMaxLayout->addWidget(autoMinMax);
+//  minMaxLayout->addSpacing(50);
+
+//  /*
+//   * correction functions
+//   */
+//  QHBoxLayout *functionLayout = new QHBoxLayout();
+//  QButtonGroup *radioGroup = new QButtonGroup();
+//  QRadioButton *quad = new QRadioButton("x^2");
+//  radioGroup->addButton(quad);
+//  QRadioButton *ident = new QRadioButton("x");
+//  ident->toggle();
+//  radioGroup->addButton(ident);
+//  QRadioButton *log = new QRadioButton("log_2 x");
+//  radioGroup->addButton(log);
+//  connect(radioGroup, SIGNAL(buttonPressed(int)), this, SLOT(setFunction(int)));
+//  functionLayout->addWidget(quad);
+//  functionLayout->addWidget(ident);
+//  functionLayout->addWidget(log);
+
+  /*
+   * load & save buttons
+   */
+  QHBoxLayout *loadSaveButtonLayout = new QHBoxLayout();
   QPushButton *load = new QPushButton( "load", configBox );
   QPushButton *save = new QPushButton( "save", configBox );
   connect(load, SIGNAL(pressed()), this, SLOT(loadStopList()));
   connect(save, SIGNAL(pressed()), this, SLOT(saveStopList()));
+  loadSaveButtonLayout->addSpacing(50);
   loadSaveButtonLayout->addWidget(load);
   loadSaveButtonLayout->addWidget(save);
+  loadSaveButtonLayout->setContentsMargins(0,0,0,0);
 
-  mainWindow->addLayout(loadSaveButtonLayout);
+  mainWindow->addLayout(minMaxLayout);
+//  mainWindow->addLayout(functionLayout);
   mainWindow->addWidget(stopList);
+  mainWindow->addLayout(loadSaveButtonLayout);
+//  mainWindow->setContentsMargins(0,0,0,0);
   //mainWindow->addWidget(test);
   //mainWindow->addWidget(cp);
   configBox->setLayout(mainWindow);
-  configBox->resize(400,300);
+  configBox->setFixedWidth(200);
 //  buttons->addWidget(add);
 //  buttons->addWidget(remove);
 //  mainWindow->addLayout(buttons);
@@ -195,7 +258,7 @@ void ColorPalette::updateList(){
   for(int i = 0; i < stops->size(); i++){
     if ( debug) cout << "i: " << i << endl;
       QListWidgetItem *item = new QListWidgetItem("", stopList);
-      item->setSizeHint(QSize(350,40)); //itemwidget wont show up without that (qtbug)
+      item->setSizeHint(QSize(150,30)); //itemwidget wont show up without that (qtbug)
       stopList->addItem(item);
 
       ListEntity *w = new ListEntity(i, stops->at(i)->color, stops->at(i)->pos);
@@ -351,6 +414,31 @@ void ColorPalette::saveStopList(){
     file.close();
   }
 }
+
+void ColorPalette::setMax(const QString &text){
+  this->max = text.toDouble();
+  update();
+}
+
+void ColorPalette::setMin(const QString &text){
+  this->min = text.toDouble();
+  update();
+}
+
+void ColorPalette::autoSetMinMax(){
+  //TODO
+  initMaxMin();
+//  minEdit->setText ( const QString & )
+  minEdit->setText(QString::number(min, 'f'));
+  maxEdit->setText(QString::number(max, 'f'));
+  update();
+}
+
+//void ColorPalette::setFunction(int i){
+//  if (debug) cout << "ColorPalette::setFunction i: " << i << endl;
+//  currentFunction = i;
+//  update();
+//}
 
 QString ColorPalette::getPath(){
   return currentPath;

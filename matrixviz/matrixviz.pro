@@ -52,7 +52,9 @@ HEADERS += src/AbstractRobotGUI.h \
            src/tools/timer.h \
            src/visualisations/AbstractVisualisation.h \
            src/visualisations/LandscapeVisualisation.h \
-           src/visualisations/TextureVisualisation.h 
+           src/visualisations/TextureVisualisation.h \
+           src/visualisations/VectorPlotVisualisation.h \
+           src/visualisations/BarVisualisation.h 
 SOURCES += src/AbstractRobotGUI.cpp \
            src/ColorPalette.cpp \
            src/ListEntity.cpp \
@@ -77,5 +79,7 @@ SOURCES += src/AbstractRobotGUI.cpp \
            src/InputReader/SimplePipeReader.cpp \
            src/visualisations/AbstractVisualisation.cpp \
            src/visualisations/LandscapeVisualisation.cpp \
-           src/visualisations/TextureVisualisation.cpp 
-QT+=opengl xml
+           src/visualisations/TextureVisualisation.cpp \
+           src/visualisations/VectorPlotVisualisation.cpp \
+           src/visualisations/BarVisualisation.cpp 
+QT+=opengl xml debug

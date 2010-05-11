@@ -64,6 +64,7 @@ public:
   QWidget* makeConfigBox();
   QString getPath();
   void loadStopListFromFile(QString filename);
+  double getNextStopPosition(double fromVal, double toVal);
 
 public slots:
   void addStop(int i);
@@ -72,12 +73,16 @@ public slots:
   void changeStopPos(int i, double pos);
   void loadStopList();
   void saveStopList();
+  void setMax(const QString &text);
+  void setMin(const QString &text);
+  void autoSetMinMax();
+//  void setFunction(int i);
 
 protected:
   double max, min;
   void paintEvent(QPaintEvent *);
   void resizeEvent(QResizeEvent *event);
-  void mouseDoubleClickEvent(QMouseEvent *);
+//  void mouseDoubleClickEvent(QMouseEvent *);
   void mouseMoveEvent ( QMouseEvent *event ); // enabled with QWidget::setMouseTracking(true)
   virtual void closeEvent(QCloseEvent * event);
   const static bool debug = true;
@@ -91,6 +96,9 @@ private:
   QPushButton *add;
   QPushButton *remove;
   QString currentPath;
+  QLineEdit *minEdit;
+  QLineEdit *maxEdit;
+//  int currentFunction;
 
 signals:
   void sendQuit();

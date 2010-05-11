@@ -31,12 +31,12 @@
 #define __TEXTUREVISUALISATION_H_
 
 
-//#include "AbstractVisualisation.h"
+#include "AbstractVisualisation.h"
 #include <qgl.h> //"/usr/include/qt4/QtOpenGL/QGLWidget"
-#include "../ColorPalette.h"
-#include "../Channel/VectorPlotChannel.h"
+//#include "../ColorPalette.h"
+//#include "../Channel/VectorPlotChannel.h"
 
-class TextureVisualisation: public QGLWidget {
+class TextureVisualisation: public AbstractVisualisation {
   Q_OBJECT
 
 public:
@@ -47,8 +47,6 @@ public:
 
 
 protected:
-  AbstractPlotChannel *channel;
-
   void initializeGL();
   void resizeGL(int w, int h);
   void paintGL();
@@ -57,7 +55,6 @@ protected:
 
 
 private:
-  ColorPalette *colorPalette;
   GLuint object;
   GLuint texName;
   GLubyte tex[64][64][3];

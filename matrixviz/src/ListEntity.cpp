@@ -15,23 +15,29 @@ ListEntity::ListEntity(int i, QColor color, double pos, QWidget *parent)
   this->color = color;
   this->pos = pos;
   button = new QPushButton();
-  QPixmap pix = QPixmap(30,20);
-  pix.fill(color);
-  button->setIcon(QIcon((const QPixmap) pix));
+//  QPixmap pix = QPixmap(20,20);
+//  pix.fill(color);
+//  button->setIcon(QIcon((const QPixmap) pix));
   fillButton();
   //button->setPixmap(const QPixmap &);
   connect(button, SIGNAL(clicked()), this, SLOT(changeColor()));
+  button->setMaximumSize(20, 20);
+  button->setMinimumSize(20, 20);
 
   lineEdit = new QLineEdit(QString::number(pos, 'f'));
   lineEdit->setInputMask("#09.00000");// O_o
-  lineEdit->setMinimumSize ( 80, 20 );
+  lineEdit->setMinimumSize ( 80, 15 );
   connect(lineEdit, SIGNAL(textChanged(const QString &)), this, SLOT(changePos(const QString &))); //if l losses focus or enter pressed
 
-  QPushButton* add = new QPushButton("add");
+  QPushButton* add = new QPushButton("+");
   connect(add, SIGNAL(clicked()), this, SLOT(addClicked()));
+  add->setMaximumSize(20, 20);
+  add->setMinimumSize(20, 20);
 
-  QPushButton* rem = new QPushButton("remove");
+  QPushButton* rem = new QPushButton("-");
   connect(rem, SIGNAL(clicked()), this, SLOT(remClicked()));
+  rem->setMaximumSize(20, 20);
+  rem->setMinimumSize(20, 20);
 
   QHBoxLayout* hlayout = new QHBoxLayout();
   //hlayout->setMargin(10);
@@ -39,6 +45,7 @@ ListEntity::ListEntity(int i, QColor color, double pos, QWidget *parent)
   hlayout->addWidget(lineEdit);
   hlayout->addWidget(add);
   hlayout->addWidget(rem);
+  hlayout->setContentsMargins(0,0,0,0);
   setLayout(hlayout);
 }
 
@@ -46,7 +53,7 @@ ListEntity::~ListEntity() {
 }
 
 void ListEntity::fillButton(){
-  QPixmap pix = QPixmap(30,20);
+  QPixmap pix = QPixmap(20,20);
   pix.fill(color);
   button->setIcon(QIcon((const QPixmap) pix));
 }

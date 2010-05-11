@@ -31,7 +31,6 @@
 #define __VISUALISATIONSUBWIDGET_H_
 
 #include <QtGui>
-
 //class AbstractPlotChannel;
 
 #include "Channel/MatrixPlotChannel.h"
@@ -59,11 +58,14 @@ public:
   QString getColorPaletteFilepath();
   int getVisMode();
   QString getMode();
+  QSize getSize();
 
 
 public slots:
   void updateViewableChannels();
   void switchVisMode(int index);
+  void switchVisMode(QAction *action);
+  void showOptions(QAction *action);
 
 protected:
 
@@ -73,8 +75,10 @@ protected:
 private:
 
   QWidget *visualisation;
-  QVBoxLayout *mainLayout;
   QHBoxLayout *visLayout;
+  QMenuBar *menuBar;
+//  QVBoxLayout *optionLayout;
+  QWidget *optionWidget;
 
   MatrixPlotChannel *matrixChannel;
   VectorPlotChannel *vectorChannel;
@@ -82,7 +86,10 @@ private:
 
   void initGui();
   void initVisTypes();
-  static const bool debug = false;
+  void setOptions();
+  int visMode;
+  bool optionsShown;
+  static const bool debug = true;
 
 signals:
   void windowClosed(VisualiserSubWidget* window);
