@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.4  2010-03-30 13:18:06  robot14
+ *  Revision 1.5  2010-05-11 16:53:03  robot14
+ *  *** empty log message ***
+ *
+ *  Revision 1.4  2010/03/30 13:18:06  robot14
  *  fixed
  *
  *  Revision 1.3  2009/10/22 15:53:08  robot14
@@ -93,7 +96,7 @@ protected:
 	std::vector<VectorPlotChannel*> vectors;
 
 private:
-	static const bool debug = true;
+	static const bool debug = false;
 };
 
 #endif /* MATRIXPIPEFILTER_H_ */

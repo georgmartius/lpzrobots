@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.5  2010-03-30 13:18:06  robot14
+ *  Revision 1.6  2010-05-11 16:53:03  robot14
+ *  *** empty log message ***
+ *
+ *  Revision 1.5  2010/03/30 13:18:06  robot14
  *  fixed
  *
  *  Revision 1.4  2009/10/27 11:35:40  guettler
@@ -75,7 +78,7 @@ AbstractPlotChannel* MatrixPipeFilter::createChannel(std::string name)
 	/*
 	 * Looking for new vector
 	 */
-	if (name.at(3) == ']') {
+	if ((name.at(3) == ']') || (name.at(4) == ']')) {
     // empty vector or new vector
     if (vectors.size() == 0 || name.at(0) != vectors.back()->getChannelName().at(0)) {
       VectorPlotChannel* vePloChannel = new VectorPlotChannel(name.substr(0, 1));
@@ -99,9 +102,9 @@ AbstractPlotChannel* MatrixPipeFilter::createChannel(std::string name)
     return elementChannel;
   } else
 	/*
-   * Looking for new matrix _A_[x,y] (and not A[x_]_)
+   * Looking for new matrix _A_[x,y] //(and not A[x_]_)
    */
-  if (name.at(0) == toupper(name.at(0)) && name.at(3) != ']' /*ERSTER BUCHSTABE IN name großgeschrieben*/) {
+  if (name.at(0) == toupper(name.at(0)) /*&& !((name.at(3) == ']') || (name.at(4) == ']'))*/ /*ERSTER BUCHSTABE IN name großgeschrieben*/) {
     // empty vector or new matrix
     if (debug) cout << "test new matrix" << endl;
     if (matrices.size() == 0 || name.at(0) != matrices.back()->getChannelName().at(0)) {
@@ -136,7 +139,7 @@ std::vector<VectorPlotChannel*> MatrixPipeFilter::getVectorChannels(){
 }
 
 void MatrixPipeFilter::updateChannels() {
-     std::cout << "MatrixPipeFilter: updateChannels()" << std::endl;
+    if (debug) std::cout << "MatrixPipeFilter: updateChannels()" << std::endl;
 
     std::list<double> dataList = (apr->getDataLine());
     std::list<int>::const_iterator index_it=channelIndexList.begin();
@@ -144,11 +147,11 @@ void MatrixPipeFilter::updateChannels() {
 
     int tmp_i=0;
     for(std::list<double>::iterator i=dataList.begin(); i != dataList.end(); i++) {
-      printf("[% .1f]",(*i));
+      if (debug) printf("[% .1f]",(*i));
       if (tmp_i > 5) break;
       tmp_i++;
     }
-    printf("\r\n");
+    if (debug) printf("\r\n");
 
     //int printedIndex = 0;
 

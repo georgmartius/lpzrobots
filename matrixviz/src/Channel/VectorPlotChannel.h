@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-30 13:18:26  robot14
+ *  Revision 1.2  2010-05-11 16:53:20  robot14
+ *  *** empty log message ***
+ *
+ *  Revision 1.1  2010/03/30 13:18:26  robot14
  *  first version
  *
  *                                                                         *
@@ -62,7 +65,7 @@ public:
 protected:
 
 private:
-  static const bool debug = true;
+  static const bool debug = false;
 
 };
 

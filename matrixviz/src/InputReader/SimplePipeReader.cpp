@@ -25,6 +25,7 @@ void SimplePipeReader::run()
   QByteArray charList;
 //   int counter = 0;
   while ( !closing ) {
+      usleep(1000);
       QString line = input_line->readLine ();
 //       std::cout << "SimplePipeReader: read " << line.size() << " chars" << std::endl;
       if ( line.isEmpty() ) continue;
@@ -42,8 +43,8 @@ void SimplePipeReader::run()
     }
 
 
-    std::cout << "currDatalin: " << (currentDataLine.section(' ', 0, 0)).toDouble();
-    std::cout << "oldline: " << (line.section(' ', 0, 0)).toDouble() << std::endl;
+    if (debug) std::cout << "currDatalin: " << (currentDataLine.section(' ', 0, 0)).toDouble();
+    if (debug) std::cout << "oldline: " << (line.section(' ', 0, 0)).toDouble() << std::endl;
     if ( (currentChannelLine.size() > 2)
         && (line.section(' ', 0, 0) != currentDataLine.section(' ', 0, 0))) {
           currentDataLine = line;

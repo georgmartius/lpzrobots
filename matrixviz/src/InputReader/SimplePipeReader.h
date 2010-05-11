@@ -40,6 +40,7 @@ private:
 	QString currentDataLine;
   QString currentChannelLine;
   QString currentDescriptionLine;
+  static const bool debug = false;
   
 //   QMutex* mutex;
   
