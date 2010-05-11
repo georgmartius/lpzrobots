@@ -1,0 +1,17 @@
+Source: selforg
+Section: math
+Priority: optional
+Maintainer: Georg Martius <georg.martius@web.de>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.4
+Homepage: http://robot.informatik.uni-leipzig.de/software
+
+Package: selforg
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, gnuplot
+Description: Implementation of homeokinetic algorithms for robot control
+ This is a framework for robot controllers containing a couple of helper
+ classes to support easy connection of a controller to a robot and 
+ to configure parameters and display/log time-dependent values.
+ In particular the homeokinetic algorithms by Ralf Der, Georg Martius,
+  Frank Hesse, Frank Guettler and coworkers are implemented.
