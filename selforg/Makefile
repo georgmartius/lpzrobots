@@ -10,7 +10,13 @@ REVINCLUDEDIR=../..
 LIB=lib$(PACKAGE_NAME).a
 LIB_DBG=lib$(PACKAGE_NAME)_dbg.a
 LIB_OPT=lib$(PACKAGE_NAME)_opt.a
-
+ifeq ($(PREFIX),)
+PREFIX=/usr/local
+endif
+# for debian auto-package installation
+ifneq ($(DESTDIR),) 
+PREFIX=$(DESTDIR)
+endif
 include Makefile.conf
 
 find_cpp_files = $(wildcard $(dir)/*.cpp)
@@ -38,6 +44,14 @@ AR = ar -rs
 
 .PHONY: lib opt dbg clean todo depend tags
 
+libs:
+	@echo "*************** Compile selforg (debug) *****************"
+	$(MAKE) clean-all && $(MAKE) dbg
+	@echo "*************** Compile selforg (optimized) *****************"
+	$(MAKE) clean && $(MAKE) opt
+	@echo "*************** Compile selforg (normal) *********************"
+	$(MAKE) clean && $(MAKE) lib
+
 lib: $(LIB)
 
 $(LIB): Makefile.depend $(OFILES)
@@ -56,10 +70,24 @@ $(LIB_OPT): Makefile.depend $(OFILES)
 #	@echo "$(OFILES)";
 	$(AR) $(LIB_OPT) $(OFILES)
 
-$(LIB_OPT): CPPFLAGS = $(CPPFLAGS_DBG)
+$(LIB_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
 $(LIB_DBG): Makefile.depend $(OFILES)
 #	@echo "$(OFILES)";
 	$(AR) $(LIB_DBG) $(OFILES)
+
+install: Makefile.depend $(LIB_OPT) $(LIB_DBG) $(LIB)
+	@echo "*************** Install libs and includes $(PREFIX)*********************"
+	install -d $(PREFIX)/lib/ $(PREFIX)/include/selforg $(PREFIX)/share/lpzrobots/selforg
+	install --mode 644 $(LIB_OPT) $(LIB_DBG) $(LIB) $(PREFIX)/lib/
+	install --mode 644 -t $(PREFIX)/include/selforg include/selforg/*.h
+	@echo "*************** Install example simulations ******************"
+	cp -RL simulations $(PREFIX)/share/lpzrobots/selforg/
+
+uninstall:
+	-rm -f $(PREFIX)/lib/$(LIB_OPT) $(PREFIX)/lib/$(LIB_DBG) $(PREFIX)/lib/$(LIB)
+	-rm -rf $(PREFIX)/include/selforg
+	-rm -rf $(PREFIX)/share/lpzrobots/selforg/
+
 
 Makefile.depend: 
 	for file in $(HFILES); do \
@@ -92,6 +120,5 @@ todo:
 FIND=`cat tofind`
 find:
 	@[ -n "$(FIND)" ] &&  grep -ni "$(FIND)"  $(CPPFILES) $(HFILES)
-
 
 include Makefile.depend

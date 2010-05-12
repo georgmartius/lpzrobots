@@ -1,5 +1,12 @@
-guilogger (0.6-1) unstable; urgency=low
+lpzrobots-selforg (0.6-1ubuntu1) lucid; urgency=low
 
+  * Ubuntu version
+
+ -- Georg Martius <georg.martius@web.de>  Wed, 12 May 2010 15:49:24 +0200
+
+lpzrobots-selforg (0.6-1) unstable; urgency=low
+
+  [ Georg Martius ]
   * Initial release as package
-
- -- Georg Martius <georg.martius@web.de>  Mon, 10 May 2010 15:45:07 +0200
+  
+ -- Georg Martius <georg.martius@web.de>  Wed, 12 May 2010 15:46:02 +0200

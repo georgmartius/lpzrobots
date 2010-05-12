@@ -1,14 +1,17 @@
-Source: selforg
+Source: lpzrobots-selforg
 Section: math
 Priority: optional
 Maintainer: Georg Martius <georg.martius@web.de>
-Build-Depends: debhelper (>= 7)
+Build-Depends: debhelper (>= 7), quilt, 
+ libreadline-dev, makedepend
 Standards-Version: 3.8.4
 Homepage: http://robot.informatik.uni-leipzig.de/software
 
-Package: selforg
+Package: lpzrobots-selforg
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, gnuplot
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ libreadline-dev, makedepend
+Recommends: guilogger
 Description: Implementation of homeokinetic algorithms for robot control
  This is a framework for robot controllers containing a couple of helper
  classes to support easy connection of a controller to a robot and 
