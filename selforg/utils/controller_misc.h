@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-01-26 09:49:37  martius
+ *   Revision 1.12  2010-05-17 14:34:24  martius
+ *   comments updated
+ *
+ *   Revision 1.11  2010/01/26 09:49:37  martius
  *   added power function for matrix map
  *
  *   Revision 1.10  2009/08/05 22:48:27  martius
@@ -247,17 +250,20 @@ matrix::I store4x4AndDiagonalFieldNames(const matrix::Matrix& m,
 					const std::string& matrixName,
 					char** keylist, matrix::I len);
 
-/** stores the names of the all matrix fieldnames produces by convertToBuffer into a list
+/** stores the names of all matrix fieldnames 
+  in the order produced by convertToBuffer (row-wise)
   @return list of names
 */
 std::list<Inspectable::iparamkey> storeMatrixFieldNames(const matrix::Matrix& m, const std::string& matrixName);
 
-/** stores the names of the all vector (mx1 matrix) fieldnames  produces by convertToBuffer into a list
+/** stores the names of all vector (mx1 or 1xn matrix) fieldnames  
+  in the order produced by convertToBuffer (row-wise)
   @return list of names
 */
 std::list<Inspectable::iparamkey> storeVectorFieldNames(const matrix::Matrix& m, const std::string& vectorName);
 
-/** stores the names of the all matrix fieldnames produces by convertToBuffer
+/** stores the names of all matrix fieldnames 
+   in the order produced by convertToBuffer (row-wise)
   @param m matrix to be stored
   @param matrixName name of the matrix (prefix for all fields)
   @param keylist list for field names
@@ -268,7 +274,8 @@ std::list<Inspectable::iparamkey> storeVectorFieldNames(const matrix::Matrix& m,
 matrix::I storeMatrixFieldNames(const matrix::Matrix& m, const char* matrixName,
                         char** keylist, matrix::I len);
 
-/** stores the names of the all vector (mx1 matrix) fieldnames produces by convertToBuffer
+/** stores the names of all vector (mx1 or 1xn matrix) fieldnames  
+  in the order produced by convertToBuffer (row-wise)
   @param m vector to be stored
   @param vectorName name of the vector (prefix for all fields)
   @param keylist list for field names
