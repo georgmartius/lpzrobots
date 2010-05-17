@@ -77,12 +77,6 @@ list<D> store4x4AndDiagonal(const Matrix& m){
   return l;
 }
 
-/* stores at least left top 4x4 submatrix (row-wise) (if exists) and
-   then the rest of the diagonal elements
-  @param len Length of the provided buffer
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
-  @return number of actually written elements
-*/
 I store4x4AndDiagonal(const Matrix& m, D* buffer, I len){
   I smalldimM = min(m.getM(), (I)4);
   I smalldimN = min(m.getN(), (I)4);
@@ -105,9 +99,6 @@ I store4x4AndDiagonal(const Matrix& m, D* buffer, I len){
 }
 
 
-/* returns the number of elements stored by store4x4AndDiagonal
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
-*/
 I get4x4AndDiagonalSize(const Matrix& m){
   I smalldimM = min(m.getM(), (I)4);
   I smalldimN = min(m.getN(), (I)4);
@@ -117,13 +108,6 @@ I get4x4AndDiagonalSize(const Matrix& m){
 }
 
 
-/* writes the names of the fields stored by store4x4AndDiagonal into a list
-  @param matrixName name of the matrix (prefix for all fields)
-  @param keylist list for field names
-  @param len Length of the provided buffer
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
-  @return number of actually written elements
-*/
 list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const Matrix& m, const std::string& matrixName){
   list<Inspectable::iparamkey> l;
   char buffer[32];
@@ -145,13 +129,6 @@ list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const Matrix& m, cons
   return l;
 }
 
-/* stores the names of the fields stored by store4x4AndDiagonal
-  @param matrixName name of the matrix (prefix for all fields)
-  @param keylist list for field names
-  @param len Length of the provided buffer
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
-  @return number of actually written elements
-*/
 I store4x4AndDiagonalFieldNames(const Matrix& m, const std::string& matrixName,
 					   char** keylist, I len){
   I smalldimM = min(m.getM(), (I)4);
@@ -177,9 +154,6 @@ I store4x4AndDiagonalFieldNames(const Matrix& m, const std::string& matrixName,
   return written;
 }
 
-/* stores the names of the all matrix fieldnames produces by convertToBuffer into a list
-  @return list of names
-*/
 list<Inspectable::iparamkey> storeMatrixFieldNames(const Matrix& m, const string& matrixName){
   list<Inspectable::iparamkey> l;
   char buffer[32];
@@ -195,15 +169,10 @@ list<Inspectable::iparamkey> storeMatrixFieldNames(const Matrix& m, const string
   return l;
 }
 
-/* stores the names of the all vector (mx1 matrix) fieldnames  produces by convertToBuffer into a list
-  @return list of names
-*/
 list<Inspectable::iparamkey> storeVectorFieldNames(const Matrix& m, const string& vectorName){
   list<Inspectable::iparamkey> l;
   char buffer[32];
-  I dimM = m.getM();
-  //  assert(vectorName);
-  assert(m.getN()==1);
+  I dimM = m.getM() * m.getN();
   for(I i=0; i < dimM; i++){
       sprintf(buffer,"%s[%d]",vectorName.c_str(),i);
       l.push_back(string(buffer));
@@ -211,13 +180,6 @@ list<Inspectable::iparamkey> storeVectorFieldNames(const Matrix& m, const string
   return l;
 }
 
-/* stores the names of the all matrix fieldnames produces by convertToBuffer
-  @param matrixName name of the matrix (prefix for all fields)
-  @param keylist list for field names
-  @param len Length of the provided buffer
-  (should be getN()*getM()
-  @return number of actually written elements
-*/
 I storeMatrixFieldNames(const Matrix& m, const char* matrixName,
 				   char** keylist, I len){
   I dimM = m.getM();
@@ -236,20 +198,13 @@ I storeMatrixFieldNames(const Matrix& m, const char* matrixName,
   return written;
 }
 
-/* stores the names of the all vector (mx1 matrix) fieldnames produces by convertToBuffer
-  @param vectorName name of the vector (prefix for all fields)
-  @param keylist list for field names
-  @param len Length of the provided buffer (should be getM())
-  @return number of actually written elements
-*/
 I storeVectorFieldNames(const Matrix& m, const char* vectorName,
 				   char** keylist, I len){
-  I dimM = m.getM();
+  I dimM = m.getM()*m.getN();
   I written=0;
   assert(vectorName);
-  assert(m.getN()==1);
   assert(len >= dimM);
-  unsigned char keyLen = strlen(vectorName)+5;
+  unsigned char keyLen = strlen(vectorName)+7;
   for(I i=0; i < dimM; i++){
       keylist[written] = (char*) malloc(keyLen);
       sprintf(keylist[written],"%s[%d]",vectorName,i);
