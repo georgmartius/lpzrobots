@@ -4,7 +4,10 @@
 
 #
 # $Log$
-# Revision 1.31  2010-03-25 16:39:51  martius
+# Revision 1.32  2010-05-17 15:37:54  martius
+# typo for debug version
+#
+# Revision 1.31  2010/03/25 16:39:51  martius
 # primitive has addForce/addTorque function
 #
 # Revision 1.30  2010/03/24 16:51:38  martius
@@ -86,7 +89,7 @@ prof: $(UTILS) libselforg $(LIB_PROF)
 $(LIB): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
 	$(AR) $(LIB) $(OFILES)
 
-$(LIB_DBG): CPPFLAGS = $(CPPFLAGS_OPT)
+$(LIB_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
 $(LIB_DBG): Makefile.depend $(SELFORG)/libselforg_dbg.a $(OFILES)
 	$(AR) $(LIB_DBG) $(OFILES)
 
