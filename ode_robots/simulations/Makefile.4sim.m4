@@ -7,16 +7,22 @@
 # Author:     Georg Martius  <georg.martius at web.de>
 # Date:       Oct 2009
 
+define(`COMMENT', )
+COMMENT(`There are defines for platform dependend stuff.')
+COMMENT(`DEV only produces output in the development version')
+COMMENT(`DEVORUSER  choice between development (first argument) or user (second)')
+COMMENT(`LINUXORMAC outputs the first argument on linux and the second on mac.')
 
-
-
-
-
-
- 
-
-
-
+ifdef(`DEVEL', 
+`define(`DEVORUSER', $1) define(`DEV', $1)'
+,
+`define(`DEVORUSER', $2) define(`DEV',)'
+)
+ifdef(`MAC', 
+`define(`LINUXORMAC', $2)'
+,
+`define(`LINUXORMAC', $1)'
+)
 
 EXEC = start
 # add files to compile in the conf file
@@ -42,13 +48,14 @@ SELFORGLIB_OPT = selforg_opt
 ODELIBS = $(shell ode-dbl-config --libs)
 
 LIBS  += -lm \
-	-L$(ODEROBOTS) -l$(ODEROBOTSLIB) \
-	-L$(SELFORG)   -l$(SELFORGLIB) \
+	DEV(-L$(ODEROBOTS)) -l$(ODEROBOTSLIB) \
+	DEV(-L$(SELFORG))   -l$(SELFORGLIB) \
 	 $(ODELIBS) \
 	-losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lncurses -lpthread $(ADDITIONAL_LIBS)
 
-INC   += -I. -I$(ODEROBOTS)/include -I$(SELFORG)/include 
+INC   += -I. DEV(-I$(ODEROBOTS)/include -I$(SELFORG)/include) LINUXORMAC(,-I/opt/local/include
+)
 
 CXX = g++
 ODEFLAGS = $(shell ode-dbl-config --cflags)
@@ -60,31 +67,32 @@ CPPFLAGS_DBG = $(CPPBASEFLAGS) -g
 ## Optimisation
 CPPFLAGS_OPT = $(CPPBASEFLAGS) -O3 -DNDEBUG
 
-normal: libode_robots $(EXEC)
-opt:    libode_robots_opt $(EXEC_OPT)
-dbg:    libode_robots_dgb $(EXEC_DBG)
-prof:   libode_robots_prof $(EXEC_PROF)
+normal: DEV(libode_robots) $(EXEC)
+opt:    DEV(libode_robots_opt) $(EXEC_OPT)
+dbg:    DEV(libode_robots_dgb) $(EXEC_DBG)
+prof:   DEV(libode_robots_prof) $(EXEC_PROF)
 
-$(EXEC): Makefile Makefile.depend $(OFILES) $(LIBODEROBOTS)
+$(EXEC): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
 
 $(EXEC_OPT): ODEROBOTSLIB = $(ODEROBOTSLIB_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
 $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
-$(EXEC_OPT): Makefile Makefile.depend $(OFILES) $(LIBODEROBOTS)
+$(EXEC_OPT): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_OPT)
 
 $(EXEC_DBG): ODEROBOTSLIB = $(ODEROBOTSLIB_DBG)
 $(EXEC_DBG): SELFORGLIB = $(SELFORGLIB_DBG)
 $(EXEC_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
-$(EXEC_DBG): Makefile Makefile.depend $(OFILES) $(LIBODEROBOTS)
+$(EXEC_DBG): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_DBG)
 
 
 $(EXEC_PROF): ODEROBOTSLIB = $(ODEROBOTSLIB_PROF)
-$(EXEC_PROF): Makefile Makefile.depend $(OFILES) $(LIBODEROBOTS)
+$(EXEC_PROF): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_PROF)
 
+DEV(
 libode_robots:	
 	cd $(ODEROBOTS) && $(MAKE)
 
@@ -96,7 +104,7 @@ libode_robots_opt:
 
 libode_robots_prof:	
 	cd $(ODEROBOTS) && $(MAKE) prof
-
+)
 
 Makefile.depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-31 11:31:51  martius
+ *   Revision 1.5  2010-05-19 11:43:13  martius
+ *   new Makefile system using m4
+ *
+ *   Revision 1.4  2010/03/31 11:31:51  martius
  *   4 experiments working
  *
  *   Revision 1.3  2010/03/30 14:33:05  martius
@@ -77,6 +80,7 @@
 // used arena
 #include <ode_robots/playground.h>
 #include <ode_robots/octaplayground.h> // arena
+#include <ode_robots/complexplayground.h> 
 
 // used passive spheres
 #include <ode_robots/passivesphere.h>
@@ -103,12 +107,14 @@ std::vector<T> mkVector(const T* v, int len){
   return std::vector<T>(v,v+len);  
 }
 
-enum Version {V1, V2, V3, V4};
+enum Version {V1=1, V2, V3, V4, V5, V6};
 
 class ThisSim : public Simulation {
 public:
   ThisSim(Version v)
     : version(v) {}
+
+  enum Arena {Round, Corridor, Bone};
 
   AbstractController* controller;
   // starting function (executed once at the beginning of the simulation loop)
@@ -122,19 +128,32 @@ public:
 
     int numBalls          = 0;
 
-    bool useRoundGround   = true;
+    Arena arena           = Round;
     double radiusRound    = 8;
-    bool useCorridor      = false;
-    double radius         = 10;
+    double radiusCorr     = 10;
+    double bonefactor     = .8;
+    
+    double teaching       = 0.02;
+    setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
+
+    global.odeConfig.setParam("controlinterval",4);
+    global.odeConfig.setParam("noise",0.05);
+
+    addParameterDef("attraction", &attraction, 0.000);
+    addParameterDef("friction", &friction, 1);
+
+    addParameterDef("sizefactor", &sizefactor, 1);
+    addParameterDef("posfactor", &posfactor, 1);
+
 
     switch(version){
     case V1:
       // V1:  useCorridor (10), 1x 4wheeled, 5 Balls (0.85 teaching clip)
+      setCameraHomePos(Pos(-7.38466, 10.1764, 3.17434),  Pos(-96.9417, -12.6582, 0));
+      arena             = Corridor;
       numSeeing4wheeled = 1;
       sizeSetPoint      = 1;
       numBalls          = 5;      
-      useRoundGround    = false;
-      useCorridor       = true;
       break;
     case V2:
       // V2:  useRound (8), 1x 4wheeled, 3 Balls (0.9 teaching clip)
@@ -150,62 +169,88 @@ public:
       break;
     case V4:
       // V4:  useRound (8), 2x 4wheeled red, 1xblind (0.9 teaching clip) sizesetpoint = .2
-      numSeeing2wheeled = 0;
       numSeeing4wheeled = 2;
       numBlindRobots    = 1;
       seeingAreRed      = true;
       sizeSetPoint      = .2;
       numBalls          = 0;
+      teaching          = 0.05;
+      break;
+    case V5:
+      // V5:  useRound (6), 4x 4wheeled, sizesetpoint = .2
+      numSeeing4wheeled = 4;
+      numBlindRobots    = 0;
+      seeingAreRed      = false;
+      sizeSetPoint      = .2;
+      numBalls          = 0;
+      teaching          = 0.05;
+      break;
+    case V6:
+      // V6:  useArena (6), 1x 4wheeled, 3 balls, sizesetpoint = 2
+      arena             = Bone;
+      numSeeing4wheeled = 1;
+      seeingAreRed      = false;
+      sizeSetPoint      = 2;
+      numBalls          = 4;
+      teaching          = 0.03;
       break;
     }
 
-    if(useCorridor)
-      setCameraHomePos(Pos(-7.38466, 10.1764, 3.17434),  Pos(-96.9417, -12.6582, 0));
-    else
-      setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
-
-    global.odeConfig.setParam("controlinterval",4);
-    global.odeConfig.setParam("noise",0.05);
-
-    addParameterDef("attraction", &attraction, 0.000);
-    addParameterDef("friction", &friction, 1);
-
-    addParameterDef("sizefactor", &sizefactor, 1);
-    addParameterDef("posfactor", &posfactor, 1);
 
     global.configs.push_back(this);
 
     OdeHandle wallHandle = odeHandle;
     wallHandle.substance.toSnow(.3);
-    if(useRoundGround){
-      // use Playground as boundary:
-      OctaPlayground* playground = new OctaPlayground(wallHandle, osgHandle, 
-                                                      osg::Vec3(radiusRound, 0.2, 1), 12);
-      playground->setPosition(osg::Vec3(0,0,0.1));
-      playground->setGroundSubstance(Substance(0.4,0.005,40,0.5));
-      global.obstacles.push_back(playground);
-    }else if(useCorridor){       // use circular Corridor 
-      // outer ground
-      OctaPlayground* outer = new OctaPlayground(wallHandle, osgHandle.changeAlpha(0.2), 
-                                                 osg::Vec3(radius+2, 0.2, 1), 12);
-      outer->setTexture("");
-      outer->setPosition(osg::Vec3(0,0,0.1));
-      outer->setGroundSubstance(Substance(0.4,0.005,40,0.5));
-      global.obstacles.push_back(outer);
-      // inner walls (without ground
-      OctaPlayground* inner = new OctaPlayground(wallHandle, osgHandle.changeColor(0.1,0.4,0.1), 
-                                                 osg::Vec3(radius-2, 0.2, 1), 12, false);
-      inner->setTexture("");
-      inner->setPose(osg::Matrix::rotate(M_PI/12,0,0,1) * osg::Matrix::translate(0,0,0.1));
-      global.obstacles.push_back(inner);
+    switch(arena){
+    case Round:
+      {
+        OctaPlayground* playground = new OctaPlayground(wallHandle, osgHandle, 
+                                                        osg::Vec3(radiusRound, 0.2, 1), 12);
+        playground->setPosition(osg::Vec3(0,0,0.1));
+        playground->setGroundSubstance(Substance(0.4,0.005,40,0.5));
+        global.obstacles.push_back(playground);
+      }
+      break;
+    case Corridor:
+      {
+        // outer ground
+        OctaPlayground* outer = new OctaPlayground(wallHandle, osgHandle.changeAlpha(0.2), 
+                                                   osg::Vec3(radiusCorr+2, 0.2, 1), 12);
+        outer->setTexture("");
+        outer->setPosition(osg::Vec3(0,0,0.1));
+        outer->setGroundSubstance(Substance(0.4,0.005,40,0.5));
+        global.obstacles.push_back(outer);
+        // inner walls (without ground
+        OctaPlayground* inner = new OctaPlayground(wallHandle, osgHandle.changeColor(0.1,0.4,0.1), 
+                                                   osg::Vec3(radiusCorr-2, 0.2, 1), 12, false);
+        inner->setTexture("");
+        inner->setPose(osg::Matrix::rotate(M_PI/12,0,0,1) * osg::Matrix::translate(0,0,0.1));
+        global.obstacles.push_back(inner);
+      }
+      break;
+    case Bone:
+      {        
+        AbstractGround* playground = new ComplexPlayground(wallHandle, osgHandle, 
+                                                           "bone.fig", bonefactor, 0.03);
+        playground->setPosition(osg::Vec3(0,0,0.1));
+        playground->setGroundSubstance(Substance(0.6,0.005,40,0.5));
+        global.obstacles.push_back(playground);
+      }
+      break;
     }
 
     // add passive spheres as obstacles
     for (int i=0; i< numBalls; i++){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(1,1,0)), 0.3);
       // s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));      
-      if(useCorridor) s1->setPosition(osg::Vec3(sin(i/3.0)*radius,cos(i/3.0)*radius,1));
-      else  s1->setPosition(osg::Vec3(i%5,-2+i/5,1));
+      switch(arena){
+      case Round: s1->setPosition(osg::Vec3(i%5,-2+i/5,1));
+        break;
+      case Corridor: s1->setPosition(osg::Vec3(sin(i/3.0)*radiusCorr,cos(i/3.0)*radiusCorr,1));
+        break;
+      case Bone: s1->setPosition(osg::Vec3((i/4)*bonefactor,(-5+(i%4)*5)*bonefactor,1));
+        break;
+      }      
       s1->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s1);
     }
@@ -232,8 +277,8 @@ public:
       OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, 
                                          "CamRobotTwo_" + itos(i));
       vehicle->setColor(Color(1,.7,0));
-      if(useCorridor) 
-        vehicle->place(osg::Vec3(sin(i/2.0-1)*radius,cos(i/2.0-1)*radius,0.3));
+      if(arena == Corridor)
+        vehicle->place(osg::Vec3(sin(i/2.0-1)*radiusCorr,cos(i/2.0-1)*radiusCorr,0.3));
       else
         vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1) 
                        * osg::Matrix::translate(3,-4+2*i,0.3));
@@ -248,7 +293,7 @@ public:
 //       perm += 0;
 //       controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));        
 //       controller->setParam("gamma_teach",0.005);
-      controller->setParam("gamma_teach",0.01);
+      controller->setParam("gamma_teach", teaching);
       //  controller->setParam("rootE",3);
       
       AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
@@ -289,8 +334,10 @@ public:
         vehicle->setColor(Color(1,0,0));
       else
         vehicle->setColor(Color(1,.7,0));
-      if(useCorridor) 
-        vehicle->place(osg::Vec3(sin(i/2.0+.5)*radius,cos(i/2.0+.5)*radius,0.3));
+      if(arena==Bone) 
+        vehicle->place(osg::Vec3(0,-i-2,0.1));
+      else if(arena==Corridor) 
+        vehicle->place(osg::Vec3(sin(i/2.0+.5)*radiusCorr,cos(i/2.0+.5)*radiusCorr,0.3));
       else
         vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1) 
                        * osg::Matrix::translate(3,-4+2*i,0.3));
@@ -301,7 +348,7 @@ public:
       SeMoXHebMod *semox = new SeMoXHebMod(cc);
       controller = semox;
 //       controller = new SineController();
-      controller->setParam("gamma_teach",0.01);
+      controller->setParam("gamma_teach", teaching);
       //  controller->setParam("rootE",3);
       
       double noise[] = {1,1};      
@@ -409,21 +456,9 @@ int main (int argc, char **argv)
 {
   Version version=V1;
   int index;
-  index= Simulation::contains(argv, argc, "-v1");
-  if( index > 0 && argc >= index){
-    version=V1;
-  }
-  index= Simulation::contains(argv, argc, "-v2");
-  if( index > 0 && argc >= index){
-    version=V2;
-  }
-  index= Simulation::contains(argv, argc, "-v3");
-  if( index > 0 && argc >= index){
-    version=V3;
-  }
-  index= Simulation::contains(argv, argc, "-v4");
-  if( index > 0 && argc >= index){
-    version=V4;
+  index= Simulation::contains(argv, argc, "-v");
+  if( index > 0 && argc > index){
+    version=(Version)atoi(argv[index]);
   }
   ThisSim sim(version);
   return sim.run(argc, argv) ? 0 : 1;
