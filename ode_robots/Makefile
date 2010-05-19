@@ -4,7 +4,10 @@
 
 #
 # $Log$
-# Revision 1.32  2010-05-17 15:37:54  martius
+# Revision 1.33  2010-05-19 11:45:44  martius
+# parallel make works now
+#
+# Revision 1.32  2010/05/17 15:37:54  martius
 # typo for debug version
 #
 # Revision 1.31  2010/03/25 16:39:51  martius
@@ -78,15 +81,23 @@ AR = ar -rs
 
 .PHONY: lib opt clean todo depend tags
 
-lib: $(UTILS) libselforg $(LIB)
+lib: $(UTILS) 
+	$(MAKE) libselforg 
+	$(MAKE) $(LIB)
 
-dbg: $(UTILS) libselforg_dbg $(LIB_DBG)
+dbg: $(UTILS)
+	$(MAKE) libselforg_dbg
+	$(MAKE) $(LIB_DBG)
 
-opt: $(UTILS) libselforg_opt $(LIB_OPT)
+opt: $(UTILS)
+	$(MAKE) libselforg_opt
+	$(MAKE) $(LIB_OPT)
 
-prof: $(UTILS) libselforg $(LIB_PROF)
+prof: $(UTILS)
+	$(MAKE) libselforg
+	$(MAKE) $(LIB_PROF)
 
-$(LIB): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
+$(LIB): $(UTILS) Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
 	$(AR) $(LIB) $(OFILES)
 
 $(LIB_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
@@ -101,14 +112,14 @@ $(LIB_PROF): CPPFLAGS = $(CPPFLAGS_PROF)
 $(LIB_PROF): Makefile.depend $(SELFORG)/libselforg.a $(OFILES)
 	$(AR) $(LIB_PROF) $(OFILES)
 
-libselforg:	
-	+cd $(SELFORG) && make libselforg.a		
+libselforg:
+	cd $(SELFORG) && $(MAKE) libselforg.a		
 
 libselforg_dbg:	
-	+cd $(SELFORG) && make libselforg_dbg.a		
+	cd $(SELFORG) && $(MAKE) libselforg_dbg.a		
 
 libselforg_opt:	
-	+cd $(SELFORG) && make libselforg_opt.a		
+	cd $(SELFORG) && $(MAKE) libselforg_opt.a		
 
 utils/splitvideo: utils/splitvideo.c
 	$(CXX) -o utils/splitvideo utils/splitvideo.c
