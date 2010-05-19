@@ -3,6 +3,8 @@
 using namespace std;
 #include "cmdline.h"
 #include <string>
+#include <string.h>
+#include <stdlib.h>
 
 // Commandline interface stuff
 void showParams(const ConfigList& configs, FILE* f /*= 0*/, const char* lineprefix /*= 0*/)
