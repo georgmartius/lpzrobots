@@ -43,7 +43,11 @@
  *   the parallelism stuff.                                                *
  *
  *   $Log$
- *   Revision 1.2  2009-11-05 14:08:20  robot12
+ *   Revision 1.3  2010-05-19 11:47:55  martius
+ *   new make system
+ *   ode-dbl
+ *
+ *   Revision 1.2  2009/11/05 14:08:20  robot12
  *   bugfix by restore in ga_tools
  *
  *   Revision 1.1  2009/10/23 10:59:48  robot12
@@ -97,7 +101,6 @@
 #include <stdio.h>
 
 // include all necessary stuff
-#include <ode/ode.h>
 #include <selforg/noisegenerator.h>
 #include <ode_robots/odeagent.h>
 #include <selforg/one2onewiring.h>
