@@ -1,3 +1,4 @@
+# TODO: update this makefile! it will not work properly with -j 4
 #File:     Makefile for ga_tools package
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     June 2005
