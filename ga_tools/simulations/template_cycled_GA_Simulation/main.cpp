@@ -28,7 +28,10 @@
  *   control the algorithm from outside.                                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-10-27 16:29:10  martius
+ *   Revision 1.3  2010-05-19 11:46:18  martius
+ *   new make system for simulations
+ *
+ *   Revision 1.2  2009/10/27 16:29:10  martius
  *   *** empty log message ***
  *
  *   Revision 1.1  2009/10/23 16:33:51  martius
@@ -77,9 +80,6 @@
  ***************************************************************************/
 #include <stdio.h>
 #include <vector>
-
-// include ode library
-#include <ode/ode.h>
 
 // include noisegenerator (used for adding noise to sensorvalues)
 #include <selforg/noisegenerator.h>
