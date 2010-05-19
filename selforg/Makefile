@@ -54,15 +54,15 @@ libs:
 
 lib: $(LIB)
 
-$(LIB): Makefile.depend $(OFILES)
-	$(AR) $(LIB) $(OFILES)
-
 opt: $(LIB_OPT)
 
 dbg: $(LIB_DBG)
 
 
-# a test to make objectfiles go to another folder
+$(LIB): Makefile.depend $(OFILES)
+	$(AR) $(LIB) $(OFILES)
+
+# a test to make objectfiles go to another folder, but does not work
 #$(LIB_OPT): OUTPUT_OPTION = -o .obj/`basename $@`
 
 $(LIB_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
