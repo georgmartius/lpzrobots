@@ -27,7 +27,7 @@ SELFORGLIB_OPT = selforg_opt
 SELFORGLIB_DBG = selforg_dbg
 
 LIBS   += -lm DEV(-L$(SELFORG)/) -l$(SELFORGLIB) -lpthread
-DEVORUSER(INC += -I$(SELFORG)/include, INC += )
+INC    +=  DEVORUSER(-I$(SELFORG)/include, ) LINUXORMAC( ,-I/opt/local/include)
 
 ## -pg for profiling
 CBASEFLAGS = -Wall -pipe -Wno-deprecated -pthread -I. $(INC)
@@ -53,7 +53,7 @@ $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
 $(EXEC_OPT): Makefile.depend $(OFILES) DEV(libselforg_opt)
 	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC_OPT)
 
-#ifdef DEVEL
+DEV(
 libselforg: 
 	cd $(SELFORG) && $(MAKE) lib
 
@@ -62,7 +62,7 @@ libselforg_dbg:
 
 libselforg_opt: 
 	cd $(SELFORG) && $(MAKE) opt
-#endif
+)
 
 depend: 
 	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
@@ -74,7 +74,7 @@ todo:
 	find -name "*.[ch]*" -exec grep -Hni "TODO" {} \;
 
 tags: 
-	etags `find -name "*.[ch]"` 
+	etags $(find -name "*.[ch]")
 
 clean:
 	rm -f $(EXEC) $(EXEC_OPT) *.o Makefile.depend
