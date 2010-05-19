@@ -148,7 +148,7 @@ install_utils:
 
 .PHONY: install_libs
 install_libs:
-ifeq ($(INSTALL_TYPE),user)
+ifeq ($(INSTALL_TYPE),USER)
 	@echo "*************** Install selforg *********************"
 	-mkdir -p $(PREFIX)lib $(PREFIX)include \
 	     $(PREFIX)share/lpzrobots/selforg $(PREFIX)share/lpzrobots/ode_robots \
@@ -187,7 +187,7 @@ uninstall_intern:
 	-rm -f $(PREFIX)bin/encodevideo.sh 
 	-rm -f $(PREFIX)bin/selectcolumns.pl
 	-rm -rf $(PREFIX)share/lpzrobots/data
-ifeq ($(INSTALL_TYPE),user)
+ifeq ($(INSTALL_TYPE),USER)
 	-rm -f $(PREFIX)lib/libselforg.a $(PREFIX)lib/libselforg_opt.a
 	-rm -rf $(PREFIX)include/selforg
 	-rm -f $(PREFIX)lib/libode_robots.a $(PREFIX)lib/libode_robots_opt.a

@@ -16,10 +16,10 @@ OS=`uname -a | sed 's/\(\w*\).*/\1/'` # selects first word (e.g Linux or Darwin)
 
 if [ "$OS" = "Linux" ]; then
   #linux
-  System="linux"
+  System="LINUX"
 else
   # mac
-  System="mac"
+  System="MAC"
 fi
 
 
@@ -36,8 +36,12 @@ Our choice [U/d] "
     if [ -z "$choice" -o "$choice" = "U" ]; then choice='u'; fi
 fi
 echo -e "Check your settings:\n Installation to $prefix";
-if [ "$choice" = "u" ]; then echo " (u) user installation with libaries and include files."
-else echo " (d) development installation without libaries and include files, only utilities."
+if [ "$choice" = "u" ]; then 
+ echo " (u) user installation with libaries and include files."
+ Type=USER
+else 
+ echo " (d) development installation without libaries and include files, only utilities."
+ Type=DEVEL
 fi
 echo -n "All right? [y/N] "
 read okay 
@@ -60,22 +64,15 @@ if [ -e  ode_robots/install_prefix.conf ]; then
     sed -e "s/^#define.*//" -ibak ode_robots/install_prefix.conf;
 fi
 echo -e "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
-if [ "$choice" = "u" ]; then 	
-  echo "INSTALL_TYPE=user" >> Makefile.conf
-  echo "copy the user Makefiles";
-  for Folder in ode_robots/simulations selforg/simulations selforg/examples ga_tools/simulations; do
-    for F in `find $Folder -mindepth 2 -name Makefile.conf`; do
-#        if [ ! -e ${F}.devel ]; then cp $F ${F}.devel; fi # backup development Makefile
-        cp $Folder/Makefile.$System.user ${F%.conf};
+
+echo "INSTALL_TYPE=$Type" >> Makefile.conf
+
+for Folder in ode_robots/simulations selforg/simulations selforg/examples ga_tools/simulations; do
+  echo "call: m4 -D \"$System\" -D \"$Type\" $Folder/Makefile.4sim.m4";
+  if m4 -D "$System" -D "$Type" "$Folder/Makefile.4sim.m4" > "$Folder/Makefile.4sim"; then
+    for F in `find "$Folder" -mindepth 2 -name Makefile.conf`; do
+        cp "$Folder/Makefile.4sim" "${F%.conf}";
     done
-  done
-else 
-  echo "INSTALL_TYPE=devel" >> Makefile.conf
-  echo "copy the development Makefiles";
-  for Folder in ode_robots/simulations selforg/simulations selforg/examples ga_tools/simulations; do
-    for F in `find $Folder -mindepth 2 -name Makefile.conf`; do
-        cp $Folder/Makefile.$System.devel ${F%.conf};
-    done
-  done
-fi
+  fi
+done
 
