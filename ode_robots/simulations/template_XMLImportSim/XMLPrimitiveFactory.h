@@ -28,7 +28,11 @@
  *  factory.                                                               *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-07 22:50:38  guettler
+ *  Revision 1.2  2010-05-20 10:38:20  guettler
+ *  - setMaterial for BoundingShape now allowed
+ *  - static Mesh (mass=0) should work
+ *
+ *  Revision 1.1  2010/03/07 22:50:38  guettler
  *  first development state for feature XMLImport
  *										   *
  *                                                                         *
@@ -162,6 +166,8 @@ class XMLPrimitiveFactory {
      */
     lpzrobots::HeightField* createHeightField(xercesc_3_1::DOMNode* heightFieldNode);
 
+    static void setMaterial(const xercesc_3_1::DOMNode* node, lpzrobots::Primitive* primitive);
+
   private:
     XMLParserEngine* engine;
     lpzrobots::GlobalData& globalData;
@@ -181,7 +187,6 @@ class XMLPrimitiveFactory {
      * @param node parent node which contains the textureNode
      */
     static void setTextureIfPresent(xercesc_3_1::DOMNode* node, lpzrobots::Primitive* primitive);
-    static void setMaterial(xercesc_3_1::DOMNode* node, lpzrobots::Primitive* primitive);
     static char getPrimitiveMode(xercesc_3_1::DOMNode* node);
 };
 

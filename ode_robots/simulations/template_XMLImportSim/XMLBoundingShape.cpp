@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2010-03-11 15:18:06  guettler
+ *  Revision 1.4  2010-05-20 10:38:20  guettler
+ *  - setMaterial for BoundingShape now allowed
+ *  - static Mesh (mass=0) should work
+ *
+ *  Revision 1.3  2010/03/11 15:18:06  guettler
  *  -BoundingShape can now be set from outside (see XMLBoundingShape)
  *  -Mesh can be created without Body and Geom.
  *  -various bugfixes
@@ -84,6 +88,8 @@ bool XMLBoundingShape::init(const lpzrobots::OdeHandle& _odeHandle, const lpzrob
       else if(XMLHelper::matchesName(node,XMLDefinitions::capsuleNode))
         primitive = new Capsule(VALOFNODE(node,XMLDefinitions::radiusAtt) * scale, VALOFNODE(node,XMLDefinitions::heightAtt) * scale);
       if (primitive!=0) {
+        XMLPrimitiveFactory::setMaterial(boundingBoxNode, primitive);
+        XMLPrimitiveFactory::setMaterial(node,primitive);
         const Vec3 rot = XMLHelper::getRotation(node);
         const Vec3 pos = XMLHelper::getPosition(node);
         if (mode & Primitive::Body) {  // use Transforms to attach the Primitives to the body

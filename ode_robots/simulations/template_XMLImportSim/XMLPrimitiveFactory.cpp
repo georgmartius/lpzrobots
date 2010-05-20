@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2010-03-11 15:18:06  guettler
+ *  Revision 1.4  2010-05-20 10:38:20  guettler
+ *  - setMaterial for BoundingShape now allowed
+ *  - static Mesh (mass=0) should work
+ *
+ *  Revision 1.3  2010/03/11 15:18:06  guettler
  *  -BoundingShape can now be set from outside (see XMLBoundingShape)
  *  -Mesh can be created without Body and Geom.
  *  -various bugfixes
@@ -345,7 +349,7 @@ void XMLPrimitiveFactory::setTextureIfPresent(DOMNode* node, Primitive* primitiv
   // else do nothing
 }
 
-void XMLPrimitiveFactory::setMaterial(DOMNode* node, Primitive* primitive) {
+void XMLPrimitiveFactory::setMaterial(const DOMNode* node, Primitive* primitive) {
 
   if (CHILDOFNODE(node,XMLDefinitions::materialNode) != 0) {
     cout << "Material found!" << endl;
