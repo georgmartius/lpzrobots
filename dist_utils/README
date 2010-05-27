@@ -2,7 +2,7 @@
 # This file can be executed on the console 
 #  and all the distribution files are generated!
 
-VERSION=0.5
+VERSION=0.6
 MULTI="-j 2"
 
 # 1. to create a distribution/Release:
@@ -12,6 +12,9 @@ cd lpzrobots
 cvs update -dP
 cd dist_utils
 ./createDist.sh $VERSION
+
+# 2. create deb.source
+
 
 # 2. for extra lib bundle:
 # just start ./createextraDist.sh
