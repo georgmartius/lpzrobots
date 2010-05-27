@@ -1,0 +1,28 @@
+This work was packaged for Debian by:
+
+    Georg Martius <georg.martius@web.de> on Mon, 10 May 2010 15:45:07 +0200
+
+It was downloaded from <http://robot.informatik.uni-leipzig.de/software>
+
+Upstream Author(s):
+
+    Georg Martius <georg.martius@web.de> 
+    Ralf Der <ralfder@mis.mpg.de>
+    Frank Hesse <frank@nld.ds.mpg.de>
+    Frank Güttler <guettler@informatik.uni-leipzig.de>
+    
+Copyright:
+
+    <Copyright (C) 2005-2010 Georg Martius, Ralf Der, Frank Hesse, Frank Güttler>
+
+License:
+
+    GPL version 3, 
+    see `/usr/share/common-licenses/GPL-3'.
+
+The Debian packaging is:
+
+    Copyright (C) 2010 Georg <georg.martius@web.de>
+
+    and is licensed under the GPL version 3, 
+    see `/usr/share/common-licenses/GPL-3'.
