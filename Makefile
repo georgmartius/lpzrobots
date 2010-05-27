@@ -104,7 +104,7 @@ conf: usage
 .PHONY: guilogger
 ##!guilogger	compile guilogger
 guilogger:
-	cd guilogger && qmake guilogger.pro && qmake src/src.pro && make
+	cd guilogger && ./configure && make
 
 .PHONY: neuronviz
 ##!neuronviz	compile neuronviz
