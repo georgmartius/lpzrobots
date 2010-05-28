@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-10-23 12:38:30  martius
+ *   Revision 1.11  2010-05-28 14:18:26  martius
+ *   plotmode are now powers of 2 and Robot has value 1 (was unaccessable before)
+ *   added plotmode Nothing
+ *
+ *   Revision 1.10  2009/10/23 12:38:30  martius
  *   noise is stored in a matrix internally such that it can be inspected easily
  *
  *   Revision 1.9  2009/08/05 22:32:21  martius
@@ -108,7 +112,7 @@ public:
   typedef double sensor;
   typedef double motor;
   
-  enum PlotTypes {Robot, Controller, Noise};
+  enum PlotTypes {Nothing=0, Robot=1, Controller=4, Noise=8};
 
 
   /** constructor
