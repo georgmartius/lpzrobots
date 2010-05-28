@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.47  2010-03-25 16:39:51  martius
+ *   Revision 1.48  2010-05-28 13:48:30  martius
+ *   initialized dummy to 0
+ *
+ *   Revision 1.47  2010/03/25 16:39:51  martius
  *   primitive has addForce/addTorque function
  *
  *   Revision 1.46  2010/03/17 09:33:16  martius
@@ -324,7 +327,7 @@ namespace lpzrobots {
 
      Base::Base(const std::string& caption)
        : ground(0), caption(caption), groundTexture("Images/greenground.rgb"), 
-         hud(0), timestats(0), captionline(0), statisticLine(0), 
+         dummy(0), hud(0), timestats(0), captionline(0), statisticLine(0), 
          plane(0), hUDStatisticsManager(0), ReceivesShadowTraversalMask(0x1),
          CastsShadowTraversalMask(0x2), shadowTexSize(2048), useNVidia(1)
      {
