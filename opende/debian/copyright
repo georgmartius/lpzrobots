@@ -1,0 +1,163 @@
+This package was debianized by Guus Sliepen <guus@debian.org> on
+Sun,  9 Feb 2003 12:23:52 +0100.
+
+The actual maintainer is the Debian Games Team:
+http://wiki.debian.org/Games/Development
+
+It was downloaded from http://www.ode.org/
+
+Upstream Author: Russel Smith <russ@q12.org>
+
+Copyright:
+
+Either LGPL 2.1 (see /usr/share/common-licenses/LGPL-2.1) or the following
+license, at your choice:
+
+This is the BSD-style license for the Open Dynamics Engine
+----------------------------------------------------------
+
+Open Dynamics Engine
+Copyright (c) 2001-2008, Russell L. Smith.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+Neither the names of ODE's copyright owner nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+The GIMPACT directory:
+Copyright  (c) 2006 , Francisco León.
+
+It's covered by:
+ -GIMPACT/GIMPACT-LICENSE-BSD.TXT
+ -GIMPACT/GIMPACT-LICENSE-LGPL.TXT (/usr/share/common-licenses/LGPL)
+
+GIMPACT/GIMPACT-LICENSE-BSD.TXT:
+Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice, this list of
+      conditions and the following disclaimer.
+      
+    * Redistributions in binary form must reproduce the above copyright notice, this list 
+      of conditions and the following disclaimer in the documentation and/or other materials 
+      provided with the distribution.
+      
+    * Neither the name of the GIMPACT nor the names of its contributors may be used
+      to endorse or promote products derived from this software without specific prior
+      written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
+ DAMAGE.
+
+
+
+
+the OPCODE directory is covered by this license:
+You’re free to use them in any commercial or non-commercial program.
+Copyright  2001-2003 Pierre Terdiman
+
+Another clause found in http://www.codercorner.com/OpcodeUserManual.pdf makes the license
+DFSG free:
+Q: Am I allowed to use OPCODE in a commercial program ?
+A: Yes. The library is free. No GPL or LGPL, you can do whatever you want with the code. I
+would appreciate it if you write somewhere in your product that you're using OPCODE, but
+that's not mandatory. I would also appreciate a notification by mail, just to know how people
+are using the lib.
+
+The 'ou' directory:
+ODER's Utilities Library. Copyright (C) 2008 Oleh Derevenko.
+
+This directory is covered by either:
+ -The LGPLv3+ (/usr/share/common-licenses/LGPL)
+ -ou/LICENSE-BSD.TXT
+ -ou/LICENSE-ZLIB.TXT
+
+ou/LICENSE-BSD.TXT:
+This is the BSD-style license for the ODER's Utilities Library
+--------------------------------------------------------------
+
+ODER's Utilities Library
+Copyright (c) 2008, Oleh Derevenko.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+Neither the names of ODER's Utilities' copyright owner nor the names of
+its contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ou/LICENSE-ZLIB.TXT:
+The zlib/libpng License for the ODER's Utilities Library
+
+Copyright (c) 2008 Oleh Derevenko
+
+This software is provided 'as-is', without any express or implied
+warranty. In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+claim that you wrote the original software. If you use this software
+in a product, an acknowledgment in the product documentation would be
+appreciated but is not required.
+
+2. Altered source versions must be plainly marked as such, and must not be
+misrepresented as being the original software.
+
+3. This notice may not be removed or altered from any source
+distribution.

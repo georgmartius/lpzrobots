@@ -1,0 +1,4 @@
+usr/include/*
+usr/lib/lib*.a
+usr/bin/ode-dbl-config
+usr/lib/pkgconfig/ode-dbl.pc

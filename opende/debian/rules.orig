@@ -1,0 +1,102 @@
+#!/usr/bin/make -f
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CXXFLAGS += -O0 -g3
+	CFLAGS += -O0 -g3
+	export CXXFLAGS CFLAGS
+endif
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	QUILT_PATCHES=debian/patches quilt push -a || test $$? = 2
+	mkdir -p debian/build/dp debian/build/sp
+	# SP: single precision build
+	cd debian/build/sp && ../../../configure --enable-shared --prefix=/usr
+	# Adjust the SONAME of the single precision flavor
+	sed -i 's,^soname_spec=.*,soname_spec=libode.so.1sp,' debian/build/sp/libtool
+	cd debian/build/dp && ../../../configure --enable-shared --prefix=/usr --enable-double-precision
+	
+	touch configure-stamp
+
+
+build: build-stamp
+build-stamp: configure-stamp 
+	dh_testdir
+
+	cd debian/build/sp && $(MAKE)
+	cd debian/build/dp && $(MAKE)
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp \
+	    configure-stamp
+	rm -rf \
+		debian/build \
+		debian/tmp-sp \
+		debian/tmp-dp
+	
+	# Add here commands to clean up after the build process.
+	QUILT_PATCHES=debian/patches quilt pop -a -R || test $$? = 2
+	[ ! -f Makefile ] || $(MAKE) distclean
+	dh_clean configure-stamp build-stamp debian/ode-config.1
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the package into debian/tmp
+	cd debian/build/sp && $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp-sp
+	rm debian/tmp-sp/usr/lib/libode.so.1
+	mv debian/tmp-sp/usr/lib/libode.so.1.1.1 \
+		debian/tmp-sp/usr/lib/libode.so.1.1.1sp
+	cd debian/build/dp && $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp-dp
+
+	docbook-to-man debian/ode-config.man.sgml > \
+	debian/ode-config.1
+
+# Build architecture-independent files here.
+binary-indep:
+# no arch indep
+#	dh_testdir -i
+#	dh_testroot -i
+#	dh_installdocs -i
+#	dh_install -i
+#	dh_installchangelogs -i CHANGELOG.txt
+#	dh_compress -i
+#	dh_fixperms -i
+#	dh_installdeb -i
+#	dh_gencontrol -i
+#	dh_md5sums -i
+#	dh_builddeb -i
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir -a
+	dh_testroot -a
+	dh_installdocs -a
+	dh_installman -plibode-dev debian/ode-config.1
+	dh_installman -plibode-sp-dev debian/ode-config.1
+	dh_install --sourcedir=debian/tmp-sp -plibode-sp-dev
+	dh_install --sourcedir=debian/tmp-sp -plibode1sp
+	dh_install --sourcedir=debian/tmp-dp -plibode-dev
+	dh_install --sourcedir=debian/tmp-dp -plibode1
+	dh_installchangelogs -a CHANGELOG.txt
+	dh_link -a
+	dh_strip -a
+	dh_compress -a
+	dh_fixperms -a
+	dh_makeshlibs -a
+	dh_shlibdeps -a
+	dh_installdeb -a
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

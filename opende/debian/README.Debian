@@ -1,0 +1,7 @@
+ode (1:0.8.dfsg-3) unstable; urgency=low
+
+  Debian libode use configured to use GIMPACT instead of OPCODE of legal reason.
+
+  Double precision is not yet supported for GIMPACT
+
+  Gonéri Le Bouder <goneri@rulezlan.org>  Fri, 29 Jun 2007 14:07:25 +0200

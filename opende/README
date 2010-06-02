@@ -6,22 +6,18 @@
 \dir opende
     
 In this folder you can find a copy of the ODE (http://www.ode.org) 
- that works with our simulations. 
-It is the 0.9 release.
+ that works with our simulations. It is the 0.11.1 release.
+ It is compiled to double precision by default and 
+ renamed to ode-dbl to not cause problems with a single precision
+ installation.
 
-The recommended installation procedure is:
+The recommended installation procedure is controlled from 
+ the master Makefile in lpzrobots. Simply do
 \code
-cd opende; sh autogen.sh
-./configure --enable-opcode --enable-double-precision
-make
-sudo make install
+make ode
+make install_ode
 \endcode
+as it is also printed by the makefile itself.
 
-On some linux systems it's necessary to run 
-\code
-sudo ldconfig
-\endcode 
-for a correct linking of the libode.so.
-
-Please refere also the documentation in the opende directory.
+Please refere also to the documentation in the opende directory.
  */

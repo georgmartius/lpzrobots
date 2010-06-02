@@ -1,0 +1,8 @@
+ode-dbl (0.11.1-0) unstable; urgency=low
+
+  * debian packing files taken from ubuntu: 
+     Gonéri Le Bouder <goneri@rulezlan.org> 
+  * this version of ode differs from the original ubuntu and debian packages
+    that it uses OPCODE and double precision
+
+ -- Georg Martius <georg.martius@web.de>  Wed, 12 May 2010 15:49:24 +0200
