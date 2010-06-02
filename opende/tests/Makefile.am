@@ -12,7 +12,7 @@ if OPCODE
 endif
 
 LDADD = $(builddir)/UnitTest++/src/libunittestpp.la \
-        $(top_builddir)/ode/src/libode.la
+        $(top_builddir)/ode/src/libode_dbl.la
 
 check_PROGRAMS = tests
 
