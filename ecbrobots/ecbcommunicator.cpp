@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2010-04-28 08:09:30  guettler
+ *   Revision 1.20  2010-06-02 10:54:21  guettler
+ *   fixed for XBee Series 1: it seems that Xbee Pro returns a different hardware version number (0x1842) instead of 0x180B (XBee)
+ *
+ *   Revision 1.19  2010/04/28 08:09:30  guettler
  *   - bugfixes
  *   - stopMotors is now invoked by ECBCommunicator
  *
@@ -440,6 +443,7 @@ namespace lpzrobots {
           cout << "Running in cable mode." << endl;
           break;
         case 0x180B:
+        case 0x1842: // XBee Pro?
           ecbTransmitModeType = XBee;
           cout << "Running in XBee series 1 mode." << endl;
           break;
@@ -449,7 +453,7 @@ namespace lpzrobots {
           break;
         default:
           ecbTransmitModeType = Undefined;
-          cout << "Running in unknown mode." << endl;
+          cout << "Running in unknown mode:" << hex << HardwareVersionNumber << dec << endl;
           break;
       }
       if (ecbTransmitModeType != Undefined) {
