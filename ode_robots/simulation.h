@@ -28,7 +28,11 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.45  2010-03-23 13:37:48  martius
+ *   Revision 1.46  2010-06-03 13:40:59  guettler
+ *   - added method setCameraMode(modenumber): 1 - static, 2 - follow, 3 - TV, 4 - race
+ *   - added method setWatchingAgent(agent)
+ *
+ *   Revision 1.45  2010/03/23 13:37:48  martius
  *   added graphics update function since we need to call it also for offscreen rendering
  *
  *   Revision 1.44  2010/03/17 09:33:16  martius
@@ -387,6 +391,18 @@ namespace lpzrobots {
 	view.z is ignored
     */
     void setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view);
+
+    /**
+     * Sets the mode of the camera, the numbers are the same like the keys
+     * @param mode camera mode (1 - static, 2 - follow, 3 - TV, 4 - race)
+     */
+    void setCameraMode(const unsigned int mode);
+
+    /**
+     * Sets the agent to be watched with the camera.
+     * @param agent to set
+     */
+    void setWatchingAgent(OdeAgent* agent);
 
     static void nearCallback_TopLevel(void *data, dGeomID o1, dGeomID o2);
     static void nearCallback(void *data, dGeomID o1, dGeomID o2);

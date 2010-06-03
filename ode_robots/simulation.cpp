@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.127  2010-05-03 10:51:41  guettler
+ *   Revision 1.128  2010-06-03 13:40:59  guettler
+ *   - added method setCameraMode(modenumber): 1 - static, 2 - follow, 3 - TV, 4 - race
+ *   - added method setWatchingAgent(agent)
+ *
+ *   Revision 1.127  2010/05/03 10:51:41  guettler
  *   noGraphics is set after init of OsgConfig
  *
  *   Revision 1.126  2010/03/25 16:39:20  martius
@@ -1850,6 +1854,25 @@ namespace lpzrobots {
     }
   }
 
+  void Simulation::setCameraMode(const unsigned int mode) {
+    if (!noGraphics) {
+      keyswitchManipulator->selectMatrixManipulator(mode-1);
+      // we have to re-set the camera manipulator to get an effect
+      viewer->setCameraManipulator(keyswitchManipulator);
+    }
+  }
+
+  void Simulation::setWatchingAgent(OdeAgent* agent) {
+    if (agent && !noGraphics) {
+      osgGA::MatrixManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
+      if(mm) {
+        CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
+        if(cameramanipulator)
+          cameramanipulator->setWatchingAgent(agent);
+      }
+
+    }
+  }
 
   void createNewDir(const char* base, char *newdir) {
     struct stat s;

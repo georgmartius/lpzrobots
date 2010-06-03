@@ -23,7 +23,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2010-03-22 14:33:19  martius
+ *   Revision 1.23  2010-06-03 13:40:59  guettler
+ *   - added method setCameraMode(modenumber): 1 - static, 2 - follow, 3 - TV, 4 - race
+ *   - added method setWatchingAgent(agent)
+ *
+ *   Revision 1.22  2010/03/22 14:33:19  martius
  *   osghandle changeColor() with single rgba values
  *   camerasensors windowfunction bug
  *
@@ -174,7 +178,7 @@ namespace lpzrobots {
 
   using namespace osg;
   using namespace osgGA;
-
+  using namespace std;
 
 
 
@@ -522,17 +526,8 @@ namespace lpzrobots {
     assert(fkey>0);
     camHandle.watchingAgentDefined=false;
     if(globalData.agents.size() >= (unsigned) fkey){
-      camHandle.watchingAgent=globalData.agents[fkey-1];
-      if (camHandle.watchingAgent){
-        camHandle.watchingAgentDefined=true;
-	std::cout << "Agent " << camHandle.watchingAgent->getRobot()->getName()
-		  << "(" << fkey-1 << ") selected\n";
-	setHomeViewByAgent();
-	setHomeEyeByAgent();
-	// maybe highlight agent here
-      }
+      setWatchingAgent(globalData.agents[fkey-1]);
     }
-    camHandle.oldPositionOfAgentDefined=false;
   }
 
   void CameraManipulator::moveBehindAgent() {
@@ -694,6 +689,18 @@ namespace lpzrobots {
 	vel = dBodyGetLinearVel( body->getBody());
 	dBodyAddForce ( body->getBody() , -0.1*vel[0] , -0.1*vel[1] , -0.1*vel[2]);
       }
+    }
+  }
+
+  void CameraManipulator::setWatchingAgent(OdeAgent* agent) {
+    if (agent) {
+      camHandle.watchingAgent = agent;
+      camHandle.watchingAgentDefined = true;
+      cout << "Agent " << camHandle.watchingAgent->getRobot()->getName() << " selected" << endl;
+      setHomeViewByAgent();
+      setHomeEyeByAgent();
+      // maybe highlight agent here
+      camHandle.oldPositionOfAgentDefined=false;
     }
   }
 
