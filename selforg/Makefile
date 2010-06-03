@@ -62,7 +62,7 @@ dbg: $(LIB_DBG)
 
 $(LIB): Makefile.depend $(OFILES)
 	$(AR) $(LIB) $(OFILES)
-	strip --only-keep-debug $(LIB_OPT)
+	strip --only-keep-debug $(LIB)
 
 # a test to make objectfiles go to another folder, but does not work
 #$(LIB_OPT): OUTPUT_OPTION = -o .obj/`basename $@`
