@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-08-05 20:25:29  martius
+ *   Revision 1.14  2010-06-03 09:52:18  martius
+ *   using const list references as it should be
+ *
+ *   Revision 1.13  2009/08/05 20:25:29  martius
  *   Bug in printInternalParameters fixed (removed if(*i) which was nonsense)
  *
  *                                                                         *
@@ -80,7 +83,7 @@ void printNetworkDescription(FILE* f, const string& name, const Inspectable* ins
 
 }
 
-void printInspectableNames(FILE* f, list<const Inspectable*> inspectables) 
+void printInspectableNames(FILE* f, const list<const Inspectable*>& inspectables) 
 {
   if (!f)
     return;
@@ -99,7 +102,7 @@ void printInspectableNames(FILE* f, list<const Inspectable*> inspectables)
 
 void printInternalParameterNames(FILE* f,
 				int sensornumber, int motornumber,
-				list<const Inspectable*> inspectables) {
+				const list<const Inspectable*>& inspectables) {
   fprintf(f,"#C t");
   for(int i = 0; i < sensornumber; i++){
     fprintf(f, " x[%i]", i);
@@ -110,7 +113,7 @@ void printInternalParameterNames(FILE* f,
   printInspectableNames(f,inspectables);
 }
 
-void printInspectables(FILE* f, std::list<const Inspectable*> inspectables)
+void printInspectables(FILE* f, const std::list<const Inspectable*>& inspectables)
 {
   if (!f)
     return;
@@ -134,7 +137,7 @@ void printInspectables(FILE* f, std::list<const Inspectable*> inspectables)
 void printInternalParameters(FILE* f, double time,
 			     const sensor* x, int sensornumber,
 			     const motor* y,  int motornumber,
-			     list<const Inspectable*> inspectables)
+			     const list<const Inspectable*>& inspectables)
 {
   if (!f)
     return;
@@ -148,3 +151,4 @@ void printInternalParameters(FILE* f, double time,
   }
   printInspectables(f,inspectables);
 }
+
