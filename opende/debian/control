@@ -2,7 +2,8 @@ Source: ode-dbl
 Section: devel
 Priority: optional
 Maintainer: Georg Martius <georg.martius@web.de>
-Build-Depends: debhelper (>> 5.0.0), quilt, docbook-to-man,
+Build-Depends: debhelper (>> 5.0.0), quilt, docbook-to-man, automake | automaken,
+ libtool,
  libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev
 Standards-Version: 3.8.2
 Homepage: http://www.ode.org/

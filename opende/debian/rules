@@ -13,6 +13,7 @@ export DH_OPTIONS
 
 configure: configure-stamp
 configure-stamp:
+	sh ./autogen.sh
 	dh_testdir
 #	QUILT_PATCHES=debian/patches quilt push -a || test $$? = 2
 	dh_auto_configure -- --disable-demos --enable-shared
