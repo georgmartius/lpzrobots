@@ -5,7 +5,10 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.8  2009-02-02 15:21:52  martius
+// Revision 1.9  2010-06-03 09:51:44  martius
+// added gsl and eigenvector/values stuff
+//
+// Revision 1.8  2009/02/02 15:21:52  martius
 // added pseudoinverse
 //
 // Revision 1.7  2008/12/22 14:40:47  martius
@@ -82,6 +85,9 @@
 
 #ifdef UNITTEST
 #include "unit_test.hpp"
+
+#include "matrixutils.h"
+
 using namespace matrix;
 using namespace std;
 
@@ -121,6 +127,26 @@ bool comparetoidentity(const Matrix& m)  {
 //        << maxzerodeviation << " at row = " << worstoffdiagonalrow 
 //        << ", column = " << worstoffdiagonalcolumn << endl;
   return (maxunitydeviation < EPS && maxzerodeviation < EPS); 
+}
+
+bool comparetozero(const Matrix& m, double eps = EPS)  {
+  D maxdeviation = 0.0;
+  D currentdeviation;
+  for ( unsigned int i = 0; i < m.getM(); i++ )  {
+    for ( unsigned int j = 0; j < m.getN(); j++ )  {
+      currentdeviation = m.val(i,j);
+      if ( currentdeviation < 0.0) currentdeviation *= -1.;
+      if ( currentdeviation > maxdeviation )  {
+        maxdeviation = currentdeviation;
+      }
+    }
+  }
+  if(maxdeviation < eps) 
+    return true;
+  else {
+    cout << "\tWorst deviation: " << maxdeviation << endl;
+    return false;
+  }
 }
 
 
@@ -325,8 +351,68 @@ DEFINE_TEST( check_matrix_operators ) {
   unit_pass();
 }
 
+DEFINE_TEST( check_matrix_utils ) {  
+  cout << "\n -[ Matrix Utils: Eigenvalues and Eigenvectors ]-\n";
+  D testdata[9]={1,2,3, 4,5,6, 7,8,9};
+  const Matrix M1(3,3, testdata);
+  const Matrix SymM1 = M1.multMT();
+  Matrix eval, evec;
+  eval = eigenValuesRealSym(SymM1);
+  D resultval[3]={1.5*(95+sqrt(8881)), 1.5*(95-sqrt(8881)), 0};
+  const Matrix resultvalM(3,1, resultval);  
+  //cout << (eval^T) << "\n" << (resultvalM^T) << "   \n";
+  unit_assert( "Sym Real Eigenvalues ", comparetozero(eval-resultvalM));
+  eigenValuesVectorsRealSym(SymM1, eval, evec);
+  D resultvecs[9]={0.21483723836839594,0.8872306883463704,0.4082482904638631,
+                   0.5205873894647369,0.24964395298829792,-0.816496580927726,
+                   0.826337540561078,-0.3879427823697746,0.4082482904638631};
+  const Matrix resultvecsM(3,3, resultvecs);  
+  //  cout << (evec) << "\n";
+  //  cout << resultvecsM << "\n";
+  unit_assert( "Sym Real Eigenvalues and Vectors: Vals", comparetozero(eval-resultvalM));
+  unit_assert( "Sym Real Eigenvalues and Vectors: Vectors", comparetozero(evec-resultvecsM)); 
+  // useing vandermonde matrix with (-1, -2, 3, 4), results taken from mathematica
+  D testdata2[16]={-1., 1., -1., 1., -8., 4., -2., 1., 27., 9., 3., 1., 64., 16., 4., 1.};
+  const Matrix M2(4,4, testdata2);
+  Matrix eval_r, eval_i;
+  eigenValues(M2, eval_r, eval_i);
+  D resultval_r[4]={-6.413911026270929,5.5455534989094595,5.5455534989094595,
+   2.3228040284520177};
+  D resultval_i[4]={0,3.0854497586289216,-3.0854497586289216,0};
+  const Matrix resultvalM_r(4,1, resultval_r);  
+  const Matrix resultvalM_i(4,1, resultval_i);  
+  //cout << (eval^T) << "\n" << (resultvalM^T) << "   \n";
+  unit_assert( "NonSym Eigenvalues (Complex) ", comparetozero(eval_r-resultvalM_r) 
+               && comparetozero(eval_i-resultvalM_i));
+  Matrix evec_r, evec_i;
+  eigenValuesVectors(M2, eval_r, eval_i, evec_r, evec_i);
+  D resultvecs_r[16]={
+    -0.09988217466836526,-0.043500372394264235,-0.043500372394264235, -0.14493294424802267,
+    -0.11125130967436689,0.06398640593013502, 0.06398640593013502,0.35660144308731107,
+    0.2925006732813017, -0.5151803514845115,-0.5151803514845115,0.9193688436883699,
+   0.9445051897206503,-0.8405935042246232,-0.8405935042246232, 0.0811836295983173};
+  D resultvecs_i[16]={
+    0,-0.007553928841000267,0.007553928841000267,0,
+    0,-0.1422404507165189, 0.1422404507165189,0,
+    0,0.04142240814335418,-0.04142240814335418,0,
+    0,0.,0.,0};
+  const Matrix resultvecsM_r(4,4, resultvecs_r);  
+  const Matrix resultvecsM_i(4,4, resultvecs_i);  
+//   cout << (evec_r) << "\n\n";
+//   cout << resultvecsM_r << "\n\n";
+//   cout << (evec_i) << "\n\n";
+//   cout << resultvecsM_i << "\n\n";
+  unit_assert( "NonSym Eigenvalues and Vectors: Vals",  
+               comparetozero(eval_r-resultvalM_r) && comparetozero(eval_i-resultvalM_i) );
+  unit_assert( "NonSym Eigenvalues and Vectors: Vectors", 
+               comparetozero(evec_r-resultvecsM_r, 0.001) && 
+               comparetozero(evec_i-resultvecsM_i, 0.002)); 
+  
+  unit_pass();
+}
+
 DEFINE_TEST( speed ) {  
-  cout << "\n -[ Speed: Inverion]-\n";  
+  cout << "\n -[ Speed: Inverion ]-\n";  
 #ifndef NDEBUG
   cout << "   DEBUG MODE! use -DNDEBUG -O3 (not -g) to get full performance\n";
 #endif
@@ -375,7 +461,7 @@ DEFINE_TEST( speed ) {
   UNIT_MEASURE_STOP("");
   unit_assert( "validation", comparetoidentity(M1*M200));
 
-  cout << "\n -[ Speed: Other Operations]-\n";    
+  cout << "\n -[ Speed: Other Operations ]-\n";    
   UNIT_MEASURE_START("20x20 Matrix multiplication with assignment",5000)
     M1 = M20*M20;  
   UNIT_MEASURE_STOP("");
@@ -388,13 +474,19 @@ DEFINE_TEST( speed ) {
   UNIT_MEASURE_START("20x20 Matrix transposition",100000)
     M1 += M20;  
   UNIT_MEASURE_STOP("");
+  const Matrix& M20Sym = M20.multMT();
+  UNIT_MEASURE_START("20x20 Matrix Sym Real Eigenvalues",1000)
+  Matrix eval, evec;
+  eigenValuesVectorsRealSym(M20Sym, eval, evec);  
+  UNIT_MEASURE_STOP("");
+
 
   unit_pass();  
 }
 
 
 DEFINE_TEST( store_restore ) {  
-  cout << "\n -[ Store and Restore]-\n";  
+  cout << "\n -[ Store and Restore ]-\n";  
   Matrix M1(32,1);
   for(int i =0; i<32; i++){
     M1.val(0,0) = (double)rand()/RAND_MAX;
@@ -426,6 +518,7 @@ UNIT_TEST_RUN( "Matrix Tests" )
   ADD_TEST( check_vector_operation )
   ADD_TEST( check_matrix_operation )
   ADD_TEST( check_matrix_operators )
+  ADD_TEST( check_matrix_utils )
   ADD_TEST( speed )
   ADD_TEST( store_restore )
 

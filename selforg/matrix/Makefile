@@ -3,7 +3,10 @@
 #Date:     Mai 2005
 #
 # $Log$
-# Revision 1.7  2009-08-03 08:40:02  guettler
+# Revision 1.8  2010-06-03 09:51:44  martius
+# added gsl and eigenvector/values stuff
+#
+# Revision 1.7  2009/08/03 08:40:02  guettler
 # added support for sparsematrix, but still disabled in target all
 #
 #
@@ -16,9 +19,9 @@ TEST_OPTIMSSE_CFLAGS = -Wall -I. -I../include/selforg -O3 -DUNITTEST -DNDEBUG -f
 #LIB_OPTIM_CFLAGS = -Wall -I. -O3 -DNDEBUG 
 #EXAMPLE_CFLAGS   = -Wall -I. 
 
-LIBS   = -lm
+LIBS   = -lm $(shell gsl-config --libs)
 
-CXX = g++
+CXX = g++ $(shell gsl-config --cflags)
 AR = ar
 
 # ATMEL STUFF
@@ -32,14 +35,14 @@ AR = ar
 all: unittests_debug unittests unittests_sse
 #    libmatrix_avr_debug.a libmatrix_avr.a
 
-unittests_debug: matrix.h matrix.cpp matrix.tests.hpp Makefile
-	$(CXX) $(LIBS) $(TEST_DEBUG_CFLAGS) matrix.cpp -o unittests_debug
+unittests_debug: matrix.h matrix.cpp matrixutils.h matrixutils.cpp matrix.tests.hpp Makefile
+	$(CXX) $(LIBS) $(TEST_DEBUG_CFLAGS) matrix.cpp matrixutils.cpp -o unittests_debug
 
-unittests: matrix.h matrix.cpp  matrix.tests.hpp Makefile
-	$(CXX) $(LIBS) $(TEST_OPTIM_CFLAGS) matrix.cpp -o unittests
+unittests: matrix.h matrix.cpp matrixutils.h matrixutils.cpp matrix.tests.hpp Makefile
+	$(CXX) $(LIBS) $(TEST_OPTIM_CFLAGS) matrix.cpp matrixutils.cpp -o unittests
 
-unittests_sse: matrix.h matrix.cpp  matrix.tests.hpp Makefile
-	$(CXX) $(LIBS) $(TEST_OPTIMSSE_CFLAGS) matrix.cpp -o unittests_sse
+unittests_sse: matrix.h matrix.cpp matrixutils.h matrixutils.cpp  matrix.tests.hpp Makefile
+	$(CXX) $(LIBS) $(TEST_OPTIMSSE_CFLAGS) matrix.cpp matrixutils.cpp -o unittests_sse
 
 sparsematrix_debug: sparsematrix.h sparsearray.h sparsematrix.tests.hpp Makefile
 	$(CXX) $(LIBS) $(TEST_DEBUG_CFLAGS) sparsematrix.h -o sparsematrix_test_debug

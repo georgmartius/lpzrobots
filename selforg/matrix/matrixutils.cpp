@@ -5,6 +5,8 @@
 ***************************************************************************/
 
 #include "matrixutils.h"
+
+#ifndef NO_GSL
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_eigen.h>
      
@@ -170,6 +172,30 @@ namespace matrix {
 
   }
 
-
-
 }
+#else /// NO GSL - implement dummy versions
+
+namespace matrix {
+  Matrix eigenValuesRealSym(const Matrix &m){
+    assert("Not implemented!");
+    return Matrix();
+  }
+  
+  bool eigenValuesVectorsRealSym(const Matrix &m, Matrix& eigenvalues, 
+                                 Matrix& eigenvectors){
+    assert("Not implemented!");
+    return false;
+  }
+  
+  bool eigenValues(const Matrix &m, Matrix& real, Matrix& imag){
+    assert("Not implemented!");
+    return false;
+  }
+
+  bool eigenValuesVectors(const Matrix &m, Matrix& vals_real, Matrix& vals_imag, 
+                          Matrix& vecs_real, Matrix& vecs_imag){
+    assert("Not implemented!");
+    return false;
+  }
+
+#endif
