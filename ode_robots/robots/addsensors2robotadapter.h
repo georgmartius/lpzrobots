@@ -23,7 +23,10 @@
  *    without modifiing them.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-03-21 21:48:59  martius
+ *   Revision 1.7  2010-06-03 09:55:37  martius
+ *   added setcolor
+ *
+ *   Revision 1.6  2010/03/21 21:48:59  martius
  *   camera sensor bugfixing (reference to osghandle)
  *   twowheeled robot added (nimm2 with camera)
  *   sense function added to robots (before control): sensors (type Sensor) are checked here
@@ -93,6 +96,10 @@ namespace lpzrobots {
 
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){
       return robot->collisionCallback(data,o1,o2);
+    }
+
+    virtual void setColor(const Color& col) { 
+      robot->setColor(col); 
     }
 
     virtual int getSensorNumber();
