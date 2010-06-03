@@ -26,10 +26,11 @@ HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
 
 # additional inc paths
-INC +=  -I. -Iinclude
+INC +=  -I. -Iinclude $(shell gsl-config --cflags) $(shell gsl-config --cflags)
+# one can possibly disable gsl using -DNO_GSL
 
 # use -pg for profiling
-CBASEFLAGS = -Wall -pipe -Wno-deprecated
+CBASEFLAGS = -Wall -pipe -Wno-deprecated 
 CPPFLAGS = $(CBASEFLAGS) -g -O $(INC)
 # Optimisation 
 CPPFLAGS_OPT = $(CBASEFLAGS) -O3 -DNDEBUG  $(INC)
@@ -61,6 +62,7 @@ dbg: $(LIB_DBG)
 
 $(LIB): Makefile.depend $(OFILES)
 	$(AR) $(LIB) $(OFILES)
+	strip --only-keep-debug $(LIB_OPT)
 
 # a test to make objectfiles go to another folder, but does not work
 #$(LIB_OPT): OUTPUT_OPTION = -o .obj/`basename $@`
@@ -69,6 +71,7 @@ $(LIB_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
 $(LIB_OPT): Makefile.depend $(OFILES)
 #	@echo "$(OFILES)";
 	$(AR) $(LIB_OPT) $(OFILES)
+	strip $(LIB_OPT)
 
 $(LIB_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
 $(LIB_DBG): Makefile.depend $(OFILES)
