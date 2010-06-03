@@ -1,0 +1,58 @@
+#!/bin/bash
+
+set -e # exit if command fails
+if [ $# -le 3 ]; then
+   echo "Usage $0 packdir packname version folder"
+   exit 1
+fi 
+Packdir=$1
+PackName=$2
+Version=$3
+Folder=$4
+
+pushd `pwd`
+
+mkdir -p "$Packdir"
+
+# tar the packages
+SOURCETGZ="${Folder}-${Version}.tgz"
+tar -czf "$SOURCETGZ" "${Folder}"
+# names them as package_version.orig.tar.gz
+ORIGTGZ="${PackName}_${Version}.orig.tar.gz"
+cp "$SOURCETGZ" "$Packdir/${ORIGTGZ}"
+# untar them 
+cd "$Packdir"
+tar -xzf ${ORIGTGZ}
+pushd `pwd`
+
+cd ${Folder}
+# first make debian unstable package
+debuild -S 
+# copy debian packages
+popd
+pushd `pwd`
+mkdir -p debian-unstable
+mv *.diff.gz *.build *.changes *.dsc debian-unstable
+# mv *.deb debian-unstable
+cp ${ORIGTGZ} debian-unstable
+# make ubuntu packages for launchpad
+mkdir -p ubuntu
+cd ${Folder}
+FIRST=""
+#for Dist in jaunty karmic lucid maverick; do
+for Dist in jaunty karmic; do
+    # change changelog for all ubuntu distributions  
+    dch --increment -D $Dist "$Dist version"
+    # make only source package
+    if [ -z "$FIRST" ]; then
+        debuild -S -sa
+    else
+        debuild -S
+    fi
+    FIRST="no"
+done
+popd
+cp ${ORIGTGZ} ubuntu
+mv *.diff.gz *.build *.changes *.dsc ubuntu
+
+popd # return to place where we started
