@@ -16,6 +16,21 @@ cd dist_utils
 # 2. create deb.source
 
 
+# tar the packages
+# names them as package_version.orig.tar.gz
+# untar them 
+# change changelog for distribution
+# run debuild (-S)
+# 
+# try package with 
+# 
+
+# for ODE:
+# run sh autogen.sh first
+
+
+
+
 # 2. for extra lib bundle:
 # just start ./createextraDist.sh
 
