@@ -46,11 +46,12 @@ SELFORGLIB_DBG = selforg_dbg
 SELFORGLIB_OPT = selforg_opt
 
 ODELIBS = $(shell ode-dbl-config --libs)
+GSLLIBS = $(shell gsl-config --libs)
 
 LIBS  += -lm \
 	DEV(-L$(ODEROBOTS)) -l$(ODEROBOTSLIB) \
 	DEV(-L$(SELFORG))   -l$(SELFORGLIB) \
-	 $(ODELIBS) \
+	 $(ODELIBS) $(GSLLIBS) \
 	-losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lncurses -lpthread $(ADDITIONAL_LIBS)
 

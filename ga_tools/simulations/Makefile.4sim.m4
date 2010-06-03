@@ -51,12 +51,13 @@ LIBGA_TOOLS = lib$(GA_TOOLSLIB).a
 
 
 ODELIBS = $(shell ode-dbl-config --libs)
+GSLLIBS = $(shell gsl-config --libs)
 
 LIBS  += -lm \
 	DEV(-L$(ODEROBOTS)) -l$(ODEROBOTSLIB) \
 	DEV(-L$(GA_TOOLS))  -l$(GA_TOOLSLIB) \
 	DEV(-L$(SELFORG))   -l$(SELFORGLIB) \
-	 $(ODELIBS) \
+	 $(ODELIBS) $(GSLLIBS) \
 	-losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lncurses -lpthread $(ADDITIONAL_LIBS)
 
