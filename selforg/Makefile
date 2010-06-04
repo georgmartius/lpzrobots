@@ -43,7 +43,7 @@ CXX = g++
 # used for lib-packing 
 AR = ar -rs
 
-.PHONY: lib opt dbg clean todo depend tags
+.PHONY: lib opt dbg clean clean-all distclean todo depend tags
 
 libs:
 	@echo "*************** Compile selforg (debug) *****************"
@@ -106,6 +106,7 @@ tags:
 	etags `find -type f -regex ".*\.[hc]p?p?"` 
 
 
+distclean: clean-all
 clean-all: clean
 	rm -f $(LIB) $(LIB_OPT) $(LIB_DBG)
 

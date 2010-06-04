@@ -41,7 +41,7 @@ CXX = g++
 # used for lib-packing 
 AR = ar -rs
 
-.PHONY: lib opt clean todo depend tags
+.PHONY: lib opt clean distclean clean-all todo depend tags
 
 lib: $(UTILS) libselforg $(LIB)
 
@@ -89,6 +89,7 @@ search:
 	echo -n "search rexp: "; read F && grep -in "$$F" ${CPPFILES} ${HFILES}
 
 
+distclean: clean-all
 clean-all: clean
 	rm -f $(LIB) $(LIB_DBG) $(LIB_OPT) $(LIB_PROF)
 

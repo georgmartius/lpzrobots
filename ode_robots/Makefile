@@ -4,7 +4,10 @@
 
 #
 # $Log$
-# Revision 1.33  2010-05-19 11:45:44  martius
+# Revision 1.34  2010-06-04 13:11:58  martius
+# added distclean
+#
+# Revision 1.33  2010/05/19 11:45:44  martius
 # parallel make works now
 #
 # Revision 1.32  2010/05/17 15:37:54  martius
@@ -79,7 +82,7 @@ CXX = g++
 # used for lib-packing 
 AR = ar -rs
 
-.PHONY: lib opt clean todo depend tags
+.PHONY: lib opt clean clean-all distclean todo depend tags
 
 lib: $(UTILS) 
 	$(MAKE) libselforg 
@@ -145,6 +148,7 @@ search:
 	echo -n "search rexp: "; read F && grep -in "$$F" ${CPPFILES} ${HFILES}
 
 
+distclean: clean-all
 clean-all: clean
 	rm -f $(LIB) $(LIB_DBG) $(LIB_OPT) $(LIB_PROF)
 
