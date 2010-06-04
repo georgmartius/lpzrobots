@@ -1,9 +1,19 @@
 
+# Copy Makefile to where you want to do the packaging and stuff
+# then simply type make
+#
+# make sure your gpg-agent is running
+# eval $(gpg-agent --daemon)
+# ....
+
+
 # This file can be executed on the console 
 #  and all the distribution files are generated!
 
 VERSION=0.6
 MULTI="-j 2"
+
+set -e # exit if command fails
 
 # 1. to create a distribution/Release:
 # perform: 
@@ -13,21 +23,16 @@ cvs update -dP
 cd dist_utils
 ./createDist.sh $VERSION
 
+export DEBEMAIL="Georg Martius <georg.martius@web.de>"
 # 2. create deb.source
+cd ../../
+PACKDIR=lpzrobots-${VERSION}-packages
+cd lpzrobots-${VERSION}
+DISTUTILS=../lpzrobots/dist_utils/
 
 
-# tar the packages
-# names them as package_version.orig.tar.gz
-# untar them 
-# change changelog for distribution
-# run debuild (-S)
-# 
-# try package with 
-# 
-
-# for ODE:
-# run sh autogen.sh first
-
+bash ${DISTUTILS}create_deb_packages \
+ "../$PACKDIR" ode-dbl 0.11.1 opende
 
 
 

@@ -106,5 +106,6 @@ find $DIR/ -type f -name ".cvsignore" | xargs rm -r;
 
 pushd `pwd`;
 cd $BASE;
-tar -cvzf $NAME-$VERSION.tgz $NAME-$VERSION;
+echo "tar $NAME-$VERSION.tgz"
+tar -czf $NAME-$VERSION.tgz $NAME-$VERSION;
 popd;
