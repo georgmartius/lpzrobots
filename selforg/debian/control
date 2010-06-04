@@ -3,15 +3,15 @@ Section: math
 Priority: optional
 Maintainer: Georg Martius <georg.martius@web.de>
 Build-Depends: debhelper (>= 7), quilt, 
- libreadline-dev, makedepend
+ libreadline-dev, makedepend, libgsl0-dev
 Standards-Version: 3.8.4
 Homepage: http://robot.informatik.uni-leipzig.de/software
 
 Package: lpzrobots-selforg
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- libc6-dev | libc-dev, g++, make, makedepend
- libreadline-dev
+ libc6-dev | libc-dev, g++, make, makedepend,
+ libreadline-dev, libgsl0-dev
 Recommends: guilogger
 Description: Implementation of homeokinetic algorithms for robot control
  This is a framework for robot controllers containing a couple of helper
