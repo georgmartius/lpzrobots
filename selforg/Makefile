@@ -7,9 +7,11 @@ SELFORG=.
 INCLUDEDIR=include/selforg
 REVINCLUDEDIR=../..
 # this is the command to come form the include dir back to the base
-LIB=lib$(PACKAGE_NAME).a
-LIB_DBG=lib$(PACKAGE_NAME)_dbg.a
-LIB_OPT=lib$(PACKAGE_NAME)_opt.a
+LIBBASE=lib$(PACKAGE_NAME)
+LIB=$(LIBBASE).a
+LIB_OPT=$(LIBBASE)_opt.a
+LIB_DBG=$(LIBBASE)_dbg.a
+STRIP=no
 ifeq ($(PREFIX),)
 PREFIX=/usr/local
 endif
@@ -19,75 +21,66 @@ PREFIX=$(DESTDIR)
 endif
 include Makefile.conf
 
+BUILD_DIR=build
+
 find_cpp_files = $(wildcard $(dir)/*.cpp)
 CPPFILES   := $(foreach dir,$(dirs),$(find_cpp_files))
 find_h_files = $(wildcard $(dir)/*.h)
 HFILES   := $(foreach dir,$(dirs),$(find_h_files))
-OFILES     := $(patsubst %.cpp,%.o, $(CPPFILES))
+OFILES     := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(CPPFILES))
 
 # additional inc paths
-INC +=  -I. -Iinclude $(shell gsl-config --cflags) $(shell gsl-config --cflags)
+INC +=  -I. -Iinclude $(shell gsl-config --cflags)
 # one can possibly disable gsl using -DNO_GSL
 
 # use -pg for profiling
 CBASEFLAGS = -Wall -pipe -Wno-deprecated 
 CPPFLAGS = $(CBASEFLAGS) -g -O $(INC)
-# Optimisation 
-CPPFLAGS_OPT = $(CBASEFLAGS) -O3 -DNDEBUG  $(INC)
-# DEBUG 
-CPPFLAGS_DBG = $(CBASEFLAGS) -g  $(INC)
+# Optimisation see at opt target
+# DEBUG  see at dbg target
+
 
 # used for single file compilation
 CXX = g++
 
 # used for lib-packing 
-AR = ar -rs
+AR = ar -rcs
 
 .PHONY: lib opt dbg clean clean-all distclean todo depend tags
 
-libs:
-	@echo "*************** Compile selforg (debug) *****************"
-	$(MAKE) clean-all && $(MAKE) dbg
-	@echo "*************** Compile selforg (optimized) *****************"
-	$(MAKE) clean && $(MAKE) opt
-	@echo "*************** Compile selforg (normal) *********************"
-	$(MAKE) clean && $(MAKE) lib
+libs: lib opt dbg
 
 lib: $(LIB)
 
-opt: $(LIB_OPT)
+opt: 
+	$(MAKE) BUILD_DIR=build_opt LIB=$(LIB_OPT) \
+ CPPFLAGS="$(CBASEFLAGS) -O3 -DNDEBUG  $(INC)" STRIP="yes" lib
 
-dbg: $(LIB_DBG)
+dbg: 
+	$(MAKE) BUILD_DIR=build_dbg LIB=$(LIB_DBG) \
+ CPPFLAGS="$(CBASEFLAGS) -g  $(INC)" lib
 
 
 $(LIB): Makefile.depend $(OFILES)
 	$(AR) $(LIB) $(OFILES)
-	strip --only-keep-debug $(LIB)
+	@if [ "$(STRIP)" == "yes" ]; then strip --strip-debug $(LIB); fi
 
-# a test to make objectfiles go to another folder, but does not work
-#$(LIB_OPT): OUTPUT_OPTION = -o .obj/`basename $@`
 
-$(LIB_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
-$(LIB_OPT): Makefile.depend $(OFILES)
-#	@echo "$(OFILES)";
-	$(AR) $(LIB_OPT) $(OFILES)
-	strip $(LIB_OPT)
+${BUILD_DIR}/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) -c $(CPPFLAGS) $(CFLAGS) -o "$@" "$<"
 
-$(LIB_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
-$(LIB_DBG): Makefile.depend $(OFILES)
-#	@echo "$(OFILES)";
-	$(AR) $(LIB_DBG) $(OFILES)
 
-install: Makefile.depend $(LIB_OPT) $(LIB_DBG) $(LIB)
+install: Makefile.depend lib opt dbg
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
 	install -d $(PREFIX)/lib/ $(PREFIX)/include/selforg $(PREFIX)/share/lpzrobots/selforg
-	install --mode 644 $(LIB_OPT) $(LIB_DBG) $(LIB) $(PREFIX)/lib/
+	install --mode 644 $(LIB) $(LIB_OPT) $(LIB_DBG) $(PREFIX)/lib/
 	install --mode 644 -t $(PREFIX)/include/selforg include/selforg/*.h
 	@echo "*************** Install example simulations ******************"
 	cp -RL simulations $(PREFIX)/share/lpzrobots/selforg/
 
 uninstall:
-	-rm -f $(PREFIX)/lib/$(LIB_OPT) $(PREFIX)/lib/$(LIB_DBG) $(PREFIX)/lib/$(LIB)
+	-rm -f $(PREFIX)/lib/$(LIB) $(PREFIX)/lib/$(LIB_OPT) $(PREFIX)/lib/$(LIB_DBG)
 	-rm -rf $(PREFIX)/include/selforg
 	-rm -rf $(PREFIX)/share/lpzrobots/selforg/
 
@@ -96,7 +89,7 @@ Makefile.depend:
 	for file in $(HFILES); do \
 		ln -sf $(REVINCLUDEDIR)/$$file $(INCLUDEDIR)/; \
 	done
-	makedepend $(INC) $(CPPFILES) -f- > Makefile.depend 2>/dev/null
+	makedepend $(INC) $(CPPFILES) -p'$$(BUILD_DIR)/' -f- > Makefile.depend 2>/dev/null
 
 depend: 
 	rm Makefile.depend
@@ -112,9 +105,7 @@ clean-all: clean
 
 clean:
 	rm -f Makefile.depend
-	for dir in $(dirs); do \
-		rm -f $$dir/*.o; \
-	done
+	rm -rf build build_dbg build_opt
 	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 
 todo:
