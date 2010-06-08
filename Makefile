@@ -104,7 +104,12 @@ distclean :  clean-all
 ##!conf		configure the installation prefix and installation type (to redo it)
 conf: usage
 	-mv Makefile.conf Makefile.conf.bak
-	$(MAKE) Makefile.conf # automatically creates Makefile.conf
+# automatically creates Makefile.conf since it is included 
+	$(MAKE) dummy 
+
+.PHONY: dummy
+dummy:
+	@echo "done"
 
 .PHONY: guilogger
 ##!guilogger	compile guilogger
