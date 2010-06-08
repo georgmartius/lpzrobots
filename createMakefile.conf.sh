@@ -22,19 +22,14 @@ else
   System="MAC"
 fi
 
-
-# check for CVS, if so then no user installation! 
-if [ -d "CVS" ]; then 
-    echo "You work with the CVS, such that you can only do a development installation."
-    choice="d";
-else 
-    echo -en "Installation type (user or development):\n\
+choice="d";
+echo -en "Installation type (user or development):\n\
  Choose user  (u) if you are a user and only program your own simulations (default)\n\
  Choose devel (d) if you develop the simulator\n\
 Our choice [U/d] "
-    read choice 
-    if [ -z "$choice" -o "$choice" = "U" ]; then choice='u'; fi
-fi
+read choice 
+if [ -z "$choice" -o "$choice" = "U" ]; then choice='u'; fi
+
 echo -e "Check your settings:\n Installation to $prefix";
 if [ "$choice" = "u" ]; then 
  echo " (u) user installation with libaries and include files."
@@ -46,7 +41,7 @@ fi
 echo -n "All right? [y/N] "
 read okay 
 if [ ! "$okay" = "y" ]; then
-    echo "Since you didn't say yes I better quit. Run again!"
+    echo "Since you didn't say yes I better quit. Run \"make conf\" again!"
     exit 1;
 fi
 
