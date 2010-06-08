@@ -82,7 +82,8 @@ clean: usage
 	cd selforg && $(MAKE) clean
 	cd ga_tools && $(MAKE) clean
 
-##!clean-all	like clean but also removes libraries and clear simulations
+
+##!clean-all	like clean but also removes the libraries and clears simulations
 clean-all: usage
 	cd guilogger && $(MAKE) clean
 	cd ode_robots && $(MAKE) clean-all
@@ -92,6 +93,9 @@ clean-all: usage
 	cd selforg/examples && $(MAKE) clean
 	cd ga_tools && $(MAKE) clean-all
 	cd ga_tools/simulations && $(MAKE) clean
+
+##!clean-all	see clean-all
+distclean :  clean-all
 
 ##!********* less common targets ***********
 
