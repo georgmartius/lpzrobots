@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-08-04 14:55:22  jhoffmann
+ *   Revision 1.11  2010-06-08 12:02:27  martius
+ *   added comment
+ *
+ *   Revision 1.10  2009/08/04 14:55:22  jhoffmann
  *   Remove two memory leaks, but fix needs review for the open file pointers
  *
  *   Revision 1.9  2008/09/12 10:22:28  martius
@@ -79,6 +82,7 @@ namespace lpzrobots {
 /**
    This class provides tracking possibilies of a robot.
    The position, speed, and orientation can be logged.
+   This is used by the agent class, @see Agent::setTrackOptions()
 */
 class TrackRobot {
 public:
