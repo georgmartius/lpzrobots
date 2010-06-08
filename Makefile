@@ -93,6 +93,7 @@ clean-all: usage
 	cd selforg/examples && $(MAKE) clean
 	cd ga_tools && $(MAKE) clean-all
 	cd ga_tools/simulations && $(MAKE) clean
+	rm -f Makefile.conf
 
 ##!clean-all	see clean-all
 distclean :  clean-all
