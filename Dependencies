@@ -2,10 +2,17 @@ Packages/Libs that are required by lpzrobots:
 
 Debian based: 
 sudo apt-get install \
- g++  make  makedepend  libreadline-dev  libgsl0-dev
+ g++  make  makedepend  libreadline-dev  libgsl0-dev \
+ libglu-dev libgl-dev libglut3-dev  libopenscenegraph-dev \ 
+ libqt4-dev  qt4-qmake  libqt4-qt3support
 
 
 
-RPM based: (zypper ...?)
- g++  make  makedepend  libreadline-devel  libgsl0-devel
+
+RPM based: (zypper ...?) TODO update the package names!
+
+ g++  make  makedepend  libreadline-devel  libgsl0-devel \
+ libglu-devel libgl-devel libglut3-devel  libopenscenegraph-devel \ 
+ libqt4-devel  qt4-qmake  libqt4-qt3support
+ 
  
