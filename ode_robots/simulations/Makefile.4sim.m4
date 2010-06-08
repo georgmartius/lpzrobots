@@ -70,7 +70,7 @@ CPPFLAGS_OPT = $(CPPBASEFLAGS) -O3 -DNDEBUG
 
 normal: DEV(libode_robots) $(EXEC)
 opt:    DEV(libode_robots_opt) $(EXEC_OPT)
-dbg:    DEV(libode_robots_dgb) $(EXEC_DBG)
+dbg:    DEV(libode_robots_dbg) $(EXEC_DBG)
 prof:   DEV(libode_robots_prof) $(EXEC_PROF)
 
 $(EXEC): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
