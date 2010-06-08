@@ -12,6 +12,7 @@ LIBBASE=lib$(PACKAGE_NAME)
 LIB=$(LIBBASE).a
 LIB_DBG= $(LIBBASE)_dbg.a
 LIB_OPT= $(LIBBASE)_opt.a
+TYPE=devel
 STRIP=no
 # this can is overwritten from commandline
 PREFIX=/usr/local
@@ -52,15 +53,21 @@ AR = ar -rcs
 libs: lib opt dbg
 
 lib: $(UTILS) 
-	cd $(SELFORG) && $(MAKE) lib
+ifeq ($(TYPE),devel)
+        cd $(SELFORG) && $(MAKE) lib
+endif
 	$(MAKE) library
 
 dbg: $(UTILS)
-	cd $(SELFORG) && $(MAKE) dbg
+ifeq ($(TYPE),devel)
+        cd $(SELFORG) && $(MAKE) dbg
+endif
 	$(MAKE) BUILD_DIR=build_dbg LIB=$(LIB_DBG) CPPFLAGS="$(CPPBASEFLAGS) -g" library
 
 opt: $(UTILS)
-	cd $(SELFORG) && $(MAKE) opt
+ifeq ($(TYPE),devel)
+        cd $(SELFORG) && $(MAKE) opt
+endif
 	$(MAKE) BUILD_DIR=build_opt LIB=$(LIB_OPT) CPPFLAGS="$(CPPBASEFLAGS) -O3 -DNDEBUG" STRIP="yes" library
 
 library: $(LIB)
@@ -107,6 +114,9 @@ clean:
 	rm -f Makefile.depend
 	rm -rf build build_dbg build_opt
 	find $(INCLUDEDIR) -type l -exec rm \{\} \;
+
+install: Makefile.depend lib opt dbg
+
 
 install_prefix.conf:
 	@echo "create install_prefix.conf"
