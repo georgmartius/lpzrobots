@@ -46,21 +46,19 @@ if [ ! "$okay" = "y" ]; then
 fi
 
 
-echo -e "# configuration file for lpzrobots\n\
+echo -e "# configuration file for lpzrobots (automatically generated!)\n\
 # Where to install the simulator and utils"  > Makefile.conf
 echo "PREFIX=$prefix/" >> Makefile.conf
 echo -e "\n# user or developement installation\n\
 # Options:\n\
-#  devel: only install the utility functions,\n\
+#  DEVEL: only install the utility functions,\n\
 #   which is useful for development on the simulator\n\
-#  user: install also the ode_robots and selforg libaries and include files\n\
+#  USER: install also the ode_robots and selforg libaries and include files\n\
 #   this is recommended for users" >> Makefile.conf
-if [ -e  ode_robots/install_prefix.conf ]; then
-    sed -e "s/^#define.*//" -ibak ode_robots/install_prefix.conf;
-fi
-echo -e "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
-
 echo "INSTALL_TYPE=$Type" >> Makefile.conf
+
+echo "// Automatically generated file! Use make conf in lpzrobots." > ode_robots/install_prefix.conf
+echo "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
 
 for Folder in ode_robots/simulations selforg/simulations selforg/examples ga_tools/simulations; do
   echo "call: m4 -D \"$System\" -D \"$Type\" $Folder/Makefile.4sim.m4";
