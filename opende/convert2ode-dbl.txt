@@ -1,4 +1,5 @@
-#First run patch
+#First run patch ode-dbl-patch
+
 #then rename include/ode in include/ode-dbl
 #Edit Makefile.am in include/ode-dbl (add -dbl in first line)
 
@@ -7,4 +8,10 @@ for F in `find -type f -name "*.[hc]"` `find -type f -name "*.cpp"`; do
     sed -e "s/<ode\//<ode-dbl\//" -i $F;
     sed -e "s/\"ode\/\(.*\)\"/<ode-dbl\/\1>/" -i $F;
 done  
+
+for F in `find -type f -name "Makefile.am"`; do
+    echo $F;
+    sed -e "s/libode\.la/libode_dbl.la/" -i $F;
+done  
+
 

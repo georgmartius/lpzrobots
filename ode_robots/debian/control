@@ -3,8 +3,8 @@ Section: misc
 Priority: optional
 Maintainer: Georg Martius <georg.martius@web.de>
 Build-Depends: debhelper (>= 7), quilt,
- libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, libglut3-dev 
- lpzrobots-selforg, opende-dbl-dev, openscenegraph-dev, readline-dev, makedepend
+ libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, libglut3-dev, makedepend,
+ lpzrobots-selforg, opende-dbl-dev, libopenscenegraph-dev, libreadline-dev 
 Standards-Version: 3.8.4
 Homepage: http://robot.informatik.uni-leipzig.de/software
 
@@ -12,8 +12,9 @@ Package: lpzrobots-oderobots
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
  libc6-dev | libc-dev, g++, make, makedepend
- libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, libglut3-dev 
- lpzrobots-selforg, opende-dbl-dev, openscenegraph-dev, readline-dev
+ libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, libglut3-dev,
+ libopenscenegraph-dev, libreadline-dev,
+ lpzrobots-selforg, opende-dbl-dev, 
 Description: 3D physically realistic robot simulator
  A simulation framework to simulate robotic experiments in C++. The physics
  is implemented using the Open Dynamics Engine (www.opende.org) and
