@@ -30,7 +30,6 @@ include Makefile.conf
 
 EXEC_OPT  = $(EXEC)_opt
 EXEC_DBG  = $(EXEC)_dbg
-EXEC_PROF = $(EXEC)_prof
 
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
@@ -38,7 +37,6 @@ OFILES = $(addsuffix .o, $(FILES))
 ODEROBOTSLIB := ode_robots
 ODEROBOTSLIB_DBG := ode_robots_dbg
 ODEROBOTSLIB_OPT := ode_robots_opt
-ODEROBOTSLIB_PROF := ode_robots_prof
 LIBODEROBOTS = $(ODEROBOTS)/lib$(ODEROBOTSLIB).a
 
 SELFORGLIB = selforg
@@ -71,7 +69,6 @@ CPPFLAGS_OPT = $(CPPBASEFLAGS) -O3 -DNDEBUG
 normal: DEV(libode_robots) $(EXEC)
 opt:    DEV(libode_robots_opt) $(EXEC_OPT)
 dbg:    DEV(libode_robots_dbg) $(EXEC_DBG)
-prof:   DEV(libode_robots_prof) $(EXEC_PROF)
 
 $(EXEC): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
@@ -89,13 +86,9 @@ $(EXEC_DBG): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_DBG)
 
 
-$(EXEC_PROF): ODEROBOTSLIB = $(ODEROBOTSLIB_PROF)
-$(EXEC_PROF): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
-	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_PROF)
-
 DEV(
 libode_robots:	
-	cd $(ODEROBOTS) && $(MAKE)
+	cd $(ODEROBOTS) && $(MAKE) lib
 
 libode_robots_dbg:	
 	cd $(ODEROBOTS) && $(MAKE) dbg
@@ -103,8 +96,6 @@ libode_robots_dbg:
 libode_robots_opt:	
 	cd $(ODEROBOTS) && $(MAKE) opt
 
-libode_robots_prof:	
-	cd $(ODEROBOTS) && $(MAKE) prof
 )
 
 Makefile.depend: 
@@ -116,11 +107,14 @@ depend:
 tags: 
 	etags $(find -name "*.[ch]")
 
+DEV(
+cleandist: clean-all
 clean-all: clean
 	cd $(ODEROBOTS) && make clean-all
 	cd $(SELFORG) && make clean-all
+)
 
 clean:
-	rm -f $(EXEC) $(EXEC_DBG) $(EXEC_OPT) $(EXEC_PROF) *.o Makefile.depend
+	rm -f $(EXEC) $(EXEC_DBG) $(EXEC_OPT) *.o Makefile.depend
 
 -include Makefile.depend

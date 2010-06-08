@@ -84,6 +84,6 @@ tags:
 	etags $(find -name "*.[ch]")
 
 clean:
-	rm -f $(EXEC) $(EXEC_OPT) EXEC_DBG *.o Makefile.depend
+	rm -f $(EXEC) $(EXEC_OPT) $(EXEC_DBG) *.o Makefile.depend
 
 include Makefile.depend

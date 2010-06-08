@@ -3,7 +3,10 @@
 #Date:     Mai 2005
 #
 # $Log$
-# Revision 1.8  2010-06-03 09:51:44  martius
+# Revision 1.9  2010-06-08 15:46:01  martius
+# makefiles adapted
+#
+# Revision 1.8  2010/06/03 09:51:44  martius
 # added gsl and eigenvector/values stuff
 #
 # Revision 1.7  2009/08/03 08:40:02  guettler
@@ -13,7 +16,7 @@
 
 # us -pg for profiling
 TEST_DEBUG_CFLAGS = -Wall -I. -I../include/selforg -DUNITTEST -g
-TEST_OPTIM_CFLAGS = -Wall -I. -I../include/selforg -O3 -DUNITTEST -DNDEBUG
+TEST_OPTIM_CFLAGS = -Wall -I. -I../include/selforg -O -DUNITTEST -DNDEBUG
 TEST_OPTIMSSE_CFLAGS = -Wall -I. -I../include/selforg -O3 -DUNITTEST -DNDEBUG -ftree-vectorize -msse2
 #LIB_DEBUG_CFLAGS = -Wall -I. 
 #LIB_OPTIM_CFLAGS = -Wall -I. -O3 -DNDEBUG 

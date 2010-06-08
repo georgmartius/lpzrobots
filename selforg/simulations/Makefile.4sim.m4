@@ -13,6 +13,7 @@ ifdef(`MAC',
 ## Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 ## Date:     Oct 2009
 
+EXEC = start
 ## add files to compile in the conf file
 include Makefile.conf
 
@@ -42,11 +43,11 @@ CPPFLAGS_OPT = $(CBASEFLAGS) -O3 -DUNITTEST -DNDEBUG
 
 CXX = g++
 
-normal: $(EXEC)
-opt   : $(EXEC_OPT)
-dgb   : $(EXEC_DBG)
+normal: DEV(libselforg) $(EXEC)
+opt   : DEV(libselforg_opt) $(EXEC_OPT)
+dgb   : DEV(libselforg_dbg) $(EXEC_DBG)
 
-$(EXEC): Makefile.depend $(OFILES) DEV(libselforg $(LIBSELFORGLIB))
+$(EXEC): Makefile.depend $(OFILES) DEV($(LIBSELFORGLIB))
 	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC)
 
 $(EXEC_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
@@ -84,6 +85,6 @@ tags:
 	etags $(find -name "*.[ch]")
 
 clean:
-	rm -f $(EXEC) $(EXEC_OPT) EXEC_DBG *.o Makefile.depend
+	rm -f $(EXEC) $(EXEC_OPT) $(EXEC_DBG) *.o Makefile.depend
 
 include Makefile.depend
