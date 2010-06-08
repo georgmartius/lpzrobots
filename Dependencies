@@ -1,0 +1,11 @@
+Packages/Libs that are required by lpzrobots:
+
+Debian based: 
+sudo apt-get install \
+ g++  make  makedepend  libreadline-dev  libgsl0-dev
+
+
+
+RPM based: (zypper ...?)
+ g++  make  makedepend  libreadline-devel  libgsl0-devel
+ 
