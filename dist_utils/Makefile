@@ -9,7 +9,7 @@
 
 
 #### EDIT THE FOLLOWING LINES!
-VERSION=0.6.1
+VERSION=0.6.2
 ODEVERSION=0.11.2
 
 export CVSROOT=:ext:martius@robotcvs.informatik.uni-leipzig.de:/home/robot/cvsroot
@@ -58,15 +58,19 @@ deb-packs: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR))
 lpzrobots: 
 	cvs "-d$(CVSROOT)" co lpzrobots;
 
-##!lpzrobots-0.X    create distribution folder
+
+##!dist             create distribution folder
+dist: $(DISTDIR)
+
+# lpzrobots-0.X    create distribution folder
 $(DISTDIR): $(filter-out $(wildcard lpzrobots), lpzrobots)
 	cd lpzrobots && cvs "-d$(CVSROOT)" update -dP 2> ../cvs.log
-# advance version numbers # also add lpzrobots/ga_tools 
-	for dir in lpzrobots/selforg lpzrobots/ode_robots lpzrobots/guilogger; do pwd; echo $$dir; cd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; cd ../../; done
-	cd lpzrobots/opende && $(DCH) -v $(ODEVERSION)-1 "New Release"
 	cd lpzrobots/dist_utils && ./createDist.sh $(VERSION)
-
-
+# call make to config
+	cd $(DISTDIR) && rm -rf Makefile.conf && echo -e "/usr\nu\ny\n" | make
+# advance version numbers # also add lpzrobots/ga_tools 
+	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger; do pwd; echo $$dir; cd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; cd ../../; done
+	cd $(DISTDIR)/opende && $(DCH) -v $(ODEVERSION)-1 "New Release"
 
 ##!selforg-deb        create debian and ubuntu packages for selforg
 .PHONY: selforg-deb
@@ -135,6 +139,10 @@ install-oderobots:
 install-gatools:
 	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/lpzrobots-gatools*.deb
 
+
+##!upload-selforg         uploads the selforg packages to launchpad
+upload-selforg:
+	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots lpzrobots-selforg*.changes
 
 
 ##### helper targets, not to be used from outside
@@ -214,7 +222,7 @@ create_deb_packages.sh: Makefile
 #>pushd `pwd`
 #>cd ${Folder}
 #>FIRST=""
-#>for Dist in jaunty karmic lucid maverick; do
+#>for Dist in karmic lucid maverick; do
 #>    # change changelog for all ubuntu distributions  
 #>    dch --increment -D $Dist "$Dist version"
 #>    # make only source package
