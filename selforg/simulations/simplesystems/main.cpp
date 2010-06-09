@@ -29,7 +29,7 @@ bool stop=0;
 double noise=.1;
 double realtimefactor=1;
 
-typedef enum Mode {NORMAL, SWING, EXTRASINE};
+enum Mode {NORMAL, SWING, EXTRASINE};
 
 
 /** This robot emulates different systems based on the mode
