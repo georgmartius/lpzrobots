@@ -9,8 +9,7 @@
 #include <selforg/agent.h>
 #include <selforg/abstractrobot.h>
 #include <selforg/invertnchannelcontroller.h>
-#include <selforg/invertmotorspace.h>
-#include <selforg/invertmotornstep.h>
+#include <selforg/homeokinesis.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/sinecontroller.h>
 //#include <selforg/dercontroller.h>
@@ -266,7 +265,8 @@ int main(int argc, char** argv){
   MyRobot* robot;
   Agent* agent;
   initializeConsole();
-    
+
+// Different controllers    
 //   SeMoXConf cc = SeMoX::getDefaultConf();
 //   cc.modelExt=false;
 //   //cc.useS=true;
@@ -296,16 +296,12 @@ int main(int argc, char** argv){
 //   controller->setParam("epsDyn",     0);
 
 
-//   InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-//   //cc.useS=true;
-//   cc.someInternalParams=false;
-//   AbstractController* controller = new InvertMotorNStep(cc);
-
-//    AbstractController* controller = new SineController();
-
 //  AbstractController* controller = new InvertMotorSpace(10,1.2);
 
-  AbstractController* controller = new InvertNChannelController(10,false);
+//  AbstractController* controller = new InvertNChannelController(10,false);
+
+//   AbstractController* controller = new SineController();
+  AbstractController* controller = new Homeokinesis();
 
   controller->setParam("epsC",     0.1);
   
