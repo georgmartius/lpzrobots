@@ -11,7 +11,7 @@ build: build-stamp
 build-stamp:
 	dh_testdir
 
-	$(MAKE) -j 4 -l 2.5
+	$(MAKE) -j 4 -l 2.5 SELFORG=/usr TYPE=system
 
 	touch build-stamp
 

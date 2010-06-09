@@ -116,6 +116,19 @@ clean:
 	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 
 install: Makefile.depend lib opt dbg
+	@echo "*************** Install libs and includes $(PREFIX)*********************"
+	install -d  $(PREFIX)/lib $(PREFIX)/include/ode_robots $(PREFIX)/share/lpzrobots/ode_robots
+	install --mode 644 $(LIB) $(LIB_OPT) $(LIB_DBG) $(PREFIX)/lib/
+	install --mode 644 -t $(PREFIX)/include/ode_robots include/ode_robots/*.h
+	@echo "*************** Install example simulations ******************"
+	cp -RL simulations $(PREFIX)/share/lpzrobots/ode_robots/
+#	-chmod -R ugo+r $(PREFIX)share/lpzrobots
+
+uninstall:
+	-rm -f $(PREFIX)/lib/$(LIB) $(PREFIX)/lib/$(LIB_OPT) $(PREFIX)/lib/$(LIB_DBG)
+	-rm -rf $(PREFIX)/include/ode_robots
+	-rm -rf $(PREFIX)/share/lpzrobots/ode_robots/
+
 
 
 install_prefix.conf:
