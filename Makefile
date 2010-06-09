@@ -47,25 +47,12 @@ install_ode:
 .PHONY: libs
 ##!libs		compile our libaries in optimized and debug version
 libs: usage
-	@echo "*************** Compile selforg (optimized) *****************"
-	+cd selforg && $(MAKE) clean-all && $(MAKE) opt 	
-	@echo "*************** Compile ode_robots (optimized) **************"
-	+cd ode_robots && $(MAKE) clean-all && $(MAKE) opt	
-	@echo "*************** Compile ga_tools (optimized) **************"
-	+cd ga_tools && $(MAKE) clean-all && $(MAKE) opt	
-	@echo "*************** Compile selforg (debug) *********************"
-	+cd selforg && $(MAKE) clean && $(MAKE) lib
-	@echo "*************** Compile ode_robots (debug) ******************"
-	+cd ode_robots && $(MAKE) clean && $(MAKE) lib
-	@echo "*************** Compile ga_tools (debug) **************"
-	+cd ga_tools && $(MAKE) clean && $(MAKE) lib	
-#	@echo "*************** strip the libs             ******************"
-#	-strip selforg/libselforg_opt.a 
-#	-strip --only-keep-debug selforg/libselforg.a
-#	-strip ode_robots/libode_robots_opt.a
-#	-strip --only-keep-debug ode_robots/libode_robots.a
-#	-strip ga_tools/libga_tools_opt.a
-#	-strip --only-keep-debug ga_tools/libga_tools.a
+	@echo "*************** install selforg *****************"
+	cd selforg && $(MAKE) 
+	@echo "*************** Compile ode_robots **************"
+	cd ode_robots && $(MAKE)
+	@echo "*************** Compile ga_tools **************"
+	cd ga_tools && $(MAKE)
 
 .PHONY: install
 ##!install	install utils and libs
@@ -160,23 +147,15 @@ install_utils:
 install_libs:
 ifeq ($(INSTALL_TYPE),USER)
 	@echo "*************** Install selforg *********************"
-	-mkdir -p $(PREFIX)lib $(PREFIX)include \
-	     $(PREFIX)share/lpzrobots/selforg $(PREFIX)share/lpzrobots/ode_robots \
-	     $(PREFIX)share/lpzrobots/ga_tools
-	cp selforg/libselforg.a $(PREFIX)lib
-	cp selforg/libselforg_opt.a $(PREFIX)lib
-	cp -RL selforg/include/selforg $(PREFIX)include/
+	cd selforg/ && $(MAKE) install 
+#	     $(PREFIX)share/lpzrobots/ga_tools
 	@echo "*************** Install ode_robots ******************"
-	cp ode_robots/libode_robots.a $(PREFIX)lib
-	cp ode_robots/libode_robots_opt.a $(PREFIX)lib
-	cp -RL ode_robots/include/ode_robots $(PREFIX)include/	
+	cd ode_robots/ && $(MAKE) install 
 	@echo "*************** Install ga_tools ******************"
 	cp ga_tools/libga_tools.a $(PREFIX)lib
-	cp ga_tools/libga_tools_opt.a $(PREFIX)lib
+#	cp ga_tools/libga_tools_opt.a $(PREFIX)lib
 	cp -RL ga_tools/include/ga_tools $(PREFIX)include/	
 	@echo "*************** Install example simulations ******************"
-	cp -RL ode_robots/simulations $(PREFIX)share/lpzrobots/ode_robots/
-	cp -RL selforg/simulations $(PREFIX)share/lpzrobots/selforg/
 	cp -RL ga_tools/simulations $(PREFIX)share/lpzrobots/ga_tools/
 	-chmod -R ugo+r $(PREFIX)share/lpzrobots
 	@echo "*************** Finished ******************"
@@ -198,11 +177,8 @@ uninstall_intern:
 	-rm -f $(PREFIX)bin/selectcolumns.pl
 	-rm -rf $(PREFIX)share/lpzrobots/data
 ifeq ($(INSTALL_TYPE),USER)
-	-rm -f $(PREFIX)lib/libselforg.a $(PREFIX)lib/libselforg_opt.a
-	-rm -rf $(PREFIX)include/selforg
-	-rm -f $(PREFIX)lib/libode_robots.a $(PREFIX)lib/libode_robots_opt.a
-	-rm -rf $(PREFIX)include/ode_robots
-	-rm -f $(PREFIX)lib/libga_tools.a $(PREFIX)lib/libga_tools_opt.a
+	-rm -f $(PREFIX)lib/libga_tools.a 
+# $(PREFIX)lib/libga_tools_opt.a
 	-rm -rf $(PREFIX)include/ga_tools
 	-rm -rf $(PREFIX)share/lpzrobots
 endif
