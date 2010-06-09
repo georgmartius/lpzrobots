@@ -43,9 +43,12 @@ CPPFLAGS_OPT = $(CBASEFLAGS) -O3 -DUNITTEST -DNDEBUG
 
 CXX = g++
 
-normal: DEV(libselforg) $(EXEC)
+normal: DEV(libselforg) 
+	$(MAKE) $(EXEC)
 opt   : DEV(libselforg_opt) $(EXEC_OPT)
+	$(MAKE) $(EXEC_OPT)
 dgb   : DEV(libselforg_dbg) $(EXEC_DBG)
+	$(MAKE) $(EXEC_DBG)
 
 $(EXEC): Makefile.depend $(OFILES) DEV($(LIBSELFORGLIB))
 	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC)
