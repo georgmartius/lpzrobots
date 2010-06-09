@@ -5,6 +5,7 @@ using namespace std;
 #include <string>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 // Commandline interface stuff
 void showParams(const ConfigList& configs, FILE* f /*= 0*/, const char* lineprefix /*= 0*/)
@@ -19,7 +20,7 @@ void changeParams(ConfigList& configs,
 		  void (*onQuit)()){
   char buffer[1024];
   std::cout << "Type: Parameter=Value or ? for a listing or Ctrl-c for termination\n";
-  fgets( buffer, 1024, stdin);
+  if(!fgets( buffer, 1024, stdin)) return;
   if ( strchr(buffer,'?')!=0){
     showParams(configs);
     return;
