@@ -24,10 +24,8 @@ Description: Open Dynamics Engine - runtime library (double precision)
 Package: libode-dbl-dev
 Section: libdevel
 Architecture: any
-Depends: libode1 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Conflicts: ode-dev, libode0-dev, libode-sp-dev
-Replaces: ode-dev, libode0-dev
-Provides: libode0-dev
+Depends: libode-dbl (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Provides: libode0-dbl-dev
 Description: Open Dynamics Engine - development files in double precision
  ODE is a free, industrial quality library for simulating articulated rigid
  body dynamics - for example ground vehicles, legged creatures, and moving
