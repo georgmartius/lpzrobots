@@ -13,6 +13,8 @@
 #include <selforg/one2onewiring.h>
 
 #include "cmdline.h"
+#include "console.h"
+#include "globaldata.h"
 
 using namespace std;
 
@@ -204,7 +206,9 @@ int contains(char **list, int len,  const char *str){
 }
 
 int main(int argc, char** argv){
-  ConfigList configs;
+  GlobalData globaldata;
+  initializeConsole();
+
   list<PlotOption> plotoptions;
 
   if(contains(argv,argc,"-g")!=0) plotoptions.push_back(PlotOption(GuiLogger));
@@ -219,7 +223,6 @@ int main(int argc, char** argv){
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
 
   list<MyRobot*> robots;
-  list<Agent*> agents;
   
   for(int i=0; i<2; i++){
     AbstractController* controller = new InvertMotorNStep();
@@ -235,14 +238,15 @@ int main(int argc, char** argv){
     // if you like, you can keep track of the robot with the following line. 
     //  this assumes that you robot returns its position, speed and orientation. 
     agent->setTrackOptions(TrackRobot(true,false,false, false,"interactiontest"));
-  
-    configs.push_back(robot);
-    configs.push_back(controller);
+ 
+ 
+    globaldata.configs.push_back(robot);
+    globaldata.configs.push_back(controller);
     robots.push_back(robot);
-    agents.push_back(agent);
+    globaldata.agents.push_back(agent);
   }
   
-  showParams(configs);
+  showParams(globaldata.configs);
   
   // connect robots to each other
   FOREACH (list<MyRobot*>, robots, i){
@@ -254,12 +258,13 @@ int main(int argc, char** argv){
   cmd_handler_init();
   while(!stop){
     usleep(1000);
-    FOREACH (list<Agent*>, agents, i){
+    FOREACH (vector<Agent*>, globaldata.agents, i){
       (*i)->step(0.1);
     }
-    if(control_c_pressed()){
-      cmd_begin_input();
-      changeParams(configs, onTermination);
+    if(control_c_pressed()){      
+      if(!handleConsole(globaldata)){
+        stop=1;
+      }
       cmd_end_input();
     }
     printRobots(robots);
@@ -267,6 +272,7 @@ int main(int argc, char** argv){
     
   };
   
+  closeConsole();
   fprintf(stderr,"terminating\n");
   // should clean up but what costs the world
   return 0;
