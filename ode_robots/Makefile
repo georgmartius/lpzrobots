@@ -54,19 +54,19 @@ libs: lib opt dbg
 
 lib: $(UTILS) 
 ifeq ($(TYPE),devel)
-        cd $(SELFORG) && $(MAKE) lib
+	cd $(SELFORG) && $(MAKE) lib
 endif
 	$(MAKE) library
 
 dbg: $(UTILS)
 ifeq ($(TYPE),devel)
-        cd $(SELFORG) && $(MAKE) dbg
+	cd $(SELFORG) && $(MAKE) dbg
 endif
 	$(MAKE) BUILD_DIR=build_dbg LIB=$(LIB_DBG) CPPFLAGS="$(CPPBASEFLAGS) -g" library
 
 opt: $(UTILS)
 ifeq ($(TYPE),devel)
-        cd $(SELFORG) && $(MAKE) opt
+	cd $(SELFORG) && $(MAKE) opt
 endif
 	$(MAKE) BUILD_DIR=build_opt LIB=$(LIB_OPT) CPPFLAGS="$(CPPBASEFLAGS) -O3 -DNDEBUG" STRIP="yes" library
 
