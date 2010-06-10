@@ -92,11 +92,8 @@ distclean :  clean-all
 conf: usage
 	-mv Makefile.conf Makefile.conf.bak
 # automatically creates Makefile.conf since it is included 
-	$(MAKE) dummy 
+	$(MAKE) Makefile.conf
 
-.PHONY: dummy
-dummy:
-	@echo "done"
 
 .PHONY: guilogger
 ##!guilogger	compile guilogger

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 
+
 echo "Generating Makefile.conf (configuration makefile)"
 echo " You can change your preference by editing Makefile.conf"
 echo " or just delete it and run make again"
