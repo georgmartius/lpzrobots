@@ -1,4 +1,4 @@
-#Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
+Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 
 include Makefile.conf
 
@@ -35,14 +35,14 @@ prepare: usage
 .PHONY: ode
 ##!ode		compile open dynamics engine in double precession (custom version)
 ode:
-	cd opende; sh autogen.sh && ./configure --disable-asserts --enable-double-precision --prefix=$(PREFIX) && make && echo "you probably want to run \"make install_ode\" now (possibly as root)"
+	cd opende; sh autogen.sh && ./configure --disable-asserts --enable-double-precision --prefix=$(PREFIX) && $(MAKE) && echo "you probably want to run \"make install_ode\" now (possibly as root)"
 
 
 .PHONY: install_ode
 ##!install_ode	install the customized ode library (libode_dbl)
 install_ode:
 	@echo "*************** Install ode -double version**********"
-	cd opende && make install
+	cd opende && $(MAKE) install
 
 .PHONY: libs
 ##!libs		compile our libaries in optimized and debug version
@@ -72,7 +72,7 @@ clean: usage
 
 ##!clean-all	like clean but also removes the libraries and clears simulations
 clean-all: usage
-	cd guilogger && $(MAKE) clean
+	cd guilogger && $(MAKE) distclean
 	cd ode_robots && $(MAKE) clean-all
 	cd ode_robots/simulations && $(MAKE) clean
 	cd selforg && $(MAKE) clean-all
@@ -125,36 +125,32 @@ uninstall_ode:
 
 .PHONY: install_utils
 install_utils:
-	-mkdir -p $(PREFIX)bin $(PREFIX)lib/soundMan $(PREFIX)share/lpzrobots
-	-cd neuronviz/src && $(MAKE) install
-	-cd javacontroller/src && $(MAKE) install
-	-@if [ -d guilogger/bin/guilogger.app ]; then cp guilogger/bin/guilogger.app/Contents/MacOS/guilogger $(PREFIX)bin/ && echo "copied guilogger to $(PREFIX)/bin/";  else cp guilogger/bin/guilogger $(PREFIX)bin/ && echo "copied guilogger to $(PREFIX)/bin/" || echo "Could not copy guilogger binary to $(PREFIX)bin/! Please install it by hand."; fi
-	-cp soundman/class/*.class $(PREFIX)lib/soundMan/
-	-cp soundman/bin/soundMan $(PREFIX)bin/soundMan
-	sed -i -e "s|PREFIX=.*|PREFIX=$(PREFIX)|" $(PREFIX)bin/soundMan
-	-cp ode_robots/utils/feedfile.pl $(PREFIX)bin/
-	-cp ode_robots/utils/encodevideo.sh $(PREFIX)bin/
-	-cp ode_robots/utils/transcode2allformats.sh $(PREFIX)bin/
-	-cp ode_robots/utils/selectcolumns.pl $(PREFIX)bin/
-	cp -R ode_robots/osg/data $(PREFIX)share/lpzrobots/
-	-find $(PREFIX)share/lpzrobots/ -type d -name "CVS" | xargs rm -r
+	-mkdir -p $(PREFIX)bin $(PREFIX)/lib/soundMan $(PREFIX)share/lpzrobots
+	-cd neuronviz/src && $(MAKE) PREFIX=$(PREFIX) install
+	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX) install	
+	-@if [ -d guilogger/bin/guilogger.app ]; then \
+          cp guilogger/bin/guilogger.app/Contents/MacOS/guilogger $(PREFIX)/bin/ && echo "copied guilogger to $(PREFIX)/bin/"; \
+         else cp guilogger/bin/guilogger $(PREFIX)/bin/ && echo "copied guilogger to $(PREFIX)/bin/";  fi
+	-cp soundman/class/*.class $(PREFIX)/lib/soundMan/
+	-cp soundman/bin/soundMan $(PREFIX)/bin/soundMan
+	sed -i -e "s|PREFIX=.*|PREFIX=$(PREFIX)|" $(PREFIX)/bin/soundMan
 
 
 .PHONY: install_libs
 install_libs:
-ifeq ($(INSTALL_TYPE),USER)
+ifeq ($(TYPE),user)
 	@echo "*************** Install selforg *********************"
-	cd selforg/ && $(MAKE) install 
+	cd selforg/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) install 
 #	     $(PREFIX)share/lpzrobots/ga_tools
 	@echo "*************** Install ode_robots ******************"
-	cd ode_robots/ && $(MAKE) install 
+	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) install 
 	@echo "*************** Install ga_tools ******************"
 	cp ga_tools/libga_tools.a $(PREFIX)lib
-#	cp ga_tools/libga_tools_opt.a $(PREFIX)lib
-	cp -RL ga_tools/include/ga_tools $(PREFIX)include/	
+#	cp ga_tools/libga_tools_opt.a $(PREFIX)/lib
+	cp -RL ga_tools/include/ga_tools $(PREFIX)/include/	
 	@echo "*************** Install example simulations ******************"
-	cp -RL ga_tools/simulations $(PREFIX)share/lpzrobots/ga_tools/
-	-chmod -R ugo+r $(PREFIX)share/lpzrobots
+	cp -RL ga_tools/simulations $(PREFIX)/share/lpzrobots/ga_tools/
+	-chmod -R ugo+r $(PREFIX)/share/lpzrobots
 	@echo "*************** Finished ******************"
 	@echo "Make sure that the $(PREFIX)lib directory is in our lib search path"
 	@echo " and $(PREFIX)include is searched for includes."
@@ -164,20 +160,21 @@ endif
 
 .PHONY: uninstall_intern
 uninstall_intern:
-	-cd neuronviz/src && $(MAKE) uninstall
-	-cd javacontroller/src && $(MAKE) uninstall
-	-rm -f $(PREFIX)bin/guilogger
-	-rm -f $(PREFIX)lib/soundMan/SoundMan*.class
-	-rm -f $(PREFIX)bin/soundMan
-	-rm -f $(PREFIX)bin/feedfile.pl
-	-rm -f $(PREFIX)bin/encodevideo.sh 
-	-rm -f $(PREFIX)bin/selectcolumns.pl
-	-rm -rf $(PREFIX)share/lpzrobots/data
-ifeq ($(INSTALL_TYPE),USER)
-	-rm -f $(PREFIX)lib/libga_tools.a 
+	@echo "*************** Uninstall selforg *********************"
+	cd selforg/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
+	@echo "*************** Uninstall ode_robots ******************"
+	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
+
+	-cd neuronviz/src && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall
+	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX) uninstall
+	-cd guilogger && make DESTDIR=$(PREFIX)/bin uninstall
+	-rm -f $(PREFIX)/lib/soundMan/SoundMan*.class
+	-rm -f $(PREFIX)/bin/soundMan
+ifeq ($(TYPE),user)
+	-rm -f $(PREFIX)/lib/libga_tools.a 
 # $(PREFIX)lib/libga_tools_opt.a
-	-rm -rf $(PREFIX)include/ga_tools
-	-rm -rf $(PREFIX)share/lpzrobots
+	-rm -rf $(PREFIX)/include/ga_tools
+	-rm -rf $(PREFIX)/share/lpzrobots
 endif
 
 
