@@ -11,7 +11,7 @@ Homepage: http://robot.informatik.uni-leipzig.de/software
 Package: lpzrobots-oderobots
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
- libc6-dev | libc-dev, g++, make, makedepend
+ libc6-dev | libc-dev, g++, make, makedepend,
  libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, libglut3-dev,
  libopenscenegraph-dev, libreadline-dev,
  lpzrobots-selforg, libode-dbl-dev, libode-dbl
