@@ -67,7 +67,7 @@ $(DISTDIR): $(filter-out $(wildcard lpzrobots), lpzrobots)
 	cd lpzrobots && cvs "-d$(CVSROOT)" update -dP 2> ../cvs.log
 	cd lpzrobots/dist_utils && ./createDist.sh $(VERSION)
 # call make to config
-	cd $(DISTDIR) && rm -rf Makefile.conf && echo -e "/usr\nu\ny\n" | make
+	cd $(DISTDIR) && rm -rf Makefile.conf && echo "/usr\nu\ny\n" | make
 # advance version numbers # also add lpzrobots/ga_tools 
 	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger; do pwd; echo $$dir; cd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; cd ../../; done
 	cd $(DISTDIR)/opende && $(DCH) -v $(ODEVERSION)-1 "New Release"
@@ -88,7 +88,7 @@ ode-deb: PackName=ode-dbl
 ode-deb: PackVersion=$(ODEVERSION)
 ode-deb: PackFolder=opende
 ode-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packages.sh
-	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz
+	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
 	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
 
 ##!guilogger-deb        create debian and ubuntu packages for guilogger
@@ -97,52 +97,64 @@ guilogger-deb: PackName=guilogger
 guilogger-deb: PackVersion=$(VERSION)
 guilogger-deb: PackFolder=guilogger
 guilogger-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packages.sh
-	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz
+	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
 	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
 
 ##!oderobots-deb        create debian and ubuntu packages for ode_robots
-.PHONY: ode_robots-deb
+.PHONY: oderobots-deb
 oderobots-deb: PackName=lpzrobots-oderobots
 oderobots-deb: PackVersion=$(VERSION)
 oderobots-deb: PackFolder=ode_robots
 oderobots-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packages.sh 
-	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz
+	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz $(PACKDIR)/$(PackFolder)
 	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
 
 ##!gatools-deb        create debian and ubuntu packages for ga_tools
-.PHONY: ode_robots-deb
+.PHONY: gatools-deb
 gatools-deb: PackName=lpzrobots-gatools
 gatools-deb: PackVersion=$(VERSION)
 gatools-deb: PackFolder=ga_tools
 gatools-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packages.sh 
-	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz
+	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
 	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
 
 
 ##!install-guilogger        install the created guilogger package
 install-guilogger:
-	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/guilogger*.deb
+	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/guilogger*$(VERSION)*.deb
 
 ##!install-ode        install the created ode package
 install-ode:
-	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/ode-dbl*.deb
+	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/libode-dbl*$(ODEVERSION)*.deb
 
 ##!install-selforg        install the created selforg package
 install-selforg:
-	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/lpzrobots-selforg*.deb
+	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/lpzrobots-selforg*$(VERSION)*.deb
 
 ##!install-oderobots        install the created oderobots package
 install-oderobots:
-	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/lpzrobots-oderobots*.deb
+	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/lpzrobots-oderobots*$(VERSION)*.deb
 
 ##!install-gatools        install the created gatools package
 install-gatools:
-	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/lpzrobots-gatools*.deb
+	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/lpzrobots-gatools*$(VERSION)*.deb
 
+
+##!upload-guilogger       uploads the guilogger packages to launchpad
+upload-guilogger:
+	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots guilogger*$(VERSION)*.changes
+
+##!upload-ode             uploads the ode packages to launchpad
+upload-ode:
+	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots ode-dbl*$(ODEVERSION)*.changes
 
 ##!upload-selforg         uploads the selforg packages to launchpad
 upload-selforg:
-	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots lpzrobots-selforg*.changes
+	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots lpzrobots-selforg*$(VERSION)*.changes
+
+##!upload-oderobots       uploads the oderobots packages to launchpad
+upload-oderobots:
+	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots lpzrobots-oderobots*$(VERSION)*.changes
 
 
 ##### helper targets, not to be used from outside
@@ -156,6 +168,8 @@ $(PACKDIR)/$(PackFolder)-$(PackVersion).tgz:
 $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz: $(PACKDIR)/$(PackFolder)-$(PackVersion).tgz
 	cd $(PACKDIR) && cp "$(PackFolder)-$(PackVersion).tgz" "$(PackName)_$(PackVersion).orig.tar.gz"
 
+$(PACKDIR)/$(PackFolder): $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz
+	cd $(PACKDIR) && tar -xzf $(PackName)_$(PackVersion).orig.tar.gz
 
 create_deb_packages.sh: Makefile
 	@echo "Create create_deb_packages.sh from Makefile"
@@ -192,7 +206,12 @@ create_deb_packages.sh: Makefile
 #>    
 #># untar them 
 #>cd "$Packdir"
-#>tar -xzf ${ORIGTGZ}
+#>if [ -d "$Folder" ]; then
+#>    echo "found $Folder";
+#>else
+#>    echo "$Folder does not exists-> untar $ORIGTGZ!";
+#>    tar -xzf ${ORIGTGZ}
+#>fi
 #>
 #>mkdir -p debian-unstable
 #>mkdir -p debian-unstable-bin

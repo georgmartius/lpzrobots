@@ -11,7 +11,7 @@ build: build-stamp
 build-stamp:
 	dh_testdir
 
-	$(MAKE) -j 4 -l 2.5 SELFORG=/usr TYPE=system
+	$(MAKE) -j 4 -l 2.5 SELFORG=/usr TYPE=user
 
 	touch build-stamp
 
@@ -30,7 +30,7 @@ install: build
 	dh_prep
 	dh_installdirs
 
-	$(MAKE) SELFORG=/usr TYPE=system PREFIX=`pwd`/debian/`dh_listpackages`/usr install
+	$(MAKE) SELFORG=/usr TYPE=user PREFIX=`pwd`/debian/`dh_listpackages`/usr install
 
 # Build architecture-independent files here.
 binary-indep: build install
