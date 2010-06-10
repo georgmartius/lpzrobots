@@ -116,19 +116,36 @@ clean:
 	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 
 install: Makefile.depend lib opt dbg
+ifeq ($(TYPE),user)
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
 	install -d  $(PREFIX)/lib $(PREFIX)/include/ode_robots $(PREFIX)/share/lpzrobots/ode_robots
 	install --mode 644 $(LIB) $(LIB_OPT) $(LIB_DBG) $(PREFIX)/lib/
 	install --mode 644 -t $(PREFIX)/include/ode_robots include/ode_robots/*.h
+endif
+	install --mode 755 utils/feedfile.pl $(PREFIX)/bin/
+	install --mode 755 utils/encodevideo.sh $(PREFIX)/bin/
+	install --mode 755 utils/transcode2allformats.sh $(PREFIX)/bin/
+	install --mode 755 utils/selectcolumns.pl $(PREFIX)/bin/
+	cp -R osg/data $(PREFIX)/share/lpzrobots/
+ifeq ($(TYPE),devel)
+	-find $(PREFIX)/share/lpzrobots/ -type d -name "CVS" | xargs rm -r
+endif
+ifeq ($(TYPE),user)
 	@echo "*************** Install example simulations ******************"
 	cp -RL simulations $(PREFIX)/share/lpzrobots/ode_robots/
-#	-chmod -R ugo+r $(PREFIX)share/lpzrobots
+	chmod -R ugo+r $(PREFIX)/share/lpzrobots
+endif
 
 uninstall:
+ifeq ($(TYPE),user)
 	-rm -f $(PREFIX)/lib/$(LIB) $(PREFIX)/lib/$(LIB_OPT) $(PREFIX)/lib/$(LIB_DBG)
 	-rm -rf $(PREFIX)/include/ode_robots
+endif
 	-rm -rf $(PREFIX)/share/lpzrobots/ode_robots/
-
+	-rm -f $(PREFIX)/bin/feedfile.pl
+	-rm -f $(PREFIX)/bin/encodevideo.sh 
+	-rm -f $(PREFIX)/bin/selectcolumns.pl
+	-rm -rf $(PREFIX)/share/lpzrobots/data
 
 
 install_prefix.conf:
