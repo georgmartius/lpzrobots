@@ -12,7 +12,7 @@ LIBBASE=lib$(PACKAGE_NAME)
 LIB=$(LIBBASE).a
 LIB_DBG= $(LIBBASE)_dbg.a
 LIB_OPT= $(LIBBASE)_opt.a
-TYPE=devel
+TYPE=DEVEL
 STRIP=no
 # this can is overwritten from commandline
 PREFIX=/usr/local
@@ -53,19 +53,19 @@ AR = ar -rcs
 libs: lib opt dbg
 
 lib: $(UTILS) 
-ifeq ($(TYPE),devel)
+ifeq ($(TYPE),DEVEL)
 	cd $(SELFORG) && $(MAKE) lib
 endif
 	$(MAKE) library
 
 dbg: $(UTILS)
-ifeq ($(TYPE),devel)
+ifeq ($(TYPE),DEVEL)
 	cd $(SELFORG) && $(MAKE) dbg
 endif
 	$(MAKE) BUILD_DIR=build_dbg LIB=$(LIB_DBG) CPPFLAGS="$(CPPBASEFLAGS) -g" library
 
 opt: $(UTILS)
-ifeq ($(TYPE),devel)
+ifeq ($(TYPE),DEVEL)
 	cd $(SELFORG) && $(MAKE) opt
 endif
 	$(MAKE) BUILD_DIR=build_opt LIB=$(LIB_OPT) CPPFLAGS="$(CPPBASEFLAGS) -O3 -DNDEBUG" STRIP="yes" library
@@ -117,7 +117,7 @@ clean:
 
 install: Makefile.depend lib opt dbg
 	install -d  $(PREFIX)/bin $(PREFIX)/share/lpzrobots $(PREFIX)/share/lpzrobots/ode_robots
-ifneq ($(TYPE),devel)
+ifneq ($(TYPE),DEVEL)
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
 	install -d  $(PREFIX)/lib $(PREFIX)/include/ode_robots 
 	install --mode 644 $(LIB) $(LIB_OPT) $(LIB_DBG) $(PREFIX)/lib/
@@ -128,7 +128,7 @@ endif
 	install --mode 755 utils/transcode2allformats.sh $(PREFIX)/bin/
 	install --mode 755 utils/selectcolumns.pl $(PREFIX)/bin/
 	cp -R osg/data $(PREFIX)/share/lpzrobots/
-ifeq ($(TYPE),devel)
+ifeq ($(TYPE),DEVEL)
 	-find $(PREFIX)/share/lpzrobots/ -type d -name "CVS" | xargs rm -r
 else
 	@echo "*************** Install example simulations ******************"
@@ -137,7 +137,7 @@ else
 endif
 
 uninstall:
-ifneq ($(TYPE),devel)
+ifneq ($(TYPE),DEVEL)
 	-rm -f $(PREFIX)/lib/$(LIB) $(PREFIX)/lib/$(LIB_OPT) $(PREFIX)/lib/$(LIB_DBG)
 	-rm -rf $(PREFIX)/include/ode_robots
 endif
