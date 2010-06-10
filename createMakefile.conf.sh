@@ -56,7 +56,7 @@ echo -e "\n# user or developement installation\n\
 #   which is useful for development on the simulator\n\
 #  USER: install also the ode_robots and selforg libaries and include files\n\
 #   this is recommended for users" >> Makefile.conf
-echo "INSTALL_TYPE=$Type" >> Makefile.conf
+echo "TYPE=$Type" >> Makefile.conf
 
 echo "// Automatically generated file! Use make conf in lpzrobots." > ode_robots/install_prefix.conf
 echo "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf

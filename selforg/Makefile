@@ -12,6 +12,7 @@ LIB=$(LIBBASE).a
 LIB_OPT=$(LIBBASE)_opt.a
 LIB_DBG=$(LIBBASE)_dbg.a
 STRIP=no
+TYPE=DEVEL
 ifeq ($(PREFIX),)
 PREFIX=/usr/local
 endif
@@ -72,17 +73,21 @@ ${BUILD_DIR}/%.o: %.cpp
 
 
 install: Makefile.depend lib opt dbg
+ifneq ($(TYPE),DEVEL)
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
 	install -d $(PREFIX)/lib/ $(PREFIX)/include/selforg $(PREFIX)/share/lpzrobots/selforg
 	install --mode 644 $(LIB) $(LIB_OPT) $(LIB_DBG) $(PREFIX)/lib/
 	install --mode 644 -t $(PREFIX)/include/selforg include/selforg/*.h
 	@echo "*************** Install example simulations ******************"
 	cp -RL simulations $(PREFIX)/share/lpzrobots/selforg/
+endif
 
 uninstall:
+ifneq ($(TYPE),DEVEL)
 	-rm -f $(PREFIX)/lib/$(LIB) $(PREFIX)/lib/$(LIB_OPT) $(PREFIX)/lib/$(LIB_DBG)
 	-rm -rf $(PREFIX)/include/selforg
 	-rm -rf $(PREFIX)/share/lpzrobots/selforg/
+endif
 
 
 Makefile.depend: 
