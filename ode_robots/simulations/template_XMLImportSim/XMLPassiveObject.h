@@ -8,18 +8,15 @@
 #ifndef XMLPASSIVEOBJECT_H_
 #define XMLPASSIVEOBJECT_H_
 
-#include <xercesc/util/XercesDefs.hpp>
+#include <XercescForwardDecl.h>
 #include <ode_robots/abstractobstacle.h>
 #include "XMLObject.h"
 
-namespace xercesc_3_1 {
-  class DOMNode;
-}
 
 
 class XMLPassiveObject: public lpzrobots::AbstractObstacle, public XMLObject {
 public:
-	XMLPassiveObject(xercesc_3_1::DOMNode* passiveObjectNode, XMLParserEngine& xmlEngine);
+	XMLPassiveObject(XERCESC::DOMNode* passiveObjectNode, XMLParserEngine& xmlEngine);
 	virtual ~XMLPassiveObject();
 
 	  /**
@@ -34,7 +31,7 @@ public:
 	  virtual void create();
 
 protected:
-	  xercesc_3_1::DOMNode* passiveObjectNode;
+	  XERCESC::DOMNode* passiveObjectNode;
 };
 
 #endif /* XMLPASSIVEOBJECT_H_ */

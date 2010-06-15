@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.4  2010-03-11 15:18:06  guettler
+ *  Revision 1.5  2010-06-15 15:02:19  guettler
+ *  using now "XercescForwardDecl.h" to avoid namespace problems (3_0, 3_1)
+ *
+ *  Revision 1.4  2010/03/11 15:18:06  guettler
  *  -BoundingShape can now be set from outside (see XMLBoundingShape)
  *  -Mesh can be created without Body and Geom.
  *  -various bugfixes
@@ -69,8 +72,7 @@
 #include <ode_robots/playground.h>
 
 using namespace std;
-using namespace xercesc;
-using namespace xercesc_3_1;
+using namespace XERCESC;
 using namespace lpzrobots;
 using namespace osg;
 
@@ -288,7 +290,7 @@ void XMLParserEngine::setValidateXML(bool validate) {
   //validateXML = validate;
 }
 
-void XMLParserEngine::parseGlobalVariables(xercesc_3_1::DOMNode* node) {
+void XMLParserEngine::parseGlobalVariables(XERCESC::DOMNode* node) {
   simulation->osgHandle.drawBoundings = XMLHelper::getNodeAtt(node, XMLDefinitions::drawBoundingsAtt);
   // shadowType is platform specific, don't set it!
   //simulation->osgHandle.shadowType = XMLHelper::getNodeAtt(node, XMLDefinitions::shadowTypeAtt);

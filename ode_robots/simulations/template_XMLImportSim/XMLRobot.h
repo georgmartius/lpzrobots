@@ -9,15 +9,13 @@
 #define XMLROBOT_H_
 
 #include <ode_robots/oderobot.h>
+#include "XercescForwardDecl.h"
 #include "XMLObject.h"
 
-namespace xercesc_3_1 {
-	class DOMNode;
-}
 
 class XMLRobot: public lpzrobots::OdeRobot, public XMLObject {
 public:
-	XMLRobot(xercesc_3_1::DOMNode* robotNode, XMLParserEngine& xmlEngine, const std::string& name);
+	XMLRobot(XERCESC::DOMNode* robotNode, XMLParserEngine& xmlEngine, const std::string& name);
 	virtual ~XMLRobot();
 
 

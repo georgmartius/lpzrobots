@@ -11,7 +11,7 @@
 
 #include "XMLHelper.h"
 
-using namespace xercesc_3_1;
+using namespace XERCESC;
 using namespace std;
 using namespace osg;
 using namespace lpzrobots;

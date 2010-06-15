@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2010-03-11 15:18:06  guettler
+ *  Revision 1.3  2010-06-15 15:02:19  guettler
+ *  using now "XercescForwardDecl.h" to avoid namespace problems (3_0, 3_1)
+ *
+ *  Revision 1.2  2010/03/11 15:18:06  guettler
  *  -BoundingShape can now be set from outside (see XMLBoundingShape)
  *  -Mesh can be created without Body and Geom.
  *  -various bugfixes
@@ -53,7 +56,7 @@ class XMLBoundingShape : public lpzrobots::BoundingShape, public XMLObject {
    *        used Primitives for the BoundingShape.
    * @param parent primitive to which the BoundingShape is associated
    */
-    XMLBoundingShape(const xercesc_3_1::DOMNode* boundingBoxNode, XMLParserEngine& engine, lpzrobots::Mesh* parent);
+    XMLBoundingShape(const XERCESC::DOMNode* boundingBoxNode, XMLParserEngine& engine, lpzrobots::Mesh* parent);
     virtual ~XMLBoundingShape();
 
      /// tries to open the bbox file and greates all geoms
@@ -61,7 +64,7 @@ class XMLBoundingShape : public lpzrobots::BoundingShape, public XMLObject {
            double scale, char mode);
 
   protected:
-     const xercesc_3_1::DOMNode* boundingBoxNode;
+     const XERCESC::DOMNode* boundingBoxNode;
    };
 
 

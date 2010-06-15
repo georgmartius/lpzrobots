@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.4  2010-05-20 10:38:20  guettler
+ *  Revision 1.5  2010-06-15 15:02:19  guettler
+ *  using now "XercescForwardDecl.h" to avoid namespace problems (3_0, 3_1)
+ *
+ *  Revision 1.4  2010/05/20 10:38:20  guettler
  *  - setMaterial for BoundingShape now allowed
  *  - static Mesh (mass=0) should work
  *
@@ -60,7 +63,7 @@
 #include <ode_robots/passivemesh.h>
 
 using namespace lpzrobots;
-using namespace xercesc_3_1;
+using namespace XERCESC;
 using namespace std;
 
 XMLPrimitiveFactory::XMLPrimitiveFactory(XMLParserEngine* engine, GlobalData& globalData, const OdeHandle& odeHandle,

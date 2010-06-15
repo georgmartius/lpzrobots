@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-07 22:50:38  guettler
+ *  Revision 1.2  2010-06-15 15:02:19  guettler
+ *  using now "XercescForwardDecl.h" to avoid namespace problems (3_0, 3_1)
+ *
+ *  Revision 1.1  2010/03/07 22:50:38  guettler
  *  first development state for feature XMLImport
  *                       *
  *                                                                         *
@@ -34,18 +37,15 @@
 #ifndef __XMLERRORHELPER_H_
 #define __XMLERRORHELPER_H_
 
-#include <xercesc/util/XercesDefs.hpp>
+#include "XercescForwardDecl.h"
 #include <xercesc/sax/ErrorHandler.hpp>
+#include "XMLHelper.h"
 
 #include <iostream>
 
-namespace xercesc_3_1 {
-  class DOMException;
-  class SAXParseException;
-}
 
 
-class XMLErrorHelper : public xercesc_3_1::ErrorHandler {
+class XMLErrorHelper : public XERCESC::ErrorHandler {
   public:
 
     XMLErrorHelper();
@@ -55,14 +55,14 @@ class XMLErrorHelper : public xercesc_3_1::ErrorHandler {
     /* ************************* */
     /* interface of ErrorHandler */
     /* ************************* */
-    void warning(const xercesc::SAXParseException& exception);
-    void error(const xercesc::SAXParseException& exception);
-    void fatalError(const xercesc::SAXParseException& exception);
+    void warning(const XERCESC::SAXParseException& exception);
+    void error(const XERCESC::SAXParseException& exception);
+    void fatalError(const XERCESC::SAXParseException& exception);
     void resetErrors();
 
-    static void printError(const xercesc::SAXParseException& exception);
+    static void printError(const XERCESC::SAXParseException& exception);
 
-    static void printError(const xercesc::DOMException& exception);
+    static void printError(const XERCESC::DOMException& exception);
 
     static void printError(const std::string message);
 

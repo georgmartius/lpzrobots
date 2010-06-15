@@ -28,7 +28,10 @@
  *  factory.                                                               *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2010-05-20 10:38:20  guettler
+ *  Revision 1.3  2010-06-15 15:02:19  guettler
+ *  using now "XercescForwardDecl.h" to avoid namespace problems (3_0, 3_1)
+ *
+ *  Revision 1.2  2010/05/20 10:38:20  guettler
  *  - setMaterial for BoundingShape now allowed
  *  - static Mesh (mass=0) should work
  *
@@ -42,6 +45,10 @@
 
 //#include <xercesc/dom/DOMNode.hpp>
 #include <ode_robots/abstractobstacle.h>
+#include "XercescForwardDecl.h"
+
+
+
 
 class XMLParserEngine;
 namespace lpzrobots {
@@ -60,9 +67,7 @@ namespace lpzrobots {
   class OdeHandle;
   class OsgHandle;
 }
-namespace xercesc_3_1 {
-  class DOMNode;
-}
+
 
 /**
  * Factory which generates a lpzRobots::Primitive from a xercesc::DOMNode holding all
@@ -84,7 +89,7 @@ class XMLPrimitiveFactory {
      * @return A Primitive described by the given DOMNode
      * @see lpzrobots::Primitive
      */
-    lpzrobots::Primitive* createPrimitive(xercesc_3_1::DOMNode* primitiveNode);
+    lpzrobots::Primitive* createPrimitive(XERCESC::DOMNode* primitiveNode);
 
     /**
      *
@@ -92,7 +97,7 @@ class XMLPrimitiveFactory {
      * @return A Box described by the given DOMNode
      * @see lpzrobots::Box
      */
-    lpzrobots::Box* createBox(xercesc_3_1::DOMNode* boxNode);
+    lpzrobots::Box* createBox(XERCESC::DOMNode* boxNode);
 
     /**
      *
@@ -100,7 +105,7 @@ class XMLPrimitiveFactory {
      * @return A Capsule described by the given DOMNode
      * @see lpzrobots::Capsule
      */
-    lpzrobots::Capsule* createCapsule(xercesc_3_1::DOMNode* capsuleNode);
+    lpzrobots::Capsule* createCapsule(XERCESC::DOMNode* capsuleNode);
 
     /**
      *
@@ -108,7 +113,7 @@ class XMLPrimitiveFactory {
      * @return A Cylinder described by the given DOMNode
      * @see lpzrobots::Cylinder
      */
-    lpzrobots::Cylinder* createCylinder(xercesc_3_1::DOMNode* cylinderNode);
+    lpzrobots::Cylinder* createCylinder(XERCESC::DOMNode* cylinderNode);
 
     /**
      *
@@ -116,7 +121,7 @@ class XMLPrimitiveFactory {
      * @return A DummyPrimitive described by the given DOMNode
      * @see lpzrobots::DummyPrimitive
      */
-    lpzrobots::DummyPrimitive* createDummyPrimitive(xercesc_3_1::DOMNode* dummyPrimitiveNode);
+    lpzrobots::DummyPrimitive* createDummyPrimitive(XERCESC::DOMNode* dummyPrimitiveNode);
 
     /**
      *
@@ -124,7 +129,7 @@ class XMLPrimitiveFactory {
      * @return A Mesh described by the given DOMNode
      * @see lpzrobots::Mesh
      */
-    lpzrobots::Mesh* createMesh(xercesc_3_1::DOMNode* meshNode);
+    lpzrobots::Mesh* createMesh(XERCESC::DOMNode* meshNode);
 
     /**
      *
@@ -132,7 +137,7 @@ class XMLPrimitiveFactory {
      * @return A Plane described by the given DOMNode
      * @see lpzrobots::Plane
      */
-    lpzrobots::Plane* createPlane(xercesc_3_1::DOMNode* planeNode);
+    lpzrobots::Plane* createPlane(XERCESC::DOMNode* planeNode);
 
     /**
      *
@@ -140,7 +145,7 @@ class XMLPrimitiveFactory {
      * @return A Ray described by the given DOMNode
      * @see lpzrobots::Ray
      */
-    lpzrobots::Ray* createRay(xercesc_3_1::DOMNode* rayNode);
+    lpzrobots::Ray* createRay(XERCESC::DOMNode* rayNode);
 
     /**
      *
@@ -148,7 +153,7 @@ class XMLPrimitiveFactory {
      * @return A Sphere described by the given DOMNode
      * @see lpzrobots::Sphere
      */
-    lpzrobots::Sphere* createSphere(xercesc_3_1::DOMNode* sphereNode);
+    lpzrobots::Sphere* createSphere(XERCESC::DOMNode* sphereNode);
 
     /**
      *
@@ -156,7 +161,7 @@ class XMLPrimitiveFactory {
      * @return A Transform described by the given DOMNode
      * @see lpzrobots::Transform
      */
-    lpzrobots::Transform* createTransform(xercesc_3_1::DOMNode* transformNode);
+    lpzrobots::Transform* createTransform(XERCESC::DOMNode* transformNode);
 
     /**
      *
@@ -164,9 +169,9 @@ class XMLPrimitiveFactory {
      * @return A HeightField described by the given DOMNode
      * @see lpzrobots::HeightField
      */
-    lpzrobots::HeightField* createHeightField(xercesc_3_1::DOMNode* heightFieldNode);
+    lpzrobots::HeightField* createHeightField(XERCESC::DOMNode* heightFieldNode);
 
-    static void setMaterial(const xercesc_3_1::DOMNode* node, lpzrobots::Primitive* primitive);
+    static void setMaterial(const XERCESC::DOMNode* node, lpzrobots::Primitive* primitive);
 
   private:
     XMLParserEngine* engine;
@@ -186,8 +191,8 @@ class XMLPrimitiveFactory {
      * because the texture is made to have the size 1.
      * @param node parent node which contains the textureNode
      */
-    static void setTextureIfPresent(xercesc_3_1::DOMNode* node, lpzrobots::Primitive* primitive);
-    static char getPrimitiveMode(xercesc_3_1::DOMNode* node);
+    static void setTextureIfPresent(XERCESC::DOMNode* node, lpzrobots::Primitive* primitive);
+    static char getPrimitiveMode(XERCESC::DOMNode* node);
 };
 
 #endif /* __XMLPRIMITIVEFACTORY_H_ */

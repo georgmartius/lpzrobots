@@ -516,8 +516,8 @@
 	<xs:complexType name="BoxType">
 		<xs:complexContent>
 			<xs:extension base="PrimitiveType">
-				<xs:attribute name="Width" type="xs:float" use="required"/>
-				<xs:attribute name="Length" type="xs:float" use="required"/>
+                <xs:attribute name="Length" type="xs:float" use="required" />
+                <xs:attribute name="Width" type="xs:float" use="required" />
 				<xs:attribute name="Height" type="xs:float" use="required"/>
 			</xs:extension>
 		</xs:complexContent>

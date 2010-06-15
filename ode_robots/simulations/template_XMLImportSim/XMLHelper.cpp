@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2010-03-12 09:11:58  guettler
+ *  Revision 1.4  2010-06-15 15:02:19  guettler
+ *  using now "XercescForwardDecl.h" to avoid namespace problems (3_0, 3_1)
+ *
+ *  Revision 1.3  2010/03/12 09:11:58  guettler
  *  debug cout color improved
  *
  *  Revision 1.2  2010/03/08 07:20:00  guettler
@@ -53,7 +56,7 @@
 
 #include <ode_robots/mathutils.h>
 
-using namespace xercesc_3_1;
+using namespace XERCESC;
 using namespace std;
 using namespace osg;
 using namespace lpzrobots;

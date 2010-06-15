@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2010-03-10 13:54:59  guettler
+ *  Revision 1.4  2010-06-15 15:02:19  guettler
+ *  using now "XercescForwardDecl.h" to avoid namespace problems (3_0, 3_1)
+ *
+ *  Revision 1.3  2010/03/10 13:54:59  guettler
  *  further developments for xmlimport
  *
  *  Revision 1.2  2010/03/08 07:20:00  guettler
@@ -41,16 +44,15 @@
 #ifndef __XMLHELPER_H_
 #define __XMLHELPER_H_
 
-#include <xercesc/util/XercesDefs.hpp>
+#include "XercescForwardDecl.h"
 #include <osg/Vec3>
 #include <osg/Matrix>
 #include <ode_robots/color.h>
 
 #include <iostream>
 
-namespace xercesc_3_1 {
-  class DOMNode;
-}
+
+
 
 /**
  *  This is a class that helps to trancode char* and string to XMLCh and back.
@@ -78,10 +80,10 @@ private :
 
 class XMLHelper {
   public:
-    static const std::string getNodeType(const xercesc_3_1::DOMNode* node);
+    static const std::string getNodeType(const XERCESC::DOMNode* node);
 
 
-    static const bool matchesName(const xercesc_3_1::DOMNode* childNode, const std::string childNodeName);
+    static const bool matchesName(const XERCESC::DOMNode* childNode, const std::string childNodeName);
 
     /**
      * Returns the value of the node if it can be parsed into double
@@ -90,7 +92,7 @@ class XMLHelper {
      * @param defaultValue the defaultValue if nodeValue cannot be read
      * @return the value of the node
      */
-    static std::string getNodeValueAsString(const xercesc_3_1::DOMNode* node, const std::string defaultValue = "");
+    static std::string getNodeValueAsString(const XERCESC::DOMNode* node, const std::string defaultValue = "");
 
     // implementation note: Yes I could have used a template function, but...who cares ;)
     /**
@@ -101,8 +103,8 @@ class XMLHelper {
      * @param defaultValue the defaultValue if nodeValue cannot be read
      * @return the value of the node
      */
-    static std::string getChildNodeValueAsString(const xercesc_3_1::DOMNode* node, const std::string childNodeName, const std::string childValue, const std::string defaultValue = "");
-    static std::string getNodeAttAsString(const xercesc_3_1::DOMNode* node, const std::string value, const std::string defaultValue = "");
+    static std::string getChildNodeValueAsString(const XERCESC::DOMNode* node, const std::string childNodeName, const std::string childValue, const std::string defaultValue = "");
+    static std::string getNodeAttAsString(const XERCESC::DOMNode* node, const std::string value, const std::string defaultValue = "");
 
     /**
      * Returns the value of the node if it can be parsed into double
@@ -111,8 +113,8 @@ class XMLHelper {
      * @param defaultValue the defaultValue if nodeValue cannot be read
      * @return the value of the node
      */
-    static double getNodeValue(const xercesc_3_1::DOMNode* node, const double defaultValue = 0.0);
-    static double getNodeAtt(const xercesc_3_1::DOMNode* node,  const std::string value, const double defaultValue = 0.0);
+    static double getNodeValue(const XERCESC::DOMNode* node, const double defaultValue = 0.0);
+    static double getNodeAtt(const XERCESC::DOMNode* node,  const std::string value, const double defaultValue = 0.0);
         /**
      * Returns the value of the childNode if it can be parsed into double
      * Returns defaultValue if parsing was not successful.
@@ -121,7 +123,7 @@ class XMLHelper {
      * @param defaultValue the defaultValue if nodeValue cannot be read
      * @return the value of the node
      */
-    static double getChildNodeValue(const xercesc_3_1::DOMNode* node, const std::string childNodeName, const std::string childValue, const double defaultValue = 0.0);
+    static double getChildNodeValue(const XERCESC::DOMNode* node, const std::string childNodeName, const std::string childValue, const double defaultValue = 0.0);
 
     /**
      * Returns the first childNode of the node with the given childNodeName.
@@ -129,7 +131,7 @@ class XMLHelper {
      * @param childNodeName the name of the childNode to get
      * @return the first childNode of the node with the given childNodeName, 0 if not found
      */
-    static const xercesc_3_1::DOMNode* getChildNode(const xercesc_3_1::DOMNode* node, const std::string childNodeName);
+    static const XERCESC::DOMNode* getChildNode(const XERCESC::DOMNode* node, const std::string childNodeName);
 
 
     /**
@@ -140,8 +142,8 @@ class XMLHelper {
      * @param node the parent node which contains the position node
      * @return the position vector (containing x,y,z)
      */
-    static const osg::Vec3 getPosition(const xercesc_3_1::DOMNode* node);
-    static const osg::Vec3 getViewPosition(const xercesc_3_1::DOMNode* node);
+    static const osg::Vec3 getPosition(const XERCESC::DOMNode* node);
+    static const osg::Vec3 getViewPosition(const XERCESC::DOMNode* node);
 
     /**
      * Returns the rotation information of the given (parent) node.
@@ -151,7 +153,7 @@ class XMLHelper {
      * @param node the parent node which contains the rotation node
      * @return the rotation vector (containing alpha, beta, gamma)
      */
-    static const osg::Vec3 getRotation(const xercesc_3_1::DOMNode* node);
+    static const osg::Vec3 getRotation(const XERCESC::DOMNode* node);
 
 
     /**
@@ -163,7 +165,7 @@ class XMLHelper {
      * @param node the parent node which contains the position and rotation node
      * @return the pose Matrix (containing translation and rotation)
      */
-    static const osg::Matrix getPose(const xercesc_3_1::DOMNode* node, double forcedScale = 0 );
+    static const osg::Matrix getPose(const XERCESC::DOMNode* node, double forcedScale = 0 );
 
     /**
      * Returns the color of the given node.
@@ -172,7 +174,7 @@ class XMLHelper {
      * @param node The node which contains the childNode color
      * @return The color of the node, if childNode color not available, return Color(255,255,255,0)
      */
-    static const lpzrobots::Color getColor(const xercesc_3_1::DOMNode* node);
+    static const lpzrobots::Color getColor(const XERCESC::DOMNode* node);
 
     /**
      * Returns the geometry information of the given (parent) node.
@@ -182,7 +184,7 @@ class XMLHelper {
      * @param node the parent node which contains the position node
      * @return the geometry vector (containing length,width,heigth)
      */
-    static const osg::Vec3 getGeometry(const xercesc_3_1::DOMNode* node);
+    static const osg::Vec3 getGeometry(const XERCESC::DOMNode* node);
 };
 
 #define X(str) XString(str).unicodeForm()
@@ -201,7 +203,7 @@ class XMLHelper {
  *   // access to childNode
  * }
  */
-#define  EACHCHILDNODE(parentNode, childNode) (xercesc_3_1::DOMNode* (childNode) = (parentNode)->getFirstChild(); (childNode) != 0; (childNode) = (childNode)->getNextSibling())
+#define  EACHCHILDNODE(parentNode, childNode) (XERCESC::DOMNode* (childNode) = (parentNode)->getFirstChild(); (childNode) != 0; (childNode) = (childNode)->getNextSibling())
 
 
 #endif // __XMLHELPER_

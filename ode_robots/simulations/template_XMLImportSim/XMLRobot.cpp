@@ -10,7 +10,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 
 using namespace std;
-using namespace xercesc_3_1;
+using namespace XERCESC;
 using namespace lpzrobots;
 
 XMLRobot::XMLRobot(DOMNode* robotNode, XMLParserEngine& xmlEngine, const string& name)
