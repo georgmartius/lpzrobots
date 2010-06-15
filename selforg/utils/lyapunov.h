@@ -29,39 +29,63 @@
 #ifndef __LYAPUNOV_H
 #define __LYAPUNOV_H
 
-#include "inspectable.h"
-
+#include "matrix.h"
+#include <tr1/unordered_map>
 
 /**
  *  Class for calculating lyapunov exponents          
  *   online, over several time horizons, from given Jacobi matrices 
 */
-class Lyapunov : public Inspectable {
+class Lyapunov {
 public:
   /// holds a matrix that is the result of a sliding window multiplication
   struct SlidingMatrix {
-    SlidingMatrix()
-      : startindex(0), endindex(0);
-    matrix::Matrix M;
-    int startindex;
-    int endindex;
+    /** @param dim dimension of the system (matrix is (dim x dim))
+	@param horizon for sliding window
+     */
+    SlidingMatrix(int dim, int horizon);
+    void step(int t, const matrix::Matrix* buffer, 
+	      const matrix::Matrix* invbuffer, int buffersize);
+    /** nominal size of sliding window 
+	(if <=0 then infinite and absolute value stands for the size so far) */
+    int horizon;    
+    matrix::Matrix M;   ///<  accumulated Matrix
+    matrix::Matrix Exp; ///< Lyapunov exponents
   };
+  
+  typedef std::tr1::unordered_map< int, SlidingMatrix* > Horizons;
 
 public:
-  /** initializes with a single horizon.
-      @param horizon in steps. -1 means infinite
+  Lyapunov();
+  ~Lyapunov();
+
+  /** initializes with a set of horizons.
+      @param horizons for each horizon # in steps. 0 means infinite
+      @param dim # of dimensions (expect a (dim x dim) matrix in step)
    */
-  Lyapunov(int horizon = -1);
+  void init(const std::list<int>& horizons, int dim);
 
-  Lyapunov(const std::list<int>& horizons);
+  /** provides the current Jacobi matrix. 
+      Internally the sliding windows and the exponents are generated
+   */
+  void step(const matrix::Matrix& jacobi);
 
-private:
+  /** returns the lyapunov matrix at the given horizon 
+   */
+  const matrix::Matrix& getLyapunovMatrix(int horizon);
+
+  /** returns the lyapunov exponents at the given horizon
+   */
+  const matrix::Matrix& getLyapunovExp(int horizon);
+
+protected:
   matrix::Matrix* buffer;
+  matrix::Matrix* invbuffer; // buffer for inverses
   int buffersize;
-    
+  long int t;
   
-  std::list<int> horizons;
-}
+  Horizons horizons;
+};
 
 
 #endif
