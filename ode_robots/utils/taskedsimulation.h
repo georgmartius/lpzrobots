@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.6  2010-05-03 10:51:41  guettler
+ *  Revision 1.7  2010-06-28 14:44:33  martius
+ *  usage info can also be provided by derived simulations
+ *  processCmdLine returns a boolean
+ *
+ *  Revision 1.6  2010/05/03 10:51:41  guettler
  *  noGraphics is set after init of OsgConfig
  *
  *  Revision 1.5  2010/03/16 15:48:02  martius
@@ -149,8 +153,8 @@ namespace lpzrobots {
        * Overwrite the usage of threads for ODE and OSG.
        * @see Simulation::processCmdLine(int arg, char** argv)
        */
-      void processCmdLine(int argc, char** argv) {
-        Simulation::processCmdLine(argc, argv);
+      bool processCmdLine(int argc, char** argv) {
+        bool rv = Simulation::processCmdLine(argc, argv);
         useOdeThread = false;
         useOsgThread = false;
         useQMPThreads = false;
@@ -160,6 +164,7 @@ namespace lpzrobots {
           // inform osg relevant stuff that no graphics is used
           osgHandle.cfg->noGraphics=noGraphics;
         }
+        return rv;
       }
 
       /**
