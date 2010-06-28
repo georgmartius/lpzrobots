@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.128  2010-06-03 13:40:59  guettler
+ *   Revision 1.129  2010-06-28 12:51:39  martius
+ *   osgviewer catches sigint, so we have to initialize our cmd_handler routine again
+ *
+ *   Revision 1.128  2010/06/03 13:40:59  guettler
  *   - added method setCameraMode(modenumber): 1 - static, 2 - follow, 3 - TV, 4 - race
  *   - added method setWatchingAgent(agent)
  *
@@ -1000,6 +1003,8 @@ namespace lpzrobots {
 
       // create the windows and run the threads.
       viewer->realize();
+      // we have to set our SIGINT handler again because the OSG overwrites it! Thanks!
+      cmd_handler_init();
 
       // set title
       osgViewer::Viewer::Windows windows;
