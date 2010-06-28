@@ -26,7 +26,10 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-09-16 14:40:06  martius
+ *   Revision 1.6  2010-06-28 14:52:52  martius
+ *   ctrl+c is hidden
+ *
+ *   Revision 1.5  2008/09/16 14:40:06  martius
  *   made some char* constant to avoid cast error
  *
  *   Revision 1.4  2007/08/29 15:18:19  martius
@@ -129,7 +132,8 @@ bool handleConsole(GlobalData& globalData){
   bool rv = true;
 
   //  initialize_readline ();       /* Bind our completer. */
-  std::cout << "Type: ? for help or press TAB\n";
+  // move to beginning of line (clear the ^C)
+  std::cout << "\033[1G" << "Type: ? for help or press TAB\n";
   line = readline ("> ");
   
   if (!line)
