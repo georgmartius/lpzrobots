@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.129  2010-06-28 12:51:39  martius
+ *   Revision 1.130  2010-06-28 14:42:13  martius
+ *   usage changed
+ *
+ *   Revision 1.129  2010/06/28 12:51:39  martius
  *   osgviewer catches sigint, so we have to initialize our cmd_handler routine again
  *
  *   Revision 1.128  2010/06/03 13:40:59  guettler
@@ -838,7 +841,8 @@ namespace lpzrobots {
       }
     }
     // process cmdline (possibly overwrite values from cfg file
-    processCmdLine(argc, argv);    
+    if(!processCmdLine(argc, argv)) return false;    
+
     osgHandle.setup(windowWidth, windowHeight);
 
     if(!noGraphics) {
@@ -847,18 +851,18 @@ namespace lpzrobots {
       // use an ArgumentParser object to manage the program arguments.
       arguments = new ArgumentParser(&argc, argv);
 
-      // set up the usage document, in case we need to print out how to use this program.
-      arguments->getApplicationUsage()->setApplicationName(arguments->getApplicationName() );
-      arguments->getApplicationUsage()->setDescription(
-	       "Lpzrobots Simulator, <robot.informatik.uni-leipzig.de>");
-      arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName() );
-      arguments->getApplicationUsage()->addCommandLineOption(
-	       "-h or --help", "Display this information");
-      // if user request help write it out to cout.
-      if (arguments->read("-h") || arguments->read("--help")) {
-	arguments->getApplicationUsage()->write(std::cout);
-	return false;
-      }
+//       // set up the usage document, in case we need to print out how to use this program.
+//       arguments->getApplicationUsage()->setApplicationName(arguments->getApplicationName() );
+//       arguments->getApplicationUsage()->setDescription(
+// 	       "Lpzrobots Simulator, <robot.informatik.uni-leipzig.de>");
+//       arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName() );
+//       arguments->getApplicationUsage()->addCommandLineOption(
+// 	       "-h or --help", "Display this information");
+//       // if user request help write it out to cout.
+//       if (arguments->read("-h") || arguments->read("--help")) {
+// 	arguments->getApplicationUsage()->write(std::cout);
+// 	return false;
+//       }
       // any option left unread are converted into errors to write out later.
       //    arguments->reportRemainingOptionsAsUnrecognized();
 
@@ -966,8 +970,10 @@ namespace lpzrobots {
   bool Simulation::run(int argc, char** argv) {
 
 
-    if(!init(argc, argv))
+    if(!init(argc, argv)){
+      tidyUp(globalData);
       return false;
+    }
 
     if (!inTaskedMode) {
       initializeConsole();
@@ -1515,9 +1521,12 @@ namespace lpzrobots {
   }
 
 
-  void Simulation::processCmdLine(int argc, char** argv) {
-    if(contains(argv, argc, "-h") || contains(argv, argc, "--help"))
-      usage(argv[0]);
+  bool Simulation::processCmdLine(int argc, char** argv) {
+    if(contains(argv, argc, "-h") || contains(argv, argc, "--help")){
+      main_usage(argv[0]);
+      usage();
+      return false;
+    }
     // guilogger-loading stuff here
     // start with online windows
     int index = contains(argv, argc, "-g");
@@ -1650,7 +1659,7 @@ namespace lpzrobots {
     if (contains(argv, argc, "-savecfg")) {
       storeOdeRobotsCFG();
     }
-
+    return true;
   }
 
 
@@ -1819,10 +1828,10 @@ namespace lpzrobots {
   }
 
 
-  void Simulation::usage(const char* progname) {
+  void Simulation::main_usage(const char* progname) {
     printf("Usage: %s [-g [interval]] [-f [interval] [ntst]] [-r seed] [-x WxH] [-fs] \n", progname);
     printf("\t\t [-pause] [-shadow N] [-noshadow] [-drawboundings] [-simtime [min]] [-threads N]\n");
-    printf("\t\t [-odethread] [-osgthread] [-savecfg]\n");
+    printf("\t\t [-odethread] [-osgthread] [-savecfg] [-h|--help]\n");
     printf("\t-g interval\tuse guilogger (default interval 1)\n");
     printf("\t-f interval ntst\twrite logging file (default interval 5), if ntst (no_time_stamp)\n");
     printf("\t\t\tis given logfile names are generated without timestamp\n");
@@ -1832,20 +1841,20 @@ namespace lpzrobots {
     printf("\t-x WxH\t\t* window size of width(W) x height(H) is used (default 640x480)\n");
     printf("\t-fs\t\tfullscreen mode\n");
     printf("\t-pause \t\tstart in pause mode\n");
-    printf("\t-nographics \t\tstart without any graphics\n");
+    printf("\t-nographics \tstart without any graphics\n");
     printf("\t-noshadow \tdisables shadows and shaders (same as -shadow 0)\n");
-    printf("\t-shadow [0..5]] \t* sets the type of the shadow to be used\n");
+    printf("\t-shadow [0..5]\t* sets the type of the shadow to be used\n");
     printf("\t\t\t0: no shadow, 1: ShadowVolume, 2: ShadowTextue, 3: ParallelSplitShadowMap\n");
     printf("\t\t\t4: SoftShadowMap, 5: ShadowMap (default)\n");
-    printf("\t-shadowsize size \t* sets the size of the shadow texture (default 2048)\n");
+    printf("\t-shadowsize N\t* sets the size of the shadow texture (default 2048)\n");
     printf("\t-drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
     printf("\t-simtime min\tlimited simulation time in minutes\n");
     printf("\t-savecfg\tsafe the configuration file with the values given by the cmd line\n");
     printf("\t-threads N\tnumber of threads to use (0: number of processors (default))\n");
     printf("\t-odethread\t* if given the ODE runs in its own thread. -> Sensors are delayed by 1\n");
     printf("\t-osgthread\t* if given the OSG runs in its own thread (recommended)\n");
+    printf("\t-h --help\tshow this help\n");
     printf("\t* this parameter can be set in the configuration file ~/.lpzrobots/ode_robots.cfg\n");
-    printf("More parameter concerning OSG graphics will follow...\n");
   }
 
   void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view) {
