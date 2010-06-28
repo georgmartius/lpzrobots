@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-01-26 09:53:06  martius
+ *   Revision 1.13  2010-06-28 14:47:44  martius
+ *   internal collisions are now switched on again
+ *   joints do not ignore collision of connected pairs here
+ *   frictionGround effects substances->works again
+ *
+ *   Revision 1.12  2010/01/26 09:53:06  martius
  *   changed to new collision model
  *
  *   Revision 1.11  2007/11/07 13:21:16  martius
@@ -115,16 +120,11 @@ namespace lpzrobots {
     */
     virtual void place(const osg::Matrix& pose);
 
-    /** checks for internal collisions and treats them. 
-     *  In case of a treatment return true (collision will be ignored by other objects and the default routine)
-     *  else false (collision is passed to other objects and (if not treated) to the default routine).
-     */
-    //  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
     */
-    virtual void doInternalStuff(GlobalData& globalData);
+    //    virtual void doInternalStuff(GlobalData& globalData);
   
 
     /** returns actual sensorvalues
@@ -164,7 +164,7 @@ namespace lpzrobots {
 
   protected:
     /** the main object of the robot, which is used for position and speed tracking */
-    virtual Primitive* getMainPrimitive() const { return object[4] /*(center)*/; }
+    virtual Primitive* getMainPrimitive() const { return object[(NUM-1)/2] /*(center)*/; }
     //virtual Primitive* getMainPrimitive() const { return object[NUM-1] /*(head element)*/; }
 
 
@@ -178,8 +178,6 @@ namespace lpzrobots {
     /** destroys robot and space
      */
     virtual void destroy();
-
-    //    static void mycallback(void *data, dGeomID o1, dGeomID o2);
        
     bool created;      // true if robot was created
 

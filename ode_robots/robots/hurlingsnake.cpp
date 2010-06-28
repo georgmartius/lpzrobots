@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2010-01-26 09:53:06  martius
+ *   Revision 1.22  2010-06-28 14:47:50  martius
+ *   internal collisions are now switched on again
+ *   joints do not ignore collision of connected pairs here
+ *   frictionGround effects substances->works again
+ *
+ *   Revision 1.21  2010/01/26 09:53:06  martius
  *   changed to new collision model
  *
  *   Revision 1.20  2009/03/13 09:19:53  martius
@@ -188,10 +193,10 @@ namespace lpzrobots {
     create(p2);    
   };
 
-  void HurlingSnake::doInternalStuff(GlobalData& global){
-    // mycallback is called for internal collisions! Only once per step
-    //    dSpaceCollide(odeHandle.space, this, mycallback);
-  }
+//  void HurlingSnake::doInternalStuff(GlobalData& global){
+//     // mycallback is called for internal collisions! Only once per step
+//     dSpaceCollide(odeHandle.space, this, mycallback);
+//   }
 
 //   void HurlingSnake::mycallback(void *data, dGeomID o1, dGeomID o2){
 //     // internal collisions
@@ -215,7 +220,7 @@ namespace lpzrobots {
 //       dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
 //     }
 //   }
-//   bool HurlingSnake::collisionCallback(void *data, dGeomID o1, dGeomID o2){
+  // bool HurlingSnake::collisionCallback(void *data, dGeomID o1, dGeomID o2){
 //     //checks if one of the collision objects is part of the robot
 //     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space){
 
@@ -243,7 +248,6 @@ namespace lpzrobots {
 //     }
 //     return false;
 //   }
-
   
 
   /** returns actual sensorvalues
@@ -310,8 +314,8 @@ namespace lpzrobots {
       destroy();
     }
     // create vehicle space and add it to parentspace
-    odeHandle.createNewSimpleSpace(parentspace,true);
-
+    odeHandle.createNewSimpleSpace(parentspace,false);
+    odeHandle.substance.roughness=frictionGround;
     for (int i=0; i<NUM; i++) {
       object[i] = new Sphere(RADIUS);      
       object[i]->setTexture("Images/wood.rgb");	      
@@ -328,8 +332,8 @@ namespace lpzrobots {
     for (int i=0; i<(NUM-1); i++) {
       Pos p1(object[i]->getPosition());
       Pos p2(object[i+1]->getPosition());
-      joint[i] = new BallJoint(object[i],object[i+1], (p1+p2)/2 );
-      joint[i]->init(odeHandle, osgHandle, true, RADIUS/10);
+      joint[i] = new BallJoint(object[i],object[i+1], (p1+p2)/2);
+      joint[i]->init(odeHandle, osgHandle, true, RADIUS/10, false);
     }
 
     created=true;
@@ -374,7 +378,13 @@ namespace lpzrobots {
   bool HurlingSnake::setParam(const paramkey& key, paramval val){
     if(key == "factorForce") factorForce=val;
     else if(key == "factorSensor") factorSensor=val; 
-    else if(key == "frictionGround") frictionGround=val; 
+    else if(key == "frictionGround") {
+      frictionGround=val;
+      // change substances      
+      for (int i=0; i<NUM; i++) {        
+        object[i]->substance.roughness=frictionGround;        
+      }
+    }
     else if(key == "place") {
       OdeRobot::place(Pos(0,0,3)) ; 
     }
