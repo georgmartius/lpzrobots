@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-09-11 15:24:01  martius
+ *   Revision 1.9  2010-06-28 14:44:04  martius
+ *   joints can also not ignore collisions
+ *
+ *   Revision 1.8  2008/09/11 15:24:01  martius
  *   motioncallback resurrected
  *   noContact substance
  *   use slider center of the connecting objects for slider drawing
@@ -124,9 +127,9 @@ namespace lpzrobots {
   }
 
   void Joint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		   bool withVisual, double visualSize){
+		   bool withVisual, double visualSize, bool ignoreColl){
     this->odeHandle = odeHandle;
-    if(part1->getGeom() && part2->getGeom())
+    if(ignoreColl && part1->getGeom() && part2->getGeom())
       this->odeHandle.addIgnoredPair(part1->getGeom(), part2->getGeom());
   }
   
@@ -188,8 +191,8 @@ namespace lpzrobots {
     /** initialises (and creates) the joint. 
     */
   void FixedJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual, double visualSize){
-    Joint::init(odeHandle, osgHandle, withVisual, visualSize);
+		      bool withVisual, double visualSize, bool ignoreColl){
+    Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);
     joint = dJointCreateFixed (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetFixed (joint);
@@ -216,8 +219,8 @@ namespace lpzrobots {
   }
 
   void HingeJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			 bool withVisual, double visualSize){
-    Joint::init(odeHandle, osgHandle, withVisual, visualSize);
+			 bool withVisual, double visualSize, bool ignoreColl){
+    Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);
     joint = dJointCreateHinge (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetHingeAnchor (joint, anchor.x(), anchor.y(), anchor.z());
@@ -280,8 +283,8 @@ namespace lpzrobots {
   }
 
   void Hinge2Joint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			 bool withVisual, double visualSize){
-    Joint::init(odeHandle, osgHandle, withVisual, visualSize);
+			 bool withVisual, double visualSize, bool ignoreColl){
+    Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);
     joint = dJointCreateHinge2 (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetHinge2Anchor (joint, anchor.x(), anchor.y(), anchor.z());
@@ -361,8 +364,8 @@ namespace lpzrobots {
   }
 
   void UniversalJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			 bool withVisual, double visualSize){
-    Joint::init(odeHandle, osgHandle, withVisual, visualSize);
+			 bool withVisual, double visualSize, bool ignoreColl){
+    Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);
     joint = dJointCreateUniversal (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetUniversalAnchor (joint, anchor.x(), anchor.y(), anchor.z());
@@ -443,8 +446,8 @@ namespace lpzrobots {
   }
 
   void BallJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		       bool withVisual, double visualSize){
-    Joint::init(odeHandle, osgHandle, withVisual, visualSize);
+		       bool withVisual, double visualSize, bool ignoreColl){
+    Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);
     joint = dJointCreateBall(odeHandle.world, 0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetBallAnchor (joint, anchor.x(), anchor.y(), anchor.z());
@@ -486,10 +489,10 @@ namespace lpzrobots {
   }
 
   void SliderJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			 bool withVisual, double visualSize){
+			 bool withVisual, double visualSize, bool ignoreColl){
     this->osgHandle= osgHandle;
     this->visualSize = visualSize;
-    Joint::init(odeHandle, osgHandle, withVisual, visualSize);
+    Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);
 
     joint = dJointCreateSlider (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 

@@ -23,7 +23,10 @@
  *  Joint wrapper to ba able to draw joints and abstract from ode details  *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-07-03 13:03:07  martius
+ *   Revision 1.8  2010-06-28 14:43:55  martius
+ *   joints can also not ignore collisions
+ *
+ *   Revision 1.7  2007/07/03 13:03:07  martius
  *   assert for parts
  *   getPartX also as non-Const
  *
@@ -110,11 +113,14 @@ namespace lpzrobots {
     virtual ~Joint();
     /** initialises (and creates) the joint. If visual is true then the joints is
 	also drawn. visualSize is the size of the visual representation.
-	Also member variable odeHandle should be set.
+        If ignoreColl is true then the pair of connected parts is ignored 
+        at collision handling.
+	The member variable odeHandle is set to the given handle.
 	(To be overloaded, but this init should be called always from children!)
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2);
+		      bool withVisual = true, double visualSize = 0.2, 
+                      bool ignoreColl = true);
     
     /// should syncronise the Ode stuff and the OSG notes (if any)
     virtual void update() = 0;
@@ -207,7 +213,8 @@ namespace lpzrobots {
     /** initialises (and creates) the joint. 
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2);
+		      bool withVisual = true, double visualSize = 0.2, 
+                      bool ignoreColl = true);
     
     virtual void update();    
     virtual void setParam(int parameter, double value);
@@ -231,7 +238,8 @@ namespace lpzrobots {
 	also drawn as a slim cylinder. visualSize is the length of the cylinder.
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2);
+		      bool withVisual = true, double visualSize = 0.2, 
+                      bool ignoreColl = true);
     
     virtual void update();    
 
@@ -258,7 +266,8 @@ namespace lpzrobots {
 	also drawn as a slim cylinder. visualSize is the length of the cylinder.
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2);
+		      bool withVisual = true, double visualSize = 0.2, 
+                      bool ignoreColl = true);
     
     virtual void update();    
 
@@ -289,7 +298,8 @@ namespace lpzrobots {
 	also drawn as a slim cylinder. visualSize is the length of the cylinder.
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2);
+		      bool withVisual = true, double visualSize = 0.2, 
+                      bool ignoreColl = true);
     
     virtual void update();    
 
@@ -321,7 +331,8 @@ namespace lpzrobots {
 	If visual is true then ball is drawn as a sphere with radius of visualSize.
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2);
+		      bool withVisual = true, double visualSize = 0.2, 
+                      bool ignoreColl = true);
     
     virtual void update();    
 
@@ -348,7 +359,8 @@ namespace lpzrobots {
 	for the length of the cylinder. The radius is visualSize/10
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.1);
+		      bool withVisual = true, double visualSize = 0.1, 
+                      bool ignoreColl = true);
     
     virtual void update();    
 
