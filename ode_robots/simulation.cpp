@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.130  2010-06-28 14:42:13  martius
+ *   Revision 1.131  2010-06-28 16:41:46  martius
+ *   mask for .lpzrobots corrected
+ *
+ *   Revision 1.130  2010/06/28 14:42:13  martius
  *   usage changed
  *
  *   Revision 1.129  2010/06/28 12:51:39  martius
@@ -835,7 +838,7 @@ namespace lpzrobots {
 	  // create directory
 	  char dir[1024];
 	  sprintf(dir,"%s/.lpzrobots",home);
-	  mkdir(dir,0x755);
+	  mkdir(dir, S_IREAD | S_IWRITE | S_IEXEC | S_IRGRP | S_IXGRP);
 	  storeOdeRobotsCFG();
 	}
       }
