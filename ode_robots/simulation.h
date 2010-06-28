@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.46  2010-06-03 13:40:59  guettler
+ *   Revision 1.47  2010-06-28 14:42:42  martius
+ *   usage info can also be provided by derived simulations
+ *
+ *   Revision 1.46  2010/06/03 13:40:59  guettler
  *   - added method setCameraMode(modenumber): 1 - static, 2 - follow, 3 - TV, 4 - race
  *   - added method setWatchingAgent(agent)
  *
@@ -345,7 +348,7 @@ namespace lpzrobots {
     /// end() is called at the end and should tidy up
     virtual void end(GlobalData& globalData);
     /** config() is called when the user presses Ctrl-C
-	@return false to exit program, true otherwiese
+	@return false to exit program, true otherwise
     */
     virtual bool config(GlobalData& globalData);
     /** is called if a key was pressed.
@@ -358,6 +361,10 @@ namespace lpzrobots {
     /** this can be used to describe the key bindings used by command()
      */
     virtual void bindingDescription(osg::ApplicationUsage & au) const {};
+
+    /** this can be used to print additional usage information (cmd-line options)
+     */
+    virtual void usage() const {};
 
     /** collCallback() can be used to overload the standart collision handling.
 	However it is called after the robots collision handling.
@@ -423,7 +430,8 @@ namespace lpzrobots {
     void tidyUp(GlobalData& globalData);
 
   protected:
-    virtual void processCmdLine(int argc, char** argv);
+    /// returns false if the program is to exit
+    virtual bool processCmdLine(int argc, char** argv); 
     void resetSyncTimer();
     long timeOfDayinMS();
 
@@ -435,7 +443,7 @@ namespace lpzrobots {
     static void cmd_end_input();
 
     // Commandline interface stuff
-    static void usage(const char* progname);
+    static void main_usage(const char* progname);
 
     bool storeOdeRobotsCFG();
 
