@@ -10,22 +10,37 @@
 #include <selforg/abstractrobot.h>
 // #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
+#include <selforg/homeokinesis.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/feedbackwiring.h>
 
 #include "cmdline.h"
+#include "console.h"
+#include "globaldata.h"
 
 using namespace std;
 
+// some evil global variables!
 bool stop=0;
+list<PlotOption> plotoptions;
+int dof=1;
+int numRobots=2;
 
+
+/**
+   Robot that is directly coupled to another robot.
+   Sensor values are the motor actions of the connected robot.
+   Note: this connection does not need to be mutual, it can also be
+    via several other robots (each robot only cares about its sensor values)   
+*/
 class MyRobot : public AbstractRobot {
 public:
   MyRobot(const string& name, int dof)
     : AbstractRobot(name, "$Id$") {
     prevRobot = 0;
-    myparam=0;
+    // This is how to add configurable parameters
+    addParameterDef("myparam", &myparam,0, "my parameter description"); 
     degrees  = dof;
     x = new double[degrees];
     y = new double[degrees];
@@ -72,7 +87,8 @@ public:
 
   /** returns position of the object
       @return vector of position (x,y,z) */
-  virtual Position getPosition() const { return Position(x[0],0,0); }
+  virtual Position getPosition() const { 
+    return Position(x[0], degrees > 1 ? x[1]: 0, degrees > 2 ? x[2]: 0); }
 
   /** returns linear speed vector of the object
       @return vector  (vx,vy,vz)
@@ -96,23 +112,6 @@ public:
       prevRobot=otherRobot;
   }
 
-  virtual paramval getParam(const paramkey& key) const{
-    if(key == "myparam") return myparam; 
-    else return Configurable::getParam(key);
-  }
-
-  virtual bool setParam(const paramkey& key, paramval val){
-    if(key == "myparam") myparam = val; 
-    else return Configurable::setParam(key, val); 
-    return true;
-  }
-
-  virtual paramlist getParamList() const {
-    paramlist list;
-    list += pair<paramkey, paramval> (string("myparam"), myparam);
-    return list;
-  }
-
 private:
   int degrees;
 
@@ -127,17 +126,13 @@ private:
 }; 
 
 
-void onTermination(){
-  stop=1;
-}
-
-void printRobots(list<MyRobot*> robots){
+void printRobots(vector<Agent*> robots){
   char line[81];
   memset(line,'_', sizeof(char)*80);
   line[80]=0;
   int k=0;
-  FOREACH(list<MyRobot*>, robots, i) {    
-    double x = (*i)->getPosition().x;
+  FOREACH(vector<Agent*>, robots, i) {    
+    double x = (*i)->getRobot()->getPosition().x;
     line[int((x+1)/2.0*80.0)]='0'+ k;
     k++;
   }
@@ -155,81 +150,104 @@ int contains(char **list, int len,  const char *str){
   return 0;
 }
 
+// this is our simulation. We can have configurable variables here, which is handy
+class MySim : public Configurable {
+public:
+  MySim(){
+    addParameterDef("noise", &noise, 0.05, "strength of additive noise");
+    addParameterDef("wait",  &wait,  20, "wait in ms");
+  }
+  
+  void run(GlobalData& globaldata){
+    printf("\nPress Ctrl-c to invoke parameter input shell\n");
+    // add the simulation to the configuration list, so that we can change the parameters
+    globaldata.configs.push_back(this); 
+
+    for(int i=0; i<numRobots; i++){
+      //      AbstractController* controller = new Homeokinesis();
+      //AbstractController* controller = new SineController();
+      AbstractController* controller = new InvertMotorNStep();
+      controller->setParam("s4delay",1.0);
+      controller->setParam("s4avg",2.0);  
+      controller->setParam("factorB",0.1);  
+  
+      MyRobot* robot         = new MyRobot("Robot" + itos(i), dof);
+      Agent* agent           = new Agent(i<2 ? plotoptions : list<PlotOption>());
+      AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));  
+      //    AbstractWiring* wiring = new FeedbackWiring(new ColorUniformNoise(0.1),
+      //						FeedbackWiring::All,0.7);  
+      agent->init(controller, robot, wiring);
+      // if you like, you can keep track of the robot use the following line. 
+      // agent->setTrackOptions(TrackRobot(true,false,false, false,"mutual"));
+  
+      globaldata.configs.push_back(robot);
+      globaldata.configs.push_back(controller);
+      globaldata.agents.push_back(agent);
+    }
+  
+    showParams(globaldata.configs);
+  
+    // connect robots to each other (cyclic)
+    FOREACH (vector<Agent*>, globaldata.agents, i){
+      vector<Agent*>::iterator j = i;
+      j++;    
+      if(j == globaldata.agents.end())
+        j=globaldata.agents.begin();
+      // the dynamic casts are required to convert the AbstactRobot* to MyRobot*
+      MyRobot* r1 = dynamic_cast<MyRobot*>((*j)->getRobot());
+      MyRobot* r2 = dynamic_cast<MyRobot*>((*i)->getRobot());
+      assert(r1!=0 && r2!=0); // make sure the conversion succeeded
+      r1->setPrevRobot(r2);    
+    }
+
+    initializeConsole();
+    cmd_handler_init();
+    while(!stop){
+      usleep(wait*1000);
+      FOREACH (vector<Agent*>, globaldata.agents, i){
+        (*i)->step(noise); 
+      }
+      if(control_c_pressed()){
+        if(!handleConsole(globaldata)){
+          stop=1;
+        }
+        cmd_end_input();
+      }
+      printRobots(globaldata.agents);        
+    };
+
+    FOREACH (vector<Agent*>, globaldata.agents, i){
+      delete (*i); 
+    }
+    closeConsole();
+    fprintf(stderr,"terminating\n");
+    // should clean up but what costs the world    
+  }
+
+  double noise;
+  int wait;
+};
+
+
 int main(int argc, char** argv){
-  ConfigList configs;
-  list<PlotOption> plotoptions;
-  int dof=1;
+  GlobalData globaldata;
   int index;
 
   if(contains(argv,argc,"-g")!=0) plotoptions.push_back(PlotOption(GuiLogger));
   if(contains(argv,argc,"-f")!=0) plotoptions.push_back(PlotOption(File));
-  if(contains(argv,argc,"-h")!=0) {
-    printf("Usage: %s [-g] [-f]\n",argv[0]);
-    printf("\t-g\tstart guilogger\n\t-f\twrite logfile\n\t-h\tdisplay this help\n");
-    exit(0);
-  } 
   if((index=contains(argv,argc,"-d"))!=0){
     if(index<argc) dof=atoi(argv[index]);
   }
-    
-      
-  printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
-
-  list<MyRobot*> robots;
-  list<Agent*> agents;
-  
-  for(int i=0; i<2; i++){
-    AbstractController* controller = new InvertMotorNStep();
-    //AbstractController* controller = new SineController();
-    controller->setParam("s4delay",1.0);
-    controller->setParam("s4avg",2.0);  
-    controller->setParam("adaptrate",0.0);  
-    controller->setParam("factorB",0.01);  
-  
-    MyRobot* robot         = new MyRobot("Robot" + itos(i), dof);
-    //    Agent* agent           = new Agent(i==0 ? plotoptions : list<PlotOption>());
-    Agent* agent           = new Agent(i<2 ? plotoptions : list<PlotOption>());
-    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));  
-    //    AbstractWiring* wiring = new FeedbackWiring(new ColorUniformNoise(0.1),
-    //						FeedbackWiring::All,0.7);  
-    agent->init(controller, robot, wiring);
-    // if you like, you can keep track of the robot with the following line. 
-    //  this assumes that you robot returns its position, speed and orientation. 
-    // agent->setTrackOptions(TrackRobot(true,false,false, false,"interagetiontest"));
-  
-    configs.push_back(robot);
-    configs.push_back(controller);
-    robots.push_back(robot);
-    agents.push_back(agent);
+  if((index=contains(argv,argc,"-n"))!=0){
+    if(index<argc) numRobots=atoi(argv[index]);
   }
-  
-  showParams(configs);
-  
-  // connect robots to each other
-  FOREACH (list<MyRobot*>, robots, i){
-    list<MyRobot*>::iterator j = i;
-    j++;
-    if(j == robots.end())
-      robots.front()->setPrevRobot(*i);
-    else
-      (*j)->setPrevRobot(*i);    
-  }
-
-  cmd_handler_init();
-  while(!stop){
-    usleep(1000);
-    FOREACH (list<Agent*>, agents, i){
-      (*i)->step(0.05);
-    }
-    if(control_c_pressed()){
-      cmd_begin_input();
-      changeParams(configs, onTermination);
-      cmd_end_input();
-    }
-    printRobots(robots);        
-  };
-  
-  fprintf(stderr,"terminating\n");
-  // should clean up but what costs the world
+  if(contains(argv,argc,"-h")!=0) {
+    printf("Usage: %s [-d DOF] [-n NUM] [-g] [-f]\n",argv[0]);
+    printf("\t-d DOF\tDegrees of freedom (Def: 1)\n\t-n NUM\tNumber of robots (Def: 2)\n");
+           printf("\t-g\tstart guilogger\n\t-f\twrite logfile\n\t-h\tdisplay this help\n");
+    exit(0);
+  } 
+  MySim sim;
+  sim.run(globaldata);
   return 0;
 }
