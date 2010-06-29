@@ -18,24 +18,27 @@
 
 using namespace std;
 
-//#define FOREACH(colltype, coll, it) for( colltype::iterator it = (coll).begin(); it!= (coll).end(); it++ )
-
 bool stop=0;
 
+/**
+   The robot lives on a 1-D space follows discrete physics, with mass and friction.
+   The sensor values are the own speed and the distance to the other robots
+
+*/
 class MyRobot : public AbstractRobot {
 public:
   MyRobot(const string& name, const Position& initial_pos, double _mass = 1.0)
     : AbstractRobot(name, "$Id$") {
-    myparam=0;
     motornumber  = 1;
     sensornumber = 2;
     x = new double[sensornumber];
     y = new double[motornumber];
     pos = initial_pos;
     speed = Position(0,0,0);
-    mass  = _mass;
     t = 0.01;
-    mu = 0.7;
+    // This is how to add configurable parameters
+    addParameterDef("mu",&mu, 0.7, "friction");
+    addParameterDef("mass",&mass, _mass, "mass of the robot");
   }
 
   ~MyRobot(){
@@ -93,7 +96,7 @@ public:
       len++;
       if(len>=sensornumber) return;
     }
-    //  other agents sensor
+    //  sense other agents (distance)
     for(list<const MyRobot*>::iterator i = otherRobots.begin();
         i!= otherRobots.end(); i++){
       Position opos = (*i)->getPosition();
@@ -137,24 +140,6 @@ public:
       otherRobots.push_back(otherRobot);
   }
 
-  virtual paramval getParam(const paramkey& key) const{
-    if(key == "myparam") return myparam; 
-    else return Configurable::getParam(key);
-  }
-
-  virtual bool setParam(const paramkey& key, paramval val){
-    cerr << "huhu";
-    if(key == "myparam") myparam = val; 
-    else return Configurable::setParam(key, val); 
-    return true;
-  }
-
-  virtual paramlist getParamList() const {
-    paramlist list;
-    list += pair<paramkey, paramval> (string("myparam"), myparam);
-    return list;
-  }
-
 private:
   int motornumber;
   int sensornumber;
@@ -168,18 +153,9 @@ private:
   Position pos;
   Position speed;
 
-  list<const MyRobot*> otherRobots;
-  
-  paramval myparam;
-
-
-  
+  list<const MyRobot*> otherRobots;    
 }; 
 
-
-void onTermination(){
-  stop=1;
-}
 
 void printRobots(list<MyRobot*> robots){
   char line[81];
@@ -188,7 +164,7 @@ void printRobots(list<MyRobot*> robots){
   int k=0;
   FOREACH(list<MyRobot*>, robots, i) {    
     double x = (*i)->getPosition().x;
-    line[int((x+1)/2*80)]='0'+ k;
+    line[int((x+1)/2.0*80.0)]='0'+ k;
     k++;
   }
   
@@ -220,7 +196,7 @@ int main(int argc, char** argv){
     exit(0);
   }
   
-  printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
+  printf("\nPress Ctrl-c to invoke parameter input shell\n");
 
   list<MyRobot*> robots;
   
@@ -235,11 +211,9 @@ int main(int argc, char** argv){
     Agent* agent           = new Agent(i==0 ? plotoptions : list<PlotOption>());
     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));  
     agent->init(controller, robot, wiring);
-    // if you like, you can keep track of the robot with the following line. 
-    //  this assumes that you robot returns its position, speed and orientation. 
-    agent->setTrackOptions(TrackRobot(true,false,false, false,"interactiontest"));
- 
- 
+    // if you like, you can keep track of the robot use the following line. 
+    agent->setTrackOptions(TrackRobot(true,false,false, false,"mutual"));
+  
     globaldata.configs.push_back(robot);
     globaldata.configs.push_back(controller);
     robots.push_back(robot);
@@ -261,17 +235,18 @@ int main(int argc, char** argv){
     FOREACH (vector<Agent*>, globaldata.agents, i){
       (*i)->step(0.1);
     }
-    if(control_c_pressed()){      
+    if(control_c_pressed()){   
       if(!handleConsole(globaldata)){
         stop=1;
       }
       cmd_end_input();
     }
-    printRobots(robots);
-    
-    
+    printRobots(robots);    
   };
   
+  FOREACH (vector<Agent*>, globaldata.agents, i){
+    delete (*i); 
+  }
   closeConsole();
   fprintf(stderr,"terminating\n");
   // should clean up but what costs the world
