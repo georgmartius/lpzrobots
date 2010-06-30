@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-30 13:18:26  robot14
+ *  Revision 1.2  2010-06-30 11:35:44  robot14
+ *  fixed buffer
+ *
+ *  Revision 1.1  2010/03/30 13:18:26  robot14
  *  first version
  *
 
@@ -37,7 +40,7 @@
 #ifndef VECTORELEMENTPLOTCHANNEL_H_
 #define VECTORELEMENTPLOTCHANNEL_H_
 /*
- *
+ * container for values of a vectorelement
  */
 #include "AbstractPlotChannel.h"
 #include <vector>

@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-30 13:18:26  robot14
+ *  Revision 1.2  2010-06-30 11:35:44  robot14
+ *  fixed buffer
+ *
+ *  Revision 1.1  2010/03/30 13:18:26  robot14
  *  first version
  *
 
@@ -59,7 +62,12 @@ double VectorElementPlotChannel::getValue(){
 }
 
 double VectorElementPlotChannel::getValue(int time){
-  return ringBuffer.at((ringBufferIndex + time) % bufferSize);
+  if (debug) cout << "::getValue: time: " << time << " index: " << ringBufferIndex << endl;
+  int position = ringBufferIndex - time -1;
+  if (debug) cout << position << endl;
+  if ( position < 0) position = bufferSize + position;
+  if (debug) cout << position << endl;
+  return ringBuffer.at(position);
 }
 
 void VectorElementPlotChannel::changeSize(int newSize){
@@ -74,12 +82,12 @@ void VectorElementPlotChannel::changeSize(int newSize){
     ringBufferIndex = (ringBufferIndex + bufferSize) % newSize;
   }else{
     if(ringBufferIndex < newSize){
-      for(int i = 1; i < (newSize - ringBufferIndex); i++)
+      for(int i = 0; i < (newSize - ringBufferIndex); i++)
         ringBuffer.at(ringBufferIndex + i) = ringBuffer.at(ringBufferIndex + bufferSize - newSize + i);
     }else{
       for(int i = 0; i < newSize; i++)
-        ringBuffer.at(i) = ringBuffer.at(i + ringBufferIndex - newSize);
-      ringBufferIndex -= (newSize - 1);
+        ringBuffer.at(i) = ringBuffer.at(i + ringBufferIndex - newSize -1);
+      ringBufferIndex = 0;
     }
   }
   ringBuffer.resize(newSize, 0.);
