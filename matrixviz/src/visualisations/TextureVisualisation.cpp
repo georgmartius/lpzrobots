@@ -24,6 +24,10 @@
  *                                                                         *
  *   Visualization tool for matrices...                                    *
  *                                                                         *
+ *  $Log$
+ *  Revision 1.3  2010-06-30 11:31:11  robot14
+ *  VectorPlotChannel specs removed
+ *
  *                                                                         *
  ***************************************************************************/
 
@@ -39,29 +43,13 @@ TextureVisualisation::TextureVisualisation(MatrixPlotChannel *channel, ColorPale
 : AbstractVisualisation(channel, colorPalette, parent){
 
   if(debug) cout << "TextureVisualisation Konstruktor" << endl;
-  this->matrixChannel = channel;
+  this->channel = channel;
   this->colorPalette = colorPalette;
-  this->vectorChannel = NULL;
   object = NULL;
-  maxX = matrixChannel->getDimension(0);
-  maxY = matrixChannel->getDimension(1);
+  maxX = channel->getDimension(0);
+  maxY = channel->getDimension(1);
   //setUpdatesEnabled(true);
   setMouseTracking(true); // enables tooltips while mousemoving over widget
-}
-
-TextureVisualisation::TextureVisualisation(VectorPlotChannel *channel, ColorPalette *colorPalette, QWidget *parent)
-: AbstractVisualisation(channel, colorPalette, parent){
-
-  if(debug) cout << "TextureVisualisation Konstruktor" << endl;
-  this->vectorChannel = channel;
-  this->colorPalette = colorPalette;
-  this->matrixChannel = NULL;
-  object = NULL;
-  maxX = vectorChannel->getSize();
-  maxY = vectorChannel->getBufferSize();
-  //setUpdatesEnabled(true);
-  setMouseTracking(true); // enables tooltips while mousemoving over widget
-  if(debug) cout << "TextureVisualisation Konstruktor" << endl;
 }
 
 TextureVisualisation::~TextureVisualisation(){
@@ -89,7 +77,7 @@ void TextureVisualisation::initializeGL(){
     for(int j = 0; j < 64; j++)
       for(int k = 0; k < 3; k++) tex[i][j][k] = (GLubyte) 255;
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 64, 64, 0, GL_RGB, GL_UNSIGNED_BYTE, tex); //TODO
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 64, 64, 0, GL_RGB, GL_UNSIGNED_BYTE, tex);
 }
 
 void TextureVisualisation::resizeGL(int w, int h){
@@ -107,15 +95,13 @@ void TextureVisualisation::paintGL(){
   glLoadIdentity();
   glBindTexture(GL_TEXTURE_2D, texName);
 
-//  MatrixPlotChannel* matrixChannel = dynamic_cast<MatrixPlotChannel*> (channel);
-//  VectorPlotChannel* vectorChannel = dynamic_cast<VectorPlotChannel*> (channel);
-
   GLubyte subTex[maxX][maxY][3];
   for (int i = 0; i < maxX; i++)
     for (int j = 0; j < maxY; j++) {
       QColor color;
-      if(matrixChannel != NULL) color = colorPalette->pickColor(matrixChannel->getValue(i, j));
-      else color = colorPalette->pickColor(vectorChannel->getValue(i, j));
+      if(debug) cout << "at pickColor i: " << i << ", " << j << endl;
+      color = colorPalette->pickColor(clip(colorPalette->getScaledValue(channel->getValue(i, j))));
+
       subTex[i][j][0] = (GLubyte) color.red();
       subTex[i][j][1] = (GLubyte) color.green();
       subTex[i][j][2] = (GLubyte) color.blue();
@@ -127,7 +113,16 @@ void TextureVisualisation::paintGL(){
   glCallList( object );
 }
 
-GLuint TextureVisualisation::makeObject() {//TODO paintEvent here..
+double TextureVisualisation::clip(double val){
+  if( val > colorPalette->getMax())
+    return colorPalette->getMax();
+  if( val < colorPalette->getMin())
+    return colorPalette->getMin();
+  else
+    return val;
+}
+
+GLuint TextureVisualisation::makeObject() {
   if(debug) cout << "TextureVisualisation makeObject" << endl;
   GLuint list;
 
@@ -135,16 +130,15 @@ GLuint TextureVisualisation::makeObject() {//TODO paintEvent here..
 
   glNewList(list, GL_COMPILE);
 
-  //qglColor(Qt::white); // Shorthand for glColor3f or glIndex
-
   glEnable(GL_TEXTURE_2D);
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
   //glBindTexture(GL_TEXTURE_2D, texName);
+  double onePixel = 1./64;
   glBegin( GL_QUADS); // Draw A Quadab
   glTexCoord2d(0.0,0.0);glVertex2f(-1.0f, 1.0f); // Top Left
-  glTexCoord2d(0.0155*maxY,0.0);glVertex2f(1.0f, 1.0f); // Top Right
-  glTexCoord2d(0.0155*maxY,0.0155*maxX);glVertex2f(1.0f, -1.0f); // Bottom Right
-  glTexCoord2d(0.0,0.0155*maxX);glVertex2f(-1.0f, -1.0f); // Bottom Left
+  glTexCoord2d(onePixel*maxY,0.0);glVertex2f(1.0f, 1.0f); // Top Right
+  glTexCoord2d(onePixel*maxY,onePixel*maxX);glVertex2f(1.0f, -1.0f); // Bottom Right
+  glTexCoord2d(0.0,onePixel*maxX);glVertex2f(-1.0f, -1.0f); // Bottom Left
   glEnd(); // Done Drawing The Quad
   glFlush();
   glDisable(GL_TEXTURE_2D);
@@ -156,18 +150,20 @@ GLuint TextureVisualisation::makeObject() {//TODO paintEvent here..
 
 void TextureVisualisation::mouseMoveEvent ( QMouseEvent *event ){
   QString tTip;
-  if(matrixChannel != NULL) tTip = matrixChannel->getChannelName().c_str();
-  else tTip = vectorChannel->getChannelName().c_str();
-  double xStep = width() / maxX;
-  double yStep = height() / maxY;
-  if ( matrixChannel != NULL){
-    tTip += "[" + QString::number( (int) (event->y() / yStep)) + ","
-          + QString::number( (int) (event->x() / xStep) ) + "]";
-  }else{  // fehlerhaft!!
-    tTip += "[" + QString::number( (int) (event->y() / yStep)) + "]:"
-              + QString::number( (int) (event->x() / xStep) );
+  double xStep = width() / maxY;
+  double yStep = height() / maxX;
+  int n= (int) (event->y() / yStep);
+  if(n == maxX) n--;
+  int m= (int) (event->x() / xStep);
+  if(m == maxY) m--;
+  VectorPlotChannel *vectorPC = dynamic_cast<VectorPlotChannel *> (channel);
+  if ( vectorPC == NULL){
+    MatrixElementPlotChannel *elem = channel->getChannel(n, m);
+    tTip = QString(elem->getChannelName().c_str()) + ": " + QString::number(elem->getValue());
+  }else{
+    VectorElementPlotChannel * elem = vectorPC->getChannel(n);
+    tTip += QString(elem->getChannelName().c_str()) + ", " + QString::number(m) + ": " + QString::number(elem->getValue());
   }
   setToolTip((const QString) tTip);  // shows up ToolTip "M[x,y]"
-  //if ( debug) cout << "MouseCoords: " << event->x() << ", " << event->y() << endl;
 }
 

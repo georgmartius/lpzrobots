@@ -24,6 +24,10 @@
  *                                                                         *
  *   Visualization tool for matrices...                                    *
  *                                                                         *
+ *  $Log$
+ *  Revision 1.3  2010-06-30 11:31:11  robot14
+ *  VectorPlotChannel specs removed
+ *
  *                                                                         *
  ***************************************************************************/
 
@@ -41,7 +45,7 @@ class TextureVisualisation: public AbstractVisualisation {
 
 public:
   TextureVisualisation(MatrixPlotChannel *channel, ColorPalette *colorPalette, QWidget *parent = 0);
-  TextureVisualisation(VectorPlotChannel *channel, ColorPalette *colorPalette, QWidget *parent = 0);
+//  TextureVisualisation(VectorPlotChannel *channel, ColorPalette *colorPalette, QWidget *parent = 0);
   virtual ~TextureVisualisation();
   //void updateView();
 
@@ -59,8 +63,9 @@ private:
   GLuint texName;
   GLubyte tex[64][64][3];
   int maxX, maxY;
-  const static bool debug = true;
+  const static bool debug = false;
 
+  double clip(double val);
 };
 
 

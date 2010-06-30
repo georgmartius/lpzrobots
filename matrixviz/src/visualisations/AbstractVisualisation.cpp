@@ -36,20 +36,9 @@ AbstractVisualisation::AbstractVisualisation(MatrixPlotChannel *channel, ColorPa
 : QGLWidget(parent) {
 
   this->colorPalette = colorPalette;
-  this->matrixChannel = channel;
-  this->vectorChannel = 0;
+  this->channel = channel;
 }
 
-AbstractVisualisation::AbstractVisualisation(VectorPlotChannel *channel, ColorPalette *colorPalette, QWidget *parent )
-: QGLWidget(parent) {
-
-  this->colorPalette = colorPalette;
-  this->vectorChannel = channel;
-  this->matrixChannel = 0;
-}
 AbstractVisualisation::~AbstractVisualisation(){}
 
-//void AbstractVisualisation::initializeGL(){}
-//void AbstractVisualisation::resizeGL(int w, int h){}
-//void AbstractVisualisation::paintGL(){}
 

@@ -35,7 +35,7 @@ class AbstractPlotChannel;
 #include "MatrixPlotChannel.h"
 #include "VectorPlotChannel.h"
 #include "ColorPalette.h"
-#include <qgl.h> //"/usr/include/qt4/QtOpenGL/QGLWidget"
+#include <qgl.h>
 
 #include <iostream>
 
@@ -46,13 +46,11 @@ class AbstractVisualisation: public QGLWidget {
 
 public:
   AbstractVisualisation(MatrixPlotChannel *channel, ColorPalette *colorPalette, QWidget *parent = 0);
-  AbstractVisualisation(VectorPlotChannel *channel, ColorPalette *colorPalette, QWidget *parent = 0);
   virtual ~AbstractVisualisation();
 
 protected:
 
-  MatrixPlotChannel *matrixChannel;
-  VectorPlotChannel *vectorChannel;
+  MatrixPlotChannel *channel;
   ColorPalette *colorPalette;
 
 
