@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2010-03-30 13:18:26  robot14
+ *  Revision 1.2  2010-06-30 11:35:22  robot14
+ *  now child from MatrixPlotChannel
+ *
+ *  Revision 1.1  2010/03/30 13:18:26  robot14
  *  first version
  *
  *                                                                         *
@@ -39,12 +42,22 @@
 
 using namespace std;
 
-VectorPlotChannel::VectorPlotChannel(string name) : GroupPlotChannel(name) {
+VectorPlotChannel::VectorPlotChannel(string name) : MatrixPlotChannel(name) {
   // TODO Auto-generated constructor stub
 }
 
 VectorPlotChannel::~VectorPlotChannel() {
   // TODO Auto-generated destructor stub
+}
+
+int VectorPlotChannel::getDimension(int dim){
+  if(dim == 0){
+    return getSize();
+  }
+  if(dim == 1){
+    return getBufferSize();
+  }
+  return 0;
 }
 
 double VectorPlotChannel::getValue(int num)

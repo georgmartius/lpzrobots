@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2010-05-11 16:53:20  robot14
+ *  Revision 1.3  2010-06-30 11:35:22  robot14
+ *  now child from MatrixPlotChannel
+ *
+ *  Revision 1.2  2010/05/11 16:53:20  robot14
  *  *** empty log message ***
  *
  *  Revision 1.1  2010/03/30 13:18:26  robot14
@@ -39,17 +42,18 @@
 #define VECTORPLOTCHANNEL_H_
 
 
-#include "GroupPlotChannel.h"
+#include "MatrixPlotChannel.h"
 #include "VectorElementPlotChannel.h"
 
 /**
  * Beinhaltet zusätzliche Informationen und Methoden, um einen Vector auf Timestamp abgebildet als einheitlichen Channel zu repräsentieren
  */
-class VectorPlotChannel: public GroupPlotChannel {
+class VectorPlotChannel: public MatrixPlotChannel {
 public:
   VectorPlotChannel(std::string name);
   virtual ~VectorPlotChannel();
 
+  virtual int getDimension(int dim);
   virtual double getValue(int num);
   virtual double getValue(int num, int t);
 
