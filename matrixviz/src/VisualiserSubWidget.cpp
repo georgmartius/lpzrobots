@@ -24,6 +24,10 @@
  *                                                                         *
  *   Visualization tool for matrices...                                    *
  *                                                                         *
+ *   $Log$
+ *   Revision 1.6  2010-06-30 11:39:04  robot14
+ *   removed VectorPlotChannel specs
+ *
  *                                                                         *
  ***************************************************************************/
 
@@ -42,16 +46,25 @@ VisualiserSubWidget::VisualiserSubWidget(MatrixPlotChannel *channel, int x, int 
   setWindowTitle(QString(channel->getChannelName().c_str()));
   if( debug) cout << "in VisualiserSubWidget Konstrunktor" << endl;
   this->matrixChannel = channel;
-  this->colorPalette = new ColorPalette(this); //changed
+  this->colorPalette = new ColorPalette(this);
   optionWidget = colorPalette->makeConfigBox();
-  this->vectorChannel = 0;
+  optionWidget->setParent(this);
   int maxX = this->matrixChannel->getDimension(0);
   int maxY = this->matrixChannel->getDimension(1);
-  for(int i = 0; i < maxX; i++){ //push back all MatrixElementPlotChannel for update
-      for(int j = 0; j < maxY; j++){
+  if(dynamic_cast<VectorPlotChannel*> (matrixChannel) == 0){
+  for (int i = 0; i < maxX; i++) { //push back all MatrixElementPlotChannel for update
+    if( debug) cout << "here" << endl;
+      for (int j = 0; j < maxY; j++) {
         addPlotChannel(this->matrixChannel->getChannel(i, j));
       }
     }
+  } else {
+    if( debug) cout << "here" << endl;
+    for (int i = 0; i < maxX; i++) {
+      addPlotChannel(dynamic_cast<VectorPlotChannel*> (matrixChannel)->getChannel(i));
+    }
+    addVectorOptions();
+  }
   this->visualisation = new TextureVisualisation(channel, colorPalette, this); //default visualisation
   initGui();
   if( !(x == 0 && y == 0 && width == 0 && heigt == 0)){
@@ -60,31 +73,6 @@ VisualiserSubWidget::VisualiserSubWidget(MatrixPlotChannel *channel, int x, int 
   }
   if( cPFilePath != "" && cPFilePath != 0)
       colorPalette->loadStopListFromFile(cPFilePath);
-  //TODO set filepath of colorPalette
-  connect (this, SIGNAL(sendQuit()), colorPalette, SLOT(close()));
-}
-
-VisualiserSubWidget::VisualiserSubWidget(VectorPlotChannel *channel, int x, int y, int width, int heigt,
-    QString cPFilePath, QWidget *parent)
-: AbstractRobotSubWidget(parent){
-  setWindowTitle(QString(channel->getChannelName().c_str()));
-  if( debug) cout << "in VisualiserSubWidget Konstrunktor" << endl;
-  this->vectorChannel = channel;
-  this->matrixChannel = 0;
-  this->colorPalette = new ColorPalette(this);
-  optionWidget = colorPalette->makeConfigBox();
-  for(int i = 0; i < vectorChannel->getSize(); i++){ //push back all MatrixElementPlotChannel for update
-      addPlotChannel(this->vectorChannel->getChannel(i));
-  }
-  this->visualisation = new TextureVisualisation(this->vectorChannel, colorPalette, this); //default visualisation
-  initGui();
-  if( !(x == 0 && y == 0 && width == 0 && heigt == 0)){
-    resize(width,heigt);
-    move(x, y);
-  }
-  if( cPFilePath != "" && cPFilePath != 0)
-    colorPalette->loadStopListFromFile(cPFilePath);
-  //TODO set filepath of colorPalette
   connect (this, SIGNAL(sendQuit()), colorPalette, SLOT(close()));
 }
 
@@ -101,7 +89,7 @@ void VisualiserSubWidget::initGui(){
   QMenu *optionMenu = new QMenu(tr("&Options"));
   QAction *showOptions = optionMenu->addAction(tr("&show"));
   showOptions->setCheckable(true);
-  connect(optionMenu, SIGNAL(triggered(QAction *)), this, SLOT(showOptions(QAction*)));
+  connect(optionMenu, SIGNAL(triggered(QAction *)), this, SLOT(toggleOptions(QAction*)));
   menuBar->addMenu(optionMenu);
 
 //  QHBoxLayout *mainLayout = new QHBoxLayout;
@@ -109,9 +97,9 @@ void VisualiserSubWidget::initGui(){
   visLayout = new QHBoxLayout();
   visLayout->setContentsMargins(0,0,0,0);
   visLayout->setSpacing(0);
-
-  visLayout->addWidget(visualisation);
-  visLayout->addWidget(colorPalette);
+  visLayout->addWidget(visualisation, Qt::AlignLeft);
+  visLayout->addWidget(colorPalette, Qt::AlignHCenter);
+  visLayout->addWidget(optionWidget, Qt::AlignRight);
 //  switchVisMode(0);
   visMode = 0;
   optionWidget->hide();
@@ -125,32 +113,20 @@ void VisualiserSubWidget::initGui(){
 
 void VisualiserSubWidget::updateViewableChannels(){
   //std::cout << "updateViewableChannels()" << std::endl;
-  visualisation->update();
+  if (visualisation != NULL) visualisation->update();  //TODO when vis is null segfault!
   update();
 }
 
 void VisualiserSubWidget::initVisTypes(){
    QMenu *visMenu = new QMenu(tr("&vis mode"), this);
   /*
-   * visualisation modi for matrices
+   * visualisation modi
    */
-  if(matrixChannel != 0){
-//    vizChoice->addItem("Tex"); //0 obsolete
-//    vizChoice->addItem("3D - Landscape");
-
-    visMenu->addAction(tr("&Tex"));
-    visMenu->addAction(tr("&Landscape"));
-    visMenu->addAction(tr("&Bar"));
-  }
-  /*
-   * visualisation modi for vectors
-   */
-  if(vectorChannel != 0){
-//    vizChoice->addItem("Tex"); obsolete
-
-    visMenu->addAction(tr("&Tex"));
+  visMenu->addAction(tr("&Tex"));
+  visMenu->addAction(tr("&Landscape"));
+  visMenu->addAction(tr("&Bar"));
+  if (dynamic_cast<VectorPlotChannel*> (matrixChannel) != 0)
     visMenu->addAction(tr("&VectorPlot"));
-  }
 
   menuBar->addMenu(visMenu);
   //connect
@@ -161,54 +137,30 @@ void VisualiserSubWidget::initVisTypes(){
 void VisualiserSubWidget::switchVisMode(int index){
   if (debug) cout << "in switchVisMode i: " << index << endl;
 
-  if ( visMode == index) return;
-  else visMode = index;
-  //TODO change contents in optionstoolbar
-  //remove old content
+  visMode = index;
+
   visLayout->removeWidget(visualisation);
-  visLayout->removeWidget(colorPalette);
-  if (debug) cout << "optionWidget: " << optionWidget << endl;
-  visLayout->removeWidget(optionWidget);
-//  delete visualisation;
-  if (debug) std::cout << "VisSwitch: " << index << std::endl;
+  delete visualisation;
   /*
-   * change matrix visualisation
+   * change visualisation
    */
-  if(matrixChannel != NULL){
-    switch (index) {
-      case 0:
-        this->visualisation = new TextureVisualisation(matrixChannel, colorPalette, this);
-        break;
-      case 1: //TODO TESTTEST
-        this->visualisation = new LandscapeVisualisation(matrixChannel, colorPalette, this);
-//        visualisation->resize(300, 300);
-        break;
-      case 2:
-        this->visualisation = new BarVisualisation(matrixChannel, colorPalette, this);
-        break;
-    }
-    visLayout->addWidget(visualisation, Qt::AlignLeft);
-    visLayout->addWidget(colorPalette, Qt::AlignHCenter);
-    visLayout->addWidget(optionWidget, Qt::AlignRight);
+  switch (index) {
+    case 0:
+      this->visualisation = new TextureVisualisation(matrixChannel, colorPalette, this);
+      break;
+    case 1:
+      this->visualisation = new LandscapeVisualisation(matrixChannel, colorPalette, this);
+      break;
+    case 2:
+      this->visualisation = new BarVisualisation(matrixChannel, colorPalette, this);
+      break;
+    case 3:  //only choosable for vectors
+      this->visualisation = new VectorPlotVisualisation(matrixChannel, colorPalette, this);
+      break;
   }
-  /*
-   * change vector visualisation
-   */
-  if(vectorChannel != NULL){
-    switch (index){
-      case 0:
-        this->visualisation = new TextureVisualisation(vectorChannel, colorPalette, this);
-        break;
-      case 1:
-        this->visualisation = new VectorPlotVisualisation(vectorChannel, colorPalette, this);
-        break;
-    }
-    visLayout->addWidget(visualisation, Qt::AlignLeft);
-    visLayout->addWidget(colorPalette, Qt::AlignHCenter);
-    visLayout->addWidget(optionWidget, Qt::AlignRight);
-  }
+
+  visLayout->insertWidget(0, visualisation, Qt::AlignLeft);
   updateViewableChannels();
-//  setOptions();
   repaint();
 }
 
@@ -226,39 +178,76 @@ void VisualiserSubWidget::switchVisMode(QAction * action){
     return;
   }
   if(action->text().contains("VectorPlot")){
-    switchVisMode(1);
+    switchVisMode(3);
     return;
   }
 }
 
-void VisualiserSubWidget::showOptions(QAction *action){
-  //TODO resize and add/remove optionswidget
+void VisualiserSubWidget::toggleOptions(QAction *){
   if(!optionsShown){
-//    visLayout->addWidget(optionWidget, Qt::AlignRight);
-//    visLayout->update();
     resize(width() + optionWidget->width(), height());
     optionWidget->show();
     optionsShown = true;
   }else{
     optionWidget->hide();
     resize(width() - optionWidget->width(), height());
-//    visLayout->removeWidget(optionWidget);
     optionsShown = false;
   }
 }
 
-void VisualiserSubWidget::setOptions(){ //obsolete
-//  optionLayout = new QVBoxLayout;
-//  optionLayout->setContentsMargins(0,0,0,0);
-//  if(visMode == 0){
-//    optionLayout->addWidget(optionWidget);
-//
-//  }
+
+
+void VisualiserSubWidget::addVectorOptions(){
+  /*
+   * set up vector option widget
+   */
+  QWidget *vectorOpt = new QWidget(this);
+  QVBoxLayout *vBoxLayout = new QVBoxLayout();
+  vBoxLayout->setContentsMargins(0,0,0,0);
+
+  QLabel *label = new QLabel("Buffersize");
+  label->setFont(QFont("Arial", 9));
+  vBoxLayout->addWidget(label);
+
+  QHBoxLayout *hBoxLayout = new QHBoxLayout();
+  hBoxLayout->setContentsMargins(0,0,0,0);
+  vectorBuffersizeSpinBox = new QSpinBox();
+  vectorBuffersizeSpinBox->setRange(1,1000);
+  vectorBuffersizeSpinBox->setValue(40);
+  hBoxLayout->addWidget(vectorBuffersizeSpinBox);
+
+  QPushButton *setButton = new QPushButton("set");
+  connect(setButton, SIGNAL(clicked()), this, SLOT(changeBufferSize()));
+  hBoxLayout->addWidget(setButton);
+
+  vBoxLayout->addLayout(hBoxLayout);
+  vectorOpt->setLayout(vBoxLayout);
+
+  /*
+   * put optionwidget and vectoroptionwidget into one widget
+   * this is needed for hiding
+   */
+  QWidget *temp = optionWidget;
+  optionWidget = new QWidget();
+  QVBoxLayout *layout = new QVBoxLayout();
+  layout->setContentsMargins(0,0,0,0);
+  layout->addWidget(temp);
+  layout->addWidget(vectorOpt);
+  optionWidget->setLayout(layout);
+  optionWidget->setFixedWidth(200);
+  optionWidget->setParent(this);
+}
+//only possible for vectors
+void VisualiserSubWidget::changeBufferSize(){
+  if (debug) cout << "VisualiserSubWidget::changeBufferSize()" << endl;
+  if(dynamic_cast<VectorPlotChannel*> (matrixChannel) == 0) return;
+  dynamic_cast<VectorPlotChannel*> (matrixChannel)->setBufferSize(vectorBuffersizeSpinBox->value());
+  if( debug) cout << "test" << endl;
+  switchVisMode(visMode);
 }
 
 QString VisualiserSubWidget::getChannelName(){
-  if(matrixChannel != 0) return QString(matrixChannel->getChannelName().c_str());
-  else return (QString) QString(vectorChannel->getChannelName().c_str());
+  return QString(matrixChannel->getChannelName().c_str());
 }
 QString VisualiserSubWidget::getColorPaletteFilepath(){
   if(colorPalette != 0) return colorPalette->getPath();
@@ -269,7 +258,7 @@ int VisualiserSubWidget::getVisMode(){
 //  return vizChoice->currentIndex();
 }
 QString VisualiserSubWidget::getMode(){
-  if(matrixChannel != 0) return (QString) "matrix";
+  if(dynamic_cast<VectorPlotChannel*> (matrixChannel) == 0) return (QString) "matrix";
   else return (QString) "vector";
 }
 

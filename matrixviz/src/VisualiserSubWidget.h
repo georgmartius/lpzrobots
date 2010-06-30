@@ -24,6 +24,10 @@
  *                                                                         *
  *   Visualization tool for matrices...                                    *
  *                                                                         *
+ *   $Log$
+ *   Revision 1.6  2010-06-30 11:39:04  robot14
+ *   removed VectorPlotChannel specs
+ *
  *                                                                         *
  ***************************************************************************/
 
@@ -33,7 +37,7 @@
 #include <QtGui>
 //class AbstractPlotChannel;
 
-#include "Channel/MatrixPlotChannel.h"
+//#include "Channel/MatrixPlotChannel.h"
 #include "Channel/VectorPlotChannel.h"
 #include "ColorPalette.h"
 #include "visualisations/AbstractVisualisation.h" //Abstract~
@@ -51,8 +55,6 @@ Q_OBJECT
 public:
   VisualiserSubWidget(MatrixPlotChannel *channel, int x = 0, int y = 0, int width = 0, int heigt = 0,
       QString cPFilePath = 0, QWidget *parent = 0);
-  VisualiserSubWidget(VectorPlotChannel *channel, int x = 0, int y = 0, int width = 0, int heigt = 0,
-      QString cPFilePath = 0, QWidget *parent = 0);
   virtual ~VisualiserSubWidget();
   QString getChannelName();
   QString getColorPaletteFilepath();
@@ -65,7 +67,8 @@ public slots:
   void updateViewableChannels();
   void switchVisMode(int index);
   void switchVisMode(QAction *action);
-  void showOptions(QAction *action);
+  void toggleOptions(QAction *action = 0);
+  void changeBufferSize();
 
 protected:
 
@@ -74,26 +77,28 @@ protected:
 
 private:
 
-  QWidget *visualisation;
+  AbstractVisualisation *visualisation;
   QHBoxLayout *visLayout;
   QMenuBar *menuBar;
-//  QVBoxLayout *optionLayout;
+  QVBoxLayout *optionLayout;
   QWidget *optionWidget;
 
   MatrixPlotChannel *matrixChannel;
-  VectorPlotChannel *vectorChannel;
   ColorPalette *colorPalette;
 
   void initGui();
   void initVisTypes();
-  void setOptions();
+  void addVectorOptions();
   int visMode;
   bool optionsShown;
-  static const bool debug = true;
+  static const bool debug = false;
 
 signals:
   void windowClosed(VisualiserSubWidget* window);
   void sendQuit();
+
+private:
+  QSpinBox *vectorBuffersizeSpinBox;
 
 };
 

@@ -25,7 +25,10 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-30 13:21:10  robot14
+ *   Revision 1.5  2010-06-30 11:39:04  robot14
+ *   removed VectorPlotChannel specs
+ *
+ *   Revision 1.4  2010/03/30 13:21:10  robot14
  *   added vector support
  *
  *   Revision 1.3  2009/10/14 12:22:31  robot14
@@ -81,7 +84,6 @@ private:
 	std::vector<VectorPlotChannel*> vectors;
 	QButtonGroup *visButtons;
 	// QButtonGroup::buttonClicked() emits for each button...
-	QButtonGroup *vecButtons;
 
 	QVBoxLayout* main_layout;
 	QComboBox *matChoice;
@@ -92,7 +94,7 @@ private:
 
 	void initGui();
 	void linkChannels();
-	static const bool debug = true;
+	static const bool debug = false;
 
 protected:
 	virtual void closeEvent(QCloseEvent * event);
