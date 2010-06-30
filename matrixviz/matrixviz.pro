@@ -27,6 +27,7 @@ HEADERS += src/AbstractRobotGUI.h \
            src/MatrixVisualizer.h \
            src/VisualiserSubWidget.h \
            src/configFile.h \
+           src/ScaleFunction.h \
            src/Channel/AbstractPlotChannel.h \
            src/Channel/AxesPlotChannel.h \
            src/Channel/DefaultPlotChannel.h \
@@ -62,6 +63,7 @@ SOURCES += src/AbstractRobotGUI.cpp \
            src/MatrixVisualizer.cpp \
            src/VisualiserSubWidget.cpp \
            src/configFile.cpp \
+           src/ScaleFunction.cpp \
            src/Channel/AxesPlotChannel.cpp \
            src/Channel/DefaultPlotChannel.cpp \
            src/Channel/GroupPlotChannel.cpp \
