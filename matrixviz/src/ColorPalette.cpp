@@ -28,29 +28,25 @@
  ***************************************************************************/
 
 #include "ColorPalette.h"
-//#include "ColorPaletteDialog.h"
 #include "ListEntity.h"
 #include <math.h>
 #include <iostream>
 #include <QtGui>
-//#include <QtXml>
-#include <QtXml/QDomDocument> //<qt4/QtXml/QDomDocument>
-#include <QtXml/QDomElement> //<qt4/QtXml/QDomElement>
+#include <QtXml/QDomDocument>
+#include <QtXml/QDomElement>
 #include <QFile>
 #include <QFileDialog>
 
 using namespace std;
 
+
 ColorPalette::ColorPalette(QWidget *parent)
 : QWidget(parent){
   if( debug) cout << "in CP Konstrunktor" << endl;
-//  setContentsMargins(0,0,0,0);
   setMaximumWidth(30);
   setMouseTracking(true); // enables tooltips while mousemoving over widget
-  if( debug) cout << "struct matrixviz::STOP num1, num2, num3;" << endl;
   struct STOP *num1 = new STOP, *num2 = new STOP, *num3 = new STOP;
   QColor red(Qt::red), white(Qt::white), blue(Qt::blue);
-  if( debug) cout << "num1.color = red;" << endl;
   num1->color = red;
   num1->pos = -1.;
   num2->color = white;
@@ -66,18 +62,22 @@ ColorPalette::ColorPalette(QWidget *parent)
   initMaxMin();
   currentPath = "";
   stopList = new QListWidget();
-//  currentFunction = 1;
+  scaleF = new ScaleFunction();
 }
 
 ColorPalette::~ColorPalette(){}
 
+
 void ColorPalette::initMaxMin(){
-  min = 900000000;
-  max = -900000000;
-  for(int i = 0; i < stops->size(); i++){
-    if( stops->at(i)->pos < min) min = stops->at(i)->pos;
-    if( stops->at(i)->pos > max) max = stops->at(i)->pos;
-  }
+//  min = 900000000;
+//  max = -900000000;
+//  for(int i = 0; i < stops->size(); i++){
+//    if( stops->at(i)->pos < min) min = stops->at(i)->pos;
+//    if( stops->at(i)->pos > max) max = stops->at(i)->pos;
+//  }
+  //no need to search for.. vector is ordered
+  min = stops->first()->pos;
+  max = stops->last()->pos;
 }
 
 QColor ColorPalette::pickColor(double val){
@@ -87,7 +87,7 @@ QColor ColorPalette::pickColor(double val){
   STOP *pos1 = new STOP, *pos2 = new STOP;
   pos1->pos = -1000.;//min
   pos2->pos = 1000.;//max
-  // find the nearest stops surrounding
+  // find the nearest stops surrounding for the gradient
   for ( int i = 0; i < stops->size(); i++){
     if( stops->at(i)->pos < val && stops->at(i)->pos > pos1->pos){
       pos1 = stops->at(i);
@@ -100,26 +100,46 @@ QColor ColorPalette::pickColor(double val){
     b1 = pos1->color.blue(), b2 = pos2->color.blue(),
     r,g,b;
   double p1 = pos1->pos, p2 = pos2->pos;
-  // linear system
+  // linear system to get the quotients
   r = floor(((r2-r1)/(p2-p1)) * (val - p1) + r1);
   g = floor(((g2-g1)/(p2-p1)) * (val - p1) + g1);
   b = floor(((b2-b1)/(p2-p1)) * (val - p1) + b1);
   return QColor(r,g,b);
 }
 
+QColor ColorPalette::pickScaledColor(double val){
+  return pickColor(getScaledValue(val));
+}
+
+double ColorPalette::getScaledValue(double val){
+  return scaleF->getValue(val);
+}
+
+//goes in one direction and return the first stop on its way
 double ColorPalette::getNextStopPosition(double fromVal, double toVal){
+  if (debug) cout << "from" << fromVal << "to" << toVal << endl;
   if(fromVal > toVal){
-    double nextStop = fromVal;
+    double nextStop = toVal;
     for( int i = 0; i < stops->size(); i++){
-        if(stops->at(i)->pos < fromVal && stops->at(i)->pos > toVal) nextStop = stops->at(i)->pos;
+      double pos =  stops->at(i)->pos;
+        if(fromVal > pos && pos > toVal
+            && !equals(fromVal, pos) && !equals(fromVal, pos)) {
+          nextStop = pos;
+        }
       }
+    if (debug) cout << "return:" << nextStop << endl;
     return nextStop;
   }else{
   // fromVal < toVal
     for (int i = 0; i < stops->size(); i++) {
-      if (stops->at(i)->pos > fromVal && stops->at(i)->pos < toVal)
+      if (fromVal < stops->at(i)->pos && stops->at(i)->pos < toVal
+          && !equals(fromVal, stops->at(i)->pos) && !equals(fromVal, stops->at(i)->pos)){
+        if (debug) cout << "here" << endl;
+        if (debug) cout << "return:" << stops->at(i)->pos << endl;
         return stops->at(i)->pos;
+      }
     }
+    if (debug) cout << "return:" << toVal << endl;
     return toVal;
   }
 }
@@ -128,7 +148,7 @@ void ColorPalette::paintEvent(QPaintEvent *){
   QPainter painter ( this );
   double step = (max - min) / height();
   for ( int i = 0; i <= height(); i++){
-    painter.setPen(pickColor(min + i * step));
+    painter.setPen(pickScaledColor(min + i * step));
     painter.drawLine(0, height() - i, width(), height() - i);
   }
   painter.end();
@@ -151,30 +171,16 @@ void ColorPalette::resizeEvent(QResizeEvent *event){
   event->accept();
 }
 
-//void ColorPalette::mouseDoubleClickEvent(QMouseEvent *){
-////  ColorPaletteDialog *dialog = new ColorPaletteDialog(stops);
-//  QWidget *config = makeConfigBox();
-//  config->show();
-////  connect(dialog, SIGNAL(refresh()), this, SLOT(refresh())); //oder so vll
-//  repaint();
-//}
-
+//returns the containing value to a color under the mousetip
 void ColorPalette::mouseMoveEvent ( QMouseEvent *event ){
   //event->x/y();
   //setToolTip ( const QString &text );
   double step = (max - min) / height();
-  double val = min + event->y() * step;
-  setToolTip((const QString) QString::number(val));
+  double val = (min + event->y() * step) * -1.;
+  setToolTip((const QString) QString::number(val, 'g', 3));
 }
 
-//void ColorPalette::refresh(){ //SLOT
-//  if (debug) cout << "in SLOT ColorPalette::refresh()" << endl;
-//  update();
-//}
-
-//****** merged
-
-
+//returns the QWidget with all the options content
 QWidget* ColorPalette::makeConfigBox(){
   if (debug) cout << "in makeView():\nstops.size(): " << stops->size() << endl;
   // befüllen
@@ -204,23 +210,6 @@ QWidget* ColorPalette::makeConfigBox(){
   minMaxLayout->addWidget(autoMinMax);
 //  minMaxLayout->addSpacing(50);
 
-//  /*
-//   * correction functions
-//   */
-//  QHBoxLayout *functionLayout = new QHBoxLayout();
-//  QButtonGroup *radioGroup = new QButtonGroup();
-//  QRadioButton *quad = new QRadioButton("x^2");
-//  radioGroup->addButton(quad);
-//  QRadioButton *ident = new QRadioButton("x");
-//  ident->toggle();
-//  radioGroup->addButton(ident);
-//  QRadioButton *log = new QRadioButton("log_2 x");
-//  radioGroup->addButton(log);
-//  connect(radioGroup, SIGNAL(buttonPressed(int)), this, SLOT(setFunction(int)));
-//  functionLayout->addWidget(quad);
-//  functionLayout->addWidget(ident);
-//  functionLayout->addWidget(log);
-
   /*
    * load & save buttons
    */
@@ -234,23 +223,32 @@ QWidget* ColorPalette::makeConfigBox(){
   loadSaveButtonLayout->addWidget(save);
   loadSaveButtonLayout->setContentsMargins(0,0,0,0);
 
+  /*
+   * add content to widget
+   */
+  QLabel *scaleLabel = new QLabel("Scaling function");
+  scaleLabel->setFont(QFont("Arial", 9));
+  mainWindow->addWidget(scaleLabel);
+  mainWindow->addWidget(scaleF);
+  QLabel *clipLabel = new QLabel("Clipping");
+  clipLabel->setFont(QFont("Arial", 9));
+  mainWindow->addWidget(clipLabel);
   mainWindow->addLayout(minMaxLayout);
 //  mainWindow->addLayout(functionLayout);
+  QLabel *stopLabel = new QLabel("Color stops");
+  stopLabel->setFont (QFont("Arial", 9));
+  mainWindow->addWidget(stopLabel);
   mainWindow->addWidget(stopList);
   mainWindow->addLayout(loadSaveButtonLayout);
-//  mainWindow->setContentsMargins(0,0,0,0);
-  //mainWindow->addWidget(test);
-  //mainWindow->addWidget(cp);
+  mainWindow->setContentsMargins(0,0,0,0);
   configBox->setLayout(mainWindow);
   configBox->setFixedWidth(200);
-//  buttons->addWidget(add);
-//  buttons->addWidget(remove);
-//  mainWindow->addLayout(buttons);
   //connect to close
   connect( this, SIGNAL(sendQuit()), configBox, SLOT(close()));
   return configBox;
 }
 
+//redraws the stoplist in the optionwidget
 void ColorPalette::updateList(){
   if ( debug) cout << "in updateList" << endl;
   stopList->clear();
@@ -279,17 +277,15 @@ void ColorPalette::addStop(int i){ //SLOT
   newEntry->color = Qt::white;
   stops->insert(i+1, newEntry);
   updateList();
-//  emit refresh();
   update();
 }
 
 void ColorPalette::changeStopColor(int i, QColor color){ //SLOT
-  //int QListWidget::currentRow () const
   stops->at(i)->color = color;
-//  emit refresh();
   update();
 }
 
+// change the stopposition in the stoplist and redraw the list in the optionwidget
 void ColorPalette::changeStopPos(int i, double pos){ //SLOTdelete stopList->takeItem(i);
   if (debug) cout << "in ColorPaletteDialog::changeStopPos()..." << endl;
   stops->at(i)->pos = pos;
@@ -311,9 +307,8 @@ void ColorPalette::changeStopPos(int i, double pos){ //SLOTdelete stopList->take
       changed = true;
     }
   }
-  if (changed) updateList();
-
-//  emit refresh();
+//  if (changed)
+    updateList();
   update();
 
 }
@@ -416,29 +411,35 @@ void ColorPalette::saveStopList(){
 }
 
 void ColorPalette::setMax(const QString &text){
-  this->max = text.toDouble();
-  update();
+  if(this->max < this->min){
+    QMessageBox msgBox;
+    msgBox.setText("The maximum value has to be bigger than the minimum.");
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.exec();
+  }else{
+    this->max = text.toDouble();
+    update();
+  }
 }
 
 void ColorPalette::setMin(const QString &text){
-  this->min = text.toDouble();
-  update();
+  if(this->max < this->min){
+    QMessageBox msgBox;
+    msgBox.setText("The minimum value has to be smaller than the maximum.");
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.exec();
+  }else{
+    this->min = text.toDouble();
+    update();
+  }
 }
 
 void ColorPalette::autoSetMinMax(){
-  //TODO
   initMaxMin();
-//  minEdit->setText ( const QString & )
   minEdit->setText(QString::number(min, 'f'));
   maxEdit->setText(QString::number(max, 'f'));
   update();
 }
-
-//void ColorPalette::setFunction(int i){
-//  if (debug) cout << "ColorPalette::setFunction i: " << i << endl;
-//  currentFunction = i;
-//  update();
-//}
 
 QString ColorPalette::getPath(){
   return currentPath;
@@ -449,3 +450,6 @@ void ColorPalette::closeEvent(QCloseEvent * event){
   emit sendQuit();
   event->accept();
 }
+
+double ColorPalette::getMax(){ return max;}
+double ColorPalette::getMin(){ return min;}

@@ -35,6 +35,9 @@
 #include <QSize>
 #include <QVector>
 #include "MatrixPlotChannel.h"
+#include "ScaleFunction.h"
+
+#define COMPARE_EPS 1e-5  //GLfloat
 
 struct STOP {
     QColor color;
@@ -56,15 +59,18 @@ public:
   ~ColorPalette();
 
   QColor pickColor(double val);
+  QColor pickScaledColor(double val);
+  double getScaledValue(double val);
   QVector<STOP*> *stops;
 
-  bool autoUpdate; //sets the min and max depending on the input
-  void addStop(int num, QRgb color, double pos);  //<-- ColorChooser
+  void addStop(int num, QRgb color, double pos);
   void deleteStop(int num);
   QWidget* makeConfigBox();
   QString getPath();
   void loadStopListFromFile(QString filename);
   double getNextStopPosition(double fromVal, double toVal);
+  double getMax();
+  double getMin();
 
 public slots:
   void addStop(int i);
@@ -82,10 +88,9 @@ protected:
   double max, min;
   void paintEvent(QPaintEvent *);
   void resizeEvent(QResizeEvent *event);
-//  void mouseDoubleClickEvent(QMouseEvent *);
   void mouseMoveEvent ( QMouseEvent *event ); // enabled with QWidget::setMouseTracking(true)
   virtual void closeEvent(QCloseEvent * event);
-  const static bool debug = true;
+  const static bool debug = false;
 
 private:
   void initMaxMin();
@@ -98,7 +103,15 @@ private:
   QString currentPath;
   QLineEdit *minEdit;
   QLineEdit *maxEdit;
-//  int currentFunction;
+  ScaleFunction *scaleF;
+
+  inline bool equals(double x, double y)
+  {
+    double diff = x-y;
+    if ((diff <= COMPARE_EPS) && (-COMPARE_EPS <= diff))
+      return true;
+    return false;
+  }
 
 signals:
   void sendQuit();
