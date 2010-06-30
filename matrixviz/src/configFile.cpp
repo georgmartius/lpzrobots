@@ -25,7 +25,10 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-05-11 16:51:47  robot14
+ *   Revision 1.3  2010-06-30 11:36:59  robot14
+ *   removed typo
+ *
+ *   Revision 1.2  2010/05/11 16:51:47  robot14
  *   first working version
  *
  *   Revision 1.1  2010/03/30 13:19:09  robot14
@@ -41,7 +44,7 @@
 using namespace std;
 
 
-configFile::configFile(){
+configFile::configFile(): saved(false){
 }
 
 configFile::~configFile(){
@@ -52,8 +55,8 @@ void configFile::load(MatrixVisualizer* mv){
 
   matrixVis = mv;
 
-  QDomDocument doc( "MatrixVisConfigFile" );
-  QFile file("matrixVisConf.xml");
+  QDomDocument doc( "MatrixVizConfigFile" );
+  QFile file("matrixVizConf.xml");
   if( !file.open( QIODevice::ReadOnly ) ){
     cout << "no ConfigFile for MatrixVisualizer found!" << endl;
     return;
@@ -66,7 +69,7 @@ void configFile::load(MatrixVisualizer* mv){
   }
   file.close();
   QDomElement root = doc.documentElement();
-  if( root.tagName() != "MatrixVisConfiguration" ){
+  if( root.tagName() != "MatrixVizConfiguration" ){
     cout << "Configfile corrupted" << endl;
     return;
   }
@@ -77,7 +80,7 @@ void configFile::load(MatrixVisualizer* mv){
     QDomElement e = n.toElement();
     if( !e.isNull() )
     {
-      if( e.tagName() == "MatrixVisWindow"){
+      if( e.tagName() == "MatrixVizWindow"){
         matrixVis->move(e.attribute("X", "").toInt(), e.attribute("Y", "").toInt());
       }
       if( e.tagName() == "VisualisationWindow" )
@@ -107,18 +110,19 @@ void configFile::load(MatrixVisualizer* mv){
 }
 
 void configFile::save(){
-  if (debug) cout << "configFile::save()" << endl;
-  QDomDocument doc( "MatrixVisConfigFile" );
+  if (debug)
+    cout << "configFile::save()" << endl;
+  QDomDocument doc("MatrixVizConfigFile");
 
-  QDomElement root = doc.createElement( "MatrixVisConfiguration" );
-  doc.appendChild( root );
+  QDomElement root = doc.createElement("MatrixVizConfiguration");
+  doc.appendChild(root);
 
-  QDomElement win = doc.createElement("MatrixVisWindow");
+  QDomElement win = doc.createElement("MatrixVizWindow");
   win.setAttribute("X", matrixVis->pos().x());
   win.setAttribute("Y", matrixVis->pos().y());
   root.appendChild(win);
 
-  for(QList<VisualiserSubWidget*>::iterator it = openWindows.begin(); it != openWindows.end(); it++ ){
+  for (QList<VisualiserSubWidget*>::iterator it = openWindows.begin(); it != openWindows.end(); it++) {
     QDomElement win = doc.createElement("VisualisationWindow");
     win.setAttribute("source", (*it)->getChannelName());
     win.setAttribute("mode", (*it)->getMode());
@@ -131,17 +135,18 @@ void configFile::save(){
     root.appendChild(win);
   }
 
-  QFile file("./matrixVisConf.xml");
+  QFile file("./matrixVizConf.xml");
 
-  if( !file.open( QIODevice::WriteOnly )) cout << "Can't save configuration!" << endl;
-    else{
-      QTextStream ts(&file);
-      ts << doc.toString();
+  if (!file.open(QIODevice::WriteOnly))
+    cout << "Can't save configuration!" << endl;
+  else {
+    QTextStream ts(&file);
+    ts << doc.toString();
 
-      file.close();
-    }
+    file.close();
+  }
 }
-
+//register every opened window
 void configFile::newOpenedWindow(VisualiserSubWidget* window){
   if(debug) cout << "in configFile::newOpenedWindow" << endl;
   //connecting for quit and save
@@ -149,13 +154,16 @@ void configFile::newOpenedWindow(VisualiserSubWidget* window){
   connect(window, SIGNAL(windowClosed(VisualiserSubWidget*)), this, SLOT(windowClosed(VisualiserSubWidget*)));
   openWindows.append(window);
 }
-
+//if a window closed externally then remove it from list
 void configFile::windowClosed(VisualiserSubWidget* window){
   openWindows.removeAt(openWindows.indexOf(window));
 }
 
 void configFile::doQuit(){
-  cout << "emit sendquit" << endl;
-  save();
-  emit sendQuit();
+  if (debug) cout << "emit sendquit" << endl;
+  if(!saved){
+    saved = true;
+    save();
+    emit sendQuit();
+  }
 }

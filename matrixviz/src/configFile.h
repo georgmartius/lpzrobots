@@ -25,7 +25,10 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-30 13:19:09  robot14
+ *   Revision 1.2  2010-06-30 11:36:59  robot14
+ *   removed typo
+ *
+ *   Revision 1.1  2010/03/30 13:19:09  robot14
  *   first version
  *
  *
@@ -35,15 +38,14 @@
 #ifndef __CONFIGFILE_H_
 #define __CONFIGFILE_H_
 
-#include <QtXml/QDomDocument> //<qt4/QtXml/QDomDocument>
-#include <QtXml/QDomElement> //<qt4/QtXml/QDomElement>
+#include <QtXml/QDomDocument>
+#include <QtXml/QDomElement>
 #include <QFile>
 #include <QString>
 #include <QList>
 #include <MatrixVisualizer.h>
 #include <VisualiserSubWidget.h>
 
-///Singleton pattern
 class MatrixVisualizer;
 
 class configFile : public QObject{
@@ -56,7 +58,7 @@ public:
   void load( MatrixVisualizer* mv);
   void save();
   void newOpenedWindow(VisualiserSubWidget* window);
-  static const bool debug = true;
+  static const bool debug = false;
 
 public slots:
   void doQuit();
@@ -65,6 +67,7 @@ public slots:
 private:
   QList<VisualiserSubWidget*> openWindows;
   MatrixVisualizer* matrixVis;
+  bool saved; //prevents double saving
 
 signals:
   void sendQuit();
