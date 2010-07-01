@@ -39,15 +39,16 @@ ODEROBOTSLIB := ode_robots
 ODEROBOTSLIB_DBG := ode_robots_dbg
 ODEROBOTSLIB_OPT := ode_robots_opt
 ODEROBOTSLIB_PROF := ode_robots_prof
-LIBODEROBOTS = $(ODEROBOTS)/lib$(ODEROBOTSLIB).a
+DEV(LIBODEROBOTS = $(ODEROBOTS)/lib$(ODEROBOTSLIB).a)
 
 SELFORGLIB = selforg
 SELFORGLIB_DBG = selforg_dbg
 SELFORGLIB_OPT = selforg_opt
+DEV(LIBSELFORG      = $(SELFORG)/lib$(SELFORGLIB).a)
 
 GA_TOOLSLIB = ga_tools
 GA_TOOLSLIB_OPT = ga_tools_opt
-LIBGA_TOOLS = lib$(GA_TOOLSLIB).a
+DEV(LIBGA_TOOLS = $(GA_TOOLS)/lib$(GA_TOOLSLIB).a)
 
 
 ODELIBS = $(shell ode-dbl-config --libs)
@@ -79,21 +80,21 @@ opt:    DEV(libode_robots_opt libga_tools_opt) $(EXEC_OPT)
 dbg:    DEV(libode_robots_dgb libga_tools_dgb) $(EXEC_DBG)
 prof:   DEV(libode_robots     libga_tools_prof) $(EXEC_PROF)
 
-$(EXEC): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
+$(EXEC): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS) $(LIBSELFORG) $(LIBGA_TOOLS))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
 
 $(EXEC_OPT): ODEROBOTSLIB = $(ODEROBOTSLIB_OPT)
 $(EXEC_OPT): GA_TOOLSLIB = $(GA_TOOLSLIB_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
 $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
-$(EXEC_OPT): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
+$(EXEC_OPT): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS) $(LIBSELFORG) $(LIBGA_TOOLS))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_OPT)
 
 $(EXEC_DBG): ODEROBOTSLIB = $(ODEROBOTSLIB_DBG)
 $(EXEC_DBG): GA_TOOLSLIB = $(GA_TOOLSLIB_DBG)
 $(EXEC_DBG): SELFORGLIB = $(SELFORGLIB_DBG)
 $(EXEC_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
-$(EXEC_DBG): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
+$(EXEC_DBG): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS) $(LIBSELFORG) $(LIBGA_TOOLS))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_DBG)
 
 $(EXEC_PROF): ODEROBOTSLIB = $(ODEROBOTSLIB_PROF)
