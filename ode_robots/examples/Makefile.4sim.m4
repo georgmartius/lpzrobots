@@ -37,11 +37,12 @@ OFILES = $(addsuffix .o, $(FILES))
 ODEROBOTSLIB := ode_robots
 ODEROBOTSLIB_DBG := ode_robots_dbg
 ODEROBOTSLIB_OPT := ode_robots_opt
-LIBODEROBOTS = $(ODEROBOTS)/lib$(ODEROBOTSLIB).a
+DEV(LIBODEROBOTS = $(ODEROBOTS)/lib$(ODEROBOTSLIB).a)
 
 SELFORGLIB = selforg
 SELFORGLIB_DBG = selforg_dbg
 SELFORGLIB_OPT = selforg_opt
+DEV(LIBSELFORG      = $(SELFORG)/lib$(SELFORGLIB).a)
 
 ODELIBS = $(shell ode-dbl-config --libs)
 GSLLIBS = $(shell gsl-config --libs)
@@ -70,19 +71,19 @@ normal: DEV(libode_robots) $(EXEC)
 opt:    DEV(libode_robots_opt) $(EXEC_OPT)
 dbg:    DEV(libode_robots_dbg) $(EXEC_DBG)
 
-$(EXEC): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
+$(EXEC): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS) $(LIBSELFORG))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
 
 $(EXEC_OPT): ODEROBOTSLIB = $(ODEROBOTSLIB_OPT)
 $(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
 $(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
-$(EXEC_OPT): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
+$(EXEC_OPT): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS) $(LIBSELFORG))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_OPT)
 
 $(EXEC_DBG): ODEROBOTSLIB = $(ODEROBOTSLIB_DBG)
 $(EXEC_DBG): SELFORGLIB = $(SELFORGLIB_DBG)
 $(EXEC_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
-$(EXEC_DBG): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS))
+$(EXEC_DBG): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS) $(LIBSELFORG))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_DBG)
 
 
