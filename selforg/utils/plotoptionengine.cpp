@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.9  2009-10-23 12:37:47  martius
+ *  Revision 1.10  2010-07-02 05:40:22  martius
+ *  print with %s is safer
+ *
+ *  Revision 1.9  2009/10/23 12:37:47  martius
  *  plot description for time
  *
  *  Revision 1.8  2009/10/14 10:00:17  martius
@@ -133,7 +136,7 @@ bool PlotOptionEngine::initPlotOption(PlotOption& po){
     FOREACHC(list<const Inspectable*>, inspectables, insp) {
       const list<string>& infoLines = (*insp)->getInfoLines();
       FOREACHC(list<string>, infoLines, infoLine) {
-        fprintf(po.pipe,string("#I ").append(*infoLine).append("\n").c_str());
+        fprintf(po.pipe,"%s", string("#I ").append(*infoLine).append("\n").c_str());
       }
     }
 
