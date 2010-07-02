@@ -22,7 +22,7 @@
 
 #include <cmath>
 #include <assert.h>
-#include <ode/ode.h>
+#include <ode-dbl/ode.h>
 
 // include primitives (box, spheres, cylinders ...)
 #include <ode_robots/primitive.h>
@@ -171,7 +171,7 @@ namespace lpzrobots {
   }
 
   double Hexapod::energyConsumpThroughtHeatLoss(const dReal *torques){
-    return pow(torques[0] + torques[1] + torques[2],2);
+    return pow(torques[0] + torques[1] + torques[2],2); // <-- This should be sqr(torques[0]) + ..
   }
 
   double Hexapod::energyConsumption(){
@@ -271,7 +271,7 @@ namespace lpzrobots {
   /** checks for internal collisions and treats them. 
    *  In case of a treatment return true (collision will be ignored by other objects 
    *  and the default routine)  else false (collision is passed to other objects and 
-   *  (if not treated) to the default robjects.outine).
+   *  (if not treated) to the default routine).
    */
 
 
@@ -280,7 +280,7 @@ namespace lpzrobots {
     const int NUM_CONTACTS = 8;
     dContact contacts[NUM_CONTACTS];
     int numCollisions = dCollide(o1, o2, NUM_CONTACTS, &contacts[0].geom, sizeof(dContact));
-
+    // Georg: this would also be possible by a special substance with callback.
     //set all contacts to zero
     for(int j = 0; j < 6; j++) {
       conf.legContacts[j] = 0;

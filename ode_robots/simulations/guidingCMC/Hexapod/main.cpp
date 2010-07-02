@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-07-02 06:12:55  martius
+ *   Revision 1.2  2010-07-02 06:39:21  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.1  2010/07/02 06:12:55  martius
  *   initial version with hexapod made by Guillaume
  *
  *   Revision 1.5  2010/01/27 10:20:47  martius
@@ -143,7 +146,7 @@ public:
     /*******  H E X A P O D  *********/
     HexapodConf myHexapodConf = Hexapod::getDefaultConf();
     vehicle = new Hexapod(odeHandle, osgHandle.changeColor(Color(1,222/255.0,0)), 
-			  Hexapod, "Hexapod_" + std::itos(teacher*10000));
+			  myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
 
     vehicle->place(Pos(0,0,.1));    
     global.configs.push_back(vehicle);
