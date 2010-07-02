@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-07-02 06:39:21  martius
+ *   Revision 1.3  2010-07-02 15:54:26  martius
+ *   robot tuned
+ *   parameters for guidance experimented
+ *
+ *   Revision 1.2  2010/07/02 06:39:21  martius
  *   *** empty log message ***
  *
  *   Revision 1.1  2010/07/02 06:12:55  martius
@@ -111,6 +115,7 @@ public:
   int blink;
 
   CrossMotorCoupling* controller;
+  // AbstractController* controller;
   //  SeMoX* controller;
   //InvertMotorNStep* controller;
   OdeRobot* vehicle;
@@ -145,7 +150,10 @@ public:
       
     /*******  H E X A P O D  *********/
     HexapodConf myHexapodConf = Hexapod::getDefaultConf();
-    vehicle = new Hexapod(odeHandle, osgHandle.changeColor(Color(1,222/255.0,0)), 
+    OdeHandle rodeHandle = odeHandle;
+    rodeHandle.substance.toRubber(20);
+
+    vehicle = new Hexapod(rodeHandle, osgHandle.changeColor(Color(1,222/255.0,0)), 
 			  myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
 
     vehicle->place(Pos(0,0,.1));    
@@ -162,15 +170,17 @@ public:
 
     SeMoXConf cc = SeMoX::getDefaultConf();    
     //cc.cInit=.95;
-    cc.cInit=.5;
+    cc.cInit=.99;
     cc.modelExt=false;
     cc.someInternalParams=true;
     SeMoX* semox = new SeMoX(cc);  
 
-//     AbstractController* controller = new SineController(~0, SineController::Sine);   // local variable!
-// //     // motorpower 20
-//     controller->setParam("period", 300);
-//     controller->setParam("phaseshift", 0.3);
+//     AbstractController* sine = new SineController(~0, SineController::Sine);   // local variable!
+//     //    AbstractController* sine = new SineController(1, SineController::Sine);   // local variable!
+// //     // //     // motorpower 20
+//      sine->setParam("period", 30);
+//      sine->setParam("phaseshift", 0.5);
+//      sine->setParam("amplitude", 0.5);
 
     if(useSym){
       semox->setParam("epsC", 0.1);
@@ -185,7 +195,8 @@ public:
 
     semox->setParam("gamma_teach", teacher);
 
-    //controller=semox;
+    //    controller=semox;
+    //    controller=sine;
     controller = new CrossMotorCoupling( semox, semox, 0.4);
 
     //    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -231,16 +242,34 @@ public:
    
   }
 
+  // k should be period of walking pattern 
   virtual void setCMC(int _k){    
     k=_k;
     k_double=k;
     std::list<int> perm;
     int len  = controller->getMotorNumber();
-    for(int i=0; i<len; i++){
-      perm.push_back((i+k+(len)/2)%len);
+    if(len==12){ // test
+      perm.push_back(2*4);
+      perm.push_back(2*4+1);
+      perm.push_back(2*5);
+      perm.push_back(2*5+1);
+      perm.push_back(2*1);
+      perm.push_back(2*1+1);
+      perm.push_back(2*0);
+      perm.push_back(2*0+1);
+      perm.push_back(2*3);
+      perm.push_back(2*3+1);
+      perm.push_back(2*2);
+      perm.push_back(2*2+1);
+
+    } else {
+      printf("error");
     }
-    CMC cmc = controller->getPermutationCMC(perm);
-    controller->setCMC(cmc);  
+    CrossMotorCoupling* contr = dynamic_cast<CrossMotorCoupling*>(controller);
+    if(contr){
+      CMC cmc = contr->getPermutationCMC(perm);
+      contr->setCMC(cmc);  
+    }
   }
 
   // overloaded from configurable

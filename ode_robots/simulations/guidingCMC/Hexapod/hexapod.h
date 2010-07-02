@@ -24,6 +24,8 @@
 #ifndef __HEXAPOD_H
 #define __HEXAPOD_H
 
+#include <selforg/inspectable.h>
+
 #include <ode_robots/oderobot.h>
 #include <ode_robots/twoaxisservo.h>
 #include <ode_robots/raysensorbank.h>
@@ -40,6 +42,8 @@ namespace lpzrobots {
     double size;       ///< scaling factor for robot (diameter of body)
     double legLength;  ///< length of the legs in units of size 
     int    legNumber;  ///<  number of snake elements
+    double width;      ///< body with in units of size
+    double height;     ///< body with in units of size
     double mass;       ///< chassis mass
     double relLegmass; ///< relative overall leg mass
     double percentageBodyMass;
@@ -47,11 +51,11 @@ namespace lpzrobots {
     double coxaPower; ///< maximal force for at hip joint motors
     double coxaJointLimitV; ///< angle range for vertical direction of legs
     double coxaJointLimitH; ///< angle range for horizontal direction of legs
-    double coxaThoraxDamping; ///< damping of hio joint servos
+    double coxaDamping;     ///< damping of hip joint servos
 
-   // double tebiaPower;  ///< spring strength in the knees
-    double tebiaJointLimit; ///< angle range for knees
-    double tebiaCoxaDamping; ///< damping in the knees
+//     double tebiaPower;       ///< spring strength in the knees
+//     double tebiaJointLimit;  ///< angle range for knees
+//     double tebiaCoxaDamping; ///< damping in the knees
 
     double T; ///< T is the for the time for calculating the cost of transport over time
     double *v;
@@ -79,7 +83,7 @@ namespace lpzrobots {
   } Leg;
 
 
-  class Hexapod : public OdeRobot {
+  class Hexapod : public OdeRobot, public Inspectable {
   public:
   
     /**
@@ -96,6 +100,8 @@ namespace lpzrobots {
     static HexapodConf getDefaultConf(){
       HexapodConf c;
       c.size       = 1;
+      c.width      = 1.0/3.0; //1.0/1.5
+      c.height     = 1.0/5.0; //1.0/4.0
       c.legNumber  = 6;
       c.legLength  = 0.6;
       c.percentageBodyMass = 0.7;
@@ -105,11 +111,12 @@ namespace lpzrobots {
       c.coxaPower = 4;
       c.coxaJointLimitV = M_PI/8;  ///< angle range for vertical direction of legs
       c.coxaJointLimitH = M_PI/8;
-      c.coxaThoraxDamping = 0.2;
+      c.coxaDamping = 0.01; // Georg: too high damping is instable! // 0.2;
       c.T = 1.0;
-   /* c.tebiaJointLimit = M_PI/4; // +- 45 degree
+   /* c.tebiaPower = 4; // +- 45 degree
+      c.tebiaJointLimit = M_PI/4; // +- 45 degree
       c.tebiaJointLimit = 2;
-      c.tebiaCoxaDamping = 0.01;*/
+      c.tebiaDamping = 0.01;*/
       c.legContacts = new int[6];
       c.irSensors=false;
       c.irFront=false;
@@ -186,12 +193,7 @@ namespace lpzrobots {
 
     virtual double getMassOfRobot();
 
-    /** The list of all parameters with there value as allocated lists.
-     */
-    virtual paramlist getParamList() const;
-
-    virtual paramval getParam(const paramkey& key) const;
-    
+    // Configurable Interface
     virtual bool setParam(const paramkey& key, paramval val);
 
     /** the main object of the robot, which is used for position and speed tracking */

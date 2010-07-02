@@ -22,6 +22,8 @@
 
 #include <cmath>
 #include <assert.h>
+
+// #include <ode/ode.h>
 #include <ode-dbl/ode.h>
 
 // include primitives (box, spheres, cylinders ...)
@@ -40,6 +42,10 @@
 
 // include header file
 #include "hexapod.h"
+
+// rotation and translation matrixes (to make the code shorter)
+#define ROTM osg::Matrix::rotate
+#define TRANSM osg::Matrix::translate
 
 using namespace osg;
 using namespace std;
@@ -80,6 +86,28 @@ namespace lpzrobots {
     this->osgHandle.color = Color(1.0, 1,1,1);
     legmass= (1.0 - conf.percentageBodyMass)*conf.mass/(conf.legNumber*2.0);
 
+    addParameter("coxaPower", &conf.coxaPower);
+    addParameter("coxaDamp", &conf.coxaDamping);
+    addParameter("coxaJointLimitH", &conf.coxaJointLimitH);
+    addParameter("coxaJointLimitV", &conf.coxaJointLimitV);
+//     addParameter("tebiaPower",      &conf.tebiaDamping);
+//     addParameter("tebiaDamp",   &conf.tebiaDamping);
+//     addParameter("tebiaJointLimit", &conf.tebiaJointLimit);
+
+    // name the sensors
+    for(int n=0; n<conf.legNumber; n++){      
+      addInspectableDescription("x[" + itos (n*2) + "]",
+                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left") 
+                                + " up/down");
+      addInspectableDescription("x[" + itos (n*2+1) + "]",
+                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left") 
+                                + " front/back");
+    }
+
+    // Georg: you can also add inspectables here to see them in the logfile/guilogger
+    // e.g.
+    addInspectableValue("Energy", &E_t, "Energy over several timesteps");
+    
   };
 
 
@@ -171,7 +199,9 @@ namespace lpzrobots {
   }
 
   double Hexapod::energyConsumpThroughtHeatLoss(const dReal *torques){
-    return pow(torques[0] + torques[1] + torques[2],2); // <-- This should be sqr(torques[0]) + ..
+    // Georg: This should be sqr(torques[0]) + sqr(torques[1]) + ..
+    // torque can be negative!
+    return pow(torques[0] + torques[1] + torques[2],2); 
   }
 
   double Hexapod::energyConsumption(){
@@ -187,7 +217,6 @@ namespace lpzrobots {
       e += outwardMechanicalPower(torques,angularV) + gamma*energyConsumpThroughtHeatLoss(torques);
     }
     return e;
-
   }
 
   double Hexapod::getMassOfRobot(){
@@ -273,14 +302,14 @@ namespace lpzrobots {
    *  and the default routine)  else false (collision is passed to other objects and 
    *  (if not treated) to the default routine).
    */
-
-
   bool Hexapod::collisionCallback(void *data, dGeomID o1, dGeomID o2){
 
     const int NUM_CONTACTS = 8;
     dContact contacts[NUM_CONTACTS];
     int numCollisions = dCollide(o1, o2, NUM_CONTACTS, &contacts[0].geom, sizeof(dContact));
     // Georg: this would also be possible by a special substance with callback.
+    //  I will maybe implement a contact sensor anyway...
+
     //set all contacts to zero
     for(int j = 0; j < 6; j++) {
       conf.legContacts[j] = 0;
@@ -289,7 +318,7 @@ namespace lpzrobots {
     for(int i = 0; i < numCollisions; ++i)
       {
 	dBodyID b1 =  dGeomGetBody(contacts[i].geom.g1);
-
+        // Georg: are you sure that b1 is always the leg?
 	if(legContactArray[0].bodyID == b1){conf.legContacts[0] = 1; }
 	if(legContactArray[1].bodyID == b1){conf.legContacts[1] = 4; }
 	if(legContactArray[2].bodyID == b1){conf.legContacts[2] = 2; }
@@ -335,12 +364,12 @@ namespace lpzrobots {
     FixedJoint* fixedJoint;
     
     // create body
-    double twidth = conf.size / 1.5;
-    double theight = conf.size / 4;
+    double twidth = conf.size * conf.width ;// 1/1.5;
+    double theight = conf.size * conf.height; // 1/4;
     trunk = new Box(conf.size, twidth, theight);
     trunk->setTexture("Images/toy_fur3.jpg");
     trunk->init(odeHandle, conf.mass*conf.percentageBodyMass, osgHandle);
-    osg::Matrix trunkPos = osg::Matrix::translate(0,0,conf.legLength)*pose;
+    osg::Matrix trunkPos = TRANSM(0,0,conf.legLength)*pose;
     trunk->setPose(trunkPos);
     objects.push_back(trunk);
 
@@ -353,7 +382,7 @@ namespace lpzrobots {
 	irbox = new Box(0.1,0.1,0.1);
 	irbox->setTexture("Images/toy_fur3.jpg");
 	irbox->init(odeHandle, 0.00001, osgHandle);
-	irbox->setPose(osg::Matrix::rotate(M_PI/4,0,0,1) *osg::Matrix::translate(i*conf.size/2,0,theight/2)*trunkPos);
+	irbox->setPose(ROTM(M_PI/4,0,0,1) * TRANSM(i*conf.size/2,0,theight/2)*trunkPos);
 	objects.push_back(irbox);
 	fixedJoint = new FixedJoint(trunk,irbox);
 	fixedJoint->init(odeHandle, osgHandleJ, true, 0.4);
@@ -365,7 +394,7 @@ namespace lpzrobots {
 	irbox = new Box(0.1,0.1,0.15);
 	irbox->setTexture("Images/toy_fur3.jpg");
 	irbox->init(odeHandle, 0.00001, osgHandle);
-	irbox->setPose(osg::Matrix::translate(0,i*twidth/2,theight/2 + 0.05)*trunkPos);
+	irbox->setPose(TRANSM(0,i*twidth/2,theight/2 + 0.05)*trunkPos);
 	objects.push_back(irbox);
 	fixedJoint = new FixedJoint(trunk,irbox);
 	fixedJoint->init(odeHandle, osgHandleJ, true, 0.4);
@@ -449,18 +478,21 @@ namespace lpzrobots {
       double l2 = conf.legLength*0.5;
       double t2 = conf.legLength/10;
 
-
       // upper limp
       Primitive* coxaThorax;
-      Pos pos = Pos(-conf.size/(2+0.2) + ((int)n/2) * legdist, n%2==0 ? - twidth/2 : twidth/2, conf.legLength - theight/3);
-
-      osg::Matrix m = osg::Matrix::rotate(M_PI/2,v%2==0 ? -1 : 1,0,0) * osg::Matrix::translate(pos) * pose;
+      Pos pos = Pos(-conf.size/(2+0.2) + ((int)n/2) * legdist, 
+                    n%2==0 ? - twidth/2 : twidth/2, 
+                    conf.legLength - theight/3);
+      
+      osg::Matrix m = ROTM(M_PI/2,v%2==0 ? -1 : 1,0,0) * TRANSM(pos) * pose;
       coxaThorax = new Capsule(t1, l1);
       coxaThorax->setTexture("Images/toy_fur3.jpg");
       coxaThorax->init(odeHandle, legmass, osgHandle);
 
-      osg::Matrix m1 =  osg::Matrix::translate(0,0,-l1/2) * osg::Matrix::rotate(M_PI,0,0,v%2==0 ? -1 : 1) * osg::Matrix::rotate(2*M_PI,0,v%2==0 ? -1 : 1,0) * m;
-
+      osg::Matrix m1 =  TRANSM(0,0,-l1/2) 
+        * ROTM(M_PI,0,0,v%2==0 ? -1 : 1) 
+        * ROTM(2*M_PI,0,v%2==0 ? -1 : 1,0) * m;
+      
       coxaThorax->setPose(m1);
       thoraxPos.push_back(coxaThorax->getPosition());
 
@@ -471,30 +503,27 @@ namespace lpzrobots {
       // powered hip joint
       Pos nullpos(0,0,0);
 
-
-      UniversalJoint* j = new UniversalJoint(trunk, coxaThorax, nullpos * m, osg::Matrix::rotate(M_PI,0,0,v%2==0 ? -1 : 1) * Axis(v%2==0 ? -1 : 1,0,0) * m,
-					     osg::Matrix::rotate(M_PI,0,0,v%2==0 ? -1 : 1) *	Axis(0,1,0) * m);
-
-
+      UniversalJoint* j 
+        = new UniversalJoint(trunk, coxaThorax, nullpos * m, 
+                             ROTM(M_PI,0,0,v%2==0 ? -1 : 1) * Axis(v%2==0 ? -1 : 1,0,0) * m,
+                             ROTM(M_PI,0,0,v%2==0 ? -1 : 1) * Axis(0,1,0) * m);
 
       j->init(odeHandle, osgHandle, true, t1 * 2.1);
       joints.push_back(j);
 
       legContactArray[n].joint = j->getJoint();
 
-
-
-      servo =  new UniversalServo(j,-conf.coxaJointLimitV, conf.coxaJointLimitV,conf.coxaPower,
-				  -conf.coxaJointLimitH, conf.coxaJointLimitH,conf.coxaPower,conf.coxaThoraxDamping);
+      // values will be set in setParam later
+      servo =  new UniversalServo(j,-1,1, 1, -1,1,1,0); 
       hipservos.push_back(servo);
 
-
-
+      // lower leg
       Primitive* tibia;
       tibia = new Capsule(t2, l2);
       tibia->setTexture("Images/toy_fur3.jpg");
       tibia->init(odeHandle, legmass, osgHandle);
-      osg::Matrix m2 =   osg::Matrix::translate(0,0,-l2/2)* osg::Matrix::rotate(1.5,v%2==0 ? -1 : 1,0,0) * osg::Matrix::translate(0,0,-l1/2) * m1;
+      osg::Matrix m2 =   TRANSM(0,0,-l2/2) * ROTM(1.5,v%2==0 ? -1 : 1,0,0) 
+        * TRANSM(0,0,-l1/2) * m1;
       tibia->setPose(m2);
       objects.push_back(tibia);
       legs.push_back(tibia);
@@ -503,11 +532,10 @@ namespace lpzrobots {
       legContactArray[n].geomid = tibia->getGeom();
       legContactArray[n].bodyID = tibia->getBody();
 
-
-
+      // fixed knee joint
+      FixedJoint* k = new FixedJoint(coxaThorax, tibia);
+      k->init(odeHandle, osgHandle, false, t1 * 2.1);
       // powered knee joint
-      FixedJoint* k = new FixedJoint(tibia,coxaThorax);
-      k->init(odeHandle, osgHandle, true, t1 * 2.1);
       /*  HingeJoint* k = new HingeJoint(coxaThorax, tibia, Pos(0,0,-l1/2) * m1, Axis(v%2==0 ? -1 : 1,0,0) * m1);
 	  k->init(odeHandle, osgHandle, true, t1 * 2.1);
 	  k->setParam(dParamLoStop,0);
@@ -515,11 +543,47 @@ namespace lpzrobots {
 	  k->*/
       joints.push_back(k);
       // lower limp should not collide with body!
-      odeHandle.addIgnoredPair(trunk,tibia);
+      odeHandle.addIgnoredPair(trunk,tibia); 
+      // Georg: we could also ignore all internal collisions (see createNewSimpleSpace above)
+    }
+    // New: wiskers
+    for ( int n = -1; n < 2; n+=2 ) {
+      double l1 = conf.legLength*0.5;
+      double t1 = conf.legLength/30;
 
+      Primitive* whisker;
+      Pos pos = Pos(conf.size/(2)+t1, 
+                    n*twidth/4, 
+                    conf.legLength + theight/5);
+      
+      osg::Matrix m = ROTM(M_PI/10, n,0,0) * ROTM(M_PI/2+M_PI/10, 0,-1,0) * TRANSM(pos) * pose;
+      whisker = new Capsule(t1, l1);
+      whisker->init(odeHandle, legmass/10, osgHandle);
+      osg::Matrix m1 = TRANSM(0,0,-l1/2) * m;
+      whisker->setPose(m1);
+      objects.push_back(whisker);
 
+      FixedJoint* k = new FixedJoint(trunk, whisker);
+      k->init(odeHandle, osgHandle, false, 0);
+      joints.push_back(k);
+      
+      Primitive* whisker2;
+      whisker2 = new Capsule(t1/2, l1);
+      whisker2->init(odeHandle, legmass/10, osgHandle);
+      osg::Matrix m2 = TRANSM(0,0,-l1/2) 
+        * ROTM(M_PI/10, n,0,0) 
+        * ROTM(M_PI/10, 0,1,0) * TRANSM(0,0,-l1/2) * m1; 
+      whisker2->setPose(m2);
+      objects.push_back(whisker2);
+
+      k = new FixedJoint(whisker, whisker2);
+      k->init(odeHandle, osgHandle, false, 0);
+      joints.push_back(k);
 
     }
+        
+
+    setParam("dummy",0); // apply all parameters.
     
     created=true;
   }; 
@@ -533,9 +597,8 @@ namespace lpzrobots {
       odeHandle.removeIgnoredPair(trunk,headtrans);
       irSensorBank.clear();
 
-
-
       FOREACH(vector<UniversalServo*>, hipservos, i){
+        if(*i) delete *i;
       }
       hipservos.clear();
 
@@ -555,71 +618,34 @@ namespace lpzrobots {
 
     created=false;
   }
-
-
-
-  /** The list of all parameters with there value as allocated lists.
-   */
-  Configurable::paramlist Hexapod::getParamList() const{
-    paramlist list;
-    list += pair<paramkey, paramval> (string("coxaPower"),   	conf.coxaPower);
-    list += pair<paramkey, paramval> (string("coxaThorax"),   	conf.coxaThoraxDamping);
-    list += pair<paramkey, paramval> (string("coxaJointLimitH"), conf.coxaJointLimitH);
-    list += pair<paramkey, paramval> (string("coxaJointLimitV"), conf.coxaJointLimitV);
-    //   list += pair<paramkey, paramval> (string("tebiaPower"),  	conf.tebiaPower);
-    list += pair<paramkey, paramval> (string("tebiaCoxaDamping"),conf.tebiaCoxaDamping);
-    list += pair<paramkey, paramval> (string("tebiaJointLimit"),conf.tebiaJointLimit);
-
-    return list;
-  }
-  
-  
-  Configurable::paramval Hexapod::getParam(const paramkey& key) const{    
-    if(key == "coxaPower") return conf.coxaPower;
-    else if(key == "coxaThoraxDamping") return conf.coxaThoraxDamping;
-    //  else if(key == "tebiaPower") return conf.tebiaPower;
-    else if(key == "tebiaCoxaDamping") return conf.tebiaCoxaDamping;
-    else if(key == "coxaJointLimitH") return conf.coxaJointLimitH;
-    else if(key == "coxaJointLimitV") return conf.coxaJointLimitV;
-    else if(key == "tebiaJointLimit") return conf.tebiaJointLimit;
-    else  return Configurable::getParam(key) ;
-  }
-  
+      
   bool Hexapod::setParam(const paramkey& key, paramval val){    
-    if(key == "coxaPower") {
-      conf.coxaPower = val;
-
-      FOREACH(vector<UniversalServo*>, hipservos, i){
-	if(*i){
-	  (*i)->setPower1(conf.coxaPower);
-	  (*i)->setPower2(conf.coxaPower);
-	}
+    // the parameters are assigned here
+    bool rv = Configurable::setParam(key, val); 
+    // we simply set all parameters here
+    FOREACH(vector<UniversalServo*>, hipservos, i){
+      if(*i){
+        (*i)->setPower1(conf.coxaPower);
+        (*i)->setPower2(conf.coxaPower);
       }
-
-    } else if(key == "coxaThoraxDamping") {
-      conf.coxaThoraxDamping = val;
-
-
-      FOREACH(vector<UniversalServo*>, hipservos, i){
-	if(*i) {
-	  (*i)->damping1() = conf.coxaThoraxDamping;
-	  (*i)->damping2() = conf.coxaThoraxDamping;
-	}
+    }
+    FOREACH(vector<UniversalServo*>, hipservos, i){
+      if(*i) {
+        (*i)->damping1() = conf.coxaDamping;
+        (*i)->damping2() = conf.coxaDamping;
       }
-
-    } else if(key == "coxaJointLimitH") {
-      conf.coxaJointLimitH = val;
-
-
-      FOREACH(vector<UniversalServo*>, hipservos, i){
-	if(*i){
-	  (*i)->setMinMax1(-val,+val);
-	  (*i)->setMinMax2(-val,+val);
-	}
+    }
+   
+    FOREACH(vector<UniversalServo*>, hipservos, i){
+      if(*i){
+        (*i)->setMinMax1(-conf.coxaJointLimitV,+conf.coxaJointLimitV);
+        (*i)->setMinMax2(-conf.coxaJointLimitH,+conf.coxaJointLimitH);
       }
+    }
+    
+    return rv;
 
-    }  else return Configurable::setParam(key, val);
-    return true;
+
   }
 
 }
