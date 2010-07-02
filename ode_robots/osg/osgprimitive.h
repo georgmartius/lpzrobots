@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-03-16 15:47:46  martius
+ *   Revision 1.10  2010-07-02 05:45:06  martius
+ *   comments improved
+ *
+ *   Revision 1.9  2010/03/16 15:47:46  martius
  *   osgHandle has now substructures osgConfig and osgScene
  *    that minimized amount of redundant data (this causes a lot of changes)
  *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
@@ -312,7 +315,7 @@ namespace lpzrobots {
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
     /**
      * Same as init, but the mesh file is not loaded and therefore not displayed.
-     * This method ensures that the transform is correct initialised.
+     * This method ensures that the transform is correctly initialised.
      * @param osgHandle
      */
     virtual void virtualInit(const OsgHandle& osgHandle);

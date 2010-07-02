@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2008-09-16 14:49:46  martius
+ *   Revision 1.10  2010-07-02 05:44:29  martius
+ *   comments improved
+ *
+ *   Revision 1.9  2008/09/16 14:49:46  martius
  *   use cmath instead of math.h
  *
  *   Revision 1.8  2006/07/14 12:23:33  martius
@@ -68,7 +71,7 @@ namespace lpzrobots {
 	@param x_size size in x direction in world coordinates
 	@param y_size size in y direction in world coordinates
 	@param height height in world coordinates
-	@param coding Coding mode, see OSGHeightField (this an own class, not in OSG)
+	@param coding Coding mode, see OSGHeightField (this is an own class, not in OSG)
     */
     TerrainGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 	       const std::string& filename, const std::string& texture, 

@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-03-16 15:47:46  martius
+ *   Revision 1.9  2010-07-02 05:45:06  martius
+ *   comments improved
+ *
+ *   Revision 1.8  2010/03/16 15:47:46  martius
  *   osgHandle has now substructures osgConfig and osgScene
  *    that minimized amount of redundant data (this causes a lot of changes)
  *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
@@ -78,6 +81,7 @@
 #include <osg/MatrixTransform>
 #include <osgDB/FileUtils>
 #include <osg/Material>
+#include <osgUtil/Simplifier>
 // #include <osg/Geode>
 // #include <osgDB/ReadFile>
 // #include <osg/Texture>
@@ -148,6 +152,9 @@ namespace lpzrobots {
     transform->addChild(geode.get());
     osgHandle.parent->addChild(transform.get());
 
+    //  osgUtil::Simplifier simplifier(.6);    
+    //  simplifier.simplify(field);
+
     shape = new ShapeDrawable(field, osgHandle.cfg->tesselhints[quality]);
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
@@ -196,7 +203,7 @@ namespace lpzrobots {
     unsigned char* data = image.data();
     for(int j=0; j< cols; j++){
       for(int i=0; i< rows; i++){
-	// use the coding th get the height and scale it to height
+	// use the coding to get the height value and scale it with height
 	field->setHeight(i,j, coding(codingMode, data) * height);  
 	data+=3;
       }

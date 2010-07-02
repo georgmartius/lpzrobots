@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-07-30 11:36:01  guettler
+ *   Revision 1.4  2010-07-02 05:45:06  martius
+ *   comments improved
+ *
+ *   Revision 1.3  2009/07/30 11:36:01  guettler
  *   added check if noGraphics in OsgHandle is set
  *
  *   Revision 1.2  2006/07/14 12:23:35  martius
@@ -55,11 +58,12 @@ namespace lpzrobots {
   class OSGHeightField : public OSGPrimitive {
   public:
 
-    /// height coding using in the read in bitmap.
-    // Red: just the red channel is used;
-    // Sum: the sum of all channels is used;
-    // HighMidLow: Blue is least significant, Green is medium significant and Red is most significant
-    /* typedef */ enum CodingMode {Red, Sum, LowMidHigh};
+    /** height coding using in the read in bitmap.
+     * Red: just the red channel is used;
+     * Sum: the sum of all channels is used;
+     * HighMidLow: Blue is least significant, Green is medium significant and Red is most significant
+     */
+    enum CodingMode {Red, Sum, LowMidHigh};
       
 
     OSGHeightField(osg::HeightField* heightfield,float x_size, float y_size);    
