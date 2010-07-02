@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-08-05 22:32:21  martius
+ *   Revision 1.12  2010-07-02 15:57:25  martius
+ *   wirings have new initIntern signature -> less errors can be made
+ *   abstractwiring generates the noise of given length
+ *
+ *   Revision 1.11  2009/08/05 22:32:21  martius
  *   big change:
  *       abstractwiring is responsable for providing sensors and motors
  *        and noise to the inspectable interface.
@@ -130,21 +134,18 @@ DerivativeWiring::~DerivativeWiring(){
 }
 
 
-bool DerivativeWiring::initIntern(int rsensornumber, int rmotornumber, RandGen* randGen){  
-  this->rsensornumber = rsensornumber;
-  this->rmotornumber  = rmotornumber;
-
-  this->csensornumber = this->rsensornumber*( (int)conf.useId+(int)conf.useFirstD+(int)conf.useSecondD)
+bool DerivativeWiring::initIntern(){  
+  csensornumber = rsensornumber*( (int)conf.useId+(int)conf.useFirstD+(int)conf.useSecondD)
     + conf.blindMotors;
-  this->cmotornumber  = this->rmotornumber + conf.blindMotors;
+  cmotornumber  = rmotornumber + conf.blindMotors;
     
   for(int i=0; i<buffersize; i++){
     sensorbuffer[i]      = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
-    for(int k=0; k < this->rsensornumber; k++){
+    for(int k=0; k < rsensornumber; k++){
       sensorbuffer[i][k]=0;
     }
   }
-  // if(conf.useId)     id           = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
+  // if(conf.useId)     id           = (sensor*) malloc(sizeof(sensor) * rsensornumber);
   if(conf.useFirstD)  first  = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
   if(conf.useSecondD) second = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
   if(conf.blindMotors>0){

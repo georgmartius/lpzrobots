@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-05-28 14:18:26  martius
+ *   Revision 1.12  2010-07-02 15:57:25  martius
+ *   wirings have new initIntern signature -> less errors can be made
+ *   abstractwiring generates the noise of given length
+ *
+ *   Revision 1.11  2010/05/28 14:18:26  martius
  *   plotmode are now powers of 2 and Robot has value 1 (was unaccessable before)
  *   added plotmode Nothing
  *
@@ -140,8 +144,8 @@ public:
    *  calculates the number of sensors and motors on controller side.
    *  The internal version initIntern() is called from here and 
    *   be overloaded to calculate and provide the appropriate numbers
-   *  controllersensornumber (csensornumber), controllermotornumber (cmotornumber),
-   *  robotsensornumber (rsensornumber) and robotmotornumber (rmotornumber),
+   *  controllersensornumber (csensornumber), controllermotornumber (cmotornumber)
+   *  The number of noise channels (noisenumber) can also be changed.
    *  @param randGen pointer to random generator, if not given then a new one is created
    *  @return returns false on error, otherwise true
    */
@@ -150,12 +154,13 @@ public:
   /** Realizes wiring from robot sensors to controller sensors.
    *   The internal version wireSensorsIntern() is called from here and 
    *    must be overloaded in order to implement the appropriate mapping.
+   *   Noise values of the right size are then accessible via the noisevals array.
    *   @param rsensors pointer to array of sensorvalues from robot
    *   @param rsensornumber number of sensors from robot
    *   @param csensors pointer to array of sensorvalues for controller
    *   @param csensornumber number of sensors to controller
-   *   @param noise size of the noise added to the sensors
-   *  @return returns false on error, otherwise true
+   *   @param noiseStrength size of the noise added to the sensors
+   *   @return returns false on error, otherwise true
    */
   virtual bool wireSensors(const sensor* rsensors, int rsensornumber,
 			   sensor* csensors, int csensornumber,
@@ -192,9 +197,12 @@ public:
 
 protected:
   /** to be overloaded by subclasses
+      The rsensornumber and rmotornumber are already stored
+      in the member variables. The random values are to be accessed
+      via the noiseGenerator.
       @see init() 
    */
-  virtual bool initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen=0) = 0;
+  virtual bool initIntern() = 0;
 
   /** to be overloaded by subclasses
       @see wireSensors() 
@@ -213,9 +221,12 @@ protected:
 
   /// using plotTypes this variables defines what is plotted
   int plotMode; 
+
   /// for storing the noise values
   matrix::Matrix mNoise;
   sensor* noisevals; // pointer to the noisevalues stored in the matrix
+  // size of the noise vector
+  int noisenumber;
 
   /// number of sensors at robot side
   int rsensornumber;

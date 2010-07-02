@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2009-08-10 15:36:19  der
+ *   Revision 1.18  2010-07-02 15:57:25  martius
+ *   wirings have new initIntern signature -> less errors can be made
+ *   abstractwiring generates the noise of given length
+ *
+ *   Revision 1.17  2009/08/10 15:36:19  der
  *   plotoptions can again be added and initialized later
  *   ctrl-g and -f are working again
  *   ctrl-n added for neuronviz
@@ -153,8 +157,8 @@ bool WiredController::init(AbstractController* controller, AbstractWiring* wirin
   cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);
 
 
-  plotEngine.addInspectable(this);
-  plotEngine.addInspectable(wiring);
+  plotEngine.addInspectable(this, true);
+  plotEngine.addInspectable(wiring,true);
   plotEngine.addInspectable(controller); 
 
   plotEngine.addConfigurable(controller);

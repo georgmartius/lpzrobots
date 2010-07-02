@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.6  2009-08-10 15:36:19  der
+ *  Revision 1.7  2010-07-02 15:57:25  martius
+ *  wirings have new initIntern signature -> less errors can be made
+ *  abstractwiring generates the noise of given length
+ *
+ *  Revision 1.6  2009/08/10 15:36:19  der
  *  plotoptions can again be added and initialized later
  *  ctrl-g and -f are working again
  *  ctrl-n added for neuronviz
@@ -122,7 +126,7 @@ public:
 
   /** adds an inspectable object for logging. Must be called before init!
    */
-  virtual void addInspectable(const Inspectable* inspectable);
+  virtual void addInspectable(const Inspectable* inspectable, bool front = false);
 
   /** adds an configureable object for logging. Must be called before init!
    */

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-08-05 22:32:21  martius
+ *   Revision 1.7  2010-07-02 15:57:25  martius
+ *   wirings have new initIntern signature -> less errors can be made
+ *   abstractwiring generates the noise of given length
+ *
+ *   Revision 1.6  2009/08/05 22:32:21  martius
  *   big change:
  *       abstractwiring is responsable for providing sensors and motors
  *        and noise to the inspectable interface.
@@ -74,9 +78,7 @@ FeedbackWiring::~FeedbackWiring(){
 
 // initializes the number of sensors and motors from robot, calculate
 //  number of sensors and motors on controller side
-bool FeedbackWiring::initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen){
-  rsensornumber = robotsensornumber;
-  rmotornumber  = robotmotornumber;
+bool FeedbackWiring::initIntern(){
   csensornumber = rsensornumber;
   if((mode & Context) == 0) // without context mapping no additional motors
     cmotornumber  = rmotornumber;

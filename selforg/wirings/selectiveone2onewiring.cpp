@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-03-24 16:51:38  martius
+ *   Revision 1.12  2010-07-02 15:57:25  martius
+ *   wirings have new initIntern signature -> less errors can be made
+ *   abstractwiring generates the noise of given length
+ *
+ *   Revision 1.11  2010/03/24 16:51:38  martius
  *   QuickMP uses now the number of processors in the system
  *   optical flow improved
  *   video recording works with offscreen rendering
@@ -98,14 +102,14 @@ SelectiveOne2OneWiring::~SelectiveOne2OneWiring(){
 
 /// initializes the number of sensors and motors on robot side, calculate
 //  number of sensors and motors on controller side
-bool SelectiveOne2OneWiring::initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen){
-  One2OneWiring::initIntern(robotsensornumber, robotmotornumber, randGen);
+bool SelectiveOne2OneWiring::initIntern(){
+  One2OneWiring::initIntern();
   int num=0;
-  for(int i=0; i<robotsensornumber; i++){
-    if((*sel_sensor)(i,robotsensornumber)) num++;
+  for(int i=0; i<rsensornumber; i++){
+    if((*sel_sensor)(i,rsensornumber)) num++;
   }  
   csensornumber = num;
-  printf("robot sensors: %i, selected senors: %i\n", robotsensornumber, num);
+  printf("robot sensors: %i, selected senors: %i\n", rsensornumber, num);
   return true;
 }
 

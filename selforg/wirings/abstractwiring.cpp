@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-10-23 12:38:30  martius
+ *   Revision 1.4  2010-07-02 15:57:25  martius
+ *   wirings have new initIntern signature -> less errors can be made
+ *   abstractwiring generates the noise of given length
+ *
+ *   Revision 1.3  2009/10/23 12:38:30  martius
  *   noise is stored in a matrix internally such that it can be inspected easily
  *
  *   Revision 1.2  2009/10/14 09:59:46  martius
@@ -46,13 +50,16 @@
 bool AbstractWiring::init(int robotsensornumber, int robotmotornumber, RandGen* randGen){    
   rsensornumber = robotsensornumber;
   rmotornumber  = robotmotornumber;
+  noisenumber   = rsensornumber;
+  bool rv= initIntern();    
+  assert(noisenumber>=rsensornumber);
   
-  mNoise.set(this->rsensornumber,1);
+  mNoise.set(noisenumber,1);
   noisevals = (double*) mNoise.unsafeGetData(); // hack! we let the noiseval pointer point to the internal memory of the noisematrix.
 
   if(noiseGenerator)
-    noiseGenerator->init(rsensornumber, randGen);
-  bool rv= initIntern(robotsensornumber, robotmotornumber, randGen);    
+    noiseGenerator->init(noisenumber, randGen);
+
   mRsensors.set(rsensornumber,1);
   mRmotors.set(rmotornumber,1);
   mCsensors.set(csensornumber,1);
@@ -78,7 +85,7 @@ bool AbstractWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 				 double noiseStrength){
   assert(initialised);
   if(noiseGenerator) {
-    memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);    
+    memset(noisevals, 0 , sizeof(sensor) * noisenumber);    
     noiseGenerator->add(noisevals, noiseStrength);  
   } 
   bool rv = wireSensorsIntern(rsensors, rsensornumber, csensors, csensornumber, noiseStrength);

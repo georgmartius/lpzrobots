@@ -23,7 +23,11 @@
  *   Random generator with internal state used for multitheading envs.     *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-10-29 15:23:55  martius
+ *   Revision 1.11  2010-07-02 15:57:25  martius
+ *   wirings have new initIntern signature -> less errors can be made
+ *   abstractwiring generates the noise of given length
+ *
+ *   Revision 1.10  2009/10/29 15:23:55  martius
  *   use GNU_SOURCE
  *
  *   Revision 1.9  2009/10/29 14:51:14  fhesse
@@ -68,6 +72,8 @@
 #include "mac_drand48r.h"
 #endif
 
+
+/// random generator with 48bit integer arithmentic
 typedef struct _RandGen {
   _RandGen(){
     init(::rand());
@@ -75,6 +81,7 @@ typedef struct _RandGen {
   void init(long int seedval){
     srand48_r(seedval, &buffer);
   }
+  /// returns a value in [0,1)
   double rand(){
     double r;
     drand48_r(&buffer,&r);

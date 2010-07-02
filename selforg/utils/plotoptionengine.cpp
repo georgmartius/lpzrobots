@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.10  2010-07-02 05:40:22  martius
+ *  Revision 1.11  2010-07-02 15:57:25  martius
+ *  wirings have new initIntern signature -> less errors can be made
+ *  abstractwiring generates the noise of given length
+ *
+ *  Revision 1.10  2010/07/02 05:40:22  martius
  *  print with %s is safer
  *
  *  Revision 1.9  2009/10/23 12:37:47  martius
@@ -198,9 +202,12 @@ bool PlotOptionEngine::removePlotOption(PlotMode mode) {
   return false;
 }
 
-void PlotOptionEngine::addInspectable(const Inspectable* inspectable){  
+void PlotOptionEngine::addInspectable(const Inspectable* inspectable, bool front){  
   assert(!initialised);
-  inspectables.push_back(inspectable);
+  if(front)
+    inspectables.push_front(inspectable);
+  else 
+    inspectables.push_back(inspectable);
 }
 
 void PlotOptionEngine::addConfigurable(const Configurable* c){
