@@ -1,8 +1,6 @@
 #ifndef __STL_ADDS_H
 #define __STL_ADDS_H
 
-#ifndef AVR
-
 #include<list>
 #include<string>
 
@@ -43,22 +41,5 @@ namespace std {
   string itos(int i);
 
 }
-
-#else
-
-#include "avrtypes.h"
-
-namespace std {
-
-  /// absolute function for all types
-  template<typename T>
-  inline T abs(T v)
-  { return ((v>0)?v:-v); }
-
-  charArray itos(int i);
-
-}
-
-#endif
 
 #endif
