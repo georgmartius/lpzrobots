@@ -27,7 +27,10 @@
  *  Callbackable       - observer                                          *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2010-01-07 14:15:16  der
+ *  Revision 1.4  2010-07-05 15:23:17  martius
+ *  transition to tr1 -> no depricated warning
+ *
+ *  Revision 1.3  2010/01/07 14:15:16  der
  *  make it compile on 4.1.2
  *
  *  Revision 1.2  2009/12/01 17:32:10  martius
@@ -46,14 +49,7 @@
 #define __BACKCALLER_H_
 
 #include <vector>
-// Georg: 
-// either use backward/hash_map or
-// tr1/unordered_map or tr1/functional in the future
-#if __GNUC__ > 3
-#include <ext/hash_map>
-#else
-#include <ext/hash_map>
-#endif
+#include "stl_map.h"
 
 class Callbackable;
 
@@ -127,7 +123,7 @@ class BackCaller
     };
 
     typedef std::vector<Callbackable*> callbackableListType;
-    typedef __gnu_cxx::hash_map<CallbackableType, callbackableListType*, CallbackableTypeHash> callbackableMapType;
+    typedef HashMap<CallbackableType, callbackableListType*, CallbackableTypeHash> callbackableMapType;
     /**
      * This hashmap holds every list of Callbackables for each CallbackableType.
      */

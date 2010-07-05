@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-03 08:33:36  guettler
+ *  Revision 1.2  2010-07-05 15:23:17  martius
+ *  transition to tr1 -> no depricated warning
+ *
+ *  Revision 1.1  2009/08/03 08:33:36  guettler
  *  SparseMatrix as a subclass of SparseArray.
  *  Uses a hashmap for matrix elements.
  *  first (and fast) implemented version.
@@ -34,3 +37,5 @@
  *                                                                         *
  **************************************************************************/
 #include "sparsearray.h"
+
+// TODO can this file not be removed?

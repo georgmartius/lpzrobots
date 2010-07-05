@@ -35,7 +35,7 @@ INC +=  -I. -Iinclude $(shell gsl-config --cflags)
 # one can possibly disable gsl using -DNO_GSL
 
 # use -pg for profiling
-CBASEFLAGS = -Wall -pipe -Wno-deprecated 
+CBASEFLAGS = -Wall -pipe
 CPPFLAGS = $(CBASEFLAGS) -g -O $(INC)
 # Optimisation see at opt target
 # DEBUG  see at dbg target

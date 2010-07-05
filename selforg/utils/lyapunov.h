@@ -30,7 +30,7 @@
 #define __LYAPUNOV_H
 
 #include "matrix.h"
-#include <tr1/unordered_map>
+#include "stl_map.h"
 
 /**
  *  Class for calculating lyapunov exponents          
