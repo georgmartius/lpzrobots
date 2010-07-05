@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-08-12 10:28:48  der
+ *   Revision 1.11  2010-07-05 13:22:10  martius
+ *   comments added
+ *   setPower was wrong in Velocity servo
+ *
+ *   Revision 1.10  2009/08/12 10:28:48  der
  *   Centered servos use stepNoCutoff which is much more stable
  *
  *   Revision 1.9  2009/08/10 14:46:41  der
@@ -273,7 +277,7 @@ namespace lpzrobots {
       if(maxVel >0 ){
 	joint->getPart1()->limitLinearVel(maxVel);
 	joint->getPart2()->limitLinearVel(maxVel);
-      }
+      }      
     }
 
     /** returns the position of the servo (joint) of 1. axis in ranges [-1, 1] 
@@ -295,20 +299,22 @@ namespace lpzrobots {
 
   
   /** general servo motor to achieve position control for 2 axis joints
-   *  that that internally controls the velocity of the motor (much more stable)
+   *  that internally controls the velocity of the motor (much more stable)
    *  with centered zero position
    */
   class TwoAxisServoVel : public TwoAxisServoCentered {
   public:
     /** min and max values are understood as travel bounds. 
 	The zero position is max-min/2
+        maxVel is understood as a speed parameter of the servo.
     */
     TwoAxisServoVel(const OdeHandle& odeHandle, 
 		    TwoAxisJoint* joint, double _min1, double _max1, double power1, 
 		    double _min2, double _max2, double power2, 
 		    double damp=0.1, double maxVel=10.0, double jointLimit = 1.3)
       : TwoAxisServoCentered(joint, _min1, _max1, maxVel/2, _min2, _max2, maxVel/2,
-			     damp, 0, 0, jointLimit),
+			     damp, 0, 0, jointLimit), 
+        // don't wounder! It is correct to give maxVel as a power parameter.
 	motor(odeHandle, joint, power1, power2) 
     {
     }    
@@ -321,12 +327,12 @@ namespace lpzrobots {
 
     /** returns the power of the servo*/
     virtual void setPower1(double power1) { 
-      pid1.KP = power1;
+      motor.setPower(power1,motor.getPower2());
     };
 
     /** returns the power of the servo*/
     virtual void setPower2(double power2) { 
-      pid2.KP = power2;
+      motor.setPower(motor.getPower(),power2);
     };
 
     /** returns the power of the servo*/
@@ -364,14 +370,14 @@ namespace lpzrobots {
       pos1 = clip(pos1, -1.0, 1.0);
       pos2 = clip(pos2, -1.0, 1.0);
 
-      pos1 = (pos1+1)*(max1-min1)/2 + min1;
+      pos1 = (pos1+1.0)*(max1-min1)/2.0 + min1;
       pid1.setTargetPosition(pos1);  
       double vel1 = pid1.stepNoCutoff(joint->getPosition1(), joint->odeHandle.getTime());
-      pos2 = (pos2+1)*(max2-min2)/2 + min2;
-      pid2.setTargetPosition(pos2);  
+      pos2 = (pos2+1.0)*(max2-min2)/2.0 + min2;
+      pid2.setTargetPosition(pos2);
       double vel2 = pid2.stepNoCutoff(joint->getPosition2(), joint->odeHandle.getTime());
-      motor.set(0, vel1);            
-      motor.set(1, vel2);            
+      motor.set(0, vel1);
+      motor.set(1, vel2);
     }
 
   protected:
