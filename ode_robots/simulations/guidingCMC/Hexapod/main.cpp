@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-07-02 15:54:26  martius
+ *   Revision 1.4  2010-07-05 16:45:55  martius
+ *   hexapod tuned
+ *
+ *   Revision 1.3  2010/07/02 15:54:26  martius
  *   robot tuned
  *   parameters for guidance experimented
  *
@@ -108,14 +111,17 @@ bool track = false;
 int k=0;
 int bars=0;
 
+//bool useSineController = true;
+bool useSineController = false;
+
 class ThisSim : public Simulation {
 public:
   StatisticTools stats;
   double k_double;
   int blink;
 
-  CrossMotorCoupling* controller;
-  // AbstractController* controller;
+  // CrossMotorCoupling* controller;
+  AbstractController* controller;
   //  SeMoX* controller;
   //InvertMotorNStep* controller;
   OdeRobot* vehicle;
@@ -153,10 +159,12 @@ public:
     OdeHandle rodeHandle = odeHandle;
     rodeHandle.substance.toRubber(20);
 
-    vehicle = new Hexapod(rodeHandle, osgHandle.changeColor(Color(1,222/255.0,0)), 
+    vehicle = new Hexapod(rodeHandle, osgHandle.changeColor(Color(1,1,1)), 
 			  myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
 
-    vehicle->place(Pos(0,0,.1));    
+    // on the top
+    //    vehicle->place(osg::Matrix::rotate(M_PI,1,0,0)*osg::Matrix::translate(0,0,3));
+    vehicle->place(osg::Matrix::translate(0,0,0));
     global.configs.push_back(vehicle);
 
 //     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
@@ -172,15 +180,18 @@ public:
     //cc.cInit=.95;
     cc.cInit=.99;
     cc.modelExt=false;
-    cc.someInternalParams=true;
+    cc.someInternalParams=false;
     SeMoX* semox = new SeMoX(cc);  
 
-//     AbstractController* sine = new SineController(~0, SineController::Sine);   // local variable!
-//     //    AbstractController* sine = new SineController(1, SineController::Sine);   // local variable!
-// //     // //     // motorpower 20
-//      sine->setParam("period", 30);
-//      sine->setParam("phaseshift", 0.5);
-//      sine->setParam("amplitude", 0.5);
+    AbstractController* sine = 0;
+    if(useSineController){
+      // sine = new SineController(~0, SineController::Sine);   
+      sine = new SineController(~0, SineController::Impulse);   
+      // //     // //     // motorpower 20
+      sine->setParam("period", 30);
+      sine->setParam("phaseshift", 0.5);
+      sine->setParam("amplitude", 0.5);
+    }
 
     if(useSym){
       semox->setParam("epsC", 0.1);
@@ -195,13 +206,16 @@ public:
 
     semox->setParam("gamma_teach", teacher);
 
-    //    controller=semox;
-    //    controller=sine;
-    controller = new CrossMotorCoupling( semox, semox, 0.4);
+    if(useSineController){
+      controller = sine;
+    }else{
+      //    controller=sine;
+      controller = new CrossMotorCoupling( semox, semox, 0.4);
+    }
 
-    //    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    AbstractWiring* wiring = new FeedbackWiring(new ColorUniformNoise(0.1),
-						FeedbackWiring::Motor, 0.75);
+    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+//     AbstractWiring* wiring = new FeedbackWiring(new ColorUniformNoise(0.1),
+// 						FeedbackWiring::Motor, 0.75);
     //global.plotoptions.push_back(PlotOption(GuiLogger,Robot,5));
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
@@ -313,7 +327,7 @@ int main (int argc, char **argv)
   track = Simulation::contains(argv,argc,"-notrack") == 0;
 
   ThisSim sim;
-  sim.setGroundTexture("Images/red_velour_wb.rgb");
+  sim.setGroundTexture("Images/green_velour_wb.rgb");
   sim.setCaption("lpzrobots Simulator               Martius et al, 2009");
   return sim.run(argc, argv) ? 0 :  1;
 }

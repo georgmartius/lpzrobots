@@ -27,7 +27,6 @@
 #include <selforg/inspectable.h>
 
 #include <ode_robots/oderobot.h>
-#include <ode_robots/twoaxisservo.h>
 #include <ode_robots/raysensorbank.h>
 
 namespace lpzrobots {
@@ -35,6 +34,7 @@ namespace lpzrobots {
   class Primitive; 
   class Joint;  
   class OneAxisServo;  
+  class TwoAxisServo;  
 
 
   typedef struct {
@@ -52,10 +52,12 @@ namespace lpzrobots {
     double coxaJointLimitV; ///< angle range for vertical direction of legs
     double coxaJointLimitH; ///< angle range for horizontal direction of legs
     double coxaDamping;     ///< damping of hip joint servos
+    double coxaSpeed;       ///< speed of the hip servo
 
-//     double tebiaPower;       ///< spring strength in the knees
-//     double tebiaJointLimit;  ///< angle range for knees
-//     double tebiaCoxaDamping; ///< damping in the knees
+    bool useTebiaJoints;    /// whether to use joints at the knees
+    double tebiaPower;       ///< spring strength in the knees
+    double tebiaJointLimit;  ///< angle range for knees
+    double tebiaDamping; ///< damping in the knees
 
     double T; ///< T is the for the time for calculating the cost of transport over time
     double *v;
@@ -108,15 +110,18 @@ namespace lpzrobots {
       c.mass       = 1.0;
       c.v = new double[1];
       c.relLegmass = 1;
-      c.coxaPower = 4;
+      c.coxaPower  = 1;
       c.coxaJointLimitV = M_PI/8;  ///< angle range for vertical direction of legs
-      c.coxaJointLimitH = M_PI/8;
-      c.coxaDamping = 0.01; // Georg: too high damping is instable! // 0.2;
+      c.coxaJointLimitH = M_PI/4;
+      c.coxaDamping = 0.0; // Georg: no damping required for new servos
+      c.coxaSpeed   = 30; // The speed calculates how it works
       c.T = 1.0;
-   /* c.tebiaPower = 4; // +- 45 degree
+
+      c.useTebiaJoints = true; 
+      c.tebiaPower = 2; 
       c.tebiaJointLimit = M_PI/4; // +- 45 degree
-      c.tebiaJointLimit = 2;
-      c.tebiaDamping = 0.01;*/
+      c.tebiaDamping = 0.01;
+
       c.legContacts = new int[6];
       c.irSensors=false;
       c.irFront=false;
@@ -249,8 +254,9 @@ namespace lpzrobots {
     std::vector<Pos> thoraxPos;
     std::vector<Primitive*> objects;  // all the objects
     std::vector<Joint*> joints; // joints legs
-    std::vector <UniversalServo*> hipservos; // motor
-    std::vector <OneAxisServo*> hipservos2; // motors
+    std::vector <TwoAxisServo*> hipservos; // motor
+    std::vector <OneAxisServo*> tebiasprings;
+    std::vector <OneAxisServo*> whiskersprings;
 
   };
 
