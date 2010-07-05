@@ -23,7 +23,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-03-09 11:53:41  martius
+ *   Revision 1.10  2010-07-05 13:10:43  martius
+ *   Axis have been in global coordinates and not relative to one of the bodies!
+ *   This could not work.
+ *   Expecially problematic with twoaxis joints and the XServoVel implementation.
+ *
+ *   Revision 1.9  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.8  2009/08/10 14:46:41  der
@@ -75,13 +80,18 @@
 
 using namespace std;
 
+
 namespace lpzrobots {
+
+  enum ODEAMOTORAXISREF { GlobalFrame = 0, FirstBody =1, SecondBody = 2};
+
 
   AngularMotor::AngularMotor(const OdeHandle& odeHandle, Joint* joint){
     const Primitive* p1 = joint->getPart1();
     const Primitive* p2 = joint->getPart2();
     motor = dJointCreateAMotor(odeHandle.world, 0);
     dJointAttach(motor, p1->getBody(), p2->getBody());
+    dJointSetAMotorMode (motor, dAMotorUser);
   }
   
   AngularMotor::~AngularMotor (){
@@ -141,7 +151,7 @@ namespace lpzrobots {
     : AngularMotor(odeHandle, joint), joint(joint) {
     dJointSetAMotorNumAxes(motor, 1);
     const Axis& a =joint->getAxis1();
-    dJointSetAMotorAxis(motor, 0, 0, a.x(), a.y(), a.z() );
+    dJointSetAMotorAxis(motor, 0, FirstBody, a.x(), a.y(), a.z() );
     dJointSetAMotorParam(motor, dParamFMax, power); 
     dJointSetAMotorParam(motor, dParamVel, 0); 
   }
@@ -181,9 +191,9 @@ namespace lpzrobots {
 
     dJointSetAMotorNumAxes(motor, 2);
     const Axis& a0 =joint->getAxis1();
-    dJointSetAMotorAxis(motor, 0, 0, a0.x(), a0.y(), a0.z() );
+    dJointSetAMotorAxis(motor, 0, FirstBody, a0.x(), a0.y(), a0.z() );
     const Axis& a1 =joint->getAxis2();
-    dJointSetAMotorAxis(motor, 1, 0, a1.x(), a1.y(), a1.z() );
+    dJointSetAMotorAxis(motor, 1, SecondBody, a1.x(), a1.y(), a1.z() );
 
 
     dJointSetAMotorParam(motor, dParamFMax, power1); 
@@ -258,7 +268,7 @@ namespace lpzrobots {
     for(std::list<std::pair<double, Axis > >::iterator i = axis.begin(); 
 	i!= axis.end(); i++, j++){
       const Axis& a = (*i).second;
-      dJointSetAMotorAxis(motor, j, 0, a.x(), a.y(), a.z() );
+      dJointSetAMotorAxis(motor, j, FirstBody, a.x(), a.y(), a.z() );
       double pwr = (*i).first; 
       int param;
       switch (j) {
@@ -367,8 +377,8 @@ namespace lpzrobots {
     dJointSetAMotorNumAxes(motor, 3);
     dJointSetAMotorMode (motor, dAMotorEuler);
 
-    dJointSetAMotorAxis(motor, 0, 1, axis1.x(), axis1.y(), axis1.z() );
-    dJointSetAMotorAxis(motor, 2, 2, axis3.x(), axis3.y(), axis3.z() );
+    dJointSetAMotorAxis(motor, 0, FirstBody, axis1.x(), axis1.y(), axis1.z() );
+    dJointSetAMotorAxis(motor, 2, SecondBody, axis3.x(), axis3.y(), axis3.z() );
 
 
     dJointSetAMotorParam(motor, dParamFMax, power); 
