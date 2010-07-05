@@ -26,7 +26,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-03 08:33:36  guettler
+ *  Revision 1.2  2010-07-05 15:22:31  martius
+ *  transition to tr1
+ *
+ *  Revision 1.1  2009/08/03 08:33:36  guettler
  *  SparseMatrix as a subclass of SparseArray.
  *  Uses a hashmap for matrix elements.
  *  first (and fast) implemented version.
@@ -36,7 +39,8 @@
 #ifndef __SPARSEARRAY_H_
 #define __SPARSEARRAY_H_
 
-#include <ext/hash_map>
+#include <cstdlib>
+#include "stl_map.h"
 
 /**
  * Array which uses an HashTable for elements stored in this array.
@@ -61,7 +65,7 @@ namespace matrix
     public:
       ArrayElement() : index(0), value(0), hashData(0), dummy(0) { }
 
-      inline void reallocate(__gnu_cxx::hash_map<I, D* >* hashData)
+      inline void reallocate(HashMap<I, D* >* hashData)
       {
         this->hashData=hashData;
         value=0;
@@ -99,7 +103,7 @@ namespace matrix
     protected:
       I index;
       D value;
-      __gnu_cxx::hash_map<I, D* >* hashData;
+      HashMap<I, D* >* hashData;
       D* dummy;
     };
 
@@ -122,7 +126,7 @@ namespace matrix
 
     inline ArrayElement& operator[](const I index)
     {
-      typename __gnu_cxx::hash_map<I,D*>::const_iterator iterator = hashData->find(index);
+      typename HashMap<I,D*>::const_iterator iterator = hashData->find(index);
       if (iterator!= hashData->end())
       {
         D* dummy = (*iterator).second;
@@ -156,20 +160,20 @@ namespace matrix
     ArrayElement elementDummy;
     /// set of all array values
     I arraySize;
-    __gnu_cxx::hash_map<I, D* >* hashData;
+    HashMap<I, D* >* hashData;
 
     virtual void inline allocate()
     {
       if (hashData)
         freeData();
-      hashData = new __gnu_cxx::hash_map<I, D* >();
+      hashData = new HashMap<I, D* >();
       elementDummy.reallocate(hashData);
     }
 
     virtual void inline freeData()
     {
       // TODO: free all elements in hashData
-//      for (__gnu_cxx::hash_map<I,D*>::iterator iterator = hashData->begin();iterator!=hashData->end();iterator++)
+//      for (HashMap<I,D*>::iterator iterator = hashData->begin();iterator!=hashData->end();iterator++)
 //        free((*iterator).second);
       if (hashData)
       {
