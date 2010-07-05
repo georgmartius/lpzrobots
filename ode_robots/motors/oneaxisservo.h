@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-08-12 10:28:29  der
+ *   Revision 1.12  2010-07-05 13:23:41  martius
+ *   comment added
+ *
+ *   Revision 1.11  2009/08/12 10:28:29  der
  *   Centered servos use stepNoCutoff which is much more stable
  *
  *   Revision 1.10  2009/08/10 14:46:41  der
@@ -227,7 +230,8 @@ namespace lpzrobots {
 		    OneAxisJoint* joint, double _min, double _max, 
 		    double power, double damp=0.01, double maxVel=20, double jointLimit = 1.3)
       : OneAxisServo(joint, _min, _max, maxVel/2, damp, 0, 0, jointLimit, false),
-	motor(odeHandle, joint, power) 
+        // don't wounder! It is correct to give maxVel as a power parameter.
+        motor(odeHandle, joint, power) 
     {            
     }
 
