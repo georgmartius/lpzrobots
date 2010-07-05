@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-03-09 11:53:41  martius
+ *   Revision 1.12  2010-07-05 16:47:34  martius
+ *   hashset transition to tr1
+ *   new pid function for velocity servos, which work now fine
+ *
+ *   Revision 1.11  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.10  2010/03/05 14:32:55  martius
@@ -69,6 +73,7 @@
 #include "odehandle.h"
 #include <assert.h>
 #include <ode-dbl/ode.h>
+#include <algorithm>
 #include "primitive.h"
 
 namespace lpzrobots
@@ -117,8 +122,8 @@ namespace lpzrobots
     // the jointGroup is used for collision handling, 
     //  where a lot of joints are created every step
     jointGroup = dJointGroupCreate ( 1000000 );
-    ignoredSpaces = new __gnu_cxx::hash_set<long>();
-    ignoredPairs  = new __gnu_cxx::hash_set<std::pair<long,long>,geomPairHash >();
+    ignoredSpaces = new HashSet<long>();
+    ignoredPairs  = new HashSet<std::pair<long,long>,geomPairHash >();
 
   }
 

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-07-05 13:22:10  martius
+ *   Revision 1.12  2010-07-05 16:47:34  martius
+ *   hashset transition to tr1
+ *   new pid function for velocity servos, which work now fine
+ *
+ *   Revision 1.11  2010/07/05 13:22:10  martius
  *   comments added
  *   setPower was wrong in Velocity servo
  *
@@ -372,10 +376,11 @@ namespace lpzrobots {
 
       pos1 = (pos1+1.0)*(max1-min1)/2.0 + min1;
       pid1.setTargetPosition(pos1);  
-      double vel1 = pid1.stepNoCutoff(joint->getPosition1(), joint->odeHandle.getTime());
+      double vel1 = pid1.stepVelocity(joint->getPosition1(), joint->odeHandle.getTime());
+      
       pos2 = (pos2+1.0)*(max2-min2)/2.0 + min2;
       pid2.setTargetPosition(pos2);
-      double vel2 = pid2.stepNoCutoff(joint->getPosition2(), joint->odeHandle.getTime());
+      double vel2 = pid2.stepVelocity(joint->getPosition2(), joint->odeHandle.getTime());
       motor.set(0, vel1);
       motor.set(1, vel2);
     }

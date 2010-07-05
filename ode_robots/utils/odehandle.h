@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2010-03-09 11:53:41  martius
+ *   Revision 1.16  2010-07-05 16:47:34  martius
+ *   hashset transition to tr1
+ *   new pid function for velocity servos, which work now fine
+ *
+ *   Revision 1.15  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.14  2010/03/05 14:32:55  martius
@@ -78,11 +82,8 @@
 #ifndef __ODEHANDLE_H
 #define __ODEHANDLE_H
 
-#if __GNUC__ > 3
-#include <backward/hash_set>
-#else
-#include <ext/hash_set>
-#endif
+#include <selforg/stl_map.h>
+
 #include <vector>
 #include <ode-dbl/common.h>
 #include "substance.h"
@@ -176,10 +177,10 @@ protected:
   std::vector<dSpaceID>* spaces;
 
   /// set of ignored spaces
-  __gnu_cxx::hash_set<long>* ignoredSpaces;
+  HashSet<long>* ignoredSpaces;
 
   /// set of ignored geom pairs for collision
-  __gnu_cxx::hash_set<std::pair<long,long>, geomPairHash >* ignoredPairs;
+  HashSet<std::pair<long,long>, geomPairHash >* ignoredPairs;
 
 };
 

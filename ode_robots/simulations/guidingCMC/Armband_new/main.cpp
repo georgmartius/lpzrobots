@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-01-27 10:20:47  martius
+ *   Revision 1.6  2010-07-05 16:47:34  martius
+ *   hashset transition to tr1
+ *   new pid function for velocity servos, which work now fine
+ *
+ *   Revision 1.5  2010/01/27 10:20:47  martius
  *   added blinking. This simulation was used to make the movies,
  *    armband_{weak|medium|strong}_guidance and the ...change_direction
  *
@@ -98,6 +102,40 @@ int change = 0;  // do not change direction by default
 bool track = false;
 int k=0;
 int bars=0;
+int stairs=0;
+
+// wiring to use motor values as sensors as well
+class MotorAsSensors : public One2OneWiring {
+public:
+  MotorAsSensors(NoiseGenerator* noise, int plotMode=Controller)
+    : One2OneWiring(noise,plotMode, 0) {    
+  }
+  virtual ~MotorAsSensors() {} 
+protected:
+  virtual bool initIntern(){
+    One2OneWiring::initIntern();
+    csensornumber = rsensornumber + rmotornumber;
+    noisenumber = csensornumber;
+    return true;
+  }
+
+  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
+                                 sensor* csensors, int csensornumber,
+                                 double noise){
+    One2OneWiring::wireSensorsIntern(rsensors, rsensornumber, csensors, csensornumber, noise);
+    for(int i=0; i< rmotornumber; i++){
+      // copy the motor action from previous timestep
+      csensors[i + rsensornumber] = mCmotors.val(i,0) + noisevals[i];
+    }
+//     for(int i=0; i< rsensornumber; i++){
+//       // copy the motor action from previous timestep
+//       csensors[i  + rmotornumber] = rsensors[i]  + noisevals[i];
+//     }
+    return true;
+  }
+
+};
+
 
 class ThisSim : public Simulation {
 public:
@@ -135,8 +173,21 @@ public:
 
     for(int i=0; i< bars; i++){
       PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.,0.,0.)), 
-				     osg::Vec3(1,10,0.3+i*.1),10);
+				     osg::Vec3(1,10,0.3+i*.1),0.0);
       b->setPosition(osg::Vec3(10+i*7,0,0));      
+      global.obstacles.push_back(b);    
+    }
+
+    double h = 0.;
+    RandGen rgen;
+    rgen.init(2);
+    for(int i=0; i<stairs; i++){
+      do{
+        h+=(rgen.rand()-.5)*0.6; // values between (-.25.25)
+      }while(h<0);
+      PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.3,0.3,0.3)), 
+				     osg::Vec3(1,10,h),0.0);
+      b->setPosition(osg::Vec3(5+i,0,0));      
       global.obstacles.push_back(b);    
     }
       
@@ -169,7 +220,8 @@ public:
     //cc.cInit=.95;
     cc.cInit=.5;
     cc.modelExt=false;
-    cc.someInternalParams=true;
+    //    cc.someInternalParams=true;
+    cc.someInternalParams=false;
     SeMoX* semox = new SeMoX(cc);  
 
 //     AbstractController* controller = new SineController(~0, SineController::Sine);   // local variable!
@@ -193,9 +245,10 @@ public:
     //controller=semox;
     controller = new CrossMotorCoupling( semox, semox, 0.4);
 
-    //    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    //        AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    //AbstractWiring* wiring = new MotorAsSensors(new ColorUniformNoise(0.1));
     AbstractWiring* wiring = new FeedbackWiring(new ColorUniformNoise(0.1),
-						FeedbackWiring::Motor, 0.75);
+ 						FeedbackWiring::Motor, 0.75);
     //global.plotoptions.push_back(PlotOption(GuiLogger,Robot,5));
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
@@ -264,6 +317,16 @@ public:
     return rv;
   }
 
+  virtual void usage() const {
+    printf("Additional Usage: ... [-guide Teach] [-k K] [-change Min] [-bars NUM] [-stairs NUM] [-notrack]\n");
+    printf("\t-guide Teach\tguidance factor (def: 0)\n");
+    printf("\t-k K\tconnection setup (def: 0)\n");
+    printf("\t-change Min\tchange every Min minutes the connection setup (def: 5)\n");
+    printf("\t-bars NUM\tNumber of bars with increasing size (def: 0)n");
+    printf("\t-stairs NUM\tNumber of bars in the random staircase (def: 0)n");
+    printf("\t-notrack\t do not track the robot\n");
+  };
+
 };
 
 
@@ -285,6 +348,10 @@ int main (int argc, char **argv)
   index = Simulation::contains(argv,argc,"-bars");
   if(index >0 && argc>index){
     bars=atoi(argv[index]); 
+  }
+  index = Simulation::contains(argv,argc,"-stairs");
+  if(index >0 && argc>index){
+    stairs=atoi(argv[index]); 
   }
   track = Simulation::contains(argv,argc,"-notrack") == 0;
 

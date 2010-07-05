@@ -34,7 +34,7 @@ HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 UTILS = install_prefix.conf
 # utils/splitvideo
 ODEFLAGS = $(shell ode-dbl-config --cflags)
-CPPBASEFLAGS = -Wall -Wno-deprecated -pipe -I. $(ODEFLAGS) -pthread $(INC) 
+CPPBASEFLAGS = -Wall -pipe -I. $(ODEFLAGS) -pthread $(INC) 
 
 # see debug and optimization versions below
 CPPFLAGS = -g -O1 $(CPPBASEFLAGS)

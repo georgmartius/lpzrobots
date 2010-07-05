@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-07-05 13:23:41  martius
+ *   Revision 1.13  2010-07-05 16:47:34  martius
+ *   hashset transition to tr1
+ *   new pid function for velocity servos, which work now fine
+ *
+ *   Revision 1.12  2010/07/05 13:23:41  martius
  *   comment added
  *
  *   Revision 1.11  2009/08/12 10:28:29  der
@@ -270,7 +274,7 @@ namespace lpzrobots {
       pos = clip(pos, -1.0, 1.0);
       pos = (pos+1)*(max-min)/2 + min;
       pid.setTargetPosition(pos);   
-      double vel = pid.stepNoCutoff(joint->getPosition1(), joint->odeHandle.getTime());      
+      double vel = pid.stepVelocity(joint->getPosition1(), joint->odeHandle.getTime());      
       motor.set(0, vel);            
     }
     

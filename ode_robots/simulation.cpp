@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.131  2010-06-28 16:41:46  martius
+ *   Revision 1.132  2010-07-05 16:47:34  martius
+ *   hashset transition to tr1
+ *   new pid function for velocity servos, which work now fine
+ *
+ *   Revision 1.131  2010/06/28 16:41:46  martius
  *   mask for .lpzrobots corrected
  *
  *   Revision 1.130  2010/06/28 14:42:13  martius
@@ -1473,7 +1477,7 @@ namespace lpzrobots {
     QP(cout << "realtimefactor: " << (((float)globalData.sim_step)/timeSinceInit * 10.0) << endl);
     }
 
-    if(!noGraphics)    // delete viewer;
+    if(!noGraphics && viewer)    // delete viewer;
       viewer->getEventHandlers().clear();
     //        viewer->getEventHandlerList().clear();
     
@@ -1836,7 +1840,8 @@ namespace lpzrobots {
     printf("\t\t [-pause] [-shadow N] [-noshadow] [-drawboundings] [-simtime [min]] [-threads N]\n");
     printf("\t\t [-odethread] [-osgthread] [-savecfg] [-h|--help]\n");
     printf("\t-g interval\tuse guilogger (default interval 1)\n");
-    printf("\t-f interval ntst\twrite logging file (default interval 5), if ntst (no_time_stamp)\n");
+    printf("\t-f interval ntst\twrite logging file (default interval 5),\n\
+\t\tif ntst (no_time_stamp in log file name)\n");
     printf("\t\t\tis given logfile names are generated without timestamp\n");
     printf("\t-n interval\tuse neuronviz (default interval 10)\n");
     printf("\t-s \"-disc|ampl|freq val\"\tuse soundMan \n");

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-08-12 10:26:47  der
+ *   Revision 1.13  2010-07-05 16:47:34  martius
+ *   hashset transition to tr1
+ *   new pid function for velocity servos, which work now fine
+ *
+ *   Revision 1.12  2009/08/12 10:26:47  der
  *   tau instead of alpha
  *
  *   Revision 1.11  2009/05/11 15:43:22  martius
@@ -100,9 +104,19 @@ namespace lpzrobots {
     void setTargetPosition ( double newpos );
 		
     double getTargetPosition ();
-		
+	
+    /// perform one step of the PID controller with cutoff for large forces
     double step ( double newsensorval, double time);
+    /// perform one step of the PID controller without cutoffs used for Center-Servos
     double stepNoCutoff ( double newsensorval, double time);
+    /** perform one step of the PID controller for velocity control.
+        Meaning the misfit is in position space but the output is
+        the nominal velocity. The velocity is also limited. such that
+        the maximal velocity cannot be so that the error is overcompenstated
+        in one timestep.        
+     */
+    double stepVelocity ( double newsensorval, double time);
+
   };
 
 }

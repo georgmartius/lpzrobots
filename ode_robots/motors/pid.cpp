@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2010-03-09 11:53:41  martius
+ *   Revision 1.20  2010-07-05 16:47:34  martius
+ *   hashset transition to tr1
+ *   new pid function for velocity servos, which work now fine
+ *
+ *   Revision 1.19  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.18  2009/08/19 16:17:59  martius
@@ -147,7 +151,7 @@ namespace lpzrobots {
       
       lasterror = error;
       error = targetposition - position;
-      derivative += ((lasterror - error) / stepsize - derivative)*0.2;
+      derivative += ((lasterror - error) / stepsize - derivative)*0.2; // Georg: Who put the 0.2 here!?
 
       P = error;
       I*= (1-1/tau);
@@ -158,6 +162,38 @@ namespace lpzrobots {
       force=0;
     }
     lasttime=time;
+    return force;
+  }
+
+  // This is the new implementation used for the velocity servos (velocity control)
+  // no I term and velocity is bound such that we cannot overshoot in one step
+  double PID::stepVelocity ( double newsensorval, double time)
+  { 
+    // force is here a nominal velocity
+
+    if(lasttime != -1 && time - lasttime > 0 ){
+      lastposition = position;
+      position = newsensorval;
+      double stepsize=time-lasttime;
+      
+      lasterror = error;
+      error = targetposition - position;
+
+      P = error;
+      if(KD!=0.0){
+        derivative += ((lasterror - error) / stepsize - derivative);
+        D = -derivative * KD; 
+        force = KP*(P + D);     
+      } else 
+        force = KP*P;     
+      // limit the velocity
+      if(stepsize*fabs(force) > fabs(error)){
+        force = error/stepsize;
+      }
+    } else {
+      force=0;
+    }
+    lasttime=time;    
     return force;
   }
 

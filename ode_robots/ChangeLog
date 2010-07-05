@@ -1,4 +1,11 @@
-2010-03-25 martius
+2010-07-05 martius (0.65)
+	Build system changed. Object files come to separate directory. 
+	M4 Makefile for simulations
+	Angularmotors bug fixed. Axis were global. 
+	New Servos (XAxisVel) that control internally the velocity work great now
+	
+
+2010-03-25 martius (0.6)
 	long time no update in the Changelog file. Almost everthing changed ;-)
 	Main points
 	1. Camera Support
