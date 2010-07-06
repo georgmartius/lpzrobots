@@ -3,16 +3,18 @@ Packages/Libs that are required by lpzrobots:
 Debian based: 
 sudo apt-get install \
  g++  make  makedepend m4  libreadline-dev  libgsl0-dev \
- libglu-dev libgl-dev libglut3-dev  libopenscenegraph-dev \ 
+ libglu-dev libgl1-mesa-dev libglut3-dev  libopenscenegraph-dev \
  libqt4-dev  qt4-qmake  libqt4-qt3support
 
+we actually need the metapackage libgl-dev but this has several options. So I picked the 
+libgl1-mesa-dev.
 
 
+RPM based: (package names from OpenSuse)
+zypper install gcc-c++  make xorg-x11-util-devel  m4 readline-devel  gsl-devel \
+ freeglu-devel libgl-devel freeglut-devel \
+ libqt4-devel libqt4-qt3support 
 
-RPM based: (zypper ...?) TODO update the package names!
-
- g++  make  makedepend  m4 libreadline-devel  libgsl0-devel \
- libglu-devel libgl-devel libglut3-devel  libopenscenegraph-devel \ 
- libqt4-devel  qt4-qmake  libqt4-qt3support
+openscenegraph is no available on SUSE
  
  
