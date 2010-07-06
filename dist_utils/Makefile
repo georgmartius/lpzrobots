@@ -9,7 +9,7 @@
 
 
 #### EDIT THE FOLLOWING LINES!
-VERSION=0.6.2
+VERSION=0.6.4
 ODEVERSION=0.11.2
 
 export CVSROOT=:ext:martius@robotcvs.informatik.uni-leipzig.de:/home/robot/cvsroot
@@ -51,6 +51,15 @@ deb-packs: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR))
 	$(MAKE) oderobots-deb 
 	$(MAKE) install-oderobots
 
+##!upload    (3) upload packages to launchpad this will sleep for 1h in between 
+##!              in order to give launchpad enough time to generate the packages
+upload: 
+	$(MAKE) upload-selforg
+	$(MAKE) upload-guilogger
+	$(MAKE) upload-ode
+	sleep 3600
+	$(MAKE) upload-oderobots
+
 ##! ------ fine grain targets, which are called by the above targets ----
 
 
@@ -71,6 +80,14 @@ $(DISTDIR): $(filter-out $(wildcard lpzrobots), lpzrobots)
 # advance version numbers # also add lpzrobots/ga_tools 
 	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger; do pwd; echo $$dir; cd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; cd ../../; done
 	cd $(DISTDIR)/opende && $(DCH) -v $(ODEVERSION)-1 "New Release"
+
+
+##!deb-packs-noutils  create debian and ubuntu packages without utils (guilogger and ode)
+deb-packs-noutils: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) 
+	$(MAKE) selforg-deb 
+	$(MAKE) install-selforg
+	$(MAKE) oderobots-deb 
+	$(MAKE) install-oderobots
 
 ##!selforg-deb        create debian and ubuntu packages for selforg
 .PHONY: selforg-deb
