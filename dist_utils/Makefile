@@ -55,8 +55,8 @@ deb-packs: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR))
 ##!              in order to give launchpad enough time to generate the packages
 upload: 
 	$(MAKE) upload-selforg
-	$(MAKE) upload-guilogger
-	$(MAKE) upload-ode
+	-$(MAKE) upload-guilogger
+	-$(MAKE) upload-ode
 	sleep 3600
 	$(MAKE) upload-oderobots
 
