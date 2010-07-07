@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-03-09 11:53:41  martius
+ *   Revision 1.14  2010-07-07 14:10:55  robot6
+ *   now with optional face
+ *
+ *   Revision 1.13  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.12  2009/01/20 17:29:52  martius
@@ -187,7 +190,9 @@ public:
 
     VierBeinerConf conf = VierBeiner::getDefaultConf();
 	//  conf.hipJointLimit = M_PI/8;        
-    conf.legNumber = 4;
+    conf.legNumber = 4; /* for the dog's sake use only even numbers */
+
+    conf.drawstupidface=0;
 
     OdeHandle doghandle = odeHandle;
     doghandle.substance.toRubber(10);

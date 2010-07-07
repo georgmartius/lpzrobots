@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-03-09 11:53:41  martius
+ *   Revision 1.13  2010-07-07 14:12:40  robot6
+ *   now with optional face
+ *
+ *   Revision 1.12  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.11  2009/03/13 09:19:53  martius
@@ -309,6 +312,59 @@ namespace lpzrobots {
     odeHandle.addIgnoredPair(bigboxtransform,neck);
     odeHandle.addIgnoredPair(trunk,headtrans);
     
+    //now create a kind of face
+    if (conf.drawstupidface) {
+    Primitive* mouth;
+    mouth = new Cylinder(0.95*neckwidth,0.1*neckwidth);
+    mouth->setTexture("Images/red.jpg");
+    mouth_trans = new Transform(neck,mouth, Matrix::translate(0, 0 ,0) 
+			  * Matrix::rotate(-M_PI,0,1,0) 
+			  * Matrix::translate(1.5*headlength, 0.0*headlength, 1.0*headlength));
+    mouth_trans->init(odeHandle, headmass/20, osgHandle);         
+    objects.push_back(mouth_trans);
+    odeHandle.addIgnoredPair(bigboxtransform,mouth_trans);
+    odeHandle.addIgnoredPair(trunk,mouth_trans);
+    Primitive* ear_r;
+    ear_r = new Box(0.05*neckwidth,0.9*neckwidth,0.9*neckwidth);
+    ear_r->setTexture("Images/fur4.jpg");
+    ear_r_trans = new Transform(neck,ear_r, Matrix::translate(0, headlength/1.3,0) 
+			  * Matrix::rotate(-M_PI/4,M_PI/5,1,0) 
+			  * Matrix::translate(-1.0*headlength, 0, 2.5*headlength));
+    ear_r_trans->init(odeHandle, headmass/20, osgHandle);         
+    objects.push_back(ear_r_trans);
+    odeHandle.addIgnoredPair(bigboxtransform,ear_r_trans);
+    odeHandle.addIgnoredPair(trunk,ear_r_trans);
+    Primitive* ear_l;
+    ear_l = new Box(0.05*neckwidth,0.9*neckwidth,0.9*neckwidth);
+    ear_l->setTexture("Images/fur4.jpg");
+    ear_l_trans = new Transform(neck,ear_l, Matrix::translate(0, -headlength/1.3,0) 
+			  * Matrix::rotate(-M_PI/4,-M_PI/5,1,0) 
+			  * Matrix::translate(-1.0*headlength, 0, 2.5*headlength));
+    ear_l_trans->init(odeHandle, headmass/20, osgHandle);         
+    objects.push_back(ear_l_trans);
+    odeHandle.addIgnoredPair(bigboxtransform,ear_l_trans);
+    odeHandle.addIgnoredPair(trunk,ear_l_trans);
+    Primitive* eye_r;
+    eye_r = new Capsule(0.2*neckwidth,0.0*neckwidth);
+    eye_r->setTexture("Images/white.jpg");
+    eye_r_trans = new Transform(neck,eye_r, Matrix::translate(0,headlength/1.5,0) 
+			  * Matrix::rotate(-M_PI/2,0,1,0) 
+			  * Matrix::translate(0, 0, 2.1*headlength));
+    eye_r_trans->init(odeHandle, headmass/20, osgHandle);         
+    objects.push_back(eye_r_trans);
+    odeHandle.addIgnoredPair(bigboxtransform,eye_r_trans);
+    odeHandle.addIgnoredPair(trunk,eye_r_trans);
+    Primitive* eye_l;
+    eye_l = new Capsule(0.2*neckwidth,0.0*neckwidth);
+    eye_l->setTexture("Images/white.jpg");
+    eye_l_trans = new Transform(neck,eye_l, Matrix::translate(0,-headlength/1.5,0) 
+			  * Matrix::rotate(-M_PI/2,0,1,0) 
+			  * Matrix::translate(0, 0, 2.1*headlength));
+    eye_l_trans->init(odeHandle, headmass/20, osgHandle);         
+    objects.push_back(eye_l_trans);
+    odeHandle.addIgnoredPair(bigboxtransform,eye_l_trans);
+    odeHandle.addIgnoredPair(trunk,eye_l_trans);
+    } //this much for the face
 
     j = new HingeJoint(trunk, neck, neckpos * pose, Axis(0,0,1) * pose);
     j->init(odeHandle, osgHandleJ, true, theight * 1.2);
@@ -437,6 +493,18 @@ namespace lpzrobots {
       odeHandle.removeIgnoredPair(trunk,headtrans);
       odeHandle.removeIgnoredPair(bigboxtransform,tail);
 
+    if (conf.drawstupidface) {
+      odeHandle.removeIgnoredPair(trunk,mouth_trans);
+      odeHandle.removeIgnoredPair(bigboxtransform,mouth_trans);
+      odeHandle.removeIgnoredPair(trunk,eye_l_trans);
+      odeHandle.removeIgnoredPair(bigboxtransform,eye_l_trans);
+      odeHandle.removeIgnoredPair(trunk,eye_r_trans);
+      odeHandle.removeIgnoredPair(bigboxtransform,eye_r_trans);
+      odeHandle.removeIgnoredPair(trunk,ear_l_trans);
+      odeHandle.removeIgnoredPair(bigboxtransform,ear_l_trans);
+      odeHandle.removeIgnoredPair(trunk,ear_r_trans);
+      odeHandle.removeIgnoredPair(bigboxtransform,ear_r_trans);
+    }
 
       FOREACH(vector<HingeServo*>, hipservos, i){
 	if(*i) delete *i;

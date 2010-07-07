@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-12-11 14:41:54  martius
+ *   Revision 1.8  2010-07-07 14:12:40  robot6
+ *   now with optional face
+ *
+ *   Revision 1.7  2007/12/11 14:41:54  martius
  *   *** empty log message ***
  *
  *   Revision 1.6  2007/11/07 13:21:16  martius
@@ -81,6 +84,7 @@ namespace lpzrobots {
     double kneeDamping; ///< damping in the knees
     double anklePower;  ///< spring strength in the ankles
     double ankleDamping; ///< damping in the ankles
+    bool  drawstupidface;
   } VierBeinerConf;
 
 
@@ -121,6 +125,7 @@ namespace lpzrobots {
       c.hipJointLimit = M_PI/3; // +- 60 degree
       c.kneeJointLimit = M_PI/4; // +- 45 degree
       //      c.elasticity = 10;
+      c.drawstupidface=1;
       return c;
     }
 
@@ -198,6 +203,8 @@ namespace lpzrobots {
 
     // some objects explicitly needed for ignored collision pairs
     Primitive *trunk, *headtrans, *bigboxtransform, *neck, *tail; 
+    // these ones are only need if a face is to be drawn 
+    Primitive *eye_r_trans, *eye_l_trans, *ear_l_trans,*ear_r_trans, *mouth_trans; 
     std::vector<Primitive*> objects;  // all the objects
     std::vector<Joint*> joints; // joints legs
     std::vector <OneAxisServo*> hipservos; // motors
