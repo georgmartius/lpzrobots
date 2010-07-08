@@ -74,8 +74,8 @@ namespace lpzrobots {
     assert(img && img->getPixelFormat()==GL_RGB  && img->getDataType()==GL_UNSIGNED_BYTE);
     width  = img->s();
     height = img->t();    
-    maxShiftX = width * conf.maxFlow;
-    maxShiftY = height * conf.maxFlow;
+    maxShiftX = int(width * conf.maxFlow);
+    maxShiftY = int(height * conf.maxFlow);
     if(conf.fieldSize == 0)
       conf.fieldSize = max(width,height)/12;
     conf.fieldSize = min(conf.fieldSize, min(width, height)/4); // make sure it is not too large.
@@ -88,8 +88,8 @@ namespace lpzrobots {
       //  borders plus an offset to have enought space to match the flow
       int offsetX = conf.fieldSize/2+maxShiftX + 2;
       int offsetY = conf.fieldSize/2+maxShiftY + 2;
-      Vec2i field(offsetX + (p->x() + 1.0)/2.0*(width  - 2*offsetX),
-                  offsetY + (p->y() + 1.0)/2.0*(height - 2*offsetY) );
+      Vec2i field(int(offsetX + (p->x() + 1.0)/2.0*(width  - 2*offsetX)),
+                  int(offsetY + (p->y() + 1.0)/2.0*(height - 2*offsetY))); // maybe round here
       fields.push_back(field);
       if(conf.verbose) printf("OF field: %3i, %3i\n", field.x, field.y);      
     }

@@ -131,6 +131,7 @@ namespace lpzrobots {
     virtual void intern_init(){
       assert(camera->isInitialized());
       const osg::Image* img = camera->getImage();
+      img=img; // to avoid unused variable in NDEBUG mode
       assert(img && img->getPixelFormat()==GL_LUMINANCE  && 
              img->getDataType()==GL_UNSIGNED_BYTE);
     };

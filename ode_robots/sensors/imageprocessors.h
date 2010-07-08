@@ -167,7 +167,7 @@ namespace lpzrobots {
       v = max;                               // v
       delta = max - min;
       if( max != 0 ){
-        s = 255.0*delta / max;	    	     // s
+        s = (unsigned char)(255.0*delta / max); // s
       }
       if( max == 0 || delta == 0){
         // r = g = b		             // s = 0, h is undefined
@@ -276,7 +276,7 @@ namespace lpzrobots {
             pixel++;
           }
         }
-        segmentvalue = (double)sum*factor/(double)numpixel_per_segm; 
+        segmentvalue = int((double)sum*factor/(double)numpixel_per_segm); 
         destdata[k] = std::min(segmentvalue,255);
       }      
     }
@@ -310,7 +310,7 @@ namespace lpzrobots {
         const unsigned char* sdata = src->data(0, r);
         unsigned char* ddata = dest->data(0, r);
         for(unsigned int c=0; c < src->getRowSizeInBytes(); ++c) {
-          *ddata =  ((float)*sdata)*factor + ((float)*ddata)*(1-factor);
+          *ddata = (unsigned char)(((float)*sdata)*factor + ((float)*ddata)*(1-factor));
           sdata++;
           ddata++;
         }
