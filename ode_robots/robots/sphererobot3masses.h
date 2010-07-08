@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2010-07-08 13:48:18  der
+ *   Revision 1.21  2010-07-08 13:51:01  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.20  2010/07/08 13:48:18  der
  *   resolved conflict
  *
  *   Revision 1.19  2010/03/16 18:33:09  martius
@@ -228,7 +231,7 @@ public:
     c.motor_ir_before_sensors=false;
     c.axesShift=0;
     c.brake=0;
-    c.axisShift=0;
+    c.axesShift=0;
    return c;
   }
 
