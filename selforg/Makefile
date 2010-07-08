@@ -13,6 +13,7 @@ LIB_OPT=$(LIBBASE)_opt.a
 LIB_DBG=$(LIBBASE)_dbg.a
 STRIP=no
 TYPE=DEVEL
+GSL=yes
 ifeq ($(PREFIX),)
 PREFIX=/usr/local
 endif
@@ -31,8 +32,13 @@ HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 OFILES     := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(CPPFILES))
 
 # additional inc paths
-INC +=  -I. -Iinclude $(shell gsl-config --cflags)
-# one can possibly disable gsl using -DNO_GSL
+INC +=  -I. -Iinclude
+# one can possibly disable gsl using GSL=no
+ifeq ($(GSL),yes)
+INC += $(shell gsl-config --cflags)
+else
+INC += -DNO_GSL
+endif
 
 # use -pg for profiling
 CBASEFLAGS = -Wall -pipe
