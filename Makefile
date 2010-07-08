@@ -1,6 +1,7 @@
 #File:     Makefile for lpzrobot directory
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     June 2005
+SHELL=/bin/bash
 
 include Makefile.conf
 
@@ -13,7 +14,7 @@ help:
 	@cat logo.txt
 	@echo $(USAGE2)
 	@grep -E "^\#\#\!.*" Makefile | sed -e "s/##!/   /"
-	@echo  $(USAGE3)
+	@echo -e  $(USAGE3)
 
 .PHONY: prepare
 ##!prepare	build tools and create dependency files (do that first)
@@ -37,7 +38,7 @@ prepare: usage
 .PHONY: ode
 ##!ode		compile open dynamics engine in double precession (custom version)
 ode:
-	cd opende; sh autogen.sh && ./configure --disable-asserts --enable-double-precision --prefix=$(PREFIX) && $(MAKE) && echo "you probably want to run \"make install_ode\" now (possibly as root)"
+	cd opende; sh autogen.sh && ./configure --disable-asserts --enable-double-precision --prefix=$(PREFIX) --disable-demos && $(MAKE) && echo "you probably want to run \"make install_ode\" now (possibly as root)"
 
 
 .PHONY: install_ode
