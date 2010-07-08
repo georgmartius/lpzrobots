@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2007-09-06 18:47:59  martius
+ *   Revision 1.8  2010-07-08 13:50:14  der
+ *   axesshift renamed
+ *
+ *   Revision 1.7  2007/09/06 18:47:59  martius
  *   createNewSimpleSpace used
  *
  *   Revision 1.6  2007/07/17 07:22:28  martius
@@ -134,7 +137,8 @@ namespace lpzrobots {
       pendular[n] = new Sphere(conf.pendulardiameter/2);
       pendular[n]->init(odeHandle, conf.pendularmass, osgHandleX[n], 
 			Primitive::Body | Primitive::Draw); // without geom
-      pendular[n]->setPose(pose);    
+
+      pendular[n]->setPose(Matrix::translate(0,0,(n==0?-1:1)*conf.axesShift)*pose);
 
       joint[n] = new SliderJoint(object[Base], pendular[n],
 				 p, Axis((n==0), (n==1), (n==2))*pose );
@@ -153,6 +157,7 @@ namespace lpzrobots {
       
       axis[n] = new OSGCylinder(conf.diameter/100, conf.diameter - conf.diameter/100);
       axis[n]->init(osgHandleX[n], OSGPrimitive::Low);
+      axis[n]->setMatrix(Matrix::translate(0,0,(n==0?-1:1)*conf.axesShift)*pose);
       object[Pendular1+n] = pendular[n]; 
     }
 
