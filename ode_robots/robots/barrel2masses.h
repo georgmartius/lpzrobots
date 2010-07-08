@@ -24,7 +24,10 @@
  * cylinder like Robot inspired by Julius Popp's Adam.                     *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-02-22 15:28:22  martius
+ *   Revision 1.6  2010-07-08 13:50:51  der
+ *   axeshift renamed and all values of the spherical initialized to 0
+ *
+ *   Revision 1.5  2010/02/22 15:28:22  martius
  *   config is first fetched from sphererobot3masses to avoid uninitialized fields
  *
  *   Revision 1.4  2007/07/03 13:05:23  martius
@@ -109,8 +112,18 @@ public:
     c.pendularrange  = 0.25; // range of the slider from center in multiple of diameter [-range,range]
     c.motorpowerfactor = 150;
     c.motorsensor = false;  
+    c.irRing=true;
+    c.irSide=false;
     c.irAxis1=false;
     c.irAxis2=false;
+    c.irAxis3=false;
+    c.drawIRs=true;
+    c.irsensorscale=1.5;
+    c.irCharacter=1;  
+    c.irSensorTempl=0;
+    c.motor_ir_before_sensors=false;
+    c.brake=0;
+    c.axesShift=0;
     return c;
   }
 	
