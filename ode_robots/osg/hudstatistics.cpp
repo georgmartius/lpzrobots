@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-03-17 09:33:16  martius
+ *   Revision 1.12  2010-07-08 14:27:53  martius
+ *   # import is depricated
+ *
+ *   Revision 1.11  2010/03/17 09:33:16  martius
  *   removed memory leaks and some small bugs
  *   valgrind suppression file is updated
  *
@@ -86,7 +89,7 @@
 #include <selforg/statisticmeasure.h>
 
 #include "osgforwarddecl.h"
-#import "color.h"
+#include "color.h"
 #include <osgText/Text>
 #include <osgText/Font>
 #include <osg/Geode>

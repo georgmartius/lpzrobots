@@ -25,7 +25,10 @@
  *  graphics window.                                                       *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-03-17 09:33:16  martius
+ *   Revision 1.9  2010-07-08 14:27:53  martius
+ *   # import is depricated
+ *
+ *   Revision 1.8  2010/03/17 09:33:16  martius
  *   removed memory leaks and some small bugs
  *   valgrind suppression file is updated
  *
@@ -71,7 +74,7 @@
 #ifndef __HUD_STATISTICS_H
 #define __HUD_STATISTICS_H
 
-#import <selforg/statistictools.h>
+#include <selforg/statistictools.h>
 
 #include "color.h"
 
