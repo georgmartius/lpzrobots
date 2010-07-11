@@ -198,4 +198,6 @@ namespace matrix {
     return false;
   }
 
+}
+
 #endif

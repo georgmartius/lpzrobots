@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.11  2010-07-02 15:57:25  martius
+ *  Revision 1.12  2010-07-11 22:04:13  martius
+ *  ported to MinGW/Msys
+ *
+ *  Revision 1.11  2010/07/02 15:57:25  martius
  *  wirings have new initIntern signature -> less errors can be made
  *  abstractwiring generates the noise of given length
  *
@@ -108,10 +111,11 @@ PlotOptionEngine::~PlotOptionEngine() {
 
 bool PlotOptionEngine::init(AbstractController* maybe_controller){
   this->maybe_controller = maybe_controller;
+#ifdef SIGPIPE // is not defined on windows
   // this prevents the simulation to terminate if the child  closes
   // or if we fail to open it.
   signal(SIGPIPE,SIG_IGN);
-
+#endif
   FOREACH(list<PlotOption>, plotOptions, po){
     initPlotOption(*po);
   }

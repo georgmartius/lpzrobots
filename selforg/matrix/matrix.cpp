@@ -5,7 +5,10 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.31  2010-02-22 17:52:41  martius
+// Revision 1.32  2010-07-11 22:04:13  martius
+// ported to MinGW/Msys
+//
+// Revision 1.31  2010/02/22 17:52:41  martius
 // added square norm function and default value for plusLambdaI
 //
 // Revision 1.30  2010/01/26 09:45:55  martius
@@ -250,6 +253,20 @@ namespace matrix {
     return ( m == 1 || n == 1 );
   }
 
+#ifdef WIN32
+  int bcmp (const void *_a, const void *_b, int count){
+    int rtnval = 0;
+    const char* a = (char*) _a;
+    const char* b = (char*) _b;
+    while (count-- > 0) {
+      if (*a++ != *b++) {
+	rtnval = 1;
+	break;
+      }
+    }
+    return (rtnval);
+  }
+#endif
 
   bool Matrix::equals (const Matrix& a) const {
     if(m*n != a.m*a.n) return false;

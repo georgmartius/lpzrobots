@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.7  2009-11-26 16:53:28  fhesse
+ *  Revision 1.8  2010-07-11 22:04:13  martius
+ *  ported to MinGW/Msys
+ *
+ *  Revision 1.7  2009/11/26 16:53:28  fhesse
  *  ntst (no timestamp in logfilename) option added to simulation
  *
  *  Revision 1.6  2009/10/27 11:44:30  robot14
@@ -69,9 +72,6 @@ bool PlotOption::open(){
   char cmd[255];
   bool returnCode = true;
   std::cout << "open a stream " << std::endl;
-  // this prevents the simulation to terminate if the child  closes
-  // or if we fail to open it.
-  signal(SIGPIPE,SIG_IGN);
   switch(mode){
   case File:
       struct tm *t;

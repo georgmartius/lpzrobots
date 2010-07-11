@@ -23,6 +23,11 @@ PREFIX=$(DESTDIR)
 endif
 include Makefile.conf
 
+ifeq ($(shell uname -o),Msys)
+GSL=no
+REVINCLUDEDIR=.
+endif
+
 BUILD_DIR=build
 
 find_cpp_files = $(wildcard $(dir)/*.cpp)

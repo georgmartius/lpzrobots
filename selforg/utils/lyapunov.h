@@ -53,7 +53,7 @@ public:
     matrix::Matrix Exp; ///< Lyapunov exponents
   };
   
-  typedef std::tr1::unordered_map< int, SlidingMatrix* > Horizons;
+  typedef HashMap< int, SlidingMatrix* > Horizons;
 
 public:
   Lyapunov();

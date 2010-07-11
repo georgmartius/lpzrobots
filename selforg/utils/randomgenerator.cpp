@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-10-29 15:26:14  martius
+ *  Revision 1.3  2010-07-11 22:04:13  martius
+ *  ported to MinGW/Msys
+ *
+ *  Revision 1.2  2009/10/29 15:26:14  martius
  *  typo
  *
  *  Revision 1.1  2009/10/29 15:23:43  martius
@@ -34,6 +37,10 @@
 #include "randomgenerator.h"
 
 #ifndef _GNU_SOURCE
+#ifdef WIN32
+#include <inttypes.h>
+#endif
+
 
 int __drand48_iterate (unsigned short int xsubi[3], struct drand48_data* buffer);
 

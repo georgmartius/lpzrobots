@@ -23,7 +23,10 @@
  *   This is a copy of the stdlib version                                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-10-29 15:26:14  martius
+ *   Revision 1.9  2010-07-11 22:04:13  martius
+ *   ported to MinGW/Msys
+ *
+ *   Revision 1.8  2009/10/29 15:26:14  martius
  *   typo
  *
  *   Revision 1.7  2009/10/29 15:24:20  martius
@@ -55,8 +58,9 @@
 #include <stdlib.h>
 
 #include <limits.h>
+#ifndef WIN32
 #include <mach/mach.h>
-
+#endif
 
 union ieee754_double
   {
