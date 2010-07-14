@@ -45,7 +45,11 @@ void control_c(int ){ }
 void signal_handler_init(){
   signal(SIGINT,control_c);
   atexit(signal_handler_exit);
+#if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__) \
+  || defined (_WIN64) || defined(__CYGWIN__) || defined(__MINGW32__)
+#else
   signal(SIGPIPE, SIG_DFL);
+#endif
 }
 
 void printUsage(){
@@ -64,8 +68,7 @@ void printUsage(){
   * \author Dominic Schneider
   */
 int main( int argc, char ** argv ) {   
-    signal_handler_init();
-
+   signal_handler_init();
    CommLineParser params;
    params.parseCommandLine(argc, argv);
 

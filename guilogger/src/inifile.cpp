@@ -217,7 +217,7 @@ void IniFile::Clear(){
 bool IniFile::getSection(IniSection& _section,QString _name,bool _next){
   static QString lastname;
   IniSection* sec;
-  if (_next==false || _next==true && _name!=lastname) {
+  if (_next==false || (_next==true && _name!=lastname) ) {
     lastname ="";
     sec=sections.first();
 

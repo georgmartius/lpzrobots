@@ -134,7 +134,7 @@ void PlotInfo::channelsChanged(){
     int i=0;
     initialized = true;
     FOREACHC(QVector<ChannelInfo>, channelData.getInfos(), c){
-      channels[i] = ChannelPlotInfo(DEFAULT);
+      channels[i] = ChannelPlotInfo(PS_DEFAULT);
       //
 //       	    QRegExp re;
 // 	    re.setPattern(qv);

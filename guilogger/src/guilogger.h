@@ -22,7 +22,13 @@
 #ifndef GUILOGGER_H
 #define GUILOGGER_H
 
-#define VERSIONSTRING "0.6"
+#define QUOTEIT(V) #V
+#if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__) \
+      || defined (_WIN64) || defined(__CYGWIN__) || defined(__MINGW32__)
+#define VERSIONSTRING QUOTEIT(0.6-MS)
+#else
+#define VERSIONSTRING QUOTEIT(0.6)
+#endif
 
 // this list could be shrinked
 #include <qmainwindow.h>
@@ -133,6 +139,8 @@ private:
   int lastPlotTime;
   int datadelayrate;  // how much data traffic is neccessary to replot
   int filePlotHorizon; // 
+
+  QString gnuplotcmd;
 
   QString mode;
   QString filename;

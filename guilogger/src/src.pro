@@ -15,7 +15,8 @@ HEADERS += \
            stl_adds.h \
            plotchannelstablemodel.h \
            plotinfo.h \
-           channeldata.h
+           channeldata.h \
+    quickmp.h
 
 SOURCES += \
            guilogger.cpp \
@@ -35,7 +36,8 @@ TEMPLATE = app
 CONFIG += debug \
 warn_on \
 thread \
-qt
+qt \
+console
 TARGET = bin/guilogger
 target.path = /usr/bin
 QT += qt3support

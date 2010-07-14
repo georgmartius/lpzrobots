@@ -30,7 +30,7 @@
 
 #include "channeldata.h"
 
-enum PlotStyle {DEFAULT, LINES, POINTS};
+enum PlotStyle {PS_DEFAULT, PS_LINES, PS_POINTS};
 
 // information for a single channel for one gnuplot window
 class ChannelPlotInfo{
@@ -41,8 +41,8 @@ public:
   PlotStyle style;
   const char* getStyleString() const {
     switch(style){
-    case LINES:   return "l"; 
-    case POINTS:  return "p";
+    case PS_LINES:   return "l";
+    case PS_POINTS:  return "p";
     default: return "l";
     }
   }

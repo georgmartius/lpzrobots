@@ -4,4 +4,5 @@ QT += qt3support
 CONFIG += debug \
           warn_on \
           qt \
-          thread 
+          thread \
+          console 

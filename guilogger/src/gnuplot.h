@@ -27,9 +27,10 @@ public:
   
   ~Gnuplot();
 
-  void init(int w=400,int h=300, int x=-1, int y=-1);
+  void init(const QString& gnuplotcmd, int w=400,int h=300, int x=-1, int y=-1);
   
-  bool open(int w=400,int h=300, int x=-1, int y=-1);
+  bool open(const QString& gnuplotcmd, int w=400,int h=300, int x=-1, int y=-1);
+
   void close();
   
 

@@ -19,6 +19,8 @@
  ***************************************************************************/
 #include "qserialreader.h"
 
+#ifndef WIN32
+
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -106,3 +108,12 @@ void QSerialReader::run()
     close(fd);
     fd=-1;
 }
+
+#else
+
+QSerialReader::QSerialReader( char bt) {   }
+
+
+void QSerialReader::run() {}
+
+#endif //WIN32

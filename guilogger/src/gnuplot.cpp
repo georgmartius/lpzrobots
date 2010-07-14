@@ -11,17 +11,23 @@ Gnuplot::~Gnuplot(){
   close();
 };
 
-void Gnuplot::init(int w,int h, int x, int y){
-  open(w, h, x, y);
+void Gnuplot::init(const QString& gnuplotcmd, int w,int h, int x, int y){
+  open(gnuplotcmd, w, h, x, y);
 }
 
-bool Gnuplot::open(int w,int h, int x, int y){
-  char cmd[256];
+bool Gnuplot::open(const QString& gnuplotcmd, int w,int h, int x, int y){
+  char cmd[512];
+#if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__) \
+        || defined (_WIN64) || defined(__CYGWIN__) || defined(__MINGW32__)
+  sprintf(cmd, "%s", gnuplotcmd.latin1());
+#else
   if(x==-1 || y==-1)
-    sprintf(cmd, "gnuplot -geometry %ix%i -noraise >/dev/null 2>/dev/null", w, h);
-  else 
-    sprintf(cmd, "gnuplot -geometry %ix%i+%i+%i -noraise >/dev/null 2>/dev/null", w, h, x, y);
+    sprintf(cmd, "%s -geometry %ix%i -noraise >/dev/null 2>/dev/null", gnuplotcmd.latin1(), w, h);
+  else
+    sprintf(cmd, "%s -geometry %ix%i+%i+%i -noraise >/dev/null 2>/dev/null", gnuplotcmd.latin1(), w, h, x, y);
+#endif
   pipe=popen(cmd,"w");
+
   return true;
   //return popen("gnuplot -geometry 400x300","w");
   /*char b[100];
@@ -82,7 +88,7 @@ QString Gnuplot::plotCmd(const QString& file, int start, int end){
       }
     }
     buffer << "t '" << cd.getInfos()[*i].name << "'";        
-    if(!plotInfo->getChannelInfos()[*i].style != DEFAULT) 
+    if(!plotInfo->getChannelInfos()[*i].style != PS_DEFAULT) 
       buffer << " w " << plotInfo->getChannelInfos()[*i].getStyleString();    
   }
   return buffer.join(QString());  

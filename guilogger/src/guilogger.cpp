@@ -36,10 +36,9 @@ GuiLogger::GuiLogger(const CommLineParser& configobj, const QRect& screenSize)
   : QMainWindow( 0), screenSize(screenSize), channelData(0) {
   setWindowTitle("GuiLogger");
   mode     = configobj.getMode();
-  filename = configobj.getFile();
+  filename = configobj.getFile();  
 
   connect(&channelData, SIGNAL(quit()), this, SLOT(doQuit()));
-
 
   load();  // load Config File
 
@@ -335,7 +334,7 @@ void GuiLogger::save(bool blank){
     if(section->getName() == "Window") { 
       cfgFile.sections.remove();  // remove current item, iterator++ 
       section = cfgFile.sections.current();
-    } else if(blank && (section->getName() == "General" || section->getName() == "GNUPlot" || 
+    } else if(blank && (section->getName() == "General" || section->getName() == "GNUPlot" ||
 		   section->getName() == "Misc")) { 
       cfgFile.sections.remove();  // remove current item, iterator++ 
       section = cfgFile.sections.current();
@@ -358,11 +357,24 @@ void GuiLogger::save(bool blank){
     section->addValue("UpdateInterval","2000"," # time between plotting updates in ms");
     section->addValue("MinData4Replot","1"," # number of input events before updating plots");
     section->addValue("BufferSize","250", " # Size of history");
+
+#if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__) \
+      || defined (_WIN64) || defined(__CYGWIN__) || defined(__MINGW32__)
+    section->addValue("Gnuplot","C:/msys/1.0/gnuplot/binary/gnuplot");
+#else
+    section->addValue("Gnuplot","gnuplot");
+#endif
+
   }
   // If we don't have a GNUPlot section then add it.    
   if(!cfgFile.getSection(sec,"GNUPlot",false)){
     section=cfgFile.addSection("GNUPlot");
+#if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__) \
+      || defined (_WIN64) || defined(__CYGWIN__) || defined(__MINGW32__)
+    section->addValue("Command","set terminal wxt");
+#else
     section->addValue("Command","set terminal x11");
+#endif
     section->addValue("Command","set style data lines");
     section->addValue("Command","set zeroaxis");
   }    
@@ -431,6 +443,8 @@ void GuiLogger::load() {
   plotwindows = cfgFile.getValueDef("General","PlotWindows","5").toInt();  
   startplottimer = cfgFile.getValueDef("General","UpdateInterval","2000").toInt();  
   datadelayrate = cfgFile.getValueDef("General","MinData4Replot","1").toInt();  
+
+  gnuplotcmd    = cfgFile.getValueDef("General","Gnuplot","gnuplot");
   
   if(plotInfos.size()<plotwindows){    
     // create plotinfos
@@ -521,9 +535,9 @@ void GuiLogger::load() {
     QSize s = windowsize.contains(k) ? windowsize[k] : QSize(400,300);
     if(windowposition.contains(k)){
       QSize pos = windowposition[k];
-      plotWindows[k].init(s.width(), s.height(), pos.width(), pos.height());	
+      plotWindows[k].init(gnuplotcmd, s.width(), s.height(), pos.width(), pos.height());
     }else{	
-      plotWindows[k].init(s.width(), s.height());
+      plotWindows[k].init(gnuplotcmd, s.width(), s.height());
     }
   }
 
