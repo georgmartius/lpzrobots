@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2010-01-27 10:19:11  martius
+ *   Revision 1.22  2010-08-03 12:50:39  martius
+ *   Servo interface changes: damping() is now get/setDamping
+ *
+ *   Revision 1.21  2010/01/27 10:19:11  martius
  *   showCenter variable added
  *
  *   Revision 1.20  2010/01/26 09:56:31  martius
@@ -398,7 +401,7 @@ namespace lpzrobots {
       conf.motorDamp = val; 
 
       FOREACH(vector<HingeServo*>, hingeServos, i) {
-	if(*i) (*i)->damping() = conf.motorDamp;
+	if(*i) (*i)->setDamping(conf.motorDamp);
       }
     }
     else if(key == "sensorfactor") conf.sensorFactor = val; 

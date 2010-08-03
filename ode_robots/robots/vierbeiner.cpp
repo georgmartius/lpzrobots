@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-07-07 14:12:40  robot6
+ *   Revision 1.14  2010-08-03 12:50:39  martius
+ *   Servo interface changes: damping() is now get/setDamping
+ *
+ *   Revision 1.13  2010/07/07 14:12:40  robot6
  *   now with optional face
  *
  *   Revision 1.12  2010/03/09 11:53:41  martius
@@ -577,7 +580,7 @@ namespace lpzrobots {
     } else if(key == "hipdamping") {
       conf.hipDamping = val; 
       FOREACH(vector<HingeServo*>, hipservos, i){
-	if(*i) { (*i)->damping() = conf.hipDamping; }
+	if(*i) { (*i)->setDamping(conf.hipDamping); }
       }
     } else if(key == "kneepower") {
       conf.kneePower = val; 
@@ -587,7 +590,7 @@ namespace lpzrobots {
     } else if(key == "kneedamping") {
       conf.kneeDamping = val; 
       FOREACH(vector<HingeServo*>, kneeservos, i){
-	if(*i) {(*i)->damping() = conf.kneeDamping;} 
+	if(*i) {(*i)->setDamping(conf.kneeDamping);} 
       }
     } else if(key == "anklepower") {
       conf.anklePower = val; 
@@ -597,7 +600,7 @@ namespace lpzrobots {
     } else if(key == "ankledamping") {
       conf.ankleDamping = val; 
       FOREACH(vector<HingeServo*>, ankleservos, i){
-	if(*i) {(*i)->damping() = conf.ankleDamping; } 
+	if(*i) {(*i)->setDamping(conf.ankleDamping); } 
       }
     } else if(key == "hipjointlimit") {
       conf.hipJointLimit = val; 

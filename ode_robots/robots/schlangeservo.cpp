@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-05-11 15:44:30  martius
+ *   Revision 1.13  2010-08-03 12:50:39  martius
+ *   Servo interface changes: damping() is now get/setDamping
+ *
+ *   Revision 1.12  2009/05/11 15:44:30  martius
  *   new velocity servos used
  *
  *   Revision 1.11  2008/05/07 16:45:52  martius
@@ -163,7 +166,7 @@ void SchlangeServo::create(const osg::Matrix& pose){
 bool SchlangeServo::setParam(const paramkey& key, paramval val){
   bool rv = Schlange::setParam(key, val);
   for (vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
-    if(*i) (*i)->damping()=conf.frictionJoint;
+    if(*i) (*i)->setDamping(conf.frictionJoint);
   }
   for (vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
     if(*i) (*i)->setPower(conf.motorPower);

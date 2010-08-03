@@ -539,7 +539,7 @@ namespace lpzrobots{
     else if(key == "damping") {
       conf.damping = val; 
       FOREACH (vector<HingeServo*>, hingeServos, i) {
-	(*i)->damping() = val;
+	(*i)->setDamping(val);
       }
     }
     else if(key == "print") print = val; 

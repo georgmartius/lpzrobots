@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-05-11 15:44:30  martius
+ *   Revision 1.9  2010-08-03 12:50:39  martius
+ *   Servo interface changes: damping() is now get/setDamping
+ *
+ *   Revision 1.8  2009/05/11 15:44:30  martius
  *   new velocity servos used
  *
  *   Revision 1.7  2008/05/07 16:45:52  martius
@@ -165,8 +168,8 @@ namespace lpzrobots {
     }
     for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
       if(*i) {
-	(*i)->damping1() = conf.frictionJoint;
-	(*i)->damping2() = conf.frictionJoint;
+	(*i)->setDamping1(conf.frictionJoint);
+	(*i)->setDamping2(conf.frictionJoint);
       }
     }
     for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
