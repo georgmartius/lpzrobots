@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-07-05 16:45:55  martius
+ *   Revision 1.5  2010-08-03 12:51:17  martius
+ *   hexapod adapted Velocity servos
+ *
+ *   Revision 1.4  2010/07/05 16:45:55  martius
  *   hexapod tuned
  *
  *   Revision 1.3  2010/07/02 15:54:26  martius
@@ -186,9 +189,10 @@ public:
     AbstractController* sine = 0;
     if(useSineController){
       // sine = new SineController(~0, SineController::Sine);   
-      sine = new SineController(~0, SineController::Impulse);   
+      //sine = new SineController(~0, SineController::Impulse);   
+      sine = new SineController(1, SineController::SawTooth);   
       // //     // //     // motorpower 20
-      sine->setParam("period", 30);
+      sine->setParam("period", 100); // 30
       sine->setParam("phaseshift", 0.5);
       sine->setParam("amplitude", 0.5);
     }

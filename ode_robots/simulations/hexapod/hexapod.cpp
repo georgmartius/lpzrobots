@@ -669,8 +669,7 @@ namespace lpzrobots {
       if(*i){
         (*i)->setPower1(conf.coxaPower);
         (*i)->setPower2(conf.coxaPower);
-        (*i)->damping1() = conf.coxaDamping;
-        (*i)->damping2() = conf.coxaDamping;
+        (*i)->setDamping(conf.coxaDamping);
         (*i)->setMinMax1(-conf.coxaJointLimitV,+conf.coxaJointLimitV);
         (*i)->setMinMax2(-conf.coxaJointLimitH,+conf.coxaJointLimitH);
         (*i)->setMaxVel(conf.coxaSpeed);
@@ -679,7 +678,7 @@ namespace lpzrobots {
     FOREACH(vector<OneAxisServo*>, tebiasprings, i){
       if(*i){
         (*i)->setPower(conf.tebiaPower);
-        (*i)->damping() = conf.tebiaDamping;
+        (*i)->setDamping(conf.tebiaDamping);
         (*i)->setMinMax(-conf.tebiaJointLimit,+conf.tebiaJointLimit);
       }
     }    

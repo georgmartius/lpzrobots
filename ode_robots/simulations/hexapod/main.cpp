@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-07-06 08:36:30  martius
+ *   Revision 1.2  2010-08-03 12:51:17  martius
+ *   hexapod adapted Velocity servos
+ *
+ *   Revision 1.1  2010/07/06 08:36:30  martius
  *   hexapod of Guillaume improved and included
  *
  *   Revision 1.4  2010/07/05 16:45:55  martius
@@ -113,8 +116,9 @@ public:
 			  myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
 
     // on the top
-    //    vehicle->place(osg::Matrix::rotate(M_PI,1,0,0)*osg::Matrix::translate(0,0,3));
-    vehicle->place(osg::Matrix::translate(0,0,0));
+    vehicle->place(osg::Matrix::rotate(M_PI,1,0,0)*osg::Matrix::translate(0,0,3));
+    // normal position
+    //    vehicle->place(osg::Matrix::translate(0,0,0));
     global.configs.push_back(vehicle);
 
 //     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
@@ -130,7 +134,7 @@ public:
     //cc.cInit=.95;
     cc.cInit=.99;
     cc.modelExt=false;
-    cc.someInternalParams=false;
+    cc.someInternalParams=true;
     SeMoX* semox = new SeMoX(cc);  
 
     AbstractController* sine = 0;
