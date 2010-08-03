@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-07-05 16:47:34  martius
+ *   Revision 1.13  2010-08-03 12:49:18  martius
+ *   velocity servos use damping parameter to reduce force around set point
+ *    This induces a body feeling
+ *
+ *   Revision 1.12  2010/07/05 16:47:34  martius
  *   hashset transition to tr1
  *   new pid function for velocity servos, which work now fine
  *
@@ -187,15 +191,30 @@ namespace lpzrobots {
       return pid2.KP;
     };
 
-    /*TODO remove this referenced interface*/
-    /** returns the damping of the servo*/
-    virtual double& damping1() { 
+    /** returns the damping of the servo (axis 1) */
+    virtual double getDamping1() { 
       return pid1.KD;
     };
 
-    /** returns the damping of the servo*/
-    virtual double& damping2() { 
+    /** returns the damping of the servo (axis 2) */
+    virtual double getDamping2() { 
       return pid2.KD;
+    };
+
+    /** sets the damping of the servo (axis 1) */
+    virtual void setDamping1(double damp) { 
+      pid1.KD = damp;
+    };
+
+    /** sets the damping of the servo (axis 1) */
+    virtual void setDamping2(double damp) { 
+      pid2.KD = damp;
+    };
+
+    /** sets the damping of the servo (both axis) */
+    virtual void setDamping(double _damp) { 
+      setDamping1(_damp);
+      setDamping2(_damp);
     };
 
     /** returns the damping of the servo*/
@@ -247,7 +266,7 @@ namespace lpzrobots {
   class TwoAxisServoCentered : public TwoAxisServo {
   public:
     /** min and max values are understood as travel bounds. 
-	The zero position is max-min/2
+	The zero position is (max-min)/2
     */
     TwoAxisServoCentered(TwoAxisJoint* joint, double _min1, double _max1, double power1, 
 			 double _min2, double _max2, double power2, 
@@ -304,48 +323,64 @@ namespace lpzrobots {
   
   /** general servo motor to achieve position control for 2 axis joints
    *  that internally controls the velocity of the motor (much more stable)
-   *  with centered zero position
+   *  with centered zero position.
+   *  The amount of body feeling can be adjusted by the damping parameter
    */
   class TwoAxisServoVel : public TwoAxisServoCentered {
   public:
     /** min and max values are understood as travel bounds. 
-	The zero position is max-min/2
-        maxVel is understood as a speed parameter of the servo.
+	The zero position is (max-min)/2
+        @param power is the maximal torque the servo can generate
+        @param maxVel is understood as a speed parameter of the servo.
+        @param damping adjusts the power of the servo in dependence of the distance
+         to the set point. This regulates the damping and the body feeling
+          0: the servo has no power at the set point (maximal body feeling);
+          1: is servo has full power at the set point: perfectly damped.
     */
     TwoAxisServoVel(const OdeHandle& odeHandle, 
 		    TwoAxisJoint* joint, double _min1, double _max1, double power1, 
 		    double _min2, double _max2, double power2, 
-		    double damp=0.1, double maxVel=10.0, double jointLimit = 1.3)
+		    double damp=0.05, double maxVel=10.0, double jointLimit = 1.3)
       : TwoAxisServoCentered(joint, _min1, _max1, maxVel/2, _min2, _max2, maxVel/2,
-			     damp, 0, 0, jointLimit), 
-        // don't wounder! It is correct to give maxVel as a power parameter.
-	motor(odeHandle, joint, power1, power2) 
+			     0, 0, 0, jointLimit), 
+        // don't wonder! It is correct to give maxVel as a power parameter.
+	motor(odeHandle, joint, power1, power2),
+        damp(clip(damp,0.0,1.0)), power1(power1), power2(power2)
     {
     }    
     virtual ~TwoAxisServoVel(){}
     
-    /** adjusts the power of the servo*/
-    virtual void setPower(double power1, double power2) { 
-      motor.setPower(power1,power2);
+    virtual void setPower(double _power1, double _power2) { 
+      motor.setPower(_power1,_power2);
+      power1=_power1;
+      power2=_power2;
     };
-
-    /** returns the power of the servo*/
-    virtual void setPower1(double power1) { 
+    virtual void setPower1(double _power1) { 
+      power1=_power1;
       motor.setPower(power1,motor.getPower2());
     };
-
-    /** returns the power of the servo*/
-    virtual void setPower2(double power2) { 
+    virtual void setPower2(double _power2) { 
+      power2=_power2;
       motor.setPower(motor.getPower(),power2);
     };
-
-    /** returns the power of the servo*/
     virtual double getPower1() { 
-      return motor.getPower();
+      return power1;
     };
-    /** returns the power of the servo*/
     virtual double getPower2() { 
-      return motor.getPower2();
+      return power2;
+    };
+
+    virtual double getDamping1() { 
+      return damp;
+    };
+    virtual double getDamping2() { 
+      return damp;
+    };
+    virtual void setDamping1(double _damp) { 
+      damp = clip(_damp,0.0,1.0);
+    };
+    virtual void setDamping2(double _damp) { 
+      setDamping1(_damp);
     };
 
     /** offetCanceling does not exist for this type of servo */
@@ -377,18 +412,28 @@ namespace lpzrobots {
       pos1 = (pos1+1.0)*(max1-min1)/2.0 + min1;
       pid1.setTargetPosition(pos1);  
       double vel1 = pid1.stepVelocity(joint->getPosition1(), joint->odeHandle.getTime());
-      
+      double e1 = fabs(2.0*(pid1.error)/(max1-min1)); // distance from set point
+
       pos2 = (pos2+1.0)*(max2-min2)/2.0 + min2;
       pid2.setTargetPosition(pos2);
       double vel2 = pid2.stepVelocity(joint->getPosition2(), joint->odeHandle.getTime());
+      double e2 = fabs(2.0*(pid2.error)/(max2-min2)); // distance from set point
+
       motor.set(0, vel1);
       motor.set(1, vel2);
+      // calculate power of servo depending on distance from setpoint and damping
+      // sigmoid ramping of power for damping < 1
+      motor.setPower(((1.0-damp)*tanh(e1)+damp) * power1, 
+                     ((1.0-damp)*tanh(e2)+damp) * power2);
+
     }
 
   protected:
     AngularMotor2Axis motor;         
     double dummy;
-    
+    double damp;
+    double power1;
+    double power2;    
   };
 
 

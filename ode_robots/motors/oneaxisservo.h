@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-07-05 16:47:34  martius
+ *   Revision 1.14  2010-08-03 12:49:18  martius
+ *   velocity servos use damping parameter to reduce force around set point
+ *    This induces a body feeling
+ *
+ *   Revision 1.13  2010/07/05 16:47:34  martius
  *   hashset transition to tr1
  *   new pid function for velocity servos, which work now fine
  *
@@ -148,10 +152,15 @@ namespace lpzrobots {
     };
 
     /** returns the damping of the servo*/
-    virtual double& damping() { 
+    virtual double getDamping() { 
       return pid.KD;
+    }
+    /** sets the damping of the servo*/
+    virtual void setDamping(double damp) { 
+      pid.KD = damp;
     };
-    /** returns the damping of the servo*/
+
+    /** returns the integration term of the PID controller of the servo*/
     virtual double& offsetCanceling() { 
       return pid.KI;
     };
@@ -186,7 +195,7 @@ namespace lpzrobots {
   class OneAxisServoCentered : public OneAxisServo {
   public:
     /** min and max values are understood as travel bounds. 
-	The zero position is max-min/2
+	The zero position is (max-min)/2
     */
     OneAxisServoCentered(OneAxisJoint* joint, double _min, double _max, 
 			 double power, double damp=0.2, double integration=2, 
@@ -223,31 +232,46 @@ namespace lpzrobots {
 
   /** general servo motor to achieve position control 
    *  that that internally controls the velocity of the motor (much more stable)
-   *  with centered zero position
+   *  with centered zero position.
+   *  The amount of body feeling can be adjusted by the damping parameter
    */
   class OneAxisServoVel : public OneAxisServo {
   public:
     /** min and max values are understood as travel bounds. 
-	The zero position is max-min/2
+	The zero position is (max-min)/2
+        @param power is the maximal torque the servo can generate
+        @param maxVel is understood as a speed parameter of the servo.
+        @param damping adjusts the power of the servo in dependence of the distance
+         to the set point. This regulates the damping and the body feeling
+          0: the servo has no power at the set point (maximal body feeling);
+          1: is servo has full power at the set point: perfectly damped.
+
     */
     OneAxisServoVel(const OdeHandle& odeHandle, 
 		    OneAxisJoint* joint, double _min, double _max, 
-		    double power, double damp=0.01, double maxVel=20, double jointLimit = 1.3)
-      : OneAxisServo(joint, _min, _max, maxVel/2, damp, 0, 0, jointLimit, false),
-        // don't wounder! It is correct to give maxVel as a power parameter.
-        motor(odeHandle, joint, power) 
+		    double power, double damp=0.05, double maxVel=20, double jointLimit = 1.3)
+      : OneAxisServo(joint, _min, _max, maxVel/2, 0, 0, 0, jointLimit, false),
+        // don't wonder! It is correct to give maxVel as a power parameter.
+        motor(odeHandle, joint, power), power(power), damp(clip(damp,0.0,1.0))
     {            
     }
 
     virtual ~OneAxisServoVel(){}
 
     /** adjusts the power of the servo*/
-    virtual void setPower(double power) { 
+    virtual void setPower(double _power) { 
+      power=_power;
       motor.setPower(power);
     };
     /** returns the power of the servo*/
-    virtual double getPower() {       
-      return motor.getPower();
+    virtual double getPower() {             
+      return power;
+    };
+    virtual double getDamping() { 
+      return damp;
+    };
+    virtual void setDamping(double _damp) { 
+      damp = clip(_damp,0.0,1.0);
     };
     /** offetCanceling does not exist for this type of servo */
     virtual double& offsetCanceling() { 
@@ -274,8 +298,12 @@ namespace lpzrobots {
       pos = clip(pos, -1.0, 1.0);
       pos = (pos+1)*(max-min)/2 + min;
       pid.setTargetPosition(pos);   
-      double vel = pid.stepVelocity(joint->getPosition1(), joint->odeHandle.getTime());      
-      motor.set(0, vel);            
+      double vel = pid.stepVelocity(joint->getPosition1(), joint->odeHandle.getTime());
+      double e   = fabs(2.0*(pid.error)/(max-min)); // distance from set point
+      motor.set(0, vel);
+      // calculate power of servo depending on the damping and distance from set point and 
+      // sigmoid ramping of power for damping < 1
+      motor.setPower(((1.0-damp)*tanh(e)+damp) * power);
     }
     
     /** returns the position of the servo in ranges [-1, 1] (scaled by min, max, centered)*/
@@ -286,6 +314,8 @@ namespace lpzrobots {
   protected:
     AngularMotor1Axis motor;         
     double dummy;
+    double power;
+    double damp;
   };
     
 }
