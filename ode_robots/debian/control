@@ -3,7 +3,7 @@ Section: misc
 Priority: optional
 Maintainer: Georg Martius <georg.martius@web.de>
 Build-Depends: debhelper (>= 7), quilt,
- libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, libglut3-dev, makedepend,
+ libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, libglut3-dev, xutils-dev,
  lpzrobots-selforg, libode-dbl-dev, libopenscenegraph-dev, libreadline-dev 
 Standards-Version: 3.8.4
 Homepage: http://robot.informatik.uni-leipzig.de/software
@@ -11,7 +11,7 @@ Homepage: http://robot.informatik.uni-leipzig.de/software
 Package: lpzrobots-oderobots
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
- libc6-dev | libc-dev, g++, make, makedepend,
+ libc6-dev | libc-dev, g++, make, xutils-dev,
  libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, libglut3-dev,
  libopenscenegraph-dev, libreadline-dev,
  lpzrobots-selforg, libode-dbl-dev, libode-dbl

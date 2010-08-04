@@ -9,7 +9,7 @@
 
 
 #### EDIT THE FOLLOWING LINES!
-VERSION=0.6.4
+VERSION=0.6.5
 ODEVERSION=0.11.2
 
 export CVSROOT=:ext:martius@robotcvs.informatik.uni-leipzig.de:/home/robot/cvsroot

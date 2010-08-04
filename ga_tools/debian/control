@@ -3,13 +3,13 @@ Section: misc
 Priority: optional
 Maintainer: Georg Martius <georg.martius@web.de>
 Build-Depends: debhelper (>= 7), 
- lpzrobots-selforg, lpzrobots-oderobots, makedepend
+ lpzrobots-selforg, lpzrobots-oderobots, xutils-dev
 Standards-Version: 3.8.4
 Homepage: http://robot.informatik.uni-leipzig.de/software
 
 Package: lpzrobots-ga-tools
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
- lpzrobots-selforg, lpzrobots-oderobots, makedepend
+ lpzrobots-selforg, lpzrobots-oderobots, xutils-dev
 Description: Framework for genetic algorithms in lpzrobots
  This package contains the framework for genetic algorithms.
