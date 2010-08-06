@@ -46,80 +46,92 @@ It consists of the following directories (click for details):
 
 \section Requirements
  
-You need the following software and libraries installed (Tested on Linux x86 and MAC Leopard).
-- ODE see http://www.ode.org which is now in the opende directory 
-   (please follow the instrutions printed by the Makefile in lpzrobots)
-- OpenSceneGraph http://www.openscenegraph.org (version >= 2.2.0) 
-- (\a optional) Qt library from http://www.trolltech.com for guilogger (version > 4.0)
-	- make sure you install the devel packages
-	- make sure the correct version of qmake is in your path. If you have both qt3 and qt4 installed you have to take care of that. Use qmake --version to find out. On Debian and Ubuntu use the alternatives system http://www.debian-administration.org/articles/91
-- (\a optional) Java JDK for neuronviz (version >= J2SE 1.5.0)
-
 \subsection Linux
- For convinience we provide a binary package with ODE and OSG compatible with most 
-  linux distributions, see next section
+ This is a list of packages you need to install:
+
+ For Debian based systems (e.g. Ubuntu) do: 
+\verbatim
+sudo apt-get install \
+ g++  make  automake libtool xutils-dev m4  libreadline-dev  libgsl0-dev \
+ libglu-dev libgl1-mesa-dev libglut3-dev  libopenscenegraph-dev \
+ libqt4-dev  qt4-qmake  libqt4-qt3support gnuplot
+\endverbatim
+(in case libgl1-mesa-dev is not found, install libgl-dev)
+
+For RPM based: 
+\verbatim
+zypper install gcc-c++  make xorg-x11-util-devel  m4 readline-devel  gsl-devel \
+ freeglu-devel libgl-devel freeglut-devel \
+ libqt4-devel libqt4-qt3support gnuplot
+\endverbatim
+OpenSceneGraph http://www.openscenegraph.org (version >= 2.2.0) also needs to be installed. Use google to find an -devel RPM for your system.
+
+Optionally you can install Java JDK for neuronviz (version >= J2SE 1.5.0).
+
 \subsection MAC
  We recommend to install the ODE and OSG via macports (http://www.macports.org)
  (after installation of macports type on a console 
  <tt>sudo port install osg OpenSceneGraph</tt>)
 
+
 \section Inst Installation \& Startup
 
-You have tree different ways to get the simulator to work. 
-- A) Download a binary version of the simulator and the utilities. 
-     This is the quick 'n' easy way which does not require root permissions, see \ref InstA
-- B) Use an .rpm or .deb package if possible. This is easiest way but requires root
-  permissions, see \ref InstB.
-- C) Download the source tar ball and compile the simulator youself. 
-  You have still the chance to take the precompiled extra libs. 
-  If way A and B fails or you want to modify the simulator then this is the way to go, 
-  see \ref InstC
+You have two different ways to get the simulator to work. 
+- A) Install a package for your distribution.
+     This is the quick 'n' easy way if you have root permissions,  see \ref InstA.
+- B) Download the source tar ball and compile the simulator youself, see \ref InstB
 
-\subsection InstA Way A: Binary installation
-- Download the binary and maybe the extra-lib tar balls from 
-  http://robot.informatik.uni-leipzig.de/software .
-- Unpack the files (with <tt>tar -xvzf file.tgz</tt>)
-- Install extra libs (ODE >= 0.8 and OSG > 2.2)
-          - Check first whether you can get packages for your distribution. Make sure you get the development version (-devel or -dev).
-          - debian/ubuntu name: libopenscenegraph-dev, libode0-dev
-          - if there are none then install the extra libs from us as described below 
-          or follow the appropriate part of \ref InstC.
+\subsection InstA Way A: Package installation
+\subsubsection Ubuntu
+  A package repository is hosted at
+  https://launchpad.net/~georg-martius/+archive/lpzrobots \n
+  There is a link: "read about installing" or do on a terminal:
 \verbatim
-cd lpzrobots-0.*-extra-lib-devel*
-sudo ./install.sh
+sudo add-apt-repository ppa:georg-martius/lpzrobots
+sudo apt-get update
 \endverbatim
-The files are stored under <tt>/usr/local/</tt>.
-- Install the simulator:
+Then you can install <tt>lpzrobots</tt> as any other package do:
 \verbatim
-cd lpzrobots-0.*-binary-lib-devel*
-make install
-# or, if you want a system wide installation
-sudo make install
+sudo apt-get install guilogger lpzrobots-oderobots
 \endverbatim
-- Now you are done with the installation and you can try a sample simulation. 
-  There are located in the <tt>ode_robots/simulations/</tt> 
-  folder and are also
-  copied to <tt>/usr/local/share/lpzrobots/</tt>.
-  Please continue reading in section \ref RunExample.
+This will automatically install all other dependencies.
 
-\subsection InstB Way B: Package installation
-- Download a package that fits your system from http://robot.informatik.uni-leipzig.de/software and use the
-  package manager of your linux distribution. (Mostly automatically opens when downloading the package)
-- Just in case for rpm-based system (Redhat,SuSe):
+\subsubsection Other debian based systems (deb)
+There is an install makefile located here: 
+http://robot.informatik.uni-leipzig.de/software/packages/deb/install_deb_source.makefile .
+Save it on you disk in an empty directory and run on the console
 \verbatim
-su
-rpm -i lpzrobots-0.X...rpm
+make -f install_deb_source.makefile
 \endverbatim
-- On Debian-based systems (e.g. also Ubuntu):
+(if you don't have make installed call "su -c apt-get install make")
+That will download the newest packages, compile them and install it.
+If something fails you can also redo parts of the process, see "make -f install_deb_source.makefile help".
+
+The packages are: guilogger, ode-dbl, lpzrobots-selforg, and lpzrobots-oderobots
+You can uninstall them later using the package manager (apt-get or synaptics)
+
+Alternatively you can do it step by step as follows:
+Download all files from http://robot.informatik.uni-leipzig.de/software/packages/deb/current/ \n
+Then do
 \verbatim
-sudo dpkg -i lpzrobots-0.X...deb
+# here you need (should not) be root
+ dpkg-source -x guilogger-0.6*.dsc
+ cd guilogger-0.6* 
+ dpkg-buildpackage -rfakeroot -b -uc
+ cd ../
+# become root
+ dpkg -i guilogger-0.6*.deb
 \endverbatim
+This you have to repeat for each package (e.g. replace guilogger by ode-dbl, lpzrobots-selforg, and lpzrobots-oderobots)
+
 - Now you can copy the sample simulations from
-  <tt>/usr/local/share/lpzrobots/</tt> to your home directory and 
+  <tt>/usr/share/lpzrobots/</tt> to your home directory and 
   continue reading in section \ref RunExample.
 
 
-\subsection InstC Way C: Installation from source
+\subsection InstB Way B: Installation from source
+Todo: update
+
 - Download source tar ball from 
   http://robot.informatik.uni-leipzig.de/software .
 - Unpack file.
@@ -155,10 +167,8 @@ sudo make install
 This will compile the libaries and install the tools.
 - Now you are done with the installation and you can try a sample simulation see next section.
 
-
-
 \subsection RunExample Run example Simulations
-- Simulations are located in <tt>ode_robots/simulations/</tt>,<tt>ode_robots/examples/</tt>, and <tt>selforg/simulations/</tt>. This folders you can find in the lpzrobots tar files or if installed on your system under <tt>/usr/local/share/lpzrobots</tt>. In the latter case copy the simulations to your home directory first.
+- Simulations are located in <tt>ode_robots/simulations/</tt>,<tt>ode_robots/examples/</tt>, and <tt>selforg/simulations/</tt>. This folders you can find in the lpzrobots tar files or if installed on your system under <tt>/usr/share/lpzrobots</tt>or<tt>/usr/local/share/lpzrobots</tt>. In the latter case copy the simulations to your home directory first.
 - To start a simulation go into a simulation directory. 
 - If you installed from source you have to call <tt>make</tt>.
 - You can start the simulation by <tt>./start</tt>.
