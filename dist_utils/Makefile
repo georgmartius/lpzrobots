@@ -9,7 +9,9 @@
 
 
 #### EDIT THE FOLLOWING LINES!
-VERSION=0.6.5
+# make sure that you create the directories on the webserver and change the "current" links
+#  if the major version changes
+VERSION=0.6.5  
 ODEVERSION=0.11.2
 
 ROBOTSERVER=martius@robotcvs.informatik.uni-leipzig.de
@@ -55,6 +57,7 @@ deb-packs: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR))
 ##!upload    (3) upload packages to launchpad this will sleep for 1h in between 
 ##!              in order to give launchpad enough time to generate the packages
 upload: 
+	$(MAKE) upload-lpzrobots
 	$(MAKE) upload-selforg
 	-$(MAKE) upload-guilogger
 	-$(MAKE) upload-ode
@@ -149,13 +152,18 @@ install-ode:
 install-selforg:
 	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/lpzrobots-selforg*$(VERSION)*.deb
 
-##!install-oderobots        install the created oderobots package
+##!install-oderobots      install the created oderobots package
 install-oderobots:
 	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/lpzrobots-oderobots*$(VERSION)*.deb
 
 ##!install-gatools        install the created gatools package
 install-gatools:
 	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/lpzrobots-gatools*$(VERSION)*.deb
+
+##!upload-lpzrobots       uploads master src tar-ball and documentation
+upload-lpzrobots:
+	scp lpzrobots-*.tgz $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
+# todo docu!
 
 
 ##!upload-guilogger       uploads the guilogger packages to launchpad
@@ -164,6 +172,7 @@ upload-guilogger:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots guilogger*$(VERSION)*.changes
 	ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
+	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
 ##!upload-ode             uploads the ode packages to launchpad
 upload-ode: STEM=ode-dbl
@@ -171,6 +180,7 @@ upload-ode:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots ode-dbl*$(ODEVERSION)*.changes
 	ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
+	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
 ##!upload-selforg         uploads the selforg packages to launchpad
 upload-selforg: STEM=lpzrobots-selforg
@@ -178,6 +188,7 @@ upload-selforg:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots lpzrobots-selforg*$(VERSION)*.changes
 	ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
+	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
 
 ##!upload-oderobots       uploads the oderobots packages to launchpad
@@ -186,6 +197,7 @@ upload-oderobots:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots lpzrobots-oderobots*$(VERSION)*.changes
 	ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
+	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
 
 ##### helper targets, not to be used from outside
