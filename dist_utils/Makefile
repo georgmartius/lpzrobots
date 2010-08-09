@@ -12,6 +12,7 @@
 VERSION=0.6.5
 ODEVERSION=0.11.2
 
+ROBOTSERVER=martius@robotcvs.informatik.uni-leipzig.de
 export CVSROOT=:ext:martius@robotcvs.informatik.uni-leipzig.de:/home/robot/cvsroot
 export DEBEMAIL=Georg Martius <georg.martius@web.de>
 export GPGKEY=0CFA2813
@@ -158,20 +159,33 @@ install-gatools:
 
 
 ##!upload-guilogger       uploads the guilogger packages to launchpad
+upload-guilogger: STEM=guilogger
 upload-guilogger:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots guilogger*$(VERSION)*.changes
+	ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
+	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 
 ##!upload-ode             uploads the ode packages to launchpad
+upload-ode: STEM=ode-dbl
 upload-ode:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots ode-dbl*$(ODEVERSION)*.changes
+	ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
+	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 
 ##!upload-selforg         uploads the selforg packages to launchpad
+upload-selforg: STEM=lpzrobots-selforg
 upload-selforg:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots lpzrobots-selforg*$(VERSION)*.changes
+	ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
+	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
+
 
 ##!upload-oderobots       uploads the oderobots packages to launchpad
+upload-oderobots: STEM=lpzrobots-oderobots
 upload-oderobots:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots lpzrobots-oderobots*$(VERSION)*.changes
+	ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
+	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 
 
 ##### helper targets, not to be used from outside
