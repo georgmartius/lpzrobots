@@ -209,11 +209,11 @@ docintern:
 docwarn:
 	cat doxygen.warn
 
+.PHONY: todo
 ##!todo		show the marked todos in the sourcecode
 todo:
 	cd ode_robots && make todo
 	cd selforg && make todo
-
 
 usage:
 # The logo was creates with >$ figlet "LPZRobots" > logo.txt 

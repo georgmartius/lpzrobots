@@ -7,6 +7,7 @@ echo " You can change your preference by editing Makefile.conf"
 echo " or just delete it and run make again"
 
 echo  "Where do you want to install the simulator?";
+echo  "Please use either /usr, /usr/local  or you home directory unless you know what you are doing.";
 echo -n "e.g. (/home/yourlogin) (don' use ~): [/usr/local] ";
 read prefix 
 [ -z "$prefix" ] && prefix='/usr/local'  # $(HOME)'
