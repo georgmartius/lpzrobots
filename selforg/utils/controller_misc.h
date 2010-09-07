@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-05-17 14:34:24  martius
+ *   Revision 1.13  2010-09-07 06:35:35  martius
+ *   import -> include
+ *   some docu
+ *
+ *   Revision 1.12  2010/05/17 14:34:24  martius
  *   comments updated
  *
  *   Revision 1.11  2010/01/26 09:49:37  martius
@@ -230,10 +234,7 @@ matrix::I get4x4AndDiagonalSize(const matrix::Matrix& m);
 /** writes the names of the fields stored by store4x4AndDiagonal into a list
   @param m matrix to be stored
   @param matrixName name of the matrix (prefix for all fields)
-  @param keylist list for field names
-  @param len Length of the provided buffer
-  (should be min(getN(),4)*min(getM(),4)+ max(0,min(getM()-4,getN()-4)))
-  @return number of actually written elements
+  @return list of keys
 */
 std::list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const matrix::Matrix& m,
 								const std::string& matrixName);

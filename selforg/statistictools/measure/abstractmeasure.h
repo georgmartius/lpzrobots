@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-03-27 06:16:57  guettler
+ *   Revision 1.2  2010-09-07 06:35:35  martius
+ *   import -> include
+ *   some docu
+ *
+ *   Revision 1.1  2009/03/27 06:16:57  guettler
  *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
  *
  *   Revision 1.3  2008/04/29 08:51:54  guettler
@@ -64,8 +68,8 @@
 #ifndef _ABSTRACT_MEASURE_H
 #define _ABSTRACT_MEASURE_H
 
-#import <iostream>
-#import "imeasure.h"
+#include <iostream>
+#include "imeasure.h"
 
 /**
  * Class used by StatisticTools.

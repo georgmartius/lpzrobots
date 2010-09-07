@@ -39,33 +39,3 @@ Here the data flow is controlled by the agent, which then asks the robot about t
 Please click on the register tab "Examples" on the top.
 */
 
-/**
-\example directconnect/directconnect.cpp 
- A simple example for the usage of the controller without the framework.
- This version means that you have the direct control of the data flow.
- See also \ref selforg
-*/
-
-/**
-\example wiredconnect/main.cpp 
- An example for the usage of the controller with the framework, but without 
- the robot and agent representation.
- This version means that you have still the direct control of the data flow
- but you can already use the logging and plotting facilities.
- See also \ref selforg.
-*/
-
-/**
-\example integration/main.cpp 
- A simple example for the integration of a robot into the framework (with agent, controller, wiring). 
- This facilitates you with the plotting options, tracing and such like.
-Here the data flow is controlled by the agent, which then asks the robot about the sensors,
- invokes the controller and sends the motor values the robot again.
- See also \ref selforg.
-*/
-
-/**
-\example matrix/matrixexample.cpp 
-An example for the usage of the \ref matrix::Matrix "Matrix" library.
-*/
- 
