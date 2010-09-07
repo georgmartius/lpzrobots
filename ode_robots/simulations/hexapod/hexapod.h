@@ -113,7 +113,7 @@ namespace lpzrobots {
       c.coxaPower  = 1;
       c.coxaJointLimitV = M_PI/8;  ///< angle range for vertical direction of legs
       c.coxaJointLimitH = M_PI/4;
-      c.coxaDamping = 0.0; // Georg: no damping required for new servos
+      c.coxaDamping = 0.05; // body feeling (velocity servo)
       c.coxaSpeed   = 30; // The speed calculates how it works
       c.T = 1.0;
 
