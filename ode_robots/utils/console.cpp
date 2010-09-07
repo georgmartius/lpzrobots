@@ -26,7 +26,11 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-06-28 14:52:52  martius
+ *   Revision 1.7  2010-09-07 06:32:57  martius
+ *   documentation
+ *   import -> include
+ *
+ *   Revision 1.6  2010/06/28 14:52:52  martius
  *   ctrl+c is hidden
  *
  *   Revision 1.5  2008/09/16 14:40:06  martius
@@ -244,7 +248,7 @@ void initializeConsole ()
   read_history (".history");
 }
 
-/// store the history
+// store the history
 void closeConsole(){
   write_history(".history");
 }

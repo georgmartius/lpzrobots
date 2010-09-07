@@ -20,6 +20,7 @@ PREFIX=/usr/local
 ifneq ($(DESTDIR),) 
 PREFIX=$(DESTDIR)
 endif
+MAKEDEPEND=makedepend
 
 include Makefile.conf
 
@@ -92,7 +93,7 @@ Makefile.depend:
 	for file in $(HFILES); do \
 		ln -sf $(REVINCLUDEDIR)/$$file $(INCLUDEDIR)/; \
 	done
-	makedepend $(INC) $(CPPFILES) -p'$$(BUILD_DIR)/' -f- > Makefile.depend 2>/dev/null
+	$(MAKEDEPEND) $(INC) $(CPPFILES) -p'$$(BUILD_DIR)/' -f- > Makefile.depend 2>/dev/null
 
 depend: 
 	rm Makefile.depend
