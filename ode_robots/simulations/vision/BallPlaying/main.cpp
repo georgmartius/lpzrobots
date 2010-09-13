@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-05-19 11:43:13  martius
+ *   Revision 1.6  2010-09-13 09:16:00  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.5  2010/05/19 11:43:13  martius
  *   new Makefile system using m4
  *
  *   Revision 1.4  2010/03/31 11:31:51  martius
@@ -314,7 +317,7 @@ public:
       camcfg.processors.push_back(new HSVImgProc(false,1));
       // filter only Yellow color
       camcfg.processors.push_back(new ColorFilterImgProc(true, .5, 
-                                  HSVImgProc::Red+20, HSVImgProc::Green-20,100));
+                                  HSVImgProc::Yellow-10, HSVImgProc::Yellow+10,100));
       Camera* cam = new Camera(camcfg);
       CameraSensor* camSensor = new MotionCameraSensor(2, MotionCameraSensor::Position | 
                                                        MotionCameraSensor::Size | 
