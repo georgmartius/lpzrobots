@@ -119,7 +119,7 @@ namespace lpzrobots {
 
   /** converts the image to a HSV coded image @see StdImageProcessor.
       If this image is shown the h,s,v is displayed by r,g,b!
-      The h (hue) values are @see HSVColors
+      The h (hue) values are given by HSVImgProc::Colors
   */
 
   struct HSVImgProc : public StdImageProcessor {

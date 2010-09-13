@@ -155,8 +155,9 @@ namespace lpzrobots {
       return true;
     }
 
-    /** calculates the Center of Gravity of an image normalized to -1 to 1
-	@return false if image is image
+    /** calculates the Center of Gravity (normalized to -1 to 1) of an image. 
+        As a bonus it also calculates the sum of all pixels (normalizes to 0-2.5) in size
+	@return false if image is too dark
     */
     static bool calcImgCOG(const osg::Image* img, double& x, double& y, double& size, 
                            int threshold = 1){
@@ -183,7 +184,7 @@ namespace lpzrobots {
 	x /= sum * centerX; // normalize to -1 to 1 
 	y /= sum * centerY; // normalize to -1 to 1 
         // the /255 would be correct, but then the values is so small
-        size = double(sum) / (w*h) / 100; 
+        size = double(sum) / (w*h) / 128; 
 	return true;
       }
     }
@@ -287,7 +288,7 @@ namespace lpzrobots {
     /// window function for the interval -1 to 1, with ramps from 0.5 off center
     double windowfunc(double x){
       if(x>-0.5 && x<0.5) return 1.0;
-      if(x<-0.5) return 2+ 2*x;
+      if(x<= -0.5) return 2+ 2*x;
       else return 2- 2*x; // (x>0.5)
     }
 
