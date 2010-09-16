@@ -28,7 +28,11 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.47  2010-06-28 14:42:42  martius
+ *   Revision 1.48  2010-09-16 09:54:52  martius
+ *   added camera modes enum for setCameraMode
+ *   added rtf cmdline flag
+ *
+ *   Revision 1.47  2010/06/28 14:42:42  martius
  *   usage info can also be provided by derived simulations
  *
  *   Revision 1.46  2010/06/03 13:40:59  guettler
@@ -317,7 +321,8 @@ namespace lpzrobots {
   {
   public:
 
-    /* typedef */ enum SimulationState { none, initialised, running, closed };
+    enum SimulationState { none, initialised, running, closed };
+    enum CameraMode {Static=0, Follow, TV, Race};
 
     Simulation();
     virtual ~Simulation();
@@ -401,9 +406,9 @@ namespace lpzrobots {
 
     /**
      * Sets the mode of the camera, the numbers are the same like the keys
-     * @param mode camera mode (1 - static, 2 - follow, 3 - TV, 4 - race)
+     * @param mode see CameraMode 
      */
-    void setCameraMode(const unsigned int mode);
+    void setCameraMode(CameraMode mode);
 
     /**
      * Sets the agent to be watched with the camera.
