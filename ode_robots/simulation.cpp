@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.132  2010-07-05 16:47:34  martius
+ *   Revision 1.133  2010-09-16 09:54:26  martius
+ *   added camera modes enum for setCameraMode
+ *   added rtf cmdline flag
+ *   simtime works now independently of drawinverval
+ *
+ *   Revision 1.132  2010/07/05 16:47:34  martius
  *   hashset transition to tr1
  *   new pid function for velocity servos, which work now fine
  *
@@ -35,7 +40,7 @@
  *   osgviewer catches sigint, so we have to initialize our cmd_handler routine again
  *
  *   Revision 1.128  2010/06/03 13:40:59  guettler
- *   - added method setCameraMode(modenumber): 1 - static, 2 - follow, 3 - TV, 4 - race
+ *   - added method setCameraMode(modenumber): 0 - static, 1 - follow, 2 - TV, 3 - race
  *   - added method setWatchingAgent(agent)
  *
  *   Revision 1.127  2010/05/03 10:51:41  guettler
@@ -917,8 +922,6 @@ namespace lpzrobots {
 #else
       viewer->getCamera()->setFinalDrawCallback(videostream);
 #endif
-    }else{
-      globalData.odeConfig.realTimeFactor=0;
     }
 
     // information on terminal, created with figlet.
@@ -949,7 +952,7 @@ namespace lpzrobots {
 
       keyswitchManipulator = new osgGA::KeySwitchMatrixManipulator;
 
-      // setup the camera manipulators
+      // setup the camera manipulators (make sure it is in agreement with the CameraMode enum)
       keyswitchManipulator->addMatrixManipulator( '1', "Static", 
           new CameraManipulator(osgHandle.scene->scene, globalData, cameraHandle) );
       keyswitchManipulator->addMatrixManipulator( '2', "Follow", 
@@ -959,7 +962,8 @@ namespace lpzrobots {
       keyswitchManipulator->addMatrixManipulator( '4', "Race", 
           new CameraManipulatorRace(osgHandle.scene->scene, globalData, cameraHandle) );
 
-      keyswitchManipulator->selectMatrixManipulator(2);
+      // select TV mode as default.
+      keyswitchManipulator->selectMatrixManipulator(TV);
       viewer->setCameraManipulator( keyswitchManipulator );
 
       // get details on keyboard and mouse bindings used by the viewer.
@@ -1096,6 +1100,7 @@ namespace lpzrobots {
 	      printf("%li min simulation time reached -> simulation stopped \n", simulation_time);
 	    }
 	    simulation_time_reached=true;
+            return run;
 	  }
 	}
 
@@ -1607,6 +1612,8 @@ namespace lpzrobots {
     noGraphics = contains(argv, argc, "-nographics")!=0;
     // inform osg relevant stuff that no graphics is used
     osgHandle.cfg->noGraphics=noGraphics;
+    if(noGraphics) 
+      globalData.odeConfig.realTimeFactor=0;
     pause = contains(argv, argc, "-pause")!=0;
 
     index = contains(argv, argc, "-shadow");
@@ -1623,6 +1630,11 @@ namespace lpzrobots {
     if(contains(argv, argc, "-noshadow")!=0) {
       osgHandle.cfg->shadowType=0;
       printf("using no shadow\n");
+    }
+
+    index = contains(argv, argc, "-rtf");
+    if(index && (argc > index)) {
+      globalData.odeConfig.realTimeFactor=max(0.0,atof(argv[index]));
     }
 
     osgHandle.drawBoundings= contains(argv, argc, "-drawboundings")!=0;
@@ -1849,7 +1861,9 @@ namespace lpzrobots {
     printf("\t-x WxH\t\t* window size of width(W) x height(H) is used (default 640x480)\n");
     printf("\t-fs\t\tfullscreen mode\n");
     printf("\t-pause \t\tstart in pause mode\n");
-    printf("\t-nographics \tstart without any graphics\n");
+    printf("\t-rtf factor\t\treal time factor: ratio between simulation speed and real time\n\
+\t\t (special case 0: full speed) (default 1)\n");
+    printf("\t-nographics \tstart without any graphics (implies -rtf 0)\n");
     printf("\t-noshadow \tdisables shadows and shaders (same as -shadow 0)\n");
     printf("\t-shadow [0..5]\t* sets the type of the shadow to be used\n");
     printf("\t\t\t0: no shadow, 1: ShadowVolume, 2: ShadowTextue, 3: ParallelSplitShadowMap\n");
@@ -1876,9 +1890,9 @@ namespace lpzrobots {
     }
   }
 
-  void Simulation::setCameraMode(const unsigned int mode) {
+  void Simulation::setCameraMode(CameraMode mode) {
     if (!noGraphics) {
-      keyswitchManipulator->selectMatrixManipulator(mode-1);
+      keyswitchManipulator->selectMatrixManipulator(mode);
       // we have to re-set the camera manipulator to get an effect
       viewer->setCameraManipulator(keyswitchManipulator);
     }
