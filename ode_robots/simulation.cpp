@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.133  2010-09-16 09:54:26  martius
+ *   Revision 1.134  2010-09-16 09:59:32  martius
+ *   usage improved
+ *
+ *   Revision 1.133  2010/09/16 09:54:26  martius
  *   added camera modes enum for setCameraMode
  *   added rtf cmdline flag
  *   simtime works now independently of drawinverval
@@ -1075,7 +1078,7 @@ namespace lpzrobots {
     bool run=true;
     for(int t = 0; t < globalData.odeConfig.drawInterval; t++) {
       // Parametereingabe
-      if (control_c_pressed()) {
+      if (control_c_pressed()){
 	cmd_begin_input();
 	run=config(globalData);
 	cmd_end_input();
@@ -1849,8 +1852,8 @@ namespace lpzrobots {
 
   void Simulation::main_usage(const char* progname) {
     printf("Usage: %s [-g [interval]] [-f [interval] [ntst]] [-r seed] [-x WxH] [-fs] \n", progname);
-    printf("\t\t [-pause] [-shadow N] [-noshadow] [-drawboundings] [-simtime [min]] [-threads N]\n");
-    printf("\t\t [-odethread] [-osgthread] [-savecfg] [-h|--help]\n");
+    printf("\t\t [-pause] [-shadow N] [-noshadow] [-drawboundings] [-simtime [min]] [-rtf X]\n");
+    printf("\t\t [-threads N] [-odethread] [-osgthread] [-savecfg] [-h|--help]\n");
     printf("\t-g interval\tuse guilogger (default interval 1)\n");
     printf("\t-f interval ntst\twrite logging file (default interval 5),\n\
 \t\tif ntst (no_time_stamp in log file name)\n");
