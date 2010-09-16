@@ -20,7 +20,10 @@
  *   Goal-Oriented Control of Self-organizing Behavior in Autonomous Robots*
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-03-29 16:26:45  martius
+ *   Revision 1.2  2010-09-16 15:20:35  martius
+ *   simulation improved
+ *
+ *   Revision 1.1  2010/03/29 16:26:45  martius
  *   new simulation for Ball playing
  *
  *   Revision 1.3  2010/01/26 09:42:57  martius
@@ -67,7 +70,7 @@ typedef struct SeMoXHebModConf {
  *  2009, University Goettingen: 
  *  Goal-Oriented Control of Self-organizing Behavior in Autonomous Robots
  *
- * See also, derived classes for guided self-organization (GuidedSeMoXHebMod)
+ * This implements an additional Hebbian model which is used for the distal learning only
  *
  * Name: SElf-organizing MOtor space eXtended
  *

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-09-13 09:16:00  martius
+ *   Revision 1.7  2010-09-16 15:20:35  martius
+ *   simulation improved
+ *
+ *   Revision 1.6  2010/09/13 09:16:00  martius
  *   *** empty log message ***
  *
  *   Revision 1.5  2010/05/19 11:43:13  martius
@@ -110,14 +113,20 @@ std::vector<T> mkVector(const T* v, int len){
   return std::vector<T>(v,v+len);  
 }
 
-enum Version {V1=1, V2, V3, V4, V5, V6};
+int id=0; // id of simulation  for logfile
 
-class ThisSim : public Simulation {
+
+// make sure you change also the strings below
+enum Version {V1=0, _1r1b, test, V2, V3, V4, V5, V6, Arena4, VMax};
+const char* VersionStrings[] = {"V1", "1r1b", "test", "V2", "V3", "V4", "V5", "V6", "Arena4"};
+
+class ThisSim : public Simulation, public Inspectable {
 public:
-  ThisSim(Version v)
-    : version(v) {}
+  ThisSim(Version v, double teaching, double sizefactor)
+    : version(v), teaching(teaching), sizefactor(sizefactor) {    
+  }
 
-  enum Arena {Round, Corridor, Bone};
+  enum Env {Round, Corridor, Bone, Arena};
 
   AbstractController* controller;
   // starting function (executed once at the beginning of the simulation loop)
@@ -131,74 +140,116 @@ public:
 
     int numBalls          = 0;
 
-    Arena arena           = Round;
+    Env arena           = Round;
     double radiusRound    = 8;
     double radiusCorr     = 10;
     double bonefactor     = .8;
+
+    double learningrate   = 0.1; // epsC and epsA
     
-    double teaching       = 0.02;
     setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
+    setCameraHomePos(Pos(-0.50487, -20.9638, 8.85769),  Pos(-0.789815, -21.674, 0));
+    setCameraMode(Static);
 
     global.odeConfig.setParam("controlinterval",4);
     global.odeConfig.setParam("noise",0.05);
+    global.odeConfig.setParam("fps",1);
 
     addParameterDef("attraction", &attraction, 0.000);
     addParameterDef("friction", &friction, 1);
 
-    addParameterDef("sizefactor", &sizefactor, 1);
+    addParameter("sizefactor", &sizefactor); // is set in contructor
     addParameterDef("posfactor", &posfactor, 1);
-
 
     switch(version){
     case V1:
-      // V1:  useCorridor (10), 1x 4wheeled, 5 Balls (0.85 teaching clip)
+      // V1:  Corridor (10), 1x 4wheeled, 5 Balls (0.85 teaching clip)
       setCameraHomePos(Pos(-7.38466, 10.1764, 3.17434),  Pos(-96.9417, -12.6582, 0));
       arena             = Corridor;
       numSeeing4wheeled = 1;
-      sizeSetPoint      = 1;
+      sizeSetPoint      = 2;
       numBalls          = 5;      
       break;
+    case _1r1b:
+      // 1r1b: Corridor (10), 1x 4wheeled, 1 Ball
+      setCameraHomePos(Pos(-7.38466, 10.1764, 3.17434),  Pos(-96.9417, -12.6582, 0));
+      arena             = Corridor;
+      numSeeing4wheeled = 1;
+      sizeSetPoint      = 2;
+      numBalls          = 1;      
+      break;
+    case test:
+      // 1r1b: Corridor (10), 1x 4wheeled, 1 Ball
+      setCameraHomePos(Pos(-7.38466, 10.1764, 3.17434),  Pos(-96.9417, -12.6582, 0));
+      arena             = Corridor;
+      numSeeing4wheeled = 1;
+      sizeSetPoint      = 2;
+      numBalls          = 1;      
+      learningrate      = 0.02;
+      sizefactor        = 0.1;
+      break;
     case V2:
-      // V2:  useRound (8), 1x 4wheeled, 3 Balls (0.9 teaching clip)
+      // V2:  Round (8), 1x 4wheeled, 3 Balls (0.9 teaching clip)
       numSeeing4wheeled = 1;
       sizeSetPoint      = 1;
-      numBalls          = 3;      
+      numBalls          = 3;
       break;
     case V3:
-      // V3:  useRound (8), 3x 4wheeled, 1 Balls (0.9 teaching clip) sizesetpoint = 2
+      // V3:  Round (8), 3x 4wheeled, 1 Balls (0.9 teaching clip) sizesetpoint = 2
       numSeeing4wheeled = 3;
       sizeSetPoint      = 2;
       numBalls          = 1;      
       break;
     case V4:
-      // V4:  useRound (8), 2x 4wheeled red, 1xblind (0.9 teaching clip) sizesetpoint = .2
+      // V4:  Round (8), 2x 4wheeled red, 1xblind (0.9 teaching clip) sizesetpoint = .2
       numSeeing4wheeled = 2;
       numBlindRobots    = 1;
       seeingAreRed      = true;
       sizeSetPoint      = .2;
       numBalls          = 0;
-      teaching          = 0.05;
       break;
     case V5:
-      // V5:  useRound (6), 4x 4wheeled, sizesetpoint = .2
+      // V5:  Round (6), 4x 4wheeled, sizesetpoint = .2
       numSeeing4wheeled = 4;
       numBlindRobots    = 0;
       seeingAreRed      = false;
       sizeSetPoint      = .2;
       numBalls          = 0;
-      teaching          = 0.05;
       break;
     case V6:
-      // V6:  useArena (6), 1x 4wheeled, 3 balls, sizesetpoint = 2
+      // V6:  Bone, 1x 4wheeled, 3 balls, sizesetpoint = 2
       arena             = Bone;
       numSeeing4wheeled = 1;
       seeingAreRed      = false;
       sizeSetPoint      = 2;
       numBalls          = 4;
-      teaching          = 0.03;
+      learningrate      = 0.02;
       break;
+    case Arena4:
+      // V6:  Arena, 1x 4wheeled, 4 balls, sizesetpoint = 2
+      arena             = Arena;
+      numSeeing4wheeled = 1;
+      seeingAreRed      = false;
+      sizeSetPoint      = 2;
+      numBalls          = 4;
+      learningrate      = 0.02;
+      break;
+    default:
+      fprintf(stderr, "Unknown Variant of the simulation!");
+      exit(1);
     }
 
+    pos.set(numSeeing4wheeled+numBlindRobots,2);
+    vel.set(numSeeing4wheeled+numBlindRobots,2);
+    addInspectableMatrix("pos", &pos, "position of the robots");
+    addInspectableMatrix("vel", &vel, "velocity of the robots");    
+    distance.set(numSeeing4wheeled+numBlindRobots,1);
+    if(numBalls>0){
+      balls.set(numBalls,2);
+      addInspectableMatrix("balls",   &balls, "position of the balls");
+      addInspectableMatrix("distance", &distance, "distance to closest ball (for each robot)");
+    }
+    
 
     global.configs.push_back(this);
 
@@ -240,6 +291,15 @@ public:
         global.obstacles.push_back(playground);
       }
       break;
+    case Arena:
+      {        
+        AbstractGround* playground = new ComplexPlayground(wallHandle, osgHandle, 
+                                                           "arena.fig", bonefactor, 0.03);
+        playground->setPosition(osg::Vec3(0,0,0.1));
+        playground->setGroundSubstance(Substance(0.6,0.005,40,0.5));
+        global.obstacles.push_back(playground);
+      }
+      break;
     }
 
     // add passive spheres as obstacles
@@ -252,6 +312,8 @@ public:
       case Corridor: s1->setPosition(osg::Vec3(sin(i/3.0)*radiusCorr,cos(i/3.0)*radiusCorr,1));
         break;
       case Bone: s1->setPosition(osg::Vec3((i/4)*bonefactor,(-5+(i%4)*5)*bonefactor,1));
+        break;
+      case Arena: s1->setPosition(osg::Vec3((-3+(i%4)*2)*bonefactor,(8+i/4)*bonefactor,1));
         break;
       }      
       s1->setTexture("Images/dusty.rgb");
@@ -276,7 +338,7 @@ public:
       twc.camSensor     = new MotionCameraSensor(2, MotionCameraSensor::Position | 
                                                        MotionCameraSensor::Size | 
                                                        MotionCameraSensor::SizeChange);
-
+      /// TWOWHEELED
       OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, 
                                          "CamRobotTwo_" + itos(i));
       vehicle->setColor(Color(1,.7,0));
@@ -331,13 +393,14 @@ public:
       fwc.useBumper    = false;
       fwc.force        = 5;
       OdeRobot* robot = new FourWheeled(odeHandle, osgHandle, 
-                                        fwc, "4W_CamRobot_" + itos(i));
+                                        fwc, "4W_" + string(VersionStrings[version]) + "_CamRobot_" + 
+                                        itos(teaching*1000) + "_"  + itos(i) + "_" + itos(::id));
       OdeRobot* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle, robot, sensors);
       if(seeingAreRed)
         vehicle->setColor(Color(1,0,0));
       else
         vehicle->setColor(Color(1,.7,0));
-      if(arena==Bone) 
+      if(arena == Bone || arena == Arena) 
         vehicle->place(osg::Vec3(0,-i-2,0.1));
       else if(arena==Corridor) 
         vehicle->place(osg::Vec3(sin(i/2.0+.5)*radiusCorr,cos(i/2.0+.5)*radiusCorr,0.3));
@@ -353,6 +416,10 @@ public:
 //       controller = new SineController();
       controller->setParam("gamma_teach", teaching);
       //  controller->setParam("rootE",3);
+      controller->setParam("epsC",learningrate);
+      controller->setParam("epsA",learningrate);
+      controller->setParam("dampController",0.0001);
+
       
       double noise[] = {1,1};      
       AbstractWiring* wiring = new SelectiveNoiseWiring(new WhiteUniformNoise(),
@@ -360,6 +427,7 @@ public:
       
       //    AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
       OdeAgent* agent = new OdeAgent( i==0 ? plotoptions : std::list<PlotOption>());
+      agent->addInspectable(this);
       agent->init(controller, vehicle, wiring);
       global.configs.push_back(controller);
       global.agents.push_back(agent);
@@ -400,30 +468,72 @@ public:
       SeMoXHebMod* semox = dynamic_cast<SeMoXHebMod*>(controller);
       if(semox){
         matrix::Matrix desired = semox->getLastSensorValues();
-        // size: \dot size = -(size - 2) // set point is 2
+        // size: \dot size = -(size - 2.0) // set point is 2.0
         desired.val(5,0) += - (desired.val(4,0)-sizeSetPoint)* sizefactor;
-        // desired.val(5,0) += - (desired.val(4,0)-0.3)* sizefactor;// set point is 0.3
         // position: \dot pos = -(pos) // set point is 0
         desired.val(2,0) += - (desired.val(3,0)) * posfactor;
         semox->setSensorTeaching(desired);
       }
     }
-    // ball friction and move all balls to robot
-    Pos rpos = (*globalData.agents.begin())->getRobot()->getPosition();
+
+    
+    // ball friction
+    int i=0;
     FOREACH(ObstacleList, globalData.obstacles, o){
       PassiveSphere* s = dynamic_cast<PassiveSphere*>(*o);
       if(s){
-        Pos spos = s->getMainPrimitive()->getPosition();
-        s->getMainPrimitive()->applyForce((rpos-spos)*attraction);
         Pos svel = s->getMainPrimitive()->getVel();
         s->getMainPrimitive()->applyForce(-svel*friction);        
-
+        // save for stat
+        Pos spos = s->getMainPrimitive()->getPosition();
+        balls.val(i,0) = spos.x();
+        balls.val(i,1) = spos.y();
+        i++;
       }
     }
+
+    //stats and
+    // optionally move all balls to the robots 
+    int r=0;
+    FOREACHC(OdeAgentList,globalData.agents, a){
+      Pos rpos = (*a)->getRobot()->getPosition();
+      /// some stats:
+      distance.val(r,0)=100;
+      pos.val(r,0) = rpos.x();
+      pos.val(r,1) = rpos.y();
+      Position rvel = (*a)->getRobot()->getSpeed();
+      vel.val(r,0) = rvel.x;
+      vel.val(r,1) = rvel.y;      
+      FOREACH(ObstacleList, globalData.obstacles, o){
+        PassiveSphere* s = dynamic_cast<PassiveSphere*>(*o);
+        if(s){          
+          Pos spos = s->getMainPrimitive()->getPosition();
+          if(attraction > 0)
+            s->getMainPrimitive()->applyForce((rpos-spos)*attraction);
+          // save for stat
+          if((rpos-spos).length() < distance.val(r,0)) distance.val(r,0) = (rpos-spos).length();
+        }        
+      }
+      r++;
+    }
+
+    
+    
+    
   }
   
   virtual void end(GlobalData& globalData){
   }
+
+  virtual void usage() const {
+    printf("  *********** SPECIFIC Options ************ \n");    
+    printf("\t-v Variant\tVariant of the simulation V1 - V5 and\n\
+\t\t1r1b (1 robot 1 ball) (read the sourcecode)\n");    
+    printf("\t-t gamma_teach\tteaching strength (Def: 0.02)\n");    
+    printf("\t-sf factor\tfactor of guiding for size (Def: 1)\n");    
+    printf("\t-i  id of the simulation (to name the log files (Def: 0)\n");    
+  };
+
 
   osg::LightSource* makeLights(osg::StateSet* stateset)
   {
@@ -446,24 +556,45 @@ public:
   }
   paramval sizeSetPoint;
 
+  Version version;
+  double teaching;  
+
   paramval attraction;
   paramval friction;
   paramval sizefactor;
   paramval posfactor;
 
-  Version version;
+  // stats
+  matrix::Matrix pos, vel, distance;
+  matrix::Matrix balls;  
 };
 
 
 int main (int argc, char **argv)
 {
-  Version version=V1;
+  Version version   = V1;
+  double teaching   = 0.02;
+  double sizefactor = 1;
   int index;
   index= Simulation::contains(argv, argc, "-v");
   if( index > 0 && argc > index){
-    version=(Version)atoi(argv[index]);
+    int pos = Simulation::contains((char**)VersionStrings, VMax , argv[index]);
+    if(pos > 0)
+      version=(Version)(pos-1);
   }
-  ThisSim sim(version);
+  index= Simulation::contains(argv, argc, "-t");
+  if( index > 0 && argc > index){
+    teaching=atof(argv[index]);
+  }
+  index= Simulation::contains(argv, argc, "-sf");
+  if( index > 0 && argc > index){
+    sizefactor=atof(argv[index]);
+  }
+  index= Simulation::contains(argv, argc, "-i");
+  if( index > 0 && argc > index){
+    id=atoi(argv[index]);
+  }
+  ThisSim sim(version, teaching, sizefactor);
   return sim.run(argc, argv) ? 0 : 1;
 
 }
