@@ -26,7 +26,11 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-09-07 06:32:57  martius
+ *   Revision 1.8  2010-09-16 10:00:21  martius
+ *   storage of playground contours
+ *   tab completion for parameters
+ *
+ *   Revision 1.7  2010/09/07 06:32:57  martius
  *   documentation
  *   import -> include
  *
@@ -58,10 +62,12 @@
 #include <readline/history.h>
 
 #include <vector>
+#include <string>
 #include <selforg/stl_adds.h>
 #include <selforg/abstractcontroller.h>
 #include "globaldata.h"
 #include "odeagent.h"
+#include "abstractground.h"
 
 using namespace std;
 
@@ -74,6 +80,7 @@ bool com_list (GlobalData& globalData, char *, char *);
 bool com_show (GlobalData& globalData, char *, char *);
 bool com_store (GlobalData& globalData, char *, char *);
 bool com_load (GlobalData& globalData, char *, char *);
+bool com_contrs (GlobalData& globalData, char *, char *);
 bool com_set (GlobalData& globalData, char *, char *);
 bool com_help (GlobalData& globalData, char *, char *);
 bool com_quit (GlobalData& globalData, char *, char *);
@@ -96,11 +103,15 @@ COMMAND commands[] = {
   { "set",  com_set, "syntax: set [OBJECTID] PARAM=VAL; sets parameter of Object (or all all objects) to value" },
   { "store", com_store, "Stores controller of AGENTID to FILE" },
   { "load", com_load, "Loads controller of AGENTID from FILE" },
-  { "show", com_show, "[OBJECTID]: Lists paramters of OBJECTID or of all objects (if no id given)" },
+  { "contrs", com_contrs, "Stores the contours of all playgrounds to FILE" },
+  { "show", com_show, "[OBJECTID]: Lists parameters of OBJECTID or of all objects (if no id given)" },
   { "view", com_show, "Synonym for `show'" },
   { "quit", com_quit, "Quit program" },
   { (char *)NULL, (commandfunc_t)NULL, (char *)NULL }
 };
+
+  typedef std::list<std::string> ParameterList;
+ParameterList parameters; // used for completion
 
 /* Forward declarations. */
 char * stripwhite (char *string);
@@ -131,13 +142,31 @@ char* dupstr (const char* s){
   return (r);
 }
 
+// duplicates string and adde an = sign
+char* dupstrpluseq (const char* s){
+  char *r;
+  int len = strlen (s);
+  r = (char*)malloc (strlen (s) + 2);
+  strcpy (r, s);
+  r[len]= '=';
+  r[len+1]= 0;
+  return (r);
+}
+
 bool handleConsole(GlobalData& globalData){
   char *line, *s;
   bool rv = true;
-
+  
   //  initialize_readline ();       /* Bind our completer. */
   // move to beginning of line (clear the ^C)
   std::cout << "\033[1G" << "Type: ? for help or press TAB\n";
+  // collect parameters for completion
+  parameters.clear();
+  for(vector<Configurable*>::const_iterator i=globalData.configs.begin(); i != globalData.configs.end(); i++){
+    if(*i)
+      parameters += (*i)->getAllParamNames();
+  }
+
   line = readline ("> ");
   
   if (!line)
@@ -231,6 +260,7 @@ char * stripwhite (char *string){
 /* **************************************************************** */
 
 char *command_generator (const char *, int);
+char *params_generator (const char *, int);
 //char **console_completion __P((const char *, int, int));
 char **console_completion (const char *, int, int);
 
@@ -253,24 +283,52 @@ void closeConsole(){
   write_history(".history");
 }
 
+int getListLen(char **strings){
+  int i=0;
+  if(!strings) return 0;
+  while ( strings[i] ){
+    i++;
+  }
+  return i;
+}
+
 /* Attempt to complete on the contents of TEXT.  START and END
    bound the region of rl_line_buffer that contains the word to
    complete.  TEXT is the word to complete.  We can use the entire
    contents of rl_line_buffer in case we want to do some simple
-   parsing.  Returnthe array of matches, or NULL if there aren't any. */
+   parsing.  Return the array of matches, or NULL if there aren't any. */
 char ** console_completion (const char *text, int start, int end) {
-  char **matches;
 
-  matches = (char **)NULL;
+  char **matchesCmd = (char **)NULL;
+  char **matchesParams = (char **)NULL;
 
   /* If this word is at the start of the line, then it is a command
-     to complete.  Otherwise it is the name of a file in the current
-     directory. */
- 	try{
-		if (start == 0)
- 	  	 matches = rl_completion_matches (text, command_generator);
-	}catch(...){}
-  return (matches);
+     to complete or a parameter name.
+     Otherwise it is the name of a file in the current
+     directory. 
+     if "set" is at the start then it is also a parameter.
+  */
+  try{
+    if (start == 0){
+      matchesCmd = rl_completion_matches (text, command_generator);
+    }
+    if(start==0 || (strncmp(rl_line_buffer,"set",3)==0)){
+      matchesParams = rl_completion_matches (text, params_generator);        
+    }    
+  }catch(...){}
+  // merge them;
+  int lCmd=getListLen(matchesCmd);
+  int lPar=getListLen(matchesParams);
+  if(lCmd+lPar > 0){
+    char **matches = (char **)malloc((lCmd+lPar+1)*sizeof(char*));
+    memcpy(matches,matchesCmd,sizeof(char*)*lCmd);
+    memcpy(matches+lCmd,matchesParams,sizeof(char*)*lPar);
+    matches[lCmd+lPar]=(char *)NULL;
+    return matches;
+  } else  
+    return (char **)NULL;
+  
+
 }
 
 /* Generator function for command completion.  STATE lets us
@@ -302,6 +360,39 @@ char * command_generator (const char *text, int state) {
   /* If no names matched, then return NULL. */
   return ((char *)NULL);
 }
+
+/* Generator function for parameter completion.  STATE lets us
+   know whether to start from scratch; without any state
+   (i.e. STATE == 0), then we start at the top of the list. */
+char * params_generator (const char *text, int state) {
+  static int len;
+  static ParameterList::iterator list_it;
+
+  /* If this is a new word to complete, initialize now.  This
+     includes saving the length of TEXT for efficiency, and
+     initializing the index variable to 0. */
+  if (!state)
+    {
+      list_it = parameters.begin();
+      len = strlen (text);
+    }
+
+  /* Return the next name which partially matches from the
+     parameter list. */
+  while ( list_it != parameters.end())
+    {      
+      if (list_it->find(text, 0, len) == 0){
+        char* name = dupstrpluseq(list_it->c_str());
+        list_it++;
+        return name;
+      }
+      list_it++;
+    }  
+
+  /* If no names matched, then return NULL. */
+  return ((char *)NULL);
+}
+
 
 /* **************************************************************** */
 /*                                                                  */
@@ -436,6 +527,30 @@ bool com_load (GlobalData& globalData, char* line, char* arg) {
 	}else printf("Cannot open file %s for reading\n", filename);
       } else printf("Agent with ID: %i not found\n", id);            
     }else printf("syntax error , see >help load\n");        
+  }
+  return true;
+}
+
+bool com_contrs (GlobalData& globalData, char* line, char* arg) {
+  if (valid_argument("contours", arg)){
+    char* filename;        
+    filename = arg;
+    if(filename) { // we at least 1 argument
+      FILE* f = fopen(filename,"wb");
+      if(f){
+        int i=0;
+        FOREACHC(ObstacleList, globalData.obstacles, o) {
+          AbstractGround* g = dynamic_cast<AbstractGround*>(*o);
+          if(g){
+            fprintf(f, "# Contour from Playground %i\n", i);
+            g->printContours(f);
+            i++;
+          }
+        }
+        printf("%i playground contours saved to %s\n", i, filename);
+        fclose(f);
+      }else printf("Cannot open file %s for writing\n", filename);              
+    }else printf("syntax error , see >help store\n");        
   }
   return true;
 }
