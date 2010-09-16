@@ -23,7 +23,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2010-06-03 13:40:59  guettler
+ *   Revision 1.24  2010-09-16 15:21:42  martius
+ *   comment
+ *
+ *   Revision 1.23  2010/06/03 13:40:59  guettler
  *   - added method setCameraMode(modenumber): 1 - static, 2 - follow, 3 - TV, 4 - race
  *   - added method setWatchingAgent(agent)
  *
@@ -413,7 +416,7 @@ namespace lpzrobots {
 
 
 
-  // hier reinh�gen nicht, wird nur beim switch des manipulators aufgerufen
+  // hier nicht reinhaengen, wird nur beim switch des manipulators aufgerufen
   Matrixd CameraManipulator::getMatrix() const {
     return pose;
   }
