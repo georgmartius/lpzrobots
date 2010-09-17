@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-08-10 07:49:11  guettler
+ *   Revision 1.3  2010-09-17 10:08:42  martius
+ *   ir sensors did not work properly because of bug in osgprimitves. Resolved now
+ *   Soundsensor: some comments added (really unfinished stuff)
+ *
+ *   Revision 1.2  2009/08/10 07:49:11  guettler
  *   removed typedef to avoid compiler warnings
  *
  *   Revision 1.1  2007/11/07 13:22:59  martius
@@ -44,7 +48,10 @@ namespace lpzrobots {
 
   /** Sound sensor
       with possible direction and frequency detection and also
-      distance dependence
+      distance dependence (Not implemented yet)
+      This works, but is not very well tested and documented. 
+      The angle detection also works without sound and so on.
+      Take a look at the code before using it.
   */
   class SoundSensor: public Sensor {
   public:  

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-03-09 11:53:41  martius
+ *   Revision 1.15  2010-09-17 10:08:42  martius
+ *   ir sensors did not work properly because of bug in osgprimitves. Resolved now
+ *   Soundsensor: some comments added (really unfinished stuff)
+ *
+ *   Revision 1.14  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.13  2009/01/20 17:29:52  martius
@@ -108,6 +112,7 @@ namespace lpzrobots {
   IRSensor::IRSensor(float exponent/* = 1*/, double size /*= 0.05*/){
     value = 0;  
     len=0;
+    lastvalue=-1;
     ray=0;
     this->exponent = exponent;
     this->size = size;
@@ -141,6 +146,7 @@ namespace lpzrobots {
     this->osgHandle = osgHandle;
     value = 0;
     len   = range;
+    lastvalue = -1;
   
     ray = new Ray(range, 0.005, len);
     transform = new Transform(body, ray, pose);
@@ -186,6 +192,7 @@ namespace lpzrobots {
 
   void IRSensor::reset(){
     value = 0;
+    lastvalue=-1;
     len   = range;
   }  
   
@@ -193,7 +200,7 @@ namespace lpzrobots {
     this->len = len;
     value = characteritic(len);
     ray->setLength(len);
-    //    printf("len= %f, value: %f, \n",len, value);
+    // printf("len= %f, value: %f, \n",len, value);
   }
 
   void IRSensor::setRange(float range){
@@ -205,8 +212,8 @@ namespace lpzrobots {
   }
 
   void IRSensor::update(){  
-
-    ray->setColor(Color(value*2.0, 0.0, 0.0));
+    if(value!=lastvalue)
+      ray->setColor(Color(value*1.5, 0.0, 0.0));
     ray->update();
   
     if(sensorBody) {    

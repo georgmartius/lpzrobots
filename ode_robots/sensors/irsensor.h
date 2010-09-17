@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2009-01-20 17:29:52  martius
+ *   Revision 1.15  2010-09-17 10:08:42  martius
+ *   ir sensors did not work properly because of bug in osgprimitves. Resolved now
+ *   Soundsensor: some comments added (really unfinished stuff)
+ *
+ *   Revision 1.14  2009/01/20 17:29:52  martius
  *   cvs commit
  *
  *   Revision 1.13  2007/09/06 18:48:29  martius
@@ -146,6 +150,7 @@ namespace lpzrobots {
     float range; // max length
     float len;   // last measured length
     float value; // actual sensor value
+    float lastvalue; // last value
     float exponent; // exponent of the sensor characteritic 
 
     double size; // size of graphical sensor

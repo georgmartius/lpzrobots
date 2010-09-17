@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-11-07 13:22:59  martius
+ *   Revision 1.2  2010-09-17 10:08:42  martius
+ *   ir sensors did not work properly because of bug in osgprimitves. Resolved now
+ *   Soundsensor: some comments added (really unfinished stuff)
+ *
+ *   Revision 1.1  2007/11/07 13:22:59  martius
  *   new sound sensor
  *
  *                                                                 *
@@ -75,6 +79,7 @@ namespace lpzrobots {
 	  double len = sqrt(x*x + y*y);
 	  if(len>0){ x/=len, y/=len; }
 
+          //Todo: if the internsity is very low, then we should not be able to detect the direction!
 	  double angle = atan2(y, x);	 
 	  
 	  switch (measure){
