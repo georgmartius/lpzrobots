@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2010-03-29 16:28:21  martius
+ *   Revision 1.23  2010-09-17 10:07:45  martius
+ *   changing size requires invalidation of display list
+ *
+ *   Revision 1.22  2010/03/29 16:28:21  martius
  *   abstract ground rembers groundsubstance
  *   comments and typos
  *   osgprimitive uses white for empty texture
@@ -240,6 +243,11 @@ namespace lpzrobots {
     return transform.get(); 
   }
 
+  const OsgHandle& OSGPrimitive::getOsgHandle() { 
+    return osgHandle; 
+  }
+
+
  void OSGPrimitive::setTexture(const std::string& filename){
    setTexture(filename,1,1);
   }
@@ -287,7 +295,7 @@ namespace lpzrobots {
   }
 
   void OSGPrimitive::setColor(const Color& color){
-    if (!osgHandle.cfg->noGraphics)
+    if (osgHandle.cfg->noGraphics)
       return;
     if(shape.valid())
       shape->setColor(color);
@@ -390,7 +398,8 @@ namespace lpzrobots {
     dim = d;
     if (osgHandle.cfg->noGraphics)
       return;
-    box->setHalfLengths(d/2);
+    box->setHalfLengths(d/2.0);
+    shape->dirtyDisplayList(); // this is important, otherwise we don't see the changes.
   }
 
   /******************************************************************************/

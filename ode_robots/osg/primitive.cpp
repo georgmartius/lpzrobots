@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.30  2010-03-25 16:39:51  martius
+ *   Revision 1.31  2010-09-17 10:07:45  martius
+ *   changing size requires invalidation of display list
+ *
+ *   Revision 1.30  2010/03/25 16:39:51  martius
  *   primitive has addForce/addTorque function
  *
  *   Revision 1.29  2010/03/16 15:47:46  martius
@@ -735,7 +738,7 @@ namespace lpzrobots{
   void Ray::setLength(float len){
     length=len;
     if (mode & Draw){
-      osgbox->setDim(osg::Vec3(thickness,thickness,length));   
+      osgbox->setDim(osg::Vec3(thickness,thickness,length));         
     }
   }
 

@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-07-02 05:45:06  martius
+ *   Revision 1.11  2010-09-17 10:07:45  martius
+ *   changing size requires invalidation of display list
+ *
+ *   Revision 1.10  2010/07/02 05:45:06  martius
  *   comments improved
  *
  *   Revision 1.9  2010/03/16 15:47:46  martius
@@ -166,6 +169,8 @@ namespace lpzrobots {
     virtual void setColor(const Color& color);
     /// returns a osg transformation object;
     virtual osg::Transform* getTransform();
+    /// returns the osgHandle object
+    virtual const OsgHandle& getOsgHandle();
 
   protected:
     /// this actually sets the textures
@@ -218,8 +223,8 @@ namespace lpzrobots {
 
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
 
-    osg::Vec3 getDim();
-    void setDim(osg::Vec3);
+    virtual osg::Vec3 getDim();
+    virtual void setDim(osg::Vec3);
   
   protected:
     osg::Vec3 dim;
@@ -236,8 +241,8 @@ namespace lpzrobots {
 
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
 
-    osg::Vec3 getDim() const { return dim;}
-    void setDim(const osg::Vec3& _dim) { dim = _dim;}
+    virtual osg::Vec3 getDim() const { return dim;}
+    virtual void setDim(const osg::Vec3& _dim) { dim = _dim;}
       
     virtual void setColor(const Color& color);
 
