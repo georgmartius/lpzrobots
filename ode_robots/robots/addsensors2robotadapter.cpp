@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-03-21 21:48:59  martius
+ *   Revision 1.7  2010-09-17 10:09:26  martius
+ *   sense was calling doInternalStuff! Typo
+ *
+ *   Revision 1.6  2010/03/21 21:48:59  martius
  *   camera sensor bugfixing (reference to osghandle)
  *   twowheeled robot added (nimm2 with camera)
  *   sense function added to robots (before control): sensors (type Sensor) are checked here
@@ -164,7 +167,7 @@ namespace lpzrobots {
     FOREACH(list<Sensor*>, sensors, i){
       (*i)->sense(globalData);
     }
-    robot->doInternalStuff(globalData);
+    robot->sense(globalData);        
   }
 
   void AddSensors2RobotAdapter::doInternalStuff(GlobalData& globalData){
