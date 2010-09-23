@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-09-23 08:32:02  martius
+ *   Revision 1.2  2010-09-23 08:34:58  martius
+ *   new colors
+ *
+ *   Revision 1.1  2010/09/23 08:32:02  martius
  *   new test for collisions
  *
  *
@@ -96,7 +99,7 @@ public:
     OsgHandle osgHandle2;
     double radius = 1;
     double size = .5;
-    int subtype = rand()%3;
+    int subtype = rand()%4;
     switch (subtype){
     case 0: 
       handle2.substance.toMetal(1);
@@ -108,7 +111,7 @@ public:
       break;
     case 2: 
       handle2.substance.toRubber(10); 
-      osgHandle2 = osgHandle.changeColor(Color(0.8,0.8,0.8));
+      osgHandle2 = osgHandle.changeColor(Color(0.2,0.2,0.2));
       break;
     default: 
       handle2.substance.toFoam(5);
