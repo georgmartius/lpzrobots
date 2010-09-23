@@ -24,7 +24,10 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.29  2010-03-17 09:33:16  martius
+ *   Revision 1.30  2010-09-23 08:35:22  martius
+ *   light generation improved
+ *
+ *   Revision 1.29  2010/03/17 09:33:16  martius
  *   removed memory leaks and some small bugs
  *   valgrind suppression file is updated
  *
@@ -221,7 +224,8 @@ namespace lpzrobots
     virtual osg::Node* makeGround();
     virtual osg::Node* createHUD();
     virtual void createHUDManager(osg::Geode* geode, osgText::Font* font);
-    virtual osg::LightSource* makeLights(osg::StateSet* stateset);
+    /// adds light to the node
+    virtual void makeLights(osg::Group* node);
 
     /** Shadow types:
      * 1 - ShadowVolume
