@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-09-22 07:48:55  martius
+ *   Revision 1.2  2010-09-24 13:34:56  martius
+ *   test for anisotrop friction
+ *
+ *   Revision 1.1  2010/09/22 07:48:55  martius
  *   test for materials moved here (from tests/)
  *
  *   Revision 1.11  2010/03/17 09:33:16  martius
@@ -141,10 +144,14 @@
 #include <ode_robots/odeagent.h>
 #include <ode_robots/schlangeservo.h>
 
+// substance to do anisotrop friction
+#include <ode_robots/anisotropfriction.h>
+
 using namespace std;
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
+
 
 class ThisSim : public Simulation {
 public:
@@ -159,13 +166,15 @@ public:
     global.odeConfig.setParam("noise", 0);
     global.odeConfig.setParam("simstepsize", 0.002); 
     
-    bool substances = true;
+    bool substances = false;
     bool transforms = false;
-    bool motors     = true;
+    bool motors     = false;
     bool schlange   = false;
+    bool anisotrop_friction = true;
     
     s3=0;
     j=0;
+    slider=0;
       
     if(transforms){
       if(1){
@@ -360,7 +369,17 @@ public:
       j = new FixedJoint(global.environment, r->getMainPrimitive());
       j->init(odeHandle, osgHandle);	      
     }
-
+    
+    if(anisotrop_friction){
+      OdeHandle anisohandle = odeHandle;
+      anisohandle.substance = AnisotropFriction(.1);
+      slider = new PassiveBox(anisohandle, osgHandle.changeColor(Color(0,1,1)), 
+                                    osg::Vec3(.2,.2,1),1);      
+      //      slider->setPose(osg::Matrix::rotate(M_PI/2,0,1,0)* osg::Matrix::translate(2,3,0.1));
+      slider->setPose(osg::Matrix::translate(2,3,1));
+      global.obstacles.push_back(slider);      
+    }
+    
   
     showParams(global.configs);
   }
@@ -376,23 +395,44 @@ public:
     FOREACH(vector<OneAxisServo*>, servos, s){
       (*s)->set(sin(globalData.time));
     }
+    if(slider){
+      switch((globalData.sim_step/500)%5){
+      case 0: slider->getMainPrimitive()->applyForce(4,0,0); break;      
+      case 1: slider->getMainPrimitive()->applyForce(-4,0,0); break;
+      case 2: slider->getMainPrimitive()->applyForce(0,4,0);  break;
+      case 3: slider->getMainPrimitive()->applyForce(0,-4,0); break;
+      case 4: slider->getMainPrimitive()->applyTorque(0,0,3.4); break;
+      }
+
+    }
+
   };
 
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
-    if (down) { // only when key is pressed, not when released
+    bool hdld=false;
+    if (down || 1) { // only when key is pressed, not when released
       switch ( (char) key )
 	{
-	case 'a': dBodyAddForce(s1->getMainPrimitive()->getBody(),5,0,0); break;
-	case 'd': dBodyAddForce(s1->getMainPrimitive()->getBody(),0,5,0); break;
-	case 'g': if(j) delete(j); j=0; break;
+	case 'a': slider->getMainPrimitive()->applyForce(5,0,0); hdld = true;  break;
+	case 'd': slider->getMainPrimitive()->applyForce(0,5,0); hdld = true;  break;
+        case 'i': 
+          if(slider) slider->getMainPrimitive()->applyForce(200,0,0); hdld = true;  break;
+        case 'k': 
+          if(slider) slider->getMainPrimitive()->applyForce(-200,0,0); hdld = true;  break;
+        case 'j': 
+          if(slider) slider->getMainPrimitive()->applyForce(0,200,0); hdld = true; break;
+        case ';': 
+          if(slider) slider->getMainPrimitive()->applyForce(0,-200,0); hdld = true; break;
+        case 'n': 
+          if(slider) slider->getMainPrimitive()->applyTorque(0,0,100); hdld = true; break;
+	case 'g': if(j) delete(j); j=0; hdld = true; break;
 	default:
-	  return false;
 	  break;
 	} 
     }
-    return false;
+    return hdld;
   }
 
 
@@ -400,6 +440,8 @@ public:
   PassiveSphere* s2;
   PassiveSphere* s3;
   Joint* j;
+
+  PassiveBox* slider;
 
   vector<PassiveCapsule*> caps;
   vector<OneAxisServo*> servos;
