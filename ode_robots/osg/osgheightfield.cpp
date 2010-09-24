@@ -23,7 +23,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-07-02 05:45:06  martius
+ *   Revision 1.10  2010-09-24 09:00:04  martius
+ *   fixed lighing bug! Juhu. The StateSet was shared such that the material
+ *    was shared. In this way the last material was used for all primitives
+ *
+ *   Revision 1.9  2010/07/02 05:45:06  martius
  *   comments improved
  *
  *   Revision 1.8  2010/03/16 15:47:46  martius
@@ -159,9 +163,9 @@ namespace lpzrobots {
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
-      shape->setStateSet(osgHandle.cfg->transparentState);
+      shape->setStateSet(new StateSet(*osgHandle.cfg->transparentState));
     }else{
-      shape->setStateSet(osgHandle.cfg->normalState);
+      shape->setStateSet(new StateSet(*osgHandle.cfg->normalState));
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);

@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2010-09-17 10:07:45  martius
+ *   Revision 1.24  2010-09-24 09:00:04  martius
+ *   fixed lighing bug! Juhu. The StateSet was shared such that the material
+ *    was shared. In this way the last material was used for all primitives
+ *
+ *   Revision 1.23  2010/09/17 10:07:45  martius
  *   changing size requires invalidation of display list
  *
  *   Revision 1.22  2010/03/29 16:28:21  martius
@@ -348,9 +352,9 @@ namespace lpzrobots {
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
-      shape->setStateSet(osgHandle.cfg->transparentState);
+      shape->setStateSet(new StateSet(*osgHandle.cfg->transparentState));
     }else{
-      shape->setStateSet(osgHandle.cfg->normalState);
+      shape->setStateSet(new StateSet(*osgHandle.cfg->normalState));
     }
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
@@ -382,10 +386,11 @@ namespace lpzrobots {
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
-      shape->setStateSet(osgHandle.cfg->transparentState);
+      shape->setStateSet(new StateSet(*osgHandle.cfg->transparentState));
     }else{
-      shape->setStateSet(osgHandle.cfg->normalState);
+      shape->setStateSet(new StateSet(*osgHandle.cfg->normalState));
     }
+
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
     applyTextures();
@@ -417,6 +422,16 @@ namespace lpzrobots {
     if (osgHandle.cfg->noGraphics)
       return;
     osgHandle.parent->addChild(transform.get());
+
+    if(osgHandle.color.alpha() < 1.0){
+      transform->setStateSet(new StateSet(*osgHandle.cfg->transparentState));
+    }else{
+      transform->setStateSet(new StateSet(*osgHandle.cfg->normalState));
+    }
+    
+    transform->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
+							   StateAttribute::ON);
+
     Vec3 half = dim*(-0.5);    
     Vec3 dx(dim.x(),0.0f,0.0f);
     Vec3 dy(0.0f,dim.y(),0.0f);
@@ -463,13 +478,6 @@ namespace lpzrobots {
       transform->addChild(faces[i].get());
     }
     
-    if(osgHandle.color.alpha() < 1.0){
-      transform->setStateSet(osgHandle.cfg->transparentState);
-    }else{
-      transform->setStateSet(osgHandle.cfg->normalState);
-    }
-    transform->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
-							   StateAttribute::ON);
   }
 
   void OSGBoxTex::setColor(const Color& color){
@@ -504,10 +512,11 @@ namespace lpzrobots {
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
-      shape->setStateSet(osgHandle.cfg->transparentState);
+      shape->setStateSet(new StateSet(*osgHandle.cfg->transparentState));
     }else{
-      shape->setStateSet(osgHandle.cfg->normalState);
+      shape->setStateSet(new StateSet(*osgHandle.cfg->normalState));
     }
+
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
     applyTextures();
@@ -533,10 +542,11 @@ namespace lpzrobots {
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
-      shape->setStateSet(osgHandle.cfg->transparentState);
+      shape->setStateSet(new StateSet(*osgHandle.cfg->transparentState));
     }else{
-      shape->setStateSet(osgHandle.cfg->normalState);
+      shape->setStateSet(new StateSet(*osgHandle.cfg->normalState));
     }
+
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
     applyTextures();
@@ -562,10 +572,11 @@ namespace lpzrobots {
     shape->setColor(osgHandle.color);
     geode->addDrawable(shape.get());
     if(osgHandle.color.alpha() < 1.0){
-      shape->setStateSet(osgHandle.cfg->transparentState);
+      shape->setStateSet(new StateSet(*osgHandle.cfg->transparentState));
     }else{
-      shape->setStateSet(osgHandle.cfg->normalState);
+      shape->setStateSet(new StateSet(*osgHandle.cfg->normalState));
     }
+
     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 						       StateAttribute::ON);
 
@@ -638,11 +649,11 @@ namespace lpzrobots {
   void OSGMesh::init(const OsgHandle& osgHandle, Quality quality){
     internInit(osgHandle, true, quality);
     
-//     if(osgHandle.color.alpha() < 1.0){
-//       shape->setStateSet(osgHandle.transparentState);
-//     }else{
-//       shape->setStateSet(osgHandle.normalState);
-//     }
+    // if(osgHandle.color.alpha() < 1.0){
+    //   shape->setStateSet(osgHandle.cfg->transparentState);
+    // }else{
+    //   shape->setStateSet(osgHandle.cfg->normalState);
+    // }
 //     shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
 // 						       StateAttribute::ON);
 

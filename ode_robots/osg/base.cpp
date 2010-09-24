@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.49  2010-09-23 08:35:22  martius
+ *   Revision 1.50  2010-09-24 09:00:04  martius
+ *   fixed lighing bug! Juhu. The StateSet was shared such that the material
+ *    was shared. In this way the last material was used for all primitives
+ *
+ *   Revision 1.49  2010/09/23 08:35:22  martius
  *   light generation improved
  *
  *   Revision 1.48  2010/05/28 13:48:30  martius
@@ -342,7 +346,7 @@ namespace lpzrobots {
 
   void Base::base_close(){
     if(plane) delete plane;
-    if(dummy) dummy->unref();
+    //    if(dummy) dummy->unref(); // this happens automatically
     if(ground ){
       dGeomDestroy(ground);
     }
