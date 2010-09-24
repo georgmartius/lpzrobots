@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.134  2010-09-16 09:59:32  martius
+ *   Revision 1.135  2010-09-24 13:41:29  martius
+ *   registry of OSG released GL objects
+ *   indentation
+ *
+ *   Revision 1.134  2010/09/16 09:59:32  martius
  *   usage improved
  *
  *   Revision 1.133  2010/09/16 09:54:26  martius
@@ -671,6 +675,7 @@
 #include <osg/AlphaFunc>
 #include <osgUtil/SceneView>
 // #include <osgUtil/Optimizer>
+#include <osgDB/Registry>
 #include <osgDB/ReaderWriter>
 #include <osgDB/FileUtils>
 #include <osgGA/StateSetManipulator>
@@ -773,8 +778,8 @@ namespace lpzrobots {
     if(state!=running)
       return;
 
-    //    if (!inTaskedMode)
-    //      dCloseODE ();
+    if (!inTaskedMode)
+      dCloseODE ();
 
     state=closed;
     if(arguments)
@@ -794,7 +799,11 @@ namespace lpzrobots {
         delete viewer;
       viewer = 0;
     }
-
+    osgDB::Registry::instance()->releaseGLObjects(0);
+    // this does not help to get rid of the missing textures at restart with OSG 2.8
+    // osgDB::Registry::instance()->clearObjectCache();
+    // osgDB::Registry::instance()->clearArchiveCache();
+    // osgDB::Registry::instance()->getOrCreateSharedStateManager()->prune();
   }
 
   bool Simulation::init(int argc, char** argv) {
@@ -1477,12 +1486,12 @@ namespace lpzrobots {
   void Simulation::tidyUp(GlobalData& global) {
     if (!inTaskedMode)
     {
-    QP(cout << "Profiling summary:" << endl << PROFILER.getSummary() << endl);
-    QP(cout << endl << PROFILER.getSummary(quickprof::MILLISECONDS) << endl);
-    QP(float timeSinceInit=PROFILER.getTimeSinceInit(quickprof::MILLISECONDS));
-    QP(cout << endl << "total sum:      " << timeSinceInit << " ms"<< endl);
-    QP(cout << "steps/s:        " << (((float)globalData.sim_step)/timeSinceInit * 1000.0) << endl);
-    QP(cout << "realtimefactor: " << (((float)globalData.sim_step)/timeSinceInit * 10.0) << endl);
+      QP(cout << "Profiling summary:" << endl << PROFILER.getSummary() << endl);
+      QP(cout << endl << PROFILER.getSummary(quickprof::MILLISECONDS) << endl);
+      QP(float timeSinceInit=PROFILER.getTimeSinceInit(quickprof::MILLISECONDS));
+      QP(cout << endl << "total sum:      " << timeSinceInit << " ms"<< endl);
+      QP(cout << "steps/s:        " << (((float)globalData.sim_step)/timeSinceInit * 1000.0) << endl);
+      QP(cout << "realtimefactor: " << (((float)globalData.sim_step)/timeSinceInit * 10.0) << endl);
     }
 
     if(!noGraphics && viewer)    // delete viewer;
@@ -1977,8 +1986,8 @@ namespace lpzrobots {
   /// restart() is called at the second and all following starts of the cylces
    bool Simulation::restart(const OdeHandle&, const OsgHandle&, GlobalData& globalData)
   {
-	  // do not restart!
-	  return false;
+    // do not restart!
+    return false;
   }
 
 
