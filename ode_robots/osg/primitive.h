@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2010-03-25 16:39:51  martius
+ *   Revision 1.25  2010-09-24 13:38:48  martius
+ *   added toGlobal and applyForce/Torque with doubles
+ *
+ *   Revision 1.24  2010/03/25 16:39:51  martius
  *   primitive has addForce/addTorque function
  *
  *   Revision 1.23  2010/03/11 15:17:19  guettler
@@ -279,10 +282,15 @@ public:
   /** apply a force (in world coordinates) to the primitive and 
       returns true if it was possible */
   virtual bool applyForce(osg::Vec3 force);
+  /** @see applyForce(osg::Vec3) */
+  virtual bool applyForce(double x, double y, double z);
+
   /** apply a torque (in world coordinates) to the primitive and 
       returns true if it was possible
    */
   virtual bool applyTorque(osg::Vec3 torque);
+  /** @see applyTorque(osg::Vec3) */
+  virtual bool applyTorque(double x, double y, double z);
 
   /// sets the mass of the body (uniform)
   virtual void setMass(double mass) = 0;
@@ -308,6 +316,13 @@ public:
       of the primitive (translation depends on the 4th coordinate)
   */
   osg::Vec4 toLocal(const osg::Vec4& axis) const;
+
+  /// transforms the given point in local corrds of the primitive to global coordinates
+  osg::Vec3 toGlobal(const osg::Vec3& pos) const;
+  /**  transforms the given vector or axis in local corrds of the primitive to global coordinates
+       (translation depends on the 4th coordinate)
+  */
+  osg::Vec4 toGlobal(const osg::Vec4& axis) const;
 
   /**
    * 20091023; guettler:

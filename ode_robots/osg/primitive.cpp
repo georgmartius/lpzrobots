@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.31  2010-09-17 10:07:45  martius
+ *   Revision 1.32  2010-09-24 13:38:48  martius
+ *   added toGlobal and applyForce/Torque with doubles
+ *
+ *   Revision 1.31  2010/09/17 10:07:45  martius
  *   changing size requires invalidation of display list
  *
  *   Revision 1.30  2010/03/25 16:39:51  martius
@@ -376,19 +379,27 @@ namespace lpzrobots{
   }
   
   bool Primitive::applyForce(osg::Vec3 force){
+    return applyForce(force.x(), force.y(), force.z()); 
+  }
+
+  bool Primitive::applyForce(double x, double y, double z){
     if(body){
-      dBodyAddForce(body, force.x(),force.y(),force.z()); 
+      dBodyAddForce(body, x, y, z); 
       return true;
     } else return false;
+
   }
 
   bool Primitive::applyTorque(osg::Vec3 torque){
+    return applyTorque(torque.x(), torque.y(), torque.z()); 
+  }
+
+  bool Primitive::applyTorque(double x, double y, double z){
     if(body){
-      dBodyAddTorque(body, torque.x(), torque.y(), torque.z()); 
+      dBodyAddTorque(body, x, y, z); 
       return true;
     } else return false;
   }
-
 
   dGeomID Primitive::getGeom() const { 
    return geom;    
@@ -426,7 +437,6 @@ namespace lpzrobots{
   }
 
 
-  /// return the given point transformed to local coordinates of the primitive
   osg::Vec3 Primitive::toLocal(const osg::Vec3& pos) const {
     const osg::Matrix& m = osg::Matrix::inverse(getPose());
     return pos*m;
@@ -436,12 +446,17 @@ namespace lpzrobots{
 //     return osg::Vec3(pl.x(),pl.y(), pl.z());
   }
 
-  /** return the given vector or axis transformed to local coordinates of the
-      primitive (translation depends on 4th coordinate)
-  */
   osg::Vec4 Primitive::toLocal(const osg::Vec4& v) const {
     osg::Matrix m = getPose();
     return v*osg::Matrix::inverse(m);
+  }
+
+  osg::Vec3 Primitive::toGlobal(const osg::Vec3& pos) const {
+    return pos*getPose();
+  }
+
+  osg::Vec4 Primitive::toGlobal(const osg::Vec4& v) const {
+    return v*getPose();
   }
 
   void Primitive::setSubstance(Substance substance) {
