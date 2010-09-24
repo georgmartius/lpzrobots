@@ -23,7 +23,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2010-09-16 15:21:42  martius
+ *   Revision 1.25  2010-09-24 13:37:51  martius
+ *   balls for interaction with the mouse are again colored
+ *   damping increased
+ *
+ *   Revision 1.24  2010/09/16 15:21:42  martius
  *   comment
  *
  *   Revision 1.23  2010/06/03 13:40:59  guettler
@@ -674,8 +678,8 @@ namespace lpzrobots {
       if(body && body->getBody()){
 	Pos p = camHandle.watchingAgent->getRobot()->getPosition();
 	camHandle.manipulationViz = new OSGSphere(0.1);
-	camHandle.manipulationViz->init(osgHandle);
-        //	camHandle.manipulationViz->init(osgHandle.changeColor(camHandle.doManipulation==camHandle.Translational, camHandle.doManipulation==camHandle.Rotational,0));
+	//camHandle.manipulationViz->init(osgHandle);
+        camHandle.manipulationViz->init(osgHandle.changeColor(camHandle.doManipulation==camHandle.Translational, camHandle.doManipulation==camHandle.Rotational,0));
 	camHandle.manipulationViz->setMatrix(osg::Matrix::translate(camHandle.manipulationPoint));
 	Pos force = (camHandle.manipulationPoint-p);
 	double factor = force.length()>10 ? 10/force.length() : 1;
@@ -688,9 +692,9 @@ namespace lpzrobots {
 	}
 	// Damp both, rotation and speed
 	const double* vel = dBodyGetAngularVel( body->getBody());
-	dBodyAddTorque ( body->getBody() , -0.1*vel[0] , -0.1*vel[1] , -0.1*vel[2]);
+	dBodyAddTorque ( body->getBody() , -0.2*vel[0] , -0.2*vel[1] , -0.2*vel[2]);
 	vel = dBodyGetLinearVel( body->getBody());
-	dBodyAddForce ( body->getBody() , -0.1*vel[0] , -0.1*vel[1] , -0.1*vel[2]);
+	dBodyAddForce ( body->getBody() , -0.2*vel[0] , -0.2*vel[1] , -0.2*vel[2]);
       }
     }
   }
