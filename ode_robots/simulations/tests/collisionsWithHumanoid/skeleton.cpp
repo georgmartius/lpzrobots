@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-09-23 08:40:25  martius
+ *   Revision 1.1  2010-09-24 09:25:00  martius
+ *   collissions tests changed
+ *
+ *   Revision 1.1  2010/09/23 08:40:25  martius
  *   *** empty log message ***
  *
  *   Revision 1.19  2010/03/09 11:53:41  martius

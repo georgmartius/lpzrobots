@@ -21,7 +21,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-09-24 09:25:00  martius
+ *   Revision 1.1  2010-09-24 09:25:00  martius
  *   collissions tests changed
  *
  *   Revision 1.2  2010/09/23 08:34:58  martius
@@ -50,6 +50,13 @@
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
 #include <ode_robots/passivecapsule.h>
+
+// controller and robot
+#include <selforg/semox.h>
+#include <selforg/one2onewiring.h>
+#include <ode_robots/odeagent.h>
+
+#include "skeleton.h"
 
 using namespace std;
 
@@ -134,6 +141,27 @@ public:
     globalData.obstacles.push_back(o);
   }
 
+  virtual void addHumanoid(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+                         GlobalData& globalData){
+
+    SkeletonConf conf = Skeleton::getDefaultConfVelServos();      
+    Skeleton* human = new Skeleton(odeHandle, osgHandle, conf, "Humanoid"); 
+    human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
+                 *osg::Matrix::translate(0,0,5));
+    
+    globalData.configs.push_back(human);
+    SeMoXConf cc = SeMoX::getDefaultConf();
+    cc.modelExt=true;
+    cc.cInit = 1.2;
+    SeMoX* controller = new SeMoX(cc);
+    
+    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1)); 
+    OdeAgent* agent = new OdeAgent(plotoptions);
+    agent->init(controller, human, wiring);
+    globalData.configs.push_back(controller);
+    globalData.agents.push_back(agent);
+    
+  }
 
 
   // add own key handling stuff here, just insert some case values
@@ -146,6 +174,7 @@ public:
 	case 'b': addObject(odeHandle, osgHandle, globalData, OBox); break;
 	case 'k': addObject(odeHandle, osgHandle, globalData, OSphere); break;
 	case 'c': addObject(odeHandle, osgHandle, globalData, OCaps); break;
+	case 'r': addHumanoid(odeHandle, osgHandle, globalData); break;
 	default:
 	  return false;
 	  break;
