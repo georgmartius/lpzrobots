@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-03-30 08:48:01  martius
+ *   Revision 1.4  2010-09-27 14:52:58  martius
+ *   made it compile again
+ *
+ *   Revision 1.3  2010/03/30 08:48:01  martius
  *   intern function are called now
  *
  *   Revision 1.2  2009/03/31 15:47:11  martius
@@ -48,15 +51,21 @@ public:
       @param noise NoiseGenerator that is used for adding noise to motor values  
   */
   MotorNoiseWiring(NoiseGenerator* noise, double noiseStrength)
-    : One2OneWiring(0),    // no noise at sensors
+    : One2OneWiring(0, Robot),    // no noise at sensors
       Configurable("MotorNoiseWiring", "$Id$"),
       mNoiseGen(noise), noiseStrength(noiseStrength) {
     addParameter("strength",&noiseStrength);
   }
   virtual ~MotorNoiseWiring(){}
 
-  virtual bool initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen=0){
-    One2OneWiring::initIntern(robotsensornumber, robotmotornumber, randGen);
+  double getNoiseStrength(){ return noiseStrength; }
+  void setNoiseStrength(double _noiseStrength) { 
+    if(_noiseStrength>=0) noiseStrength=_noiseStrength;
+  }
+
+
+  virtual bool initIntern(){
+    One2OneWiring::initIntern();
     if(mNoiseGen)
       mNoiseGen->init(rmotornumber, randGen);
     return true;
