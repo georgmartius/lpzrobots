@@ -75,7 +75,7 @@ dbg:
 
 $(LIB): Makefile.depend $(OFILES)
 	$(AR) $(LIB) $(OFILES)
-	@if [ "$(STRIP)" == "yes" ]; then strip --strip-debug $(LIB); fi
+	@if [ "$(STRIP)" = "yes" ]; then strip --strip-debug $(LIB); fi
 
 
 ${BUILD_DIR}/%.o: %.cpp
