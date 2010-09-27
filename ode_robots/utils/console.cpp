@@ -26,7 +26,11 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-09-16 10:00:21  martius
+ *   Revision 1.9  2010-09-27 14:55:56  martius
+ *   reimplemented cmd_set. Works now better, also with spaces after the = sign
+ *   line variable contains full cmd line now
+ *
+ *   Revision 1.8  2010/09/16 10:00:21  martius
  *   storage of playground contours
  *   tab completion for parameters
  *
@@ -62,6 +66,7 @@
 #include <readline/history.h>
 
 #include <vector>
+#include <sstream>
 #include <string>
 #include <selforg/stl_adds.h>
 #include <selforg/abstractcontroller.h>
@@ -100,7 +105,7 @@ COMMAND commands[] = {
   { "?",     com_help, "Synonym for `help'" },
   { "list", com_list, "Lists all objects and agents" },
   { "ls",   com_list, "Synonym for `list'" },
-  { "set",  com_set, "syntax: set [OBJECTID] PARAM=VAL; sets parameter of Object (or all all objects) to value" },
+  { "set",  com_set, "syntax: set [OBJECTID] PARAM=VAL; sets parameter of OBJECTID (or of all objects) to value" },
   { "store", com_store, "Stores controller of AGENTID to FILE" },
   { "load", com_load, "Loads controller of AGENTID from FILE" },
   { "contrs", com_contrs, "Stores the contours of all playgrounds to FILE" },
@@ -153,6 +158,17 @@ char* dupstrpluseq (const char* s){
   return (r);
 }
 
+vector<string> splitstring(string s){
+  istringstream split(s); //splitting the lines
+  string word;
+  vector<string> rv;
+  while(split >> word) {
+    if(word.compare(" ")!=0 && word.compare("  ")!=0)
+      rv.push_back(word);
+  }
+  return rv;
+}
+
 bool handleConsole(GlobalData& globalData){
   char *line, *s;
   bool rv = true;
@@ -200,11 +216,15 @@ bool execute_line (GlobalData& globalData, char *line) {
   while (line[i] && !whitespace (line[i]))
     i++;
 
-  if (line[i])
-    line[i++] = '\0';
+  bool args = line[i] != 0;
+  if (args)
+    line[i] = '\0';
 
   command = find_command (word);
-
+  
+  if(args)
+    line[i++] = ' '; // reinsert space
+  
   if (!command)
     {
       fprintf (stderr, "%s: No such command\n", word);
@@ -226,7 +246,7 @@ bool execute_line (GlobalData& globalData, char *line) {
 COMMAND *find_command (char *name){
   register int i;
   char *p = strchr(name,'=');
-  if(p) return (&commands[0]);
+  if(p) return (&commands[0]); // set a parameter.
   for (i = 0; commands[i].name; i++)
     if (strcmp (name, commands[i].name) == 0)
       return (&commands[i]);
@@ -436,53 +456,99 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
   if(strstr(line,"set")!=line) arg=line; // if it is not invoked with set then it was param=val
   if (valid_argument("set", arg)){
     /* Isolate the command word. */
-    int i = 0;
-    char* s_param;
     bool changed=false;
-        
-    s_param = strchr(arg,' ');
-    if(s_param) *s_param='\0'; // terminate first arg
-    if(s_param && strchr(arg,'=')==NULL){ // looks like two args (and no = in the first)
-      s_param++;
-      int id = atoi(arg);
-      if(id>=0 && id < (signed)globalData.configs.size()){
-	char* val;
-	i=0;
-	val = strchr(s_param,'=');
-	if(val){ // found =
-	  *val='\0';
-	  double v=strtod(val+1,0);
-	  if (globalData.configs[id]->setParam(s_param,v)){
-	    printf(" %s=\t%f \n", s_param, globalData.configs[id]->getParam(s_param));
-	    changed = true;
-	    *val='='; // remove termination again (for agent notification)
-	  }
-	} else printf("Syntax error! no '=' found\n");      
-      }else printf("Object with ID: %i not found\n", id);      
+      
+    char * equalpos = strchr(arg,'=');
+    if(equalpos) {
+      *equalpos=' '; // replace by space for splitting
     }else{
-      if(s_param) *s_param=' '; // unterminate arg
-      s_param=arg;
-	
-      char* val;
-      i=0;
-      val = strchr(s_param,'=');
-      if(val){ // found =
-	*val='\0';
-	double v=strtod(val+1,0);
+      printf("Syntax error! no '=' found, see help\n");
+    }
+    vector<string> params = splitstring(string(arg));
+    switch(params.size()){
+    case 3:// ObjectID param=val      
+      {
+        int id = atoi(params[0].c_str());
+        if(id>=0 && id < (signed)globalData.configs.size()){
+          const char* key = params[1].c_str();        
+          if (globalData.configs[id]->setParam(key,atof(params[2].c_str()))){
+            printf(" %s=\t%f \n", key, globalData.configs[id]->getParam(key));
+            changed = true;              
+          }          
+        }else printf("Object with ID: %i not found\n", id);      
+      }
+      break;
+    case 2: // param=val
+      {
+        double v=atof(params[1].c_str());
+        const char* key = params[0].c_str();
  	FOREACH(ConfigList, globalData.configs, i){
- 	  if ((*i)->setParam(s_param,v)){
- 	    printf(" %s=\t%f \n", s_param, (*i)->getParam(s_param));
+ 	  if ((*i)->setParam(key,v)){
+ 	    printf(" %s=\t%f \n", key, (*i)->getParam(key));
  	    changed = true;	    
  	  }
  	}
-	*val='='; // remove termination again (for agent notification)
-      } else printf("Syntax error! no '=' found\n");      
+      }
+      break;
+    default: // something else
+      printf("Syntax Error! Expect 2 or 3 arguments: [ObjectID] param=val\n");
+      printf("Got %li params:", params.size());
+      FOREACHC(vector<string>, params, p) printf("%s, ", p->c_str());
+      printf("\n");
+      break;
     }
     if(changed){
+      *equalpos='=';
       FOREACH(OdeAgentList, globalData.agents, i){	
-	(*i)->writePlotComment(s_param );
+	(*i)->writePlotComment(arg);
       }      
     }
+    
+      
+    // }elseif(params.size(==2) )
+    // s_param = strchr(arg,' ');
+    // if(s_param) *s_param='\0'; // terminate first arg
+    // if(s_param && strchr(arg,'=')==NULL){ // looks like two args (and no = in the first)
+    //   s_param++;
+    //   int id = atoi(arg);
+    //   if(id>=0 && id < (signed)globalData.configs.size()){
+    //     char* val;
+    //     i=0;
+    //     val = strchr(s_param,'=');
+    //     if(val){ // found =
+    //       *val='\0';
+    //       double v=strtod(val+1,0);
+    //       if (globalData.configs[id]->setParam(s_param,v)){
+    //         printf(" %s=\t%f \n", s_param, globalData.configs[id]->getParam(s_param));
+    //         changed = true;
+    //         *val='='; // remove termination again (for agent notification)
+    //       }
+    //     } else printf("Syntax error! no '=' found\n");      
+    //   }else printf("Object with ID: %i not found\n", id);      
+    // }else{
+    //   if(s_param) *s_param=' '; // unterminate arg
+    //   s_param=arg;
+	
+    //   char* val;
+    //   i=0;
+    //   val = strchr(s_param,'=');
+    //   if(val){ // found =
+    //     *val='\0';
+    //     double v=strtod(val+1,0);
+    //     FOREACH(ConfigList, globalData.configs, i){
+    //       if ((*i)->setParam(s_param,v)){
+    //         printf(" %s=\t%f \n", s_param, (*i)->getParam(s_param));
+    //         changed = true;	    
+    //       }
+    //     }
+    //     *val='='; // remove termination again (for agent notification)
+    //   } else printf("Syntax error! no '=' found\n");      
+    // }
+    // if(changed){
+    //   FOREACH(OdeAgentList, globalData.agents, i){	
+    //     (*i)->writePlotComment(s_param );
+    //   }      
+    // }
   }
   return true;
 }
