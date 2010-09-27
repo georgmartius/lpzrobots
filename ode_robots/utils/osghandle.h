@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-03-22 14:33:19  martius
+ *   Revision 1.12  2010-09-27 14:57:25  martius
+ *   removed old constructor
+ *   added some comments
+ *
+ *   Revision 1.11  2010/03/22 14:33:19  martius
  *   osghandle changeColor() with single rgba values
  *   camerasensors windowfunction bug
  *
@@ -144,24 +148,6 @@ class OsgHandle
 public:
   OsgHandle();
 
-  // Georg: removed. Brauchen wir den wirklich?
-//   /**
-//    * TODO: Separation of OSGHandle and OSGConfig
-//    * @param root
-//    * @param world
-//    * @param scene
-//    * @param tesselhints
-//    * @param normalState
-//    * @param transparentState
-//    * @param color
-//    * @param shadowType
-//    * @return
-//    */
-//   OsgHandle( osg::Group* root, osg::Group* world, osg::Group* scene, 
-//              osg::TessellationHints* tesselhints[3], 
-// 	     osg::StateSet* normalState, osg::StateSet* transparentState, 
-// 	     const Color& color, int shadowType);
-
   ~OsgHandle();
 
   /// initialization of the structure
@@ -176,9 +162,9 @@ public:
 
   Color color;    
 
-  OsgConfig* cfg;
-  OsgScene*  scene;
-  osg::Group* parent; // the place there individual osgprimitives are added
+  OsgConfig* cfg; // the config is shared
+  OsgScene*  scene;  // the scene is shared
+  osg::Group* parent; // the place where individual osgprimitives are added
 
   // returns a new osghandle with only the color changed
   OsgHandle changeColor(const Color& color) const;
