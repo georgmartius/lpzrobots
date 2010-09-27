@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-07-02 15:57:25  martius
+ *   Revision 1.13  2010-09-27 14:53:21  martius
+ *   store randGen for further use
+ *
+ *   Revision 1.12  2010/07/02 15:57:25  martius
  *   wirings have new initIntern signature -> less errors can be made
  *   abstractwiring generates the noise of given length
  *
@@ -250,6 +253,9 @@ protected:
 
   /// noise generator
   NoiseGenerator* noiseGenerator;
+
+  /// random generator used in NoiseGenerator (in case it is needed by subclasses)
+  RandGen* randGen;
 
   bool initialised;
 };
