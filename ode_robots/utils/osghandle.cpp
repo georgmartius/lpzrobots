@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-03-22 14:33:19  martius
+ *   Revision 1.13  2010-09-27 14:56:57  martius
+ *   removed old constructor
+ *
+ *   Revision 1.12  2010/03/22 14:33:19  martius
  *   osghandle changeColor() with single rgba values
  *   camerasensors windowfunction bug
  *
@@ -160,27 +163,6 @@ namespace lpzrobots {
     scene->robotCamManager = new RobotCameraManager(windowW, windowH);    
   }
    
-//   OsgHandle::OsgHandle( osg::Group* root, osg::Group* world, osg::Group* scene, 
-//                         osg::TessellationHints* tesselhints[3], 
-//                         osg::StateSet* normalState, osg::StateSet* transparentState,
-//                         const Color& color, int shadowType)
-//   {
-//     this->root = root;
-//     this->world = world;
-//     this->worldNoShadow = world;
-//     this->scene = scene;
-//     this->robotCamManager = 0;
-//     for(int i=0; i<3; i++){
-//       this->tesselhints[i] = tesselhints[i];
-//     }
-//     this->normalState = normalState;
-//     this->transparentState = transparentState;
-//     this->color = color;
-//     drawBoundings=false;
-//     noGraphics=false;
-//     this->shadowType=shadowType;
-//   }
-
   OsgHandle::~OsgHandle(){
     // we should not delete any of the refs, because they are global
   }
