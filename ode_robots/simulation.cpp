@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.135  2010-09-24 13:41:29  martius
+ *   Revision 1.136  2010-09-28 07:58:22  martius
+ *   added ODEROBOTSDATA environment variable
+ *
+ *   Revision 1.135  2010/09/24 13:41:29  martius
  *   registry of OSG released GL objects
  *   indentation
  *
@@ -840,11 +843,15 @@ namespace lpzrobots {
     osgHandle.cfg->noGraphics = noGraphics;
 
     osgDB::FilePathList l = osgDB::getDataFilePathList();
+    l.push_back("data");
+    const char* oderobotsdata = getenv("ODEROBOTSDATA");
+    if(!oderobotsdata){
+      l.push_back(oderobotsdata);
+    }
 #ifdef PREFIX
     l.push_back(PREFIX+string("/share/lpzrobots/data"));// installation path
 #endif
     l.push_back("../../osg/data");
-    l.push_back("data");
     osgDB::setDataFilePathList(l);
 
     // load config file (first in the current directory and then in ~/.lpzrobots/)
@@ -1048,7 +1055,6 @@ namespace lpzrobots {
       }
     }
 
-    // TODO: clean the restart thing! Make it independent of drawinterval!
     while ( ( noGraphics || !viewer->done()) &&
 	    (!simulation_time_reached || restart(odeHandle,osgHandle,globalData)) ) {
       if (simulation_time_reached) {
