@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.136  2010-09-28 07:58:22  martius
+ *   Revision 1.137  2010-09-28 08:00:24  martius
+ *   typo
+ *
+ *   Revision 1.136  2010/09/28 07:58:22  martius
  *   added ODEROBOTSDATA environment variable
  *
  *   Revision 1.135  2010/09/24 13:41:29  martius
@@ -845,7 +848,7 @@ namespace lpzrobots {
     osgDB::FilePathList l = osgDB::getDataFilePathList();
     l.push_back("data");
     const char* oderobotsdata = getenv("ODEROBOTSDATA");
-    if(!oderobotsdata){
+    if(oderobotsdata){
       l.push_back(oderobotsdata);
     }
 #ifdef PREFIX
