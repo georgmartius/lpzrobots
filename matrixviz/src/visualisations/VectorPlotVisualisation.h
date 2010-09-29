@@ -31,7 +31,7 @@ protected:
 
 private:
   int maxX, maxY;
-  const static bool debug = true;
+  const static bool debug = false;
 
 };
 
