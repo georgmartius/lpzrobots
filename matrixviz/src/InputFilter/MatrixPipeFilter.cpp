@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.7  2010-06-30 11:33:08  robot14
+ *  Revision 1.8  2010-09-29 18:44:58  robot14
+ *  put one printf in if-debug (fix)
+ *
+ *  Revision 1.7  2010/06/30 11:33:08  robot14
  *  fixed parser
  *
  *  Revision 1.6  2010/05/11 16:53:03  robot14
@@ -171,5 +174,5 @@ void MatrixPipeFilter::updateChannels() {
 //      index++;
     }
 //     std::cout << ")" << std::endl;
-    printf("\r\n");
+    if (debug) printf("\r\n");
 }
