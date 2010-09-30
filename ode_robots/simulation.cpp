@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.137  2010-09-28 08:00:24  martius
+ *   Revision 1.138  2010-09-30 17:14:05  martius
+ *   many key handler are switched off by default use -allkeys
+ *
+ *   Revision 1.137  2010/09/28 08:00:24  martius
  *   typo
  *
  *   Revision 1.136  2010/09/28 07:58:22  martius
@@ -756,8 +759,9 @@ namespace lpzrobots {
     truerealtimefactor = 1;
     state    = none;
     pause    = false;
-    noGraphics=false;
-    simulation_time=-1;
+    noGraphics      = false;
+    useKeyHandler   = false;
+    simulation_time = -1;
     simulation_time_reached=false;
     viewer   = 0;
     arguments= 0;
@@ -914,29 +918,21 @@ namespace lpzrobots {
 	viewer->setThreadingModel(Viewer::SingleThreaded);
       }
 
-      // add the state manipulator
-      viewer->addEventHandler( new osgGA::StateSetManipulator(viewer->getCamera()->getOrCreateStateSet()) );
-
-      // add the thread model handler
-      viewer->addEventHandler(new osgViewer::ThreadingHandler);
-
-      // add the window size toggle handler
-      viewer->addEventHandler(new osgViewer::WindowSizeHandler);
-
-      // add the stats handler
-      viewer->addEventHandler(new osgViewer::StatsHandler);
-
-      // add the help handler
-      viewer->addEventHandler(new osgViewer::HelpHandler(arguments->getApplicationUsage()));
-
-      // add the record camera path handler
-      viewer->addEventHandler(new osgViewer::RecordCameraPathHandler);
-
-      // add the record camera path handler
+      // add the ourself that we can react on keys and mouse
       viewer->addEventHandler(this);
+      viewer->addEventHandler(new osgViewer::HelpHandler(arguments->getApplicationUsage()));
+      viewer->addEventHandler(new osgViewer::WindowSizeHandler);
+      viewer->addEventHandler(osgHandle.scene->robotCamManager); // resizing of video inlets
 
-      // add the record camera path handler
-      viewer->addEventHandler(osgHandle.scene->robotCamManager);
+      if(useKeyHandler){
+        // add the state manipulator
+        viewer->addEventHandler( new osgGA::StateSetManipulator(viewer->getCamera()->getOrCreateStateSet()) );     
+        viewer->addEventHandler(new osgViewer::ThreadingHandler);
+        viewer->addEventHandler(new osgViewer::StatsHandler);
+        viewer->addEventHandler(new osgViewer::RecordCameraPathHandler);
+      }
+
+
 
       // add callback for video recording
 #if OPENSCENEGRAPH_MAJOR_VERSION == 2 &&  OPENSCENEGRAPH_MINOR_VERSION <= 4
@@ -1653,6 +1649,9 @@ namespace lpzrobots {
       printf("using no shadow\n");
     }
 
+    useKeyHandler = contains(argv, argc, "-allkeys")!=0;
+
+
     index = contains(argv, argc, "-rtf");
     if(index && (argc > index)) {
       globalData.odeConfig.realTimeFactor=max(0.0,atof(argv[index]));
@@ -1884,6 +1883,7 @@ namespace lpzrobots {
     printf("\t-pause \t\tstart in pause mode\n");
     printf("\t-rtf factor\t\treal time factor: ratio between simulation speed and real time\n\
 \t\t (special case 0: full speed) (default 1)\n");
+    printf("\t-allkeys\tall key strokes are available (useful for debugging  graphics)\n");
     printf("\t-nographics \tstart without any graphics (implies -rtf 0)\n");
     printf("\t-noshadow \tdisables shadows and shaders (same as -shadow 0)\n");
     printf("\t-shadow [0..5]\t* sets the type of the shadow to be used\n");

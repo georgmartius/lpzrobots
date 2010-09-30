@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.48  2010-09-16 09:54:52  martius
+ *   Revision 1.49  2010-09-30 17:14:05  martius
+ *   many key handler are switched off by default use -allkeys
+ *
+ *   Revision 1.48  2010/09/16 09:54:52  martius
  *   added camera modes enum for setCameraMode
  *   added rtf cmdline flag
  *
@@ -471,6 +474,7 @@ namespace lpzrobots {
     bool simulation_time_reached;
     long int simulation_time;
     bool noGraphics;
+    bool useKeyHandler;
 
     // use globalData.sim_step instead
      //long sim_step;
@@ -490,11 +494,11 @@ namespace lpzrobots {
     CameraHandle cameraHandle;
 
     parambool useOdeThread;
-	parambool useOsgThread;
-	parambool useQMPThreads; // decides if quick mp is used in this simulation
-	parambool inTaskedMode;
-
-	std::string windowName;
+    parambool useOsgThread;
+    parambool useQMPThreads; // decides if quick mp is used in this simulation
+    parambool inTaskedMode;
+    
+    std::string windowName;
 
   protected:
     SimulationState state;
