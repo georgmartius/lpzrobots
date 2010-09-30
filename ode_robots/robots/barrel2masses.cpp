@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-07-08 13:50:14  der
+ *   Revision 1.9  2010-09-30 15:22:38  martius
+ *   changed maximal velocity of servos to 50 (from 10)
+ *
+ *   Revision 1.8  2010/07/08 13:50:14  der
  *   axesshift renamed
  *
  *   Revision 1.7  2007/09/06 18:47:59  martius
@@ -153,7 +156,8 @@ namespace lpzrobots {
 				 -conf.diameter*conf.pendularrange, 
 				 conf.diameter*conf.pendularrange, 
 				 //				 conf.pendularmass*100,10,1); 
-      				 conf.pendularmass*conf.motorpowerfactor,0.1,0.5); 
+      				 conf.pendularmass*conf.motorpowerfactor,0.1,0.5,
+                                 50 /*maximal velocity*/); 
       
       axis[n] = new OSGCylinder(conf.diameter/100, conf.diameter - conf.diameter/100);
       axis[n]->init(osgHandleX[n], OSGPrimitive::Low);
