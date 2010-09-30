@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-03-29 16:28:21  martius
+ *   Revision 1.10  2010-09-30 17:11:31  martius
+ *   added anisotrop friction
+ *
+ *   Revision 1.9  2010/03/29 16:28:21  martius
  *   abstract ground rembers groundsubstance
  *   comments and typos
  *   osgprimitive uses white for empty texture
@@ -62,6 +65,9 @@
 
 #include "substance.h" 
 #include "globaldata.h"
+#include "axis.h"
+#include "primitive.h"
+#include <osg/Matrix>
 #include <iostream>
 #include <assert.h>
 using namespace std;
@@ -246,6 +252,62 @@ namespace lpzrobots {
     setCollisionCallback(dummyCallBack,0);
   }
 
+
+  // *** Anisotop friction stuff ****
+
+  struct AnisotropFrictionData {
+    double ratio;
+    Axis axis;
+  };  
+ 
+  static int anisocallback(dSurfaceParameters& params, GlobalData& globaldata, void *userdata, 
+                           dContact* contacts, int numContacts,
+                           dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
+    // The other substance should not have a callback itself, 
+    //   because then we don't know. It could be a IR sensor for example, 
+    //   so we just behave as we would be a normal substance
+    if(s2.callback) return 1;
+        
+    AnisotropFrictionData* data = (AnisotropFrictionData*)userdata;
+    assert(data && "anisocallback does not have correct userdata!");    
+
+    // we have to set the vectors in contacts
+    osg::Matrix pose = osgPose(dGeomGetPosition(o1), dGeomGetRotation(o1));
+    Pos objectaxis = data->axis*pose;
+
+    for(int i=0; i< numContacts; i++){
+      Pos normal(contacts[i].geom.normal);
+      Pos dir = objectaxis^normal;
+      if(dir.isNaN() || dir.length2()<0.1){ // the collision is in the perpendicular direction
+        return 1; // do normal friction.
+      } else {
+        dir.normalize();
+        contacts[i].fdir1[0]=dir.x();
+        contacts[i].fdir1[1]=dir.y();
+        contacts[i].fdir1[2]=dir.z();        
+      }      
+    }
+    
+    // calc default params
+    Substance::getSurfaceParams(params, s1,s2,globaldata.odeConfig.simStepSize);
+    // set new friction parameters
+    params.mu2=params.mu*(data->ratio); 
+    params.mode |= dContactMu2 | dContactFDir1;
+    
+    return 2;
+  }
+
+  void Substance::toAnisotropFriction(double _ratio, const Axis& _axis){
+    // this is a memory leak but we cannot circumvent it
+    AnisotropFrictionData* data = new AnisotropFrictionData; 
+    data->ratio = _ratio; 
+    data->axis  = _axis;
+    setCollisionCallback(anisocallback,data);
+  }
+
+  // ***  end anisotropfriction stuff;
+  
+
   DebugSubstance::DebugSubstance(){
     setCollisionCallback(&dbg_output, 0);
   } 
@@ -268,4 +330,6 @@ namespace lpzrobots {
     return 1;
   }
   
-}
+
+  
+};

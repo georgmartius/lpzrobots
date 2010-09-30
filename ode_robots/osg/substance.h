@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-03-29 16:28:21  martius
+ *   Revision 1.11  2010-09-30 17:11:38  martius
+ *   added anisotrop friction
+ *
+ *   Revision 1.10  2010/03/29 16:28:21  martius
  *   abstract ground rembers groundsubstance
  *   comments and typos
  *   osgprimitive uses white for empty texture
@@ -94,6 +97,7 @@ namespace lpzrobots {
 
   class GlobalData;
   class Substance;
+  class Axis;
 
   /** function to be called at a collision event between the two geoms. 
       @param params surface parameter, which should be changed/calculated by this function
@@ -135,6 +139,9 @@ namespace lpzrobots {
      The energy lost though damping is \f[ W_1^D = W_i*(1-e_i) \f]. 
      The final damping is now: \f[ kd = (1-e) = W^D/W = \frac{(1-e_1)/kp_1 + (1-e_2)/kp_2}{1/kp_1 + 1/kp_2} 
      = \frac{(1-e_1)kp_2 + (1-e_2)kp_1}{kp_1+kp_2}\f].
+
+     Note that you cannot add any member variables to derived classes 
+      since they do not fit into the substance object in OdeHandle.
  */
   class Substance {
   public:
@@ -194,13 +201,23 @@ namespace lpzrobots {
     
     /// @see toNoContact()
     static Substance getNoContact();
-    /** collsion callback that ignores everything
+    /** set the collsion callback to ignores everything
 	Usually it is better to use the "ignorePairs" from odeHandle but
-	if this particular one should not collide with any, this is easier.
+	if this particular one substance should not collide with any other, this is easier.
 	WARNING: this sets the collisionCallback. This will not convert to other
 	substances without manually setting the callback to 0
      */
     void toNoContact();      
+
+    /** enables anisotrop friction.
+        The friction along the given axis is ratio fold of the friction in the other directions.
+        If ratio = 0.1 and axis=Axis(0,0,1) then the fiction along the z-axis 
+         is 1/10th of the normal friction.        
+        Useful  to mimic scales of snakes or the like.      
+        WARNING: this sets the collisionCallback! 
+        To disable the collisionCallback has to set to 0 manually
+    */
+    void toAnisotropFriction(double ratio, const Axis& axis);
   };
 
 
