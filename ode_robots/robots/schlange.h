@@ -26,7 +26,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2010-01-26 09:55:26  martius
+ *   Revision 1.26  2010-09-30 17:12:29  martius
+ *   added anisotrop friction to schlange
+ *
+ *   Revision 1.25  2010/01/26 09:55:26  martius
  *   new collision model
  *
  *   Revision 1.24  2009/05/11 15:44:30  martius
@@ -110,6 +113,7 @@ public:
   double sensorFactor;    ///<  scale for sensors
   double frictionGround;  ///< friction with ground
   double frictionJoint;   ///< friction within joint
+  double frictionRatio;   ///< if != 1 then friction along the snake is the ratio fold 
   double jointLimit;      ///< maximal angle for the joints (M_PI/2 = 90 degree)
   bool   useServoVel;     ///< if true the new Servos are used (only for schlangeservo)
   double velocity;        ///< maximal velocity of servos
@@ -146,6 +150,7 @@ public:
     conf.sensorFactor = 1;    //  scale for sensors
     conf.frictionGround = 1.0; // friction with ground
     conf.frictionJoint = 0.02; // friction within joint
+    conf.frictionRatio = 1; // friction ratio
     conf.jointLimit =  M_PI/4;
     conf.useServoVel = false;
     conf.velocity    = 20;     // maximal velocity of servos

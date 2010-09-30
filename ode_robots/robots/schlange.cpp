@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.32  2010-01-26 09:55:26  martius
+ *   Revision 1.33  2010-09-30 17:12:29  martius
+ *   added anisotrop friction to schlange
+ *
+ *   Revision 1.32  2010/01/26 09:55:26  martius
  *   new collision model
  *
  *   Revision 1.31  2009/03/13 09:19:53  martius
@@ -98,6 +101,7 @@
 
 #include "schlange.h"
 #include "osgprimitive.h"
+
 using namespace std;
 
 namespace lpzrobots {
@@ -192,6 +196,9 @@ namespace lpzrobots {
     odeHandle.createNewSimpleSpace(parentspace,false);
     int half = conf.segmNumber/2;
 
+    if(conf.frictionRatio != 1)
+      odeHandle.substance.toAnisotropFriction(conf.frictionRatio, Axis(0,0,1));
+
     for ( int n = 0; n < conf.segmNumber; n++ ) {
       Primitive* p;
       p = createSegment(n);
@@ -248,7 +255,7 @@ namespace lpzrobots {
   Primitive* Schlange::createSegment(int index){
     Primitive* p;
     p = new Capsule(conf.segmDia * 0.8, conf.segmLength);     
-    p->setTexture("Images/whitemetal_farbig_small.rgb");
+    p->setTexture("Images/whitemetal_farbig_small.rgb");    
     p->init(odeHandle, conf.segmMass, osgHandle);         
     return p;    
   }

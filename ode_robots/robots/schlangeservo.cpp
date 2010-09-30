@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-08-03 12:50:39  martius
+ *   Revision 1.14  2010-09-30 17:12:29  martius
+ *   added anisotrop friction to schlange
+ *
+ *   Revision 1.13  2010/08/03 12:50:39  martius
  *   Servo interface changes: damping() is now get/setDamping
  *
  *   Revision 1.12  2009/05/11 15:44:30  martius
@@ -152,7 +155,7 @@ void SchlangeServo::create(const osg::Matrix& pose){
     HingeServo* servo;
     if(conf.useServoVel){
       servo =  new OneAxisServoVel(odeHandle, j, -conf.jointLimit, conf.jointLimit, 
-				   conf.motorPower,conf.frictionJoint, conf.velocity);
+				   conf.motorPower, conf.frictionJoint, conf.velocity);
     }else{
       servo =  new HingeServo(j, -conf.jointLimit, conf.jointLimit, 
 			      conf.motorPower,conf.frictionJoint,0,100);
