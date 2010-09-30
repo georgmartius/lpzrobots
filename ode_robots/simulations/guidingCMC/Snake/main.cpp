@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-01-26 09:58:55  martius
+ *   Revision 1.5  2010-09-30 17:07:08  martius
+ *   tests and vision experiments improved
+ *
+ *   Revision 1.4  2010/01/26 09:58:55  martius
  *   *** empty log message ***
  *
  *   Revision 1.3  2009/11/23 13:49:20  martius
@@ -52,7 +55,7 @@
 #include <selforg/feedbackwiring.h>
 #include <selforg/stl_adds.h>
 
-#include <ode_robots/schlangeservo2.h>
+#include <ode_robots/schlangeservo.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -90,17 +93,20 @@ public:
     SchlangeConf conf = Schlange::getDefaultConf();
     //conf.motorPower=3;
     conf.frictionJoint=0.05;
+    conf.frictionRatio=0.01;
     
     //     conf.motorPower=5;    
     conf.motorPower=5;
     //    conf.frictionJoint=0.01;
     //    conf.segmNumber=16;     
     conf.segmNumber=segmNum;     
+    conf.useServoVel=false;     
     //     conf.jointLimit=conf.jointLimit*3;
     // conf.sensorFactor=5;     unused
 
     OdeHandle snakeHandle(odeHandle);
-    snakeHandle.substance.toPlastic(0.1);
+    //    snakeHandle.substance.toPlastic(0.1);
+    snakeHandle.substance.toPlastic(.5);
     vehicle = new SchlangeServo ( snakeHandle, osgHandle.changeColor(Color(0.9, 0.85, 0.05)),
 				  conf, "Schlange1D_" + std::itos(teacher*10000));
 
@@ -128,6 +134,7 @@ public:
     semox->setParam("s4del", 2); // ?
 
     controller = new CrossMotorCoupling( semox, semox);
+    // controller = new SineController();
 
     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     // DerivativeWiringConf wc = DerivativeWiring::getDefaultConf();

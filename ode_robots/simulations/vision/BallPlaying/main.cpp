@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-09-16 15:20:35  martius
+ *   Revision 1.8  2010-09-30 17:07:08  martius
+ *   tests and vision experiments improved
+ *
+ *   Revision 1.7  2010/09/16 15:20:35  martius
  *   simulation improved
  *
  *   Revision 1.6  2010/09/13 09:16:00  martius
@@ -153,7 +156,8 @@ public:
 
     global.odeConfig.setParam("controlinterval",4);
     global.odeConfig.setParam("noise",0.05);
-    global.odeConfig.setParam("fps",1);
+    if(global.odeConfig.realTimeFactor==0)
+      global.odeConfig.setParam("fps",1);
 
     addParameterDef("attraction", &attraction, 0.000);
     addParameterDef("friction", &friction, 1);

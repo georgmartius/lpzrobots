@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-09-24 13:34:56  martius
+ *   Revision 1.3  2010-09-30 17:07:08  martius
+ *   tests and vision experiments improved
+ *
+ *   Revision 1.2  2010/09/24 13:34:56  martius
  *   test for anisotrop friction
  *
  *   Revision 1.1  2010/09/22 07:48:55  martius
@@ -143,9 +146,6 @@
 #include <selforg/one2onewiring.h>
 #include <ode_robots/odeagent.h>
 #include <ode_robots/schlangeservo.h>
-
-// substance to do anisotrop friction
-#include <ode_robots/anisotropfriction.h>
 
 using namespace std;
 
@@ -372,7 +372,7 @@ public:
     
     if(anisotrop_friction){
       OdeHandle anisohandle = odeHandle;
-      anisohandle.substance = AnisotropFriction(.1);
+      anisohandle.substance.toAnisotropFriction(.1, Axis(0,0,1));
       slider = new PassiveBox(anisohandle, osgHandle.changeColor(Color(0,1,1)), 
                                     osg::Vec3(.2,.2,1),1);      
       //      slider->setPose(osg::Matrix::rotate(M_PI/2,0,1,0)* osg::Matrix::translate(2,3,0.1));

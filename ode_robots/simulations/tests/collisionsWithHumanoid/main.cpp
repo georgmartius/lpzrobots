@@ -1,4 +1,4 @@
-#/***************************************************************************
+/***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-09-24 09:25:00  martius
+ *   Revision 1.2  2010-09-30 17:07:08  martius
+ *   tests and vision experiments improved
+ *
+ *   Revision 1.1  2010/09/24 09:25:00  martius
  *   collissions tests changed
  *
  *   Revision 1.2  2010/09/23 08:34:58  martius
@@ -145,9 +148,10 @@ public:
                          GlobalData& globalData){
 
     SkeletonConf conf = Skeleton::getDefaultConfVelServos();      
+    conf.powerfactor=0.1;
     Skeleton* human = new Skeleton(odeHandle, osgHandle, conf, "Humanoid"); 
     human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
-                 *osg::Matrix::translate(0,0,5));
+                 *osg::Matrix::translate(0,0,4));
     
     globalData.configs.push_back(human);
     SeMoXConf cc = SeMoX::getDefaultConf();
