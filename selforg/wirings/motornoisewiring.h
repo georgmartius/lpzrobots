@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-09-27 14:52:58  martius
+ *   Revision 1.5  2010-09-30 17:09:33  martius
+ *   improved makefile again
+ *   examples made them compile
+ *   motornoisewiring improved (was not working anymore)
+ *
+ *   Revision 1.4  2010/09/27 14:52:58  martius
  *   made it compile again
  *
  *   Revision 1.3  2010/03/30 08:48:01  martius
@@ -51,10 +56,11 @@ public:
       @param noise NoiseGenerator that is used for adding noise to motor values  
   */
   MotorNoiseWiring(NoiseGenerator* noise, double noiseStrength)
-    : One2OneWiring(0, Robot),    // no noise at sensors
+    : One2OneWiring(0, Controller),    // no noise at sensors, show Controller x,y and noise
       Configurable("MotorNoiseWiring", "$Id$"),
       mNoiseGen(noise), noiseStrength(noiseStrength) {
     addParameter("strength",&noiseStrength);
+
   }
   virtual ~MotorNoiseWiring(){}
 

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-09-27 14:53:29  martius
+ *   Revision 1.6  2010-09-30 17:09:33  martius
+ *   improved makefile again
+ *   examples made them compile
+ *   motornoisewiring improved (was not working anymore)
+ *
+ *   Revision 1.5  2010/09/27 14:53:29  martius
  *   store randGen for further use
  *
  *   Revision 1.4  2010/07/02 15:57:25  martius
@@ -69,12 +74,12 @@ bool AbstractWiring::init(int robotsensornumber, int robotmotornumber, RandGen* 
   mCsensors.set(csensornumber,1);
   mCmotors.set(cmotornumber,1);
   if(plotMode & Controller) {
-    addInspectableMatrix("x", &mCsensors, false, "sensor values (after wiring)");
-    addInspectableMatrix("y", &mCmotors,  false, "motor values (before wiring)");
+    addInspectableMatrix("x", &mCsensors, false, "sensor values");
+    addInspectableMatrix("y", &mCmotors,  false, "motor values (controller output)");
   }
   if(plotMode & Robot) {
-    addInspectableMatrix("x_R", &mRsensors, false, "sensor values (before wiring)");
-    addInspectableMatrix("y_R", &mRmotors,  false, "motor values (after wiring)");
+    addInspectableMatrix("x_R", &mRsensors, false, "bare sensor values");
+    addInspectableMatrix("y_R", &mRmotors,  false, "motor values (as send to robot)");
   }
   if(plotMode & Noise) {    
     addInspectableMatrix("n", &mNoise, false, "sensor noise");
