@@ -8,14 +8,18 @@ if [ -z "$1" -o  -z "$2" -o "$1" = "-h" ]; then
     exit 0;
 fi
 
-DIRNAME=lpzrobots-`uname -m`
+shopt -s extglob
+DIRNAME=$(ls -d *-`uname -m` | head -n 1)
+echo "$DIRNAME";
 if [ ! -e ${DIRNAME} ]; then
     echo "cannot find binary dist directory: $DIRNAME"
+    exit 1;
 fi
 
 SIMDIR=`dirname $1`
 if [ ! -e ${SIMDIR} ]; then
     echo "cannot find simulation directory"
+    exit 1;
 fi
 
 DEST=$2

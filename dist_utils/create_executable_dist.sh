@@ -6,7 +6,7 @@ if [ ! -x ./start ]; then
 fi
 
 if [ "$1" = "-h" ]; then
-    echo "Usage: $0 [-h] [-n]"
+    echo "Usage: $0 [-h] [-n] [NameOfDist]"
     echo "       -h   help"
     echo "       -n   use the exisiting traces (tracesim and traceguil)"
     exit 0;
@@ -22,20 +22,25 @@ if [ ! "$1" = "-n" ]; then
     
     strace -e trace=open -o traceguil  guilogger
 else
-  if [ -e tracesim -a -e traceguil ]; then
-      echo " I am useing the exising tracesim traceguil."
-  else
-      echo " cannot find the trace files (strace -e trace=open ...) tracesim traceguil."
-      exit -1;
-  fi
+    shift;
+    if [ -e tracesim -a -e traceguil ]; then
+        echo " I am useing the exising tracesim traceguil."
+    else
+        echo " cannot find the trace files (strace -e trace=open ...) tracesim traceguil."
+        exit -1;
+    fi
 fi
 
 # get all so files that are loaded
 cat tracesim traceguil | grep ".*\.so" | grep -v "ENOENT" | grep -v "cache" | grep -v "nvidia" | sed "s/.*\"\(.*\)\".*/\1/" | sort | uniq > libs
 
+BASENAME=lpzrobots
+if [ -n "$1" ]; then
+    BASENAME=$1
+fi
 
-DIRNAME=lpzrobots-`uname -m`
-rm -r $DIRNAME
+DIRNAME=$BASENAME-`uname -m`
+if [ -d $DIRNAME ]; then rm -r $DIRNAME; fi
 mkdir $DIRNAME
 mkdir $DIRNAME/lib
 for F in `grep -v "osgPlugins" libs`; do 
@@ -71,6 +76,38 @@ else
 fi
 
 (
+cat <<EOF
+This is a binary package of lpzrobots (see http://robot.informatik.uni-leipzig.de)
+with a selection of simulations.
+---------------
+How to install:
+Save the $DIRNAME.tar.gz file in a directory of your choice and unpack it, 
+e.g. open a terminal and go to this directory and call
+> tar -xvzf $DIRNAME.tar.gz
+That's it.
+
+-------------
+How to start:
+The enter the new directory $DIRNAME in the terminal window
+ and start one of simulations, for instance
+./OutlineDemo
+
+------------------------
+FAQ and Troubleshooting:
+Q: The simulation aborts with a segmentation fault.
+A: try ./OutlineDemo -noshadow 
+   if this works you can try which shadow types work, see ./OutlineDemo -h
+
+Q: What options and which ways of interaction do I have? 
+A: press 'h' in the graphical window to get an overview. 
+   Important are the mouse actions. Use the mouse buttons to move the camera. 
+   Try different camera modes (1,2,3,4). Press <Ctrl> plus mouse button to drag a robot.
+   The console can be entered by pressing <Ctrl>+C in the terminal. 
+   Type 'help' there. 
+EOF
+) > $DIRNAME/README
+
+(
 cat <<'EOF'
 export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 export PATH=`pwd`/bin:$PATH
@@ -90,4 +127,8 @@ cd $SIM && ./start $@
 EOF
 ) > $DIRNAME/simulationtemplate
 
+
+
 mkdir $DIRNAME/simulations
+
+
