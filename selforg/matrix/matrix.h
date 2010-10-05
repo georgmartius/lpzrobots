@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.35  2010-02-22 17:52:41  martius
+// Revision 1.36  2010-10-05 16:42:12  martius
+// added type Matrices (vector<Matrix>)
+//
+// Revision 1.35  2010/02/22 17:52:41  martius
 // added square norm function and default value for plusLambdaI
 //
 // Revision 1.34  2010/01/26 09:45:55  martius
@@ -216,6 +219,7 @@
 #include <string.h>
 #include <assert.h>
 #include <list>
+#include <vector>
 #include <cstdlib>
 
 #ifndef AVR
@@ -235,19 +239,13 @@ namespace matrix{
   /// integer constant for use with exp function and (^) operator to transpose the matrix
   extern const int T;
 
-#ifndef AVR
 /// type for matrix indices
   typedef unsigned int I;
   /// type for matrix elements
   typedef double D;
-#else
-/// type for matrix indices, if AVR
-/// NOTE: You cannot use matrices bigger than m*n>255 if AVR!
-  typedef unsigned short I;
-  /// type for matrix elements
-  typedef float D;
-#endif
 
+  class Matrix;
+  typedef std::vector<Matrix> Matrices;   
 
 #define D_Zero 0
 #define D_One 1
