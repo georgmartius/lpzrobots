@@ -157,7 +157,7 @@ MultiChannel ChannelData::extractMultiChannel(int* i){
       matrixRE.setPattern(".+\\[(\\d+),(\\d+)\\]"); // regexp for a matrix (e.g. A[0,2])
       
       // scan through
-      while(channels[index].name.startsWith(rootwithbracket)){ // one pass is assured
+      while(index<numchannels && channels[index].name.startsWith(rootwithbracket)){ // one pass is assured
 	if(matrixRE.exactMatch(channels[index].name)){
 	  QStringList matches = matrixRE.capturedTexts();	
 	  int col = matches[1].toInt();
@@ -271,7 +271,7 @@ void ChannelData::setChannelDescription(const ChannelName& name, const ChannelDe
 void ChannelData::setData(const QVector<double>& newdata){
   if(newdata.size() != numchannels) {
     fprintf(stderr,"Number of data entries (%i) does not match number of channels (%i)",
-	    newdata.size(),numchannels);   
+	    newdata.size(),numchannels);  
   }else{
     time++;
     int index = time%buffersize;
