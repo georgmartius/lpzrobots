@@ -25,7 +25,12 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2010-06-30 11:31:11  robot14
+ *  Revision 1.4  2010-10-07 16:50:34  martius
+ *  fixed bug in config loading if channel is in logfile but not in current file
+ *  some debug output
+ *  color gradients with dot instead of komma
+ *
+ *  Revision 1.3  2010/06/30 11:31:11  robot14
  *  VectorPlotChannel specs removed
  *
  *                                                                         *
@@ -99,8 +104,8 @@ void TextureVisualisation::paintGL(){
   for (int i = 0; i < maxX; i++)
     for (int j = 0; j < maxY; j++) {
       QColor color;
-      if(debug) cout << "at pickColor i: " << i << ", " << j << endl;
       color = colorPalette->pickColor(clip(colorPalette->getScaledValue(channel->getValue(i, j))));
+      if(debug) cout << "at pickColor i: " << i << ", " << j << "\t val: " << channel->getValue(i, j) << " \t red:" << color.red() <<endl;
 
       subTex[i][j][0] = (GLubyte) color.red();
       subTex[i][j][1] = (GLubyte) color.green();

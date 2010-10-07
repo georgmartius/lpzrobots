@@ -25,7 +25,12 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-06-30 11:36:59  robot14
+ *   Revision 1.3  2010-10-07 16:50:34  martius
+ *   fixed bug in config loading if channel is in logfile but not in current file
+ *   some debug output
+ *   color gradients with dot instead of komma
+ *
+ *   Revision 1.2  2010/06/30 11:36:59  robot14
  *   removed typo
  *
  *   Revision 1.1  2010/03/30 13:19:09  robot14
@@ -58,7 +63,7 @@ public:
   void load( MatrixVisualizer* mv);
   void save();
   void newOpenedWindow(VisualiserSubWidget* window);
-  static const bool debug = false;
+  static const bool debug = true;
 
 public slots:
   void doQuit();

@@ -25,7 +25,12 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-06-30 11:36:59  robot14
+ *   Revision 1.4  2010-10-07 16:50:34  martius
+ *   fixed bug in config loading if channel is in logfile but not in current file
+ *   some debug output
+ *   color gradients with dot instead of komma
+ *
+ *   Revision 1.3  2010/06/30 11:36:59  robot14
  *   removed typo
  *
  *   Revision 1.2  2010/05/11 16:51:47  robot14
@@ -85,20 +90,30 @@ void configFile::load(MatrixVisualizer* mv){
       }
       if( e.tagName() == "VisualisationWindow" )
       {
-        VisualiserSubWidget* window;
+        VisualiserSubWidget* window = 0;
         if( e.attribute( "mode", "") == "matrix"){
-          window = new VisualiserSubWidget(mv->getMatrixPlotChannel(e.attribute("source", "")),
-              e.attribute("X", "").toInt(), e.attribute("Y", "").toInt(), e.attribute("width", "").toInt(),
-              e.attribute("height", "").toInt(), e.attribute("colorPaletteFile", ""));
-        }else
-          window = new VisualiserSubWidget(mv->getVectorPlotChannel(e.attribute("source", "")),
-                        e.attribute("X", "").toInt(), e.attribute("Y", "").toInt(), e.attribute("width", "").toInt(),
-                        e.attribute("height", "").toInt(), e.attribute("colorPaletteFile", ""));
-
-        window->switchVisMode(e.attribute("visMode", "").toInt());
-        newOpenedWindow(window);
-        matrixVis->connectWindowForUpdate(window);
-        window->show();
+          MatrixPlotChannel* c = mv->getMatrixPlotChannel(e.attribute("source", ""));
+          if(c){
+            window = new VisualiserSubWidget(c, e.attribute("X", "").toInt(), e.attribute("Y", "").toInt(), 
+                                             e.attribute("width", "").toInt(),
+                                             e.attribute("height", "").toInt(), 
+                                             e.attribute("colorPaletteFile", ""));
+          }
+        }else{
+          VectorPlotChannel* c = mv->getVectorPlotChannel(e.attribute("source", ""));
+          if(c){
+            window = new VisualiserSubWidget(c, e.attribute("X", "").toInt(), e.attribute("Y", "").toInt(), 
+                                             e.attribute("width", "").toInt(),
+                                             e.attribute("height", "").toInt(), 
+                                             e.attribute("colorPaletteFile", ""));
+          }            
+        }
+        if(window){
+          window->switchVisMode(e.attribute("visMode", "").toInt());
+          newOpenedWindow(window);
+          matrixVis->connectWindowForUpdate(window);
+          window->show();
+        }
       }
     }
 
