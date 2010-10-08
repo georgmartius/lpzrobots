@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2009-10-02 15:25:40  robot14
+ *  Revision 1.3  2010-10-08 07:41:00  martius
+ *  modified matrixviz.pro and removed selforg/stl_adds from GroupPlotChannel
+ *
+ *  Revision 1.2  2009/10/02 15:25:40  robot14
  *  filters, main app - not finished yet
  *
  *  Revision 1.1  2009/08/13 13:14:04  robot14
@@ -39,7 +42,7 @@
  *                                                                         *
  **************************************************************************/
 #include "GroupPlotChannel.h"
-#include "../../selforg/utils/stl_adds.h"
+#include "tools/stl_adds.h"
 #include "cassert"
 
 using namespace std;
