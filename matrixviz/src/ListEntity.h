@@ -25,7 +25,10 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-06-30 11:37:51  robot14
+ *   Revision 1.3  2010-10-08 10:27:43  martius
+ *   added updateFromData
+ *
+ *   Revision 1.2  2010/06/30 11:37:51  robot14
  *   changed input for position of a stop from QLineEdit to QDoubleSpinBox
  *
  *                                                                         *
@@ -56,6 +59,7 @@ class ListEntity : public QWidget{
     void remClicked();
     void changeColor();
     void changePos(double pos);
+    void updateFromData();
 
   signals:
     void addClicked(int i);

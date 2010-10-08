@@ -25,7 +25,10 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-06-30 11:37:51  robot14
+ *   Revision 1.4  2010-10-08 10:27:35  martius
+ *   added updateFromData
+ *
+ *   Revision 1.3  2010/06/30 11:37:51  robot14
  *   changed input for position of a stop from QLineEdit to QDoubleSpinBox
  *
  *                                                                         *
@@ -52,9 +55,9 @@ ListEntity::ListEntity(int i, QColor color, double pos, QWidget *parent)
   posEdit = new QDoubleSpinBox();
   posEdit->setRange ( -99., 99.);
   posEdit->setValue(pos);
-  posEdit->setDecimals(5);
+  posEdit->setDecimals(2);
   posEdit->setSingleStep(0.1);
-  posEdit->setMinimumSize ( 80, 15 );
+  posEdit->setMinimumSize ( 40, 15 );
   connect(posEdit, SIGNAL(valueChanged(double)), this, SLOT(changePos(double))); //if l losses focus or enter pressed
 
   QPushButton* add = new QPushButton("+");
@@ -105,3 +108,10 @@ void ListEntity::changeColor() { //SLOT //colorchooser
 void ListEntity::changePos(double pos) { //SLOT
   emit changePos(i, pos);
 }
+
+void ListEntity::updateFromData() { //SLOT
+  fillButton();
+  posEdit->setValue(pos);    
+}
+
+
