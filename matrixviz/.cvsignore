@@ -1,12 +1,3 @@
-moc_SphericalRobotSubWidget.cpp
+moc_*
 Makefile
-moc_SphericalRobotGUI.cpp
-moc_SimplePipeReader.cpp
-moc_AbstractPipeFilter.cpp
-moc_SRIRSensorWidget.cpp
-moc_SRMotSpeed2TiltWidget.cpp
 SphericalRobotGUI.pro
-SphericalRobotGUI
-moc_BufferedPipeReader.cpp
-moc_SRGUIPipeFilter.cpp
-moc_SRMotorValueWidget.cpp
