@@ -1,10 +1,10 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
+ *    mam06fyl@studserv.uni-leipzig.de (robot14)                           *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
- *    mam06fyl@studserv.uni-leipzig.de (robot14)                           *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -40,14 +40,17 @@
 #define COMPARE_EPS 1e-5  //GLfloat
 
 struct STOP {
-    QColor color;
-    double pos;
-    bool operator <(const STOP& rhs) { // for sorting
-      return pos < rhs.pos;
-    }
-    bool operator >(const STOP& rhs) { // for sorting
-      return pos > rhs.pos;
-    }
+  STOP() {}
+  STOP( const QColor& color, double pos)
+    : color(color), pos(pos) {};
+  QColor color;
+  double pos;
+  bool operator <(const STOP& rhs) const { // for sorting
+    return pos < rhs.pos;
+  }
+  bool operator ==(const STOP& rhs) const { // for sorting
+    return pos == rhs.pos;
+  }
 };
 
 class ColorPalette : public QWidget{
@@ -61,7 +64,7 @@ public:
   QColor pickColor(double val);
   QColor pickScaledColor(double val);
   double getScaledValue(double val);
-  QVector<STOP*> *stops;
+  QVector<STOP> stops;
 
   void addStop(int num, QRgb color, double pos);
   void deleteStop(int num);
@@ -75,7 +78,7 @@ public:
 public slots:
   void addStop(int i);
   void removeStop(int i);
-  void changeStopColor(int i, QColor color);
+  void changeStopColor(int i,const QColor& color);
   void changeStopPos(int i, double pos);
   void loadStopList();
   void saveStopList();

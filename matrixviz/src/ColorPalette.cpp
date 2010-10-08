@@ -1,10 +1,10 @@
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
+ *    mam06fyl@studserv.uni-leipzig.de (robot14)                           *
  *    martius@informatik.uni-leipzig.de                                    *
  *    fhesse@informatik.uni-leipzig.de                                     *
  *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
- *    mam06fyl@studserv.uni-leipzig.de (robot14)                           *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -36,6 +36,7 @@
 #include <QtXml/QDomElement>
 #include <QFile>
 #include <QFileDialog>
+#include <QtAlgorithms> 
 
 using namespace std;
 
@@ -45,19 +46,12 @@ ColorPalette::ColorPalette(QWidget *parent)
   if( debug) cout << "in CP Konstrunktor" << endl;
   setMaximumWidth(30);
   setMouseTracking(true); // enables tooltips while mousemoving over widget
-  struct STOP *num1 = new STOP, *num2 = new STOP, *num3 = new STOP;
-  QColor red(Qt::red), white(Qt::white), blue(Qt::blue);
-  num1->color = red;
-  num1->pos = -1.;
-  num2->color = white;
-  num2->pos = 0.;
-  num3->color = blue;
-  num3->pos = 1.;
   if( debug) cout << "push_back" << endl;
-  this->stops = new QVector<STOP*>();
-  this->stops->push_back(num1);
-  this->stops->push_back(num2);
-  this->stops->push_back(num3);
+  this->stops.push_back(STOP(QColor(128,0,128), -2));
+  this->stops.push_back(STOP(Qt::red,   -1));
+  this->stops.push_back(STOP(Qt::white, 0));
+  this->stops.push_back(STOP(Qt::blue,  1));
+  this->stops.push_back(STOP(QColor(0,0,128),  2));
   if( debug) cout << "initMaxMin" << endl;
   initMaxMin();
   currentPath = "";
@@ -71,35 +65,35 @@ ColorPalette::~ColorPalette(){}
 void ColorPalette::initMaxMin(){
 //  min = 900000000;
 //  max = -900000000;
-//  for(int i = 0; i < stops->size(); i++){
-//    if( stops->at(i)->pos < min) min = stops->at(i)->pos;
-//    if( stops->at(i)->pos > max) max = stops->at(i)->pos;
+//  for(int i = 0; i < stops.size(); i++){
+//    if( stops[i].pos < min) min = stops[i].pos;
+//    if( stops[i].pos > max) max = stops[i].pos;
 //  }
   //no need to search for.. vector is ordered
-  min = stops->first()->pos;
-  max = stops->last()->pos;
+  min = stops.first().pos;
+  max = stops.last().pos;
 }
 
 QColor ColorPalette::pickColor(double val){
   // if the value is outer range return the color of the range
-  if ( stops->first()->pos > val) return stops->first()->color;
-  if ( stops->last()->pos < val) return stops->last()->color;
-  STOP *pos1 = new STOP, *pos2 = new STOP;
-  pos1->pos = -1000.;//min
-  pos2->pos = 1000.;//max
+  if ( stops.first().pos > val) return stops.first().color;
+  if ( stops.last().pos < val) return stops.last().color;
+  STOP pos1, pos2;
+  pos1.pos = -1000.;//min
+  pos2.pos = 1000.;//max
   // find the nearest stops surrounding for the gradient
-  for ( int i = 0; i < stops->size(); i++){
-    if( stops->at(i)->pos < val && stops->at(i)->pos > pos1->pos){
-      pos1 = stops->at(i);
-    }else if( stops->at(i)->pos > val && stops->at(i)->pos < pos2->pos){
-      pos2 = stops->at(i);
-    }else if ( stops->at(i)->pos == val ) return stops->at(i)->color;
+  for ( int i = 0; i < stops.size(); i++){
+    if( stops[i].pos < val && stops[i].pos > pos1.pos){
+      pos1 = stops[i];
+    }else if( stops[i].pos > val && stops[i].pos < pos2.pos){
+      pos2 = stops[i];
+    }else if ( stops[i].pos == val ) return stops[i].color;
   }
-  int r1 = pos1->color.red(), r2 = pos2->color.red(),
-    g1 = pos1->color.green(), g2 = pos2->color.green(),
-    b1 = pos1->color.blue(), b2 = pos2->color.blue(),
+  int r1 = pos1.color.red(), r2 = pos2.color.red(),
+    g1 = pos1.color.green(), g2 = pos2.color.green(),
+    b1 = pos1.color.blue(), b2 = pos2.color.blue(),
     r,g,b;
-  double p1 = pos1->pos, p2 = pos2->pos;
+  double p1 = pos1.pos, p2 = pos2.pos;
   // linear system to get the quotients
   r = floor(((r2-r1)/(p2-p1)) * (val - p1) + r1);
   g = floor(((g2-g1)/(p2-p1)) * (val - p1) + g1);
@@ -120,8 +114,8 @@ double ColorPalette::getNextStopPosition(double fromVal, double toVal){
   if (debug) cout << "from" << fromVal << "to" << toVal << endl;
   if(fromVal > toVal){
     double nextStop = toVal;
-    for( int i = 0; i < stops->size(); i++){
-      double pos =  stops->at(i)->pos;
+    for( int i = 0; i < stops.size(); i++){
+      double pos =  stops[i].pos;
         if(fromVal > pos && pos > toVal
             && !equals(fromVal, pos) && !equals(fromVal, pos)) {
           nextStop = pos;
@@ -131,12 +125,12 @@ double ColorPalette::getNextStopPosition(double fromVal, double toVal){
     return nextStop;
   }else{
   // fromVal < toVal
-    for (int i = 0; i < stops->size(); i++) {
-      if (fromVal < stops->at(i)->pos && stops->at(i)->pos < toVal
-          && !equals(fromVal, stops->at(i)->pos) && !equals(fromVal, stops->at(i)->pos)){
+    for (int i = 0; i < stops.size(); i++) {
+      if (fromVal < stops[i].pos && stops[i].pos < toVal
+          && !equals(fromVal, stops[i].pos) && !equals(fromVal, stops[i].pos)){
         if (debug) cout << "here" << endl;
-        if (debug) cout << "return:" << stops->at(i)->pos << endl;
-        return stops->at(i)->pos;
+        if (debug) cout << "return:" << stops[i].pos << endl;
+        return stops[i].pos;
       }
     }
     if (debug) cout << "return:" << toVal << endl;
@@ -155,14 +149,12 @@ void ColorPalette::paintEvent(QPaintEvent *){
 }
 
 void ColorPalette::addStop(int num, QRgb color, double pos){
-  STOP *newStop = new STOP;
-  newStop->color = color;
-  newStop->pos = pos;
-  this->stops->insert(num, newStop);
+  STOP newStop(color,pos);
+  this->stops.insert(num, newStop);
 }
 
 void ColorPalette::deleteStop(int num){ //obsolete
-  this->stops->remove(num);
+  this->stops.remove(num);
 }
 
 void ColorPalette::resizeEvent(QResizeEvent *event){
@@ -182,7 +174,7 @@ void ColorPalette::mouseMoveEvent ( QMouseEvent *event ){
 
 //returns the QWidget with all the options content
 QWidget* ColorPalette::makeConfigBox(){
-  if (debug) cout << "in makeView():\nstops.size(): " << stops->size() << endl;
+  if (debug) cout << "in makeView():\nstops.size(): " << stops.size() << endl;
   // befüllen
   //QWidget* test = new QWidget();
   updateList();
@@ -195,11 +187,11 @@ QWidget* ColorPalette::makeConfigBox(){
    */
   QHBoxLayout *minMaxLayout = new QHBoxLayout();
   minEdit = new QLineEdit(QString::number(min, 'f'));
-  minEdit->setInputMask("#09.00000");// O_o
+  minEdit->setInputMask("#09.00");// O_o
   minEdit->setMinimumSize ( 50, 20 );
   connect(minEdit, SIGNAL(textChanged ( const QString &)), this, SLOT(setMin( const QString &)));
   maxEdit = new QLineEdit(QString::number(max, 'f'));
-  maxEdit->setInputMask("#09.00000");// O_o
+  maxEdit->setInputMask("#09.00");// O_o
   maxEdit->setMinimumSize ( 50, 20 );
   connect(maxEdit, SIGNAL(textChanged ( const QString &)), this, SLOT(setMax( const QString &)));
   QPushButton *autoMinMax = new QPushButton("auto");
@@ -251,70 +243,112 @@ QWidget* ColorPalette::makeConfigBox(){
 //redraws the stoplist in the optionwidget
 void ColorPalette::updateList(){
   if ( debug) cout << "in updateList" << endl;
-  stopList->clear();
-  if ( debug) cout << "stoplist clear" << endl;
-  for(int i = 0; i < stops->size(); i++){
-    if ( debug) cout << "i: " << i << endl;
+  // Georg: I implented this completely new. The old version is below. 
+  //  I do no delete the QTWidgets because this causes crashes.
+  //  You deleted them from a signal that they called themselves, this is quite a problem.
+
+  qSort(stops); // sort the list
+  
+  if ( debug) cout << "stoplist update" << endl;
+  for(int i = 0; i < stops.size(); i++){
+    if ( debug) cout << "i: " << i << endl;    
+    if(i >= stopList->count()){
       QListWidgetItem *item = new QListWidgetItem("", stopList);
       item->setSizeHint(QSize(150,30)); //itemwidget wont show up without that (qtbug)
       stopList->addItem(item);
-
-      ListEntity *w = new ListEntity(i, stops->at(i)->color, stops->at(i)->pos);
-
+      ListEntity *w = new ListEntity(i, stops[i].color, stops[i].pos);
       connect(w, SIGNAL(addClicked(int)), this, SLOT(addStop(int)));
       connect(w, SIGNAL(remClicked(int)), this, SLOT(removeStop(int)));
       connect(w, SIGNAL(changeColor(int, QColor)), this, SLOT(changeStopColor(int, QColor)));
       connect(w, SIGNAL(changePos(int, double)), this, SLOT(changeStopPos(int, double)));
       stopList->setItemWidget(item, w);
-    }
+    }else{
+      ListEntity *w = dynamic_cast<ListEntity*>(stopList->itemWidget(stopList->item(i)));
+      if(w){
+        w->i = i;
+        w->color = stops[i].color;
+        w->pos = stops[i].pos;
+        w->updateFromData();
+              // maybe call some update      
+      }
+    }        
+  }
+  // remove the listentires that are too much  
+  for(int i = stops.size(); i < stopList->count() ; i++){
+    QListWidgetItem *item = stopList->takeItem(i);
+    delete item;
+    i--;     
+  }
+  
+
+  // OLD VERSION
+  // stopList->clear();
+  // if ( debug) cout << "stoplist clear" << endl;
+  // for(int i = 0; i < stops.size(); i++){
+  //   if ( debug) cout << "i: " << i << endl;
+  //     QListWidgetItem *item = new QListWidgetItem("", stopList);
+  //     item->setSizeHint(QSize(150,30)); //itemwidget wont show up without that (qtbug)
+  //     stopList->addItem(item);
+
+  //     ListEntity *w = new ListEntity(i, stops[i].color, stops[i].pos);
+
+  //     connect(w, SIGNAL(addClicked(int)), this, SLOT(addStop(int)));
+  //     connect(w, SIGNAL(remClicked(int)), this, SLOT(removeStop(int)));
+  //     connect(w, SIGNAL(changeColor(int, QColor)), this, SLOT(changeStopColor(int, QColor)));
+  //     connect(w, SIGNAL(changePos(int, double)), this, SLOT(changeStopPos(int, double)));
+  //     stopList->setItemWidget(item, w);
+  //   }
 }
 
 void ColorPalette::addStop(int i){ //SLOT
   //int QListWidget::currentRow () const
   if (debug) cout << "in addStop() i: " << i << endl;
-  STOP *newEntry = new STOP;
-  newEntry->pos = stops->at(i)->pos + 0.001;
-  newEntry->color = Qt::white;
-  stops->insert(i+1, newEntry);
+  STOP newEntry;
+  newEntry.pos = stops[i].pos + 0.001;
+  newEntry.color = Qt::white;
+  stops.insert(i+1, newEntry);
   updateList();
   update();
 }
 
-void ColorPalette::changeStopColor(int i, QColor color){ //SLOT
-  stops->at(i)->color = color;
+void ColorPalette::changeStopColor(int i, const QColor& color){ //SLOT
+  stops[i].color = color;
   update();
 }
 
 // change the stopposition in the stoplist and redraw the list in the optionwidget
-void ColorPalette::changeStopPos(int i, double pos){ //SLOTdelete stopList->takeItem(i);
+void ColorPalette::changeStopPos(int i, double pos){ //SLOTdelete stopList->takeItem(i);  
   if (debug) cout << "in ColorPaletteDialog::changeStopPos()..." << endl;
-  stops->at(i)->pos = pos;
-  //maybe reorder
-  bool changed = false;
-  for(int j = i; j > 0; j--){
-    if(stops->at(i)->pos < stops->at(i-1)->pos) {
-      STOP *temp = stops->at(i);
-      stops->remove(i);
-      stops->insert(i-1, temp);
-      changed = true;
-    }
-  }
-  for(int j = i; j <= stops->last()->pos; j++){
-    if (stops->at(i)->pos > stops->at(i + 1)->pos) {
-      STOP *temp = stops->at(i);
-      stops->remove(i);
-      stops->insert(i + 1, temp);
-      changed = true;
-    }
-  }
-//  if (changed)
+  stops[i].pos = pos;
+
+  // Georg: sorting is not done in updateList
+//   //maybe reorder
+//   bool changed = false;
+//   for(int j = i; j > 0; j--){
+//     if(stops[i].pos < stops[i-1].pos) {
+//       STOP temp = stops[i];
+//       stops.remove(i);
+//       stops.insert(i-1, temp);
+//       changed = true;
+//     }
+//   }
+//   for(int j = i; j <= stops.last().pos; j++){
+//     if (stops[i].pos > stops[i + 1].pos) {
+//       STOP temp = stops[i];
+//       stops.remove(i);
+//       stops.insert(i + 1, temp);
+//       changed = true;
+//     }
+//   }
+// //  if (changed)
+
     updateList();
   update();
 
 }
 void ColorPalette::removeStop(int i){ //SLOT
-  if( stops->size() > 2){
-    stops->remove(i);
+  if( stops.size() > 2){
+    stops.remove(i);
 //    emit refresh();
     update();
     updateList();
@@ -358,27 +392,27 @@ void ColorPalette::loadStopListFromFile(QString filename) {
     QMessageBox::warning(this, "", "Can't find Stops");
     return;
   }
-  stops->clear();
+  stops.clear();
   if (debug) cout << "stops clear" << endl;
   QDomNode n = root.firstChild();
   while (!n.isNull()) {
     QDomElement e = n.toElement();
     if (!e.isNull()) {
       if (e.tagName().startsWith("Stop")) {
-        STOP *s = new STOP;
-
-        s->pos = e.attribute("Position", "").toDouble();
-        s->color = QColor(e.attribute("R", "").toDouble(), e.attribute("G", "").toDouble(),
+        STOP s;
+        s.pos = e.attribute("Position", "").toDouble();
+        s.color = QColor(e.attribute("R", "").toDouble(), e.attribute("G", "").toDouble(),
             e.attribute("B", "").toDouble());
 
-        stops->push_back(s);
+        stops.push_back(s);
         if (debug) cout << "stops push_back" << endl;
       }
     }
     n = n.nextSibling();
   }
-  if (debug) cout << "updatelist" << endl;
+  if (debug) cout << "updatelist" << endl;  
   updateList();
+  autoSetMinMax();
   if (debug) cout << "loading complete" << endl;
 }
 
@@ -389,12 +423,12 @@ void ColorPalette::saveStopList(){
   QDomElement root = doc.createElement( "Stops" );
   doc.appendChild( root );
 
-  for (int i = 0; i < stops->size(); i++){
+  for (int i = 0; i < stops.size(); i++){
     QDomElement stop = doc.createElement( QString("Stop").append(QString::number(i+1)));
-    stop.setAttribute( "Position", stops->at(i)->pos );
-    stop.setAttribute( "R", stops->at(i)->color.red() );
-    stop.setAttribute( "G", stops->at(i)->color.green() );
-    stop.setAttribute( "B", stops->at(i)->color.blue() );
+    stop.setAttribute( "Position", stops[i].pos );
+    stop.setAttribute( "R", stops[i].color.red() );
+    stop.setAttribute( "G", stops[i].color.green() );
+    stop.setAttribute( "B", stops[i].color.blue() );
     root.appendChild(stop);
   }
 
