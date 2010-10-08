@@ -25,7 +25,11 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *  $Log$
- *  Revision 1.4  2010-10-07 16:50:34  martius
+ *  Revision 1.5  2010-10-08 10:29:01  martius
+ *  added some schemas
+ *  buffersize is 64 and maximal 128 now
+ *
+ *  Revision 1.4  2010/10/07 16:50:34  martius
  *  fixed bug in config loading if channel is in logfile but not in current file
  *  some debug output
  *  color gradients with dot instead of komma
@@ -78,11 +82,11 @@ void TextureVisualisation::initializeGL(){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
   //initialize texture
-  for(int i = 0; i < 64; i++)
-    for(int j = 0; j < 64; j++)
+  for(int i = 0; i < texSize; i++)
+    for(int j = 0; j < texSize; j++)
       for(int k = 0; k < 3; k++) tex[i][j][k] = (GLubyte) 255;
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 64, 64, 0, GL_RGB, GL_UNSIGNED_BYTE, tex);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texSize, texSize, 0, GL_RGB, GL_UNSIGNED_BYTE, tex);
 }
 
 void TextureVisualisation::resizeGL(int w, int h){
@@ -138,7 +142,7 @@ GLuint TextureVisualisation::makeObject() {
   glEnable(GL_TEXTURE_2D);
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
   //glBindTexture(GL_TEXTURE_2D, texName);
-  double onePixel = 1./64;
+  double onePixel = 1./texSize;
   glBegin( GL_QUADS); // Draw A Quadab
   glTexCoord2d(0.0,0.0);glVertex2f(-1.0f, 1.0f); // Top Left
   glTexCoord2d(onePixel*maxY,0.0);glVertex2f(1.0f, 1.0f); // Top Right

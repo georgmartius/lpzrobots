@@ -8,9 +8,7 @@
 #ifndef VECTORPLOTVISUALISATION_H_
 #define VECTORPLOTVISUALISATION_H_
 #include "AbstractVisualisation.h"
-#include <qgl.h> //"/usr/include/qt4/QtOpenGL/QGLWidget"
-//#include "../ColorPalette.h"
-//#include "../Channel/VectorPlotChannel.h"
+#include <qgl.h> 
 
 class VectorPlotVisualisation: public AbstractVisualisation {
   Q_OBJECT

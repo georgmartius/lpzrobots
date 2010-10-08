@@ -25,7 +25,11 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-06-30 11:39:04  robot14
+ *   Revision 1.7  2010-10-08 10:29:01  martius
+ *   added some schemas
+ *   buffersize is 64 and maximal 128 now
+ *
+ *   Revision 1.6  2010/06/30 11:39:04  robot14
  *   removed VectorPlotChannel specs
  *
  *                                                                         *
@@ -212,8 +216,8 @@ void VisualiserSubWidget::addVectorOptions(){
   QHBoxLayout *hBoxLayout = new QHBoxLayout();
   hBoxLayout->setContentsMargins(0,0,0,0);
   vectorBuffersizeSpinBox = new QSpinBox();
-  vectorBuffersizeSpinBox->setRange(1,1000);
-  vectorBuffersizeSpinBox->setValue(40);
+  vectorBuffersizeSpinBox->setRange(1,128);
+  vectorBuffersizeSpinBox->setValue(64);
   hBoxLayout->addWidget(vectorBuffersizeSpinBox);
 
   QPushButton *setButton = new QPushButton("set");

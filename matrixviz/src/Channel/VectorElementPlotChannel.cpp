@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2010-06-30 11:35:44  robot14
+ *  Revision 1.3  2010-10-08 10:29:01  martius
+ *  added some schemas
+ *  buffersize is 64 and maximal 128 now
+ *
+ *  Revision 1.2  2010/06/30 11:35:44  robot14
  *  fixed buffer
  *
  *  Revision 1.1  2010/03/30 13:18:26  robot14
@@ -42,7 +46,7 @@
 
 using namespace std;
 
-VectorElementPlotChannel::VectorElementPlotChannel(string name) : AbstractPlotChannel(name), bufferSize(40), ringBufferIndex(0) {
+VectorElementPlotChannel::VectorElementPlotChannel(string name) : AbstractPlotChannel(name), bufferSize(64), ringBufferIndex(0) {
   if (debug) cout << "VEPC konstruktor von: " << name << endl;
   ringBuffer.resize(bufferSize, 0.);
 }
