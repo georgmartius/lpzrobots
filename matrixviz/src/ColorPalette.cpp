@@ -327,7 +327,7 @@ void ColorPalette::removeStop(int i){ //SLOT
 }
 
 void ColorPalette::loadStopList(){
-  loadStopListFromFile(QFileDialog::getOpenFileName(this, tr("Load File"), "/home", tr("XML files (*.xml)")));
+  loadStopListFromFile(QFileDialog::getOpenFileName(this, tr("Load File"), currentPath, tr("XML files (*.xml)")));
   update();
 }
 
