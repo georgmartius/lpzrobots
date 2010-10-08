@@ -8,7 +8,7 @@ SimplePipeReader::SimplePipeReader()
 {
 
 //   signal(SIGPIPE,SIG_IGN);
-  std::cout << "new SimplePipeReader()" << std::endl;
+  if(debug) std::cout << "new SimplePipeReader()" << std::endl;
   input_line = new QTextStream ( stdin, QIODevice::ReadOnly );
   currentChannelLine = "";
   currentDataLine = "";
@@ -20,7 +20,7 @@ SimplePipeReader::SimplePipeReader()
 
 void SimplePipeReader::run()
 {
-  std::cout << "SimplePipeReader: start()" << std::endl;
+  if(debug) std::cout << "SimplePipeReader: start()" << std::endl;
   bool closing=false;
   QByteArray charList;
 //   int counter = 0;
@@ -31,13 +31,13 @@ void SimplePipeReader::run()
       if ( line.isEmpty() ) continue;
 
     if ( line.startsWith ( "#QUIT" ) ) {
-      std::cout << "SimplePipeReader: have seen #QUIT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+      if(debug)  std::cout << "SimplePipeReader: have seen #QUIT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
       closing = true;
       break;
     }
 
     if ( line.startsWith ( "#RESET" ) ) {
-      std::cout << "SimplePipeReader: have seen #RESET **************************" << std::endl;
+      if(debug) std::cout << "SimplePipeReader: have seen #RESET **************************" << std::endl;
 
 
     }
@@ -46,7 +46,7 @@ void SimplePipeReader::run()
     if (debug) std::cout << "currDatalin: " << (currentDataLine.section(' ', 0, 0)).toDouble();
     if (debug) std::cout << "oldline: " << (line.section(' ', 0, 0)).toDouble() << std::endl;
     if ( (currentChannelLine.size() > 2)
-        && (line.section(' ', 0, 0) != currentDataLine.section(' ', 0, 0))) {
+         && (line.section(' ', 0, 0) != currentDataLine.section(' ', 0, 0))) {
           currentDataLine = line;
        //std::cout << "SimplePipeReader currentDataLine: [" << currentDataLine.toStdString() << "]" << std::endl;
           emit newData(); //wenn timestamp geändert (erstes element)
@@ -67,13 +67,13 @@ void SimplePipeReader::run()
 //      }
     }
 
-  std::cout << "SimplePipeReader SIGNAL(finished())" << std::endl;
+  if(debug) std::cout << "SimplePipeReader SIGNAL(finished())" << std::endl;
   emit(finished());
 }
 
 bool SimplePipeReader::readyForData()
 {
-   std::cout << "SimplePipeReader: waitForChannelData() ------START" << std::endl;
+  if (debug) std::cout << "SimplePipeReader: waitForChannelData() ------START" << std::endl;
   if (currentChannelLine.size()<2) {
       wait(100);
     return false;

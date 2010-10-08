@@ -110,7 +110,7 @@ class AbstractPipeFilter : public QObject {
     AbstractPipeReader* apr;
 
     virtual void createChannelList() {
-      std::cout << "AbstractPipeFilter: createChannelList()" << std::endl;
+      if(debug) std::cout << "AbstractPipeFilter: createChannelList()" << std::endl;
 
       while (!(apr->readyForData())) {
       }
@@ -129,21 +129,21 @@ class AbstractPipeFilter : public QObject {
       // channel iterator must be increment to jump over this timestamp
       it_channel++;
 
-      std::cout << "tmp_list: [timestamp,";
+      if(debug) std::cout << "tmp_list: [timestamp,";
 
       for (std::list<std::string>::iterator it_description = description_list.begin(); it_description
           != description_list.end(); it_description++) {
-        printf("%s,", (*it_description).c_str());
+        if(debug) printf("%s,", (*it_description).c_str());
         tmp_list.push_back((*it_description));
         it_channel++;
       }
 
       for (; it_channel != channel_list.end(); it_channel++) {
-        printf("%s,", (*it_channel).c_str());
+        if(debug) printf("%s,", (*it_channel).c_str());
         tmp_list.push_back((*it_channel));
       }
 
-      std::cout << "]" << std::endl;
+      if(debug) std::cout << "]" << std::endl;
 
       // jump to second position
       //    it++;
@@ -172,6 +172,7 @@ class AbstractPipeFilter : public QObject {
       //further channels will be add here...
 
 
+      if(debug) std::cout << "(" << std::endl;
       int index = 0;
       for (std::list<std::string>::iterator i = tmp_list.begin(); i != tmp_list.end(); i++) {
         AbstractPlotChannel* newChannel = createChannel((*i));
@@ -179,17 +180,20 @@ class AbstractPipeFilter : public QObject {
         if (newChannel != 0) {
           channelList.push_back(newChannel);
           channelIndexList.push_back(index);
-          std::cout << "+[" << newChannel->getChannelName() << "]";
+          if(debug) std::cout << "+[" << newChannel->getChannelName() << "]";
         } else
-          std::cout << "-[" << (*i) << "]";
+          if(debug) std::cout << "-[" << (*i) << "]";
 
         index++;
       }
 
-      std::cout << ")" << std::endl;
+      if(debug) std::cout << ")" << std::endl;
     }
 
     virtual AbstractPlotChannel* createChannel(std::string name) = 0;
+
+  private:
+    static const bool debug = false;
 
 };
 
