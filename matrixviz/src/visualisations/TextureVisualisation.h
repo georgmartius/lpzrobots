@@ -25,7 +25,10 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2010-06-30 11:31:11  robot14
+ *  Revision 1.4  2010-10-08 10:24:35  martius
+ *  default size to 128
+ *
+ *  Revision 1.3  2010/06/30 11:31:11  robot14
  *  VectorPlotChannel specs removed
  *
  *                                                                         *
@@ -61,7 +64,9 @@ protected:
 private:
   GLuint object;
   GLuint texName;
-  GLubyte tex[64][64][3];
+  const static int texSize = 128;
+
+  GLubyte tex[texSize][texSize][3];
   int maxX, maxY;
   const static bool debug = false;
 
