@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-08-03 12:51:17  martius
+ *   Revision 1.3  2010-10-13 12:41:44  martius
+ *   changed to new version of hexapod now which is in lpzrobots
+ *
+ *   Revision 1.2  2010/08/03 12:51:17  martius
  *   hexapod adapted Velocity servos
  *
  *   Revision 1.1  2010/07/06 08:36:30  martius
@@ -57,8 +60,9 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/feedbackwiring.h>
 #include <selforg/stl_adds.h>
+#include <selforg/sox.h>
 
-#include "hexapod.h"
+#include <ode_robots/hexapod.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -109,14 +113,23 @@ public:
       
     /*******  H E X A P O D  *********/
     HexapodConf myHexapodConf = Hexapod::getDefaultConf();
+    // myHexapodConf.coxaPower=0.8;
+    // myHexapodConf.tebiaPower=1;
+    myHexapodConf.useBigBox=true;
+    myHexapodConf.tarsus=true;
+    myHexapodConf.numTarsusSections = 2;
+    myHexapodConf.useTarsusJoints = true;
+
+
     OdeHandle rodeHandle = odeHandle;
     rodeHandle.substance.toRubber(20);
 
+    
     vehicle = new Hexapod(rodeHandle, osgHandle.changeColor(Color(1,1,1)), 
 			  myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
 
     // on the top
-    vehicle->place(osg::Matrix::rotate(M_PI,1,0,0)*osg::Matrix::translate(0,0,3));
+    vehicle->place(osg::Matrix::rotate(M_PI*0,1,0,0)*osg::Matrix::translate(0,0,3));
     // normal position
     //    vehicle->place(osg::Matrix::translate(0,0,0));
     global.configs.push_back(vehicle);
@@ -129,6 +142,14 @@ public:
 //     semox->setParam("steps", 1);
 //     semox->setParam("continuity", 0.005);
 //     semox->setParam("teacher", teacher);
+
+    SoXConf sc = SoX::getDefaultConf();
+    sc.useHiddenContr=true;
+    sc.useHiddenModel=false;
+    sc.someInternalParams=false;
+    sc.useS=false;
+    SoX* sox = new SoX(sc);
+    sox->setParam("logaE",0);
 
     SeMoXConf cc = SeMoX::getDefaultConf();    
     //cc.cInit=.95;
@@ -158,7 +179,8 @@ public:
     if(useSineController){
       controller = sine;
     }else{
-      controller = semox;
+      //      controller = semox;
+      controller = sox;
     }
 
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
