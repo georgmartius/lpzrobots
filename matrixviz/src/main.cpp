@@ -41,15 +41,13 @@ void signal_handler_init(){
 
 int main(int argc, char *argv[])
 {
-
-//   signal_handler_init();
+  signal_handler_init();
 
   QApplication app(argc, argv);
-
-
-
   MatrixVisualizer gui;
+  int rv = app.exec();
 
-  return app.exec();
+  signal_handler_exit();
+  return rv;
 }
 
