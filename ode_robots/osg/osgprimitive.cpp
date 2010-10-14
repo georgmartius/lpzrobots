@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2010-09-24 09:00:04  martius
+ *   Revision 1.25  2010-10-14 15:42:40  martius
+ *   checking for the config
+ *
+ *   Revision 1.24  2010/09/24 09:00:04  martius
  *   fixed lighing bug! Juhu. The StateSet was shared such that the material
  *    was shared. In this way the last material was used for all primitives
  *
@@ -281,7 +284,7 @@ namespace lpzrobots {
   }
   
   void OSGPrimitive::applyTextures(){
-    if (osgHandle.cfg->noGraphics)
+    if (!osgHandle.cfg || osgHandle.cfg->noGraphics)
       return;
     // this is only the default implementation. For Non-ShapeDrawables this most prob. be overloaded
     if(textures.size() > 0){
@@ -299,7 +302,7 @@ namespace lpzrobots {
   }
 
   void OSGPrimitive::setColor(const Color& color){
-    if (osgHandle.cfg->noGraphics)
+    if (!osgHandle.cfg || osgHandle.cfg->noGraphics)
       return;
     if(shape.valid())
       shape->setColor(color);
@@ -401,7 +404,7 @@ namespace lpzrobots {
   }
   void OSGBox::setDim(Vec3 d){
     dim = d;
-    if (osgHandle.cfg->noGraphics)
+    if (!osgHandle.cfg || osgHandle.cfg->noGraphics)
       return;
     box->setHalfLengths(d/2.0);
     shape->dirtyDisplayList(); // this is important, otherwise we don't see the changes.
@@ -419,7 +422,7 @@ namespace lpzrobots {
     this->osgHandle=osgHandle;
     assert(osgHandle.parent || osgHandle.cfg->noGraphics);
     transform = new MatrixTransform;
-    if (osgHandle.cfg->noGraphics)
+    if (!osgHandle.cfg || osgHandle.cfg->noGraphics)
       return;
     osgHandle.parent->addChild(transform.get());
 
