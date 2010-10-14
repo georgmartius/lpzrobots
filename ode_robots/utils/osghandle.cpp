@@ -22,7 +22,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-09-27 14:56:57  martius
+ *   Revision 1.14  2010-10-14 15:42:18  martius
+ *   config is also set to 0
+ *
+ *   Revision 1.13  2010/09/27 14:56:57  martius
  *   removed old constructor
  *
  *   Revision 1.12  2010/03/22 14:33:19  martius
@@ -105,8 +108,9 @@
 
 namespace lpzrobots {
 
-  OsgHandle::OsgHandle( ) 
-    : drawBoundings(false), scene(0), parent(0) {
+  OsgHandle::OsgHandle()
+    : drawBoundings(false), cfg(0), scene(0), parent(0) 
+  {
   };
 
 
