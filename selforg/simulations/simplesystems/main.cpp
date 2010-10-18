@@ -12,7 +12,7 @@
 #include <selforg/homeokinesis.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/sinecontroller.h>
-//#include <selforg/dercontroller.h>
+#include <selforg/motorbabbler.h>
 //#include <selforg/semox.h>
 //#include <selforg/crossmotorcoupling.h>
 //#include <selforg/universalcontroller.h>
@@ -301,7 +301,10 @@ int main(int argc, char** argv){
 //  AbstractController* controller = new InvertNChannelController(10,false);
 
 //   AbstractController* controller = new SineController();
-  AbstractController* controller = new Homeokinesis();
+  //AbstractController* controller = new Homeokinesis();
+  
+  AbstractController* controller = new MotorBabbler();
+
 
   controller->setParam("epsC",     0.1);
   
