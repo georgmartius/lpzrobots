@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-04-28 07:57:41  guettler
+ *   Revision 1.14  2010-10-18 15:08:35  martius
+ *   matrices are now explicitly const (as it should be)
+ *
+ *   Revision 1.13  2010/04/28 07:57:41  guettler
  *   getInternalParams: additional check if m->first is valid
  *
  *   Revision 1.12  2009/10/14 09:58:42  martius
@@ -139,9 +142,9 @@ void Inspectable::addInspectableValue(const iparamkey& key, iparamval* val,
     addInspectableDescription(key, descr);
 }
 
-void Inspectable::addInspectableMatrix(const iparamkey& key, matrix::Matrix* m, 
+void Inspectable::addInspectableMatrix(const iparamkey& key, const matrix::Matrix* m, 
                                        bool only4x4AndDiag, const std::string& descr) {
-  mapOfMatrices+=imatrixpair(key, std::pair<matrix::Matrix*, bool>(m, only4x4AndDiag) );
+  mapOfMatrices+=imatrixpair(key, std::pair<const matrix::Matrix*, bool>(m, only4x4AndDiag) );
   if(!descr.empty())
     addInspectableDescription(key+"_", descr);
 }
