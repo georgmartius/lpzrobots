@@ -20,7 +20,7 @@ help:
 ##!prepare	build tools and create dependency files (do that first)
 prepare: usage 
 	-$(MAKE) guilogger
-	-$(MAKE) neuronviz
+	-$(MAKE) matrixviz
 	-$(MAKE) soundman
 	-$(MAKE) javacontroller
 	cd selforg && $(MAKE) depend
@@ -85,7 +85,7 @@ clean-all: usage
 	cd ga_tools/simulations && $(MAKE) clean
 	rm -f Makefile.conf
 
-##!clean-all	see clean-all
+##!distclean	see clean-all
 distclean :  clean-all
 
 ##!********* less common targets ***********
@@ -103,10 +103,10 @@ conf: usage
 guilogger:
 	cd guilogger && ./configure && make
 
-.PHONY: neuronviz
-##!neuronviz	compile neuronviz
-neuronviz:
-	cd neuronviz/src && $(MAKE)
+.PHONY: matrixviz
+##!matrixviz	compile matrixviz
+matrixviz:
+	cd matrixviz && $(MAKE)
 
 .PHONY: javactrl
 ##!javactrl	compile javacontroller (experimental)
@@ -129,11 +129,18 @@ uninstall_ode:
 .PHONY: install_utils
 install_utils:
 	-mkdir -p $(PREFIX)bin $(PREFIX)/lib/soundMan $(PREFIX)share/lpzrobots
-	-cd neuronviz/src && $(MAKE) PREFIX=$(PREFIX) install
+	-@if [ -d matrixviz/bin/matrixviz.app ]; then \
+          cp matrixviz/bin/matrixviz.app/Contents/MacOS/matrixviz $(PREFIX)/bin/ && echo "===> copied matrixviz.app to $(PREFIX)/bin/"; \
+         elif [ -e matrixviz/bin/matrixviz ]; then \
+	   cp matrixviz/bin/matrixviz $(PREFIX)/bin/ && echo "===> copied matrixviz to $(PREFIX)/bin/"; \
+	 fi
 	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX) install	
 	-@if [ -d guilogger/bin/guilogger.app ]; then \
-          cp guilogger/bin/guilogger.app/Contents/MacOS/guilogger $(PREFIX)/bin/ && echo "copied guilogger to $(PREFIX)/bin/"; \
-         else cp guilogger/bin/guilogger $(PREFIX)/bin/ && echo "copied guilogger to $(PREFIX)/bin/";  fi
+          cp guilogger/bin/guilogger.app/Contents/MacOS/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
+         elif [ -e guilogger/src/bin/guilogger ]; then \
+	   cp guilogger/src/bin/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
+	 else cp guilogger/bin/guilogger $(PREFIX)/bin/  && echo "===> copied guilogger to $(PREFIX)/bin/"; \
+	fi	
 	-cp soundman/class/*.class $(PREFIX)/lib/soundMan/
 	-cp soundman/bin/soundMan $(PREFIX)/bin/soundMan
 	sed -i -e "s|PREFIX=.*|PREFIX=$(PREFIX)|" $(PREFIX)/bin/soundMan
@@ -167,10 +174,9 @@ uninstall_intern:
 	cd selforg/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
 	@echo "*************** Uninstall ode_robots ******************"
 	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
-
-	-cd neuronviz/src && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall
+	-rm -f $(PREFIX)/bin/guilogger
+	-rm -f $(PREFIX)/bin/matrixviz
 	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX) uninstall
-	-cd guilogger && make DESTDIR=$(PREFIX)/bin uninstall
 	-rm -f $(PREFIX)/lib/soundMan/SoundMan*.class
 	-rm -f $(PREFIX)/bin/soundMan
 ifeq ($(TYPE),user)
