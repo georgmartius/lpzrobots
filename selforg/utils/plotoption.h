@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.4  2009-10-27 11:44:30  robot14
+ *  Revision 1.5  2010-10-18 15:16:21  martius
+ *  MatrixVis to MatrixViz
+ *
+ *  Revision 1.4  2009/10/27 11:44:30  robot14
  *  matrixvis added
  *
  *  Revision 1.3  2009/08/05 22:53:02  martius
@@ -71,8 +74,8 @@ enum PlotMode {
   GuiLogger,
   /// plotting with guiscreen (gnuplot) in file logging mode
   GuiLogger_File,
-  /// plotting with matrixVisualiser
-  MatrixVis,
+  /// plotting with matrixVisualizer
+  MatrixViz,
   /// net visualiser
   NeuronViz,
 

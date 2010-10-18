@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.8  2010-07-11 22:04:13  martius
+ *  Revision 1.9  2010-10-18 15:16:06  martius
+ *  MatrixVis to MatrixViz
+ *
+ *  Revision 1.8  2010/07/11 22:04:13  martius
  *  ported to MinGW/Msys
  *
  *  Revision 1.7  2009/11/26 16:53:28  fhesse
@@ -96,8 +99,8 @@ bool PlotOption::open(){
   case GuiLogger:
     pipe=popen("guilogger -m pipe","w");
     break;
-  case MatrixVis:
-    pipe=popen("MatrixViz","w");
+  case MatrixViz:
+    pipe=popen("matrixviz","w");
     if (pipe) std::cout << "MatrixViz-Sream opened" << std::endl;
     else std::cout << "MatrixViz-Sream open failed" << std::endl;
     break;
@@ -152,7 +155,7 @@ void PlotOption::close(){
       pclose(pipe);
       std::cout << "neuronviz pipe closing...SUCCESSFUL" << std::endl;
       break;
-    case MatrixVis:
+    case MatrixViz:
     //       std::cout << "Try to close ECBRobotGUI pipe...";
       fprintf(pipe, "#QUIT\n");
       pclose(pipe);
@@ -188,7 +191,7 @@ void PlotOption::flush(long step){
     case GuiLogger:
     case GuiLogger_File:
     case NeuronViz:
-    case MatrixVis:
+    case MatrixViz:
     case ECBRobotGUI:
     case SoundMan:{
       int ttt = fflush(pipe);
