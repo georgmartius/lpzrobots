@@ -4,6 +4,7 @@
 using namespace std; 
 
 #include <selforg/multilayerffnn.h>
+#include <selforg/controllernet.h>
 #include <selforg/som.h>
 #include <selforg/neuralgas.h>
 #include <selforg/matrix.h>
@@ -42,6 +43,7 @@ MultiLayerFFNN testnonlinear(){
   double i2[2] = {-1, 0};
   double i3[2] = {-1, 1};
   double i4[2] = { 1, 1};
+
 
   vector<Layer> layers;
   layers.push_back(Layer(3, 0.5 , FeedForwardNN::tanh));
@@ -97,6 +99,9 @@ void testinvertation(MultiLayerFFNN net){
   o = net.process(input+eta);
   cout << "Shifted Output after inversion: " << (o^T) << endl;
 }
+
+
+
 
 void testsom1D(){
   SOM net(1, 5, 0.1,1,"SOM", "01");
@@ -212,59 +217,146 @@ void testneuralgas(){
   fclose(f);
 }
 
+void testprojections(ControllerNet net){
+  double i0[2] = {0,  1.0};
+  Matrix input (2, 1, i0);
+  double xsi_[2] = {-.05,.1};
+  Matrix xsi(2,1,xsi_);
+  Matrix o = net.process(input);
+  cout << "Normal input/ output: " << (input^T) << " / " << (o^T) << endl;
+  for(unsigned int i=0; i<net.getLayerNum();i++){
+    cout << "layer " << i << ": " << endl << net.getWeights(i) << endl;
+    cout << " output: " << (net.getLayerOutput(i)^T) << endl;
+  }
+  Matrices zeta1;
+  Matrix xsi_fw   = net.forwardpropagation(xsi, 0, &zeta1);
+  Matrices zeta2;
+  Matrix xsi_rec = net.backprojection(xsi_fw, 0, &zeta2);  
+  cout << "ForwardProp -> BackProj = ID" << endl;
+  cout << "Shift: " << (xsi^T) << endl;
+  cout << "fw propagation: " << (xsi_fw^T) <<  endl; 
+  FOREACHC(Matrices, zeta1, z){
+    cout << " | zeta " << ((*z)^T);
+  }
+
+  cout << endl << " and backprojection " << (xsi_rec^T) << endl;
+  FOREACHC(Matrices, zeta2, z){
+    cout << " | zeta " << ((*z)^T);
+  } 
+  cout << endl << "==>Difference (should be zero) :" << ((xsi - xsi_rec)^T) << endl;
+  Matrix o2 = net.process(input+xsi);
+  cout << "forward test: input+xsi/ output': " << ((input+xsi)^T) << " / " << (o2^T) << endl;
+  cout << "--- Difference: " << ((o+xsi_fw - o2)^T) << endl;
+
+
+  xsi_fw   = net.forwardprojection(xsi, 0, &zeta1);
+  xsi_rec = net.backpropagation(xsi_fw, 0, &zeta2);  
+  cout << "ForwardProj -> BackProp = ID" << endl;
+  cout << "Shift: " << (xsi^T) << endl;
+  cout << "fw projection: " << (xsi_fw^T) <<  endl; 
+  FOREACHC(Matrices, zeta1, z)
+    cout << " | zeta " << ((*z)^T);
+  cout << endl << " and backpropagation " << (xsi_rec^T) << endl;
+  FOREACHC(Matrices, zeta2, z){
+    cout << " | zeta " << ((*z)^T);
+  } 
+  cout << endl << "==>Difference (should be zero) :" << ((xsi - xsi_rec)^T) << endl;
+
+}
+
+
+int controllernettest(){
+  vector<Layer> layers1;
+  layers1.push_back(Layer(2,0));
+  ControllerNet netlinear(layers1);
+  netlinear.init(2,2,0,1);
+
+  vector<Layer> layers2;
+  layers2.push_back(Layer(2, 0.1, FeedForwardNN::tanhr));
+  layers2.push_back(Layer(2));
+  ControllerNet netnonlinear(layers2);
+  netnonlinear.init(2,2,0,1);
+
+  vector<Layer> layers3;
+  layers3.push_back(Layer(2, 0.1, FeedForwardNN::linear));
+  layers3.push_back(Layer(2));
+  ControllerNet netbypass(layers3, true);
+  netbypass.init(2,2,0,1);
+
+  cout << "************* C O N T R O L L E R N E T ***********\n";
+
+  netlinear.setParam("lambda",   0.00);
+  netnonlinear.setParam("lambda",0.00);
+  netbypass.setParam("lambda",   0.00);
+  cout << "******************** testprojections (linear)\n";
+  testprojections(netlinear);
+  cout << "******************** testprojections (nonlinear)\n";
+  testprojections(netnonlinear);
+  cout << "******************** testprojections (bypass)\n"; 
+  testprojections(netbypass);
+  return 1;
+}
 
 
 int main(){
   srand(time(0));
-  cout << "******************** TEST Neural Gas\n";
-  testneuralgas();
-  return 1;  
-  vector<Layer> layers1;
-  layers1.push_back(Layer(2,0));
-  MultiLayerFFNN netlinear(0.1, layers1);
-  netlinear.init(2,2);
+  bool mltests = false;
+  bool somtests = false;
+  bool contrtests = true;
 
-  vector<Layer> layers2;
-  layers2.push_back(Layer(3, 0.1, FeedForwardNN::sigmoid));
-  layers2.push_back(Layer(2));
-  MultiLayerFFNN netnonlinear(0.1, layers2);
-  netnonlinear.init(2,2);
+  if(mltests){
+    vector<Layer> layers1;
+    layers1.push_back(Layer(2,0));
+    MultiLayerFFNN netlinear(0.1, layers1);
+    netlinear.init(2,2);
+    
+    vector<Layer> layers2;
+    layers2.push_back(Layer(2, 0.1, FeedForwardNN::tanhr));
+    layers2.push_back(Layer(2));
+    MultiLayerFFNN netnonlinear(0.1, layers2);
+    netnonlinear.init(2,2);
+    
+    vector<Layer> layers3;
+    layers3.push_back(Layer(2, 0.1, FeedForwardNN::tanhr));
+    layers3.push_back(Layer(2));
+    MultiLayerFFNN netbypass(0.1, layers3, true);
+    netbypass.init(2,2);
 
-  vector<Layer> layers3;
-  layers3.push_back(Layer(3, 0.1, FeedForwardNN::sigmoid));
-  layers3.push_back(Layer(2));
-  MultiLayerFFNN netbypass(0.1, layers3, true);
-  netbypass.init(2,2);
+    cout << "******************** TEST 2x2 linear\n";
+    test2x2(netlinear);
+    cout << "******************** TEST 2x2 nonlinear\n";
+    test2x2(netnonlinear);
+    cout << "******************** TEST 2x2 bypass\n";
+    test2x2(netbypass);
+    cout << "******************** testnonlinear\n";
+    //const MultiLayerFFNN& net = testnonlinear();
+    testnonlinear();
+    cout << "******************** testresponse (linear)\n";
+    testresponse(netlinear);
+    cout << "******************** testresponse (nonlinear)\n";
+    testresponse(netnonlinear);
+    cout << "******************** testresponse (bypass)\n";
+    testresponse(netbypass);
+    cout << "******************** testinvertation (linear)\n";
+    testinvertation(netlinear);
+    cout << "******************** testinvertation (nonlinear)\n";
+    testinvertation(netnonlinear);
+    cout << "******************** testinvertation (bypass)\n";
+    testinvertation(netbypass);
+  }
+  if(somtests){
+    cout << "******************** TEST SOM\n";
+    testsom1D();
+    testsom2D();
+    testsom1D_local();
+    
+    cout << "******************** TEST Neural Gas\n";
+    testneuralgas();
+  }
+  if(contrtests){
+    controllernettest();
+  }
 
-  cout << "******************** TEST 2x2 linear\n";
-  test2x2(netlinear);
-  cout << "******************** TEST 2x2 nonlinear\n";
-  test2x2(netnonlinear);
-  cout << "******************** TEST 2x2 bypass\n";
-  test2x2(netbypass);
-  cout << "******************** testnonlinear\n";
-  //const MultiLayerFFNN& net = testnonlinear();
-  testnonlinear();
-  cout << "******************** testresponse (linear)\n";
-  testresponse(netlinear);
-  cout << "******************** testresponse (nonlinear)\n";
-  testresponse(netnonlinear);
-  cout << "******************** testresponse (bypass)\n";
-  testresponse(netbypass);
-  cout << "******************** testinvertation (linear)\n";
-  testinvertation(netlinear);
-  cout << "******************** testinvertation (nonlinear)\n";
-  testinvertation(netnonlinear);
-  cout << "******************** testinvertation (bypass)\n";
-  testinvertation(netbypass);
-
-  cout << "******************** TEST SOM\n";
-  testsom1D();
-  testsom2D();
-  testsom1D_local();
-
-  cout << "******************** TEST Neural Gas\n";
-  testneuralgas();
  
   return 0;
 }
