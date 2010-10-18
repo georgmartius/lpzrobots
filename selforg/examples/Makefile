@@ -23,7 +23,7 @@ CFLAGS = -Wall -I. -g
 ## Optimisation
 #CFLAGS = -Wall -I. -O3 -DUNITTEST -DNDEBUG 
 
-LIBS   = -lm -L../ -lselforg 
+LIBS   = -lm -L../ -lselforg_dbg 
 INC   = -I../include
 
 cc = g++ $(CFLAGS) $(INC) -c
@@ -36,14 +36,14 @@ CC = g++ $(CFLAGS)
 controllertest: Makefile.depend $(OFILES_CT) libselforg
 	$(CC) $(OFILES_CT) $(LIBS)  -o controllertest
 
-feedforwardtest: Makefile.depend $(OFILES_FT) libselforg
+feedforwardtest: Makefile.depend $(OFILES_FT) libselforg ../libselforg_dbg.a
 	$(CC) $(OFILES_FT) $(LIBS)  -o feedforwardtest
 
 rl_test: Makefile.depend $(OFILES_RLT) libselforg
 	$(CC) $(OFILES_RLT) $(LIBS)  -o rl_test
 
 libselforg: 
-	cd ../ && make
+	cd ../ && make dbg
 
 
 depend: 
