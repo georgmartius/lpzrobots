@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2009-08-10 15:36:19  der
+ *   Revision 1.14  2010-10-18 15:10:45  martius
+ *   added motorbabbling
+ *
+ *   Revision 1.13  2009/08/10 15:36:19  der
  *   plotoptions can again be added and initialized later
  *   ctrl-g and -f are working again
  *   ctrl-n added for neuronviz
@@ -153,6 +156,18 @@ public:
                     motor* motors, int motornumber,
 		    double noise, double time=-1);
 
+  /** Enables the motor babbling mode. Optionally a controller can be
+      given that is used for the babbling (default is MotorBabbler) (deleted automatically).
+      During motor babbling the function motorbabbling of the normal controller is called instead of step
+   */
+  void startMotorBabblingMode (AbstractController* babblecontroller = 0);
+
+  /** stops the motor babbling mode. */
+  void stopMotorBabblingMode () { isMotorBabbling = false; }
+  /// returns true if in motorbabbling mode
+  bool getMotorBabblingMode()  { return isMotorBabbling; }
+  
+
   /** adds the PlotOptions to the list of plotoptions
       If a plotoption with the same Mode exists, then the old one is deleted first
    */
@@ -218,6 +233,9 @@ protected:
   void internInit();
 
  protected:
+  AbstractController* motorBabbler;
+  bool isMotorBabbling;
+
   PlotOptionEngine plotEngine;
 
   bool initialised;

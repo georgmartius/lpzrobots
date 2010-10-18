@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2010-07-02 15:57:25  martius
+ *   Revision 1.19  2010-10-18 15:10:40  martius
+ *   added motorbabbling
+ *
+ *   Revision 1.18  2010/07/02 15:57:25  martius
  *   wirings have new initIntern signature -> less errors can be made
  *   abstractwiring generates the noise of given length
  *
@@ -106,13 +109,15 @@
 #include "abstractcontroller.h"
 #include "abstractwiring.h"
 
+#include "motorbabbler.h"
+
 #include "callbackable.h"
 
 using namespace std;
 
 WiredController::WiredController(const PlotOption& plotOption, double noisefactor) 
   : noisefactor(noisefactor), plotEngine(plotOption) {
-  internInit();
+  internInit();  
 }
 
 
@@ -128,6 +133,9 @@ void WiredController::internInit(){
   cmotors=0;
   csensors=0;
 
+  motorBabbler = 0;
+  isMotorBabbling = false;
+
   t=1;
   initialised = false;
 }
@@ -135,6 +143,7 @@ void WiredController::internInit(){
 WiredController::~WiredController(){
   if(csensors) free(csensors);
   if(cmotors)  free(cmotors);
+  if(motorBabbler) delete motorBabbler;
 }
 
 
@@ -169,6 +178,20 @@ bool WiredController::init(AbstractController* controller, AbstractWiring* wirin
 
   initialised = true;
   return true;
+}
+
+void WiredController::startMotorBabblingMode (AbstractController* babblecontroller){
+  if(babblecontroller){
+    if(motorBabbler) delete motorBabbler;
+    motorBabbler = babblecontroller;
+    motorBabbler->init(csensornumber, cmotornumber);
+  }else{
+    if(!motorBabbler) {
+      motorBabbler = new MotorBabbler(); 
+      motorBabbler->init(csensornumber, cmotornumber);     
+    }
+  }
+  isMotorBabbling=true;
 }
 
 PlotOption WiredController::addPlotOption(PlotOption& plotOption) {
@@ -218,7 +241,12 @@ void WiredController::step(const sensor* sensors, int sensornumber,
   }
 
   wiring->wireSensors(sensors, rsensornumber, csensors, csensornumber, noise * noisefactor);
-  controller->step(csensors, csensornumber, cmotors, cmotornumber);
+  if(isMotorBabbling){
+    motorBabbler->step(csensors, csensornumber, cmotors, cmotornumber);
+    controller->motorBabblingStep(csensors, csensornumber, cmotors, cmotornumber);
+  }else{
+    controller->step(csensors, csensornumber, cmotors, cmotornumber);
+  }
   wiring->wireMotors(motors, rmotornumber, cmotors, cmotornumber);
   plot(time);
   // do a callback for all registered Callbackable classes
