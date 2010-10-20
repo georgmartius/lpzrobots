@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2009-08-07 09:28:33  martius
+ *   Revision 1.12  2010-10-20 13:16:51  martius
+ *   motor babbling mode added: try to fix robot (has to be improved!)
+ *
+ *   Revision 1.11  2009/08/07 09:28:33  martius
  *   additional constructor with globaldata
  *   uses globalconfigurables
  *
@@ -68,13 +71,15 @@
 #include "odeagent.h"
 #include "oderobot.h"
 #include "globaldata.h"
+#include "joint.h"
 #include "pos.h"
 #include <assert.h>
 
 namespace lpzrobots {
 
   OdeAgent::OdeAgent(const GlobalData& globalData, double noisefactor)
-    : Agent(globalData.plotoptions, noisefactor) {
+    : Agent(globalData.plotoptions, noisefactor), 
+      fixateRobot(false), fixedJoint(0) {
     tracing_initialized=false;
     FOREACHC(std::list<Configurable*>, globalData.globalconfigurables, c)
       plotEngine.addConfigurable(*c);
@@ -102,6 +107,7 @@ namespace lpzrobots {
   void OdeAgent::step(double noise, double time){
     Agent::step(noise, time);
     trace();
+    if(fixateRobot && !fixedJoint) tryFixateRobot();
   }
 
 
@@ -134,8 +140,6 @@ namespace lpzrobots {
     }
   }
 
-
-
   void OdeAgent::setMotorsGetSensors() {
     robot->setMotors(rmotors, rmotornumber);
 
@@ -146,6 +150,43 @@ namespace lpzrobots {
       fprintf(stderr, "%s:%i: Got not enough sensors, expected %i, got %i!\n", __FILE__, __LINE__,
 	      rsensornumber, len);
     }
+  }
+
+  void OdeAgent::startMotorBabblingMode (int steps, AbstractController* babblecontroller){
+    WiredController::startMotorBabblingMode(steps, babblecontroller);
+    OdeRobot* r = dynamic_cast<OdeRobot*>(robot);
+    if(!r) return;
+    Primitive* main = r->getMainPrimitive();
+    if(main){
+      fixatingPos = main->getPosition();
+      if(fixatingPos.z()< 1)
+        fixatingPos.z() += 1;    
+      fixateRobot = true;
+    }
+  }
+    
+  void OdeAgent::stopMotorBabblingMode (){
+    WiredController::stopMotorBabblingMode();
+    fixateRobot = false;
+    if(fixedJoint)
+      delete fixedJoint;
+  }
+
+  void OdeAgent::tryFixateRobot(){
+    OdeRobot* r = dynamic_cast<OdeRobot*>(robot);
+    if(!r) return;
+    Primitive* main = r->getMainPrimitive();
+    if(main){            
+      Pos diff = fixatingPos-main->getPosition();;
+      if(diff*diff<.1){
+        // DummyPrimitive is a mem leak here.
+        fixedJoint = new FixedJoint(new DummyPrimitive(),main);
+        fixedJoint->init(r->odeHandle, r->osgHandle);
+      }else{
+        main->applyForce(diff*10); // use PID here
+      }      
+    }
+    
   }
 
 }

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-08-07 09:27:58  martius
+ *   Revision 1.11  2010-10-20 13:16:51  martius
+ *   motor babbling mode added: try to fix robot (has to be improved!)
+ *
+ *   Revision 1.10  2009/08/07 09:27:58  martius
  *   additional constructor with globaldata
  *
  *   Revision 1.9  2009/03/27 13:55:06  martius
@@ -82,7 +85,7 @@
 #include "primitive.h"
 
 namespace lpzrobots {
-
+  class Joint;
   
   /** Specialised agent for ode robots
    */
@@ -126,11 +129,15 @@ namespace lpzrobots {
      */
     virtual void setMotorsGetSensors();
 
-
-    void internInit(){
-      trace_length=0; // number of past robot positions shown in osg
-    }
-
+    /** Enables the motor babbling mode. 
+        The robot move to the air and is fixed by a fixed joint.
+        See WiredController::startMotorBabblingMode().
+    */
+    virtual void startMotorBabblingMode (int steps, AbstractController* babblecontroller = 0);
+    
+    /** stops the motor babbling mode. */
+    virtual void stopMotorBabblingMode ();
+    
     /**
      * Returns a pointer to the robot.
      */
@@ -139,6 +146,12 @@ namespace lpzrobots {
     /// gives the number of past robot positions shown as trace in osg
     virtual int getTraceLength(){return trace_length;}
 
+
+  protected:
+    void internInit(){
+      trace_length=0; // number of past robot positions shown in osg
+    }
+    
     /**
      * initialize tracing in ode
      * @param tracelength number of past positions shown as trace in osg
@@ -152,6 +165,8 @@ namespace lpzrobots {
      */
     virtual void trace();
 
+    /** tries to fixate the robot at fixatingPos */
+    virtual void tryFixateRobot();
 
   private:
     int trace_length;
@@ -161,6 +176,10 @@ namespace lpzrobots {
 
     OSGPrimitive** segments; // stores segments(cylinders) of the trace
     osg::Vec3 lastpos;
+
+    Pos fixatingPos; 
+    bool fixateRobot;
+    Joint* fixedJoint;
   };
 
 }
