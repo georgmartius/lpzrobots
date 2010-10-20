@@ -5,7 +5,11 @@
 ***************************************************************************/
 //
 // $Log$
-// Revision 1.32  2010-07-11 22:04:13  martius
+// Revision 1.33  2010-10-20 12:52:59  martius
+// pseudoinverse uses lambda only on demand
+// secure inverse for square matrices added
+//
+// Revision 1.32  2010/07/11 22:04:13  martius
 // ported to MinGW/Msys
 //
 // Revision 1.31  2010/02/22 17:52:41  martius
@@ -566,6 +570,24 @@ namespace matrix {
     return *this;
   }
 
+  bool Matrix::hasNormalEntries() const {
+    for(I i=0; i < m*n; i++){
+      if(!std::isnormal(data[i])) return false;
+    }
+    return true;    
+  }
+
+  Matrix Matrix::secureInverse() const {
+    // try first without lambda
+    const Matrix& Rinv = (*this)^(-1);
+    // if it has NAN or INF entries then regularize
+    if(Rinv.hasNormalEntries()){
+      return Rinv;
+    }else{
+      return pseudoInverse(0.000001);
+    }      
+  }
+
 
   Matrix Matrix::pseudoInverse(const D& lambda) const {
     Matrix R;
@@ -574,13 +596,19 @@ namespace matrix {
     else
       R = this->multMT();
     
-    for(I i=0; i < R.getM(); i++){
-      R.val(i,i)+= lambda;
+    // try first without lambda
+    Matrix Rinv = R^(-1);
+    // if it has NAN or INF entries then regularize
+    if(!Rinv.hasNormalEntries()){
+      for(I i=0; i < R.getM(); i++){
+        R.val(i,i)+= lambda;
+      }
+      Rinv = R^(-1);
     }
     if(m>n)
-      return (R^-1)* (*this^T);
+      return Rinv* (*this^T);
     else
-      return (*this^T)*(R^-1);
+      return (*this^T)*Rinv;
   }
 
   Matrix& Matrix::toMap ( D ( *fun ) ( D ) ) {

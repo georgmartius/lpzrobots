@@ -7,7 +7,11 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.36  2010-10-05 16:42:12  martius
+// Revision 1.37  2010-10-20 12:52:59  martius
+// pseudoinverse uses lambda only on demand
+// secure inverse for square matrices added
+//
+// Revision 1.36  2010/10/05 16:42:12  martius
 // added type Matrices (vector<Matrix>)
 //
 // Revision 1.35  2010/02/22 17:52:41  martius
@@ -405,6 +409,16 @@ namespace matrix{
 	\f[A^{+} = A^T(A A^T + \lambda \mathbb I)^{-1}\f]
      */
     Matrix pseudoInverse(const D& lambda = 1e-8) const ;
+    
+    /** calculates the secure inverse of a square matrix.
+        If singular then the pseudoinverse is used.
+     */
+    Matrix secureInverse() const;
+
+    /** returns true if all entries are normal floating point numbers, 
+        otherwise false (e.g. for nan and inf)*/
+    bool hasNormalEntries() const;
+
 
     /**  maps the matrix to a new matrix
 	 with all elements mapped with the given function

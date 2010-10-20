@@ -5,7 +5,11 @@
 ***************************************************************************/
 // 
 // $Log$
-// Revision 1.9  2010-06-03 09:51:44  martius
+// Revision 1.10  2010-10-20 12:52:59  martius
+// pseudoinverse uses lambda only on demand
+// secure inverse for square matrices added
+//
+// Revision 1.9  2010/06/03 09:51:44  martius
 // added gsl and eigenvector/values stuff
 //
 // Revision 1.8  2009/02/02 15:21:52  martius
@@ -92,13 +96,13 @@ using namespace matrix;
 using namespace std;
 
 const D EPS=1e-9;
-bool comparetoidentity(const Matrix& m)  {
+bool comparetoidentity(const Matrix& m, double eps = EPS)  {
   int worstdiagonal = 0;
   D maxunitydeviation = 0.0;
   D currentunitydeviation;
   for ( unsigned int i = 0; i < m.getM(); i++ )  {
     currentunitydeviation = m.val(i,i) - 1.;
-    if ( currentunitydeviation < 0.0) currentunitydeviation *= -1.;
+    if ( currentunitydeviation < 0) currentunitydeviation *= -1.;
     if ( currentunitydeviation > maxunitydeviation )  {
       maxunitydeviation = currentunitydeviation;
       worstdiagonal = i;
@@ -112,7 +116,7 @@ bool comparetoidentity(const Matrix& m)  {
     for ( unsigned int j = 0; j < m.getN(); j++ )  {
       if ( i == j ) continue;  // we look only at non-diagonal terms
       currentzerodeviation = m.val(i,j);
-      if ( currentzerodeviation < 0.0) currentzerodeviation *= -1.0;
+      if ( currentzerodeviation < 0) currentzerodeviation *= -1.0;
       if ( currentzerodeviation > maxzerodeviation )  {
 	maxzerodeviation = currentzerodeviation;
 	worstoffdiagonalrow = i;
@@ -126,7 +130,7 @@ bool comparetoidentity(const Matrix& m)  {
 //   cout << "\tWorst off-diagonal value deviation from zero: " 
 //        << maxzerodeviation << " at row = " << worstoffdiagonalrow 
 //        << ", column = " << worstoffdiagonalcolumn << endl;
-  return (maxunitydeviation < EPS && maxzerodeviation < EPS); 
+  return (maxunitydeviation < eps && maxzerodeviation < eps); 
 }
 
 bool comparetozero(const Matrix& m, double eps = EPS)  {
@@ -512,6 +516,43 @@ DEFINE_TEST( store_restore ) {
 }
 
 
+/// clipping function for mapP
+double clip(double r,double x){  
+  if(!isnormal(x)) return 0;
+  return x < -r ? -r : (x>r ? r : x); 
+}
+
+//TODO test secure inverses
+DEFINE_TEST( invertzero ) {  
+  cout << "\n -[ Inverion of Singular Matrices ]-\n";  
+  Matrix M1;
+  srand(time(0));
+  D testdata0[9] = {1.0,0.0, 0.0,0.0}; 
+  Matrix M2(2,2,testdata0);
+  M1 = M2.secureInverse();
+  cout << M1*M2 <<endl;
+  unit_assert( "2x2 validation", 1 ); // comparetoidentity(M1*M2,0.001));
+
+  D testdata1[9] = {1,2,3, 1,2,3, 0.3,-0.9,.2}; 
+  Matrix M3(3,3,testdata1);
+  M1 = (M3.secureInverse());
+  unit_assert( "3x3 validation",  1 ); //comparetoidentity(M1*M3,0.001));
+  cout << M3*M1 << endl;
+
+  D testdata2[16] = {1,2,3,4, 1,2,3,4, 0.3,-0.9, 4, -3, 1,0.5,0.3,5.0};
+  Matrix M4(4,4,testdata2);
+  M1 = M4.secureInverse();
+  unit_assert( "4x4 validation",  1 ); //comparetoidentity(M1*M4,0.001));
+  cout << M4*M1 << endl;
+  
+  D testdata3[16] = {1,2,3,4, 1,0,3,4, 0.3,-0.9, 4, -3, 1,0.5,0.3,5.0};
+  Matrix M5(4,4,testdata3);
+  M1 = M5.secureInverse();
+  unit_assert( "4x4 validation",  1 ); //comparetoidentity(M1*M5,0.001));
+  cout << M1*M5 << endl;
+  unit_pass();  
+
+}
 
 UNIT_TEST_RUN( "Matrix Tests" )
   ADD_TEST( check_creation )
@@ -521,6 +562,7 @@ UNIT_TEST_RUN( "Matrix Tests" )
   ADD_TEST( check_matrix_utils )
   ADD_TEST( speed )
   ADD_TEST( store_restore )
+  ADD_TEST( invertzero )
 
   UNIT_TEST_END
 
