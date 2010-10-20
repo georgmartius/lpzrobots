@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.138  2010-09-30 17:14:05  martius
+ *   Revision 1.139  2010-10-20 13:16:00  martius
+ *   matrix viz included
+ *
+ *   Revision 1.138  2010/09/30 17:14:05  martius
  *   many key handler are switched off by default use -allkeys
  *
  *   Revision 1.137  2010/09/28 08:00:24  martius
@@ -1360,10 +1363,10 @@ namespace lpzrobots {
 	}
 	handled=true;
 	break;
-      case 14 : // Ctrl - n
+      case 13 : // Ctrl - m
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-	  if(!(*i)->removePlotOption(NeuronViz)) {
-	    PlotOption po(NeuronViz, neuronvizinterval);
+	  if(!(*i)->removePlotOption(MatrixViz)) {
+	    PlotOption po(MatrixViz, matrixvizinterval);
 	    (*i)->addAndInitPlotOption(po);
 	  }
 	}
@@ -1472,6 +1475,7 @@ namespace lpzrobots {
   void Simulation::getUsage (osg::ApplicationUsage& au) const {
     au.addKeyboardMouseBinding("Simulation: Ctrl-f","File-Logging on/off");
     au.addKeyboardMouseBinding("Simulation: Ctrl-g","Restart the Gui-Logger");
+    au.addKeyboardMouseBinding("Simulation: Ctrl-m","Restart the MatrixViz");
     au.addKeyboardMouseBinding("Simulation: Ctrl-r","Start/Stop video recording");
     au.addKeyboardMouseBinding("Simulation: Ctrl-p","Pause on/off");
     au.addKeyboardMouseBinding("Simulation: +","increase simulation speed (realtimefactor)");
@@ -1582,15 +1586,15 @@ namespace lpzrobots {
       plotoptions.push_back(PlotOption(File, filelogginginterval, parameter));
     }
 
-    // starting neuronviz
-    neuronvizinterval=50;
-    index = contains(argv, argc, "-n");
+    // starting matrixviz
+    matrixvizinterval=10;
+    index = contains(argv, argc, "-m");
     if(index) {
       if(argc > index)
-	neuronvizinterval=atoi(argv[index]);
-      if (neuronvizinterval<1) // avoids a bug
-        neuronvizinterval=50; // default value
-      plotoptions.push_back(PlotOption(NeuronViz, neuronvizinterval));
+	matrixvizinterval=atoi(argv[index]);
+      if (matrixvizinterval<1) // avoids a bug
+        matrixvizinterval=10; // default value
+      plotoptions.push_back(PlotOption(MatrixViz, matrixvizinterval));
     }
 
     // using SoundMan for acustic output
@@ -1875,7 +1879,7 @@ namespace lpzrobots {
     printf("\t-f interval ntst\twrite logging file (default interval 5),\n\
 \t\tif ntst (no_time_stamp in log file name)\n");
     printf("\t\t\tis given logfile names are generated without timestamp\n");
-    printf("\t-n interval\tuse neuronviz (default interval 10)\n");
+    printf("\t-m interval\tuse matrixviz (default interval 10)\n");
     printf("\t-s \"-disc|ampl|freq val\"\tuse soundMan \n");
     printf("\t-r seed\t\trandom number seed\n");
     printf("\t-x WxH\t\t* window size of width(W) x height(H) is used (default 640x480)\n");
