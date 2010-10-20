@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.49  2010-09-30 17:14:05  martius
+ *   Revision 1.50  2010-10-20 13:16:15  martius
+ *   matrix viz included (neuronviz removed)
+ *
+ *   Revision 1.49  2010/09/30 17:14:05  martius
  *   many key handler are switched off by default use -allkeys
  *
  *   Revision 1.48  2010/09/16 09:54:52  martius
@@ -481,7 +484,7 @@ namespace lpzrobots {
 
     int guiloggerinterval;
     int filelogginginterval;
-    int neuronvizinterval;
+    int matrixvizinterval;
 
     char odeRobotsCfg[256]; /// < filename of config file
 
