@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-09 11:53:41  martius
+ *   Revision 1.5  2010-10-20 15:23:54  der
+ *   minor changes
+ *
+ *   Revision 1.4  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.3  2009/11/26 14:21:54  der
@@ -33,6 +36,7 @@
  *   Revision 1.2  2009/08/12 10:30:25  der
  *   skeleton has belly joint
  *   works fine with centered servos
+				    
  *
  *   Revision 1.1  2009/08/10 15:00:46  der
  *   version that Ralf did at home
@@ -234,18 +238,18 @@ public:
     //int hurlings = 0;
     //int cigars = 0;
     int wheelies = 0;
-    int humanoids = 2;
-    //    int barrel=0;
+    int humanoids = 1;
+       // int barrel=1;
     // int dogs = 0; 
 
 
-    bool fixedInAir = false;
+    bool fixedInAir = true;
     reckturner = false;
     // Playground types
     bool narrow = true; 
-    double widthground = 5.85;// 100; //1.3;
+    double widthground = 25.85;// 100; //1.3;
     double heightground = .8;// 1.2;
-    addParameterDef("centerforce", &centerforce, 2.0);
+    addParameterDef("centerforce", &centerforce, .0);//2.0
     addParameterDef("forwardforce", &forwardforce, 0.0);
     center = osg::Vec3(20,20,3);
     forcepoint = 0;
@@ -321,7 +325,7 @@ public:
 // //     global.obstacles.push_back(m);
     
    if(narrow){
-     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(widthground, .208, heightground)); 
+     Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(widthground, 0.208, heightground)); 
      playground->setColor(Color(1.,1.,1.,.99)); 
      //     playground->setTexture("Images/really_white.rgb");
      //     playground->setGroundTexture("Images/dusty.rgb");
@@ -383,7 +387,7 @@ public:
      //     conf.pelvisPower=20;
      // if(reckturner)      conf.armPower = 30;
      
-     conf.powerfactor = .1;// .95;//.65;//5;
+     conf.powerfactor = .15;// .95;//.65;//5;
      if (reckturner) conf.powerfactor *=.2;
      if (i==0)
        conf.trunkColor=Color(0.1, 0.3, 0.8);
@@ -440,7 +444,7 @@ public:
      //           BasicControllerConf cc = BasicController::getDefaultConf();    
      // AbstractController* controller = new DerLinInvert(cc);
 
-     cc.cInit=  1.05;//1.005;
+     cc.cInit= .001;// 1.05;//1.005;
      cc.someInternalParams = true;
   
      vector<Layer> layers;
@@ -466,12 +470,12 @@ public:
      cc.sat   = sat;
      
    cc.useS=true;
-     //      cc.useS=false;
-     AbstractController* controller = new DerLinInvert(cc);
+    //       cc.useS=false;
+   // AbstractController* controller = new DerLinInvert(cc);
      //     AbstractController* controller = new BasicController(cc);
      // AbstractController* controller = new SineController(1<<14); // only motor 14
      //AbstractController* controller = new SineController(0,SineController::Impulse);
-     //     AbstractController* controller = new SineController((~0),SineController::Impulse);
+   AbstractController* controller = new SineController((~0),SineController::Impulse);
      //AbstractController* controller = new SineController(3<<17,SineController::Impulse);
      //     controller->setParam("period",1000);
      //     controller->setParam("phaseshift",0);
