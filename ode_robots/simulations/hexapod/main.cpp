@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-10-13 12:41:44  martius
+ *   Revision 1.4  2010-10-20 13:18:38  martius
+ *   parameters changed,
+ *   motor babbling added
+ *
+ *   Revision 1.3  2010/10/13 12:41:44  martius
  *   changed to new version of hexapod now which is in lpzrobots
  *
  *   Revision 1.2  2010/08/03 12:51:17  martius
@@ -113,11 +117,12 @@ public:
       
     /*******  H E X A P O D  *********/
     HexapodConf myHexapodConf = Hexapod::getDefaultConf();
-    // myHexapodConf.coxaPower=0.8;
-    // myHexapodConf.tebiaPower=1;
+    myHexapodConf.coxaPower=2.0;
+    myHexapodConf.tebiaPower=1.6;
+    myHexapodConf.percentageBodyMass=.5;
     myHexapodConf.useBigBox=true;
     myHexapodConf.tarsus=true;
-    myHexapodConf.numTarsusSections = 2;
+    myHexapodConf.numTarsusSections = 1;
     myHexapodConf.useTarsusJoints = true;
 
 
@@ -129,7 +134,7 @@ public:
 			  myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
 
     // on the top
-    vehicle->place(osg::Matrix::rotate(M_PI*0,1,0,0)*osg::Matrix::translate(0,0,3));
+    vehicle->place(osg::Matrix::rotate(M_PI*0,1,0,0)*osg::Matrix::translate(0,0,1));
     // normal position
     //    vehicle->place(osg::Matrix::translate(0,0,0));
     global.configs.push_back(vehicle);
@@ -145,11 +150,12 @@ public:
 
     SoXConf sc = SoX::getDefaultConf();
     sc.useHiddenContr=true;
-    sc.useHiddenModel=false;
+    sc.useHiddenModel=true;
     sc.someInternalParams=false;
-    sc.useS=false;
+    sc.useS=true;
     SoX* sox = new SoX(sc);
-    sox->setParam("logaE",0);
+    sox->setParam("epsC",0.05);
+    sox->setParam("epsA",0.05);
 
     SeMoXConf cc = SeMoX::getDefaultConf();    
     //cc.cInit=.95;
@@ -193,6 +199,8 @@ public:
     if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, ""));
     global.agents.push_back(agent);
     global.configs.push_back(controller);
+
+    agent->startMotorBabblingMode(5000);
 
     this->getHUDSM()->setColor(Color(1.0,1.0,0));
     this->getHUDSM()->setFontsize(18);    
@@ -238,7 +246,7 @@ int main (int argc, char **argv)
   if(index >0 && argc>index){
     bars=atoi(argv[index]); 
   }
-  track = Simulation::contains(argv,argc,"-notrack") == 0;
+  track = Simulation::contains(argv,argc,"-track") != 0;
 
   ThisSim sim;
   sim.setGroundTexture("Images/green_velour_wb.rgb");
