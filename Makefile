@@ -101,12 +101,12 @@ conf: usage
 .PHONY: guilogger
 ##!guilogger	compile guilogger
 guilogger:
-	cd guilogger && ./configure && make
+	cd guilogger && ./configure && $(MAKE)
 
 .PHONY: matrixviz
 ##!matrixviz	compile matrixviz
 matrixviz:
-	cd matrixviz && $(MAKE)
+	cd matrixviz && ./configure && $(MAKE)
 
 .PHONY: javactrl
 ##!javactrl	compile javacontroller (experimental)
