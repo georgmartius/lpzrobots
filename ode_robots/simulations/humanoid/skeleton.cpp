@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2010-03-09 11:53:41  martius
+ *   Revision 1.20  2010-10-20 13:18:55  martius
+ *   damping changed
+ *
+ *   Revision 1.19  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.18  2009/10/09 17:13:59  martius
@@ -866,7 +869,7 @@ GUIDE adding new sensors
       : new TwoAxisServoCentered(uj, -conf.hipJointLimit*.01,conf.hipJointLimit, conf.hipPower,
 				 -conf.hip2JointLimit*.1, conf.hip2JointLimit, conf.hip2Power, conf.hipDamping,
 				 2, 20, conf.jointLimitFactor);
-    servo2->damping2() = conf.hip2Damping;
+    servo2->setDamping2(conf.hip2Damping);
     hipservos.push_back(servo2);
 
     uj = new UniversalJoint(objects[Hip], objects[Right_Thigh], Pos(-0.1118, 1.0904, 0.011) * pose, 
@@ -881,7 +884,7 @@ GUIDE adding new sensors
       : new TwoAxisServoCentered(uj, -conf.hipJointLimit*.01, conf.hipJointLimit, conf.hipPower,
 				 -conf.hip2JointLimit*.01, conf.hip2JointLimit, conf.hip2Power, conf.hipDamping,
 				 2, 20, conf.jointLimitFactor);
-    servo2->damping2() = conf.hip2Damping;
+    servo2->setDamping2(conf.hip2Damping);
     hipservos.push_back(servo2);
 
 
@@ -1023,8 +1026,8 @@ GUIDE adding new sensors
     FOREACH(vector<TwoAxisServo*>, hipservos, i){
       if(*i) { 
 	(*i)->setPower( conf.hipPower, conf.hip2Power);
-	(*i)->damping1() = conf.hipDamping;
-	(*i)->damping2() = conf.hip2Damping;
+	(*i)->setDamping1(conf.hipDamping);
+	(*i)->setDamping2(conf.hip2Damping);
 	(*i)->setMaxVel(conf.hipVelocity); 
 	(*i)->setMinMax1(-conf.hipJointLimit*.01, +conf.hipJointLimit);
 	(*i)->setMinMax2(-conf.hip2JointLimit*.1,+conf.hip2JointLimit);
@@ -1034,8 +1037,8 @@ GUIDE adding new sensors
     FOREACH(vector<TwoAxisServo*>, headservos, i){
       if(*i){
 	(*i)->setPower(conf.neckPower, conf.neckPower);
-	(*i)->damping1() = conf.neckDamping;
-	(*i)->damping2() = conf.neckDamping;
+	(*i)->setDamping1(conf.neckDamping);
+	(*i)->setDamping2(conf.neckDamping);
 	(*i)->setMaxVel(conf.neckVelocity); 
 	(*i)->setMinMax1(-conf.neckJointLimit, conf.neckJointLimit);
 	(*i)->setMinMax2(-conf.neckJointLimit, conf.neckJointLimit/2);
@@ -1044,7 +1047,7 @@ GUIDE adding new sensors
     FOREACH(vector<OneAxisServo*>, kneeservos, i){
       if(*i){
 	(*i)->setPower(conf.kneePower);
-	(*i)->damping() = conf.kneeDamping;
+	(*i)->setDamping(conf.kneeDamping);
 	(*i)->setMaxVel(conf.kneeVelocity); 
 	(*i)->setMinMax(-conf.kneeJointLimit, conf.kneeJointLimit*0.1);
       } 
@@ -1052,7 +1055,7 @@ GUIDE adding new sensors
     FOREACH(vector<OneAxisServo*>, ankleservos, i){
       if(*i){
 	(*i)->setPower(conf.anklePower);
-	(*i)->damping() = conf.ankleDamping;
+	(*i)->setDamping(conf.ankleDamping);
 	(*i)->setMaxVel(conf.ankleVelocity); 
 	(*i)->setMinMax(-conf.ankleJointLimit, conf.ankleJointLimit);
       } 
@@ -1060,8 +1063,8 @@ GUIDE adding new sensors
     FOREACH(vector<TwoAxisServo*>, armservos, i){
       if(*i){
 	(*i)->setPower(conf.armPower, conf.armPower);
-	(*i)->damping1() = conf.armDamping;
-	(*i)->damping2() = conf.armDamping;
+	(*i)->setDamping1(conf.armDamping);
+	(*i)->setDamping2(conf.armDamping);
 	(*i)->setMaxVel(conf.armVelocity); 
 	(*i)->setMinMax1(-conf.armJointLimit*.1, conf.armJointLimit);
 	(*i)->setMinMax2(-conf.armJointLimit*.1, conf.armJointLimit);
@@ -1070,21 +1073,21 @@ GUIDE adding new sensors
     FOREACH(vector<OneAxisServo*>, arm1servos, i){
       if(*i){
 	(*i)->setPower(conf.elbowPower);
-	(*i)->damping() = conf.elbowDamping;
+	(*i)->setDamping(conf.elbowDamping);
 	(*i)->setMaxVel(conf.elbowVelocity); 
 	(*i)->setMinMax(0, conf.elbowJointLimit);
       } 
     }
 
     pelvisservo->setPower(conf.pelvisPower, conf.pelvisPower); 
-    pelvisservo->damping1() = conf.pelvisDamping;
-    pelvisservo->damping2() = conf.pelvisDamping;
+    pelvisservo->setDamping1(conf.pelvisDamping);
+    pelvisservo->setDamping2(conf.pelvisDamping);
     pelvisservo->setMaxVel(conf.pelvisVelocity);
     pelvisservo->setMinMax1(-conf.pelvisJointLimit,+conf.pelvisJointLimit);
     pelvisservo->setMinMax2(-conf.pelvisJointLimit,+conf.pelvisJointLimit);
     
     backservo->setPower(conf.backPower);
-    backservo->damping() = conf.backDamping;
+    backservo->setDamping(conf.backDamping);
     backservo->setMaxVel(conf.backVelocity);
     backservo->setMinMax(-conf.backJointLimit/2,+conf.backJointLimit);
 
