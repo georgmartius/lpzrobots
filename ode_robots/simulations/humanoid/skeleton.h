@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2009-10-09 17:13:35  martius
+ *   Revision 1.15  2010-10-20 13:19:13  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.14  2009/10/09 17:13:35  martius
  *   inherits from inspectable
  *
  *   Revision 1.13  2009/08/10 14:59:19  der
@@ -167,7 +170,7 @@ namespace lpzrobots {
   class Skeleton : public OdeRobot, public Inspectable {
   public:
 
-    typedef enum SkelParts {Pole,Pole2, Hip,Trunk_comp,Thorax, Neck, Head_comp, 
+    enum SkelParts {Pole,Pole2, Hip,Trunk_comp,Thorax, Neck, Head_comp, 
 			     Left_Shoulder, Left_Forearm, Left_Hand,
 			     Right_Shoulder, Right_Forearm, Right_Hand, 
 			     Left_Thigh, Left_Shin, Left_Foot,
