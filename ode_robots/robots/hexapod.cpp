@@ -417,7 +417,6 @@ namespace lpzrobots {
       pole = new Box(poleheight, twidth*3.2, theight*1);
       bigboxtransform= new Transform(trunk,pole, osg::Matrix::translate(0,0,2*theight));
       bigboxtransform->init(odeHandle, 0, osgHandle,Primitive::Geom /*| Primitive::Draw */);
-      odeHandle.addIgnoredPair(bigboxtransform,trunk);
     }else{
       bigboxtransform=0;
     }
@@ -655,7 +654,6 @@ namespace lpzrobots {
           k->init(odeHandle, osgHandleJ, true, rad1 * 2.1);
           joints.push_back(k);
         }
-        //        odeHandle.addIgnoredPair(tibia,tarsus); //done by joint
 
 
         Primitive *section = tarsus;
@@ -698,8 +696,6 @@ namespace lpzrobots {
           FixedJoint* fj = new FixedJoint(tarsusParts[i-1], tarsusParts[i]);
           fj->init(odeHandle, osgHandleJ, true, rad1 * 2.1);
           joints.push_back(fj);
-          // this is done by the joint
-          // odeHandle.addIgnoredPair(tarsusParts[i-1], tarsusParts[i]);
           m4 = m5;
 
         }
@@ -769,11 +765,6 @@ namespace lpzrobots {
 
     }
 
-    if(bigboxtransform){
-      for(unsigned int i = 2; i < objects.size();i++){
-        odeHandle.addIgnoredPair(bigboxtransform,objects[i]);
-      }
-    }
 
     setParam("dummy",0); // apply all parameters.
     
@@ -784,13 +775,6 @@ namespace lpzrobots {
    */
   void Hexapod::destroy(){
     if (created){
-      odeHandle.removeIgnoredPair(trunk,headtrans);
-      if(bigboxtransform){
-        odeHandle.addIgnoredPair(bigboxtransform,trunk);
-        for(unsigned int i = 2; i < objects.size();i++){
-          odeHandle.removeIgnoredPair(bigboxtransform,objects[i]);
-        }
-      }
       irSensorBank.clear();
 
       FOREACH(vector<TwoAxisServo*>, hipservos, i){
