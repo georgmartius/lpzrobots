@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2010-10-08 07:41:00  martius
+ *  Revision 1.4  2010-10-20 13:20:21  martius
+ *  bugfixing: Tiptool caused crash
+ *
+ *  Revision 1.3  2010/10/08 07:41:00  martius
  *  modified matrixviz.pro and removed selforg/stl_adds from GroupPlotChannel
  *
  *  Revision 1.2  2009/10/02 15:25:40  robot14
@@ -43,7 +46,8 @@
  **************************************************************************/
 #include "GroupPlotChannel.h"
 #include "tools/stl_adds.h"
-#include "cassert"
+#include <cassert>
+#include <iostream>
 
 using namespace std;
 
@@ -75,7 +79,12 @@ list<AbstractPlotChannel*> GroupPlotChannel::getChannelsOfGroup() {
 }
 
 AbstractPlotChannel* GroupPlotChannel::at(int pos){
-  assert(pos < channelsOfGroup.size());
+  if(pos>=channelsOfGroup.size()){
+    std::cerr << " error: GroupPlotChannel::at " << pos << "/" << channelsOfGroup.size() << std::endl;  
+    return 0;                                                                                                
+  }
+
+  //  assert(pos < channelsOfGroup.size());
 
   AbstractPlotChannel* channel = 0;
   int it = 0;

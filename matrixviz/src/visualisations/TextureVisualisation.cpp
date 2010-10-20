@@ -25,7 +25,10 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *  $Log$
- *  Revision 1.5  2010-10-08 10:29:01  martius
+ *  Revision 1.6  2010-10-20 13:20:21  martius
+ *  bugfixing: Tiptool caused crash
+ *
+ *  Revision 1.5  2010/10/08 10:29:01  martius
  *  added some schemas
  *  buffersize is 64 and maximal 128 now
  *
@@ -82,6 +85,7 @@ void TextureVisualisation::initializeGL(){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
   //initialize texture
+  // Georg: das geht mit memset
   for(int i = 0; i < texSize; i++)
     for(int j = 0; j < texSize; j++)
       for(int k = 0; k < 3; k++) tex[i][j][k] = (GLubyte) 255;
@@ -159,19 +163,27 @@ GLuint TextureVisualisation::makeObject() {
 
 void TextureVisualisation::mouseMoveEvent ( QMouseEvent *event ){
   QString tTip;
+  // Our maxX and maxY are transposed to the screen coords
   double xStep = width() / maxY;
   double yStep = height() / maxX;
   int n= (int) (event->y() / yStep);
-  if(n == maxX) n--;
   int m= (int) (event->x() / xStep);
-  if(m == maxY) m--;
+  // Georg: we need clipping to avoid access to out of range fields (the event can be negative and larger then width and hight)
+  if(n >= maxX) n=maxX-1;
+  if(n < 0) n=0;
+  if(m >= maxY) m=maxY-1;
+  if(m < 0) m=0;  
+
   VectorPlotChannel *vectorPC = dynamic_cast<VectorPlotChannel *> (channel);
   if ( vectorPC == NULL){
     MatrixElementPlotChannel *elem = channel->getChannel(n, m);
     tTip = QString(elem->getChannelName().c_str()) + ": " + QString::number(elem->getValue());
+    
   }else{
     VectorElementPlotChannel * elem = vectorPC->getChannel(n);
-    tTip += QString(elem->getChannelName().c_str()) + ", " + QString::number(m) + ": " + QString::number(elem->getValue());
+    //    tTip += QString(elem->getChannelName().c_str()) + ", " + QString::number(m) + ": " + QString::number(elem->getValue());
+    // Georg: m is not used here
+    tTip += QString(elem->getChannelName().c_str()) + ": " + QString::number(elem->getValue());
   }
   setToolTip((const QString) tTip);  // shows up ToolTip "M[x,y]"
 }

@@ -25,7 +25,10 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-10-08 10:29:01  martius
+ *   Revision 1.8  2010-10-20 13:20:21  martius
+ *   bugfixing: Tiptool caused crash
+ *
+ *   Revision 1.7  2010/10/08 10:29:01  martius
  *   added some schemas
  *   buffersize is 64 and maximal 128 now
  *
@@ -144,7 +147,8 @@ void VisualiserSubWidget::switchVisMode(int index){
   visMode = index;
 
   visLayout->removeWidget(visualisation);
-  delete visualisation;
+  delete visualisation; 
+  visualisation=0;
   /*
    * change visualisation
    */
