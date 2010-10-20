@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2010-10-18 15:10:40  martius
+ *   Revision 1.20  2010-10-20 13:15:01  martius
+ *   motorbabbling added
+ *   sox controller with new learning rule for S
+ *
+ *   Revision 1.19  2010/10/18 15:10:40  martius
  *   added motorbabbling
  *
  *   Revision 1.18  2010/07/02 15:57:25  martius
@@ -134,7 +138,7 @@ void WiredController::internInit(){
   csensors=0;
 
   motorBabbler = 0;
-  isMotorBabbling = false;
+  motorBabblingSteps = 0;
 
   t=1;
   initialised = false;
@@ -180,7 +184,7 @@ bool WiredController::init(AbstractController* controller, AbstractWiring* wirin
   return true;
 }
 
-void WiredController::startMotorBabblingMode (AbstractController* babblecontroller){
+void WiredController::startMotorBabblingMode (int steps, AbstractController* babblecontroller){
   if(babblecontroller){
     if(motorBabbler) delete motorBabbler;
     motorBabbler = babblecontroller;
@@ -191,7 +195,7 @@ void WiredController::startMotorBabblingMode (AbstractController* babblecontroll
       motorBabbler->init(csensornumber, cmotornumber);     
     }
   }
-  isMotorBabbling=true;
+  motorBabblingSteps=steps;
 }
 
 PlotOption WiredController::addPlotOption(PlotOption& plotOption) {
@@ -241,9 +245,11 @@ void WiredController::step(const sensor* sensors, int sensornumber,
   }
 
   wiring->wireSensors(sensors, rsensornumber, csensors, csensornumber, noise * noisefactor);
-  if(isMotorBabbling){
+  if(motorBabblingSteps>0){
     motorBabbler->step(csensors, csensornumber, cmotors, cmotornumber);
     controller->motorBabblingStep(csensors, csensornumber, cmotors, cmotornumber);
+    motorBabblingSteps--;
+    if(motorBabblingSteps==0) stopMotorBabblingMode();
   }else{
     controller->step(csensors, csensornumber, cmotors, cmotornumber);
   }

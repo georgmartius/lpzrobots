@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-10-18 15:10:45  martius
+ *   Revision 1.15  2010-10-20 13:15:01  martius
+ *   motorbabbling added
+ *   sox controller with new learning rule for S
+ *
+ *   Revision 1.14  2010/10/18 15:10:45  martius
  *   added motorbabbling
  *
  *   Revision 1.13  2009/08/10 15:36:19  der
@@ -137,8 +141,8 @@ public:
       It is also possible to provide a random seed,
        if not given (0) rand() is used to create one
   */
-  bool init(AbstractController* controller, AbstractWiring* wiring,
-	    int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
+  virtual bool init(AbstractController* controller, AbstractWiring* wiring,
+                    int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
 
   /** Performs an step of the controller, which includes
       pushing sensor values through the wiring,
@@ -152,20 +156,21 @@ public:
       @param noise Noise strength.
       @param time (optional) current simulation time (used for logging)
   */
-  void step(const sensor* sensors, int sensornumber,
+  virtual void step(const sensor* sensors, int sensornumber,
                     motor* motors, int motornumber,
 		    double noise, double time=-1);
 
-  /** Enables the motor babbling mode. Optionally a controller can be
+  /** Enables the motor babbling mode for given number of steps (typically 1000).
+      Optionally a controller can be
       given that is used for the babbling (default is MotorBabbler) (deleted automatically).
       During motor babbling the function motorbabbling of the normal controller is called instead of step
    */
-  void startMotorBabblingMode (AbstractController* babblecontroller = 0);
+  virtual void startMotorBabblingMode (int steps, AbstractController* babblecontroller = 0);
 
   /** stops the motor babbling mode. */
-  void stopMotorBabblingMode () { isMotorBabbling = false; }
+  virtual void stopMotorBabblingMode () { motorBabblingSteps = 0; }
   /// returns true if in motorbabbling mode
-  bool getMotorBabblingMode()  { return isMotorBabbling; }
+  virtual bool getMotorBabblingMode()  { return motorBabblingSteps > 0; }
   
 
   /** adds the PlotOptions to the list of plotoptions
@@ -176,7 +181,7 @@ public:
   /** adds a new PlotOption and initializes it
       @see addPlotOption
   */
-  bool addAndInitPlotOption(PlotOption& plotOption);
+  virtual bool addAndInitPlotOption(PlotOption& plotOption);
 
   /** removes the PlotOptions with the given type
       @return true if sucessful, false otherwise
@@ -234,7 +239,7 @@ protected:
 
  protected:
   AbstractController* motorBabbler;
-  bool isMotorBabbling;
+  int motorBabblingSteps;
 
   PlotOptionEngine plotEngine;
 
