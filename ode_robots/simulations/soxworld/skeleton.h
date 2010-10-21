@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-10-21 12:53:06  martius
+ *   Revision 1.2  2010-10-21 14:25:42  martius
+ *   is inspectable
+ *
+ *   Revision 1.1  2010/10/21 12:53:06  martius
  *   new simulation for sox controller
  *
  *   Revision 1.1  2010/10/20 15:47:04  martius
@@ -177,9 +180,9 @@ namespace lpzrobots {
   } SkeletonConf;
 
 
-  /** should look like a dog
+  /** should look like a humanoid
    */
-  class Skeleton : public OdeRobot {
+  class Skeleton : public OdeRobot, public Inspectable {
   public:
 
     enum SkelParts {Pole,Pole2, Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp, 
