@@ -28,7 +28,10 @@
 #include <ode_robots/odeagent.h>
 
 // controller
-#include <selforg/sox.h>
+//#include <selforg/sox.h>
+#include "sox.h"
+
+#include <selforg/motorbabbler.h>
 #include <selforg/derlininvert.h>
 #include <selforg/dercontroller.h>
 
@@ -51,8 +54,9 @@
 #include <ode_robots/schlangeservo.h>
 #include <ode_robots/schlangeservo2.h>
 // used robot
-//#include "skeleton.h" // if robot is local
-#include <ode_robots/skeleton.h>
+#include "skeleton.h" // if robot is local
+//#include <ode_robots/skeleton.h>
+#include "hexapod.h" // if robot is local
 
 
 
@@ -62,32 +66,21 @@ using namespace std;
 
 class ThisSim : public Simulation {
 public:
-  enum Grounds { Normal, Octa, Pit, Stacked };
-
-  Joint* fixator;
-  Joint* reckLeft;
-  Joint* reckRight;
-  Primitive* reck;
-  //  Playground* playground; 
-  AbstractGround* playground; 
-  double hardness;
-  Substance s;
-  bool reckturner;
-  osg::Vec3 center;
-  double centerforce;
-  double forwardforce;
-
-  Primitive* forcepoint;
+  enum Grounds { Normal, Octa, Pit, Uterus, Stacked };
   
   // playground parameter
   const static double widthground = 25.85;// 100; //1.3;
   const static double heightground = .8;// 1.2;
-  const static double diamOcta = 2;;
+  const static double diamOcta = 2;
+  const static double pitsize = 2;
+  const static double pitheight = 2;
+  const static double uterussize = 1;
+
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos (Pos(22.4468, 25.8365, 2.74255),  Pos(157.862, -12.7123, 0));
+    setCameraHomePos (Pos(3.46321, 10.6081, 2.74255),  Pos(161.796, -3.69849, 0));
 
   // Set number of robots:
     // int plattfuesse = 1; 
@@ -127,8 +120,9 @@ public:
     //    global.odeConfig.setParam("cameraspeed", 250);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
-    
-    setupPlaygrounds(odeHandle, osgHandle, global,  Pit);
+
+    //************************* SELECT PLAYGROUND HERE ******************?
+    setupPlaygrounds(odeHandle, osgHandle, global,  Normal);
 
    
 
@@ -146,20 +140,20 @@ public:
      //       fixator->init(odeHandle, osgHandle);
 
      // normal servos
-     SkeletonConf conf = Skeleton::getDefaultConf();
+     //SkeletonConf conf = Skeleton::getDefaultConf();
      // velocity servos
-     //SkeletonConf conf = Skeleton::getDefaultConfVelServos();
+     SkeletonConf conf = Skeleton::getDefaultConfVelServos();
       
-     conf.massfactor   = 1;
-     conf.relLegmass = 1;
-     conf.relFeetmass = 1;
-     conf.relArmmass = 1;//1.0;
+     // conf.massfactor   = 1;
+     // conf.relLegmass = 1;
+     // conf.relFeetmass = 1;
+     // conf.relArmmass = 1;//1.0;
 
      //       conf.ankleJointLimit=0.001; //!
      //     conf.pelvisPower=20;
      // if(reckturner)      conf.armPower = 30;
      
-     conf.powerfactor = .15;// .95;//.65;//5;
+     conf.powerfactor = .15 ; //.15;// .95;//.65;//5;
      if (reckturner) conf.powerfactor *=.2;
      if (i==0)
        conf.trunkColor=Color(0.1, 0.3, 0.8);
@@ -187,7 +181,7 @@ public:
        new AddSensors2RobotAdapter(skelHandle, osgHandle, human0, sensors);
      human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
 		  //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
-		  *osg::Matrix::translate(.2*i+20,2*i+20,.841/*7*/ +2*i));
+		  *osg::Matrix::translate(.2*i,2*i,.841/*7*/ +2*i));
      global.configs.push_back(human0);
       
       
@@ -209,19 +203,21 @@ public:
       
       
      
-     //     AbstractController* controller = new BasicController(cc);
-     //   AbstractController* controller = new SineController(1<<14); // only motor 14
-     // AbstractController* controller = new SineController(); // only motor 14
-     //AbstractController* controller = new SineController(0,SineController::Impulse);
 
      SoXConf sc = SoX::getDefaultConf();
-     sc.useHiddenContr=true;
-     sc.useHiddenModel=true;
+     sc.useHiddenContr=false;
+     sc.useHiddenModel=false;
      sc.someInternalParams=false;
-     sc.useS=true;
-     SoX* controller = new SoX(sc);
+     sc.useS=false;
+     AbstractController* controller = new SoX(sc);
      controller->setParam("epsC",0.05);
      controller->setParam("epsA",0.05);
+     controller->setParam("harmony",0.0);
+
+     //     AbstractController* controller = new BasicController(cc);
+     //   AbstractController* controller = new SineController(1<<14); // only motor 14
+     // controller = new MotorBabbler();
+     //AbstractController* controller = new SineController(0,SineController::Impulse);
       
      global.configs.push_back(controller);
       
@@ -234,6 +230,7 @@ public:
 
      OdeAgent* agent = new OdeAgent(i==0 ? plotoptions : list<PlotOption>());
      agent->init(controller, human, wiring);
+     //agent->startMotorBabblingMode(5000);
      //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
      global.agents.push_back(agent);      
    }// Several humans end
@@ -618,6 +615,7 @@ public:
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
+    Substance s;
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
 	{
@@ -628,6 +626,7 @@ public:
 	  break;
 	case 'i': 
 	  if(playground) {	    
+            s = playground->getSubstance();
 	    s.hardness*=1.5;
 	    cout << "hardness " << s.hardness << endl;
 	    playground->setSubstance(s);
@@ -636,6 +635,7 @@ public:
 	  break;
 	case 'j': 
 	  if(playground) {
+            s = playground->getSubstance();
 	    s.hardness/=1.5;
 	    cout << "hardness " << s.hardness << endl;
 	    playground->setSubstance(s);
@@ -659,7 +659,7 @@ public:
         //     playground->setTexture("Images/really_white.rgb");
         //     playground->setGroundTexture("Images/dusty.rgb");
         //playground->setGroundColor(Color(1.,1.,1.,1.));
-        playground->setPosition(osg::Vec3(20,20,.1));
+        playground->setPosition(osg::Vec3(0,0,.1));
         //      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(1.0875, 8.8, 1.3975)); 
         //       playground->setColor(Color(0.88f,0.4f,0.26f,1));
         // playground->setPosition(osg::Vec3(20,20,.5));
@@ -691,29 +691,67 @@ public:
     case Octa:
       {
         playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(diamOcta, 0.2,/*Height*/ 10), 12,false);
-        playground->setTexture("Images/whitemetal_farbig.rgb");
+        playground->setTexture("Images/really_white.rgb");
         playground->setColor(Color(0.4,0.8,0.4,0.2));
         playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
         global.obstacles.push_back(playground);
-	playground->setGroundSubstance(s);        
         break;
       }
     case Pit:
       {
-        int anzgrounds=1;
+        // we stack two playgrounds in each other. 
+        // The outer one is hard and the inner one is softer
+        int anzgrounds=2;
+        Substance soft = Substance::getRubber(5);
+        double thicknessSoft = 0.1;
         for (int i=0; i< anzgrounds; i++){
-          Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10.05+4*i, 10, .75+0.15*i), 1, i==(anzgrounds-1)); 
+          OdeHandle myHandle = odeHandle;
+          if(i==0){
+            myHandle.substance = soft;
+          }else{
+            myHandle.substance.toMetal(1);            
+          }          
+          Playground* playground = new Playground(myHandle, osgHandle, 
+                                                  osg::Vec3(pitsize+2*thicknessSoft*i, thicknessSoft + 12*i, pitheight),
+                                                  1, i==(anzgrounds-1)); 
+          if(i==(anzgrounds-1)){ // set ground also to the soft substance
+            playground->setGroundSubstance(soft);
+          }
           if(i==0) this->playground=playground;
-          OdeHandle myhandle = odeHandle;
-          //      myhandle.substance.toFoam(10);
-          // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
-          playground->setColor(Color(0.9,0.1,0.1,0.99));
-          playground->setPosition(osg::Vec3(0,0,0.2)); // playground positionieren und generieren
-          //s.toRubber(100);
-          s.toPlastic(90);
-          playground->setSubstance(s);
-          playground->setWallSubstance(s);
-          // playground->setPosition(osg::Vec3(i,-i,0)); // playground positionieren und generieren
+          playground->setColor(Color(0.5,0.1,0.1,i==0 ? 0 : .99)); // inner wall invisible
+          playground->setPosition(osg::Vec3(0,0,thicknessSoft)); // playground positionieren und generieren
+          global.obstacles.push_back(playground);
+        }        
+
+        break;
+      }
+    case Uterus:
+      {
+        // we stack two playgrounds in each other. 
+        // The outer one is hard (and invisible) and the inner one is soft
+        int anzgrounds=2;
+        // this is the utterus imitation: high slip, medium roughness, high elasticity, soft
+        Substance uterus(0.2/*roughness*/, 0.1 /*slip*/, 
+                         .5 /*hardness*/, 0.95 /*elasticity*/);
+        double thickness = 0.4;
+        for (int i=0; i< anzgrounds; i++){
+          OdeHandle myHandle = odeHandle;
+          if(i==0){
+            myHandle.substance = uterus;
+          }else{
+            myHandle.substance.toMetal(.2);            
+          }          
+          Playground* playground = new Playground(myHandle, osgHandle, 
+                                                  osg::Vec3(uterussize+2*thickness*i, 
+                                                            i==0 ? thickness : .5, pitheight),
+                                                  1, i==0); 
+          playground->setTexture("Images/dusty.rgb");
+          if(i==0){ // set ground also to the soft substance
+            playground->setGroundSubstance(uterus);
+          }
+          if(i==0) this->playground=playground;
+          playground->setColor(Color(0.5,0.1,0.1,i==0? .2 : 0)); // outer ground is not visible (alpha=0)
+          playground->setPosition(osg::Vec3(0,0,i==0? thickness : 0 )); // playground positionieren und generieren
           global.obstacles.push_back(playground);
         }        
 
@@ -723,14 +761,12 @@ public:
       {
         int anzgrounds=2;
         for (int i=0; i< anzgrounds; i++){
-          //    playground = new Playground(odeHandle, osgHandle, osg::Vec3(30+4*i, .2, .95+0.15*i), 1, i==(anzgrounds-1));
-          playground = new Playground(odeHandle, osgHandle, osg::Vec3(50+4*i, .2, 3.95+0.15*i), 1, i==(anzgrounds-1));
+          playground = new Playground(odeHandle, osgHandle, osg::Vec3(10+4*i, .2, .95+0.15*i), 1, i==(anzgrounds-1));
           OdeHandle myhandle = odeHandle;
           //      myhandle.substance.toFoam(10);
           // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
           playground->setPosition(osg::Vec3(0,0,0.2)); // playground positionieren und generieren
-          playground->setSubstance(s);
-          // playground->setPosition(osg::Vec3(i,-i,0)); // playground positionieren und generieren
+          
           global.obstacles.push_back(playground);
         }
         break;
@@ -738,6 +774,21 @@ public:
     }    
   
   }
+
+  Joint* fixator;
+  Joint* reckLeft;
+  Joint* reckRight;
+  Primitive* reck;
+  //  Playground* playground; 
+  AbstractGround* playground; 
+  double hardness;
+  bool reckturner;
+  osg::Vec3 center;
+  double centerforce;
+  double forwardforce;
+
+  Primitive* forcepoint;
+
 
 };
 
