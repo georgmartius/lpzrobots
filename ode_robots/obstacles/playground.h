@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2010-01-07 14:06:17  der
+ *   Revision 1.22  2010-10-21 07:45:13  martius
+ *   removed setWallSubstance since it is the same as setSubstance
+ *
+ *   Revision 1.21  2010/01/07 14:06:17  der
  *   *** empty log message ***
  *
  *   Revision 1.20  2010/01/07 14:05:23  der
@@ -172,17 +175,6 @@ namespace lpzrobots {
 	create();
       }      
     }
-
-    virtual void setWallSubstance(const Substance& substance) {
-      if (obstacle_exists) {
-	FOREACH(std::vector<Primitive*>,obst,wall) {
-	  (*wall)->substance=substance;
-	}
-      } else
-	std::cerr << "PlayGround::setWallSubstance() - PlayGround gound not created!\n";
-
-    }
-
 
   protected:
     virtual void create(){
