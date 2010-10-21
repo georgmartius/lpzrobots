@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-10-21 14:25:26  martius
+ *   Revision 1.3  2010-10-21 14:26:45  martius
+ *   use local headerfile (can be copied to simulation)
+ *
+ *   Revision 1.2  2010/10/21 14:25:26  martius
  *   add description of channels
  *
  *   Revision 1.1  2010/10/20 15:47:04  martius
@@ -124,7 +127,7 @@
 #include <ode_robots/irsensor.h>
 
 // include header file
-#include <ode_robots/skeleton.h>
+#include "skeleton.h"
 
 using namespace osg;
 using namespace std;
