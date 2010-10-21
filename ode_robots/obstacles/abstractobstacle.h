@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-03-09 11:53:41  martius
+ *   Revision 1.14  2010-10-21 12:58:57  martius
+ *   new member getsubstance
+ *
+ *   Revision 1.13  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.12  2009/04/02 10:12:25  martius
@@ -183,6 +186,9 @@ class AbstractObstacle{
    * @param substance description of the substance
    */
   virtual void setSubstance(const Substance& substance);
+  
+  /// returns the substance of this obstacle 
+  virtual const Substance& getSubstance();  
   
    /*********** BEGIN TRACKABLE INTERFACE *******************/
   

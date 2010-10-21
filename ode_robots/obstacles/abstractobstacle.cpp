@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-04-02 10:12:25  martius
+ *   Revision 1.8  2010-10-21 12:58:57  martius
+ *   new member getsubstance
+ *
+ *   Revision 1.7  2009/04/02 10:12:25  martius
  *   Texture handling changed
  *
  *   Revision 1.6  2007/12/06 10:02:49  der
@@ -193,6 +196,11 @@ void AbstractObstacle::setPosition(const osg::Vec3& pos) {
       }
     }
   }
+
+  const Substance& AbstractObstacle::getSubstance(){
+    return odeHandle.substance;
+  }
+
 
   void AbstractObstacle::destroy(){
     FOREACH(vector<Primitive*>, obst, it){
