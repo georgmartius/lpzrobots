@@ -796,7 +796,7 @@ public:
 int main (int argc, char **argv)
 { 
   ThisSim sim;
-  //  sim.setGroundTexture("Images/whiteground.rgb");
+  sim.setCaption("lpzrobots Simulator             playfulmachines.com");
   return sim.run(argc, argv) ? 0 : 1;
 
 }
