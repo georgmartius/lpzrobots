@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-10-21 12:53:06  martius
+ *   Revision 1.2  2010-10-21 14:19:14  martius
+ *   added description of joints
+ *
+ *   Revision 1.1  2010/10/21 12:53:06  martius
  *   new simulation for sox controller
  *
  *   Revision 1.1  2010/10/20 15:47:04  martius
@@ -198,6 +201,53 @@ namespace lpzrobots {
     addParameter("backdamping",   &conf.backDamping);
     addParameter("backvelocity",   &conf.backVelocity);
     addParameter("backjointlimit",   &conf.backJointLimit);
+
+    if(conf.onlyPrimaryFunctions){            
+      addInspectableDescription("x[0]","hip left sagital");
+      addInspectableDescription("x[1]","hip right sagital");
+      addInspectableDescription("x[2]","knee left");
+      addInspectableDescription("x[3]","knee right");
+      
+      addInspectableDescription("x[4]","ankle left");
+      addInspectableDescription("x[5]","ankle right");
+      
+      addInspectableDescription("x[6]","shoulder left sagital");
+      addInspectableDescription("x[7","shoulder right sagital");
+      
+      addInspectableDescription("x[8]","elbow left");
+      addInspectableDescription("x[9]","elbow right");      
+      if(conf.useBackJoint){
+        addInspectableDescription("x[16]","back (bend)");      
+        addInspectableDescription("x[17]","back (torsion)");      
+      }
+    }else{
+      addInspectableDescription("x[0]","hip left sagital");
+      addInspectableDescription("x[1]","hip left lateral");
+      addInspectableDescription("x[2]","hip right sagital");
+      addInspectableDescription("x[3]","hip right lateral");
+      addInspectableDescription("x[4]","knee left");
+      addInspectableDescription("x[5]","knee right");
+      
+      addInspectableDescription("x[6]","ankle left");
+      addInspectableDescription("x[7]","ankle right");
+      
+      addInspectableDescription("x[8]","shoulder left lateral");
+      addInspectableDescription("x[9]","shoulder left sagital");
+      addInspectableDescription("x[10]","shoulder right lateral");
+      addInspectableDescription("x[11]","shoulder right sagital");
+      
+      addInspectableDescription("x[12]","elbow left");
+      addInspectableDescription("x[13]","elbow right");
+      
+      addInspectableDescription("x[14]","pelvis 1");
+      addInspectableDescription("x[15]","pelvis 2");
+      
+      if(conf.useBackJoint){
+        addInspectableDescription("x[16]","back (bend)");      
+        addInspectableDescription("x[17]","back (torsion)");      
+      }
+    }      
+
   };
 
 
