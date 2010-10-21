@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-10-20 15:47:04  martius
+ *   Revision 1.2  2010-10-21 14:25:26  martius
+ *   add description of channels
+ *
+ *   Revision 1.1  2010/10/20 15:47:04  martius
  *   added humanoid from bambi simulation
  *
  *   Revision 1.4  2010/03/09 11:53:41  martius
@@ -121,7 +124,7 @@
 #include <ode_robots/irsensor.h>
 
 // include header file
-#include "skeleton.h"
+#include <ode_robots/skeleton.h>
 
 using namespace osg;
 using namespace std;
@@ -195,8 +198,53 @@ namespace lpzrobots {
     addParameter("backdamping",   &conf.backDamping);
     addParameter("backvelocity",   &conf.backVelocity);
     addParameter("backjointlimit",   &conf.backJointLimit);
-  };
 
+    if(conf.onlyPrimaryFunctions){            
+      addInspectableDescription("x[0]","hip left sagital");
+      addInspectableDescription("x[1]","hip right sagital");
+      addInspectableDescription("x[2]","knee left");
+      addInspectableDescription("x[3]","knee right");
+      
+      addInspectableDescription("x[4]","ankle left");
+      addInspectableDescription("x[5]","ankle right");
+      
+      addInspectableDescription("x[6]","shoulder left sagital");
+      addInspectableDescription("x[7","shoulder right sagital");
+      
+      addInspectableDescription("x[8]","elbow left");
+      addInspectableDescription("x[9]","elbow right");      
+      if(conf.useBackJoint){
+        addInspectableDescription("x[10]","back (bend)");      
+        addInspectableDescription("x[11]","back (torsion)");      
+      }
+    }else{
+      addInspectableDescription("x[0]","hip left sagital");
+      addInspectableDescription("x[1]","hip left lateral");
+      addInspectableDescription("x[2]","hip right sagital");
+      addInspectableDescription("x[3]","hip right lateral");
+      addInspectableDescription("x[4]","knee left");
+      addInspectableDescription("x[5]","knee right");
+      
+      addInspectableDescription("x[6]","ankle left");
+      addInspectableDescription("x[7]","ankle right");
+      
+      addInspectableDescription("x[8]","shoulder left lateral");
+      addInspectableDescription("x[9]","shoulder left sagital");
+      addInspectableDescription("x[10]","shoulder right lateral");
+      addInspectableDescription("x[11]","shoulder right sagital");
+      
+      addInspectableDescription("x[12]","elbow left");
+      addInspectableDescription("x[13]","elbow right");
+      
+      addInspectableDescription("x[14]","pelvis 1");
+      addInspectableDescription("x[15]","pelvis 2");
+      
+      if(conf.useBackJoint){
+        addInspectableDescription("x[16]","back (bend)");      
+        addInspectableDescription("x[17]","back (torsion)");      
+      }
+    }      
+  };
 
   int Skeleton::getMotorNumber(){
     if(conf.onlyPrimaryFunctions)

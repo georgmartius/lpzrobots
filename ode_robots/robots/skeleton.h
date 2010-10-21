@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-10-20 15:47:04  martius
+ *   Revision 1.2  2010-10-21 14:25:16  martius
+ *   add description of channels
+ *
+ *   Revision 1.1  2010/10/20 15:47:04  martius
  *   added humanoid from bambi simulation
  *
  *   Revision 1.3  2009/11/26 14:21:54  der
@@ -174,9 +177,9 @@ namespace lpzrobots {
   } SkeletonConf;
 
 
-  /** should look like a dog
+  /** should look like a humanoid
    */
-  class Skeleton : public OdeRobot {
+  class Skeleton : public OdeRobot, public Inspectable{
   public:
 
     enum SkelParts {Pole,Pole2, Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp, 
@@ -282,7 +285,8 @@ namespace lpzrobots {
       SkeletonConf c = getDefaultConf();
 
       c.useVelocityServos = true;
-      c.dampingfactor=0.02; 
+      c.dampingfactor=0.1; // softness 
+      
 /*       c.hipDamping= 0.01; */
 /*       c.hip2Damping=0.01; */
 /*       c.neckDamping=0.01; */
