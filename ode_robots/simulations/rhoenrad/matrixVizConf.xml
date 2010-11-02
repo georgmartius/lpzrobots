@@ -1,0 +1,10 @@
+<!DOCTYPE MatrixVizConfigFile>
+<MatrixVizConfiguration>
+ <MatrixVizWindow X="1511" Y="0"/>
+ <VisualisationWindow width="300" mode="matrix" X="806" Y="663" visMode="0" height="300" source="C0" colorPaletteFile="/scratch/martius/lpzrobots/matrixviz/resources/ColorSchemas/spektrumwhite.xml"/>
+ <VisualisationWindow width="300" mode="matrix" X="806" Y="336" visMode="0" height="300" source="A0" colorPaletteFile=""/>
+ <VisualisationWindow width="300" mode="vector" X="1111" Y="0" visMode="0" height="300" source="x" colorPaletteFile=""/>
+ <VisualisationWindow width="331" mode="vector" X="1153" Y="327" visMode="3" height="475" source="y" colorPaletteFile=""/>
+ <VisualisationWindow width="300" mode="matrix" X="1112" Y="685" visMode="0" height="300" source="R" colorPaletteFile=""/>
+ <VisualisationWindow width="300" mode="vector" X="500" Y="651" visMode="0" height="300" source="h0" colorPaletteFile=""/>
+</MatrixVizConfiguration>
