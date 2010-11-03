@@ -1,0 +1,255 @@
+<?xml version="1.0"?>
+<!-- AVR - Devices -->
+<AVR_Devices>
+
+	<AVR_Device DeviceName="ATtiny25" Signature="1E9108" PageSize="16" NumberPages="64" NumberFuseBytes="3">
+		<FuseBytes>
+			<FuseBitsLow defaultValue="62" enabledBitMask="FF">
+				<FuseBit number="0" name="CKSEL0"		description="Select Clock source" />
+				<FuseBit number="1" name="CKSEL1"		description="Select Clock source" />
+				<FuseBit number="2" name="CKSEL2"		description="Select Clock source" />
+				<FuseBit number="3" name="CKSEL3"		description="Select Clock source" />
+				<FuseBit number="4" name="SUT0"			description="Select start-up time" />
+				<FuseBit number="5" name="SUT1"			description="Select start-up time" />
+				<FuseBit number="6" name="CKOUT" 		description="Clock Output Enable" />
+				<FuseBit number="7" name="CKDIV8" 		description="Divide clock by 8" />
+			</FuseBitsLow>
+			<FuseBitsHigh defaultValue="DF" enabledBitMask="FF">
+				<FuseBit number="0" name="BODLEVEL0"	description="Brown-out Detector trigger level" />
+				<FuseBit number="1" name="BODLEVEL1"	description="Brown-out Detector trigger level" />
+				<FuseBit number="2" name="BODLEVEL2"	description="Brown-out Detector trigger level" />
+				<FuseBit number="3" name="EESAVE"		description="EEPROM memory is preserved through the Chip Erase" />
+				<FuseBit number="4" name="WDTON"		description="Watchdog Timer always on" />
+				<FuseBit number="5" name="SPIEN"		description="Enable Serial Program and Data Downloading" />
+				<FuseBit number="6" name="DWEN" 		description="DebugWIRE Enable" />
+				<FuseBit number="7" name="RSTDISBL" 	description="External Reset-PIN disable" />
+			</FuseBitsHigh>
+			<FuseBitsExt defaultValue="FF" enabledBitMask="1">
+				<FuseBit number="0" name="SELFPRGEN"	description="Self-Programming Enable" />
+				<FuseBit number="1" name="-"			description="-" />
+				<FuseBit number="2" name="-"			description="-" />
+				<FuseBit number="3" name="-"			description="-" />
+				<FuseBit number="4" name="-"			description="-" />
+				<FuseBit number="5" name="-"			description="-" />
+				<FuseBit number="6" name="-" 			description="-" />
+				<FuseBit number="7" name="-" 			description="-" />
+			</FuseBitsExt>
+		</FuseBytes>
+	</AVR_Device>
+
+	<AVR_Device DeviceName="ATtiny45" Signature="1E9206" PageSize="32" NumberPages="64" NumberFuseBytes="3">
+		<FuseBytes>
+			<FuseBitsLow defaultValue="62" enabledBitMask="FF">
+				<FuseBit number="0" name="CKSEL0"		description="Select Clock source" />
+				<FuseBit number="1" name="CKSEL1"		description="Select Clock source" />
+				<FuseBit number="2" name="CKSEL2"		description="Select Clock source" />
+				<FuseBit number="3" name="CKSEL3"		description="Select Clock source" />
+				<FuseBit number="4" name="SUT0"			description="Select start-up time" />
+				<FuseBit number="5" name="SUT1"			description="Select start-up time" />
+				<FuseBit number="6" name="CKOUT" 		description="Clock Output Enable" />
+				<FuseBit number="7" name="CKDIV8" 		description="Divide clock by 8" />
+			</FuseBitsLow>
+			<FuseBitsHigh defaultValue="DF" enabledBitMask="FF">
+				<FuseBit number="0" name="BODLEVEL0"	description="Brown-out Detector trigger level" />
+				<FuseBit number="1" name="BODLEVEL1"	description="Brown-out Detector trigger level" />
+				<FuseBit number="2" name="BODLEVEL2"	description="Brown-out Detector trigger level" />
+				<FuseBit number="3" name="EESAVE"		description="EEPROM memory is preserved through the Chip Erase" />
+				<FuseBit number="4" name="WDTON"		description="Watchdog Timer always on" />
+				<FuseBit number="5" name="SPIEN"		description="Enable Serial Program and Data Downloading" />
+				<FuseBit number="6" name="DWEN" 		description="DebugWIRE Enable" />
+				<FuseBit number="7" name="RSTDISBL" 	description="External Reset-PIN disable" />
+			</FuseBitsHigh>
+			<FuseBitsExt defaultValue="FF" enabledBitMask="1">
+				<FuseBit number="0" name="SELFPRGEN"	description="Self-Programming Enable" />
+				<FuseBit number="1" name="-"			description="-" />
+				<FuseBit number="2" name="-"			description="-" />
+				<FuseBit number="3" name="-"			description="-" />
+				<FuseBit number="4" name="-"			description="-" />
+				<FuseBit number="5" name="-"			description="-" />
+				<FuseBit number="6" name="-" 			description="-" />
+				<FuseBit number="7" name="-" 			description="-" />
+			</FuseBitsExt>
+		</FuseBytes>
+	</AVR_Device>
+
+	<AVR_Device DeviceName="ATtiny85" Signature="1E930B" PageSize="32" NumberPages="128" NumberFuseBytes="3">
+		<FuseBytes>
+			<FuseBitsLow defaultValue="62" enabledBitMask="FF">
+				<FuseBit number="0" name="CKSEL0"		description="Select Clock source" />
+				<FuseBit number="1" name="CKSEL1"		description="Select Clock source" />
+				<FuseBit number="2" name="CKSEL2"		description="Select Clock source" />
+				<FuseBit number="3" name="CKSEL3"		description="Select Clock source" />
+				<FuseBit number="4" name="SUT0"			description="Select start-up time" />
+				<FuseBit number="5" name="SUT1"			description="Select start-up time" />
+				<FuseBit number="6" name="CKOUT" 		description="Clock Output Enable" />
+				<FuseBit number="7" name="CKDIV8" 		description="Divide clock by 8" />
+			</FuseBitsLow>
+			<FuseBitsHigh defaultValue="DF" enabledBitMask="FF">
+				<FuseBit number="0" name="BODLEVEL0"	description="Brown-out Detector trigger level" />
+				<FuseBit number="1" name="BODLEVEL1"	description="Brown-out Detector trigger level" />
+				<FuseBit number="2" name="BODLEVEL2"	description="Brown-out Detector trigger level" />
+				<FuseBit number="3" name="EESAVE"		description="EEPROM memory is preserved through the Chip Erase" />
+				<FuseBit number="4" name="WDTON"		description="Watchdog Timer always on" />
+				<FuseBit number="5" name="SPIEN"		description="Enable Serial Program and Data Downloading" />
+				<FuseBit number="6" name="DWEN" 		description="DebugWIRE Enable" />
+				<FuseBit number="7" name="RSTDISBL" 	description="External Reset-PIN disable" />
+			</FuseBitsHigh>
+			<FuseBitsExt defaultValue="FF" enabledBitMask="1">
+				<FuseBit number="0" name="SELFPRGEN"	description="Self-Programming Enable" />
+				<FuseBit number="1" name="-"			description="-" />
+				<FuseBit number="2" name="-"			description="-" />
+				<FuseBit number="3" name="-"			description="-" />
+				<FuseBit number="4" name="-"			description="-" />
+				<FuseBit number="5" name="-"			description="-" />
+				<FuseBit number="6" name="-" 			description="-" />
+				<FuseBit number="7" name="-" 			description="-" />
+			</FuseBitsExt>
+		</FuseBytes>
+	</AVR_Device>
+
+	<AVR_Device DeviceName="ATMega8" Signature="1E9307" PageSize="64" NumberPages="128" NumberFuseBytes="2">
+		<FuseBytes>
+			<FuseBitsLow defaultValue="E1" enabledBitMask="FF">
+				<FuseBit number="0" name="CKSEL0"	description="Select Clock source" />
+				<FuseBit number="1" name="CKSEL1"	description="Select Clock source" />
+				<FuseBit number="2" name="CKSEL2"	description="Select Clock source" />
+				<FuseBit number="3" name="CKSEL3"	description="Select Clock source" />
+				<FuseBit number="4" name="SUT0"		description="Select start-up time" />
+				<FuseBit number="5" name="SUT1"		description="Select start-up time" />
+				<FuseBit number="6" name="BODEN" 	description="Brown out detector enable" />
+				<FuseBit number="7" name="BODLEVEL" description="Brown out detector trigger level" />
+			</FuseBitsLow>
+			<FuseBitsHigh defaultValue="D9" enabledBitMask="FF">
+				<FuseBit number="0" name="BOOTRST"	description="Select Reset Vector" />
+				<FuseBit number="1" name="BOOTSZ0"	description="Select Boot Size" />
+				<FuseBit number="2" name="BOOTSZ1"	description="Select Boot Size" />
+				<FuseBit number="3" name="EESAVE"	description="EEPROM memory is preserved through the Chip Erase" />
+				<FuseBit number="4" name="CKOPT"	description="Oscillator options" />
+				<FuseBit number="5" name="SPIEN"	description="Enable Serial Program and Data Downloading" />
+				<FuseBit number="6" name="WDTON" 	description="WDT always on" />
+				<FuseBit number="7" name="RSTDISBL" description="Select if PC6 is I/O or RESET pin" />
+			</FuseBitsHigh>
+		</FuseBytes>
+	</AVR_Device>
+
+	<AVR_Device DeviceName="ATMega16" Signature="1E9403" PageSize="128" NumberPages="128" NumberFuseBytes="2">
+		<FuseBytes>
+			<FuseBitsLow defaultValue="E1" enabledBitMask="FF">
+				<FuseBit number="0" name="CKSEL0"	description="Select Clock source" />
+				<FuseBit number="1" name="CKSEL1"	description="Select Clock source" />
+				<FuseBit number="2" name="CKSEL2"	description="Select Clock source" />
+				<FuseBit number="3" name="CKSEL3"	description="Select Clock source" />
+				<FuseBit number="4" name="SUT0"		description="Select start-up time" />
+				<FuseBit number="5" name="SUT1"		description="Select start-up time" />
+				<FuseBit number="6" name="BODEN" 	description="Brown out detector enable" />
+				<FuseBit number="7" name="BODLEVEL" description="Brown out detector trigger level" />
+			</FuseBitsLow>
+			<FuseBitsHigh defaultValue="99" enabledBitMask="FF">
+				<FuseBit number="0" name="BOOTRST"	description="Select Reset Vector" />
+				<FuseBit number="1" name="BOOTSZ0"	description="Select Boot Size" />
+				<FuseBit number="2" name="BOOTSZ1"	description="Select Boot Size" />
+				<FuseBit number="3" name="EESAVE"	description="EEPROM memory is preserved through the Chip Erase" />
+				<FuseBit number="4" name="CKOPT"	description="Oscillator options" />
+				<FuseBit number="5" name="SPIEN"	description="Enable Serial Program and Data Downloading" />
+				<FuseBit number="6" name="JTAGEN" 	description="Enable JTAG" />
+				<FuseBit number="7" name="OCDEN" 	description="Enable OCD" />
+			</FuseBitsHigh>
+		</FuseBytes>
+	</AVR_Device>
+
+	<AVR_Device DeviceName="ATMega32" Signature="1E9502" PageSize="128" NumberPages="256" NumberFuseBytes="2">
+		<FuseBytes>
+			<FuseBitsLow defaultValue="E1" enabledBitMask="FF">
+				<FuseBit number="0" name="CKSEL0"	description="Select Clock source" />
+				<FuseBit number="1" name="CKSEL1"	description="Select Clock source" />
+				<FuseBit number="2" name="CKSEL2"	description="Select Clock source" />
+				<FuseBit number="3" name="CKSEL3"	description="Select Clock source" />
+				<FuseBit number="4" name="SUT0"		description="Select start-up time" />
+				<FuseBit number="5" name="SUT1"		description="Select start-up time" />
+				<FuseBit number="6" name="BODEN" 	description="Brown out detector enable" />
+				<FuseBit number="7" name="BODLEVEL" description="Brown out detector trigger level" />
+			</FuseBitsLow>
+			<FuseBitsHigh defaultValue="99" enabledBitMask="FF">
+				<FuseBit number="0" name="BOOTRST"	description="Select Reset Vector" />
+				<FuseBit number="1" name="BOOTSZ0"	description="Select Boot Size" />
+				<FuseBit number="2" name="BOOTSZ1"	description="Select Boot Size" />
+				<FuseBit number="3" name="EESAVE"	description="EEPROM memory is preserved through the Chip Erase" />
+				<FuseBit number="4" name="CKOPT"	description="Oscillator options" />
+				<FuseBit number="5" name="SPIEN"	description="Enable Serial Program and Data Downloading" />
+				<FuseBit number="6" name="JTAGEN" 	description="Enable JTAG" />
+				<FuseBit number="7" name="OCDEN" 	description="Enable OCD" />
+			</FuseBitsHigh>
+		</FuseBytes>
+	</AVR_Device>
+
+	<AVR_Device DeviceName="ATMega64" Signature="1E9602" PageSize="256" NumberPages="256" NumberFuseBytes="3">
+		<FuseBytes>
+			<FuseBitsLow defaultValue="E1" enabledBitMask="FF">
+				<FuseBit number="0" name="CKSEL0"	description="Select Clock source" />
+				<FuseBit number="1" name="CKSEL1"	description="Select Clock source" />
+				<FuseBit number="2" name="CKSEL2"	description="Select Clock source" />
+				<FuseBit number="3" name="CKSEL3"	description="Select Clock source" />
+				<FuseBit number="4" name="SUT0"		description="Select start-up time" />
+				<FuseBit number="5" name="SUT1"		description="Select start-up time" />
+				<FuseBit number="6" name="BODEN" 	description="Brown out detector enable" />
+				<FuseBit number="7" name="BODLEVEL" description="Brown out detector trigger level" />
+			</FuseBitsLow>
+			<FuseBitsHigh defaultValue="99" enabledBitMask="FF">
+				<FuseBit number="0" name="BOOTRST"	description="Select Reset Vector" />
+				<FuseBit number="1" name="BOOTSZ0"	description="Select Boot Size" />
+				<FuseBit number="2" name="BOOTSZ1"	description="Select Boot Size" />
+				<FuseBit number="3" name="EESAVE"	description="EEPROM memory is preserved through the Chip Erase" />
+				<FuseBit number="4" name="CKOPT"	description="Oscillator options" />
+				<FuseBit number="5" name="SPIEN"	description="Enable Serial Program and Data Downloading" />
+				<FuseBit number="6" name="JTAGEN" 	description="Enable JTAG" />
+				<FuseBit number="7" name="OCDEN" 	description="Enable OCD" />
+			</FuseBitsHigh>
+			<FuseBitsExt defaultValue="FD" enabledBitMask="3">
+				<FuseBit number="0" name="WDTON"	description="Watchdog Timer always on" />
+				<FuseBit number="1" name="M103C"	description="ATmega103 compatibility mode" />
+				<FuseBit number="2" name="-"		description="-" />
+				<FuseBit number="3" name="-"		description="-" />
+				<FuseBit number="4" name="-"		description="-" />
+				<FuseBit number="5" name="-"		description="-" />
+				<FuseBit number="6" name="-" 		description="-" />
+				<FuseBit number="7" name="-" 		description="-" />
+			</FuseBitsExt>
+		</FuseBytes>
+	</AVR_Device>
+
+	<AVR_Device DeviceName="ATMega128" Signature="1E9702" PageSize="256" NumberPages="512" NumberFuseBytes="3">
+		<FuseBytes>
+			<FuseBitsLow defaultValue="E1" enabledBitMask="FF">
+				<FuseBit number="0" name="CKSEL0"	description="Select Clock source" />
+				<FuseBit number="1" name="CKSEL1"	description="Select Clock source" />
+				<FuseBit number="2" name="CKSEL2"	description="Select Clock source" />
+				<FuseBit number="3" name="CKSEL3"	description="Select Clock source" />
+				<FuseBit number="4" name="SUT0"		description="Select start-up time" />
+				<FuseBit number="5" name="SUT1"		description="Select start-up time" />
+				<FuseBit number="6" name="BODEN" 	description="Brown out detector enable" />
+				<FuseBit number="7" name="BODLEVEL" description="Brown out detector trigger level" />
+			</FuseBitsLow>
+			<FuseBitsHigh defaultValue="99" enabledBitMask="FF">
+				<FuseBit number="0" name="BOOTRST"	description="Select Reset Vector" />
+				<FuseBit number="1" name="BOOTSZ0"	description="Select Boot Size" />
+				<FuseBit number="2" name="BOOTSZ1"	description="Select Boot Size" />
+				<FuseBit number="3" name="EESAVE"	description="EEPROM memory is preserved through the Chip Erase" />
+				<FuseBit number="4" name="CKOPT"	description="Oscillator options" />
+				<FuseBit number="5" name="SPIEN"	description="Enable Serial Program and Data Downloading" />
+				<FuseBit number="6" name="JTAGEN" 	description="Enable JTAG" />
+				<FuseBit number="7" name="OCDEN" 	description="Enable OCD" />
+			</FuseBitsHigh>
+			<FuseBitsExt defaultValue="FD" enabledBitMask="3">
+				<FuseBit number="0" name="WDTON"	description="Watchdog Timer always on" />
+				<FuseBit number="1" name="M103C"	description="ATmega103 compatibility mode" />
+				<FuseBit number="2" name="-"		description="-" />
+				<FuseBit number="3" name="-"		description="-" />
+				<FuseBit number="4" name="-"		description="-" />
+				<FuseBit number="5" name="-"		description="-" />
+				<FuseBit number="6" name="-" 		description="-" />
+				<FuseBit number="7" name="-" 		description="-" />
+			</FuseBitsExt>
+		</FuseBytes>
+	</AVR_Device>
+
+</AVR_Devices>
