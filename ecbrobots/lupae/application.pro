@@ -2,8 +2,8 @@
 TEMPLATE = app
 TARGET = LUPAE_V2
 DEPENDPATH += . src
-INCLUDEPATH += $home/include
-LIBS += -L$home/lib -lusb -lftdi
+INCLUDEPATH += $(HOME)/include
+LIBS += -L$(HOME)/lib -lusb -lftdi
 
 
 OBJECTS_DIR = obj
