@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-09 11:53:41  martius
+ *   Revision 1.5  2010-11-05 13:54:05  martius
+ *   store and restore for robots implemented
+ *
+ *   Revision 1.4  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.3  2009/11/26 14:21:54  der
@@ -874,7 +877,7 @@ GUIDE adding new sensors
       : new TwoAxisServoCentered(uj, -conf.hipJointLimit*.4,conf.hipJointLimit, conf.hipPower,
 				 -conf.hip2JointLimit*.4, conf.hip2JointLimit, conf.hip2Power, conf.hipDamping,
 				 2, 20, conf.jointLimitFactor);
-    servo2->damping2() = conf.hip2Damping;
+    servo2->setDamping2(conf.hip2Damping);
     hipservos.push_back(servo2);
 
     uj = new UniversalJoint(objects[Hip], objects[Right_Thigh], Pos(-0.1118, 1.0904, 0.011) * pose, 
@@ -889,7 +892,7 @@ GUIDE adding new sensors
       : new TwoAxisServoCentered(uj, -conf.hipJointLimit*.2, conf.hipJointLimit, conf.hipPower,
 				 -conf.hip2JointLimit*.4, conf.hip2JointLimit, conf.hip2Power, conf.hipDamping,
 				 2, 20, conf.jointLimitFactor);
-    servo2->damping2() = conf.hip2Damping;
+    servo2->setDamping2(conf.hip2Damping);
     hipservos.push_back(servo2);
 
 
@@ -1041,8 +1044,8 @@ GUIDE adding new sensors
     FOREACH(vector<TwoAxisServo*>, hipservos, i){
       if(*i) { 
 	(*i)->setPower( conf.hipPower, conf.hip2Power);
-	(*i)->damping1() = conf.hipDamping;
-	(*i)->damping2() = conf.hip2Damping;
+	(*i)->setDamping1(conf.hipDamping);
+	(*i)->setDamping2(conf.hip2Damping);
 	(*i)->setMaxVel(conf.hipVelocity); 
 	(*i)->setMinMax1(-conf.hipJointLimit*.2, +conf.hipJointLimit);
 	(*i)->setMinMax2(-conf.hip2JointLimit*.4,+conf.hip2JointLimit);
@@ -1052,8 +1055,8 @@ GUIDE adding new sensors
     FOREACH(vector<TwoAxisServo*>, headservos, i){
       if(*i){
 	(*i)->setPower(conf.neckPower, conf.neckPower);
-	(*i)->damping1() = conf.neckDamping;
-	(*i)->damping2() = conf.neckDamping;
+	(*i)->setDamping1(conf.neckDamping);
+	(*i)->setDamping2(conf.neckDamping);
 	(*i)->setMaxVel(conf.neckVelocity); 
 	(*i)->setMinMax1(-conf.neckJointLimit, conf.neckJointLimit);
 	(*i)->setMinMax2(-conf.neckJointLimit, conf.neckJointLimit);
@@ -1062,7 +1065,7 @@ GUIDE adding new sensors
     FOREACH(vector<OneAxisServo*>, kneeservos, i){
       if(*i){
 	(*i)->setPower(conf.kneePower);
-	(*i)->damping() = conf.kneeDamping;
+	(*i)->setDamping(conf.kneeDamping);
 	(*i)->setMaxVel(conf.kneeVelocity); 
 	(*i)->setMinMax(-conf.kneeJointLimit, conf.kneeJointLimit*0.1);
       } 
@@ -1070,7 +1073,7 @@ GUIDE adding new sensors
     FOREACH(vector<OneAxisServo*>, ankleservos, i){
       if(*i){
 	(*i)->setPower(conf.anklePower);
-	(*i)->damping() = conf.ankleDamping;
+	(*i)->setDamping(conf.ankleDamping);
 	(*i)->setMaxVel(conf.ankleVelocity); 
 	(*i)->setMinMax(-conf.ankleJointLimit, conf.ankleJointLimit*0.5);
       } 
@@ -1078,8 +1081,8 @@ GUIDE adding new sensors
     FOREACH(vector<TwoAxisServo*>, armservos, i){
       if(*i){
 	(*i)->setPower(conf.armPower, conf.armPower);
-	(*i)->damping1() = conf.armDamping;
-	(*i)->damping2() = conf.armDamping;
+	(*i)->setDamping1(conf.armDamping);
+	(*i)->setDamping2(conf.armDamping);
 	(*i)->setMaxVel(conf.armVelocity); 
 	(*i)->setMinMax1(-conf.armJointLimit, conf.armJointLimit);
 	(*i)->setMinMax2(-conf.armJointLimit*.3, conf.armJointLimit);
@@ -1088,14 +1091,14 @@ GUIDE adding new sensors
     FOREACH(vector<OneAxisServo*>, arm1servos, i){
       if(*i){
 	(*i)->setPower(conf.elbowPower);
-	(*i)->damping() = conf.elbowDamping;
+	(*i)->setDamping(conf.elbowDamping);
 	(*i)->setMaxVel(conf.elbowVelocity); 
 	(*i)->setMinMax(0, conf.elbowJointLimit);
       } 
     }
 
     pelvisservo->setPower(conf.pelvisPower); 
-    pelvisservo->damping() = conf.pelvisDamping;
+    pelvisservo->setDamping(conf.pelvisDamping);
     pelvisservo->setMaxVel(conf.pelvisVelocity);
     pelvisservo->setMinMax(-conf.pelvisJointLimit,+conf.pelvisJointLimit);
     
@@ -1103,7 +1106,7 @@ GUIDE adding new sensors
     FOREACH(vector<OneAxisServo*>, backservos, i){
       if(*i){
 	(*i)->setPower(conf.backPower);
-	(*i)->damping() = conf.backDamping;
+	(*i)->setDamping(conf.backDamping);
 	(*i)->setMaxVel(conf.backVelocity); 
 	(*i)->setMinMax(fst? -conf.backJointLimit : -conf.backJointLimit,
 			conf.backJointLimit);

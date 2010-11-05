@@ -76,6 +76,8 @@ public:
   const static double pitheight = 2;
   const static double uterussize = 1;
 
+  OdeRobot* robot;
+
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
@@ -95,6 +97,7 @@ public:
        // int barrel=1;
     // int dogs = 0; 
 
+    robot=0;
 
     bool fixedInAir = true;
     reckturner = false;
@@ -177,6 +180,7 @@ public:
     //     skelHandle.substance.toPlastic(.5);//TEST sonst 40
      // skelHandle.substance.toRubber(5.00);//TEST sonst 40
      Skeleton* human0 = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");           
+     robot=human0;
      AddSensors2RobotAdapter* human = 
        new AddSensors2RobotAdapter(skelHandle, osgHandle, human0, sensors);
      human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
@@ -230,7 +234,7 @@ public:
 
      OdeAgent* agent = new OdeAgent(i==0 ? plotoptions : list<PlotOption>());
      agent->init(controller, human, wiring);
-     //agent->startMotorBabblingMode(5000);
+     // agent->startMotorBabblingMode(5000);
      //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
      global.agents.push_back(agent);      
    }// Several humans end
@@ -502,7 +506,7 @@ public:
      global.agents.push_back(agent);
      global.configs.push_back(controller);
      global.configs.push_back(robot);        
-   }//Creationn of wheelies end
+   }//Creation of wheelies end
 
 
 
@@ -520,6 +524,7 @@ public:
     //       if(reckLeft) reckLeft->update();
     //       if(reckRight) reckRight->update();
     //     }
+    
     if(globalData.time>1 && reckturner==true && reck==0){
       double reckLength=20;	
       reck = new Capsule(0.01,reckLength);
@@ -545,6 +550,13 @@ public:
       fixator->init(odeHandle, osgHandle);	
     }
     if(control &&!pause){
+      if(globalData.sim_step % int(10.0/globalData.odeConfig.simStepSize)==0){
+        if(robot) robot->storeToFile("robot_10.rob");
+      }
+      if(globalData.sim_step % int(100.0/globalData.odeConfig.simStepSize)==0){
+        if(robot) robot->storeToFile("robot_100.rob");
+      }
+    
       if(centerforce!=0){
 	// force to center
 	FOREACH(vector<OdeAgent*> , globalData.agents, a){
@@ -639,6 +651,30 @@ public:
 	    s.hardness/=1.5;
 	    cout << "hardness " << s.hardness << endl;
 	    playground->setSubstance(s);
+	  }
+	  return true;
+	  break;
+	case 's': 
+	  if(robot) {	    
+            robot->storeToFile("myrobot.rob");
+	  }
+	  return true;
+	  break;
+	case 'r': 
+	  if(robot) {	    
+            robot->restoreFromFile("myrobot.rob");
+	  }
+	  return true;
+          break;
+	case '0': 
+	  if(robot) {	    
+            robot->restoreFromFile("robot_10.rob");
+	  }
+	  return true;
+          break;
+	case '9': 
+	  if(robot) {	    
+            robot->restoreFromFile("robot_100.rob");
 	  }
 	  return true;
 	  break;

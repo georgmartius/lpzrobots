@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-10-20 13:18:38  martius
+ *   Revision 1.5  2010-11-05 13:54:05  martius
+ *   store and restore for robots implemented
+ *
+ *   Revision 1.4  2010/10/20 13:18:38  martius
  *   parameters changed,
  *   motor babbling added
  *
@@ -150,9 +153,9 @@ public:
 
     SoXConf sc = SoX::getDefaultConf();
     sc.useHiddenContr=true;
-    sc.useHiddenModel=true;
+    sc.useHiddenModel=false;
     sc.someInternalParams=false;
-    sc.useS=true;
+    sc.useS=false;
     SoX* sox = new SoX(sc);
     sox->setParam("epsC",0.05);
     sox->setParam("epsA",0.05);
@@ -200,7 +203,7 @@ public:
     global.agents.push_back(agent);
     global.configs.push_back(controller);
 
-    agent->startMotorBabblingMode(5000);
+    //agent->startMotorBabblingMode(5000);
 
     this->getHUDSM()->setColor(Color(1.0,1.0,0));
     this->getHUDSM()->setFontsize(18);    

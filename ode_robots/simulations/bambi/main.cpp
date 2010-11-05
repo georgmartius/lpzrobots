@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-10-20 15:23:54  der
+ *   Revision 1.6  2010-11-05 13:54:05  martius
+ *   store and restore for robots implemented
+ *
+ *   Revision 1.5  2010/10/20 15:23:54  der
  *   minor changes
  *
  *   Revision 1.4  2010/03/09 11:53:41  martius
@@ -313,7 +316,6 @@ public:
 //       //s.toRubber(100);
 // 	   s.toPlastic(90);
 //       playground->setSubstance(s);
-//       playground->setWallSubstance(s);
 //       // playground->setPosition(osg::Vec3(i,-i,0)); // playground positionieren und generieren
 //     //global.obstacles.push_back(playground);
 //     }
@@ -409,7 +411,7 @@ public:
      OdeHandle skelHandle=odeHandle;
      // skelHandle.substance.toMetal(1);
     //     skelHandle.substance.toPlastic(.5);//TEST sonst 40
-     skelHandle.substance.toRubber(5.00);//TEST sonst 40
+     // skelHandle.substance.toRubber(5.00);//TEST sonst 40
      Skeleton* human0 = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");           
      AddSensors2RobotAdapter* human = 
        new AddSensors2RobotAdapter(skelHandle, osgHandle, human0, sensors);
@@ -473,9 +475,10 @@ public:
     //       cc.useS=false;
    // AbstractController* controller = new DerLinInvert(cc);
      //     AbstractController* controller = new BasicController(cc);
-     // AbstractController* controller = new SineController(1<<14); // only motor 14
+   //   AbstractController* controller = new SineController(1<<14); // only motor 14
+   AbstractController* controller = new SineController(); // only motor 14
      //AbstractController* controller = new SineController(0,SineController::Impulse);
-   AbstractController* controller = new SineController((~0),SineController::Impulse);
+   //AbstractController* controller = new SineController((~0),SineController::Impulse);
      //AbstractController* controller = new SineController(3<<17,SineController::Impulse);
      //     controller->setParam("period",1000);
      //     controller->setParam("phaseshift",0);

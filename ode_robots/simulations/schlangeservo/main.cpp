@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2008-09-16 19:44:38  martius
+ *   Revision 1.14  2010-11-05 13:54:05  martius
+ *   store and restore for robots implemented
+ *
+ *   Revision 1.13  2008/09/16 19:44:38  martius
  *   removed dercontroller
  *
  *   Revision 1.12  2008/09/16 19:37:36  martius
@@ -92,9 +95,13 @@
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/sinecontroller.h>
+#include <selforg/sox.h>
+
 
 #include <ode_robots/schlangeservo2.h>
 #include <ode_robots/schlangeservo.h>
+
+#include <ode_robots/axisorientationsensor.h>
 
 
 using namespace lpzrobots;
@@ -123,48 +130,57 @@ public:
   virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global){
     setCameraHomePos(Pos(-19.7951, -12.3665, 16.4319),  Pos(-51.7826, -26.772, 0));
 
+    bool schlange=true;
+
     global.odeConfig.setParam("controlinterval",4);
-    global.odeConfig.setParam("gravity", 0.0); 
+    global.odeConfig.setParam("gravity", -1); 
     global.odeConfig.setParam("realtimefactor",4);
+    global.odeConfig.setParam("noise",0.05);
 
     //****************/
     SchlangeConf conf = Schlange::getDefaultConf();
-    conf.motorPower=3;
+    conf.motorPower=1;
+    conf.jointLimit=M_PI/2.0;
     conf.frictionJoint=0.05;
     //conf.motorPower=5;
     //    conf.frictionJoint=0.01;
-    conf.segmNumber=15;     
+    conf.segmNumber=9;     
+    conf.useServoVel=true;
     //     conf.jointLimit=conf.jointLimit*3;
     SchlangeServo* schlange1 = 
       new SchlangeServo ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
-			  conf, "Schlange1D");
+                          conf, "Schlange1D");
     ((OdeRobot*)schlange1)->place(Pos(0,0,3)); 
 
-    //    //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
-    //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
-    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-    cc.cInit=1.8;
-    cc.cInit=1.0;
-    //    cc.cNonDiag=0.0;
-    cc.useSD=true;
-    cc.someInternalParams=false;
-    controller = new InvertMotorNStep(cc);  
+    // //    //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
+    // //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
+    // InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+    // cc.cInit=1.8;
+    // cc.cInit=1.0;
+    // //    cc.cNonDiag=0.0;
+    // cc.useSD=true;
+    // cc.someInternalParams=false;
+    // controller = new InvertMotorNStep(cc);  
     
-    AbstractController *controller = new InvertMotorNStep(cc);  
+    // AbstractController *controller = new InvertMotorNStep(cc);  
+    
     //    DerControllerConf dc = DerController::getDefaultConf();
     //    dc.cInit=1;
     //    AbstractController *controller = new DerController(dc);  
     //    controller->setParam("noiseY",0);
     
     //    AbstractController *controller = new SineController();  
-//     DerControllerConf cc = DerController::getDefaultConf();
-//     cc.cInit=0.8;
-//     cc.useS=false;
-//     AbstractController *controller = new DerController(cc);  
+    //     DerControllerConf cc = DerController::getDefaultConf();
+    //     cc.cInit=0.8;
+    //     cc.useS=false;
+    //     AbstractController *controller = new DerController(cc);  
 
-  
-    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    // AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
+    SoXConf sc = SoX::getDefaultConf();
+    SoX* controller = new SoX(sc);
+
+
+    // AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
     //   DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
     //   c.useId=true;
     //   c.useFirstD=true;
@@ -213,7 +229,6 @@ public:
     dteachingLen = schlange1->getSensorNumber();
     dteachingSignal = new double[teachingLen];
 
-
   }
 
 
@@ -240,7 +255,6 @@ public:
   {
     if (!down) return false;    
     bool handled = false;
-    FILE* f;
     switch ( key )
       {
       case 'x':

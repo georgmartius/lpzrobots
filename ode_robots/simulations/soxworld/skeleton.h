@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-10-21 14:25:42  martius
+ *   Revision 1.3  2010-11-05 13:54:05  martius
+ *   store and restore for robots implemented
+ *
+ *   Revision 1.2  2010/10/21 14:25:42  martius
  *   is inspectable
  *
  *   Revision 1.1  2010/10/21 12:53:06  martius
@@ -185,13 +188,13 @@ namespace lpzrobots {
   class Skeleton : public OdeRobot, public Inspectable {
   public:
 
-    enum SkelParts {Pole,Pole2, Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp, 
-			     Left_Shoulder, Left_Forearm, Left_Hand,
-			     Right_Shoulder, Right_Forearm, Right_Hand, 
-			     Left_Thigh, Left_Shin, Left_Foot,
-			     Right_Thigh, Right_Shin, Right_Foot,
-			     LastPart };
-
+    enum SkelParts {Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp, 
+                    Left_Shoulder, Left_Forearm, Left_Hand,
+                    Right_Shoulder, Right_Forearm, Right_Hand, 
+                    Left_Thigh, Left_Shin, Left_Foot,
+                    Right_Thigh, Right_Shin, Right_Foot,
+                    LastPart };
+    
   
     /**
      * constructor of Skeleton robot
@@ -362,6 +365,9 @@ namespace lpzrobots {
 
     /** returns the position of the trunk */
     virtual Position getTrunkPosition();
+    
+    virtual std::list<Primitive*> getAllPrimitives();
+   
 
   protected:
 

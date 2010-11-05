@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.32  2010-09-24 13:38:48  martius
+ *   Revision 1.33  2010-11-05 13:54:05  martius
+ *   store and restore for robots implemented
+ *
+ *   Revision 1.32  2010/09/24 13:38:48  martius
  *   added toGlobal and applyForce/Torque with doubles
  *
  *   Revision 1.31  2010/09/17 10:07:45  martius
@@ -462,6 +465,37 @@ namespace lpzrobots{
   void Primitive::setSubstance(Substance substance) {
     this->substance = substance;
     substanceManuallySet = true;
+  }
+
+  bool Primitive::store(FILE* f) const {
+    const osg::Matrix& pose  = getPose();
+    const Pos& vel = getVel();  
+    const Pos& avel = getAngularVel();  
+    
+    if ( fwrite ( pose.ptr() , sizeof ( osg::Matrix::value_type), 16, f ) == 16 )
+      if( fwrite ( vel.ptr() , sizeof ( Pos::value_type), 3, f ) == 3 )
+        if( fwrite ( avel.ptr() , sizeof ( Pos::value_type), 3, f ) == 3 )
+          return true;
+    return false;
+  }
+  
+  bool Primitive::restore(FILE* f){
+    osg::Matrix pose;
+    Pos vel;
+    Pos avel;
+    
+    if ( fread ( pose.ptr() , sizeof ( osg::Matrix::value_type), 16, f ) == 16 )
+      if( fread ( vel.ptr() , sizeof ( Pos::value_type), 3, f ) == 3 )
+        if( fread ( avel.ptr() , sizeof ( Pos::value_type), 3, f ) == 3 ){
+          setPose(pose);
+          if(body){
+            dBodySetLinearVel(body,vel.x(),vel.y(),vel.z());     
+            dBodySetAngularVel(body,avel.x(),avel.y(),avel.z());     
+          }
+          return true;
+        }        
+    fprintf ( stderr, "Primitve::restore: cannot read primitive from data\n" );
+    return false;
   }
 
 

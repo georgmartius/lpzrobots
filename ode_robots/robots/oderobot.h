@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-03-21 21:48:59  martius
+ *   Revision 1.12  2010-11-05 13:54:05  martius
+ *   store and restore for robots implemented
+ *
+ *   Revision 1.11  2010/03/21 21:48:59  martius
  *   camera sensor bugfixing (reference to osghandle)
  *   twowheeled robot added (nimm2 with camera)
  *   sense function added to robots (before control): sensors (type Sensor) are checked here
@@ -154,6 +157,7 @@
 #include <vector>
  
 #include <selforg/abstractrobot.h>
+#include <selforg/storeable.h>
 #include "odehandle.h"
 #include "osghandle.h"
 #include "globaldata.h"
@@ -169,7 +173,7 @@ namespace lpzrobots {
    * Abstract class  for ODE robots
    * 
    */
-  class OdeRobot : public AbstractRobot {
+  class OdeRobot : public AbstractRobot, public Storeable {
   public:
 
     friend class OdeAgent;
@@ -250,7 +254,16 @@ namespace lpzrobots {
     
     /// return the primitive of the robot that is used for tracking and camera following
     virtual Primitive* getMainPrimitive() const  = 0;
+
+    /// returns a list of all primitives of the robot (used to store and restore the robot)
+    virtual std::list<Primitive*> getAllPrimitives() { return std::list<Primitive*>();}    
+    /// returns a list of all primitives of the robot (const version) (used to store and restore the robot)
+    /* **************** Storable interface ********** */
+    virtual bool store(FILE* f) const;
     
+    virtual bool restore(FILE* f);  
+
+
   protected:
     
     static bool isGeomInPrimitiveList(Primitive** ps, int len, dGeomID geom);

@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2010-09-24 13:38:48  martius
+ *   Revision 1.26  2010-11-05 13:54:05  martius
+ *   store and restore for robots implemented
+ *
+ *   Revision 1.25  2010/09/24 13:38:48  martius
  *   added toGlobal and applyForce/Torque with doubles
  *
  *   Revision 1.24  2010/03/25 16:39:51  martius
@@ -177,6 +180,7 @@
 
 #include <osg/Matrix>
 #include <ode-dbl/common.h>
+#include <selforg/storeable.h>
 
 #include "pos.h"
 #include "substance.h"
@@ -218,7 +222,7 @@ void odeRotation( const osg::Matrix& pose , dMatrix3& odematrix);
    Interface class for primitives represented in the physical and graphical world.
    This is intended to bring OSG and ODE together and hide most implementation details.
 */
-class Primitive {
+class Primitive : public Storeable {
 public:
   /** Body means that it is a dynamic object with a body.
       Geom means it has a geometrical represenation used for collision detection.
@@ -335,6 +339,12 @@ public:
   }
 
   void setSubstance(Substance substance);
+
+  /* **** storable interface *******/
+  virtual bool store(FILE* f) const;
+  
+  virtual bool restore(FILE* f);  
+
 
 protected:
   /** attaches geom to body (if any) and sets the category bits and collision bitfields.

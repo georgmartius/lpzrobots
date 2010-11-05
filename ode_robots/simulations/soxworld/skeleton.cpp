@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-10-21 14:19:14  martius
+ *   Revision 1.3  2010-11-05 13:54:05  martius
+ *   store and restore for robots implemented
+ *
+ *   Revision 1.2  2010/10/21 14:19:14  martius
  *   added description of joints
  *
  *   Revision 1.1  2010/10/21 12:53:06  martius
@@ -1191,5 +1194,10 @@ GUIDE adding new sensors
     else return Position(0,0,0);
   }
 
+
+  std::list<Primitive*> Skeleton::getAllPrimitives() {    
+    list<Primitive*> ps(&objects[0],&objects[LastPart]);
+    return ps;
+  }
 
 }

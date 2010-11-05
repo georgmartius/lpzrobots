@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2010-03-09 11:53:41  martius
+ *   Revision 1.23  2010-11-05 13:54:05  martius
+ *   store and restore for robots implemented
+ *
+ *   Revision 1.22  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.21  2009/10/09 17:18:03  martius
@@ -316,7 +319,6 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
 //       //s.toRubber(100);
 // 	   s.toPlastic(90);
 //       playground->setSubstance(s);
-//       playground->setWallSubstance(s);
 //       // playground->setPosition(osg::Vec3(i,-i,0)); // playground positionieren und generieren
 //     //global.obstacles.push_back(playground);
 //     }

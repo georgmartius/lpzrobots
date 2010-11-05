@@ -21,7 +21,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-01-26 09:54:56  martius
+ *   Revision 1.10  2010-11-05 13:54:05  martius
+ *   store and restore for robots implemented
+ *
+ *   Revision 1.9  2010/01/26 09:54:56  martius
  *   getposition and getVel... is done via the primitives
  *
  *   Revision 1.8  2008/09/16 14:53:40  martius
@@ -162,5 +165,32 @@ matrix::Matrix OdeRobot::getOrientation() const {
   /*********** END TRACKABLE INTERFACE ****************/
 
 
+  bool OdeRobot::store(FILE* f) const{
+    /* we do here a typecase to OdeRobot* get rid of the const, 
+       but the primitives are not changed anyway, so it is okay */
+    if(!f) return false;
+    fwrite("ROBOT", sizeof(char), 5, f); // maybe also print name
+    const list<Primitive*>& ps = ((OdeRobot*)this)->getAllPrimitives();
+    FOREACHC(list<Primitive*>,ps,p){
+      if(*p)
+        if(!(*p)->store(f)) return false;      
+    }
+    return true;
+  }
+  
+  bool OdeRobot::restore(FILE* f){
+    if(!f) return false;
+    char robotstring[5];
+    if(fread(robotstring, sizeof(char),5,f) != 5 || strncmp(robotstring,"ROBOT",5)!=0){
+      fprintf(stderr,"OdeRobot::restore: the file is not a robot save file\n");
+      return false;
+    }
+    const list<Primitive*>& ps = getAllPrimitives();
+    FOREACHC(list<Primitive*>,ps,p){
+      if(*p)
+        if(!(*p)->restore(f)) return false;      
+    }
+    return true;
+  }
 
 }

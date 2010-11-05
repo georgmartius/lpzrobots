@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-11-26 14:21:54  der
+ *   Revision 1.4  2010-11-05 13:54:05  martius
+ *   store and restore for robots implemented
+ *
+ *   Revision 1.3  2009/11/26 14:21:54  der
  *   Larger changes
  *   :wq
  *
@@ -176,7 +179,7 @@ namespace lpzrobots {
   class Skeleton : public OdeRobot {
   public:
 
-    typedef enum SkelParts {Pole,Pole2, Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp, 
+    enum SkelParts {Pole,Pole2, Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp, 
 			     Left_Shoulder, Left_Forearm, Left_Hand,
 			     Right_Shoulder, Right_Forearm, Right_Hand, 
 			     Left_Thigh, Left_Shin, Left_Foot,
