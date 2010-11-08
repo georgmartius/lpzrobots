@@ -7,7 +7,10 @@
 //  and fast inversion for nonzero square matrixes
 //
 // $Log$
-// Revision 1.37  2010-10-20 12:52:59  martius
+// Revision 1.38  2010-11-08 14:15:35  guettler
+// -removed unnecessary comparisons (due to unsigned type) in valDef0 in order to avoid warnings
+//
+// Revision 1.37  2010/10/20 12:52:59  martius
 // pseudoinverse uses lambda only on demand
 // secure inverse for square matrices added
 //
@@ -315,7 +318,7 @@ namespace matrix{
 
     /** @return element at position i,j (row, column index) and 0 if out of bounds */
     inline D valDef0(I i, I j) const {
-      if(0<=i && i<m && 0<=j && j<n)
+      if(i<m && j<n)
 	return data[i*n+j];
       else return 0;
     };
