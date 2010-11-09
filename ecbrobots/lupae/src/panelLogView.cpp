@@ -26,50 +26,53 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-03 13:05:27  wrabe
- *   -new version 2.0 uses ftdi driver library (libftdi and libusb)
- *   -special string identifiers (device descriptor) of usb devices (FT232RL), hard coded!
+ *   Revision 1.2  2010-11-09 17:56:55  wrabe
+ *   - change of the communication protocoll between lupae and usb-isp-adapter
+ *   - therefore recoding the dedicated methods
+ *   - reduction of the overloded send_Message methods to one method only
+ *   - insertion of QExtActions to join all events of menu-buttons as well of quickstart-buttons
+ *   - adding two new functions to read out and write into the eeprom-space of the atmega128 at an ecb
+ *   - change of the fontSize in the hexViewer, change of the total-width of the window
  *                                            *
  *                                                                         *
  ***************************************************************************/
 
 #include "panelLogView.h"
 
-QPanelLogView::QPanelLogView()
-{
-	setPalette(QPalette(QColor(220, 230, 220)));
-	setAutoFillBackground(true);
+namespace lpzrobots {
 
-	QGridLayout *grid = new QGridLayout();
-	this->setLayout(grid);
+  QPanelLogView::QPanelLogView() {
+    setPalette(QPalette(QColor(220, 230, 220)));
+    setAutoFillBackground(true);
 
+    QGridLayout *grid = new QGridLayout();
+    this->setLayout(grid);
 
-	// Das Textfeld
-	textEdit_LogView = new QTextEdit();
-	QPalette palette = textEdit_LogView->palette();
-	palette.setColor(QPalette::Active, QPalette::Base, QColor(220, 230, 220));
-	palette.setColor(QPalette::Inactive, QPalette::Base, QColor(200, 210, 200));
-	textEdit_LogView->setAutoFillBackground(true);
-	textEdit_LogView->setPalette(palette);
-	textEdit_LogView->setTextInteractionFlags(Qt::TextSelectableByMouse);
-	grid->addWidget(textEdit_LogView, 0, 0);
+    // Das Textfeld
+    textEdit_LogView = new QTextEdit();
+    QPalette palette = textEdit_LogView->palette();
+    palette.setColor(QPalette::Active, QPalette::Base, QColor(220, 230, 220));
+    palette.setColor(QPalette::Inactive, QPalette::Base, QColor(200, 210, 200));
+    textEdit_LogView->setAutoFillBackground(true);
+    textEdit_LogView->setPalette(palette);
+    textEdit_LogView->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    grid->addWidget(textEdit_LogView, 0, 0);
 
-}
+  }
 
-QPanelLogView::~QPanelLogView() {}
+  QPanelLogView::~QPanelLogView() {
+  }
 
+  //------------------------------------------------------------------------------------------------------
+  void QPanelLogView::clearLogViewText() {
+    textEdit_LogView->clear();
+  }
+  void QPanelLogView::appendLogViewText(QString text) {
+    textEdit_LogView->append(text);
+  }
 //------------------------------------------------------------------------------------------------------
-void QPanelLogView::clearLogViewText(){
-	textEdit_LogView->clear();}
-void QPanelLogView::appendLogViewText(QString text){
-	textEdit_LogView->append(text);}
-//------------------------------------------------------------------------------------------------------
 
 
-
-
-
-
-
+}//namespace lpzrobots
 
 

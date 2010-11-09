@@ -24,92 +24,45 @@
  ***************************************************************************
  *                                                                         *
  *  DESCRIPTION                                                            *
- *  Diese Klasse stellt den Zugriff zu einer seriellen Schnittstelle       *
- *  bereit. Alle verfügbaren (nicht verwendeten) seriellen Verbindungen    *
- *  können abgefragt werden. Eingehende Daten werden mit Hilfe eines       *
- *  eigenständigen Threads verarbeitet.                                    *
- *  Die Klasse sendet drei Signale: ein Signal über das Öffnen des Ports,  *
- *  ein signal über Status/Fehler-Mitteilungen und ein Signal über den     *
- *  Empfang neuer Daten vom Port                                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-09 17:56:55  wrabe
+ *   Revision 1.1  2010-11-09 17:56:55  wrabe
  *   - change of the communication protocoll between lupae and usb-isp-adapter
  *   - therefore recoding the dedicated methods
  *   - reduction of the overloded send_Message methods to one method only
  *   - insertion of QExtActions to join all events of menu-buttons as well of quickstart-buttons
  *   - adding two new functions to read out and write into the eeprom-space of the atmega128 at an ecb
  *   - change of the fontSize in the hexViewer, change of the total-width of the window
- *                                       *
+ *                                                *
  *                                                                         *
  ***************************************************************************/
-
-#ifndef QFT232DEVICEMANAGER_H_
-#define QFT232DEVICEMANAGER_H_
-
-#include <QtGui>
-#include <QThread>
-#include <QString>
-#include <ftdi.h>
-#include "constants.h"
-#include "types.h"
+#include "QExtAction.h"
 
 namespace lpzrobots {
 
-  class QFT232DeviceManager : public QThread {
-  Q_OBJECT
+  QExtAction::QExtAction(QObject* parent) :
+    QAction(parent), actionId(0) {
+  }
 
-  public:
-    QFT232DeviceManager();
-    virtual ~QFT232DeviceManager();
-    virtual void run();
+  QExtAction::QExtAction(int actionId, const QString &text, QObject* parent) :
+    QAction(text, parent), actionId(actionId) {
+    connect(this, SIGNAL(triggered()), this, SLOT(sl_triggered()));
+  }
 
-    void createDeviceList();
-    QStringList getDeviceList();
-    int openDevice(struct usb_device* usb_dev, int baudrate);
-    int openDeviceByName(QString usb_deviceName_to_open, int baudrate_to_use);
-    int setBaudrate(int baudrate_to_set);
-    int setLatencyTimer(int latency_to_set);
-    int setDTR(int dtr_val);
-    int closeDevice();
+  QExtAction::QExtAction(int actionId, const QIcon &icon, const QString &text, QObject* parent) :
+    QAction(icon, text, parent), actionId(actionId) {
+    connect(this, SIGNAL(triggered()), this, SLOT(sl_triggered()));
+  }
 
-    bool isDeviceAvailable(QString deviceName);
-    bool isDeviceOpened() {
-      return opened;
-    }
-    int getBaudrate() {
-      return baudrate;
-    }
-    ;
-    QString getDeviceName() {
-      return deviceName;
-    }
-    ;
-    int writeData(QByteArray msg);
+  QExtAction::~QExtAction() {
+  }
 
-    /*
-     void setDeviceName(QString name){ deviceName = name.toLatin1(); };
-     QString getDeviceName() {return deviceName;};
-     */
+  void QExtAction::setActionId(int actionId) {
+    this->actionId = actionId;
+  }
 
-  signals:
-    void newData(QByteArray msg);
-    void textLog(QString s);
-    void deviceOpened();
+  void QExtAction::sl_triggered() {
+    emit triggered(actionId);
+  }
 
-  private:
-
-    QString deviceName;
-    unsigned int baudrate;
-    QByteArray receiveBuffer;
-    volatile bool opened;
-    volatile bool runListener;
-
-    struct ftdi_context ftdic;
-    struct ftdi_device_list* devlist;
-    struct usb_device* usb_device_opened;
-
-  };
-
-}//namespace lpzrobots
-#endif /* SERIALCOMMUNICATION_H_ */
+} // namespace lpzrobots

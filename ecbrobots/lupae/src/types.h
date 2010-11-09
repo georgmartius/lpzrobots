@@ -11,7 +11,18 @@
 
 typedef unsigned char QByte;
 typedef unsigned short QWord;
+typedef QByte uint8_t;
 
+struct MessageIsp_t{
+  uint8_t startDelemiter;
+  uint8_t lengthHigh;
+  uint8_t lengthLow;
+  uint8_t apiIdentifier;
+  // ----------------------
+  uint8_t msgGroup;
+  uint8_t msgCode;
+  uint8_t data[];
+};
 
 
 #endif /* TYPES_H_ */

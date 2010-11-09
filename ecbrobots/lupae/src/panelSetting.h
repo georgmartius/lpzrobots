@@ -26,9 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-03 13:05:27  wrabe
- *   -new version 2.0 uses ftdi driver library (libftdi and libusb)
- *   -special string identifiers (device descriptor) of usb devices (FT232RL), hard coded!
+ *   Revision 1.2  2010-11-09 17:56:55  wrabe
+ *   - change of the communication protocoll between lupae and usb-isp-adapter
+ *   - therefore recoding the dedicated methods
+ *   - reduction of the overloded send_Message methods to one method only
+ *   - insertion of QExtActions to join all events of menu-buttons as well of quickstart-buttons
+ *   - adding two new functions to read out and write into the eeprom-space of the atmega128 at an ecb
+ *   - change of the fontSize in the hexViewer, change of the total-width of the window
  *                                              *
  *                                                                         *
  ***************************************************************************/
@@ -42,101 +46,89 @@
 #include "constants.h"
 #include "types.h"
 
+namespace lpzrobots {
 
-
-
-/**
- * (software)technische Beschreibung der Klasse
- * (z.B. Entwurfsmuster, Besonderheiten, mit welcher Klasse interagiert diese,...?)
- *
- * Architekturmuster: Model-View-Controller, hier der View.
- *   Der darzustellende Inhalt wird vom Controller bestimmt.
- *   Der Controller wird über Nutzer-Interaktionen benachrichtigt.
- */
-class QPanelSetting : public QWidget
-{
+  class QPanelSetting : public QWidget {
   Q_OBJECT
 
-public:
-  QPanelSetting();
-  virtual ~QPanelSetting();
+  public:
+    QPanelSetting();
+    virtual ~QPanelSetting();
 
-  void setMode(int mode);
+    void setMode(int mode);
 
-  void setUSBDeviceNames(QStringList list);
-  void setUSBDeviceBaudrates(QStringList list);
-  void setAVRDeviceAccessSpeeds(QStringList list);
-  void setUSBDeviceXBeeType(QStringList list);
-  void setXBeeRemoteNodeIdentifiers(QStringList list);
+    void setUSBDeviceNames(QStringList list);
+    void setUSBDeviceBaudrates(QStringList list);
+    void setAVRDeviceAccessSpeeds(QStringList list);
+    void setUSBDeviceXBeeTypes(QStringList list);
+    void setXBeeRemoteNodeIdentifiers(QStringList list);
 
-  QString getUSBDeviceName();
-  QString getUSBDeviceBaudrate();
-  QString getUSBDeviceXBeeType();
-  QString getAVRDeviceAccessSpeed();
-  QString getXBeeRemoteNodeIdentifier();
+    QString getUSBDeviceName();
+    QString getUSBDeviceBaudrate();
+    QString getUSBDeviceXBeeType();
+    QString getAVRDeviceAccessSpeed();
+    QString getXBeeRemoteNodeIdentifier();
 
-  void setUSBDeviceName(QString name);
-  void setUSBDeviceBaudrate(QString name);
-  void setAVRDeviceAccessSpeed(QString name);
-  void setUSBDeviceXBeeType(QString name);
-  void setXBeeRemoteNodeIdentifier(QString name);
+    void setUSBDeviceName(QString name);
+    void setUSBDeviceBaudrate(QString name);
+    void setAVRDeviceAccessSpeed(QString name);
+    void setUSBDeviceXBeeType(QString name);
+    void setXBeeRemoteNodeIdentifier(QString name);
 
-  void setDefaultBaudrate(QString deviceName, int iBaudrate);
-  void setNodeIdentifierSettingEnabled(bool b);
-  void setTargetDeviceName(QString text);
-  void appendLogViewText(QString text);
+    void setDefaultBaudrate(QString deviceName, int iBaudrate);
+    void setNodeIdentifierSettingEnabled(bool b);
+    void setAVRDeviceName(QString text);
+    void appendLogViewText(QString text);
 
-  void stopSignaling();
-  void startSignaling();
+    void stopSignaling();
+    void startSignaling();
 
-signals:
-  void signal_USBDeviceName_changed(QString name);
-  void signal_USBDeviceBaudrate_changed(QString name);
-  void signal_AVRDeviceAccessSpeed_changed(QString name);
-  void signal_USBDeviceXBeeType_changed(QString name);
-  void signal_XBeeRemoteNodeIdentifier_changed(QString name);
+  signals:
+    void signal_USBDeviceName_changed(QString name);
+    void signal_USBDeviceBaudrate_changed(QString name);
+    void signal_AVRDeviceAccessSpeed_changed(QString name);
+    void signal_USBDeviceXBeeType_changed(QString name);
+    void signal_XBeeRemoteNodeIdentifier_changed(QString name);
 
-private slots:
-  void USBDevice_Name_changed(QString name);
-  void USBDevice_Baudrate_changed(QString name);
-  void AVRDevice_AccessSpeed_changed(QString name);
-  void XBEE_AdapterType_changed(QString elementName);
-  void XBEE_RemoteNodeIdentifier_changed(QString elementName);
+  private slots:
+    void USBDevice_Name_changed(QString name);
+    void USBDevice_Baudrate_changed(QString name);
+    void AVRDevice_AccessSpeed_changed(QString name);
+    void XBEE_AdapterType_changed(QString elementName);
+    void XBEE_RemoteNodeIdentifier_changed(QString elementName);
 
+  private:
+    QComboBox *coBox_USBDeviceName;
+    QComboBox *coBox_USBDeviceBaudrate;
+    QComboBox *coBox_AVRDeviceAccSpeed;
+    QComboBox *coBox_USBDeviceXBeeType;
+    QComboBox *coBox_XBeeRemoteNodeIdentifier;
 
+    QLabel *label_coBox_USBDeviceName;
+    QLabel *label_coBox_USBDeviceBaudrate;
+    QLabel *label_coBox_AVRDeviceAccSpeed;
+    QLabel *label_coBox_AVRDeviceName;
+    QLabel *label_coBox_USBDeviceXBeeType;
+    QLabel *label_coBox_XBeeRemoteNodeIdentifier;
 
-private:
-  QComboBox   *coBox_USBDeviceName;
-  QComboBox   *coBox_USBDeviceBaudrate;
-  QComboBox   *coBox_AVRDeviceAccSpeed;
-  QComboBox   *coBox_USBDeviceXBeeType;
-  QComboBox   *coBox_XBeeRemoteNodeIdentifier;
+    QLabel *label_AVRDeviceNameView;
 
-  QLabel      *label_coBox_USBDeviceName;
-  QLabel      *label_coBox_USBDeviceBaudrate;
-  QLabel      *label_coBox_AVRDeviceAccSpeed;
-  QLabel      *label_coBox_AVRDeviceName;
-  QLabel      *label_coBox_USBDeviceXBeeType;
-  QLabel      *label_coBox_XBeeRemoteNodeIdentifier;
+    QLabel *labelPixmap_USB_ISP_Adapter;
+    QLabel *labelPixmap_USB_UART_Adapter;
+    QLabel *labelPixmap_USB_XBEE_Adapter;
 
-  QLabel      *label_AVRDeviceNameView;
+    QGroupBox *groupBox_ISP;
+    QGroupBox *groupBox_BL;
+    QGroupBox *groupBox_Settings;
+    QGridLayout *gridLayout;
 
-  QLabel      *labelPixmap_USB_ISP_Adapter;
-  QLabel      *labelPixmap_USB_UART_Adapter;
-  QLabel      *labelPixmap_USB_XBEE_Adapter;
+    bool signaling; ///< Stopps all signaling if false.
 
-	QGroupBox   *groupBox_ISP;
-	QGroupBox   *groupBox_BL;
-	QGroupBox   *groupBox_Settings;
-	QGridLayout *gridLayout;
+    int iDefaultBaudrate_isp;
+    int iDefaultBaudrate_usart;
+    int iDefaultBaudrate_xbee;
 
-  bool        signaling;					       ///< Stopps all signaling if false.
+  };
 
-  int iDefaultBaudrate_isp;
-  int iDefaultBaudrate_usart;
-  int iDefaultBaudrate_xbee;
-
-
-};
-
+}//namespace lpzrobots
 #endif /* QPANELSETTING_H_ */

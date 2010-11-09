@@ -26,9 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-03 13:05:27  wrabe
- *   -new version 2.0 uses ftdi driver library (libftdi and libusb)
- *   -special string identifiers (device descriptor) of usb devices (FT232RL), hard coded!
+ *   Revision 1.2  2010-11-09 17:56:55  wrabe
+ *   - change of the communication protocoll between lupae and usb-isp-adapter
+ *   - therefore recoding the dedicated methods
+ *   - reduction of the overloded send_Message methods to one method only
+ *   - insertion of QExtActions to join all events of menu-buttons as well of quickstart-buttons
+ *   - adding two new functions to read out and write into the eeprom-space of the atmega128 at an ecb
+ *   - change of the fontSize in the hexViewer, change of the total-width of the window
  *                                                *
  *                                                                         *
  ***************************************************************************/
@@ -41,41 +45,43 @@
 #include "avrDeviceList.h"
 #include "types.h"
 
-class QAvrFuseDialog : public QDialog
-{
+namespace lpzrobots {
+
+  class QAvrFuseDialog : public QDialog {
   Q_OBJECT
 
-public:
-  QAvrFuseDialog();
-  virtual ~QAvrFuseDialog();
+  public:
+    QAvrFuseDialog();
+    virtual ~QAvrFuseDialog();
 
-  void setAvrDevice(AVRDEVICE *d);
-  AVRDEVICE* getAvrDevice();
+    void setAvrDevice(AVRDEVICE *d);
+    AVRDEVICE* getAvrDevice();
 
-private slots:
+  private slots:
 
-  void slot_OnChange_CheckState(int state);
-  void LoadShippingDefaults();
-  void ReadFuseBits();
-  void WriteFuseBits();
-  void CloseDialog();
+    void slot_OnChange_CheckState(int state);
+    void LoadShippingDefaults();
+    void ReadFuseBits();
+    void WriteFuseBits();
+    void CloseDialog();
 
-signals:
-  void readFuseBits();
-  void writeFuseBits();
-  void textLog(QString s);
+  signals:
+    void readFuseBits(int);
+    void writeFuseBits(int);
+    void textLog(QString s);
 
-private:
+  private:
 
-  QCheckBox    *checkBoxes[24];
-  QLabel       *labelDeviceName;
-  QLabel       *labelFuseBitValue[3];
-  QPushButton  *pbLoadDefaultFuseBits;
-  QPushButton  *pbReadFuseBits;
-  QPushButton  *pbWriteFuseBits;
-  QPushButton  *pbCancel;
-  AVRDEVICE    *avrDevice;
+    QCheckBox *checkBoxes[24];
+    QLabel *labelDeviceName;
+    QLabel *labelFuseBitValue[3];
+    QPushButton *pbLoadDefaultFuseBits;
+    QPushButton *pbReadFuseBits;
+    QPushButton *pbWriteFuseBits;
+    QPushButton *pbCancel;
+    AVRDEVICE *avrDevice;
 
-};
+  };
 
+}//namespace lpzrobots
 #endif /* QAVRFUSEDIALOG_H_ */
