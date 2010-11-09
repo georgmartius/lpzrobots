@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-09 17:56:55  wrabe
+ *   Revision 1.3  2010-11-09 18:07:40  wrabe
+ *   - change location of the application saves (settings)
+ *
+ *   Revision 1.2  2010/11/09 17:56:55  wrabe
  *   - change of the communication protocoll between lupae and usb-isp-adapter
  *   - therefore recoding the dedicated methods
  *   - reduction of the overloded send_Message methods to one method only
@@ -359,7 +362,7 @@ namespace lpzrobots {
     statusBar()->showMessage(tr("Ready"));
   }
   void MainWindow::readSettings() {
-    QSettings settings(applicationPath + QString(".ini"), QSettings::IniFormat);
+    QSettings settings(applicationPath + QString("application.saves"), QSettings::IniFormat);
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
     resize(size);
@@ -395,7 +398,7 @@ namespace lpzrobots {
   }
 
   void MainWindow::writeSettings() {
-    QSettings settings(applicationPath + QString(".ini"), QSettings::IniFormat);
+    QSettings settings(applicationPath + QString("application.saves"), QSettings::IniFormat);
     settings.setValue("pos", pos());
     settings.setValue("size", size());
 
