@@ -1,6 +1,6 @@
 
 TEMPLATE = app
-TARGET = LUPAE_V2c
+TARGET = LUPAE_V2
 DEPENDPATH += . src
 INCLUDEPATH += /home/wrabe/include
 LIBS += -L/home/wrabe/lib -lusb -lftdi
