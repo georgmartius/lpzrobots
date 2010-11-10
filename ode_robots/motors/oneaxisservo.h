@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-08-03 12:49:18  martius
+ *   Revision 1.15  2010-11-10 17:09:09  martius
+ *   new formula for compliance
+ *
+ *   Revision 1.14  2010/08/03 12:49:18  martius
  *   velocity servos use damping parameter to reduce force around set point
  *    This induces a body feeling
  *
@@ -303,7 +306,8 @@ namespace lpzrobots {
       motor.set(0, vel);
       // calculate power of servo depending on the damping and distance from set point and 
       // sigmoid ramping of power for damping < 1
-      motor.setPower(((1.0-damp)*tanh(e)+damp) * power);
+      //      motor.setPower(((1.0-damp)*tanh(e)+damp) * power);
+      motor.setPower(tanh(e+damp) * power);
     }
     
     /** returns the position of the servo in ranges [-1, 1] (scaled by min, max, centered)*/
