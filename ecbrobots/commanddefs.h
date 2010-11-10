@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-08-18 14:49:37  guettler
+ *   Revision 1.7  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.6  2009/08/18 14:49:37  guettler
  *   implemented COMMAND_MOTOR_MAX_CURRENT
  *
  *   Revision 1.5  2009/08/11 15:49:05  guettler
@@ -34,7 +37,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator

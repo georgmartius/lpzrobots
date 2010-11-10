@@ -4,3 +4,5 @@
 .history
 start
 Makefile.depend
+qrc_ecbrobots.cpp
+application.settings

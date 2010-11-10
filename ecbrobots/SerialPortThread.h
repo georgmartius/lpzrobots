@@ -33,8 +33,11 @@
  *  Empfang neuer Daten vom Port                                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-08-11 19:30:23  guettler
- *   use CThread pause functionality
+ *   Revision 1.4  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.3  2009/08/11 19:30:23  guettler
+ *   use CThread paused functionality
  *
  *   Revision 1.2  2009/08/11 18:26:47  guettler
  *   BUGFIX: stopTimer if SerialPortThread calls back
@@ -48,7 +51,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator
@@ -94,7 +97,7 @@
 #endif
 
 #include <string>
-#include "globaldata.h"
+#include "QGlobalData.h"
 #include <selforg/backcaller.h>
 #include <selforg/callbackable.h>
 #include "CThread.h"

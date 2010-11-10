@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-11 06:31:16  guettler
+ *   Revision 1.3  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.2  2008/04/11 06:31:16  guettler
  *   Included all classes of ecbrobots into the namespace lpzrobots
  *
  *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
@@ -41,7 +44,7 @@
 #ifndef __CONSOLE_H
 #define __CONSOLE_H
 
-#include "globaldata.h"
+#include "QGlobalData.h"
 
 namespace lpzrobots {
 
@@ -57,7 +60,7 @@ namespace lpzrobots {
       also informs agents about changes
       @return false if program should exit
   */
-  bool handleConsole(GlobalData& globalData);
+  bool handleConsole(QGlobalData& globalData);
 
 }
 

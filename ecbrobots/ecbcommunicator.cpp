@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2010-06-02 10:54:21  guettler
+ *   Revision 1.21  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.20  2010/06/02 10:54:21  guettler
  *   fixed for XBee Series 1: it seems that Xbee Pro returns a different hardware version number (0x1842) instead of 0x180B (XBee)
  *
  *   Revision 1.19  2010/04/28 08:09:30  guettler
@@ -36,16 +39,16 @@
  *   typo fix
  *
  *   Revision 1.16  2009/08/11 19:30:23  guettler
- *   use CThread pause functionality
+ *   use CThread paused functionality
  *
  *   Revision 1.15  2009/08/11 19:28:07  guettler
- *   stop/pause threads while paused
+ *   stop/paused threads while paused
  *
  *   Revision 1.14  2009/08/11 19:00:56  guettler
  *   code cleanup
  *
  *   Revision 1.13  2009/08/11 18:50:33  guettler
- *   stopTimer optimised, added discoverXBeeHardwareVersionTimeout to GlobalData
+ *   stopTimer optimised, added discoverXBeeHardwareVersionTimeout to QGlobalData
  *
  *   Revision 1.12  2009/08/11 18:26:47  guettler
  *   BUGFIX: stopTimer if SerialPortThread calls back
@@ -65,7 +68,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator
@@ -117,7 +120,7 @@ using namespace std;
 namespace lpzrobots {
 
   unsigned int currentECBIndex;
-  ECBCommunicator::ECBCommunicator(GlobalData& globalData) :
+  ECBCommunicator::ECBCommunicator(QGlobalData& globalData) :
     CThread("ECBCommunicator", globalData.debug), globalData(&globalData), transmitBufferCheckSum(0), serialPortThread(
         0), ecbTransmitModeType(Undefined), currentCommState(STATE_NOT_INITIALISED), currentECBIndex(0), currentTime(
         timeOfDayinMS()), answerTime(0), threadsStoppedWhilePaused(false) {
@@ -136,7 +139,7 @@ namespace lpzrobots {
   }
   ;
 
-  void ECBCommunicator::setConfig(GlobalData& globalData) {
+  void ECBCommunicator::setConfig(QGlobalData& globalData) {
     CThread::setConfig(globalData.debug);
     this->globalData = &globalData;
     realtimeoffset = timeOfDayinMS();
@@ -157,7 +160,7 @@ namespace lpzrobots {
 
   bool ECBCommunicator::loop() {
     assert ( globalData->comm==this );
-    if (globalData->pause) {
+    if (globalData->paused) {
       // tell every ECB to stop motors
       // stop all motors of a robot
       FOREACH(ECBAgentList, globalData->agents, it)
@@ -235,8 +238,8 @@ namespace lpzrobots {
 
   void ECBCommunicator::loopCallback() {
     /************************** Time Syncronisation ***********************/
-    // Time syncronisation of real time and simulations time (not if on capture mode, or pause)
-    if (!globalData->pause) {
+    // Time syncronisation of real time and simulations time (not if on capture mode, or paused)
+    if (!globalData->paused) {
       long currentTime = timeOfDayinMS();
       int benchmarkSteps = 10;
       long elapsed = currentTime - realtimeoffset;
@@ -262,7 +265,7 @@ namespace lpzrobots {
         }
       }
     } else {
-      while (globalData->pause) {
+      while (globalData->paused) {
         usleep(1000);
       }
     }
@@ -286,6 +289,7 @@ namespace lpzrobots {
       transmitBuffer.push_back(c);
     }
   }
+
   bool ECBCommunicator::transmit() {
     // Schreibe die Pruefsumme
     push_FrameEscaped((uint8) (255 - transmitBufferCheckSum % 256));
@@ -621,8 +625,8 @@ namespace lpzrobots {
   }
 
   void ECBCommunicator::newDataReceived(std::vector<uint8> receiveBuffer) {
-    // if in pause mode, ignore package
-    if (globalData->pause)
+    // if in paused mode, ignore package
+    if (globalData->paused)
     {
       cout << "package received, but not handled while in pause mode" << endl;
       return;

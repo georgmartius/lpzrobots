@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-08-11 15:49:05  guettler
+ *   Revision 1.9  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.8  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -31,7 +34,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator
@@ -74,14 +77,17 @@
 
 #include <stdio.h>
 
-#include "globaldata.h"
+#include "QGlobalData.h"
+
+#include <QString>
 
 namespace lpzrobots {
 
   class ECBRobot : public AbstractRobot, public Inspectable {
+
     public:
 
-      ECBRobot(GlobalData& globalData);
+      ECBRobot(QGlobalData& globalData);
 
       virtual ~ECBRobot();
 
@@ -135,7 +141,7 @@ namespace lpzrobots {
        * @param dnsName the dns name of the ECB
        * @param ecbConfig The config of the ECB, @see ecb.h
        */
-      virtual void addECB(std::string dnsName, ECBConfig& ecbConfig);
+      virtual void addECB(QString dnsName, ECBConfig& ecbConfig);
 
       /**
        * This method is for the user for adding new ECBss in the start function
@@ -173,7 +179,7 @@ namespace lpzrobots {
 
     private:
       std::list<ECB*> ECBlist;
-      GlobalData& globalData;
+      QGlobalData& globalData;
 
       /// Can be set from console to true (1)
       Configurable::parambool isResetECBs;

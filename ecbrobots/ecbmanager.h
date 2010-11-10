@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-08-11 19:26:45  guettler
+ *   Revision 1.8  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.7  2009/08/11 19:26:45  guettler
  *   added TODO
  *
  *   Revision 1.6  2009/08/11 15:49:05  guettler
@@ -34,7 +37,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator
@@ -63,7 +66,7 @@
 
 #include <selforg/configurable.h>
 
-#include "globaldata.h"
+#include "QGlobalData.h"
 #include "ecbagent.h"
 #include <termios.h>
 
@@ -112,17 +115,17 @@ protected:
    * like Agents
    * @return true if all is ok!
    */
-  virtual bool start(GlobalData& global) = 0;
+  virtual bool start(QGlobalData& global) = 0;
 
    /** optional additional callback function which is called every
     * simulation step.
     * To use this method, just overload it.
     * @param globalData The struct which contains all neccessary objects
     * like Agents
-    * @param pause indicates that simulation is paused
+    * @param paused indicates that simulation is paused
     * @param control indicates that robots have been controlled this timestep (default: true)
     */
-  void addCallback ( GlobalData& globalData,bool pause, bool control ) {};
+  void addCallback ( QGlobalData& globalData,bool pause, bool control ) {};
 
 
     /** add own key handling stuff here, just insert some case values
@@ -133,7 +136,7 @@ protected:
      * @return true if this method could handle the key,
      * otherwise return false
      */
-  virtual bool command ( GlobalData& globalData, int key) { return false; };
+  virtual bool command ( QGlobalData& globalData, int key) { return false; };
 
   // Helper
   int contains(char **list, int len,  const char *str){
@@ -146,7 +149,7 @@ protected:
 
 private:
   ECBCommunicator* comm;
-  GlobalData globalData;
+  QGlobalData globalData;
   bool commInitialized;
 
   struct termios term_orig;

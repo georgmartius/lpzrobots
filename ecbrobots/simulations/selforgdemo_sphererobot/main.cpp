@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-04-28 08:07:59  guettler
+ *   Revision 1.3  2010-11-10 09:31:24  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.2  2010/04/28 08:07:59  guettler
  *   some updates
  *
  *   Revision 1.1  2009/03/25 11:22:35  robot1
@@ -232,7 +235,7 @@ class MyECBManager : public ECBManager
 
     /** optional additional callback function which is called every simulation step.
     Called between physical simulation step and drawing.
-    @param pause indicates that simulation is paused
+    @param paused indicates that simulation is paused
     @param control indicates that robots have been controlled this timestep
     */
     virtual void addCallback ( GlobalData& globalData,bool pause, bool control ) {

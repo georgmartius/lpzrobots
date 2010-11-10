@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-08-18 14:49:37  guettler
+ *   Revision 1.13  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.12  2009/08/18 14:49:37  guettler
  *   implemented COMMAND_MOTOR_MAX_CURRENT
  *
  *   Revision 1.11  2009/08/11 15:49:05  guettler
@@ -34,7 +37,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator
@@ -77,8 +80,9 @@
  ***************************************************************************/
 #include "ecb.h"
 #include "commanddefs.h"
-#include "ecbcommunicator.h"
-#include "globaldata.h"
+#include "QECBCommunicator.h"
+#include "ECBCommunicationData.h"
+#include "QGlobalData.h"
 
 #include <iostream>
 #include <sstream>
@@ -87,9 +91,9 @@
 using namespace std;
 
 namespace lpzrobots {
-  ECB::ECB(string dnsName, GlobalData& globalData, ECBConfig& ecbConfig) :
+  ECB::ECB(QString dnsName, QGlobalData& globalData, ECBConfig& ecbConfig) :
     Configurable("ECB", "$ID$"), MediatorCollegue(globalData.comm), globalData(&globalData), ecbConfig(ecbConfig),
-        dnsName(dnsName), networkAddress(0), serialNumber(0) {
+        dnsName(dnsName) {
     failureCounter = 0;
     initialised = false;
 
@@ -109,8 +113,7 @@ namespace lpzrobots {
     // at first start of ECB, it must be initialized with a reset-command
     assert(initialised && failureCounter <= globalData->maxFailures);
 
-    if (globalData->debug)
-      std::cout << "ECB(" << dnsName << "): sendMotorPackage()!" << endl;
+    globalData->textLog("ECB(" + dnsName + "): sendMotorPackage()!");
 
     // prepare the communication-protocol
     ECBCommunicationEvent* event = new ECBCommunicationEvent(ECBCommunicationEvent::EVENT_REQUEST_SEND_COMMAND_PACKAGE);
@@ -132,8 +135,7 @@ namespace lpzrobots {
     // at first start of ECB, it must be initialized with a reset-command
     assert(initialised && failureCounter <= globalData->maxFailures);
 
-    if (globalData->debug)
-      std::cout << "ECB(" << dnsName << "): sendMaxMotorCurrent("<< maxCurrent << ", " << motorboardIndex << ")!" << endl;
+    globalData->textLog("ECB(" + dnsName + "): sendMaxMotorCurrent(" + maxCurrent + ", " + motorboardIndex + ")!");
 
     // prepare the communication-protocol
     ECBCommunicationEvent* event = new ECBCommunicationEvent(ECBCommunicationEvent::EVENT_REQUEST_SEND_COMMAND_PACKAGE);
@@ -154,7 +156,7 @@ namespace lpzrobots {
   void ECB::sendResetECB() {
 
     //if (globalData->debug)
-      std::cout << "ECB: resetECB!(" << dnsName << ")" << endl;
+    globalData->textLog("ECB: resetECB!(" + dnsName + ")");
 
     // globalData->comm->flushInputBuffer();
 
@@ -173,10 +175,9 @@ namespace lpzrobots {
     generateAndFireEventForCommand(COMMAND_MOTOR_STOP);
   }
   
-  void setMaxMotorCurrent(uint8 maxCurrent, uint8 motorboardIndex=0) {
+  void setMaxMotorCurrent(uint8 maxCurrent, uint8 motorboardIndex = 0) {
 
   }
-
 
   void ECB::startMotors() {
     generateAndFireEventForCommand(COMMAND_MOTOR_START);
@@ -233,7 +234,7 @@ namespace lpzrobots {
     if (byteVal <= 0)
       byteVal = 0;
 
-    //cout << "Converted" << (unsigned int)byteVal << "to doubleval = " << (((double) (byteVal - 128)) / 128.) << endl;
+    //globalData->textLog("Converted" + (unsigned int)byteVal + "to doubleval = " + (((double) (byteVal - 128)) / 128.));
     return (((double) (byteVal - 128)) / 128.);
 
   }
@@ -251,7 +252,7 @@ namespace lpzrobots {
       byteVal = 255;
     if (byteVal < 0)
       byteVal = 0;
-    //cout << "Converted" << doubleVal << "to byteval = " << (unsigned int)byteVal << endl;
+    //globalData->textLog("Converted" + doubleVal + "to byteval = " + (unsigned int)byteVal);
     return (uint8) byteVal;
   }
 
@@ -277,42 +278,30 @@ namespace lpzrobots {
     /*stringstream ss;
      std::string s="";
      for (int i=0;i<ecbConfig.md23_sensors;i++) {
-     ss << "mot(" << address << ")";
+     ss + "mot(" + address + ")";
      }
      for (int i=0;i<ecbConfig.pcf_sensors;i++) {
-     ss << "pcf(" << address << ")";
+     ss + "pcf(" + address + ")";
      }
      for (int i=0;i<ecbConfig.adc_sensors;i++) {
-     ss << "adc(" << address << ")";
+     ss + "adc(" + address + ")";
      }
      s = ss.str(); */
 
-    std::cout << "ECB: getChannelDescription():[" << descriptionLine << "]" << std::endl;
+    globalData->textLog("ECB: getChannelDescription():[" + QString(descriptionLine.c_str()) + "]");
 
     return descriptionLine;
   }
 
-  void ECB::setAddresses(uint16 shortAddress, uint64 longAddress) {
-    this->networkAddress = shortAddress;
-    this->serialNumber = longAddress;
-  }
-
-  bool ECB::isAddressesSet() {
-    if (this->serialNumber != 0)
-      return true;
-    return false;
-  }
-
   void ECB::commandDimensionReceived(ECBCommunicationEvent* event) {
-    if (globalData->debug)
-      cout << "dimension package received: ";
+    globalData->textLog("dimension package received: ");
     /*********************************************************************
      // GET the new description of connected motors
      // and sensors at ECB(hardware)
      // Each sensor-name should be unique to identify the sensors as well
      // The names are separated by a space-sign
      *********************************************************************/
-    CommunicationData result = event->commPackage;
+    ECBCommunicationData result = event->commPackage;
 
     // set number of motors and sensors that are in use (current)
     currentNumberMotors = result.data[0];
@@ -323,13 +312,13 @@ namespace lpzrobots {
 
     for (int i = 2; i < result.dataLength; i++) {
       if (result.data[i] == ' ')
-        ss << "(" << dnsName << ")";
+        ss << "(" << dnsName.toStdString() << ")";
       ss << result.data[i];
     }
 
     // add the last dnsName to stringstream if its not empty
     if (result.dataLength > 0)
-      ss << "(" << dnsName << ")";
+      ss << "(" + dnsName.toStdString() << ")";
 
     if (currentNumberSensors < ecbConfig.maxNumberSensors) {
       for (int i = currentNumberSensors; i < ecbConfig.maxNumberSensors; i++) {
@@ -341,32 +330,32 @@ namespace lpzrobots {
     descriptionLine = ss.str();
 
     if (currentNumberMotors > ecbConfig.maxNumberMotors) {
-      cout << "Warning: ECB " << dnsName << " reported more motors than permitted and configured respectively!";
+      globalData->textLog("Warning: ECB " + dnsName
+          + " reported more motors than permitted and configured respectively!");
     }
 
     if (currentNumberSensors > ecbConfig.maxNumberSensors) {
-      cout << "Warning: ECB " << dnsName << " reported more sensors than permitted and configured respectively!";
+      globalData->textLog("Warning: ECB " + dnsName
+          + " reported more sensors than permitted and configured respectively!");
     }
 
-    if (globalData->debug) {
-      printf("ECB(%s) found motors: %d sensors: %d\r\n", dnsName.c_str(), currentNumberMotors, currentNumberSensors);
-      std::cout << "ECB(" << dnsName << ") descriptionLine:[" << descriptionLine << "]" << std::endl;
-    }
+    globalData->textLog("ECB (" + dnsName + ") found motors: " + currentNumberMotors + ", sensors: "
+        + currentNumberSensors);
+    globalData->textLog("ECB(" + dnsName + ") descriptionLine:[" + QString(descriptionLine.c_str()) + "]");
 
     initialised = true;
     failureCounter = 0;
-    if (globalData->debug)
-      cout << currentNumberMotors << " motors, " << currentNumberSensors << " sensors: " << descriptionLine << endl;
+    globalData->textLog(QString::number(currentNumberMotors) + " motors, " + currentNumberSensors + " sensors: "
+        + QString(descriptionLine.c_str()));
 
     // set max motor current if deviating from default value
-    if (ecbConfig.maxMotorCurrent!=DEFAULT_MAX_MOTOR_CURRENT)
-      sendMaxMotorCurrent(ecbConfig.maxMotorCurrent,0);
+    if (ecbConfig.maxMotorCurrent != DEFAULT_MAX_MOTOR_CURRENT)
+      sendMaxMotorCurrent(ecbConfig.maxMotorCurrent, 0);
   }
 
   void ECB::commandSensorsReceived(ECBCommunicationEvent* event) {
-    if (globalData->debug)
-      cout << "sensor package received" << endl;
-    CommunicationData result = event->commPackage;
+    globalData->textLog("sensor package received");
+    ECBCommunicationData result = event->commPackage;
 
     /// fill sensorList which will be the input for agent or controller
     sensorList.clear();
@@ -398,21 +387,20 @@ namespace lpzrobots {
           sendResetECB();
         break;
       case ECBCommunicationEvent::EVENT_COMMUNICATION_ANSWER_TIMEOUT:
-        if (globalData->debug)
-          cout << "ECB(" << dnsName << ") did not answer: ";
+        globalData->textLog("ECB(" + dnsName + ") did not answer: ");
         if (initialised) {
           if (failureCounter >= globalData->maxFailures) { // try to send reset next time
-            if (globalData->debug)
-              cout << " failure count=" << failureCounter + 1 << " reached maximum, reset to initial state." << endl;
+            globalData->textLog(" failure count=" + QString::number(failureCounter + 1)
+                + " reached maximum, reset to initial state.");
             initialised = false;
             failureCounter = 0;
           } else {
             failureCounter++;
-            if (globalData->debug)
-              cout << " failure count=" << failureCounter << endl;
+            globalData->textLog(" failure count=" + failureCounter);
           }
-        } else if (globalData->debug) // do nothing, try later again
-          cout << " no initial response to reset command." << endl;
+        } else
+          // do nothing, try later again
+          globalData->textLog(" no initial response to reset command.");
         break;
       default:
         break;
@@ -427,14 +415,6 @@ namespace lpzrobots {
     event->commPackage.dataLength = 0;
 
     informMediator(event);
-  }
-
-  uint16 ECB::getNetworkAddress() {
-    return networkAddress;
-  }
-
-  uint64 ECB::getSerialNumber() {
-    return serialNumber;
   }
 
 } // end namespace lpzrobots

@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-08-11 15:49:06  guettler
+ *   Revision 1.3  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.2  2009/08/11 15:49:06  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -31,7 +34,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator
@@ -47,7 +50,7 @@
 #define __SPHERICALROBOTECB_H
 
 
-#include "globaldata.h"
+#include "QGlobalData.h"
 #include "ecb.h"
 
 namespace lpzrobots {
@@ -56,7 +59,7 @@ class SphericalRobotECB : public ECB {
   
 public:
   
-  SphericalRobotECB(std::string address, GlobalData& globalData, ECBConfig& ecbConfig) : ECB(address, globalData, ecbConfig), x_osci(107), y_osci(107) {}
+  SphericalRobotECB(std::string address, QGlobalData& globalData, ECBConfig& ecbConfig) : ECB(address, globalData, ecbConfig), x_osci(107), y_osci(107) {}
     
   virtual ~SphericalRobotECB();
   

@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-08-18 14:49:37  guettler
+ *   Revision 1.11  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.10  2009/08/18 14:49:37  guettler
  *   implemented COMMAND_MOTOR_MAX_CURRENT
  *
  *   Revision 1.9  2009/08/11 15:49:05  guettler
@@ -34,7 +37,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator
@@ -80,6 +83,8 @@
 #include <list>
 #include <string>
 
+#include <QString>
+
 // #define PORTA ecbPort[0]
 // #define PORTB ecbPort[1]
 // #define PORTC ecbPort[2]
@@ -94,7 +99,7 @@ namespace lpzrobots
   // forward declaration begin
   class ECBCommunicator;
   class ECBCommunicationEvent;
-  struct GlobalData;
+  struct QGlobalData;
   // forward declaration end
 
 
@@ -125,11 +130,11 @@ namespace lpzrobots
        * @param ecbConfig the configuration for this ECB, e.g. maximum number of motors
        * @return
        */
-      ECB(std::string dnsName, GlobalData& globalData, ECBConfig& ecbConfig);
+      ECB(QString dnsName, QGlobalData& globalData, ECBConfig& ecbConfig);
 
       virtual ~ECB();
 
-      virtual std::string getDNSName() const
+      virtual QString getDNSName() const
       {
         return dnsName;
       }
@@ -239,15 +244,6 @@ namespace lpzrobots
         return this->initialised;
       }
 
-      virtual void setAddresses(uint16 networkAddress, uint64 serialNumber = 0);
-
-      virtual bool isAddressesSet();
-
-      virtual uint16 getNetworkAddress();
-
-      virtual uint64 getSerialNumber();
-
-
       /**
        * Is called when the mediator informs this collegue that an event
        * has to be performed by this collegue instance.
@@ -260,7 +256,7 @@ namespace lpzrobots
 
 
     protected:
-      GlobalData* globalData;
+      QGlobalData* globalData;
       ECBConfig ecbConfig;
 
       std::string descriptionLine;
@@ -279,13 +275,8 @@ namespace lpzrobots
       // Wenn reset nicht erfolgreich, übergehe zeitweilig ECB (wegen Funkstörung)
       bool initialised;
 
-      // die Adresse, die das ECB hat, d.h. muss im ECB hardprogrammiert sein
-      /// this is the node identifier (hardware programmed on XBee, too)
-      std::string dnsName;
-      /// network address (XBee series 1 and 2)
-      uint16 networkAddress;
-      /// serial number (XBee series 1 and 2)
-      uint64 serialNumber;
+      /// this is the node identifier, hardware programmed on ECB (EEPROM)
+      QString dnsName;
 
       // siehe initialised, wenn failurecounter bestimmten wert überschritten,
       // dann reset im nächsten step versuchen

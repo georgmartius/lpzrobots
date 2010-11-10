@@ -20,8 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-08-11 18:50:33  guettler
- *   stopTimer optimised, added discoverXBeeHardwareVersionTimeout to GlobalData
+ *   Revision 1.1  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.6  2009/08/11 18:50:33  guettler
+ *   stopTimer optimised, added discoverXBeeHardwareVersionTimeout to QGlobalData
  *
  *   Revision 1.5  2009/08/11 15:49:05  guettler
  *   Current development state:
@@ -32,7 +35,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator
@@ -66,12 +69,15 @@
 #include <selforg/configurable.h>
 #include <selforg/plotoption.h>
 
-namespace lpzrobots
-{
+#include <QObject>
+#include <QString>
 
-  class ECBCommunicator;
+namespace lpzrobots {
+
+  class QECBCommunicator;
   class ECBAgent;
   class ECBRobot;
+  class QECBRobotsWindow;
 
   typedef std::vector<Configurable*> ConfigList; //!< list of Configurables
   typedef std::vector<ECBAgent*> ECBAgentList; //!< list of ECBAgents
@@ -82,28 +88,16 @@ namespace lpzrobots
   /**
    Data structure holding all essential global information.
    */
-  struct GlobalData : public Configurable
-  {
-      GlobalData()
-      {
-        // set default communication values and register some of them to be configurable
-        baudrate = 57600;
-        portName = std::string("/dev/ttyUSB0");
-        addParameterDef("maxfailures",&maxFailures,4);
-        addParameterDef("serialreadtimeout", &serialReadTimeout, 80);
-        addParameterDef("discoverxbeehardwareversiontimeout", &discoverXBeeHardwareVersionTimeout, 50);
-        addParameterDef("discovernodestimeout", &discoverNodesTimeout, 3000);
-        addParameterDef("cycletime", &cycleTime, 50);
-        addParameterDef("noise", &noise, 0.05);
-        simStep = 0;
-        addParameterDef("benchmarkmode", &benchmarkMode, false);
-        addParameterDef("debug", &debug, false);
-        addParameterDef("verbose", &verbose, false);
-        addParameterDef("testmode", &testMode, false);
-        pause = false;
-        comm = 0;
-        configs.push_back(this);
-      }
+  class QGlobalData : public QObject, public Configurable {
+    Q_OBJECT
+
+    friend class QECBRobotsWindow;
+
+    public:
+
+      QGlobalData();
+
+      ~QGlobalData();
 
       ConfigList configs;
       ECBAgentList agents;
@@ -112,9 +106,7 @@ namespace lpzrobots
       paramval noise;
       long simStep;
       parambool benchmarkMode;
-      parambool pause;
-      parambool debug;
-      parambool verbose;
+      parambool paused;
       parambool testMode;
 
       // global settings for serial communication
@@ -128,7 +120,33 @@ namespace lpzrobots
       paramint discoverXBeeHardwareVersionTimeout; //!< read timeout for discovering which hardware version is connected to PC (XBee Series 1, XBee Series 2 or cable)
       paramint discoverNodesTimeout; //!< read timeout for awaiting initial response (discover nodes - get node list) from each ECB/XBee in ms
 
-      ECBCommunicator* comm;
+      QECBCommunicator* comm;
+
+      enum LOG_TYPE {
+        LOG_ERROR,
+        LOG_WARNING,
+        LOG_VERBOSE,
+        LOG_DEBUG,
+      };
+
+      /**
+       * @param given QString will be forwarded to the log window (via sig_textLog)
+       * @param determines which type of log is made (error, warning, verbose, debug)
+       */
+      void textLog(QString log, LOG_TYPE logType = LOG_DEBUG);
+
+
+    signals:
+      /**
+       * if emitted, given QString will be forwarded to the log window (managed by QECBManager)
+       */
+      void sig_textLog(QString log);
+
+    protected:
+      parambool warning;
+      parambool verbose;
+      parambool debug;
+
   };
 
 }

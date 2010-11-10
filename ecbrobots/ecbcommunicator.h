@@ -22,8 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-08-11 19:28:07  guettler
- *   stop/pause threads while paused
+ *   Revision 1.8  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.7  2009/08/11 19:28:07  guettler
+ *   stop/paused threads while paused
  *
  *   Revision 1.6  2009/08/11 15:49:05  guettler
  *   Current development state:
@@ -34,7 +37,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator
@@ -71,7 +74,7 @@
 #include "constants.h"
 #include <selforg/inspectable.h>
 
-#include "globaldata.h"
+#include "QGlobalData.h"
 
 namespace lpzrobots
 {
@@ -142,7 +145,7 @@ namespace lpzrobots
 
 
 
-      ECBCommunicator(GlobalData& globalData);
+      ECBCommunicator(QGlobalData& globalData);
 
       virtual ~ECBCommunicator();
 
@@ -166,7 +169,7 @@ namespace lpzrobots
       /**
        * sets the config according to given globalData
        */
-      virtual void setConfig(GlobalData& globalData);
+      virtual void setConfig(QGlobalData& globalData);
 
       virtual void doOnCallBack(BackCaller* source, BackCaller::CallbackableType type =
           SerialPortThread::NEW_DATA_RECEIVED);
@@ -194,7 +197,7 @@ namespace lpzrobots
       virtual bool loop();
 
       long realtimeoffset;
-      GlobalData* globalData;
+      QGlobalData* globalData;
       long lastBenchmarkTime;
 
 

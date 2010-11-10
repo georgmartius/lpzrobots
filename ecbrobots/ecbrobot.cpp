@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-04-28 08:09:30  guettler
+ *   Revision 1.9  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.8  2010/04/28 08:09:30  guettler
  *   - bugfixes
  *   - stopMotors is now invoked by ECBCommunicator
  *
@@ -35,7 +38,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator
@@ -74,10 +77,9 @@ using namespace std;
 
 namespace lpzrobots {
 
-  ECBRobot::ECBRobot(GlobalData& globalData) :
+  ECBRobot::ECBRobot(QGlobalData& globalData) :
     AbstractRobot("ECBRobot", "$ID$"), globalData(globalData), numberECBInitialised(0), initialised(false) {
-    if (this->globalData.debug)
-      std::cout << "New ECBRobot created." << std::endl;
+    globalData.textLog("New ECBRobot created.");
 
     // remember: motors UND sensors werden automatisch geplottet durch Agent (setMotors und getSensors)
     // add new inspectable parameters
@@ -88,6 +90,9 @@ namespace lpzrobots {
   }
 
   ECBRobot::~ECBRobot() {
+    FOREACH(list<ECB*>,ECBlist,ecb) {
+      delete (*ecb);
+    }
   }
 
   /// new methods for the communicator
@@ -95,18 +100,16 @@ namespace lpzrobots {
 
   /// method for registering new ECBs
 
-  void ECBRobot::addECB(string dnsName, ECBConfig& ecbConfig) {
+  void ECBRobot::addECB(QString dnsName, ECBConfig& ecbConfig) {
     this->ECBlist.push_back(new ECB(dnsName, globalData, ecbConfig));
-    if (globalData.debug)
-      cout << "New ECB with DNSName \"" << dnsName << "\" added." << std::endl;
+    globalData.textLog("New ECB with DNSName \"" +dnsName + "\" added.");
   }
 
   /// method for registering new ECBs
 
   void ECBRobot::addECB(ECB* ecb) {
     this->ECBlist.push_back(ecb);
-    if (globalData.debug)
-      cout << "New ECB with DNSName " << ecb->getDNSName() << " added." << std::endl;
+    globalData.textLog("New ECB with DNSName " + ecb->getDNSName() + " added.");
   }
 
   bool ECBRobot::isInitialised() {
@@ -120,8 +123,7 @@ namespace lpzrobots {
       }
       numberECBInitialised = count;
       if (numberECBInitialised == ECBlist.size() && getMotorNumber()>0 && getSensorNumber() >0) {
-        if (globalData.debug)
-          cout << "ECBRobot: Found all (" << numberECBInitialised << ") initialised ECBs." << endl;
+        globalData.textLog("ECBRobot: Found all (" + QString::number(numberECBInitialised) + ") initialised ECBs.");
         removeInfoLines();
         addInfoLine(getChannelDescription());
         initialised = true;
@@ -138,8 +140,7 @@ namespace lpzrobots {
   }
   
   void ECBRobot::resetECBs() {
-    if (globalData.debug)
-      cout << "ECBRobot: resetECBs!" << endl;
+    globalData.textLog("ECBRobot: resetECBs!");
     FOREACH(list<ECB*>,ECBlist,ecb) {
       (*ecb)->sendResetECB();
     }
@@ -209,8 +210,7 @@ namespace lpzrobots {
 
   /** stop all motors of connected ECBs */
   int ECBRobot::stopMotors() {
-    if (globalData.debug)
-      std::cout << "ECBRobot: stopMotors()" << std::endl;
+    globalData.textLog("ECBRobot: stopMotors()");
     FOREACH ( list<ECB*>, ECBlist, i ) {
       (*i)->stopMotors();
     }
@@ -219,8 +219,7 @@ namespace lpzrobots {
 
   /** start all motors of connected ECBs */
   int ECBRobot::startMotors() {
-    if (globalData.debug)
-      std::cout << "ECBRobot: startMotors()" << std::endl;
+    globalData.textLog("ECBRobot: startMotors()");
     FOREACH ( list<ECB*>, ECBlist, i ) {
       (*i)->startMotors();
     }

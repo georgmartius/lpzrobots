@@ -1,81 +1,20 @@
-/***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    marcoeckert@web.de                                                   *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.7  2010-04-28 08:15:49  guettler
- *   - twowheeledrobotchain as example
- *   - some enhancements made to CheatedECB
- *
- *   Revision 1.6  2009/08/11 15:50:19  guettler
- *   Current development state:
- *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
- *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
- *     ECBCommunicator (almost) entirely rewritten: Use of Mediator (MediatorCollegues: ECB),
- *     Callbackble (BackCaller: SerialPortThread)
- *   - New CThread for easy dealing with threads (is using pthreads)
- *   - New TimerThreads for timed event handling
- *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
- *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
- *   - ECBRobot is now Inspectables (uses new infoLines functionality)
- *   - ECB now supports dnsNames and new communication protocol via Mediator
- *   - Better describing command definitions
- *   - SphericalRobotECB: adapted to new ECB structure, to be tested
- *
- *   Revision 1.5  2008/07/16 14:37:17  robot1
- *   -simple getc included
- *   -extended config on reset
- *   -minor changes
- *
- *   Revision 1.4  2008/07/16 07:38:42  robot1
- *   some major improvements
- *
- *   Revision 1.3  2008/104/11 06:31:16  guettler
- *   Included all classes of ecbrobots into the namespace lpzrobots
- *
- *   Revision 1.2  2008/04/08 10:11:03  guettler
- *   alpha testing
- *
- *   Revision 1.1.1.1  2008/04/08 08:14:30  guettler
- *   new ecbrobots module!
- *
- *                                                                         *
- ***************************************************************************/
-#include "ecbmanager.h"
+
+//#include <QApplication>
+#include <qapplication.h>
+#include "QECBRobotsWindow.h"
+#include "QECBCommunicator.h"
+#include "ecb.h"
+
+#include "commanddefs.h"
 
 #include <selforg/invertmotornstep.h>
-#include <selforg/sinecontroller.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/abstractcontrolleradapter.h>
 
-// fetch all the stuff of lpzrobots into scope
-using namespace lpzrobots;
 
+using namespace lpzrobots;
 using namespace std;
 
-#include "ecb.h"
-#include "ecbcommunicator.h"
-#include "commanddefs.h"
 
 static int zeroRange = 0.00;
 /**
@@ -83,7 +22,7 @@ static int zeroRange = 0.00;
  */
 class CheatedECB : public ECB {
   public:
-    CheatedECB(string dnsName, GlobalData& globalData, ECBConfig& ecbConfig) :
+    CheatedECB(QString dnsName, QGlobalData& globalData, ECBConfig& ecbConfig) :
       ECB(dnsName, globalData, ecbConfig), motorsStopped(false) {
     }
 
@@ -97,8 +36,7 @@ class CheatedECB : public ECB {
         return;
       }
 
-      if (globalData->debug)
-        cout << "ECB(" << dnsName << "): sendMotorPackage()!" << endl;
+      globalData->textLog("ECB(" + dnsName + "): sendMotorPackage()!");
 
       // prepare the communication-protocol
       ECBCommunicationEvent* event = new ECBCommunicationEvent(ECBCommunicationEvent::EVENT_REQUEST_SEND_COMMAND_PACKAGE);
@@ -113,7 +51,7 @@ class CheatedECB : public ECB {
         // The ECB(hardware) has to work with byte-values
         if (motorsStopped || ((*m)>=-zeroRange && (*m)<=zeroRange))
           event->commPackage.data[i++] = convertToByte(0);
-        else 
+        else
           event->commPackage.data[i++] = convertToByte((*m));
       }
       informMediator(event);
@@ -133,7 +71,7 @@ class CheatedECB : public ECB {
     virtual void startMotors() {
       motorsStopped=false;
     }
-    
+
   private:
     bool motorsStopped;
 };
@@ -152,11 +90,11 @@ class MyController : public AbstractControllerAdapter {
     }
 };
 
-class MyECBManager : public ECBManager {
+class MyECBManager : public QECBManager {
 
   public:
 
-    MyECBManager() {
+    MyECBManager(int argc, char** argv) : QECBManager(argc, argv) {
     }
 
     virtual ~MyECBManager() {
@@ -168,17 +106,15 @@ class MyECBManager : public ECBManager {
      * @param global
      * @return true if initialisation was successful
      */
-    virtual bool start(GlobalData& global) {
-      
+    virtual bool start(QGlobalData& global) {
+
       // set specific communication values
    //   global.baudrate = 460800;
       global.baudrate = 57600;
-      
+
       global.portName = "/dev/ttyUSB0";
       global.maxFailures = 4;
       global.serialReadTimeout = 100;
-      global.verbose = false;
-      global.debug = false;
       global.cycleTime = 50;
       global.noise = 0.05;
       global.plotOptions.push_back(PlotOption(GuiLogger, 1));
@@ -194,8 +130,8 @@ class MyECBManager : public ECBManager {
         conConf.initialC.val(1,1)= 1.0;
         conConf.initialC.val(1,0)= -0.07;
         conConf.initialC.val(0,1)= -0.07;
-        
-        AbstractController* myCon = new InvertMotorNStep(conConf);      
+
+        AbstractController* myCon = new InvertMotorNStep(conConf);
 //        AbstractController* myCon = new SineController();
         myCon->setParam("epsA",0);
         myCon->setParam("epsC",0);
@@ -208,17 +144,17 @@ class MyECBManager : public ECBManager {
         // create ECB
         ECBConfig ecbConf = ECB::getDefaultConf();
         ecbConf.maxNumberSensors = 2; // no infrared sensors
-        string* DNSName;
+        QString* DNSName;
         switch (nimm2Index) {
           case 0:
 //            DNSName = new string("NIMM2_PRIMUS");
-            DNSName = new string("NIMM2_PRIMUS");
+            DNSName = new QString("NIMM2_PRIMUS");
             break;
           case 1:
-            DNSName = new string("NIMM2_SECUNDUS");
+            DNSName = new QString("NIMM2_SECUNDUS");
             break;
           case 2:
-            DNSName = new string("NIMM2_TERTIUS");
+            DNSName = new QString("NIMM2_TERTIUS");
             break;
           default:
             break;
@@ -229,25 +165,25 @@ class MyECBManager : public ECBManager {
         // create new agent
         ECBAgent* myAgent = new ECBAgent(PlotOption(GuiLogger_File, 5), global.noise);
         // init agent with controller, robot and wiring
-        myAgent->init(mycon, myRobot, myWiring);
+        myAgent->init(myCon, myRobot, myWiring);
 
        // register agents
         global.agents.push_back(myAgent);
-   
+
       }
- 
 
 
- 
+
+
       return true;
     }
 
     /** optional additional callback function which is called every simulation step.
      Called between physical simulation step and drawing.
-     @param pause indicates that simulation is paused
+     @param paused indicates that simulation is paused
      @param control indicates that robots have been controlled this timestep
      */
-    virtual void addCallback(GlobalData& globalData, bool pause, bool control) {
+    virtual void addCallback(QGlobalData& globalData, bool pause, bool control) {
 
     }
 
@@ -257,7 +193,7 @@ class MyECBManager : public ECBManager {
      * @param key
      * @return
      */
-    virtual bool command(GlobalData& globalData, int key) {
+    virtual bool command(QGlobalData& globalData, int key) {
       return false;
     }
 
@@ -269,8 +205,20 @@ class MyECBManager : public ECBManager {
  * @param argv
  * @return
  */
-int main(int argc, char **argv) {
-  MyECBManager ecb;
-  return ecb.run(argc, argv) ? 0 : 1;
+int main(int argc, char *argv[])
+{
+  // create your custom ECBManager
+  MyECBManager ecbManager(argc, argv);
+
+  Q_INIT_RESOURCE(ecbrobots);
+
+	QApplication app(argc, argv);
+
+	QString appPath = QString(argv[0]);
+	QECBRobotsWindow *mainWin = new QECBRobotsWindow(appPath.mid(0, appPath.lastIndexOf("/")+1), &ecbManager);
+
+	mainWin->show();
+
+	return app.exec();
 }
 

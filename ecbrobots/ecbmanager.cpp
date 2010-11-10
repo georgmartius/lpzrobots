@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-04-28 08:09:30  guettler
+ *   Revision 1.11  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.10  2010/04/28 08:09:30  guettler
  *   - bugfixes
  *   - stopMotors is now invoked by ECBCommunicator
  *
@@ -35,7 +38,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator
@@ -76,7 +79,7 @@
 #include <selforg/agent.h>
 
 #include "ecbcommunicator.h"
-#include "globaldata.h"
+#include "QGlobalData.h"
 #include "console.h"
 #include "cmdline.h"
 
@@ -282,7 +285,7 @@ namespace lpzrobots
     //if ( control_c_pressed() ) {
     if (c == CTRL('C'))
     {
-      globalData.pause = true;
+      globalData.paused = true;
       // "stop all motors" moved to ECBCommunicator
 
       usleep(200000);
@@ -298,7 +301,7 @@ namespace lpzrobots
 
       initConsole();
       
-      globalData.pause = false;
+      globalData.paused = false;
       
       // start all motors of a roboter
       FOREACH(ECBAgentList, globalData.agents, it)

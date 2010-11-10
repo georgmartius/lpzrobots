@@ -26,7 +26,10 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-08-11 15:49:05  guettler
+ *   Revision 1.5  2010-11-10 09:32:00  guettler
+ *   - port to Qt part 1
+ *
+ *   Revision 1.4  2009/08/11 15:49:05  guettler
  *   Current development state:
  *   - Support of communication protocols for XBee Series 1, XBee Series 2 and cable mode
  *   - merged code base from ecb_robots and Wolgang Rabes communication handling;
@@ -35,7 +38,7 @@
  *   - New CThread for easy dealing with threads (is using pthreads)
  *   - New TimerThreads for timed event handling
  *   - SerialPortThread now replaces the cserialthread
- *   - GlobalData, ECBCommunicator is now configurable
+ *   - QGlobalData, ECBCommunicator is now configurable
  *   - ECBAgent rewritten: new PlotOptionEngine support, adapted to new WiredController structure
  *   - ECBRobot is now Inspectables (uses new infoLines functionality)
  *   - ECB now supports dnsNames and new communication protocol via Mediator
@@ -78,7 +81,7 @@
 #include <vector>
 #include <selforg/stl_adds.h>
 #include <selforg/abstractcontroller.h>
-#include "globaldata.h"
+#include "QGlobalData.h"
 #include <selforg/agent.h>
 #include <selforg/configurable.h>
 #include <selforg/abstractrobot.h>
@@ -92,15 +95,15 @@ using namespace std;
 namespace lpzrobots {
 
 
-typedef bool (*commandfunc_t)(GlobalData& globalData, char *, char *);
+typedef bool (*commandfunc_t)(QGlobalData& globalData, char *, char *);
 /* The names of functions that actually do the manipulation.  parameter: global data, entire line, arg */
-bool com_list (GlobalData& globalData, char *, char *);
-bool com_show (GlobalData& globalData, char *, char *);
-bool com_store (GlobalData& globalData, char *, char *);
-bool com_load (GlobalData& globalData, char *, char *);
-bool com_set (GlobalData& globalData, char *, char *);
-bool com_help (GlobalData& globalData, char *, char *);
-bool com_quit (GlobalData& globalData, char *, char *);
+bool com_list (QGlobalData& globalData, char *, char *);
+bool com_show (QGlobalData& globalData, char *, char *);
+bool com_store (QGlobalData& globalData, char *, char *);
+bool com_load (QGlobalData& globalData, char *, char *);
+bool com_set (QGlobalData& globalData, char *, char *);
+bool com_help (QGlobalData& globalData, char *, char *);
+bool com_quit (QGlobalData& globalData, char *, char *);
 
 /* A structure which contains information on the commands this program
    can understand. */
@@ -129,7 +132,7 @@ COMMAND commands[] = {
 /* Forward declarations. */
 char * stripwhite (char *string);
 COMMAND *find_command (char *name);
-bool execute_line (GlobalData& globalData, char *line);
+bool execute_line (QGlobalData& globalData, char *line);
 int valid_argument ( char *caller, char *arg);
 void too_dangerous ( char *caller );
 
@@ -156,7 +159,7 @@ char* dupstr (const char* s){
   return (r);
 }
 
-bool handleConsole(GlobalData& globalData){
+bool handleConsole(QGlobalData& globalData){
   char *line, *s;
   bool rv = true;
 
@@ -182,7 +185,7 @@ bool handleConsole(GlobalData& globalData){
 }
 
 /* Execute a command line. */
-bool execute_line (GlobalData& globalData, char *line) {
+bool execute_line (QGlobalData& globalData, char *line) {
   register int i;
   COMMAND *command;
   char *word;
@@ -335,7 +338,7 @@ char * command_generator (const char *text, int state) {
 /* **************************************************************** */
 
 
-bool com_list (GlobalData& globalData, char* line, char* arg) {
+bool com_list (QGlobalData& globalData, char* line, char* arg) {
   int i=0;
   printf("Agents ---------------(for store and load)\nID: Name\n");
 
@@ -353,7 +356,7 @@ bool com_list (GlobalData& globalData, char* line, char* arg) {
   return true;
 }
 
-bool com_show (GlobalData& globalData, char* line, char* arg) {
+bool com_show (QGlobalData& globalData, char* line, char* arg) {
   if (arg && *arg){
     int id = atoi(arg);
     if(id>=0 && id < (signed)globalData.configs.size()){
@@ -366,7 +369,7 @@ bool com_show (GlobalData& globalData, char* line, char* arg) {
   return true;
 }
 
-bool com_set (GlobalData& globalData, char* line, char* arg) {
+bool com_set (QGlobalData& globalData, char* line, char* arg) {
   if(strstr(line,"set")!=line) arg=line; // if it is not invoked with set then it was param=val
   if (valid_argument((char*)string("set").c_str(), arg)){
     /* Isolate the command word. */
@@ -421,7 +424,7 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
   return true;
 }
 
-bool com_store (GlobalData& globalData, char* line, char* arg) {
+bool com_store (QGlobalData& globalData, char* line, char* arg) {
   if (valid_argument((char*)string("store").c_str(), arg)){
     char* filename;
     filename = strchr(arg,' ');
@@ -443,7 +446,7 @@ bool com_store (GlobalData& globalData, char* line, char* arg) {
   return true;
 }
 
-bool com_load (GlobalData& globalData, char* line, char* arg) {
+bool com_load (QGlobalData& globalData, char* line, char* arg) {
   if (valid_argument((char*)string("load").c_str(), arg)){
     char* filename;
     filename = strchr(arg,' ');
@@ -466,13 +469,13 @@ bool com_load (GlobalData& globalData, char* line, char* arg) {
 }
 
 
-bool com_quit (GlobalData& globalData, char *, char *){
+bool com_quit (QGlobalData& globalData, char *, char *){
   return false;
 }
 
 /* Print out help for ARG, or for all of the commands if ARG is
    not present. */
-bool com_help (GlobalData& globalData, char* line, char* arg) {
+bool com_help (QGlobalData& globalData, char* line, char* arg) {
   register int i;
   int printed = 0;
 
