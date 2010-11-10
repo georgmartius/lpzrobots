@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-09-17 10:09:26  martius
+ *   Revision 1.8  2010-11-10 17:09:36  martius
+ *   torque sensors added, but not yet tested
+ *
+ *   Revision 1.7  2010/09/17 10:09:26  martius
  *   sense was calling doInternalStuff! Typo
  *
  *   Revision 1.6  2010/03/21 21:48:59  martius
@@ -67,7 +70,7 @@ namespace lpzrobots {
 			  bool sensors_before_rest)
     : OdeRobot(odeHandle, osgHandle, robot->getName(), robot->getRevision()),
       robot(robot), sensors(sensors), sensors_before_rest(sensors_before_rest),
-      initialized(false)
+      initialized(false), askedfornumber(0)
   {  
     assert(robot);
   };
@@ -82,15 +85,23 @@ namespace lpzrobots {
   }
 
   void AddSensors2RobotAdapter::addSensor(Sensor* sensor){
-    assert(!initialized);
+    assert(!askedfornumber);
     assert(sensor); 
+    if(initialized){
+      Primitive* p = robot->getMainPrimitive();
+      sensor->init(p);
+    }
     sensors.push_back(sensor);
   }
 
 
   void AddSensors2RobotAdapter::addMotor(Motor* motor){
-    assert(!initialized);
+    assert(!askedfornumber);
     assert(motor);
+    if(initialized){
+      Primitive* p = robot->getMainPrimitive();
+      motor->init(p);
+    }
     motors.push_back(motor); 
   }
 
@@ -108,6 +119,7 @@ namespace lpzrobots {
     FOREACHC(list<Sensor*>, sensors, i){
       s += (*i)->getSensorNumber();
     }
+    askedfornumber=true;
     return robot->getSensorNumber() + s;
   }
 
@@ -134,6 +146,7 @@ namespace lpzrobots {
     FOREACHC(list<Motor*>, motors, i){
       s += (*i)->getMotorNumber();
     } 
+    askedfornumber=true;
     return robot->getMotorNumber() + s;
   }
 

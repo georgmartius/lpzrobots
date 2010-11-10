@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-09-17 10:06:48  martius
+ *   Revision 1.2  2010-11-10 17:09:36  martius
+ *   torque sensors added, but not yet tested
+ *
+ *   Revision 1.1  2010/09/17 10:06:48  martius
  *   added test for sensors
  *
  *
@@ -48,6 +51,7 @@
 
 #include <ode_robots/speaker.h>
 #include <ode_robots/soundsensor.h>
+#include <ode_robots/torquesensor.h>
 
 // used arena
 #include <ode_robots/playground.h>
@@ -82,13 +86,15 @@ public:
     fc.twoWheelMode = true;
     fc.useBumper    = false;      
     fc.irFront      = true;    
-    OdeRobot* fw = new FourWheeled(odeHandle, osgHandle, 
+    FourWheeled* fw = new FourWheeled(odeHandle, osgHandle, 
                                         fc, "TestVehicle");
     std::list<Sensor*> sensors;
-    sensors.push_back(new SoundSensor(Sensor::X));
+    //sensors.push_back(new SoundSensor(Sensor::X));
     AddSensors2RobotAdapter* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle, 
                                                                    fw, sensors);
     vehicle->place(osg::Matrix::translate(0,0,0));    
+    vehicle->addSensor(new TorqueSensor(fw->getJoint(0),16));
+    vehicle->addSensor(new TorqueSensor(fw->getJoint(2),16));
     global.configs.push_back(vehicle);
 
     AbstractController *controller = new SineController();
@@ -106,7 +112,7 @@ public:
     PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle);
     s->setPose(osg::Matrix::translate(-1,-1,1));
     global.obstacles.push_back(s);
-    speaker = new Speaker(10);
+    speaker = new Speaker(10); 
     speaker->init(s->getMainPrimitive());
     value=0;
     speaker->set(&value,1);

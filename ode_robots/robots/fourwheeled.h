@@ -22,7 +22,10 @@
  *  A robot with 4 wheels based on nimm4 with IR sensors                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-03-26 14:18:07  martius
+ *   Revision 1.6  2010-11-10 17:09:36  martius
+ *   torque sensors added, but not yet tested
+ *
+ *   Revision 1.5  2010/03/26 14:18:07  martius
  *   fourwheeled has a 2 wheeled mode
  *   camera position/motion sensor meansure size change
  *
@@ -53,6 +56,7 @@ namespace lpzrobots {
 
   class Primitive; 
   class Hinge2Joint; 
+  class Joint; 
 
   typedef struct {
     double size;
@@ -123,6 +127,8 @@ namespace lpzrobots {
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
+    // returns the joint with index i
+    virtual Joint* getJoint(int i);
 
   protected:
     /** creates vehicle at desired pose

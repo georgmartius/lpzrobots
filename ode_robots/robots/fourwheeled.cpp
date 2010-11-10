@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-03-26 14:18:07  martius
+ *   Revision 1.11  2010-11-10 17:09:36  martius
+ *   torque sensors added, but not yet tested
+ *
+ *   Revision 1.10  2010/03/26 14:18:07  martius
  *   fourwheeled has a 2 wheeled mode
  *   camera position/motion sensor meansure size change
  *
@@ -68,6 +71,7 @@
 #include <osg/Matrix>
 
 #include "fourwheeled.h"
+#include "joint.h"
 #include "irsensor.h"
 #include "primitive.h"
 #include "osgprimitive.h"
@@ -215,6 +219,14 @@ namespace lpzrobots {
 				    conf.irRangeSide, RaySensor::drawAll);      
     }
   };
+
+
+  // returns the joint with index i
+  Joint* FourWheeled::getJoint(int i){
+    if(i>3)i=3;
+    if(i<0)i=0;
+    return joint[i];
+  }
 
 
   /** destroys vehicle and space

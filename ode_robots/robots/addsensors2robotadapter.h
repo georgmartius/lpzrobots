@@ -23,7 +23,10 @@
  *    without modifiing them.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-06-03 09:55:37  martius
+ *   Revision 1.8  2010-11-10 17:09:36  martius
+ *   torque sensors added, but not yet tested
+ *
+ *   Revision 1.7  2010/06/03 09:55:37  martius
  *   added setcolor
  *
  *   Revision 1.6  2010/03/21 21:48:59  martius
@@ -119,6 +122,7 @@ namespace lpzrobots {
     std::list<Motor*> motors;
     bool sensors_before_rest;
     bool initialized;
+    bool askedfornumber;
   };
 
 }
