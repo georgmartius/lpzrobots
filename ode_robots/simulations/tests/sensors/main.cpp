@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-10 17:09:36  martius
+ *   Revision 1.3  2010-11-11 08:58:45  martius
+ *   comments and testing
+ *
+ *   Revision 1.2  2010/11/10 17:09:36  martius
  *   torque sensors added, but not yet tested
  *
  *   Revision 1.1  2010/09/17 10:06:48  martius
@@ -94,7 +97,7 @@ public:
                                                                    fw, sensors);
     vehicle->place(osg::Matrix::translate(0,0,0));    
     vehicle->addSensor(new TorqueSensor(fw->getJoint(0),16));
-    vehicle->addSensor(new TorqueSensor(fw->getJoint(2),16));
+    //    vehicle->addSensor(new TorqueSensor(fw->getJoint(2),16));
     global.configs.push_back(vehicle);
 
     AbstractController *controller = new SineController();

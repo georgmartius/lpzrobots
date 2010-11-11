@@ -30,13 +30,27 @@
 namespace lpzrobots {
 
   TorqueSensor::TorqueSensor(Joint* joint, double maxtorque)
-    : joint(joint), maxtorque(maxtorque) {
+    : joint(joint), maxtorque(maxtorque), feedback(0), allocatedfb(false) {
+    
     assert(joint);
+  }
+
+
+  TorqueSensor::~TorqueSensor(){
+    if(allocatedfb){      
+      // this would require the sensor to be deleted before the joint, which is not enshured.
+      // dJointSetFeedback (joint->getJoint(), 0); 
+      free(feedback);
+    }
   }
 
   void TorqueSensor::init(Primitive* own){    
     // set joint to feedback mode
-    dJointSetFeedback (joint->getJoint(), &feedback);    
+    if((feedback=dJointGetFeedback(joint->getJoint()))==0){
+      feedback = (dJointFeedback*)malloc(sizeof(dJointFeedback));
+      allocatedfb = true;
+      dJointSetFeedback (joint->getJoint(), feedback);          
+    }
   }
 
   int TorqueSensor::getSensorNumber() const{
@@ -47,19 +61,15 @@ namespace lpzrobots {
 
   std::list<sensor> TorqueSensor::get() const {
     // todo: check axis 
-    Pos t1(feedback.t1);
-    Pos t2(feedback.t2);
+    dJointFeedback* fb = dJointGetFeedback(joint->getJoint());
+    assert(fb);
+    Pos t1(fb->t1);
+    Pos t2(fb->t2);
     std::list<sensor> l;
+    //    t1.print();
+    //    t2.print();
     l.push_back((t1.length()+t2.length())/maxtorque);
     return l;
-  }
-
-  int TorqueSensor::get(sensor* sensors, int length) const{
-    assert(length>=1);
-    Pos t1(feedback.t1);
-    Pos t2(feedback.t2);
-    sensors[0] = (t1.length()+t2.length())/maxtorque;    
-    return 1;
   }
 
 }

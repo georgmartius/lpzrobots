@@ -26,7 +26,10 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-09-27 14:55:56  martius
+ *   Revision 1.10  2010-11-11 08:58:45  martius
+ *   comments and testing
+ *
+ *   Revision 1.9  2010/09/27 14:55:56  martius
  *   reimplemented cmd_set. Works now better, also with spaces after the = sign
  *   line variable contains full cmd line now
  *
@@ -492,7 +495,7 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
       break;
     default: // something else
       printf("Syntax Error! Expect 2 or 3 arguments: [ObjectID] param=val\n");
-      printf("Got %li params:", params.size());
+      printf("Got %i params:", (int)params.size());
       FOREACHC(vector<string>, params, p) printf("%s, ", p->c_str());
       printf("\n");
       break;

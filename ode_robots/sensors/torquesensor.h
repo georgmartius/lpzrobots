@@ -40,7 +40,7 @@ namespace lpzrobots {
        @param maxtorque at this torque the sensor value is 1.       
      */
     TorqueSensor(Joint* joint, double maxtorque = 1.0);
-    virtual ~TorqueSensor() {}
+    virtual ~TorqueSensor();
     
     /// the primitive is not required here, set it to NULL 
     virtual void init(Primitive* own);
@@ -48,12 +48,12 @@ namespace lpzrobots {
   
     virtual bool sense(const GlobalData& globaldata);
     virtual std::list<sensor> get() const;
-    virtual int get(sensor* sensors, int length) const;
 
   private:
     Joint* joint;
     double maxtorque;
-    dJointFeedback feedback;
+    dJointFeedback* feedback;
+    bool allocatedfb;
   };
 
 

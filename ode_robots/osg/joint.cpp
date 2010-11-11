@@ -23,7 +23,10 @@
  *  Different Joint wrappers                                               *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-06-28 14:44:04  martius
+ *   Revision 1.10  2010-11-11 08:58:45  martius
+ *   comments and testing
+ *
+ *   Revision 1.9  2010/06/28 14:44:04  martius
  *   joints can also not ignore collisions
  *
  *   Revision 1.8  2008/09/11 15:24:01  martius
@@ -101,6 +104,8 @@
  *
  *                                                                 *
  ***************************************************************************/
+
+//TODO: add dParamFudgeFactor, see ode docs (0.5 maybe?)
 
 #include <osg/Vec3>
 #include <osg/Matrix>

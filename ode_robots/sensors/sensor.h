@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-03-21 21:48:59  martius
+ *   Revision 1.7  2010-11-11 08:58:45  martius
+ *   comments and testing
+ *
+ *   Revision 1.6  2010/03/21 21:48:59  martius
  *   camera sensor bugfixing (reference to osghandle)
  *   twowheeled robot added (nimm2 with camera)
  *   sense function added to robots (before control): sensors (type Sensor) are checked here
@@ -87,6 +90,7 @@ namespace lpzrobots {
     virtual int getSensorNumber() const  = 0;
 
     /** returns a list of sensor values (usually in the range [0,1] )
+	This function should be overloaded.
      */
     virtual std::list<sensor> get() const  = 0;
 
@@ -95,12 +99,21 @@ namespace lpzrobots {
     virtual void update() {};
 
     /** writes the sensor values (usually in the range [0,1] ) 
-	into the giben sensor array and returns the number of sensors written
+	into the giben sensor array and returns the number of sensors written.
+	A default implementation based on get() is provided. Only of performance
+	matters overwrite this function.
 	@param sensors call by refernce array which received the values
 	@param length capacity of sensors array
 	@return number of sensor values written
      */
-    virtual int get(sensor* sensors, int length) const  = 0;
+    virtual int get(sensor* sensors, int length) const {
+      const std::list<sensor>& l = get();
+      assert(length>=(int)l.size());
+      int n=0;
+      FOREACHC(std::list<sensor>,l,s)
+	sensors[n++] = *s;
+      return l.size();      
+    };
 
     /// selects the rows specified by dimensions (X->0, Y->1, Z->2)
     static std::list<sensor> selectrows(const matrix::Matrix& m, short dimensions) {
