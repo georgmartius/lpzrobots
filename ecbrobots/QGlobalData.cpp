@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-10 09:32:00  guettler
+ *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   - some extensions for QMessageClient (e.g. quitServer())
+ *   - fixed some includes
+ *
+ *   Revision 1.1  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *
  *   Revision 1.6  2009/08/11 18:50:33  guettler
@@ -60,6 +64,7 @@
  *
  ***************************************************************************/
 #include "QGlobalData.h"
+#include "QECBCommunicator.h"
 
 namespace lpzrobots {
 
@@ -75,12 +80,14 @@ namespace lpzrobots {
     addParameterDef("noise", &noise, 0.05);
     simStep = 0;
     addParameterDef("benchmarkmode", &benchmarkMode, false);
-    addParameterDef("debug", &debug, false);
-    addParameterDef("verbose", &verbose, false);
+    addParameterDef("debug", &debugOutput, false);
+    addParameterDef("verbose", &verboseOutput, false);
     addParameterDef("testmode", &testMode, false);
     paused = false;
     comm = 0;
     configs.push_back(this);
+    // deploy the Communicator
+    comm = new QECBCommunicator(*this);
   }
 
   QGlobalData::~QGlobalData() {
@@ -92,15 +99,15 @@ namespace lpzrobots {
         emit sig_textLog(log); // forward
         break;
       case LOG_WARNING:
-        if (warning)
+        if (warningOutput)
           emit sig_textLog(log); // forward
         break;
       case LOG_VERBOSE:
-        if (verbose)
+        if (verboseOutput)
           emit sig_textLog(log); // forward
         break;
       case LOG_DEBUG:
-        if (debug)
+        if (debugOutput)
           emit sig_textLog(log); // forward
         break;
     }

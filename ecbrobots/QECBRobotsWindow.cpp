@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-10 09:32:00  guettler
+ *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   - some extensions for QMessageClient (e.g. quitServer())
+ *   - fixed some includes
+ *
+ *   Revision 1.1  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *                                              *
  *                                                                         *
@@ -38,6 +42,7 @@ namespace lpzrobots {
 
   QECBRobotsWindow::QECBRobotsWindow(QString applicationPath, QECBManager* manager) {
     this->applicationPath = applicationPath;
+    this->setWindowTitle("ECBRobotsWindow");
 
     logView = new QLogViewWidget();
 
@@ -62,6 +67,7 @@ namespace lpzrobots {
     connect(globalData, SIGNAL(sig_textLog(QString)), this, SLOT(sl_textLog(QString)));
     connect(ecbManager, SIGNAL(sig_communicationStateChanged(QECBCommunicator::ECBCommunicationState)), this,
         SLOT(sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState)));
+    connect(globalData->comm, SIGNAL(sig_quitServer()), this, SLOT(sl_Close()));
 
     createActions();
     createMenus();
@@ -161,7 +167,7 @@ namespace lpzrobots {
   }
 
   void QECBRobotsWindow::readSettings() {
-    QSettings settings(applicationPath + QString("application.settings"), QSettings::IniFormat);
+    QSettings settings(applicationPath + QString("ecbrobots.settings"), QSettings::IniFormat);
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
     resize(size);
@@ -178,7 +184,7 @@ namespace lpzrobots {
   }
 
   void QECBRobotsWindow::writeSettings() {
-    QSettings settings(applicationPath + QString("application.settings"), QSettings::IniFormat);
+    QSettings settings(applicationPath + QString("ecbrobots.settings"), QSettings::IniFormat);
     settings.setValue("pos", pos());
     settings.setValue("size", size());
     settings.setValue("warning", action_SwitchWarning->isChecked());
@@ -243,16 +249,16 @@ namespace lpzrobots {
   void QECBRobotsWindow::sl_GUIEventHandler(int eventCode) {
     switch (eventCode) {
       case EVENT_SWITCH_WARNING:
-        globalData->warning = action_SwitchWarning->isChecked();
-        globalData->textLog("Set warning output to " + QString::number(globalData->warning));
+        globalData->warningOutput = action_SwitchWarning->isChecked();
+        globalData->textLog("Set warning output to " + QString::number(globalData->warningOutput));
         break;
       case EVENT_SWITCH_VERBOSE:
-        globalData->verbose = action_SwitchVerbose->isChecked();
-        globalData->textLog("Set verbose output to " + QString::number(globalData->verbose));
+        globalData->verboseOutput = action_SwitchVerbose->isChecked();
+        globalData->textLog("Set verbose output to " + QString::number(globalData->verboseOutput));
         break;
       case EVENT_SWITCH_DEBUG:
-        globalData->debug = action_SwitchDebug->isChecked();
-        globalData->textLog("Set debug output to " + QString::number(globalData->debug));
+        globalData->debugOutput = action_SwitchDebug->isChecked();
+        globalData->textLog("Set debug output to " + QString::number(globalData->debugOutput));
         break;
       default:
         break;

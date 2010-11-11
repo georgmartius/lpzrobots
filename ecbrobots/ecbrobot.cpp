@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-11-10 09:32:00  guettler
+ *   Revision 1.10  2010-11-11 15:34:59  wrabe
+ *   - some extensions for QMessageClient (e.g. quitServer())
+ *   - fixed some includes
+ *
+ *   Revision 1.9  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *
  *   Revision 1.8  2010/04/28 08:09:30  guettler
@@ -70,7 +74,7 @@
 #include <selforg/matrix.h>
 
 #include <assert.h>
-#include "ecbcommunicator.h"
+#include "QECBCommunicator.h"
 #include <string>
 
 using namespace std;

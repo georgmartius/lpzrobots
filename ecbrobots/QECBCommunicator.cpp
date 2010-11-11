@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-10 09:32:00  guettler
+ *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   - some extensions for QMessageClient (e.g. quitServer())
+ *   - fixed some includes
+ *
+ *   Revision 1.1  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *                                                *
  *                                                                         *
@@ -60,7 +64,7 @@ namespace lpzrobots {
     currentCommState = STATE_NOT_INITIALISED;
     globalData.paused = false;
     timer.stop();
-    // TODO: disconnect from QMessageDispatchServer
+    // TODO: disconnect from AbstractQMessageDispatchServer
   }
 
   void QECBCommunicator::mediatorInformed(MediatorCollegue* source, MediatorEvent* event) {
@@ -90,7 +94,7 @@ namespace lpzrobots {
 
   bool QECBCommunicator::initialize() {
     globalData.textLog("ECBCommunicator: initializing...");
-    // TODO: establish connection to QMessageDispatchServer
+    // TODO: establish connection to AbstractQMessageDispatchServer
 
     currentCommState = STATE_INITIALIZED;
 
@@ -322,5 +326,11 @@ namespace lpzrobots {
   QString QECBCommunicator::printBuffer(const uint8 buffer) {
     return printBuffer(QString::number(buffer).toLocal8Bit());
   }
+
+  void QECBCommunicator::sl_quitServer() {
+    emit sig_quitServer();
+    globalData.textLog("QUIT from Server!", QGlobalData::LOG_ERROR);
+  }
+
 
 } // namespace lpzrobots

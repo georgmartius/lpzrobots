@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-10 09:32:00  guettler
+ *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   - some extensions for QMessageClient (e.g. quitServer())
+ *   - fixed some includes
+ *
+ *   Revision 1.1  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *                                                *
  *                                                                         *
@@ -45,7 +49,7 @@
 
 #include "types.h"
 #include "QLogViewWidget.h"
-#include "QMessageClient.h"
+#include "QAbstractMessageClient.h"
 #include "QECBManager.h"
 #include "QECBCommunicator.h"
 
@@ -89,12 +93,12 @@ namespace lpzrobots {
       };
 
       QString applicationPath;
+
       QECBManager* ecbManager;
       QGlobalData* globalData;
+
       QTabWidget *tabWidget;
       QLogViewWidget *logView;
-
-      QMessageClient messageClient;
 
       QMenu *fileMenu;
       QMenu *loopControlMenu;

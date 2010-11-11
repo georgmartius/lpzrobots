@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-10 09:32:00  guettler
+ *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   - some extensions for QMessageClient (e.g. quitServer())
+ *   - fixed some includes
+ *
+ *   Revision 1.1  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *                                                *
  *                                                                         *
@@ -35,7 +39,7 @@
 #ifndef __ECBCOMMUNICATIONDATA_H_
 #define __ECBCOMMUNICATIONDATA_H_
 
-#include "constants.h"
+#include "types.h"
 
 namespace lpzrobots {
 

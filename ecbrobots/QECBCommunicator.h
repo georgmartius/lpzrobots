@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-10 09:32:00  guettler
+ *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   - some extensions for QMessageClient (e.g. quitServer())
+ *   - fixed some includes
+ *
+ *   Revision 1.1  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *                                                *
  *                                                                         *
@@ -36,7 +40,7 @@
 #define QECBCOMMUNICATOR_H_
 
 #include <selforg/mediator.h>
-#include "QMessageClient.h"
+#include "QAbstractMessageClient.h"
 #include "ECBCommunicationData.h"
 #include "ECBCommunicationEvent.h"
 
@@ -45,7 +49,7 @@ namespace lpzrobots {
   class QGlobalData;
   class ECB;
 
-  class QECBCommunicator : public QMessageClient, public Mediator {
+  class QECBCommunicator : public QAbstractMessageClient, public Mediator {
 
     Q_OBJECT
 
@@ -57,7 +61,7 @@ namespace lpzrobots {
       enum ECBCommunicationState {
         // specific states
         STATE_NOT_INITIALISED, //!< QECBCommunicator not initilized yet
-        STATE_INITIALIZED, //!< connection to QMessageDispatchServer established, but loop not started yet
+        STATE_INITIALIZED, //!< connection to AbstractQMessageDispatchServer established, but loop not started yet
         STATE_READY_FOR_STEP_OVER_AGENTS, //!< indicates that all ECBs are updated and the loop over the agents can begin
         STATE_WAIT_FOR_RECEIVE_PACKAGE_SENSORS, //!< awaiting package with current sensor informations of current handled ECB
         STATE_READY_FOR_SENDING_PACKAGE_MOTORS, //!< indicates that the thread is ready to send new motor values to an ECB
@@ -87,7 +91,13 @@ namespace lpzrobots {
 
     public slots:
 
-      void sl_messageReceived(struct _communicationMessage msg);
+      virtual void sl_messageReceived(struct _communicationMessage msg);
+      virtual void sl_quitServer();
+
+    signals:
+      virtual void sig_sendMessage(struct _communicationMessage msg);
+
+      void sig_quitServer();
 
     private slots:
       void sl_TimerExpired();
@@ -109,7 +119,7 @@ namespace lpzrobots {
       QTimer timer;
 
       /**
-       * Converts the package to send into the message format used by QMessageClient
+       * Converts the package to send into the message format used by AbstractQMessageClient
        * @param commData CommunicationData to send
        * @param sourceECB which contains the DNSName
        */

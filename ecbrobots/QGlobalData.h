@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-10 09:32:00  guettler
+ *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   - some extensions for QMessageClient (e.g. quitServer())
+ *   - fixed some includes
+ *
+ *   Revision 1.1  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *
  *   Revision 1.6  2009/08/11 18:50:33  guettler
@@ -131,7 +135,7 @@ namespace lpzrobots {
 
       /**
        * @param given QString will be forwarded to the log window (via sig_textLog)
-       * @param determines which type of log is made (error, warning, verbose, debug)
+       * @param determines which type of log is made (error, warningOutput, verboseOutput, debug)
        */
       void textLog(QString log, LOG_TYPE logType = LOG_DEBUG);
 
@@ -143,9 +147,9 @@ namespace lpzrobots {
       void sig_textLog(QString log);
 
     protected:
-      parambool warning;
-      parambool verbose;
-      parambool debug;
+      parambool warningOutput;
+      parambool verboseOutput;
+      parambool debugOutput;
 
   };
 

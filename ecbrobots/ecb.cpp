@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-11-10 09:32:00  guettler
+ *   Revision 1.14  2010-11-11 15:34:59  wrabe
+ *   - some extensions for QMessageClient (e.g. quitServer())
+ *   - fixed some includes
+ *
+ *   Revision 1.13  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *
  *   Revision 1.12  2009/08/18 14:49:37  guettler
@@ -155,7 +159,7 @@ namespace lpzrobots {
    */
   void ECB::sendResetECB() {
 
-    //if (globalData->debug)
+    //if (globalData->debugOutput)
     globalData->textLog("ECB: resetECB!(" + dnsName + ")");
 
     // globalData->comm->flushInputBuffer();

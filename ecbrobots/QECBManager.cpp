@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-10 09:32:00  guettler
+ *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   - some extensions for QMessageClient (e.g. quitServer())
+ *   - fixed some includes
+ *
+ *   Revision 1.1  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *                                                *
  *                                                                         *
@@ -99,12 +103,7 @@ namespace lpzrobots {
 
   void QECBManager::initialize() {
 
-    // deploy the Communicator
     // neccessary values are stored in globalData
-    globalData.textLog("QECBManager: deploying QECBCommunicator...");
-    globalData.comm = new QECBCommunicator(globalData);
-    ;
-
     globalData.textLog("QECBManager: handling console parameters...");
     handleStartParameters();
 
