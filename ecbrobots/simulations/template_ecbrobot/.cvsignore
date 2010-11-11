@@ -7,3 +7,5 @@ Makefile.depend
 qrc_ecbrobots.cpp
 application.settings
 Makefile
+ecbrobots.settings
+messagedispatcher.settings

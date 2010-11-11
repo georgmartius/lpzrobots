@@ -1,8 +1,8 @@
 
 TEMPLATE = app
 TARGET = start
-DEPENDPATH += . ../.. ../../../selforg/include
-INCLUDEPATH += /$(HOME)/include ../.. ../../../selforg/include
+DEPENDPATH += . ../.. ../../../selforg/include ../../messagedispatcher
+INCLUDEPATH += /$(HOME)/include ../.. ../../../selforg/include  ../../messagedispatcher
 LIBS += -L$(HOME)/lib  -lusb -lftdi -lselforg -L../../../selforg
 CONFIG += debug 
 QMAKE_CXXFLAGS += -Wno-deprecated -Wno-unused-parameter

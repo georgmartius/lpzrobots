@@ -1,7 +1,7 @@
-
 //#include <QApplication>
 #include <qapplication.h>
 #include "QECBRobotsWindow.h"
+#include "QMessageDispatchWindow.h"
 #include "QECBCommunicator.h"
 #include "ecb.h"
 
@@ -11,10 +11,8 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/abstractcontrolleradapter.h>
 
-
 using namespace lpzrobots;
 using namespace std;
-
 
 static int zeroRange = 0.00;
 /**
@@ -31,7 +29,8 @@ class CheatedECB : public ECB {
 
     virtual void sendMotorValuesPackage() {
       // at first start of ECB, it must be initialized with a reset-command
-      if (!(initialised && failureCounter <= globalData->maxFailures)) {
+      if (!(initialised && failureCounter <= globalData->maxFailures))
+      {
         sendResetECB();
         return;
       }
@@ -46,10 +45,11 @@ class CheatedECB : public ECB {
       // set motor-data
       int i = 0;
       // motorList was update by ECBAgent->ECBRobot:setMotors()->(to all ECBs)-> ECB:setMotors()
-      FOREACH (list<motor>,motorList,m) {
+      FOREACH (list<motor>,motorList,m)
+      {
         // Agent and Controller process with double-values
         // The ECB(hardware) has to work with byte-values
-        if (motorsStopped || ((*m)>=-zeroRange && (*m)<=zeroRange))
+        if (motorsStopped || ((*m) >= -zeroRange && (*m) <= zeroRange))
           event->commPackage.data[i++] = convertToByte(0);
         else
           event->commPackage.data[i++] = convertToByte((*m));
@@ -61,7 +61,7 @@ class CheatedECB : public ECB {
      * Send stop command to the ECB to disable the motors
      */
     virtual void stopMotors() {
-      motorsStopped=true;
+      motorsStopped = true;
       sendMotorValuesPackage();
     }
 
@@ -69,7 +69,7 @@ class CheatedECB : public ECB {
      * Send start command to the ECB to enable the motors
      */
     virtual void startMotors() {
-      motorsStopped=false;
+      motorsStopped = false;
     }
 
   private:
@@ -78,14 +78,14 @@ class CheatedECB : public ECB {
 
 class MyController : public AbstractControllerAdapter {
   public:
-    MyController(AbstractController* controller) : AbstractControllerAdapter(controller) {
+    MyController(AbstractController* controller) :
+      AbstractControllerAdapter(controller) {
 
     }
 
-    virtual void step(const sensor* sensors, int sensornumber,
-          motor* motors, int motornumber) {
-      controller->step(sensors, sensornumber, motors,  motornumber);
-     // motors[0] = 0;
+    virtual void step(const sensor* sensors, int sensornumber, motor* motors, int motornumber) {
+      controller->step(sensors, sensornumber, motors, motornumber);
+      // motors[0] = 0;
       //motors[1] = -1;
     }
 };
@@ -94,7 +94,8 @@ class MyECBManager : public QECBManager {
 
   public:
 
-    MyECBManager(int argc, char** argv) : QECBManager(argc, argv) {
+    MyECBManager(int argc, char** argv) :
+      QECBManager(argc, argv) {
     }
 
     virtual ~MyECBManager() {
@@ -109,7 +110,7 @@ class MyECBManager : public QECBManager {
     virtual bool start(QGlobalData& global) {
 
       // set specific communication values
-   //   global.baudrate = 460800;
+      //   global.baudrate = 460800;
       global.baudrate = 57600;
 
       global.portName = "/dev/ttyUSB0";
@@ -120,21 +121,22 @@ class MyECBManager : public QECBManager {
       global.plotOptions.push_back(PlotOption(GuiLogger, 1));
 
       int numberNimm2 = 3;
-      for (int nimm2Index=0; nimm2Index< numberNimm2; nimm2Index++) {
-//        if (nimm2Index!=2)
-//          continue;
+      for (int nimm2Index = 0; nimm2Index < numberNimm2; nimm2Index++)
+      {
+        //        if (nimm2Index!=2)
+        //          continue;
         // create new controller
         InvertMotorNStepConf conConf = InvertMotorNStep::getDefaultConf();
-        conConf.initialC = matrix::Matrix(2,2);
-        conConf.initialC.val(0,0)= 1.0;
-        conConf.initialC.val(1,1)= 1.0;
-        conConf.initialC.val(1,0)= -0.07;
-        conConf.initialC.val(0,1)= -0.07;
+        conConf.initialC = matrix::Matrix(2, 2);
+        conConf.initialC.val(0, 0) = 1.0;
+        conConf.initialC.val(1, 1) = 1.0;
+        conConf.initialC.val(1, 0) = -0.07;
+        conConf.initialC.val(0, 1) = -0.07;
 
         AbstractController* myCon = new InvertMotorNStep(conConf);
-//        AbstractController* myCon = new SineController();
-        myCon->setParam("epsA",0);
-        myCon->setParam("epsC",0);
+        //        AbstractController* myCon = new SineController();
+        myCon->setParam("epsA", 0);
+        myCon->setParam("epsC", 0);
 
         // create new wiring
         AbstractWiring* myWiring = new One2OneWiring(new WhiteNormalNoise());
@@ -145,9 +147,10 @@ class MyECBManager : public QECBManager {
         ECBConfig ecbConf = ECB::getDefaultConf();
         ecbConf.maxNumberSensors = 2; // no infrared sensors
         QString* DNSName;
-        switch (nimm2Index) {
+        switch (nimm2Index)
+        {
           case 0:
-//            DNSName = new string("NIMM2_PRIMUS");
+            //            DNSName = new string("NIMM2_PRIMUS");
             DNSName = new QString("NIMM2_PRIMUS");
             break;
           case 1:
@@ -167,13 +170,10 @@ class MyECBManager : public QECBManager {
         // init agent with controller, robot and wiring
         myAgent->init(myCon, myRobot, myWiring);
 
-       // register agents
+        // register agents
         global.agents.push_back(myAgent);
 
       }
-
-
-
 
       return true;
     }
@@ -205,20 +205,29 @@ class MyECBManager : public QECBManager {
  * @param argv
  * @return
  */
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+
   // create your custom ECBManager
   MyECBManager ecbManager(argc, argv);
 
   Q_INIT_RESOURCE(ecbrobots);
 
-	QApplication app(argc, argv);
+  QApplication app(argc, argv);
 
-	QString appPath = QString(argv[0]);
-	QECBRobotsWindow *mainWin = new QECBRobotsWindow(appPath.mid(0, appPath.lastIndexOf("/")+1), &ecbManager);
+  QString appPath = QString(argv[0]);
+  QECBRobotsWindow *ecbWindow = new QECBRobotsWindow(appPath.mid(0, appPath.lastIndexOf("/")+1), &ecbManager);
+  QMessageDispatchWindow *messageDispatchWindow = new QMessageDispatchWindow(appPath.mid(0, appPath.lastIndexOf("/") + 1));
 
-	mainWin->show();
+  QObject::connect(ecbManager.getGlobalData().comm, SIGNAL(sig_sendMessage(struct _communicationMessage)), messageDispatchWindow->getQMessageDispatchServer(),
+      SLOT(sl_sendMessage(struct _communicationMessage)));
+  QObject::connect(messageDispatchWindow->getQMessageDispatchServer(), SIGNAL(sig_messageReceived(struct _communicationMessage)), ecbManager.getGlobalData().comm,
+      SLOT(sl_messageReceived(struct _communicationMessage)));
+  QObject::connect(messageDispatchWindow->getQMessageDispatchServer(), SIGNAL(sig_quitServer()), ecbManager.getGlobalData().comm,
+      SLOT(sl_quitServer()));
 
-	return app.exec();
+  messageDispatchWindow->show();
+  ecbWindow->show();
+
+  return app.exec();
 }
 
