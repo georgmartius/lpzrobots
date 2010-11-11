@@ -1,2 +1,5 @@
 Makefile.depend
 *.a
+build_opt
+build
+build_dbg
