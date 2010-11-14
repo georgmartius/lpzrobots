@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-09 18:07:40  wrabe
+ *   Revision 1.4  2010-11-14 12:14:06  wrabe
+ *   - set debug to false
+ *   - fix: show avrDeviceName after reading signature-bytes
+ *
+ *   Revision 1.3  2010/11/09 18:07:40  wrabe
  *   - change location of the application saves (settings)
  *
  *   Revision 1.2  2010/11/09 17:56:55  wrabe
@@ -1218,6 +1222,8 @@ namespace lpzrobots {
 
           if (avrDevice != 0)
           {
+            panelSetting->setAVRDeviceName(*avrDevice->Name);
+            sl_TextLog(*avrDevice->Name);
             hasAVRDeviceIdedentified = true;
             action_Target_CalibrationBytes_read->setEnabled(true);
             action_Target_ShowFuseDialog->setEnabled(true);

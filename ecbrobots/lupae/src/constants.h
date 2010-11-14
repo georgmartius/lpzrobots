@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-09 17:56:55  wrabe
+ *   Revision 1.3  2010-11-14 12:14:06  wrabe
+ *   - set debug to false
+ *   - fix: show avrDeviceName after reading signature-bytes
+ *
+ *   Revision 1.2  2010/11/09 17:56:55  wrabe
  *   - change of the communication protocoll between lupae and usb-isp-adapter
  *   - therefore recoding the dedicated methods
  *   - reduction of the overloded send_Message methods to one method only
@@ -40,7 +44,7 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-#define debug true
+#define debug false
 
 #define APPLICATION_MODE_None 0
 #define APPLICATION_MODE_ISP_Adapter 1
