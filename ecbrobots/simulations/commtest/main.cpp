@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-10 09:31:24  guettler
+ *   Revision 1.4  2010-11-14 20:37:02  wrabe
+ *   - change object-name from 'comm' to 'commchannel' to avoid mix-up
+ *
+ *   Revision 1.3  2010/11/10 09:31:24  guettler
  *   - port to Qt part 1
  *
  *   Revision 1.2  2008/07/16 14:37:17  robot1
@@ -70,10 +73,10 @@ public:
 	  data.command = CPING; //CCOMTEST
 	  data.dataLength = 1;
 	  data.data[0] = 23;
-	  if (!globalData->comm->sendData(data)) {
+	  if (!globalData->commchannel->sendData(data)) {
     	    cerr << "Error while sending motor values for ECB " << 1 << "." << endl;
 	  }
-	  commData result = globalData->comm->receiveData();
+	  commData result = globalData->commchannel->receiveData();
 	printf("command(hex): %x,\r\n",result.command);
 	  for(int i=0;i<result.dataLength;i++) {
     		std::cout << "result: " << result.data[i] << std::endl;
