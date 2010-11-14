@@ -26,41 +26,57 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   Revision 1.1  2010-11-14 20:39:37  wrabe
  *   - save current developent state
  *
- *   Revision 1.1  2010/11/11 15:35:59  wrabe
- *   -current development state of QMessageDispatchServer
- *   -introduction of QCommunicationChannels and QCCHelper
- *                                            *
  *                                                                         *
  ***************************************************************************/
 
-#ifndef QMESSAGEDISPATCHSERVER_H_
-#define QMESSAGEDISPATCHSERVER_H_
-#include <QObject>
-#include "QAbstractMessageClient.h"
+#include "QExtByteArray.h"
+#include "constants.h"
 
 namespace lpzrobots {
+  
+  QExtByteArray::QExtByteArray() :
+    QByteArray(), checksum(0) {
+  }
 
-class QAbstractMessageDispatchServer : public QObject {
-Q_OBJECT
-public:
 
-  QAbstractMessageDispatchServer() : QObject() {}
+  QExtByteArray::~QExtByteArray() {
+  }
 
-signals:
-  void sig_messageReceived(struct _communicationMessage msg);
-  void sig_stdOut(QString sText);
-  void sig_quitServer();
 
-public slots:
-  virtual void sl_sendMessage(struct _communicationMessage msg) = 0;
-  // optional
-  // virtual void sl_quitClient() = 0;
+  void QExtByteArray::append(uchar c) {
+    QByteArray::append(c);
+    checksum = 0;
+  }
 
-};
+
+  void QExtByteArray::appendEscaped(uchar c) {
+    // Ist fuer dieses Zeichen eine Ausnahmebehandlung notwendig?
+    if (c == 0x7E || c == 0x7D || c == 0x13 || c == 0x11){
+      QByteArray::append(0x7D);
+      QByteArray::append((char) (c ^ 0x20));
+    }else{
+      QByteArray::append(c);
+    }
+  }
+
+
+  void QExtByteArray::appendEscapedChecksum(uchar c) {
+    checksum += c;
+    appendEscaped(c);
+  }
+
+
+  void QExtByteArray::appendChecksum() {
+    appendEscaped((char) (255 - checksum % 256));
+  }
+
+
+  void QExtByteArray::clear() {
+    QByteArray::clear();
+    checksum = 0;
+  }
 
 } // namespace lpzrobots
-
-#endif /* QMESSAGEDISPATCHSERVER_H_ */

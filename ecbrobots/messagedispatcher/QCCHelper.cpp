@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-11 15:35:59  wrabe
+ *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   - save current developent state
+ *
+ *   Revision 1.1  2010/11/11 15:35:59  wrabe
  *   -current development state of QMessageDispatchServer
  *   -introduction of QCommunicationChannels and QCCHelper
  *
@@ -59,7 +62,7 @@ namespace lpzrobots {
     for (int i = 0; i < msgToFormat.length(); i++)                   // 0x04: data ...
       msg.appendEscapedChecksum(msgToFormat[i]);
     msg.appendChecksum();                                            // packet checksum
-    return msg;
+    return (QByteArray)msg;
   }
   QByteArray QCCHelper::toUsartMessage(QByteArray msgToFormat) {
     QExtByteArray msg;
@@ -71,11 +74,11 @@ namespace lpzrobots {
     for (int i = 0; i < msgToFormat.length(); i++)                   // 0x04: data ....
       msg.appendEscapedChecksum(msgToFormat[i]);
     msg.appendChecksum();                                            // packet checksum
-    return msg;
+    return (QByteArray)msg;
   }
 
 
-  QByteArray QCCHelper::toXBeeS1Message(QByteArray msgToFormat, struct address16_t address16) {
+  QByteArray QCCHelper::toXBeeS1Message(QByteArray msgToFormat, uint16 address16) {
     QExtByteArray msg;
     uint length = 5 + msgToFormat.length();
     msg.append(0x7E);                                                // 0x00: Startsymbol
@@ -83,17 +86,17 @@ namespace lpzrobots {
     msg.appendEscaped((QByte) (length >> 0));                        // 0x02: Length LSB
     msg.appendEscapedChecksum(API_XBeeS1_Transmit_Request_16Bit);    // 0x03: API-ID
     msg.appendEscapedChecksum(0x00);                                 // 0x04: Frame-ID - immer 0 -> kein ResponsePaket vom XBee
-    msg.appendEscapedChecksum(address16.byte_1);                     // 0x05: DestinationAddress MSB
-    msg.appendEscapedChecksum(address16.byte_0);                     // 0x06: DestinationAddress LSB
+    msg.appendEscapedChecksum((char)(address16 >> 1));               // 0x05: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address16 >> 0));               // 0x06: DestinationAddress LSB
     msg.appendEscapedChecksum(0x01);                                 // 0x07: Options - immer 1  -> kein ResponsePaket vom XBee
     for (int i = 0; i < msgToFormat.length(); i++)                   // 0x08: data ....
       msg.appendEscapedChecksum(msgToFormat[i]);
     msg.appendChecksum();                                            // packet checksum
-    return msg;
+    return (QByteArray)msg;
   }
 
 
-  QByteArray QCCHelper::toXBeeS2Message(QByteArray msgToFormat, struct address16_t address16, struct address64_t address64) {
+  QByteArray QCCHelper::toXBeeS2Message(QByteArray msgToFormat, uint16 address16, uint64 address64) {
     QExtByteArray msg;
     uint length = 5 + msgToFormat.length();
     msg.append(0x7E);                                                // 0x00: Startsymbol
@@ -101,22 +104,22 @@ namespace lpzrobots {
     msg.appendEscaped((QByte) (length >> 0));                        // 0x02: Length LSB
     msg.appendEscapedChecksum(API_XBeeS2_ZigBee_Transmit_Request);   // 0x03: API-ID
     msg.appendEscapedChecksum(0x00);                                 // 0x04: Frame-ID - immer 0 -> kein ResponsePaket vom XBee
-    msg.appendEscapedChecksum(address64.byte_7);                     // 0x05: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_6);                     // 0x06: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_5);                     // 0x07: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_4);                     // 0x08: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_3);                     // 0x09: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_2);                     // 0x0A: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_1);                     // 0x0B: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_0);                     // 0x0C: DestinationAddress MSB
-    msg.appendEscapedChecksum(address16.byte_1);                     // 0x0D: DestinationAddress MSB
-    msg.appendEscapedChecksum(address16.byte_0);                     // 0x0E: DestinationAddress LSB
+    msg.appendEscapedChecksum((char)(address64 >> 7));               // 0x05: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 6));               // 0x06: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 5));               // 0x07: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 4));               // 0x08: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 3));               // 0x09: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 2));               // 0x0A: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 1));               // 0x0B: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 0));               // 0x0C: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address16 >> 1));               // 0x0D: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address16 >> 0));               // 0x0E: DestinationAddress LSB
     msg.appendEscapedChecksum(0x00);                                 // 0x0F: Broadcast-Range
     msg.appendEscapedChecksum(0x01);                                 // 0x10: OptionsByte - immer 1  -> kein ResponsePaket vom XBee
     for (int i = 0; i < msgToFormat.length(); i++)                   // 0x11: data ....
       msg.appendEscapedChecksum(msgToFormat[i]);
     msg.appendChecksum();                                            // packet checksum
-    return msg;
+    return (QByteArray)msg;
   }
 
 
@@ -131,11 +134,11 @@ namespace lpzrobots {
     for (int i = 0; i < msgToFormat.length(); i++)                   // 0x04: commandData 2..n bytes
       msg.appendEscapedChecksum(msgToFormat[i]);
     msg.appendChecksum();                                            // packet checksum
-    return msg;
+    return (QByteArray)msg;
   }
 
 
-  QByteArray QCCHelper::toXBeeRemoteATCommand(QByteArray msgToFormat, struct address16_t address16, struct address64_t address64) {
+  QByteArray QCCHelper::toXBeeRemoteATCommand(QByteArray msgToFormat, uint16 address16, uint64 address64) {
     QExtByteArray msg;
     uint length = 2 + msgToFormat.length();
     msg.append(0x7E);                                                // 0x00: Startsymbol
@@ -143,29 +146,47 @@ namespace lpzrobots {
     msg.appendEscaped((QByte) (length >> 0));                        // 0x02: Length LSB
     msg.appendEscapedChecksum(API_XBee_Remote_AT_Command_Request);   // 0x03: API-ID
     msg.appendEscapedChecksum('C');                                  // 0x04: Frame-ID
-    msg.appendEscapedChecksum(address64.byte_7);                     // 0x05: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_6);                     // 0x06: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_5);                     // 0x07: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_4);                     // 0x08: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_3);                     // 0x09: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_2);                     // 0x0A: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_1);                     // 0x0B: DestinationAddress MSB
-    msg.appendEscapedChecksum(address64.byte_0);                     // 0x0C: DestinationAddress MSB
-    msg.appendEscapedChecksum(address16.byte_1);                     // 0x0D: DestinationAddress MSB
-    msg.appendEscapedChecksum(address16.byte_0);                     // 0x0E: DestinationAddress LSB
+    msg.appendEscapedChecksum((char)(address64 >> 7));               // 0x05: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 6));               // 0x06: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 5));               // 0x07: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 4));               // 0x08: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 3));               // 0x09: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 2));               // 0x0A: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 1));               // 0x0B: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address64 >> 0));               // 0x0C: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address16 >> 1));               // 0x0D: DestinationAddress MSB
+    msg.appendEscapedChecksum((char)(address16 >> 0));               // 0x0E: DestinationAddress LSB
     msg.appendEscapedChecksum(0x02);                                 // 0x0F: Options '0x02 - apply changes'
     for (int i = 0; i < msgToFormat.length(); i++)                   // 0x10: commandData 2..n bytes
       msg.appendEscapedChecksum(msgToFormat[i]);
     msg.appendChecksum();                                            // packet checksum
-    return msg;
+    return (QByteArray)msg;
   }
 
-  static int QCCHelper::getApplicationModeByName(QString usbDeviceName) {
+
+  int QCCHelper::getUsbDeviceTaypeByName(QString usbDeviceName) {
+    if(usbDeviceName.startsWith("USB-ISP-Adapter")) return USBDevice_ISP_ADAPTER;
+    if(usbDeviceName.startsWith("USB-USART-Adapter")) return USBDevice_USART_ADAPTER;
+    if(usbDeviceName.startsWith("USB-XBEE-Adapter")) return USBDevice_XBEE_ADAPTER;
+    return USBDevice_None;
+  }
+
+
+  int QCCHelper::getApplicationModeByName(QString usbDeviceName) {
     if(usbDeviceName.startsWith("USB-ISP-Adapter")) return APPLICATION_MODE_ISP_Adapter;
     if(usbDeviceName.startsWith("USB-USART-Adapter")) return APPLICATION_MODE_USART_Adapter;
     if(usbDeviceName.startsWith("USB-XBEE-Adapter")) return APPLICATION_MODE_XBEE_Adapter;
+    return APPLICATION_MODE_None;
   }
 
 
+
+  QString QCCHelper::toHexNumberString(uint64 value, uint numberDigits){
+    QString hex;
+    for(int i=numberDigits; i>0; i--){
+      hex.append(QString::number((value >> (i*4-4)) & 0x0F, 16).toUpper());
+    }
+    return hex;
+  }
 
 } // namespace lpzrobots

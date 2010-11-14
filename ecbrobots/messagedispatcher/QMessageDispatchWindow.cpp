@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-11 15:35:59  wrabe
+ *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   - save current developent state
+ *
+ *   Revision 1.1  2010/11/11 15:35:59  wrabe
  *   -current development state of QMessageDispatchServer
  *   -introduction of QCommunicationChannels and QCCHelper
  *                                              *
@@ -41,9 +44,8 @@ namespace lpzrobots {
     this->applicationPath = applicationPath;
     this->setWindowTitle("ECBMessageDispatchWindow");
     logView = new QLogViewWidget();
-    timer = new QTimer();
 
-    logView->appendLogViewText("ApplicationPath='" + applicationPath + "'");
+    sl_TextLog("ApplicationPath='" + applicationPath + "'");
 
     setPalette(QPalette(QColor(200, 230, 200)));
 
@@ -65,40 +67,61 @@ namespace lpzrobots {
     createMenus();
     readSettings();
 
-    connect(timer, SIGNAL(timeout()), this, SLOT(sl_TimerExpired()));
     connect(this, SIGNAL(sig_quitServer()), &messageDispatcher, SIGNAL(sig_quitServer()));
+    connect(&messageDispatcher, SIGNAL(sig_TextLog(QString)), this, SLOT(sl_TextLog(QString)));
 
   }
+
+
+  QMessageDispatchWindow::~QMessageDispatchWindow() {
+    //messageDispatcher->~QECBMessageDispatchServer();
+    tabWidget->~QObject();
+    logView->~QLogViewWidget();
+    action_ScanUsbDevices->~QExtAction();
+    action_About->~QExtAction();
+    action_Exit->~QExtAction();
+    menu_File->~QMenu();
+    menu_Help->~QMenu();
+  }
+
+
   void QMessageDispatchWindow::createActions() {
-    action_Exit = new QAction(tr("&Quit"), this);
+    action_ScanUsbDevices = new QExtAction(EVENT_APPLICATION_SCAN_USBDEVICE, tr("ScanUSBDevices"), this);
+    action_ScanUsbDevices->setStatusTip(tr("Scan for connected USB-Tools."));
+    action_ScanUsbDevices->setShortcut(Qt::Key_F5);
+    action_ScanUsbDevices->setEnabled(true);
+    connect(action_ScanUsbDevices, SIGNAL(triggered(int)), this, SLOT(sl_eventHandler(int)));
+
+    action_Exit = new QExtAction(EVENT_APPLICATION_CLOSE, tr("&Quit"), this);
     action_Exit->setShortcut(tr("Ctrl+Q"));
     action_Exit->setStatusTip(tr("Exit the application"));
-    connect(action_Exit, SIGNAL(triggered()), this, SLOT(close()));
+    connect(action_Exit, SIGNAL(triggered(int)), this, SLOT(sl_eventHandler(int)));
 
     // Actions About
-    action_About = new QAction(tr("&About"), this);
+    action_About = new QExtAction(EVENT_APPLICATION_ABOUT, tr("&About"), this);
     action_About->setStatusTip(tr("Show the application's About box"));
-    connect(action_About, SIGNAL(triggered()), this, SLOT(sl_About()));
-
+    connect(action_About, SIGNAL(triggered(int)), this, SLOT(sl_eventHandler(int)));
   }
+
+
   void QMessageDispatchWindow::createMenus(int applicationMode) {
     //delete this->menuBar();
     this->menuBar()->clear();
 
-    switch (applicationMode)
-    {
-      default:
-      {
-        fileMenu = menuBar()->addMenu(tr("&File"));
-        fileMenu->addSeparator();
-        fileMenu->addAction(action_Exit);
+    switch (applicationMode){
+      default: {
+        menu_File = menuBar()->addMenu(tr("&File"));
+        menu_File->addAction(action_ScanUsbDevices);
+        menu_File->addSeparator();
+        menu_File->addAction(action_Exit);
 
-        helpMenu = menuBar()->addMenu(tr("&Help"));
-        helpMenu->addAction(action_About);
+        menu_Help = menuBar()->addMenu(tr("&Help"));
+        menu_Help->addAction(action_About);
         break;
       }
     }
   }
+
 
   void QMessageDispatchWindow::readSettings() {
     QSettings settings(applicationPath + QString("messagedispatcher.settings"), QSettings::IniFormat);
@@ -108,48 +131,62 @@ namespace lpzrobots {
     move(pos);
   }
 
+
+
   void QMessageDispatchWindow::writeSettings() {
     QSettings settings(applicationPath + QString("messagedispatcher.settings"), QSettings::IniFormat);
     settings.setValue("pos", pos());
     settings.setValue("size", size());
   }
 
+
+  void QMessageDispatchWindow::sl_eventHandler(int eventCode) {
+
+    switch (eventCode)
+    {
+      case EVENT_APPLICATION_LOGVIEW_CLEAR:
+      {
+        logView->clearLogViewText();
+        break;
+      }
+      case EVENT_APPLICATION_CLOSE:
+      {
+        close();
+        break;
+      }
+      case EVENT_APPLICATION_ABOUT:
+      {
+        QMessageBox::about(this, tr("About the Application"), tr(
+            "ECB_Robot-Application V2.0, Tool to connect real robots (containing an ecb) onto a neuro-controller located on a standard pc."));
+        break;
+      }
+      case EVENT_APPLICATION_SCAN_USBDEVICE:
+      {
+        messageDispatcher.scanUsbDevices();
+        break;
+      }
+    }
+  }
+
+
   void QMessageDispatchWindow::closeEvent(QCloseEvent *event) {
     writeSettings();
-    emit sig_quitServer();
+    emit
+    sig_quitServer();
     event->accept();
   }
+
+
   void QMessageDispatchWindow::sleep(ulong msecs) {
     QTime dieTime = QTime::currentTime().addMSecs(msecs);
     while (QTime::currentTime() < dieTime)
       QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
   }
 
+
   void QMessageDispatchWindow::sl_TextLog(QString sText) {
     statusBar()->showMessage(sText, 5000);
     logView->appendLogViewText(sText);
-  }
-  void QMessageDispatchWindow::sl_DispatchMessage(QByteArray receiveBuffer) {
-
-    if (false)
-    {
-      printBuffer(receiveBuffer);
-    }
-  }
-
-  void QMessageDispatchWindow::sl_ClearLogView() {
-    logView->clearLogViewText();
-  }
-  void QMessageDispatchWindow::sl_Close() {
-    close();
-  }
-  void QMessageDispatchWindow::sl_About() {
-    QMessageBox::about(this, tr("About the Application"), tr(
-        "ECB_Robot-Application V2.0, Tool to connect real robots (containing an ecb) onto a neuro-controller located on a standard pc."));
-  }
-  void QMessageDispatchWindow::sl_TimerExpired() {
-    timer->stop();
-    sl_TextLog("sl_TimerExpired");
   }
 
 } // namespace lpzrobots

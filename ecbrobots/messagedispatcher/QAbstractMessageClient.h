@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-11 15:35:59  wrabe
+ *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   - save current developent state
+ *
+ *   Revision 1.1  2010/11/11 15:35:59  wrabe
  *   -current development state of QMessageDispatchServer
  *   -introduction of QCommunicationChannels and QCCHelper
  *
@@ -58,7 +61,7 @@ namespace lpzrobots {
   virtual ~QAbstractMessageClient() {}
 
   signals:
-    virtual void sig_sendMessage(struct _communicationMessage msg) = 0;
+    void sig_sendMessage(struct _communicationMessage msg);
     // optional
     //virtual void sig_quitClient() = 0;
 

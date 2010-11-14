@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-11 15:35:59  wrabe
+ *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   - save current developent state
+ *
+ *   Revision 1.1  2010/11/11 15:35:59  wrabe
  *   -current development state of QMessageDispatchServer
  *   -introduction of QCommunicationChannels and QCCHelper
  *
@@ -35,7 +38,10 @@
 
 #ifndef __QCOMMUNICATIONCHANNEL_H_
 #define __QCOMMUNICATIONCHANNEL_H_
-#include "QECBMessageDispatchServer.h"
+#include <QObject>
+#include "types.h"
+#include "constants.h"
+#include "QFT232DeviceManager.h"
 #include "QCCHelper.h"
 
 namespace lpzrobots {
@@ -84,13 +90,18 @@ namespace lpzrobots {
       virtual ~QCommunicationChannel();
 
       virtual QStringList getUsbDeviceList();
+      void scanUsbDevices();
 
     signals:
+      void sig_TextLog(QString);
 
     private slots:
       void sl_ResponseTimerExpired(uint eventId);
+      void sl_messageReceived(QByteArray received_msg, QFT232DeviceManager *usbDeviceManager);
 
     private:
+
+      void sleep(ulong msecs);
 
       void send_XBeeATND();
       void send_XBeeCommand(QByteArray command);
@@ -98,9 +109,22 @@ namespace lpzrobots {
       void send_ECB_Reset();
       void dispatch_XbeeCommandResponse(QByteArray receiveBuffer);
 
+      void printMessage(QByteArray data);
+      void clear_usbDeviceManagerList();
 
-      QFT232DeviceManager usbDeviceManager;
+      QList<QFT232DeviceManager*> usbDeviceManagerList;
+      QFT232DeviceManager static_usbDeviceManager;
       QExtTimer responseTimer;
+
+      QByteArray transmitBuffer;
+      QByteArray temporaryFlashBuffer;
+      QByte transmitBufferCheckSum;
+      QWord USBDeviceXBeeType;
+      QWord ECB_OperationRetriesMax;
+      QWord ECB_OperationRetries;
+      quint16 ECB_XBeeAddress16;
+      quint64 ECB_XBeeAddress64;
+
 
   };
 

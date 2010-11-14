@@ -33,7 +33,10 @@
  *  Empfang neuer Daten vom Port                                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-11 15:35:59  wrabe
+ *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   - save current developent state
+ *
+ *   Revision 1.1  2010/11/11 15:35:59  wrabe
  *   -current development state of QMessageDispatchServer
  *   -introduction of QCommunicationChannels and QCCHelper
  *                                       *
@@ -82,9 +85,9 @@ public:
 
 
 signals:
-    void newData(QByteArray msg);
-    void textLog(QString s);
-    void deviceOpened();
+    void sig_newData(QByteArray msg, QFT232DeviceManager *usbDeviceManager);
+    void sig_TextLog(QString s);
+    void sig_DeviceOpened();
 
 private:
 

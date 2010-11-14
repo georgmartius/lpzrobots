@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-11 15:35:59  wrabe
+ *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   - save current developent state
+ *
+ *   Revision 1.1  2010/11/11 15:35:59  wrabe
  *   -current development state of QMessageDispatchServer
  *   -introduction of QCommunicationChannels and QCCHelper
  *                                            *
@@ -43,6 +46,7 @@
 #include "QFT232DeviceManager.h"
 #include "QAbstractMessageClient.h"
 #include "QAbstractMessageDispatchServer.h"
+#include "QCommunicationChannel.h"
 
 namespace lpzrobots {
 
@@ -58,16 +62,18 @@ namespace lpzrobots {
       void scanUsbDevices();
 
     signals:
-      virtual void sig_messageReceived(struct _communicationMessage msg);
-      virtual void sig_TextLog(QString sText);
-      virtual void sig_quitServer();
+      void sig_messageReceived(struct _communicationMessage msg);
+      void sig_TextLog(QString sText);
+      void sig_quitServer();
 
 
     public slots:
       virtual void sl_sendMessage(struct _communicationMessage msg);
-      virtual void sl_receiveMessageFromUsbDeviceManager(QString usbDeviceName, QByteArray received_msg);
+      virtual void sl_Initialize();
+      //virtual void sl_receiveMessageFromUsbDeviceManager(QString usbDeviceName, QByteArray received_msg);
 
     private:
+      /*
       bool transmit(QFT232DeviceManager *ft232manager);
       void send_Message(QFT232DeviceManager *ft232manager, QByteArray command);
       void send_ECB_Reset();
@@ -76,9 +82,11 @@ namespace lpzrobots {
       void send_XBeeATND();
       void printBuffer(QByteArray buffer);
       void dispatch_XbeeCommandResponse(QByteArray receiveBuffer);
-      QList<QFT232DeviceManager*> managerList;
+       */
+      QCommunicationChannel commchannel;
 
-      QTimer *timer;
+
+
 
       QByteArray transmitBuffer;
       QByteArray temporaryFlashBuffer;

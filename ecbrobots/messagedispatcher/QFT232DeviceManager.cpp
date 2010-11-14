@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-11 15:35:59  wrabe
+ *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   - save current developent state
+ *
+ *   Revision 1.1  2010/11/11 15:35:59  wrabe
  *   -current development state of QMessageDispatchServer
  *   -introduction of QCommunicationChannels and QCCHelper
  *                                     *
@@ -49,10 +52,10 @@ QFT232DeviceManager::QFT232DeviceManager() {
   ret = ftdi_init(&ftdic);
   if (ret < 0) {
     //fprintf(stderr, "<ftdi_init> failure: error-Code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-    if(debug) emit textLog("<ftdi_init> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
+    if(debug) emit sig_TextLog("<ftdi_init> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
   } else {
     //fprintf(stdout, "<ftdi_init> ok.\n");
-    if(debug) emit textLog("<ftdi_init> ok.");
+    if(debug) emit sig_TextLog("<ftdi_init> ok.");
   }
 
   createDeviceList();
@@ -75,10 +78,10 @@ void QFT232DeviceManager::createDeviceList() {
   ret = ftdi_usb_find_all(&ftdic, &devlist, 0x0403, 0x6001);
   if (ret < 0) {
     // fprintf(stderr, "<ftdi_usb_find_all> failure: error-code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-    if(debug) emit textLog("<ftdi_usb_find_all> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
+    if(debug) emit sig_TextLog("<ftdi_usb_find_all> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
   } else {
     // fprintf(stdout, "<ftdi_device_list> ok, number devices found %d.\n", ret);
-    if(debug) emit textLog("<ftdi_usb_find_all> ok, number devices found " + QString::number(ret) + ".");
+    if(debug) emit sig_TextLog("<ftdi_usb_find_all> ok, number devices found " + QString::number(ret) + ".");
 
     struct ftdi_device_list* devlist_tmp = devlist;
     while (devlist_tmp != NULL) {
@@ -87,7 +90,7 @@ void QFT232DeviceManager::createDeviceList() {
       char serial_string[100];
 
       ret = ftdi_usb_get_strings(&ftdic, devlist_tmp->dev, (char*) &manufacturer, 100, (char*) &product_description, 100, (char*) &serial_string, 100);
-      if(debug) emit textLog("  " + QString(manufacturer) + "-" + QString(product_description));
+      if(debug) emit sig_TextLog("  " + QString(manufacturer) + "-" + QString(product_description));
 
       devlist_tmp = devlist_tmp->next;
     }
@@ -151,10 +154,10 @@ int QFT232DeviceManager::openDevice(struct usb_device* usb_device_to_open, int b
   ret = ftdi_usb_open_dev(&ftdic, usb_device_to_open);
   if (ret < 0) {
     //fprintf(stderr, "<ftdi_usb_open_dev> failure: error-Code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-    if(debug) emit textLog("<ftdi_usb_open_dev> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
+    if(debug) emit sig_TextLog("<ftdi_usb_open_dev> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
   } else {
     //fprintf(stdout, "<ftdi_usb_open_dev> ok.\n");
-    if(debug) emit textLog("<ftdi_usb_open_dev> ok.");
+    if(debug) emit sig_TextLog("<ftdi_usb_open_dev> ok.");
 
     // Setze die Baudrate
     setBaudrate(baudrate_to_use);
@@ -167,7 +170,7 @@ int QFT232DeviceManager::openDevice(struct usb_device* usb_device_to_open, int b
     opened = true;
     runListener = true;
     start();
-    emit deviceOpened();
+    emit sig_DeviceOpened();
   }
   return ret;
 }
@@ -189,7 +192,7 @@ int QFT232DeviceManager::openDeviceByName(QString usb_deviceName_to_open, int ba
 
     ret = ftdi_usb_get_strings(&ftdic, devlist_tmp->dev, (char*) &manufacturer, 100, (char*) &product_description, 100, (char*) &serial_string, 100);
     if (ret < 0) {
-      if(debug) emit textLog("<ftdi_usb_get_strings> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
+      if(debug) emit sig_TextLog("<ftdi_usb_get_strings> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
     } else {
 
       if (QString(manufacturer).startsWith("FTDI") && usb_deviceName_to_open.startsWith(QString(product_description))) {
@@ -197,10 +200,10 @@ int QFT232DeviceManager::openDeviceByName(QString usb_deviceName_to_open, int ba
         ret = ftdi_usb_open_dev(&ftdic, devlist_tmp->dev);
         if (ret < 0) {
           //fprintf(stderr, "<ftdi_usb_open_dev> failure: error-Code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-          if(debug) emit textLog("<ftdi_usb_open_dev> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
+          if(debug) emit sig_TextLog("<ftdi_usb_open_dev> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
         } else {
           //fprintf(stdout, "<ftdi_usb_open_dev> ok.\n");
-          if(debug) emit textLog("<ftdi_usb_open_dev> ok, '" + usb_deviceName_to_open + "'");
+          if(debug) emit sig_TextLog("<ftdi_usb_open_dev> ok, '" + usb_deviceName_to_open + "'");
 
           // Setze die Baudrate
           setBaudrate(baudrate_to_use);
@@ -214,7 +217,7 @@ int QFT232DeviceManager::openDeviceByName(QString usb_deviceName_to_open, int ba
           runListener = true;
           start();
           deviceName = QString(usb_deviceName_to_open);
-          emit deviceOpened();
+          emit sig_DeviceOpened();
           break;
         }
       }// if 'FTDI'
@@ -232,10 +235,10 @@ int QFT232DeviceManager::setBaudrate(int baudrate_to_set) {
   ret = ftdi_set_baudrate(&ftdic, baudrate_to_set);
   if (ret < 0) {
     //fprintf(stderr, "<ftdi_set_baudrate> failure: error-Code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-    if(debug) emit textLog("<ftdi_set_baudrate> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
+    if(debug) emit sig_TextLog("<ftdi_set_baudrate> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
   } else {
     // fprintf(stdout, "<ftdi_set_baudrate> ok.\n");
-    if(debug) emit textLog("<ftdi_set_baudrate> ok, set to " + QString::number(baudrate_to_set) + "bd.");
+    if(debug) emit sig_TextLog("<ftdi_set_baudrate> ok, set to " + QString::number(baudrate_to_set) + "bd.");
     baudrate = baudrate_to_set;
   }
   return ret;
@@ -247,18 +250,18 @@ int QFT232DeviceManager::setLatencyTimer(int latency_to_set) {
   unsigned char latency = 0;
   ret = ftdi_get_latency_timer(&ftdic, &latency);
   if (ret < 0) {
-    if(debug) emit textLog("<ftdi_get_latency_timer> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
+    if(debug) emit sig_TextLog("<ftdi_get_latency_timer> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
   } else {
     // Is latency allready set?
     if (latency_to_set == latency) {
-      if(debug) emit textLog("<ftdi_get_latency_timer> ok, latency allready set to " + QString::number(latency_to_set) + ".");
+      if(debug) emit sig_TextLog("<ftdi_get_latency_timer> ok, latency allready set to " + QString::number(latency_to_set) + ".");
     } else {
       // set to new latency-time
       ret = ftdi_set_latency_timer(&ftdic, latency_to_set);
       if (ret < 0) {
-        if(debug) emit textLog("<ftdi_set_latency_timer> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
+        if(debug) emit sig_TextLog("<ftdi_set_latency_timer> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
       } else {
-        if(debug) emit textLog("<ftdi_set_latency_timer> ok, set to " + QString::number(latency_to_set) + ".");
+        if(debug) emit sig_TextLog("<ftdi_set_latency_timer> ok, set to " + QString::number(latency_to_set) + ".");
       }
     }
   }
@@ -270,9 +273,9 @@ int QFT232DeviceManager::setDTR(int dtr_val) {
 
   ret = ftdi_setdtr(&ftdic, dtr_val);
   if (ret < 0) {
-    if(debug) emit textLog("<ftdi_setdtr> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
+    if(debug) emit sig_TextLog("<ftdi_setdtr> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
   } else {
-    if(debug) emit textLog("<ftdi_setdtr> ok, set to " + QString::number(dtr_val) + ".");
+    if(debug) emit sig_TextLog("<ftdi_setdtr> ok, set to " + QString::number(dtr_val) + ".");
   }
   return ret;
 }
@@ -287,10 +290,10 @@ int QFT232DeviceManager::closeDevice() {
   ret = ftdi_usb_close(&ftdic);
   if (ret < 0) {
     //fprintf(stderr, "<ftdi_usb_close> failure: error-Code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-    if(debug) emit textLog("<ftdi_usb_close> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
+    if(debug) emit sig_TextLog("<ftdi_usb_close> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
   } else {
     //fprintf(stdout, "<ftdi_usb_close> ok, usb device closed.\n");
-    if(debug) emit textLog("<ftdi_usb_close> ok.");
+    if(debug) emit sig_TextLog("<ftdi_usb_close> ok.");
   }
   return ret;
 }
@@ -300,13 +303,13 @@ int QFT232DeviceManager::writeData(QByteArray msg) {
   ret = ftdi_write_data(&ftdic, (unsigned char *) msg.data(), msg.length());
   if (ret < 0) {
     //fprintf(stderr, "<ftdi_write_data> failure: error-Code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-    if(debug) emit textLog("<ftdi_write_data> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
+    if(debug) emit sig_TextLog("<ftdi_write_data> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic) + ")");
   } else {
     //fprintf(stdout, "<ftdi_write_data> ok, %d byte written.\n", ret);
     //for(i=0; i<ret; i++) fprintf(stdout, "%X%X ", msg[i]>>4&0xFF, msg[i]>>0&0x0F); fprintf(stdout, "\n");
-    if(debug) emit textLog("<ftdi_write_data> ok, " + QString::number(ret) + " bytes written.");
+    if(debug) emit sig_TextLog("<ftdi_write_data> ok, " + QString::number(ret) + " bytes written.");
 
-    if (false) {
+    if (debug) {
       int i;
       QString msg_hex_line;
       for (i = 0; i < ret; i++) {
@@ -314,7 +317,7 @@ int QFT232DeviceManager::writeData(QByteArray msg) {
         msg_hex_line += QString::number(msg[i] >> 0 & 0x0F, 16).toUpper();
         msg_hex_line += " ";
       }
-      if(debug) emit textLog((msg_hex_line));
+      emit sig_TextLog((msg_hex_line));
     }
 
   }
@@ -329,11 +332,11 @@ void QFT232DeviceManager::run() {
   int iPacketLength = 0;
 
   if (!opened) {
-    if(debug) emit textLog("Device is not open yet. Unable to read!");
+    if(debug) emit sig_TextLog("Device is not open yet. Unable to read!");
     return;
   }
 
-  if(debug) emit textLog("thread '" + QString::number(currentThreadId()) + "' started.");
+  if(debug) emit sig_TextLog("thread '" + QString::number(currentThreadId()) + "' started.");
 
   while (runListener) // main loop
   {
@@ -404,7 +407,7 @@ void QFT232DeviceManager::run() {
           iCheckSum = iCheckSum % 256;
 
           if (iCheckSum == 0) {
-            emit newData(receiveBuffer.mid(0, index));
+            emit sig_newData(receiveBuffer.mid(0, index), this);
           }
           iReadMode++;
           break;

@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-11 15:35:59  wrabe
+ *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   - save current developent state
+ *
+ *   Revision 1.1  2010/11/11 15:35:59  wrabe
  *   -current development state of QMessageDispatchServer
  *   -introduction of QCommunicationChannels and QCCHelper
  *                                                *
@@ -46,40 +49,38 @@
 #include "QLogViewWidget.h"
 #include "QECBMessageDispatchServer.h"
 #include "QAbstractMessageClient.h"
+#include "QExtAction.h"
 #include "constants.h"
 
-namespace lpzrobots {
+namespace lpzrobots
+{
 
-class QMessageDispatchWindow : public QMainWindow {
+  class QMessageDispatchWindow : public QMainWindow
+  {
 
   Q_OBJECT
 
   public:
-  QMessageDispatchWindow(QString applicationPath);
-    QString applicationPath;
+    QMessageDispatchWindow(QString applicationPath);
+    virtual ~QMessageDispatchWindow();
 
     virtual QAbstractMessageDispatchServer* getQMessageDispatchServer() {
-      return &this->messageDispatcher;
+      return (QAbstractMessageDispatchServer*)&this->messageDispatcher;
     }
   protected:
     void closeEvent(QCloseEvent *event);
 
-    signals:
+  signals:
     void sig_quitServer();
-
 
   private slots:
     void sl_TextLog(QString s);
-    void sl_DispatchMessage(QByteArray msg);
-    void sl_Close();
-    void sl_ClearLogView();
-    void sl_About();
-    void sl_TimerExpired();
+    void sl_eventHandler(int eventCode);
 
   private:
 
     void createActions();
-    void createMenus(int applicationMode=APPLICATION_MODE_None);
+    void createMenus(int applicationMode = APPLICATION_MODE_None);
     void readSettings();
     void writeSettings();
     void sleep(ulong msecs);
@@ -94,22 +95,30 @@ class QMessageDispatchWindow : public QMainWindow {
 
     QTabWidget *tabWidget;
     QLogViewWidget *logView;
-    QTimer *timer;
+    QECBMessageDispatchServer messageDispatcher;
+
+    QExtAction *action_Exit;
+    QExtAction *action_About;
+    QExtAction *action_ScanUsbDevices;
+
+    QMenu *menu_File;
+    QMenu *menu_Help;
+
+    QString applicationPath;
 
 
-    QMenu *fileMenu;
-    QMenu *helpMenu;
+    enum ACTION_EVENT {
+      //---------------------------------------
+      EVENT_APPLICATION_LOGVIEW_CLEAR,
+      EVENT_APPLICATION_CLOSE,
+      EVENT_APPLICATION_ABOUT,
+      EVENT_APPLICATION_SCAN_USBDEVICE,
+      //---------------------------------------
+    };
 
 
-    // --- Actions ----------------------------------
-    // File-Menu
-    QAction *action_Exit;
-    // Help-Menu
-    QAction *action_About;
 
-
-
-};
+  };
 
 } // namespace lpzrobots
 #endif // __QMESSAGEDISPATCHWINDOW_H

@@ -26,41 +26,37 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   Revision 1.1  2010-11-14 20:39:37  wrabe
  *   - save current developent state
  *
- *   Revision 1.1  2010/11/11 15:35:59  wrabe
- *   -current development state of QMessageDispatchServer
- *   -introduction of QCommunicationChannels and QCCHelper
- *                                            *
  *                                                                         *
  ***************************************************************************/
 
-#ifndef QMESSAGEDISPATCHSERVER_H_
-#define QMESSAGEDISPATCHSERVER_H_
-#include <QObject>
-#include "QAbstractMessageClient.h"
+#ifndef __QEXTBYTEARRAY_H_
+#define __QEXTBYTEARRAY_H_
+
+#include <QByteArray>
 
 namespace lpzrobots {
 
-class QAbstractMessageDispatchServer : public QObject {
-Q_OBJECT
-public:
+  class QExtByteArray : public QByteArray {
 
-  QAbstractMessageDispatchServer() : QObject() {}
+    public:
+      QExtByteArray();
+      virtual ~QExtByteArray();
 
-signals:
-  void sig_messageReceived(struct _communicationMessage msg);
-  void sig_stdOut(QString sText);
-  void sig_quitServer();
+      virtual void append(uchar c);
+      virtual void appendEscaped(uchar c);
+      virtual void appendEscapedChecksum(uchar c);
+      virtual void appendChecksum();
 
-public slots:
-  virtual void sl_sendMessage(struct _communicationMessage msg) = 0;
-  // optional
-  // virtual void sl_quitClient() = 0;
+      virtual void clear();
 
-};
+    private:
+      uchar checksum;
+
+  };
 
 } // namespace lpzrobots
 
-#endif /* QMESSAGEDISPATCHSERVER_H_ */
+#endif /* __QEXTBYTEARRAY_H_ */
