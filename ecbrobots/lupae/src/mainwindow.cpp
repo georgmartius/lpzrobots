@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-14 12:14:06  wrabe
+ *   Revision 1.5  2010-11-18 17:00:11  wrabe
+ *   - current state of work
+ *
+ *   Revision 1.4  2010/11/14 12:14:06  wrabe
  *   - set debug to false
  *   - fix: show avrDeviceName after reading signature-bytes
  *
@@ -281,10 +284,8 @@ namespace lpzrobots {
     //delete this->menuBar();
     this->menuBar()->clear();
 
-    switch (applicationMode)
-    {
-      case APPLICATION_MODE_ISP_Adapter:
-      {
+    switch (applicationMode) {
+      case APPLICATION_MODE_ISP_Adapter: {
         fileMenu = menuBar()->addMenu(tr("&File"));
         fileMenu->addAction(action_Binary_open);
         fileMenu->addAction(action_Binary_save);
@@ -316,8 +317,7 @@ namespace lpzrobots {
         break;
       }
       case APPLICATION_MODE_USART_Adapter:
-      case APPLICATION_MODE_XBEE_Adapter:
-      {
+      case APPLICATION_MODE_XBEE_Adapter: {
         fileMenu = menuBar()->addMenu(tr("&File"));
         fileMenu->addAction(action_Binary_open);
         fileMenu->addAction(action_Binary_save);
@@ -343,8 +343,7 @@ namespace lpzrobots {
         helpMenu->addAction(action_About);
         break;
       }
-      default:
-      {
+      default: {
         fileMenu = menuBar()->addMenu(tr("&File"));
         fileMenu->addAction(action_Binary_open);
         fileMenu->addAction(action_Binary_save);
@@ -389,8 +388,7 @@ namespace lpzrobots {
 
     // Die zuletzt verwendete Geschwindigkeit des Zielsystems
     QString sAVRDeviceISPAccessSpeed = settings.value("AVRDevice_ISPAccessSpeed").toString();
-    if (0 < sAVRDeviceISPAccessSpeed.length())
-    {
+    if (0 < sAVRDeviceISPAccessSpeed.length()) {
       panelSetting->setAVRDeviceAccessSpeed(sAVRDeviceISPAccessSpeed);
       setProgrammerWaitCycles(sAVRDeviceISPAccessSpeed);
     }
@@ -406,8 +404,7 @@ namespace lpzrobots {
     settings.setValue("pos", pos());
     settings.setValue("size", size());
 
-    switch (applicationMode)
-    {
+    switch (applicationMode) {
       case APPLICATION_MODE_ISP_Adapter:
         settings.setValue("ApplicationMode", "ISP_Mode");
         break;
@@ -437,8 +434,7 @@ namespace lpzrobots {
     // Die Parameter der Mikrocontroller
     avrDevice = 0;
     avrDeviceList = new QAVR_DeviceList(deviceFileName);
-    if (!avrDeviceList->isLoaded())
-    {
+    if (!avrDeviceList->isLoaded()) {
       // die AVR-Parameter-Datei konnte nicht eingelesen werden, möglicherweise ist der Pfad
       // zur Datei nicht korrekt gesetzt, öffne FileBrowser zur Lokalisation durch den Nutzer
       QString fileName = QFileDialog::getOpenFileName(this, // Parent(Widget)
@@ -449,8 +445,7 @@ namespace lpzrobots {
       if (!fileName.isEmpty())
         avrDeviceList = new QAVR_DeviceList(fileName);
 
-      if (!avrDeviceList->isLoaded())
-      {
+      if (!avrDeviceList->isLoaded()) {
         // Die Datei konnte auch nun noch nicht gelesen werden,
         // da ohne diese Datei keine Aktionen durchgeführt werden können wird das
         // Programm geschlossen.
@@ -459,16 +454,14 @@ namespace lpzrobots {
           "programm will be closed."), QMessageBox::Ok, QMessageBox::Ok);
 
         QTimer::singleShot(1, this, SLOT(sl_Close()));
-      } else
-      {
+      } else {
         deviceFileName = fileName;
       }
     }
 
   }
   void MainWindow::setMode(int mode) {
-    switch (mode)
-    {
+    switch (mode) {
       default:
         break;
     }
@@ -495,12 +488,10 @@ namespace lpzrobots {
       transmitBufferCheckSum += c;
 
     // Ist fuer dieses Zeichen eine Ausnahmebehandlung notwendig?
-    if (c == 0x7E || c == 0x7D || c == 0x13 || c == 0x11)
-    {
+    if (c == 0x7E || c == 0x7D || c == 0x13 || c == 0x11) {
       transmitBuffer.append(0x7D);
       transmitBuffer.append((QByte) (c ^ 0x20));
-    } else
-    {
+    } else {
       transmitBuffer.append(c);
     }
   }
@@ -536,10 +527,8 @@ namespace lpzrobots {
    }
    */
   void MainWindow::send_Message(QByteArray msg) {
-    switch (applicationMode)
-    {
-      case APPLICATION_MODE_ISP_Adapter:
-      {
+    switch (applicationMode) {
+      case APPLICATION_MODE_ISP_Adapter: {
         QWord length = 0 + msg.length();
         push_Frame(0x7E); // Startsymbol
         push_FrameEscaped((QByte) (length >> 8)); // Length MSB
@@ -549,8 +538,7 @@ namespace lpzrobots {
         transmit(transmitTimerLastAction_SendMessageISP);
         break;
       }
-      case APPLICATION_MODE_USART_Adapter:
-      {
+      case APPLICATION_MODE_USART_Adapter: {
         QWord length = 2 + msg.length();
         push_Frame(0x7E); //  1: Startsymbol
         push_FrameEscaped((QByte) (length >> 8)); //  2: Length MSB
@@ -563,12 +551,9 @@ namespace lpzrobots {
         transmit(transmitTimerLastAction_SendMessageBL);
         break;
       }
-      case APPLICATION_MODE_XBEE_Adapter:
-      {
-        switch (USBDeviceXBeeType)
-        {
-          case XBeeType_Serie1:
-          {
+      case APPLICATION_MODE_XBEE_Adapter: {
+        switch (USBDeviceXBeeType) {
+          case XBeeType_Serie1: {
             QWord length = 2 + msg.length();
             push_Frame(0x7E); // 0x01 - Startsymbol
             push_FrameEscaped((QByte) (length >> 8)); // 0x02 - Length MSB
@@ -585,8 +570,7 @@ namespace lpzrobots {
             transmit(transmitTimerLastAction_SendMessageBL);
             break;
           }
-          case XBeeType_Serie2:
-          {
+          case XBeeType_Serie2: {
             QWord length = 0 + msg.length();
             push_Frame(0x7E); // 0x01 - Startsymbol
             push_FrameEscaped((QByte) (length >> 8)); // 0x02 - Length MSB
@@ -664,24 +648,18 @@ namespace lpzrobots {
     transmit(transmitTimerLastAction_XBeeRemoteCommand);
   }
   void MainWindow::send_ECB_Reset() {
-    switch (applicationMode)
-    {
-      case APPLICATION_MODE_USART_Adapter:
-      {
+    switch (applicationMode) {
+      case APPLICATION_MODE_USART_Adapter: {
         // Cable-Mode, sende nur eine Nachricht an den Atmega8.
         QByteArray msg;
         msg.append(MsgCode_ECB_AtMega128_ResetCableMode);
         send_Message(msg);
         break;
       }
-      case APPLICATION_MODE_XBEE_Adapter:
-      {
-        switch (USBDeviceXBeeType)
-        {
-          case XBeeType_Serie1:
-          {
-            if (ECB_XBeeAddress16 == 0xFFFE && ECB_XBeeAddress64 == 0x000000000000FFFF)
-            {
+      case APPLICATION_MODE_XBEE_Adapter: {
+        switch (USBDeviceXBeeType) {
+          case XBeeType_Serie1: {
+            if (ECB_XBeeAddress16 == 0xFFFE && ECB_XBeeAddress64 == 0x000000000000FFFF) {
               sl_TextLog("Bitte erst einen Knoten waehlen!");
               return;
             }
@@ -696,10 +674,8 @@ namespace lpzrobots {
             send_XBeeRemoteCommand(command_d0_off, 3);
             break;
           }
-          case XBeeType_Serie2:
-          {
-            if (ECB_XBeeAddress16 == 0xFFFE && ECB_XBeeAddress64 == 0x000000000000FFFF)
-            {
+          case XBeeType_Serie2: {
+            if (ECB_XBeeAddress16 == 0xFFFE && ECB_XBeeAddress64 == 0x000000000000FFFF) {
               sl_TextLog("Bitte erst einen Knoten waehlen!");
               return;
             }
@@ -723,8 +699,7 @@ namespace lpzrobots {
     QString hex;
     QString line;
 
-    for (int i = 0; i < buffer.length(); i++)
-    {
+    for (int i = 0; i < buffer.length(); i++) {
       line.append(QString::number((buffer[i] >> 4) & 0x0F, 16).toUpper());
       line.append(QString::number((buffer[i] >> 0) & 0x0F, 16).toUpper());
       line.append(" ");
@@ -736,12 +711,10 @@ namespace lpzrobots {
   void MainWindow::isp_MessageHandler_Bootloader(QByteArray receiveBuffer) {
     QByte msgCode = receiveBuffer[5];
 
-    switch (msgCode)
-    {
+    switch (msgCode) {
       // BootloaderActions
       //==========================================================================================================
-      case MsgCode_IspProgrammer_Bootloader_Start:
-      {
+      case MsgCode_IspProgrammer_Bootloader_Start: {
         // Nachrichten-Format:
         // ----------------------
         // 0x00 - StartDelemiter
@@ -754,10 +727,8 @@ namespace lpzrobots {
 
         sl_TextLog("USB-ISP-Adapter bootloader start");
 
-        switch (nextOperationState)
-        {
-          case NEXT_OP_ISP_PROGRAMMER_FLASH_READ:
-          {
+        switch (nextOperationState) {
+          case NEXT_OP_ISP_PROGRAMMER_FLASH_READ: {
             nextOperationState = NEXT_OP_NONE;
 
             progress = new QProgressDialog("0 Pages", "Cancel", 0, 112, this);
@@ -779,8 +750,7 @@ namespace lpzrobots {
             sl_TextLog("Begin Programmer Read Flash");
             break;
           }
-          case NEXT_OP_ISP_PROGRAMMER_FLASH_WRITE:
-          {
+          case NEXT_OP_ISP_PROGRAMMER_FLASH_WRITE: {
             nextOperationState = NEXT_OP_NONE;
 
             progress = new QProgressDialog("0 Pages", "Cancel", 0, 112, this);
@@ -803,8 +773,7 @@ namespace lpzrobots {
             sl_TextLog("Begin Programmer Write Flash");
             return;
           }
-          default:
-          {
+          default: {
             QByteArray msg;
             msg.append((char) Api_ISP_TransmitBootloader);
             msg.append((char) MsgGroup_IspBootloader);
@@ -814,21 +783,17 @@ namespace lpzrobots {
           }
         }//switch(nextOperationState)
       }
-      case MsgCode_IspProgrammer_Bootloader_End:
-      {
+      case MsgCode_IspProgrammer_Bootloader_End: {
         sl_TextLog("Programmer-Bootloader End");
         if (progress != NULL)
           progress->hide();
         break;
       }
-      case MsgCode_ResponsePacket:
-      {
+      case MsgCode_ResponsePacket: {
         QByte msgCodeResponse = receiveBuffer[6];
 
-        switch (msgCodeResponse)
-        {
-          case MsgCode_IspProgrammer_Bootloader_FlashPageRead:
-          {
+        switch (msgCodeResponse) {
+          case MsgCode_IspProgrammer_Bootloader_FlashPageRead: {
             // Nachrichten-Format:
             // ----------------------
             // 0x00 - StartDelemiter
@@ -848,8 +813,7 @@ namespace lpzrobots {
             int pageNumber = ((QByte) receiveBuffer[7] << 8) + (QByte) receiveBuffer[8];
             int pageReadState = (QByte) receiveBuffer[9];
 
-            if (pageReadState != 0)
-            {
+            if (pageReadState != 0) {
               sl_TextLog("BootloaderFlashPage out of bound!");
               progress->cancel();
 
@@ -861,10 +825,8 @@ namespace lpzrobots {
               break;
             }
 
-            if (!progress->wasCanceled())
-            {
-              if (pageNumber == 0)
-              {
+            if (!progress->wasCanceled()) {
+              if (pageNumber == 0) {
                 int PgmSpaceSize = ProgrammerFlashPageSize * ProgrammerNumberFlashPages;
                 temporaryBuffer.resize(PgmSpaceSize);
                 temporaryBuffer.fill(0xFF);
@@ -876,17 +838,14 @@ namespace lpzrobots {
               pageNumber++;
 
               // Die Info für den Nutzer in der Statusleiste
-              try
-              {
+              try {
                 progress->setValue(pageNumber);
                 progress->setLabelText(QString::number(pageNumber) + "/" + QString::number(ProgrammerNumberFlashPages) + " Pages");
-              } catch (...)
-              {
+              } catch (...) {
               }
 
               //naechste Seite
-              if (pageNumber < ProgrammerNumberFlashPages)
-              {
+              if (pageNumber < ProgrammerNumberFlashPages) {
                 QByteArray msg;
                 msg.append((char) Api_ISP_TransmitBootloader);
                 msg.append((char) MsgGroup_IspBootloader);
@@ -896,8 +855,7 @@ namespace lpzrobots {
                 msg.append((char) 0);
                 msg.append((char) 0);
                 send_Message(msg);
-              } else
-              {
+              } else {
                 sl_TextLog("ProgrammerRead complete.");
 
                 QByteArray msg;
@@ -910,8 +868,7 @@ namespace lpzrobots {
                 temporaryBuffer.clear();
                 action_Binary_save->setEnabled(true);
               }
-            } else
-            {
+            } else {
               // Benutzer-Abbruch
               sl_TextLog("User-Abbort");
 
@@ -923,8 +880,7 @@ namespace lpzrobots {
             }
             break;
           }
-          case MsgCode_IspProgrammer_Bootloader_FlashPageWrite:
-          {
+          case MsgCode_IspProgrammer_Bootloader_FlashPageWrite: {
             // Nachrichten-Format:
             // ----------------------
             // 0x00 - StartDelemiter
@@ -942,16 +898,14 @@ namespace lpzrobots {
             int pageNumber = ((int) receiveBuffer[7]) * 256 + (int) receiveBuffer[8];
             int responseState = receiveBuffer[9];
 
-            if (responseState == 0 && !progress->wasCanceled())
-            {
+            if (responseState == 0 && !progress->wasCanceled()) {
               // Wenn kein Benutzer-Abbruch, dann weiter ...
 
               // waehle naechste Seitennummer
               pageNumber++;
 
               // Ueberspringe alle leeren Seiten
-              while (true)
-              {
+              while (true) {
                 if (!panelHexViewer->hasPage(pageNumber, ProgrammerFlashPageSize))
                   break;
                 if (!panelHexViewer->isPageEmpty(pageNumber, ProgrammerFlashPageSize))
@@ -962,18 +916,14 @@ namespace lpzrobots {
               }
 
               // Die Info für den Nutzer in der Statusleiste
-              try
-              {
+              try {
                 progress->setValue(pageNumber);
                 progress->setLabelText(QString::number(pageNumber) + "/" + QString::number(ProgrammerNumberFlashPages) + " Pages");
-              } catch (...)
-              {
+              } catch (...) {
               }
 
-              if ((pageNumber < ProgrammerNumberFlashPages) && panelHexViewer->hasPage(pageNumber, ProgrammerFlashPageSize))
-              {
-                if (panelHexViewer->hasPage(pageNumber, ProgrammerFlashPageSize))
-                {
+              if ((pageNumber < ProgrammerNumberFlashPages) && panelHexViewer->hasPage(pageNumber, ProgrammerFlashPageSize)) {
+                if (panelHexViewer->hasPage(pageNumber, ProgrammerFlashPageSize)) {
                   QByteArray msg;
                   msg.append((char) Api_ISP_TransmitBootloader);
                   msg.append((char) MsgGroup_IspBootloader);
@@ -985,8 +935,7 @@ namespace lpzrobots {
                   msg.append(panelHexViewer->getPage(pageNumber, ProgrammerFlashPageSize));
                   send_Message(msg);
                 }
-              } else
-              {
+              } else {
                 QByteArray msg;
                 msg.append((char) Api_ISP_TransmitBootloader);
                 msg.append((char) MsgGroup_IspBootloader);
@@ -996,8 +945,7 @@ namespace lpzrobots {
                 sl_TextLog("Write Programmer complete.");
                 progress->hide();
               }
-            } else
-            {
+            } else {
               // Schreiben der Seite nicht erfolgreich!!!
               QByteArray msg;
               msg.append((char) Api_ISP_TransmitBootloader);
@@ -1030,15 +978,12 @@ namespace lpzrobots {
     uint msgLength = ((QByte) receiveBuffer[1] << 8) + ((QByte) receiveBuffer[2]);
     uint msgCode = ((QByte) receiveBuffer[5]);
 
-    if (msgCode == MsgCode_ResponsePacket)
-    {
+    if (msgCode == MsgCode_ResponsePacket) {
 
       uint msgResponseCode = ((QByte) receiveBuffer[6]);
 
-      switch (msgResponseCode)
-      {
-        case MsgCode_IspProgrammer_Firmware_SoftwareVersionRead:
-        {
+      switch (msgResponseCode) {
+        case MsgCode_IspProgrammer_Firmware_SoftwareVersionRead: {
           // Nachrichten-Format:
           // ----------------------
           // 0x00 - StartDelemiter
@@ -1073,13 +1018,10 @@ namespace lpzrobots {
           uint returnCode = (QByte) receiveBuffer[7];
           uint actionCommand = (QByte) receiveBuffer[8];
 
-          if (returnCode == 0)
-          {
+          if (returnCode == 0) {
             // Fuehre Aktionen durch wie: ReadFuseBits, ReadSignatureBytes, Read/Write Pages ...
-            switch (actionCommand)
-            {
-              case MsgCode_IspProgrammer_TargetDevice_SignatureBytesRead:
-              {
+            switch (actionCommand) {
+              case MsgCode_IspProgrammer_TargetDevice_SignatureBytesRead: {
                 sl_TextLog("Begin Read SignatureBytes");
                 QByteArray msg;
                 msg.append((char) Api_ISP_TransmitFirmware);
@@ -1089,8 +1031,7 @@ namespace lpzrobots {
                 timerParams = transmitTimerLastAction_SendMessageISP;
                 break;
               }
-              case MsgCode_IspProgrammer_TargetDevice_CalibrationBytesRead:
-              {
+              case MsgCode_IspProgrammer_TargetDevice_CalibrationBytesRead: {
                 sl_TextLog("Begin Read CalibrationBytes");
                 QByteArray msg;
                 msg.append((char) Api_ISP_TransmitFirmware);
@@ -1101,8 +1042,7 @@ namespace lpzrobots {
                 break;
               }
               case MsgCode_IspProgrammer_TargetDevice_FuseBitsRead:
-                if (avrDevice != 0)
-                {
+                if (avrDevice != 0) {
                   sl_TextLog("Begin Read FuseBits");
                   QByteArray msg;
                   msg.append((char) Api_ISP_TransmitFirmware);
@@ -1115,8 +1055,7 @@ namespace lpzrobots {
                 break;
 
               case MsgCode_IspProgrammer_TargetDevice_FuseBitsWrite:
-                if (avrDevice != 0)
-                {
+                if (avrDevice != 0) {
                   sl_TextLog("Begin Write FuseBits");
                   QByteArray msg;
                   msg.append((char) Api_ISP_TransmitFirmware);
@@ -1132,8 +1071,7 @@ namespace lpzrobots {
                 break;
 
               case MsgCode_IspProgrammer_TargetDevice_FlashPageRead:
-                if (avrDevice != 0)
-                {
+                if (avrDevice != 0) {
                   progress = new QProgressDialog("0 Pages", "Cancel", 0, avrDevice->NumberPages, this);
                   progress->setWindowTitle("Read Flash ...");
                   progress->setWindowModality(Qt::WindowModal);
@@ -1155,8 +1093,7 @@ namespace lpzrobots {
                 break;
 
               case MsgCode_IspProgrammer_TargetDevice_FlashPageWrite:
-                if (avrDevice != 0)
-                {
+                if (avrDevice != 0) {
                   progress = new QProgressDialog("0 Pages", "Cancel", 0, avrDevice->NumberPages, this);
                   progress->setWindowTitle("Write Flash ...");
                   progress->setWindowModality(Qt::WindowModal);
@@ -1176,8 +1113,7 @@ namespace lpzrobots {
 
             }// switch
           }// if
-          else
-          {
+          else {
             // Die Aktiviereung des Programmier-Modus war nicht erfolgreich.
             // Es koennen keine Aktionen durchgefuehrt werden!
             // Moegliche Ursachen:
@@ -1191,15 +1127,13 @@ namespace lpzrobots {
         }
         case MsgCode_IspProgrammer_TargetDevice_EndTransaction: // Bestaetigung erfolgreich/nicht erfolgreich EnableProgrammingMode
         {
-          if (progress != 0)
-          {
+          if (progress != 0) {
             progress->setValue(progress->maximum());
           }
           sl_TextLog("Function completed.");
           break;
         }
-        case MsgCode_IspProgrammer_TargetDevice_SignatureBytesRead:
-        {
+        case MsgCode_IspProgrammer_TargetDevice_SignatureBytesRead: {
           // Nachrichten-Format:
           // ----------------------
           // 0x00 - StartDelemiter
@@ -1220,8 +1154,7 @@ namespace lpzrobots {
 
           avrDevice = avrDeviceList->getDevice(targetSignature);
 
-          if (avrDevice != 0)
-          {
+          if (avrDevice != 0) {
             panelSetting->setAVRDeviceName(*avrDevice->Name);
             sl_TextLog(*avrDevice->Name);
             hasAVRDeviceIdedentified = true;
@@ -1229,13 +1162,11 @@ namespace lpzrobots {
             action_Target_ShowFuseDialog->setEnabled(true);
             //action_Target_FuseBytes_write->setEnabled(true);
             action_Target_Flash_read->setEnabled(true);
-            if (hasBinary)
-            {
+            if (hasBinary) {
               action_Target_Flash_write->setEnabled(true);
               action_Target_Flash_update_write->setEnabled(true);
             }
-          } else
-          {
+          } else {
             QString s = "unknown target device";
             sl_TextLog(s);
             panelSetting->setAVRDeviceName(s);
@@ -1255,8 +1186,7 @@ namespace lpzrobots {
           send_Message(msg);
           break;
         }
-        case MsgCode_IspProgrammer_TargetDevice_CalibrationBytesRead:
-        {
+        case MsgCode_IspProgrammer_TargetDevice_CalibrationBytesRead: {
           // Nachrichten-Format:
           // ----------------------
           // 0x00 - StartDelemiter
@@ -1303,8 +1233,7 @@ namespace lpzrobots {
 
           break;
         }
-        case MsgCode_IspProgrammer_TargetDevice_FuseBitsRead:
-        {
+        case MsgCode_IspProgrammer_TargetDevice_FuseBitsRead: {
           // Nachrichten-Format:
           // ----------------------
           // 0x00 - StartDelemiter
@@ -1328,8 +1257,7 @@ namespace lpzrobots {
           sl_TextLog(" High: 0x" + QString::number(targetFuseBits_1, 16).toUpper());
           sl_TextLog("  Ext: 0x" + QString::number(targetFuseBits_2, 16).toUpper());
 
-          if (avrDevice != 0)
-          {
+          if (avrDevice != 0) {
             avrDevice->FuseBytes[0]->Value = targetFuseBits_0;
             avrDevice->FuseBytes[1]->Value = targetFuseBits_1;
             avrDevice->FuseBytes[2]->Value = targetFuseBits_2;
@@ -1343,8 +1271,7 @@ namespace lpzrobots {
           send_Message(msg);
           break;
         }
-        case MsgCode_IspProgrammer_TargetDevice_FuseBitsWrite:
-        {
+        case MsgCode_IspProgrammer_TargetDevice_FuseBitsWrite: {
           QByteArray msg;
           msg.append((char) Api_ISP_TransmitFirmware);
           msg.append((char) MsgGroup_IspFirmware);
@@ -1352,8 +1279,7 @@ namespace lpzrobots {
           send_Message(msg);
           break;
         }
-        case MsgCode_IspProgrammer_TargetDevice_FlashPageRead:
-        {
+        case MsgCode_IspProgrammer_TargetDevice_FlashPageRead: {
           // Nachrichten-Format:
           // ----------------------
           // 0x00 - StartDelemiter
@@ -1372,12 +1298,9 @@ namespace lpzrobots {
           uint pageNumber = ((QByte) receiveBuffer[7] << 8) + (QByte) receiveBuffer[8];
           uint pageReadState = (QByte) receiveBuffer[9];
 
-          if (avrDevice != 0 && pageReadState == 0)
-          {
-            if (!progress->wasCanceled())
-            {
-              if (pageNumber == 0)
-              {
+          if (avrDevice != 0 && pageReadState == 0) {
+            if (!progress->wasCanceled()) {
+              if (pageNumber == 0) {
                 int PgmSpaceSize = avrDevice->PageSizeBytes * avrDevice->NumberPages;
                 temporaryBuffer.resize(PgmSpaceSize);
                 temporaryBuffer.fill(0xFF);
@@ -1389,17 +1312,14 @@ namespace lpzrobots {
               pageNumber++;
 
               // Die Info für den Nutzer in der Statusleiste
-              try
-              {
+              try {
                 progress->setValue(pageNumber);
                 progress->setLabelText(QString::number(pageNumber) + "/" + QString::number(avrDevice->NumberPages) + " Pages");
-              } catch (...)
-              {
+              } catch (...) {
               }
 
               //naechste Seite
-              if (pageNumber < avrDevice->NumberPages)
-              {
+              if (pageNumber < avrDevice->NumberPages) {
                 QByteArray msg;
                 msg.append((char) Api_ISP_TransmitFirmware);
                 msg.append((char) MsgGroup_IspFirmware);
@@ -1409,8 +1329,7 @@ namespace lpzrobots {
                 msg.append((char) (avrDevice->PageSizeBytes >> 8));
                 msg.append((char) (avrDevice->PageSizeBytes >> 0));
                 send_Message(msg);
-              } else
-              {
+              } else {
                 sl_TextLog("DeviceRead complete.");
                 QByteArray msg;
                 msg.append((char) Api_ISP_TransmitFirmware);
@@ -1422,8 +1341,7 @@ namespace lpzrobots {
 
                 action_Binary_save->setEnabled(true);
               }
-            } else
-            {
+            } else {
               // Benutzer-Abbruch
               sl_TextLog("User-Abbort");
               QByteArray msg;
@@ -1432,15 +1350,13 @@ namespace lpzrobots {
               msg.append((char) MsgCode_IspProgrammer_TargetDevice_EndTransaction);
               send_Message(msg);
             }
-          } else
-          {
+          } else {
             //if(avrDevice!=0 || pageReadError)
             sl_TextLog("PageReadError, pageNumber=" + QString::number(pageNumber, 16));
           }
           break;
         }
-        case MsgCode_IspProgrammer_TargetDevice_FlashPageWrite:
-        {
+        case MsgCode_IspProgrammer_TargetDevice_FlashPageWrite: {
           // Nachrichten-Format:
           // ----------------------
           // 0x00 - StartDelemiter
@@ -1458,18 +1374,15 @@ namespace lpzrobots {
           uint pageNumber = ((QByte) receiveBuffer[7] << 8) + (QByte) receiveBuffer[8];
           uint responseState = (QByte) receiveBuffer[9];
 
-          if (avrDevice != 0)
-          {
-            if (responseState == 0 && !progress->wasCanceled())
-            {
+          if (avrDevice != 0) {
+            if (responseState == 0 && !progress->wasCanceled()) {
               // Wenn kein Benutzer-Abbruch, dann weiter ...
 
               // waehle naechste Seitennummer
               pageNumber++;
 
               // Ueberspringe alle leeren Seiten
-              while (true)
-              {
+              while (true) {
                 // Zähle die Seitennummer so lange hoch, wie
                 // Seiten vorhanden sind, diese nicht leer sind und
                 // die Seitennummer kleiner der maximalen Seitennummer
@@ -1487,18 +1400,14 @@ namespace lpzrobots {
               }
 
               // Die Info für den Nutzer in der Statusleiste
-              try
-              {
+              try {
                 progress->setValue(pageNumber);
                 progress->setLabelText(QString::number(pageNumber) + "/" + QString::number(avrDevice->NumberPages) + " Pages");
-              } catch (...)
-              {
+              } catch (...) {
               }
 
-              if ((pageNumber < avrDevice->NumberPages) && panelHexViewer->hasPage(pageNumber, avrDevice->PageSizeBytes))
-              {
-                if (panelHexViewer->hasPage(pageNumber, avrDevice->PageSizeBytes))
-                {
+              if ((pageNumber < avrDevice->NumberPages) && panelHexViewer->hasPage(pageNumber, avrDevice->PageSizeBytes)) {
+                if (panelHexViewer->hasPage(pageNumber, avrDevice->PageSizeBytes)) {
                   QByteArray msg;
                   msg.append((char) Api_ISP_TransmitFirmware);
                   msg.append((char) MsgGroup_IspFirmware);
@@ -1510,8 +1419,7 @@ namespace lpzrobots {
                   msg.append(panelHexViewer->getPage(pageNumber, avrDevice->PageSizeBytes));
                   send_Message(msg);
                 }
-              } else
-              {
+              } else {
                 QByteArray msg;
                 msg.append((char) Api_ISP_TransmitFirmware);
                 msg.append((char) MsgGroup_IspFirmware);
@@ -1519,8 +1427,7 @@ namespace lpzrobots {
                 send_Message(msg);
                 sl_TextLog("Write Target-Device complete.");
               }
-            } else
-            {
+            } else {
               if (progress != NULL)
                 progress->hide();
 
@@ -1535,8 +1442,7 @@ namespace lpzrobots {
           }
           break;
         }
-        case MsgCode_IspProgrammer_TargetDevice_ChipErase:
-        {
+        case MsgCode_IspProgrammer_TargetDevice_ChipErase: {
           sl_TextLog("Chip Erase complete.");
 
           // Nachrichten-Format:
@@ -1556,13 +1462,11 @@ namespace lpzrobots {
           uint actionCommand = receiveBuffer[7];
 
           // Nach dem ChipErase mit Schreiben beginnen?
-          if (0 < actionCommand)
-          {
+          if (0 < actionCommand) {
             // Beginne Schreiben mit der ersten nicht leeren Seite
             uint pageNumber = 0;
             // Ueberspringe alle leeren Seiten
-            while (true)
-            {
+            while (true) {
               // Zähle die Seitennummer so lange hoch, wie
               // Seiten vorhanden sind, diese nicht leer sind und
               // die Seitennummer kleiner der maximalen Seitennummer
@@ -1592,14 +1496,12 @@ namespace lpzrobots {
           }
           break;
         }
-        default:
-        {
+        default: {
           sl_TextLog("ReturnCode = 0x" + QString::number((QByte) msgResponseCode, 16).toUpper());
           break;
         }
       }//switch(msgCode)
-    } else
-    {
+    } else {
       sl_TextLog("ReturnCode = 0x" + QString::number((QByte) msgCode, 16).toUpper());
     }
   }
@@ -1617,16 +1519,13 @@ namespace lpzrobots {
     if (msgGroup != 0x00)
       return;
 
-    switch (msgCode)
-    {
+    switch (msgCode) {
       case MsgCode_ECB_SIGNAL_BootloaderStart: // Bootloader-Start
       {
         sl_TextLog("ECB-Bootloader-Start");
 
-        switch (nextOperationState)
-        {
-          case NEXT_OP_ECB_BOOTLOADER_FLASH_READ:
-          {
+        switch (nextOperationState) {
+          case NEXT_OP_ECB_BOOTLOADER_FLASH_READ: {
             nextOperationState = NEXT_OP_NONE;
             ECB_OperationRetries = 0;
 
@@ -1646,8 +1545,7 @@ namespace lpzrobots {
             send_Message(msg);
             break;
           }
-          case NEXT_OP_ECB_BOOTLOADER_FLASH_WRITE:
-          {
+          case NEXT_OP_ECB_BOOTLOADER_FLASH_WRITE: {
             nextOperationState = NEXT_OP_NONE;
             ECB_OperationRetries = 0;
 
@@ -1661,8 +1559,7 @@ namespace lpzrobots {
             // Beginne Schreiben mit der ersten nicht leeren Seite
             int pageNumber = 0;
             // Überspringe alle leeren Seiten
-            while (true)
-            {
+            while (true) {
               // Zähle die Seitennummer so lange hoch, wie
               // Seiten vorhanden sind, diese nicht leer sind und
               // die Seitennummer kleiner der maximalen Seitennummer
@@ -1692,8 +1589,7 @@ namespace lpzrobots {
             send_Message(msg);
             break;
           }
-          case NEXT_OP_ECB_BOOTLOADER_EEPROM_READ:
-          {
+          case NEXT_OP_ECB_BOOTLOADER_EEPROM_READ: {
             nextOperationState = NEXT_OP_NONE;
             ECB_OperationRetries = 0;
 
@@ -1712,13 +1608,11 @@ namespace lpzrobots {
             send_Message(msg);
             break;
           }
-          case NEXT_OP_ECB_BOOTLOADER_EEPROM_WRITE:
-          {
+          case NEXT_OP_ECB_BOOTLOADER_EEPROM_WRITE: {
             nextOperationState = NEXT_OP_NONE;
             ECB_OperationRetries = 0;
 
-            if (panelHexViewer->hasPage(0, ECB_ATMEGA128_EEPROM_BlockSize))
-            {
+            if (panelHexViewer->hasPage(0, ECB_ATMEGA128_EEPROM_BlockSize)) {
               sl_TextLog("Begin Write EEPROM");
 
               progress = new QProgressDialog("0 Byte", "Cancel", 0, ECB_ATMEGA128_EEPROM_TOTALSIZE, this);
@@ -1740,8 +1634,7 @@ namespace lpzrobots {
             }
             break;
           }
-          default:
-          {
+          default: {
             // Wenn keine der vorherigen Aktionen zutrifft, dann beende den Bootloader!
             QByteArray msg;
             msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
@@ -1755,10 +1648,8 @@ namespace lpzrobots {
       case MsgCode_ECB_Signal_BootloaderEnd: // Bootloader-Ende
       {
         sl_TextLog("ECB-Bootloader-End");
-        if (progress != 0)
-        {
-          if (!progress->isHidden())
-          {
+        if (progress != 0) {
+          if (!progress->isHidden()) {
             sl_TextLog("Operation Error.");
             sl_TextLog("Operation NOT complete.");
           }
@@ -1769,8 +1660,7 @@ namespace lpzrobots {
         break;
       }//end case Bootloader_End
         //-------------------------------------------------------------------------------------------------------------
-      case MsgCode_ResponsePacket:
-      {
+      case MsgCode_ResponsePacket: {
         // Nachrichten-Format:
         // ----------------------
         // 0x00 - MsgGroup
@@ -1779,12 +1669,10 @@ namespace lpzrobots {
         // 0x03 - data/parameter ...
         int msgResponseCode = (QByte) received_msg[2];
 
-        switch (msgResponseCode)
-        {
+        switch (msgResponseCode) {
           //-------------------------------------------------------------------------------------------------------------
           // PageRead:
-          case MsgCode_ECB_Command_FLASH_PageRead:
-          {
+          case MsgCode_ECB_Command_FLASH_PageRead: {
             // Nachrichten-Format:
             // ----------------------
             // 0x00 - MsgGroup
@@ -1800,16 +1688,14 @@ namespace lpzrobots {
             uint pageSegment = (QByte) received_msg[5];
             uint operationState = (QByte) received_msg[6];
 
-            if (operationState != state_OperationSucceeded)
-            {
+            if (operationState != state_OperationSucceeded) {
               // Das angeforderte Segment einer Seite konnte (wiederholt) nicht ausgelesen werden.
               // Erhöhe den Wiederholungszähler
               ECB_OperationRetries++;
 
               // Solange die maximale Wiederholrate (für erfolglose Operationen) noch nicht erreicht wurde,
               // wird die Operation wiederholt.
-              if (ECB_OperationRetries < ECB_OperationRetriesMax)
-              {
+              if (ECB_OperationRetries < ECB_OperationRetriesMax) {
                 // Sende erneut Anfrage zum Auslesen dieser Seite aus dem Flash!
                 QByteArray msg;
                 msg.append((char) MsgCode_ECB_Command_FLASH_PageRead);
@@ -1817,22 +1703,19 @@ namespace lpzrobots {
                 msg.append((char) (pageNumber >> 0));
                 msg.append((char) pageSegment);// PageSegmentNumber
                 send_Message(msg);
-              } else
-              {
+              } else {
                 printMessageErrorCode(operationState);
                 sl_TextLog("Read Flash Error.");
                 sl_TextLog("Read End.");
                 QByteArray msg;
                 msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                 send_Message(msg);
-                if (progress != 0)
-                {
+                if (progress != 0) {
                   progress->hide();
                   progress->setValue(progress->maximum());
                 }
               }
-            } else
-            {
+            } else {
               // PageRead: Das angeforderte Segment einer Seite wurde erfolgreich aus
               // dem Programmspeicher ausgelesen und übersendet.
               // Fahre mit dem nächsten Segment/ der nächsten Seite fort.
@@ -1840,20 +1723,17 @@ namespace lpzrobots {
               int startIndex = pageNumber * ECB_AtMega128_PageSize_Byte + 64 * pageSegment;
 
               // Gab es einen Benutzer-Abbruch?
-              if (progress->wasCanceled())
-              {
+              if (progress->wasCanceled()) {
                 // Benutzer-Abbruch
                 sl_TextLog("User-Abbort");
                 QByteArray msg;
                 msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                 send_Message(msg);
-              } else
-              {
+              } else {
                 // Kein Benutzer-Abbruch, also weiter ...
 
                 // Wurde der Speicherbereich zur Aufnahme des Programmspeicher aus dem ECB schon initialisiert?
-                if (temporaryBuffer.length() == 0)
-                {
+                if (temporaryBuffer.length() == 0) {
                   // Reserviere einen Speicherbereich von der Größe des Programmspeicher des Mikrokontroller!
                   int iFlashSize = ECB_AtMega128_PageSize_Byte * ECB_AtMEGA128_NumberOfPages;
                   temporaryBuffer.resize(iFlashSize);
@@ -1865,8 +1745,7 @@ namespace lpzrobots {
                   temporaryBuffer[startIndex + i] = received_msg[7 + i];
 
                 // Wenn noch nicht alle Segmente dieser Seite erhalten wurden, dann nächstes Segment vom ECB anfordern!
-                if (pageSegment < 3)
-                {
+                if (pageSegment < 3) {
                   ECB_OperationRetries = 0; // Setze den Wiederholungszähler für Misserfolge zurück!
                   // Fordere das nächste Segment an!
                   QByteArray msg;
@@ -1882,25 +1761,21 @@ namespace lpzrobots {
                 pageNumber++;
 
                 // Die Info für den Nutzer in der Statusleiste
-                try
-                {
+                try {
                   progress->setValue(pageNumber);
                   progress->setLabelText(QString::number(pageNumber) + "/" + QString::number(ECB_AtMEGA128_NumberOfPages) + " Pages");
-                } catch (...)
-                {
+                } catch (...) {
                 }
 
                 // Nächste Seite anfordern, wenn noch nicht alle Seiten ausgelesen wurden!
-                if (pageNumber < ECB_AtMEGA128_NumberOfPages)
-                {
+                if (pageNumber < ECB_AtMEGA128_NumberOfPages) {
                   QByteArray msg;
                   msg.append((char) MsgCode_ECB_Command_FLASH_PageRead);
                   msg.append((char) (pageNumber >> 8));
                   msg.append((char) (pageNumber >> 0));
                   msg.append((char) 0);// PageSegmentNumber
                   send_Message(msg);
-                } else
-                {
+                } else {
                   // Der Programmspeicher des Mikrokontroller wurde kommplett ausgelesen.
                   sl_TextLog("Read complete.");
                   panelHexViewer->setBinary(temporaryBuffer);
@@ -1909,8 +1784,7 @@ namespace lpzrobots {
                   QByteArray msg;
                   msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                   send_Message(msg);
-                  if (progress != 0)
-                  {
+                  if (progress != 0) {
                     progress->hide();
                     progress->setValue(progress->maximum());
                   }
@@ -1921,8 +1795,7 @@ namespace lpzrobots {
           }
             //-------------------------------------------------------------------------------------------------------------
             // PageWrite
-          case MsgCode_ECB_Command_FLASH_PageWrite:
-          {
+          case MsgCode_ECB_Command_FLASH_PageWrite: {
             // Nachrichten-Format:
             // ----------------------
             // 0x00 - MsgGroup
@@ -1937,36 +1810,30 @@ namespace lpzrobots {
             uint pageSegment = (QByte) received_msg[5];
             uint operationState = (QByte) received_msg[6];
 
-            switch (operationState)
-            {
+            switch (operationState) {
               //-------------------------------------------------------------------------------
-              case state_OperationSucceeded:
-              {
+              case state_OperationSucceeded: {
                 // Operation erfolgreich!
 
                 // Gab es einen Benutzer-Abbruch?
-                if (progress->wasCanceled())
-                {
+                if (progress->wasCanceled()) {
                   // Benutzer-Abbruch: Schreiben der Seite nicht erfolgreich!!!
                   sl_TextLog("Write Flash Abort.");
                   QByteArray msg;
                   msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                   send_Message(msg);
-                  if (progress != 0)
-                  {
+                  if (progress != 0) {
                     progress->hide();
                     progress->setValue(progress->maximum());
                   }
-                } else
-                {
+                } else {
                   // Wenn kein Benutzer-Abbruch, dann weiter ...
 
                   // wähle nächste Seitennummer
                   pageNumber++;
 
                   // Ueberspringe alle leeren Seiten
-                  while (true)
-                  {
+                  while (true) {
                     // Zähle die Seitennummer so lange hoch, wie
                     // Seiten vorhanden sind, diese nicht leer sind und
                     // die Seitennummer kleiner der maximalen Seitennummer
@@ -1984,16 +1851,13 @@ namespace lpzrobots {
                   }
 
                   // Die Info für den Nutzer in der Statusleiste
-                  try
-                  {
+                  try {
                     progress->setValue(pageNumber);
                     progress->setLabelText(QString::number(pageNumber) + "/" + QString::number(ECB_AtMEGA128_NumberOfPages) + " Pages");
-                  } catch (...)
-                  {
+                  } catch (...) {
                   }
 
-                  if ((pageNumber < ECB_AtMEGA128_NumberOfPages) && panelHexViewer->hasPage(pageNumber, ECB_AtMega128_PageSize_Byte))
-                  {
+                  if ((pageNumber < ECB_AtMEGA128_NumberOfPages) && panelHexViewer->hasPage(pageNumber, ECB_AtMega128_PageSize_Byte)) {
                     // Sende nun die Page an den Bootloader, jedoch in 4 Segmente unterteilt:
                     // Das Funkmodul XBeeS2 kann nur maximal 72 Zeichen in einem Packet uebertragen!
                     // Sende erstes Segment der Seite
@@ -2007,14 +1871,12 @@ namespace lpzrobots {
                       msg.append(panelHexViewer->getPage(pageNumber * 4, ECB_AtMega128_PageSize_Byte / 4));
                       send_Message(msg);
                     }// end for Segments
-                  } else
-                  {
+                  } else {
                     QByteArray msg;
                     msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                     send_Message(msg);
                     sl_TextLog("Write complete.");
-                    if (progress != 0)
-                    {
+                    if (progress != 0) {
                       progress->hide();
                       progress->setValue(progress->maximum());
                     }
@@ -2023,8 +1885,7 @@ namespace lpzrobots {
                 break;
               }
                 //-------------------------------------------------------------------------------
-              case state_Confirm_PageSegmentReceive:
-              {
+              case state_Confirm_PageSegmentReceive: {
                 // PageWrite: Das ECB hat den Empfang eines Page-Segmentes bestätigt.
                 // Sende nun das nächste Segment. Mit Erhalt des letzten (vierten)
                 // Segmentes einer Seite, wird diese in den Programmspeicher geschrieben.
@@ -2041,14 +1902,12 @@ namespace lpzrobots {
                 break;
               }
                 //-------------------------------------------------------------------------------
-              case state_FlashPageWriteError:
-              {
+              case state_FlashPageWriteError: {
                 // Operation war nicht erfolgreich.
                 ECB_OperationRetries++;
 
                 // nochmals versuchen?
-                if (ECB_OperationRetries < ECB_OperationRetriesMax)
-                {
+                if (ECB_OperationRetries < ECB_OperationRetriesMax) {
                   // Sende wiederholt die gesammte Page!
                   // Das Funkmodul XBeeS2 kann nur maximal 72 Zeichen in einem Packet uebertragen!
                   // Übertrage nun das erstes Segment der Page.
@@ -2059,16 +1918,14 @@ namespace lpzrobots {
                   msg.append((char) pageSegment);// PageSegmentNumber
                   msg.append(panelHexViewer->getPage(pageNumber * 4, ECB_AtMega128_PageSize_Byte / 4));
                   send_Message(msg);
-                } else
-                {
+                } else {
                   // Die Seite konnte nicht in en Programmspeicher des ECB geschrieben werden, Abbruch durch Applikation!
                   sl_TextLog("Write Flash Error.");
                   sl_TextLog("Write End.");
                   QByteArray msg;
                   msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                   send_Message(msg);
-                  if (progress != 0)
-                  {
+                  if (progress != 0) {
                     progress->hide();
                     progress->setValue(progress->maximum());
                   }
@@ -2081,8 +1938,7 @@ namespace lpzrobots {
                 QByteArray msg;
                 msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                 send_Message(msg);
-                if (progress != 0)
-                {
+                if (progress != 0) {
                   progress->hide();
                   progress->setValue(progress->maximum());
                 }
@@ -2093,8 +1949,7 @@ namespace lpzrobots {
           } // End PageWrite
             //-------------------------------------------------------------------------------------------------------------
             // EEPROM-READ
-          case MsgCode_ECB_Command_EEPROM_BlockRead:
-          {
+          case MsgCode_ECB_Command_EEPROM_BlockRead: {
             // Nachrichten-Format:
             // ----------------------
             // 0x00 - MsgGroup
@@ -2108,25 +1963,20 @@ namespace lpzrobots {
             uint eepromBlockStartAddress = ((QByte) received_msg[3] << 8) + (QByte) received_msg[4];
             uint operationState = (QByte) received_msg[5];
 
-            switch (operationState)
-            {
-              case state_OperationSucceeded:
-              {
+            switch (operationState) {
+              case state_OperationSucceeded: {
                 // Gab es einen Benutzer-Abbruch?
-                if (progress->wasCanceled())
-                {
+                if (progress->wasCanceled()) {
                   // Benutzer-Abbruch
                   sl_TextLog("User-Abbort");
                   QByteArray msg;
                   msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                   send_Message(msg);
-                } else
-                {
+                } else {
                   // Kein Benutzer-Abbruch, also weiter ...
 
                   // Wurde der Speicherbereich zur Aufnahme des Programmspeicher aus dem ECB schon initialisiert?
-                  if (eepromBlockStartAddress == 0)
-                  {
+                  if (eepromBlockStartAddress == 0) {
                     // Reserviere einen Speicherbereich von der Größe des EEPROM des Mikrokontroller!
                     int iEEPromSize = ECB_ATMEGA128_EEPROM_TOTALSIZE;
                     temporaryBuffer.resize(iEEPromSize);
@@ -2140,27 +1990,23 @@ namespace lpzrobots {
                   sl_TextLog("data copied into tempBuffer.");
 
                   // Die Info für den Nutzer in der Statusleiste
-                  try
-                  {
+                  try {
                     progress->setValue(eepromBlockStartAddress);
                     progress->setLabelText(QString::number(eepromBlockStartAddress + ECB_ATMEGA128_EEPROM_BlockSize) + "/" + QString::number(
                         ECB_ATMEGA128_EEPROM_TOTALSIZE) + " Bytes");
-                  } catch (...)
-                  {
+                  } catch (...) {
                   }
                   // Nächster Block...
                   eepromBlockStartAddress += ECB_ATMEGA128_EEPROM_BlockSize;
 
                   // Nächsten Block anfordern, wenn noch nicht der gesamte EEPROM ausgelesen wurden!
-                  if (eepromBlockStartAddress <= ECB_ATMEGA128_EEPROM_TOTALSIZE - ECB_ATMEGA128_EEPROM_BlockSize)
-                  {
+                  if (eepromBlockStartAddress <= ECB_ATMEGA128_EEPROM_TOTALSIZE - ECB_ATMEGA128_EEPROM_BlockSize) {
                     QByteArray msg;
                     msg.append((char) MsgCode_ECB_Command_EEPROM_BlockRead);
                     msg.append((char) (eepromBlockStartAddress >> 8));
                     msg.append((char) (eepromBlockStartAddress >> 0));
                     send_Message(msg);
-                  } else
-                  {
+                  } else {
                     // Der Programmspeicher des Mikrokontroller wurde kommplett ausgelesen.
                     sl_TextLog("Read EEPROM complete.");
                     panelHexViewer->setBinary(temporaryBuffer);
@@ -2169,8 +2015,7 @@ namespace lpzrobots {
                     QByteArray msg;
                     msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                     send_Message(msg);
-                    if (progress != 0)
-                    {
+                    if (progress != 0) {
                       progress->hide();
                       progress->setValue(progress->maximum());
                     }
@@ -2178,14 +2023,12 @@ namespace lpzrobots {
                 } // kein Benutzer-Abbruch
                 break;
               }
-              case state_EEPromAddressNumberError:
-              {
+              case state_EEPromAddressNumberError: {
                 QByteArray msg;
                 msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                 send_Message(msg);
                 sl_TextLog("Read EEPROM abort, wrong address requested.");
-                if (progress != 0)
-                {
+                if (progress != 0) {
                   progress->hide();
                   progress->setValue(progress->maximum());
                 }
@@ -2196,8 +2039,7 @@ namespace lpzrobots {
           }
             //-------------------------------------------------------------------------------------------------------------
             // EEPROM-WRITE
-          case MsgCode_ECB_Command_EEPROM_BlockWrite:
-          {
+          case MsgCode_ECB_Command_EEPROM_BlockWrite: {
             // Nachrichten-Format:
             // ----------------------
             // 0x00 - MsgGroup
@@ -2210,41 +2052,33 @@ namespace lpzrobots {
             uint eepromBlockStartAddress = ((QByte) received_msg[3] << 8) + (QByte) received_msg[4];
             uint operationState = (QByte) received_msg[5];
 
-            switch (operationState)
-            {
-              case state_OperationSucceeded:
-              {
+            switch (operationState) {
+              case state_OperationSucceeded: {
                 // Operation erfolgreich!
                 //------------------------------------------
                 // Gab es einen Benutzer-Abbruch?
-                if (progress->wasCanceled())
-                {
+                if (progress->wasCanceled()) {
                   // Benutzer-Abbruch: Schreiben der Seite nicht erfolgreich!!!
                   sl_TextLog("Write EEPROM Abort.");
                   QByteArray msg;
                   msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                   send_Message(msg);
-                  if (progress != 0)
-                  {
+                  if (progress != 0) {
                     progress->hide();
                     progress->setValue(progress->maximum());
                   }
-                } else
-                {
+                } else {
                   // Wenn kein Benutzer-Abbruch, dann weiter ...
                   eepromBlockStartAddress += ECB_ATMEGA128_EEPROM_BlockSize;
                   // Die Info für den Nutzer in der Statusleiste
-                  try
-                  {
+                  try {
                     progress->setValue(eepromBlockStartAddress);
                     progress->setLabelText(QString::number(eepromBlockStartAddress) + "/" + QString::number(ECB_ATMEGA128_EEPROM_TOTALSIZE) + " Bytes");
-                  } catch (...)
-                  {
+                  } catch (...) {
                   }
 
                   if ((eepromBlockStartAddress <= ECB_ATMEGA128_EEPROM_TOTALSIZE - ECB_ATMEGA128_EEPROM_BlockSize) && panelHexViewer->hasPage(
-                      eepromBlockStartAddress, ECB_ATMEGA128_EEPROM_BlockSize))
-                  {
+                      eepromBlockStartAddress, ECB_ATMEGA128_EEPROM_BlockSize)) {
                     // Sende nun den Block an den Bootloader
                     {
                       ECB_OperationRetries = 0;
@@ -2255,14 +2089,12 @@ namespace lpzrobots {
                       msg.append(panelHexViewer->getPage(eepromBlockStartAddress, ECB_ATMEGA128_EEPROM_BlockSize));
                       send_Message(msg);
                     }
-                  } else
-                  {
+                  } else {
                     QByteArray msg;
                     msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                     send_Message(msg);
                     sl_TextLog("Write EEPROM complete.");
-                    if (progress != 0)
-                    {
+                    if (progress != 0) {
                       progress->hide();
                       progress->setValue(progress->maximum());
                     }
@@ -2270,27 +2102,23 @@ namespace lpzrobots {
                 } // End kein Benutzer-Abbruch
                 break;
               }
-              case state_EEPromAddressNumberError:
-              {
+              case state_EEPromAddressNumberError: {
                 QByteArray msg;
                 msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                 send_Message(msg);
                 sl_TextLog("Write EEPROM abort, wrong address requested.");
-                if (progress != 0)
-                {
+                if (progress != 0) {
                   progress->hide();
                   progress->setValue(progress->maximum());
                 }
                 break;
               }
-              case state_EEPromBlockWriteError:
-              {
+              case state_EEPromBlockWriteError: {
                 QByteArray msg;
                 msg.append((char) MsgCode_ECB_Command_Bootloader_Deactivate);
                 send_Message(msg);
                 sl_TextLog("Physical write error of EEPROM.");
-                if (progress != 0)
-                {
+                if (progress != 0) {
                   progress->hide();
                   progress->setValue(progress->maximum());
                 }
@@ -2302,8 +2130,7 @@ namespace lpzrobots {
         break;
       }
         //-------------------------------------------------------------------------------------------------------------
-      default:
-      {
+      default: {
         QString s;
         s.append(QString::number((QByte) (msgCode >> 4) & 0x0F, 16).toUpper());
         s.append(QString::number((QByte) (msgCode >> 0) & 0x0F, 16).toUpper());
@@ -2320,15 +2147,13 @@ namespace lpzrobots {
     Command.append((char) receiveBuffer[5]);
     Command.append((char) receiveBuffer[6]);
 
-    if (Command.compare("HV") == 0)
-    {
+    if (Command.compare("HV") == 0) {
       quint16 HardwareVersionNumber = 0;
 
       HardwareVersionNumber += ((quint16) receiveBuffer[8] & 0xFF) << 1 * 8;
       HardwareVersionNumber += ((quint16) receiveBuffer[9] & 0xFF) << 0 * 8;
 
-      switch (HardwareVersionNumber)
-      {
+      switch (HardwareVersionNumber) {
         case 0x180B:
         case 0x1842:
           USBDeviceXBeeType = XBeeType_Serie1;
@@ -2402,10 +2227,8 @@ namespace lpzrobots {
       nodeId.append(") '");
 
       // Lese den NodeIdentifier-String aus.
-      switch (USBDeviceXBeeType)
-      {
-        case XBeeType_Serie1:
-        {
+      switch (USBDeviceXBeeType) {
+        case XBeeType_Serie1: {
           for (int i = 0; i < msgLength - 17; i++)
             nodeId.append((char) receiveBuffer[19 + i]);
           nodeId.append("'");
@@ -2413,8 +2236,7 @@ namespace lpzrobots {
           panelSetting->setXBeeRemoteNodeIdentifier(nodeId);
           break;
         }
-        case XBeeType_Serie2:
-        {
+        case XBeeType_Serie2: {
           for (int i = 18; i < msgLength - 6; i++)
             nodeId.append((char) receiveBuffer[i]);
           nodeId.append("'");
@@ -2432,8 +2254,7 @@ namespace lpzrobots {
 
   void MainWindow::printMessageErrorCode(int errorCode) {
     // Werte die Fehlerursache aus.
-    switch (errorCode)
-    {
+    switch (errorCode) {
       case state_FlashPageWriteError:
         statusBar()->showMessage("FLASH-WriteError", 5000);
         sl_TextLog("FLASH: Physical Write Error.");
@@ -2473,10 +2294,8 @@ namespace lpzrobots {
 
   void MainWindow::sl_eventHandler_ispProgrammer(int eventCode) {
 
-    switch (eventCode)
-    {
-      case EVENT_ISP_AVRDEVICE_SIGNATURE_READ:
-      {
+    switch (eventCode) {
+      case EVENT_ISP_AVRDEVICE_SIGNATURE_READ: {
         QByteArray msg;
         msg.append((char) Api_ISP_TransmitFirmware);
         msg.append((char) MsgGroup_IspFirmware);
@@ -2488,8 +2307,7 @@ namespace lpzrobots {
         timerParams = transmitTimerLastAction_SendMessageISP;
         break;
       }
-      case EVENT_ISP_AVRDEVICE_CALIBRATION_READ:
-      {
+      case EVENT_ISP_AVRDEVICE_CALIBRATION_READ: {
         QByteArray msg;
         msg.append((char) Api_ISP_TransmitFirmware);
         msg.append((char) MsgGroup_IspFirmware);
@@ -2501,17 +2319,14 @@ namespace lpzrobots {
         timerParams = transmitTimerLastAction_SendMessageISP;
         break;
       }
-      case EVENT_ISP_AVRDEVICE_FUSES_EDITOR_SHOW:
-      {
-        if (avrDevice != NULL)
-        {
+      case EVENT_ISP_AVRDEVICE_FUSES_EDITOR_SHOW: {
+        if (avrDevice != NULL) {
           avrFuseDialog->setAvrDevice(avrDevice);
           avrFuseDialog->exec();
         }
         break;
       }
-      case EVENT_ISP_AVRDEVICE_FUSES_READ:
-      {
+      case EVENT_ISP_AVRDEVICE_FUSES_READ: {
         QByteArray msg;
         msg.append((char) Api_ISP_TransmitFirmware);
         msg.append((char) MsgGroup_IspFirmware);
@@ -2523,8 +2338,7 @@ namespace lpzrobots {
         timerParams = transmitTimerLastAction_SendMessageISP;
         break;
       }
-      case EVENT_ISP_AVRDEVICE_FUSES_WRITE:
-      {
+      case EVENT_ISP_AVRDEVICE_FUSES_WRITE: {
         QByteArray msg;
         msg.append((char) Api_ISP_TransmitFirmware);
         msg.append((char) MsgGroup_IspFirmware);
@@ -2536,8 +2350,7 @@ namespace lpzrobots {
         timerParams = transmitTimerLastAction_SendMessageISP;
         break;
       }
-      case EVENT_ISP_AVRDEVICE_FLASH_READ:
-      {
+      case EVENT_ISP_AVRDEVICE_FLASH_READ: {
         QByteArray msg;
         msg.append((char) Api_ISP_TransmitFirmware);
         msg.append((char) MsgGroup_IspFirmware);
@@ -2549,12 +2362,10 @@ namespace lpzrobots {
         timerParams = transmitTimerLastAction_SendMessageISP;
         break;
       }
-      case EVENT_ISP_AVRDEVICE_FLASH_WRITE:
-      {
+      case EVENT_ISP_AVRDEVICE_FLASH_WRITE: {
         int targetFlashSize = avrDevice->NumberPages * avrDevice->PageSizeBytes;
         int programSize = panelHexViewer->getBinary().length();
-        if (targetFlashSize < programSize)
-        {
+        if (targetFlashSize < programSize) {
           // Das zu Schreibende Programm pass nicht komplett in das Zeilsystem hinein!!
           QMessageBox::warning(this, tr("ProgrammSizeError"), tr(
               "The loaded programm-size is larger than the available programm-space in targetsystem. Action abborted."), QMessageBox::Ok, QMessageBox::Ok);
@@ -2571,14 +2382,12 @@ namespace lpzrobots {
         timerParams = transmitTimerLastAction_SendMessageISP;
         break;
       }
-      case EVENT_ISP_AVRDEVICE_FLASH_UPDATEWRITE:
-      {
+      case EVENT_ISP_AVRDEVICE_FLASH_UPDATEWRITE: {
         if (curFileName != NULL)
           loadFile(curFileName);
         int targetFlashSize = avrDevice->NumberPages * avrDevice->PageSizeBytes;
         int programSize = panelHexViewer->getBinary().length();
-        if (targetFlashSize < programSize)
-        {
+        if (targetFlashSize < programSize) {
           // Das zu Schreibende Programm pass nicht komplett in das Zeilsystem hinein!!
           QMessageBox::warning(this, tr("ProgrammSizeError"), tr(
               "The loaded programm-size is larger than the available programm-space in targetsystem. Action abborted."), QMessageBox::Ok, QMessageBox::Ok);
@@ -2596,8 +2405,7 @@ namespace lpzrobots {
         break;
       }
         //---------------------------------------
-      case EVENT_ISP_PROGRAMMER_SOFTWARE_VERSION:
-      {
+      case EVENT_ISP_PROGRAMMER_SOFTWARE_VERSION: {
         QByteArray msg;
         msg.append((char) Api_ISP_TransmitFirmware);
         msg.append((char) MsgGroup_IspFirmware);
@@ -2606,27 +2414,23 @@ namespace lpzrobots {
         timerParams = transmitTimerLastAction_SendMessageISP;
         break;
       }
-      case EVENT_ISP_PROGRAMMER_RESET:
-      {
+      case EVENT_ISP_PROGRAMMER_RESET: {
         ft232manager->setDTR(1);
         sleep(1);
         ft232manager->setDTR(0);
         break;
       }
-      case EVENT_ISP_PROGRAMMER_FLASH_READ:
-      {
+      case EVENT_ISP_PROGRAMMER_FLASH_READ: {
         nextOperationState = NEXT_OP_ISP_PROGRAMMER_FLASH_READ;
         ft232manager->setDTR(1);
         sleep(1);
         ft232manager->setDTR(0);
         break;
       }
-      case EVENT_ISP_PROGRAMMER_FLASH_WRITE:
-      {
+      case EVENT_ISP_PROGRAMMER_FLASH_WRITE: {
         int targetFlashSize = ProgrammerNumberFlashPages * ProgrammerFlashPageSize;
         int programSize = panelHexViewer->getBinary().length();
-        if (targetFlashSize < programSize)
-        {
+        if (targetFlashSize < programSize) {
           // Das zu Schreibende Programm pass nicht komplett in das Zeilsystem hinein!!
           QMessageBox::warning(this, tr("ProgrammSizeError"), tr(
               "The loaded programm-size is larger than the available programm-space in programmer. Action abborted."), QMessageBox::Ok, QMessageBox::Ok);
@@ -2642,43 +2446,35 @@ namespace lpzrobots {
   }
   void MainWindow::sl_eventHandler_ecbBootloader(int eventCode) {
 
-    switch (eventCode)
-    {
-      case EVENT_ECB_RESET:
-      {
+    switch (eventCode) {
+      case EVENT_ECB_RESET: {
         send_ECB_Reset();
         break;
       }
-      case EVENT_ECB_BOOTLOADER_FLASH_READ:
-      {
+      case EVENT_ECB_BOOTLOADER_FLASH_READ: {
         nextOperationState = NEXT_OP_ECB_BOOTLOADER_FLASH_READ;
         send_ECB_Reset();
         break;
       }
-      case EVENT_ECB_BOOTLOADER_FLASH_WRITE:
-      {
+      case EVENT_ECB_BOOTLOADER_FLASH_WRITE: {
         nextOperationState = NEXT_OP_ECB_BOOTLOADER_FLASH_WRITE;
         send_ECB_Reset();
         break;
       }
-      case EVENT_ECB_BOOTLOADER_FLASH_UPDATEWRITE:
-      {
-        if (curFileName != NULL)
-        {
+      case EVENT_ECB_BOOTLOADER_FLASH_UPDATEWRITE: {
+        if (curFileName != NULL) {
           loadFile(curFileName);
           nextOperationState = NEXT_OP_ECB_BOOTLOADER_FLASH_WRITE;
           send_ECB_Reset();
         }
         break;
       }
-      case EVENT_ECB_BOOTLOADER_EEPROM_READ:
-      {
+      case EVENT_ECB_BOOTLOADER_EEPROM_READ: {
         nextOperationState = NEXT_OP_ECB_BOOTLOADER_EEPROM_READ;
         send_ECB_Reset();
         break;
       }
-      case EVENT_ECB_BOOTLOADER_EEPROM_WRITE:
-      {
+      case EVENT_ECB_BOOTLOADER_EEPROM_WRITE: {
         nextOperationState = NEXT_OP_ECB_BOOTLOADER_EEPROM_WRITE;
         send_ECB_Reset();
         break;
@@ -2687,25 +2483,20 @@ namespace lpzrobots {
   }
   void MainWindow::sl_eventHandler_application(int eventCode) {
 
-    switch (eventCode)
-    {
-      case EVENT_APPLICATION_BINARY_OPEN:
-      {
+    switch (eventCode) {
+      case EVENT_APPLICATION_BINARY_OPEN: {
         fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
         fileDialog->setFileMode(QFileDialog::ExistingFile);
-        if (fileDialog->exec())
-        {
+        if (fileDialog->exec()) {
           QString fileName = fileDialog->selectedFiles().at(0);
-          if (loadFile(fileName))
-          {
+          if (loadFile(fileName)) {
             hasBinary = true;
             action_Binary_save->setEnabled(true);
             action_Programmer_Flash_write->setEnabled(true);
             action_ECB_Bootloader_Flash_write->setEnabled(true);
             action_ECB_Bootloader_Flash_update_write->setEnabled(true);
             action_ECB_Bootloader_EEPROM_write->setEnabled(true);
-            if (avrDevice != NULL && hasAVRDeviceIdedentified)
-            {
+            if (avrDevice != NULL && hasAVRDeviceIdedentified) {
               action_Target_Flash_write->setEnabled(true);
               action_Target_Flash_update_write->setEnabled(true);
             }
@@ -2713,32 +2504,26 @@ namespace lpzrobots {
         }
         break;
       }
-      case EVENT_APPLICATION_BINARY_SAVE:
-      {
+      case EVENT_APPLICATION_BINARY_SAVE: {
         fileDialog->setAcceptMode(QFileDialog::AcceptSave);
         fileDialog->setFileMode(QFileDialog::AnyFile);
-        if (fileDialog->exec())
-        {
+        if (fileDialog->exec()) {
           QString fileName = fileDialog->selectedFiles().at(0);
-          if (!saveFile(fileName))
-          {
+          if (!saveFile(fileName)) {
             QMessageBox::warning(this, tr("LUPAE_V2"), tr("The document could not been saved."), QMessageBox::Close);
           }
         }
         break;
       }
-      case EVENT_APPLICATION_LOGVIEW_CLEAR:
-      {
+      case EVENT_APPLICATION_LOGVIEW_CLEAR: {
         panelLogView->clearLogViewText();
         break;
       }
-      case EVENT_APPLICATION_CLOSE:
-      {
+      case EVENT_APPLICATION_CLOSE: {
         close();
         break;
       }
-      case EVENT_APPLICATION_ABOUT:
-      {
+      case EVENT_APPLICATION_ABOUT: {
         QMessageBox::about(
             this,
             tr("About the Application"),
@@ -2746,8 +2531,7 @@ namespace lpzrobots {
                 "LUPAE V2.0 (<b>L</b>pzRobots <b>u</b>niversal <b>p</b>rogramm <b>a</b>pplication for <b>E</b>CB) \n is an <b>Application</b> to (re)programm AVR-Microcontrollers."));
         break;
       }
-      case EVENT_APPLICATION_SCAN_USBDEVICE:
-      {
+      case EVENT_APPLICATION_SCAN_USBDEVICE: {
         // Sichere den Namen des aktuellen USBDevices
         QString actDeviceName = panelSetting->getUSBDeviceName();
         QString actBaudrate = panelSetting->getUSBDeviceBaudrate();
@@ -2758,14 +2542,12 @@ namespace lpzrobots {
         QStringList deviceNames = ft232manager->getDeviceList();
         panelSetting->setUSBDeviceNames(deviceNames);
 
-        if (deviceNames.contains(actDeviceName, Qt::CaseInsensitive))
-        {
+        if (deviceNames.contains(actDeviceName, Qt::CaseInsensitive)) {
           // Öffne wieder das gleiche Device
           panelSetting->setUSBDeviceName(actDeviceName);
           panelSetting->setUSBDeviceBaudrate(actBaudrate);
           ft232manager->openDeviceByName(actDeviceName, actBaudrate.toInt());
-        } else
-        {
+        } else {
           // das bisherige USBDevice ist nicht weiter verfügbar,
           // öffne das erste USBDevice, welches das panelSettings anzeigt mit der default-baudrate.
           // Hole den Namen des angezeigten USB-Devices aus dem PANEL-SETTING und öffne dieses Device!
@@ -2785,15 +2567,12 @@ namespace lpzrobots {
   }
   void MainWindow::sl_DispatchMessage(QByteArray receiveBuffer) {
 
-    if (debug)
-    {
+    if (debug) {
       printBuffer(receiveBuffer);
     }
 
-    switch (applicationMode)
-    {
-      case APPLICATION_MODE_ISP_Adapter:
-      {
+    switch (applicationMode) {
+      case APPLICATION_MODE_ISP_Adapter: {
         // Stoppe TransmitTimer
         timer->stop();
 
@@ -2809,18 +2588,15 @@ namespace lpzrobots {
         // 0x06 - data/params...
 
         QByte msgApiIdentifier = receiveBuffer[3];
-        if (msgApiIdentifier == Api_ISP_TransmitBootloader || msgApiIdentifier == Api_ISP_TransmitFirmware)
-        {
+        if (msgApiIdentifier == Api_ISP_TransmitBootloader || msgApiIdentifier == Api_ISP_TransmitFirmware) {
           QByte msgGroup = receiveBuffer[4];
-          switch (msgGroup)
-          {
+          switch (msgGroup) {
             case MsgGroup_IspBootloader: // Bootloader
             {
               isp_MessageHandler_Bootloader(receiveBuffer);
               break;
             }
-            case MsgGroup_IspFirmware:
-            {
+            case MsgGroup_IspFirmware: {
               isp_MessageHandler_Firmware(receiveBuffer);
               break;
             }
@@ -2832,8 +2608,7 @@ namespace lpzrobots {
         break;
       }
       case APPLICATION_MODE_USART_Adapter:
-      case APPLICATION_MODE_XBEE_Adapter:
-      {
+      case APPLICATION_MODE_XBEE_Adapter: {
         // Stoppe TransmitTimer
         timer->stop();
 
@@ -2845,10 +2620,9 @@ namespace lpzrobots {
         //  3 QByte API_ID;
         //  4 ...
 
-        uint msgApi_Id = receiveBuffer[3];
+        uint msgApi_Id = receiveBuffer[3] & 0xFF;
         QByteArray received_msg;
-        switch (msgApi_Id)
-        {
+        switch (msgApi_Id) {
           case API_XBee_AT_Command_Response:
             bl_MessageHandler_XBeeCommandResponse(receiveBuffer);
             break;
@@ -2912,8 +2686,7 @@ namespace lpzrobots {
             // ----------------------
             bl_MessageHandler_Bootloader(receiveBuffer.mid(0x0F));
             break;
-          default:
-          {
+          default: {
             QString s;
             s.append(QString::number((QByte) (msgApi_Id >> 4) & 0x0F, 16).toUpper());
             s.append(QString::number((QByte) (msgApi_Id >> 0) & 0x0F, 16).toUpper());
@@ -2930,8 +2703,7 @@ namespace lpzrobots {
   void MainWindow::sl_USBDevice_Name_changed(QString usbDeviceName) {
     QString actDeviceName = ft232manager->getDeviceName();
 
-    if (actDeviceName.compare(usbDeviceName) != 0)
-    {
+    if (actDeviceName.compare(usbDeviceName) != 0) {
       ft232manager->closeDevice();
 
       int baudrate = 57600;
@@ -2946,8 +2718,7 @@ namespace lpzrobots {
     int baudrate = 57600;
     baudrate = sBaudrate.toInt();
 
-    if (actBaudrate != baudrate)
-    {
+    if (actBaudrate != baudrate) {
       ft232manager->setBaudrate(baudrate);
     }
   }
@@ -2957,23 +2728,20 @@ namespace lpzrobots {
   void MainWindow::sl_USBDeviceXBeeType_Changed(QString name) {
     QStringList emptyList;
 
-    if (name.compare("unknown") == 0)
-    {
+    if (name.compare("unknown") == 0) {
       panelSetting->setNodeIdentifierSettingEnabled(false);
       panelSetting->setXBeeRemoteNodeIdentifiers(emptyList);
       USBDeviceXBeeType = XBeeType_unknown;
       return;
     }
-    if (name.compare("XBeeSerie1") == 0)
-    {
+    if (name.compare("XBeeSerie1") == 0) {
       panelSetting->setNodeIdentifierSettingEnabled(true);
       panelSetting->setXBeeRemoteNodeIdentifiers(emptyList);
       USBDeviceXBeeType = XBeeType_Serie1;
       send_XBeeATND();
       return;
     }
-    if (name.compare("XBeeSerie2") == 0)
-    {
+    if (name.compare("XBeeSerie2") == 0) {
       panelSetting->setNodeIdentifierSettingEnabled(true);
       panelSetting->setXBeeRemoteNodeIdentifiers(emptyList);
       USBDeviceXBeeType = XBeeType_Serie2;
@@ -3005,12 +2773,10 @@ namespace lpzrobots {
 
     // Was war die letzte Aktion, welche
     // den Transmit Timer aktiviert hatte?
-    switch (timerParams)
-    {
+    switch (timerParams) {
       case transmitTimerLastAction_none:
         break;
-      case transmitTimerLastAction_initialize:
-      {
+      case transmitTimerLastAction_initialize: {
 
         readSettings();
         loadTargetDeviceParameter();
@@ -3043,8 +2809,7 @@ namespace lpzrobots {
 
     nextOperationState = NEXT_OP_NONE;
 
-    if (progress != 0)
-    {
+    if (progress != 0) {
       progress->hide();
       progress->setValue(progress->maximum());
     }
@@ -3057,8 +2822,7 @@ namespace lpzrobots {
     panelSetting->setUSBDeviceBaudrate(QString::number(ft232manager->getBaudrate()));
     panelSetting->startSignaling();
 
-    if (ft232manager->getDeviceName().startsWith("USB-ISP-Adapter"))
-    {
+    if (ft232manager->getDeviceName().startsWith("USB-ISP-Adapter")) {
       panelSetting->setAVRDeviceName("");
 
       // ISP-Adapter: (ISP-Programmer)
@@ -3074,16 +2838,14 @@ namespace lpzrobots {
       action_Programmer_reset->setEnabled(true);
       action_Programmer_Flash_read->setEnabled(true);
       action_Programmer_Flash_write->setEnabled(false);
-    } else if (ft232manager->getDeviceName().startsWith("USB-USART-Adapter"))
-    {
+    } else if (ft232manager->getDeviceName().startsWith("USB-USART-Adapter")) {
       // USART-Adapter:
       applicationMode = APPLICATION_MODE_USART_Adapter;
       createMenus(applicationMode);
       action_ECB_reset->setEnabled(true);
       action_ECB_Bootloader_Flash_read->setEnabled(true);
       action_ECB_Bootloader_Flash_write->setEnabled(false);
-    } else if (ft232manager->getDeviceName().startsWith("USB-XBEE-Adapter"))
-    {
+    } else if (ft232manager->getDeviceName().startsWith("USB-XBEE-Adapter")) {
       QStringList emptyList;
       panelSetting->setXBeeRemoteNodeIdentifiers(emptyList);
       panelSetting->setUSBDeviceXBeeType("unknown");
@@ -3111,18 +2873,15 @@ namespace lpzrobots {
   }
 
   void MainWindow::setProgrammerWaitCycles(const QString targetSpeed) {
-    if (targetSpeed.compare("slow") == 0)
-    {
+    if (targetSpeed.compare("slow") == 0) {
       programmerWaitCycles = 100;
       return;
     }
-    if (targetSpeed.compare("medium") == 0)
-    {
+    if (targetSpeed.compare("medium") == 0) {
       programmerWaitCycles = 10;
       return;
     }
-    if (targetSpeed.compare("fast") == 0)
-    {
+    if (targetSpeed.compare("fast") == 0) {
       programmerWaitCycles = 0;
       return;
     }
@@ -3133,8 +2892,7 @@ namespace lpzrobots {
 
   bool MainWindow::loadFile(const QString &fileName) {
     QFile file(fileName);
-    if (!file.open(QFile::ReadOnly))
-    {
+    if (!file.open(QFile::ReadOnly)) {
       QMessageBox::warning(this, tr("Application"), tr("Cannot read file %1:\n%2.") .arg(fileName) .arg(file.errorString()));
       return false;
     }
@@ -3153,8 +2911,7 @@ namespace lpzrobots {
   }
   bool MainWindow::saveFile(const QString &fileName) {
     QFile file(fileName);
-    if (!file.open(QFile::WriteOnly))
-    {
+    if (!file.open(QFile::WriteOnly)) {
       QMessageBox::warning(this, tr("Application"), tr("Cannot write file %1:\n%2.") .arg(fileName) .arg(file.errorString()));
       return false;
     }

@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   - current state of work
+ *
+ *   Revision 1.2  2010/11/14 20:39:37  wrabe
  *   - save current developent state
  *
  *   Revision 1.1  2010/11/11 15:35:59  wrabe
@@ -43,42 +46,37 @@
 #include "constants.h"
 #include "QFT232DeviceManager.h"
 #include "QCCHelper.h"
+#include "QExtTimer.h"
 
 namespace lpzrobots {
 
-  class QExtTimer : public QTimer {
+  struct XBeeLocalNode_t {
+      XBeeLocalNode_t(){
+        type = 0;
+        hardwareVersion = 0;
+        rf_channel = 0x10000;  // Parameter Range: 0x0B - 0x1A (XBee) , 0x0C - 0x17 (XBee-PRO)
+        pan_identifier = 0x10000;         // Parameter Range: 0 - 0xFFFF
+      };
+      uint16  hardwareVersion;
+      uint    type;
+      uint    rf_channel;
+      uint    pan_identifier;
+  };
 
-    Q_OBJECT
-
+  struct DNSDevice_t {
     public:
-      QExtTimer() :
-        QTimer() {
-        connect(this, SIGNAL(timeout()), this, SLOT(sl_timeout()));
-      }
+      QString dns_name;
+  };
 
-      virtual ~QExtTimer() {
-      }
-
-      virtual void start(int msec, uint eventId) {
-        this->eventId = eventId;
-        QTimer::start(msec);
-      }
-      virtual void start(uint eventId) {
-        this->eventId = eventId;
-        QTimer::start();
-      }
-
-    public slots:
-      virtual void sl_timeout() {
-        emit timeout(eventId);
-      }
-
-    signals:
-      void timeout(uint eventId);
-
-    private:
-      uint eventId;
-
+  struct XBeeRemoteNode_t : public DNSDevice_t {
+    public:
+      XBeeRemoteNode_t(){
+        address16 = 0xFFFE;
+        address64 = 0x000000000000FFFF;
+      };
+      QString Identifier;
+      uint16  address16;
+      uint64  address64;
   };
   
   class QCommunicationChannel : public QObject {
@@ -86,45 +84,72 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
-      QCommunicationChannel();
+      QCommunicationChannel(QString usbDeviceName);
       virtual ~QCommunicationChannel();
 
-      virtual QStringList getUsbDeviceList();
-      void scanUsbDevices();
+      void close();
+      QString getCCTypeString();
+      void scanDNSDevices();
+      QStringList getDNSDeviceList();
+      bool isDeviceInitialised();
+      QCCHelper::usbDeviceType_t getUSBDeviceType();
+      QString getUSBDeviceName();
+
+    protected:
+      enum timerEvent_t {
+        EVENT_TIMEOUT_GENERAL,
+        EVENT_TIMEOUT_INITIALISE,
+        EVENT_TIMEOUT_NODEDISCOVER
+      };
 
     signals:
       void sig_TextLog(QString);
+      void sig_cc_initalised();
+      void sig_cc_dns_name_resolved(QCommunicationChannel* cc);
 
     private slots:
       void sl_ResponseTimerExpired(uint eventId);
-      void sl_messageReceived(QByteArray received_msg, QFT232DeviceManager *usbDeviceManager);
+      void sl_messageReceived(QByteArray received_msg);
+      void sl_XBee_ReadDnsNames_Delayed();
+      void sl_switchResetOff();
+
 
     private:
 
+      void openUsbDevice(QString usbDeviceName);
+
       void sleep(ulong msecs);
+      void clearXbeeRemoteList();
 
-      void send_XBeeATND();
       void send_XBeeCommand(QByteArray command);
-      void send_XBeeRemoteCommand(QByteArray command);
-      void send_ECB_Reset();
-      void dispatch_XbeeCommandResponse(QByteArray receiveBuffer);
+      void send_XBeeRemoteCommand(QByteArray command, struct XBeeRemoteNode_t* node);
+      void send_ECB_Reset(struct XBeeRemoteNode_t* node);
 
-      void printMessage(QByteArray data);
+      void printMessage(QString s, QByteArray data);
       void clear_usbDeviceManagerList();
 
-      QList<QFT232DeviceManager*> usbDeviceManagerList;
-      QFT232DeviceManager static_usbDeviceManager;
+      void dispatch_isp(QByteArray received_msg);
+      void dispatch_usart(QByteArray received_msg);
+      void dispatch_xbee(QByteArray received_msg);
+      void dispatch_xbee_command(QByteArray received_command);
+
+      QFT232DeviceManager usbDeviceManager;
       QExtTimer responseTimer;
 
       QByteArray transmitBuffer;
       QByteArray temporaryFlashBuffer;
       QByte transmitBufferCheckSum;
-      QWord USBDeviceXBeeType;
       QWord ECB_OperationRetriesMax;
       QWord ECB_OperationRetries;
-      quint16 ECB_XBeeAddress16;
-      quint64 ECB_XBeeAddress64;
+      QCCHelper::typeInitialisedState initialisedState;
+      QList<DNSDevice_t*> dnsDeviceList;
+      QCCHelper::usbDeviceType_t usbDeviceType;
 
+
+      struct XBeeLocalNode_t xbee;
+      QList<XBeeRemoteNode_t*> xbeeRemoteNodeList;
+
+      struct XBeeRemoteNode_t* resetted_xbee;
 
   };
 

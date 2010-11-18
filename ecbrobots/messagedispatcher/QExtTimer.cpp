@@ -26,75 +26,36 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   Revision 1.1  2010-11-18 16:58:18  wrabe
  *   - current state of work
  *
- *   Revision 1.2  2010/11/14 20:39:37  wrabe
- *   - save current developent state
- *
- *   Revision 1.1  2010/11/11 15:35:59  wrabe
- *   -current development state of QMessageDispatchServer
- *   -introduction of QCommunicationChannels and QCCHelper
- *                                            *
  *                                                                         *
  ***************************************************************************/
 
-#ifndef QECBMESSAGEDISPATCHSERVER_H_
-#define QECBMESSAGEDISPATCHSERVER_H_
-#include <QObject>
-#include <QList>
-#include <QHash>
-#include "types.h"
-#include "constants.h"
-#include "QFT232DeviceManager.h"
-#include "QAbstractMessageClient.h"
-#include "QAbstractMessageDispatchServer.h"
-#include "QCommunicationChannel.h"
+#include "QExtTimer.h"
 
 namespace lpzrobots {
+  
+  QExtTimer::QExtTimer() :
+    QTimer() {
+    connect(this, SIGNAL(timeout()), this, SLOT(sl_timeout()));
+  }
 
-  class QECBMessageDispatchServer : public QAbstractMessageDispatchServer {
-
-    Q_OBJECT
-
-    public:
-
-      QECBMessageDispatchServer();
-      virtual ~QECBMessageDispatchServer();
-
-      void scanUsbDevices();
+  QExtTimer::~QExtTimer() {}
 
 
-    signals:
-      void sig_messageReceived(struct _communicationMessage msg);
-      void sig_TextLog(QString sText);
-      void sig_quitServer();
+  void QExtTimer::start(int msec, uint eventId) {
+    this->eventId = eventId;
+    QTimer::start(msec);
+  }
+  
+  void QExtTimer::start(uint eventId) {
+    this->eventId = eventId;
+    QTimer::start();
+  }
 
 
-    public slots:
-      virtual void sl_sendMessage(struct _communicationMessage msg);
-      virtual void sl_Initialize();
-      virtual void sl_CCIsInitialised();
-      virtual void sl_scanDNSDevicesComplete(QCommunicationChannel* cc);
-      virtual void sl_printDNSDeviceToQCCMap();
-
-    private:
-      void clear_usbDeviceManagerList();
-
-      QList<QCommunicationChannel*> commChannelList;
-      QFT232DeviceManager static_usbDeviceManager;
-
-      QStringList dnsDeviceList;
-      int notYetInitialisedCCs;
-
-      /**
-       * key = dnsDeviceName
-       * value = pointer to corresponding QCC
-       */
-      QHash<QString, QCommunicationChannel*> dnsDeviceToQCCMap;
-
-  };
-
-} // namespace lpzrobots
-
-#endif /* QECBMESSAGEDISPATCHSERVER_H_ */
+  void QExtTimer::sl_timeout() {
+    emit timeout(eventId);
+  }
+}

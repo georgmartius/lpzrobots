@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   - current state of work
+ *
+ *   Revision 1.2  2010/11/14 20:39:37  wrabe
  *   - save current developent state
  *
  *   Revision 1.1  2010/11/11 15:35:59  wrabe
@@ -43,9 +46,8 @@
 namespace lpzrobots {
 
   QECBMessageDispatchServer::QECBMessageDispatchServer() :
-    QAbstractMessageDispatchServer() {
+    QAbstractMessageDispatchServer(), notYetInitialisedCCs(0) {
 
-    connect(&commchannel, SIGNAL(sig_TextLog(QString)), this, SIGNAL(sig_TextLog(QString)));
     QTimer::singleShot(1, this, SLOT(sl_Initialize()));
   }
 
@@ -60,386 +62,90 @@ namespace lpzrobots {
   void QECBMessageDispatchServer::sl_sendMessage(struct _communicationMessage msg) {
   }
 
-
-  void QECBMessageDispatchServer::scanUsbDevices(){
-    commchannel.scanUsbDevices();
+  void QECBMessageDispatchServer::clear_usbDeviceManagerList() {
+    foreach(QCommunicationChannel* commChannel, commChannelList)
+      {
+        commChannel->close();
+        disconnect(commChannel, SIGNAL(sig_TextLog(QString)));
+        disconnect(commChannel, SIGNAL(sig_cc_initalised()));
+        disconnect(commChannel, SIGNAL(sig_cc_dns_name_resolved(QCommunicationChannel*)));
+        delete (commChannel);
+        commChannelList.removeOne(commChannel);
+      }
+    dnsDeviceList.clear();
   }
 
+  void QECBMessageDispatchServer::scanUsbDevices() {
+    clear_usbDeviceManagerList();
+    QStringList usbDeviceNameList = static_usbDeviceManager.getDeviceList();
+    emit
+    sig_TextLog("number USB-Devices found " + QString::number(usbDeviceNameList.length()));
+    notYetInitialisedCCs = usbDeviceNameList.length();
+    foreach (QString usbDeviceName, usbDeviceNameList)
+      {
+        //TODO:
+        if (debug)
+          emit sig_TextLog(usbDeviceName);
 
-/*
- void QECBMessageDispatchServer::sl_receiveMessageFromUsbDeviceManager(QString usbDeviceName, QByteArray received_msg)
- {
- if(usbDeviceName.startsWith("USB-ISP-Adapter"))
- {
- // Stoppe TransmitTimer
- timer->stop();
+        QCommunicationChannel* commChannel = new QCommunicationChannel(usbDeviceName);
+        commChannelList.append(commChannel);
+        connect(commChannel, SIGNAL(sig_TextLog(QString)), this, SIGNAL(sig_TextLog(QString)));
+        connect(commChannel, SIGNAL(sig_cc_initalised()), this, SLOT(sl_CCIsInitialised()));
+        connect(commChannel, SIGNAL(sig_cc_dns_name_resolved(QCommunicationChannel*)), this, SLOT(sl_scanDNSDevicesComplete(QCommunicationChannel*)));
+      }
+  }
 
- // Eine Nachricht vom USB-ISP-Programmer wurde empfangen
- // ----------------------
- // 0x00 - StartDelemiter
- // 0x01 - Length_HighByte
- // 0x02 - Length_LowByte
- // 0x03 - API-Identifier
- // ----------------------
- // 0x04 - MsgGroup
- // 0x05 - MsgCode
- // 0x06 - data/params...
+  void QECBMessageDispatchServer::sl_CCIsInitialised() {
+    if (debug)
+    emit sig_TextLog("Another one QCC has been initialised, still pending: " + QString::number(notYetInitialisedCCs-1));
+    if (--notYetInitialisedCCs == 0) {
+      if (debug)
+        emit sig_TextLog("All QCC initialised.");
+      // all QCC are initialised, now they have to get their available DNSDevices.
+      foreach (QCommunicationChannel* cc, commChannelList)
+        {
+          if (!cc->isDeviceInitialised())
+            continue; // skip QCC
+          QStringList deviceTypeStringList;
+          QString deviceTypeString = cc->getCCTypeString();
+          if (!deviceTypeStringList.contains(deviceTypeString)) {
+            deviceTypeStringList.append(deviceTypeString);
+            cc->scanDNSDevices();
+            // signaling when ready with sl_scanDNSDevicesComplete(QCommunicationChannel* cc);
+          }
+          // wenn doppelt, kein scanDNSDevices aufrufen
+        }
+    }
+  }
 
- QByte msgApiIdentifier = received_msg[3];
- if (msgApiIdentifier == Api_ISP_TransmitBootloader || msgApiIdentifier == Api_ISP_TransmitFirmware)
- {
- QByte msgGroup = received_msg[4];
- switch (msgGroup)
- {
- default:
- emit sig_TextLog("<DispatchMessage_ISP> unknown message received");
- break;
- }
- }// if(ApiIdentifier)
- }else
- if(usbDeviceName.startsWith("USB-USART-Adapter") || usbDeviceName.startsWith("USB-XBEE-Adapter"))
- {
- // Stoppe TransmitTimer
- timer->stop();
+  void QECBMessageDispatchServer::sl_scanDNSDevicesComplete(QCommunicationChannel* cc) {
+    QStringList DNSdeviceList = cc->getDNSDeviceList();
+    dnsDeviceList.append(DNSdeviceList); // for log purposes
+    foreach(QString dnsDevice, DNSdeviceList) {
+      // take the fastest one, USART or XBee?
+      if (dnsDeviceToQCCMap.contains(dnsDevice)) {
+        if (cc->getUSBDeviceType()== QCCHelper::USBDevice_USART_ADAPTER) { // replace!
+          dnsDeviceToQCCMap.remove(dnsDevice);
+          dnsDeviceToQCCMap.insert(dnsDevice,cc);
+        }
+        // else do not replace!
+        // if (dnsDeviceToQCCMap[dnsDevice]->getUSBDeviceType()== QCCHelper::USBDevice_USART_ADAPTER) not needed to check
+      }
+      else { // not in list yet
+        dnsDeviceToQCCMap.insert(dnsDevice,cc);
+      }
+    }
+    // in Liste eintragen cc->getDNSDevices():
+  }
 
- // Eine Nachricht vom Microcontroller wurde empfangen
- // --------------------------------------------------
- //  0 QByte StartDelimiter;
- //  1 QByte Length_MSB;
- //  2 QByte Length_LSB;
- //  3 QByte API_ID;
- //  4 ...
-
- uint msgApi_Id = received_msg[3];
- QByteArray received_msg;
- switch (msgApi_Id)
- {
- case API_XBee_AT_Command_Response:
- bl_MessageHandler_XBeeCommandResponse(receiveBuffer);
- break;
- case API_Cable_TransmitReceive:
- // Eine Nachricht vom USB-ISP-Programmer wurde empfangen
- // ----------------------
- // 0x00 - StartDelemiter
- // 0x01 - Length_HighByte
- // 0x02 - Length_LowByte
- // ----------------------
- // 0x03 - API-Identifier
- // ----------------------
- // 0x04 - MsgGroup
- // 0x05 - MsgCode
- // 0x06 - data/params...
- // ----------------------
- bl_MessageHandler_Bootloader(receiveBuffer.mid(0x04));
- break;
- case API_XBee_Receive_Packet_16Bit:
- // Eine Nachricht vom USB-ISP-Programmer wurde empfangen
- // ----------------------
- // 0x00 - StartDelemiter
- // 0x01 - Length_HighByte
- // 0x02 - Length_LowByte
- // ----------------------
- // 0x03 - API-Identifier
- // 0x04 - sourceAddress16_1
- // 0x05 - sourceAddress16_0
- // 0x06 - rssi
- // 0x07 - options
- // ----------------------
- // 0x08 - MsgGroup
- // 0x09 - MsgCode
- // 0x0A - data/params...
- // ----------------------
- bl_MessageHandler_Bootloader(receiveBuffer.mid(0x08));
- break;
- case API_XBeeS2_ZigBee_Receive_Packet:
- // Eine Nachricht vom USB-ISP-Programmer wurde empfangen
- // ----------------------
- // 0x00 - StartDelemiter
- // 0x01 - Length_HighByte
- // 0x02 - Length_LowByte
- // ----------------------
- // 0x03 - API-Identifier
- // 0x04 - sourceAddress64_7
- // 0x05 - sourceAddress64_6
- // 0x06 - sourceAddress64_5
- // 0x07 - sourceAddress64_4
- // 0x08 - sourceAddress64_3
- // 0x09 - sourceAddress64_2
- // 0x0A - sourceAddress64_1
- // 0x0B - sourceAddress64_0
- // 0x0C - sourceAddress16_1
- // 0x0D - sourceAddress16_0
- // 0x0E - options
- // ----------------------
- // 0x0F - MsgGroup
- // 0x10 - MsgCode
- // 0x11 - data/params...
- // ----------------------
- bl_MessageHandler_Bootloader(receiveBuffer.mid(0x0F));
- break;
- default:
- {
- QString s;
- s.append(QString::number((QByte) (msgApi_Id >> 4) & 0x0F, 16).toUpper());
- s.append(QString::number((QByte) (msgApi_Id >> 0) & 0x0F, 16).toUpper());
- emit sig_TextLog("Unknown Api-Code = 0x" + s + " received.");
- printBuffer(receiveBuffer);
- return;
- }
- } //end switch api
- }
- }
-
- void QECBMessageDispatchServer::printBuffer(QByteArray buffer) {
- QString hex;
- QString line;
-
- for (int i = 0; i < buffer.length(); i++)
- {
- line.append(QString::number((buffer[i] >> 4) & 0x0F, 16).toUpper());
- line.append(QString::number((buffer[i] >> 0) & 0x0F, 16).toUpper());
- line.append(" ");
- }
- emit sig_TextLog(line);
- }
-
-
- void QECBMessageDispatchServer::push_Frame(uchar c) {
- transmitBuffer.append(c);
- }
- void QECBMessageDispatchServer::push_FrameEscaped(uchar c) {
- // Von der Prüfsumme ausgeschlossen sind das Startsymbol und das Längenfeld,
- // deswegen erst ab dem 3. Zeichen die Prüfsumme bilden!
- if (2 < transmitBuffer.length())
- transmitBufferCheckSum += c;
-
- // Ist fuer dieses Zeichen eine Ausnahmebehandlung notwendig?
- if (c == 0x7E || c == 0x7D || c == 0x13 || c == 0x11)
- {
- transmitBuffer.append(0x7D);
- transmitBuffer.append((QByte) (c ^ 0x20));
- } else
- {
- transmitBuffer.append(c);
- }
- }
- bool QECBMessageDispatchServer::transmit(QFT232DeviceManager *ft232manager) {
- // Schreibe die Prüfsumme
- push_FrameEscaped((QByte) (255 - transmitBufferCheckSum % 256));
- // Gebe die Nachricht ueber den Seriellen-Port aus
- bool ret = ft232manager->writeData(transmitBuffer) == 0 ? true : false;
-
- //panelLogView->appendLogViewText("OUT:");
- //printBuffer(transmitBuffer);
-
- // Loesche nun den Übertragungs-Puffer und Reinitialisiere die benötigten Variablen
- transmitBufferCheckSum = 0;
- transmitBuffer.clear();
- timer->start(3000);
- return ret;
- }
- void QECBMessageDispatchServer::send_Message(QFT232DeviceManager *ft232manager, QByteArray command) {
- QWord length = command.length();
-
- push_Frame(0x7E); // Startsymbol
- push_FrameEscaped((QByte) (length >> 8)); // Length MSB
- push_FrameEscaped((QByte) (length >> 0)); // Length LSB
- for (int i = 0; i < length; i++)
- push_FrameEscaped(command[i]);
- transmit(ft232manager);
- timerParams = transmitTimerLastAction_SendMessageRaw;
-
- }
- void QECBMessageDispatchServer::send_Message(uchar msgCode, uchar msgParam1, uchar msgParam2, uchar msgParam3, uchar msgParam4) {
- switch (applicationMode)
- {
- case APPLICATION_MODE_ISP_Adapter:
- {
- push_Frame(0x7E); // Startsymbol
- push_FrameEscaped(0x00); // Length MSB
- push_FrameEscaped(0x05); // Length LSB
- push_FrameEscaped(msgCode); // MSG_Code
- push_FrameEscaped(msgParam1); // PARAMETER1
- push_FrameEscaped(msgParam2); // PARAMETER2
- push_FrameEscaped(msgParam3); // PARAMETER3
- push_FrameEscaped(msgParam4); // PARAMETER4
- transmit();
- timerParams = transmitTimerLastAction_SendMessageISP;
- break;
- }
- case APPLICATION_MODE_USART_Adapter:
- {
- QWord length = 1 + 6;
-
- push_Frame(0x7E); //  1: Startsymbol
- push_FrameEscaped((QByte) (length >> 8)); //  2: Length MSB
- push_FrameEscaped((QByte) (length >> 0)); //  3: Length LSB
- push_FrameEscaped(0x20); //  4: API_ID - Cable
-
- // AnwenderDaten
- push_FrameEscaped(0x00); // MessageGroup_ID - immer 0 -> Bootloader
- push_FrameEscaped(msgCode); // MessageCode
- push_FrameEscaped(msgParam1); // MessageParameter_1
- push_FrameEscaped(msgParam2); // MessageParameter_2
- push_FrameEscaped(msgParam3); // MessageParameter_3
- push_FrameEscaped(msgParam4); // MessageParameter_4
- transmit();
- timerParams = transmitTimerLastAction_SendMessageBL;
- break;
- }
- case APPLICATION_MODE_XBEE_Adapter:
- {
- switch (USBDeviceXBeeType)
- {
- case XBeeType_Serie1:
- {
- QWord length = 5 + 6;
- push_Frame(0x7E); //  1: Startsymbol
- push_FrameEscaped((QByte) (length >> 8)); //  2: Length MSB
- push_FrameEscaped((QByte) (length >> 0)); //  3: Length LSB
- push_FrameEscaped(0x01); //  4: API-ID
- push_FrameEscaped(0x00); //  5: Frame-ID - immer 0 -> kein ResponsePaket vom XBee
- push_FrameEscaped((QByte) (ECB_XBeeAddress16 >> 8)); //  6: DestinationAddress MSB
- push_FrameEscaped((QByte) (ECB_XBeeAddress16 >> 0)); //  7: DestinationAddress LSB
- push_FrameEscaped(0x01); //  8: Options - immer 1  -> kein ResponsePaket vom XBee
- break;
- }
- case XBeeType_Serie2:
- {
- QWord length = 14 + 6;
- push_Frame(0x7E); //  1: Startsymbol
- push_FrameEscaped((QByte) (length >> 8)); //  2: Length MSB
- push_FrameEscaped((QByte) (length >> 0)); //  3: Length LSB
- push_FrameEscaped(0x10); //  4: API_ID - TransmitRequest XBeeSerie2
- push_FrameEscaped(0x00); //  5: Frame-ID - immer 0 -> kein ResponsePaket vom XBee
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 7 * 8)); //  6: 64_Bit_Destination_Network_Address
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 6 * 8)); //  7:
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 5 * 8)); //  8:
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 4 * 8)); //  9:
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 3 * 8)); // 10:
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 2 * 8)); // 11:
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 1 * 8)); // 12:
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 0 * 8)); // 13:
- push_FrameEscaped((QByte) (ECB_XBeeAddress16 >> 1 * 8)); // 14: 16_Bit_Destination_Network_Address
- push_FrameEscaped((QByte) (ECB_XBeeAddress16 >> 0 * 8)); // 15:
- push_FrameEscaped(0x00); // 16: Broadcast-Range
- push_FrameEscaped(0x01); // 17: OptionsByte - immer 1  -> kein ResponsePaket vom XBee
- break;
- }
- }//end switch
- // AnwenderDaten
- push_FrameEscaped(0x00); // MessageGroup_ID - immer 0 -> Bootloader
- push_FrameEscaped(msgCode); // MessageCode
- push_FrameEscaped(msgParam1); // MessageParameter_1
- push_FrameEscaped(msgParam2); // MessageParameter_2
- push_FrameEscaped(msgParam3); // MessageParameter_3
- push_FrameEscaped(msgParam4); // MessageParameter_4
- transmit();
- timerParams = transmitTimerLastAction_SendMessageBL;
- break;
- }
- }
- }*/
-/*void QECBMessageDispatchServer::send_Message(uchar msgCode, uchar msgParam1, uchar msgParam2, uchar msgParam3, uchar msgParam4, QByteArray pageBuffer) {
- switch (applicationMode)
- {
- case APPLICATION_MODE_ISP_Adapter:
- {
- int length = 5 + pageBuffer.length();
- push_Frame(0x7E); // Startsymbol
- push_FrameEscaped(length >> 8); // Length MSB
- push_FrameEscaped(length >> 0); // Length LSB
- push_FrameEscaped(msgCode); // MSG_Code
- push_FrameEscaped(msgParam1); // PARAMETER1
- push_FrameEscaped(msgParam2); // PARAMETER2
- push_FrameEscaped(msgParam3); // PARAMETER3
- push_FrameEscaped(msgParam4); // PARAMETER4
- // Die Page
- for (int i = 0; i < pageBuffer.length(); i++)
- push_FrameEscaped((QByte) pageBuffer[i]);
- transmit();
- timerParams = transmitTimerLastAction_SendMessageISP;
- break;
- }
- case APPLICATION_MODE_USART_Adapter:
- {
- int length = 1 + 6 + pageBuffer.length();
- push_Frame(0x7E); //  1: Startsymbol
- push_FrameEscaped((QByte) (length >> 8)); //  2: Length MSB
- push_FrameEscaped((QByte) (length >> 0)); //  3: Length LSB
- push_FrameEscaped(0x20); //  4: API_ID - Cable
- // AnwenderDaten
- push_FrameEscaped(0x00); // MessageGroup_ID - immer 0 -> Bootloader
- push_FrameEscaped(msgCode); // MessageCode
- push_FrameEscaped(msgParam1); // MessageParameter_1
- push_FrameEscaped(msgParam2); // MessageParameter_2
- push_FrameEscaped(msgParam3); // MessageParameter_3
- push_FrameEscaped(msgParam4); // MessageParameter_4
-
- // Die Page
- for (int i = 0; i < pageBuffer.length(); i++)
- push_FrameEscaped((QByte) pageBuffer[i]);
- transmit();
- timerParams = transmitTimerLastAction_SendMessageBL;
- break;
- }
- case APPLICATION_MODE_XBEE_Adapter:
- {
- switch (USBDeviceXBeeType)
- {
- case XBeeType_Serie1:
- {
- QWord length = 5 + 6 + pageBuffer.length();
- push_Frame(0x7E); //  1: Startsymbol
- push_FrameEscaped((QByte) (length >> 8)); //  2: Length MSB
- push_FrameEscaped((QByte) (length >> 0)); //  3: Length LSB
- push_FrameEscaped(0x01); //  4: API-ID
- push_FrameEscaped(0x00); //  5: Frame-ID - immer 0 -> kein ResponsePaket vom XBee
- push_FrameEscaped((QByte) (ECB_XBeeAddress16 >> 8)); //  6: DestinationAddress MSB
- push_FrameEscaped((QByte) (ECB_XBeeAddress16 >> 0)); //  7: DestinationAddress LSB
- push_FrameEscaped(0x01); //  8: Options - immer 1  -> kein ResponsePaket vom XBee
- break;
- }
- case XBeeType_Serie2:
- {
- QWord length = 14 + 6 + pageBuffer.length();
- push_Frame(0x7E); //  1: Startsymbol
- push_FrameEscaped((QByte) (length >> 8)); //  2: Length MSB
- push_FrameEscaped((QByte) (length >> 0)); //  3: Length LSB
- push_FrameEscaped(0x10); //  4: API_ID - TransmitRequest XBeeSerie2
- push_FrameEscaped(0x00); //  5: Frame-ID - immer 0 -> kein ResponsePaket vom XBee
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 7 * 8)); //  6: 64_Bit_Destination_Network_Address
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 6 * 8)); //  7:
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 5 * 8)); //  8:
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 4 * 8)); //  9:
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 3 * 8)); // 10:
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 2 * 8)); // 11:
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 1 * 8)); // 12:
- push_FrameEscaped((QByte) (ECB_XBeeAddress64 >> 0 * 8)); // 13:
- push_FrameEscaped((QByte) (ECB_XBeeAddress16 >> 1 * 8)); // 14: 16_Bit_Destination_Network_Address
- push_FrameEscaped((QByte) (ECB_XBeeAddress16 >> 0 * 8)); // 15:
- push_FrameEscaped(0x00); // 16: Broadcast-Range
- push_FrameEscaped(0x01); // 17: OptionsByte - immer 1  -> kein ResponsePaket vom XBee
- break;
- }
- }//end switch
- // AnwenderDaten
- push_FrameEscaped(0x00); // MessageGroup_ID - immer 0 -> Bootloader
- push_FrameEscaped(msgCode); // MessageCode
- push_FrameEscaped(msgParam1); // MessageParameter_1
- push_FrameEscaped(msgParam2); // MessageParameter_2
- push_FrameEscaped(msgParam3); // MessageParameter_3
- push_FrameEscaped(msgParam4); // MessageParameter_4
-
- // Die Page
- for (int i = 0; i < pageBuffer.length(); i++)
- push_FrameEscaped((QByte) pageBuffer[i]);
- transmit();
- timerParams = transmitTimerLastAction_SendMessageBL;
- break;
- }
- }
- }*/
+  void QECBMessageDispatchServer::sl_printDNSDeviceToQCCMap() {
+    if (dnsDeviceToQCCMap.isEmpty())
+      emit sig_TextLog("No DNS devices found!");
+    foreach(QString dnsDeviceName, dnsDeviceToQCCMap.keys()) {
+      // emit sig_TextLog("DNSDevice = " + dnsName + ", USBDevice = " + dnsDeviceToQCCMap[dnsDevice]->getUSBDeviceName());
+      emit sig_TextLog("[" + dnsDeviceName + "]->[" + dnsDeviceToQCCMap[dnsDeviceName]->getUSBDeviceName()+"]");
+    }
+  }
 
 } // namespace lpzrobots
 

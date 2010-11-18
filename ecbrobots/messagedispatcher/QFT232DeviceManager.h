@@ -33,7 +33,10 @@
  *  Empfang neuer Daten vom Port                                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   - current state of work
+ *
+ *   Revision 1.2  2010/11/14 20:39:37  wrabe
  *   - save current developent state
  *
  *   Revision 1.1  2010/11/11 15:35:59  wrabe
@@ -85,7 +88,7 @@ public:
 
 
 signals:
-    void sig_newData(QByteArray msg, QFT232DeviceManager *usbDeviceManager);
+    void sig_newData(QByteArray msg);
     void sig_TextLog(QString s);
     void sig_DeviceOpened();
 

@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   - current state of work
+ *
+ *   Revision 1.2  2010/11/14 20:39:37  wrabe
  *   - save current developent state
  *
  *   Revision 1.1  2010/11/11 15:35:59  wrabe
@@ -54,7 +57,23 @@ namespace lpzrobots {
       //      QCCHelper();
       //      virtual ~QCCHelper();
 
-      static int getUsbDeviceTaypeByName(QString usbDeviceName);
+      enum typeInitialisedState {
+        STATE_NOT_INITIALISED,
+        STATE_USBDEVICE_OPENED,
+        STATE_XBEE_WAIT_FOR_HV,
+        STATE_XBEE_WAIT_FOR_CHANNEL,
+        STATE_XBEE_WAIT_FOR_PANID,
+        STATE_INITIALISED
+      };
+
+      enum usbDeviceType_t {
+        USBDevice_None,
+        USBDevice_ISP_ADAPTER,
+        USBDevice_USART_ADAPTER,
+        USBDevice_XBEE_ADAPTER
+      };
+
+      static usbDeviceType_t getUsbDeviceTypeByName(QString usbDeviceName);
       static int getApplicationModeByName(QString usbDeviceName);
       static int getDefaultBaudrateByName(QString actDeviceName);
       static QByteArray toIspMessage(QByteArray msgToFormat);
@@ -64,48 +83,55 @@ namespace lpzrobots {
       static QByteArray toXBeeATCommand(QByteArray msgToFormat);
       static QByteArray toXBeeRemoteATCommand(QByteArray msgToFormat, uint16 address16, uint64 address64);
 
-      static QString toHexNumberString(uint64 value, uint numberDigits);
 
-      enum ENUM_USB_DEVICE_TYPE {
-          USBDevice_None    = 0,
-          USBDevice_ISP_ADAPTER   = 1,
-          USBDevice_USART_ADAPTER = 2,
-          USBDevice_XBEE_ADAPTER  = 3
+      static QString toHexNumberString(uint64 value, uint numberDigits);
+      static QString getInitialisedStateString(typeInitialisedState initialisedState);
+
+
+      enum ENUM_MSGGOUPS {
+        MsgGroup_ECB_ROBOT_FIRMWARE = 0x01
       };
 
       enum ENUM_MSGCODES {
-          MsgCode_ECB_DNSName_Read = 0x30
+        MsgCode_ECB_DNSName_Read = 0x30
+      };
+
+      enum ENUM_XBEETYPE {
+        XBeeType_UNKNOWN = 0, XBeeType_SERIE_1 = 1, XBeeType_SERIE_2 = 2
       };
 
       enum ENUM_API_IDENTIFIER {
-           API_Cable_TransmitReceive                            = 0x20,
-          //---------------------------------------------------------------
-          // XBee-RF-Modul Serie 1 - API-Identifier
-           API_XBee_Modem_Status                                = 0x8A,
-           API_XBee_AT_Command                                  = 0x08,
-           API_XBee_AT_Command_Queue_Parameter_Value            = 0x09,
-           API_XBee_AT_Command_Response                         = 0x88,
-           API_XBee_Remote_AT_Command_Request                   = 0x17,
-           API_XBee_Remote_AT_Command_Response                  = 0x97,
-          //---------------------------------------------------------------
-           API_XBeeS1_Transmit_Request_64Bit                    = 0x00,
-           API_XBeeS1_Transmit_Request_16Bit                    = 0x01,
-           API_XBeeS1_Transmit_Status                           = 0x89,
-           API_XBeeS1_Receive_Packet_64Bit                      = 0x80,
-           API_XBeeS1_Receive_Packet_16Bit                      = 0x81,
-          //---------------------------------------------------------------
-          // XBee-RF-Modul Serie 2 - API-Identifier
-           API_XBeeS2_ZigBee_Transmit_Request                   = 0x10,
-           API_XBeeS2_Explicit_Addressing_ZigBee_Command_Frame  = 0x11,
-           API_XBeeS2_ZigBee_Transmit_Status                    = 0x8B,
-           API_XBeeS2_ZigBee_Receive_Packet                     = 0x90,
-           API_XBeeS2_ZigBee_Explicit_Rx_Indicator              = 0x91,
-           API_XBeeS2_ZigBee_IO_Data_Sample_Rx_Indicator        = 0x92,
-           API_XBeeS2_Sensor_Read_Indicator                     = 0x94,
-           API_XBeeS2_Node_Identification_Indicator             = 0x95
-          //---------------------------------------------------------------
+        API_Cable_TransmitReceive = 0x20,
+        //---------------------------------------------------------------
+        // XBee-RF-Modul Serie 1 - API-Identifier
+        API_XBee_Modem_Status = 0x8A,
+        API_XBee_AT_Command = 0x08,
+        API_XBee_AT_Command_Queue_Parameter_Value = 0x09,
+        API_XBee_AT_Command_Response = 0x88,
+        API_XBee_Remote_AT_Command_Request = 0x17,
+        API_XBee_Remote_AT_Command_Response = 0x97,
+        //---------------------------------------------------------------
+        API_XBeeS1_Transmit_Request_64Bit = 0x00,
+        API_XBeeS1_Transmit_Request_16Bit = 0x01,
+        API_XBeeS1_Transmit_Status = 0x89,
+        API_XBeeS1_Receive_Packet_64Bit = 0x80,
+        API_XBeeS1_Receive_Packet_16Bit = 0x81,
+        //---------------------------------------------------------------
+        // XBee-RF-Modul Serie 2 - API-Identifier
+        API_XBeeS2_ZigBee_Transmit_Request = 0x10,
+        API_XBeeS2_Explicit_Addressing_ZigBee_Command_Frame = 0x11,
+        API_XBeeS2_ZigBee_Transmit_Status = 0x8B,
+        API_XBeeS2_ZigBee_Receive_Packet = 0x90,
+        API_XBeeS2_ZigBee_Explicit_Rx_Indicator = 0x91,
+        API_XBeeS2_ZigBee_IO_Data_Sample_Rx_Indicator = 0x92,
+        API_XBeeS2_Sensor_Read_Indicator = 0x94,
+        API_XBeeS2_Node_Identification_Indicator = 0x95
+      //---------------------------------------------------------------
       };
 
+      enum XBEE_PARAMS_t {
+        XBEE_NODE_DISCOVER_TIME = 0 //2500
+      };
 
     private:
       static uchar checksum;

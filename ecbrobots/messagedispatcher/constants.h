@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   - current state of work
+ *
+ *   Revision 1.2  2010/11/14 20:39:37  wrabe
  *   - save current developent state
  *
  *   Revision 1.1  2010/11/11 15:35:59  wrabe
@@ -53,8 +56,10 @@
 //---------------------------------------------------------------
 // MessageCodes
 //---------------------------------------------------------------
-#define MsgCode_ECB_CommandResetCableMode                    0xFF
-#define MsgGroup_Identifier_ECBRobotFirmware                 0x00
+#define MsgCode_ECB_CommandResetCableMode          0xFF
+#define MsgGroup_Identifier_ECBRobotFirmware       0x01
+#define MsgGroup_Identifier_ISP_ADAPTER_BOOTLOADER 0x00
+#define MsgGroup_Identifier_ISP_ADAPTER_FIRMWARE   0x01
 //---------------------------------------------------------------
 
 
@@ -157,7 +162,7 @@
 //---------------------------------------------------------------------------------
 #define MsgCode_ECB_AtMega128_ResetCableMode                       0xFF
 //---------------------------------------------------------------------------------
-
+#define MsgCode_ECB_Command_get_DNS_Name                           0x30
 
 
 #endif /* CONSTANTS_H_ */

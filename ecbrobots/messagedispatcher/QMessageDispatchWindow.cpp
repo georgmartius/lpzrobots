@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   - current state of work
+ *
+ *   Revision 1.2  2010/11/14 20:39:37  wrabe
  *   - save current developent state
  *
  *   Revision 1.1  2010/11/11 15:35:59  wrabe
@@ -60,8 +63,8 @@ namespace lpzrobots {
     tabWidget->addTab(logView, tr("Report"));
     grid->addWidget(tabWidget, 0, 0);
 
-    setMinimumWidth(600);
-    setMaximumWidth(600);
+    setMinimumWidth(900);
+    setMaximumWidth(900);
 
     createActions();
     createMenus();
@@ -92,6 +95,19 @@ namespace lpzrobots {
     action_ScanUsbDevices->setEnabled(true);
     connect(action_ScanUsbDevices, SIGNAL(triggered(int)), this, SLOT(sl_eventHandler(int)));
 
+    action_ClearLogView = new QExtAction(EVENT_APPLICATION_LOGVIEW_CLEAR, tr("Clear"), this);
+    action_ClearLogView->setStatusTip(tr("Remove all the text-lines from LogView."));
+    action_ClearLogView->setShortcut(Qt::Key_C | Qt::CTRL | Qt::SHIFT);
+    action_ClearLogView->setEnabled(true);
+    connect(action_ClearLogView, SIGNAL(triggered(int)), this, SLOT(sl_eventHandler(int)));
+
+    action_PrintDNSTable = new QExtAction(EVENT_APPLICATION_PRINT_DNS_TABLE, tr("Printout DNS-Table"), this);
+    action_PrintDNSTable->setStatusTip(tr("Prints out the DNS-Table ([dnsName]->[usbDeviceName])."));
+    action_PrintDNSTable->setShortcut(Qt::Key_P | Qt::CTRL);
+    action_PrintDNSTable->setEnabled(true);
+    connect(action_PrintDNSTable, SIGNAL(triggered()), &messageDispatcher, SLOT(sl_printDNSDeviceToQCCMap()));
+
+
     action_Exit = new QExtAction(EVENT_APPLICATION_CLOSE, tr("&Quit"), this);
     action_Exit->setShortcut(tr("Ctrl+Q"));
     action_Exit->setStatusTip(tr("Exit the application"));
@@ -112,6 +128,8 @@ namespace lpzrobots {
       default: {
         menu_File = menuBar()->addMenu(tr("&File"));
         menu_File->addAction(action_ScanUsbDevices);
+        menu_File->addAction(action_PrintDNSTable);
+        menu_File->addAction(action_ClearLogView);
         menu_File->addSeparator();
         menu_File->addAction(action_Exit);
 
