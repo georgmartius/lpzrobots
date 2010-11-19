@@ -9,3 +9,4 @@ application.settings
 Makefile
 ecbrobots.settings
 messagedispatcher.settings
+log.settings

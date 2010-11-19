@@ -26,80 +26,101 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   Revision 1.1  2010-11-19 15:15:00  guettler
  *   - new QLog feature
  *   - bugfixes
  *   - FT232Manager is now in lpzrobots namespace
  *   - some cleanups
  *
- *   Revision 1.3  2010/11/18 16:58:18  wrabe
- *   - current state of work
- *
- *   Revision 1.2  2010/11/14 20:39:37  wrabe
- *   - save current developent state
- *
- *   Revision 1.1  2010/11/11 15:35:59  wrabe
- *   -current development state of QMessageDispatchServer
- *   -introduction of QCommunicationChannels and QCCHelper
- *                                            *
  *                                                                         *
  ***************************************************************************/
 
-#ifndef QECBMESSAGEDISPATCHSERVER_H_
-#define QECBMESSAGEDISPATCHSERVER_H_
+#ifndef __QLOG_H_
+#define __QLOG_H_
+
 #include <QObject>
-#include <QList>
-#include <QHash>
-#include "types.h"
-#include "constants.h"
-#include "QFT232DeviceManager.h"
-#include "QAbstractMessageClient.h"
-#include "QAbstractMessageDispatchServer.h"
-#include "QCommunicationChannel.h"
+
+class QMenu;
+class QString;
 
 namespace lpzrobots {
+  
+  class QExtAction;
 
-  class QECBMessageDispatchServer : public QAbstractMessageDispatchServer {
-
+  /**
+   * Singleton class. Should be instantiated by the object which is responsible for
+   * displaying the log.
+   */
+  class QLog : public QObject {
     Q_OBJECT
 
     public:
+      QLog(QString applicationPath = "./");
 
-      QECBMessageDispatchServer();
-      virtual ~QECBMessageDispatchServer();
+      virtual ~QLog();
 
-      void scanUsbDevices();
-
-
-    signals:
-      void sig_messageReceived(struct _communicationMessage msg);
-      void sig_quitServer();
-
-
-    public slots:
-      virtual void sl_sendMessage(struct _communicationMessage msg);
-      virtual void sl_Initialize();
-      virtual void sl_CCIsInitialised();
-      virtual void sl_scanDNSDevicesComplete(QCommunicationChannel* cc);
-      virtual void sl_printDNSDeviceToQCCMap();
-
-    private:
-      void clear_usbDeviceManagerList();
-
-      QList<QCommunicationChannel*> commChannelList;
-      QFT232DeviceManager static_usbDeviceManager;
-
-      QStringList dnsDeviceList;
-      int notYetInitialisedCCs;
+      enum LOG_TYPE {
+        LOG_ERROR, LOG_WARNING, LOG_VERBOSE, LOG_DEBUG,
+      };
 
       /**
-       * key = dnsDeviceName
-       * value = pointer to corresponding QCC
+       * @param given QString will be forwarded to the log window (via sig_textLog)
+       * @param determines which type of log is made (error, warningOutput, verboseOutput, debug)
        */
-      QHash<QString, QCommunicationChannel*> dnsDeviceToQCCMap;
+      static void textLog(QString log, LOG_TYPE logType = LOG_VERBOSE);
 
+      static void logError(QString log);
+      static void logWarning(QString log);
+      static void logVerbose(QString log);
+      static void logDebug(QString log);
+
+      /**
+       * In order to toggle the log outputs this method adds all needed actions to the given menu.
+       * So you don't need to take care about the actions and their signals
+       * @param menu
+       */
+      void addActionsToMenu(QMenu* menu);
+
+    signals:
+      /**
+       * if emitted, given QString will be forwarded to the log window which instantiates this class
+       */
+      void sig_textLog(QString log);
+
+    protected:
+      bool warningOutput;
+      bool verboseOutput;
+      bool debugOutput;
+
+      static QLog* instance; // Singleton instance
+
+      QString applicationPath;
+
+      QExtAction* action_SwitchWarning;
+      QExtAction* action_SwitchVerbose;
+      QExtAction* action_SwitchDebug;
+
+      enum ACTION_EVENT {
+        EVENT_SWITCH_WARNING, EVENT_SWITCH_VERBOSE, EVENT_SWITCH_DEBUG
+      };
+
+      /**
+       * Returns the singleton instance of this class.
+       * If not exists, it will be created (but logs are not forwarded).
+       * @return
+       */
+      static QLog* getInstance();
+
+      void createActions();
+
+      void readSettings();
+      void writeSettings();
+
+    protected slots:
+
+      void sl_GUIEventHandler(int eventCode);
   };
 
-} // namespace lpzrobots
+}
 
-#endif /* QECBMESSAGEDISPATCHSERVER_H_ */
+#endif /* __QLOG_H_ */

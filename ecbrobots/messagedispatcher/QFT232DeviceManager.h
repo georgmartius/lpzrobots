@@ -33,7 +33,13 @@
  *  Empfang neuer Daten vom Port                                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   - new QLog feature
+ *   - bugfixes
+ *   - FT232Manager is now in lpzrobots namespace
+ *   - some cleanups
+ *
+ *   Revision 1.3  2010/11/18 16:58:18  wrabe
  *   - current state of work
  *
  *   Revision 1.2  2010/11/14 20:39:37  wrabe
@@ -56,54 +62,62 @@
 #include "constants.h"
 #include "types.h"
 
+namespace lpzrobots {
 
-class QFT232DeviceManager : public QThread
-{
-	  Q_OBJECT
+  class QFT232DeviceManager : public QThread {
+    Q_OBJECT
 
-public:
-	QFT232DeviceManager();
-    virtual ~QFT232DeviceManager();
-    virtual void run();
+    public:
+      QFT232DeviceManager();
+      virtual ~QFT232DeviceManager();
+      virtual void run();
 
-    void createDeviceList();
-    QStringList getDeviceList();
-    int openDevice(struct usb_device* usb_dev, int baudrate);
-    int openDeviceByName(QString usb_deviceName_to_open, int baudrate_to_use);
-    int setBaudrate(int baudrate_to_set);
-    int setLatencyTimer(int latency_to_set);
-    int setDTR(int dtr_val);
-    int closeDevice();
+      void createDeviceList();
+      QStringList getDeviceList();
+      int openDevice(struct usb_device* usb_dev, int baudrate);
+      int openDeviceByName(QString usb_deviceName_to_open, int baudrate_to_use);
+      int setBaudrate(int baudrate_to_set);
+      int setLatencyTimer(int latency_to_set);
+      int setDTR(int dtr_val);
+      int closeDevice();
 
-    bool isDeviceAvailable(QString deviceName);
-    bool isDeviceOpened() {return opened;}
-    int getBaudrate(){ return baudrate; };
-    QString getDeviceName(){ return deviceName; };
-    int writeData(QByteArray msg);
+      bool isDeviceAvailable(QString deviceName);
+      bool isDeviceOpened() {
+        return opened;
+      }
+      int getBaudrate() {
+        return baudrate;
+      }
+      ;
+      QString getDeviceName() {
+        return deviceName;
+      }
+      ;
+      int writeData(QByteArray msg);
 
-    /*
-    void setDeviceName(QString name){ deviceName = name.toLatin1(); };
-    QString getDeviceName() {return deviceName;};
-     */
+      /*
+       void setDeviceName(QString name){ deviceName = name.toLatin1(); };
+       QString getDeviceName() {return deviceName;};
+       */
 
+    signals:
+      void sig_newData(QByteArray msg);
+      void sig_DeviceOpened();
 
-signals:
-    void sig_newData(QByteArray msg);
-    void sig_TextLog(QString s);
-    void sig_DeviceOpened();
+    private:
 
-private:
+      QString deviceName;
+      unsigned int baudrate;
+      QByteArray receiveBuffer;
+      volatile bool opened;
+      volatile bool runListener;
 
-  QString deviceName;
-  unsigned int baudrate;
-  QByteArray receiveBuffer;
-  volatile bool opened;
-  volatile bool runListener;
+      struct ftdi_context ftdic;
+      struct ftdi_device_list* devlist;
+      struct usb_device* usb_device_opened;
 
-  struct ftdi_context ftdic;
-  struct ftdi_device_list* devlist;
-  struct usb_device* usb_device_opened;
+  };
 
-};
+} // namespace lpzrobots
 
 #endif /* SERIALCOMMUNICATION_H_ */

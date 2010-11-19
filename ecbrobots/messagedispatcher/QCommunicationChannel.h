@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   - new QLog feature
+ *   - bugfixes
+ *   - FT232Manager is now in lpzrobots namespace
+ *   - some cleanups
+ *
+ *   Revision 1.3  2010/11/18 16:58:18  wrabe
  *   - current state of work
  *
  *   Revision 1.2  2010/11/14 20:39:37  wrabe
@@ -103,7 +109,6 @@ namespace lpzrobots {
       };
 
     signals:
-      void sig_TextLog(QString);
       void sig_cc_initalised();
       void sig_cc_dns_name_resolved(QCommunicationChannel* cc);
 

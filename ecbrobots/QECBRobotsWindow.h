@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   Revision 1.3  2010-11-19 15:15:00  guettler
+ *   - new QLog feature
+ *   - bugfixes
+ *   - FT232Manager is now in lpzrobots namespace
+ *   - some cleanups
+ *
+ *   Revision 1.2  2010/11/11 15:34:59  wrabe
  *   - some extensions for QMessageClient (e.g. quitServer())
  *   - fixed some includes
  *
@@ -85,11 +91,8 @@ namespace lpzrobots {
       void writeSettings();
       void sleep(ulong msecs);
 
-
       enum GUI_EVENT {
-        EVENT_SWITCH_WARNING,
-        EVENT_SWITCH_VERBOSE,
-        EVENT_SWITCH_DEBUG
+        EVENT_SWITCH_WARNING, EVENT_SWITCH_VERBOSE, EVENT_SWITCH_DEBUG
       };
 
       QString applicationPath;
@@ -121,8 +124,6 @@ namespace lpzrobots {
       QExtAction* action_SwitchWarning;
       QExtAction* action_SwitchVerbose;
       QExtAction* action_SwitchDebug;
-
-
 
   };
 

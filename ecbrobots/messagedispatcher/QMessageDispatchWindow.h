@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   - new QLog feature
+ *   - bugfixes
+ *   - FT232Manager is now in lpzrobots namespace
+ *   - some cleanups
+ *
+ *   Revision 1.3  2010/11/18 16:58:18  wrabe
  *   - current state of work
  *
  *   Revision 1.2  2010/11/14 20:39:37  wrabe
@@ -53,76 +59,79 @@
 #include "QECBMessageDispatchServer.h"
 #include "QAbstractMessageClient.h"
 #include "QExtAction.h"
+#include "QLog.h"
 #include "constants.h"
 
-namespace lpzrobots
-{
+namespace lpzrobots {
 
-  class QMessageDispatchWindow : public QMainWindow
-  {
+  class QMessageDispatchWindow : public QMainWindow {
 
-  Q_OBJECT
+    Q_OBJECT
 
-  public:
-    QMessageDispatchWindow(QString applicationPath);
-    virtual ~QMessageDispatchWindow();
+    public:
+      QMessageDispatchWindow(QString applicationPath);
+      virtual ~QMessageDispatchWindow();
 
-    virtual QAbstractMessageDispatchServer* getQMessageDispatchServer() {
-      return (QAbstractMessageDispatchServer*)&this->messageDispatcher;
-    }
-  protected:
-    void closeEvent(QCloseEvent *event);
+      virtual QAbstractMessageDispatchServer* getQMessageDispatchServer() {
+        return (QAbstractMessageDispatchServer*) &this->messageDispatcher;
+      }
 
-  signals:
-    void sig_quitServer();
+      enum LOG_TYPE {
+        LOG_ERROR, LOG_WARNING, LOG_VERBOSE, LOG_DEBUG,
+      };
 
-  private slots:
-    void sl_TextLog(QString s);
-    void sl_eventHandler(int eventCode);
+    protected:
+      void closeEvent(QCloseEvent *event);
 
-  private:
+    signals:
+      void sig_quitServer();
 
-    void createActions();
-    void createMenus(int applicationMode = APPLICATION_MODE_None);
-    void readSettings();
-    void writeSettings();
-    void sleep(ulong msecs);
+    private slots:
+      void sl_TextLog(QString s);
+      void sl_eventHandler(int eventCode);
 
-    // TODO:
-    // the future is to combine the two methods ...
-    // first is to rewrite the protocoll of the isp-adapter
-    void DispatchMessage(QByteArray msg);
+    private:
 
-    void setMode(int mode);
-    int getDefaultBaudrateByName(QString actDeviceName);
+      void createActions();
+      void createMenus(int applicationMode = APPLICATION_MODE_None);
+      void readSettings();
+      void writeSettings();
+      void sleep(ulong msecs);
 
-    QTabWidget *tabWidget;
-    QLogViewWidget *logView;
-    QECBMessageDispatchServer messageDispatcher;
+      // TODO:
+      // the future is to combine the two methods ...
+      // first is to rewrite the protocoll of the isp-adapter
+      void DispatchMessage(QByteArray msg);
 
-    QExtAction *action_Exit;
-    QExtAction *action_About;
-    QExtAction *action_ScanUsbDevices;
-    QExtAction *action_ClearLogView;
-    QExtAction *action_PrintDNSTable;
+      void setMode(int mode);
+      int getDefaultBaudrateByName(QString actDeviceName);
 
-    QMenu *menu_File;
-    QMenu *menu_Help;
+      QTabWidget *tabWidget;
+      QLogViewWidget *logView;
+      QECBMessageDispatchServer messageDispatcher;
+      QLog* qlog;
 
-    QString applicationPath;
+      QExtAction *action_Exit;
+      QExtAction *action_About;
+      QExtAction *action_ScanUsbDevices;
+      QExtAction *action_ClearLogView;
+      QExtAction *action_PrintDNSTable;
 
+      QMenu *menu_File;
+      QMenu *settingsMenu;
+      QMenu *menu_Help;
 
-    enum ACTION_EVENT {
+      QString applicationPath;
+
+      enum ACTION_EVENT {
+        //---------------------------------------
+        EVENT_APPLICATION_LOGVIEW_CLEAR,
+        EVENT_APPLICATION_CLOSE,
+        EVENT_APPLICATION_ABOUT,
+        EVENT_APPLICATION_SCAN_USBDEVICE,
+        EVENT_APPLICATION_PRINT_DNS_TABLE
       //---------------------------------------
-      EVENT_APPLICATION_LOGVIEW_CLEAR,
-      EVENT_APPLICATION_CLOSE,
-      EVENT_APPLICATION_ABOUT,
-      EVENT_APPLICATION_SCAN_USBDEVICE,
-      EVENT_APPLICATION_PRINT_DNS_TABLE
-      //---------------------------------------
-    };
-
-
+      };
 
   };
 

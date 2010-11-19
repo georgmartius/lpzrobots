@@ -218,6 +218,7 @@ int main(int argc, char *argv[]) {
   QECBRobotsWindow *ecbWindow = new QECBRobotsWindow(appPath.mid(0, appPath.lastIndexOf("/")+1), &ecbManager);
   QMessageDispatchWindow *messageDispatchWindow = new QMessageDispatchWindow(appPath.mid(0, appPath.lastIndexOf("/") + 1));
 
+  qRegisterMetaType<struct _communicationMessage>("_communicationMessage");
   QObject::connect(ecbManager.getGlobalData().comm, SIGNAL(sig_sendMessage(struct _communicationMessage)), messageDispatchWindow->getQMessageDispatchServer(),
       SLOT(sl_sendMessage(struct _communicationMessage)));
   QObject::connect(messageDispatchWindow->getQMessageDispatchServer(), SIGNAL(sig_messageReceived(struct _communicationMessage)), ecbManager.getGlobalData().comm,

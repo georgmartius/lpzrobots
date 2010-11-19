@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   - new QLog feature
+ *   - bugfixes
+ *   - FT232Manager is now in lpzrobots namespace
+ *   - some cleanups
+ *
+ *   Revision 1.3  2010/11/18 16:58:18  wrabe
  *   - current state of work
  *
  *   Revision 1.2  2010/11/14 20:39:37  wrabe
@@ -40,6 +46,7 @@
  ***************************************************************************/
 
 #include "QCommunicationChannel.h"
+#include "QLog.h"
 
 namespace lpzrobots {
   
@@ -47,7 +54,6 @@ namespace lpzrobots {
     initialisedState(QCCHelper::STATE_NOT_INITIALISED) {
     responseTimer.setInterval(2000);
     connect(&responseTimer, SIGNAL(timeout(uint)), this, SLOT(sl_ResponseTimerExpired(uint)));
-    connect(&usbDeviceManager, SIGNAL(sig_TextLog(QString)), this, SIGNAL(sig_TextLog(QString)));
     connect(&usbDeviceManager, SIGNAL(sig_newData(QByteArray)), this, SLOT(sl_messageReceived(QByteArray)));
     usbDeviceType = QCCHelper::getUsbDeviceTypeByName(usbDeviceName);
     openUsbDevice(usbDeviceName);
@@ -64,9 +70,7 @@ namespace lpzrobots {
       initialisedState = QCCHelper::STATE_USBDEVICE_OPENED;
       // XBee HV + XBee Channel + XBee PanID
       // über Signals und Slots abarbeiten!
-      //TODO:
-      if (debug)
-        emit sig_TextLog("usbDevice opended: " + usbDeviceName);
+      QLog::logDebug("usbDevice opended: " + usbDeviceName);
 
       switch (usbDeviceType) {
         case QCCHelper::USBDevice_ISP_ADAPTER: {
@@ -91,7 +95,7 @@ namespace lpzrobots {
           break;
         }
         default: {
-          emit sig_TextLog("unknown usb-device detected.");
+          QLog::logDebug("unknown usb-device detected.");
           emit sig_cc_initalised();
           break;
         }
@@ -104,7 +108,7 @@ namespace lpzrobots {
   void QCommunicationChannel::sl_ResponseTimerExpired(uint eventId) {
     switch (eventId) {
       case EVENT_TIMEOUT_INITIALISE:
-        emit sig_TextLog("["+usbDeviceManager.getDeviceName()+"] QCC initialisation timeout, state = " + QCCHelper::getInitialisedStateString(initialisedState));
+        QLog::logDebug("["+usbDeviceManager.getDeviceName()+"] QCC initialisation timeout, state = " + QCCHelper::getInitialisedStateString(initialisedState));
         emit sig_cc_initalised();
         break;
       case EVENT_TIMEOUT_NODEDISCOVER:
@@ -112,7 +116,7 @@ namespace lpzrobots {
         break;
       case EVENT_TIMEOUT_GENERAL:
       default:
-        emit sig_TextLog("General timeout (not handled!)");
+        QLog::logWarning("General timeout (not handled!)");
         break;
     }
   }
@@ -125,7 +129,6 @@ namespace lpzrobots {
 
   void QCommunicationChannel::close() {
     usbDeviceManager.closeDevice();
-    disconnect(&usbDeviceManager, SIGNAL(sig_TextLog(QString)));
     disconnect(&usbDeviceManager, SIGNAL(sig_newData(QByteArray)));
   }
 
@@ -171,9 +174,7 @@ namespace lpzrobots {
   void QCommunicationChannel::sl_XBee_ReadDnsNames_Delayed() {
     foreach(struct XBeeRemoteNode_t* xbeeRemoteNode, xbeeRemoteNodeList)
       {
-        //TODO:
-        if (debug)
-          emit sig_TextLog(usbDeviceManager.getDeviceName() + ":sl_XBee_ReadDnsNames_Delayed");
+        QLog::logDebug(usbDeviceManager.getDeviceName() + ":sl_XBee_ReadDnsNames_Delayed");
 
         if (usbDeviceType == QCCHelper::USBDevice_XBEE_ADAPTER) {
           switch (xbee.type) {
@@ -230,13 +231,11 @@ namespace lpzrobots {
           case QCCHelper::XBeeType_SERIE_1:
           case QCCHelper::XBeeType_SERIE_2: {
             if (node->address16 == 0xFFFE && node->address64 == 0x000000000000FFFF) {
-              emit sig_TextLog("Bitte erst einen Knoten waehlen!");
+              QLog::logWarning("Please select a node first!");
               return;
             }
 
-            //TODO:
-            if (debug)
-              emit sig_TextLog(usbDeviceManager.getDeviceName() + ":" + node->Identifier + ":reset");
+            QLog::logDebug(usbDeviceManager.getDeviceName() + ":" + node->Identifier + ":reset");
 
             QByteArray commandToSet_D0_high;
             commandToSet_D0_high.append((char) 'D');
@@ -277,13 +276,11 @@ namespace lpzrobots {
       line.append(QCCHelper::toHexNumberString(buffer[i], 2));
       line.append(" ");
     }
-    emit sig_TextLog(s + ": " + line);
+    QLog::logDebug(s + ": " + line);
   }
 
   void QCommunicationChannel::sl_messageReceived(QByteArray received_msg) {
-    //TODO:
-    if (debug)
-      printMessage(usbDeviceManager.getDeviceName() + "(" + QString::number(usbDeviceType) + ") :msgReceived ", received_msg);
+    printMessage(usbDeviceManager.getDeviceName() + "(" + QString::number(usbDeviceType) + ") :msgReceived ", received_msg);
     switch (usbDeviceType) {
       case QCCHelper::USBDevice_ISP_ADAPTER: {
         // Stoppe TransmitTimer
@@ -342,7 +339,7 @@ namespace lpzrobots {
                 // 0x05 - MsgCode_ResponsePaket
                 // 0x06 - MsgCode_IspProgrammer_Firmware_SoftwareVersionRead
                 // 0x07 - some chars ....
-                emit sig_TextLog("USB-ISP-Adapter: SoftwareVersion = " + QString(received_msg.mid(7, received_msg.length() - 6)));
+                QLog::logDebug("USB-ISP-Adapter: SoftwareVersion = " + QString(received_msg.mid(7, received_msg.length() - 6)));
                 break;
               }
               default:
@@ -390,8 +387,7 @@ namespace lpzrobots {
               QString line;
               line.append("[" + usbDeviceManager.getDeviceName() + "]");
               line.append("[" + dnsName + "]");
-              emit
-              sig_TextLog(line);
+              QLog::logDebug(line);
 
               emit sig_cc_initalised();
             }
@@ -411,8 +407,7 @@ namespace lpzrobots {
     uint api_Identifier = received_msg[3] & 0xFF;
 
     //TODO:
-    if (debug)
-      emit sig_TextLog(usbDeviceManager.getDeviceName() + ":dispatch_xbee: " + QString::number(api_Identifier, 16));
+    QLog::logDebug(usbDeviceManager.getDeviceName() + ":dispatch_xbee: " + QString::number(api_Identifier, 16));
 
     switch (api_Identifier) {
       case QCCHelper::API_XBee_AT_Command_Response: {
@@ -467,7 +462,7 @@ namespace lpzrobots {
                         line.append(QCCHelper::toHexNumberString(xbeeNode->address64, 16));
                         line.append(":" + xbeeNode->Identifier + "]");
                         line.append("[" + xbeeNode->dns_name + "]");
-                        emit sig_TextLog(line);
+                        QLog::logDebug(line);
                       }
                     }
                 }
@@ -539,7 +534,7 @@ namespace lpzrobots {
                         line.append(QCCHelper::toHexNumberString(xbeeNode->address64, 16));
                         line.append(":" + xbeeNode->Identifier + "]");
                         line.append("[" + xbeeNode->dns_name + "]");
-                        emit sig_TextLog(line);
+                        QLog::logDebug(line);
                       }
                     }
                 }
@@ -670,7 +665,7 @@ namespace lpzrobots {
         line.append("[" + QCCHelper::toHexNumberString(xbeeRemoteNode->address16, 4) + ":");
         line.append(QCCHelper::toHexNumberString(xbeeRemoteNode->address64, 16));
         line.append(":" + xbeeRemoteNode->Identifier + "]");
-        emit sig_TextLog(line);
+        QLog::logDebug(line);
       }
 
     }
@@ -695,7 +690,7 @@ namespace lpzrobots {
         break;
       }
       default: {
-        emit sig_TextLog("unknown usb-device detected.");
+        QLog::logDebug("unknown usb-device detected.");
         break;
       }
     }

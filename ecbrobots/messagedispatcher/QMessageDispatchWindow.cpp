@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   - new QLog feature
+ *   - bugfixes
+ *   - FT232Manager is now in lpzrobots namespace
+ *   - some cleanups
+ *
+ *   Revision 1.3  2010/11/18 16:58:18  wrabe
  *   - current state of work
  *
  *   Revision 1.2  2010/11/14 20:39:37  wrabe
@@ -66,15 +72,17 @@ namespace lpzrobots {
     setMinimumWidth(900);
     setMaximumWidth(900);
 
+    // logging function
+    qlog = new QLog(applicationPath);
+    connect(qlog, SIGNAL(sig_textLog(QString)), this, SLOT(sl_TextLog(QString)));
+
     createActions();
     createMenus();
     readSettings();
 
     connect(this, SIGNAL(sig_quitServer()), &messageDispatcher, SIGNAL(sig_quitServer()));
-    connect(&messageDispatcher, SIGNAL(sig_TextLog(QString)), this, SLOT(sl_TextLog(QString)));
 
   }
-
 
   QMessageDispatchWindow::~QMessageDispatchWindow() {
     //messageDispatcher->~QECBMessageDispatchServer();
@@ -85,8 +93,8 @@ namespace lpzrobots {
     action_Exit->~QExtAction();
     menu_File->~QMenu();
     menu_Help->~QMenu();
+    delete qlog;
   }
-
 
   void QMessageDispatchWindow::createActions() {
     action_ScanUsbDevices = new QExtAction(EVENT_APPLICATION_SCAN_USBDEVICE, tr("ScanUSBDevices"), this);
@@ -107,7 +115,6 @@ namespace lpzrobots {
     action_PrintDNSTable->setEnabled(true);
     connect(action_PrintDNSTable, SIGNAL(triggered()), &messageDispatcher, SLOT(sl_printDNSDeviceToQCCMap()));
 
-
     action_Exit = new QExtAction(EVENT_APPLICATION_CLOSE, tr("&Quit"), this);
     action_Exit->setShortcut(tr("Ctrl+Q"));
     action_Exit->setStatusTip(tr("Exit the application"));
@@ -117,14 +124,14 @@ namespace lpzrobots {
     action_About = new QExtAction(EVENT_APPLICATION_ABOUT, tr("&About"), this);
     action_About->setStatusTip(tr("Show the application's About box"));
     connect(action_About, SIGNAL(triggered(int)), this, SLOT(sl_eventHandler(int)));
-  }
 
+  }
 
   void QMessageDispatchWindow::createMenus(int applicationMode) {
     //delete this->menuBar();
     this->menuBar()->clear();
 
-    switch (applicationMode){
+    switch (applicationMode) {
       default: {
         menu_File = menuBar()->addMenu(tr("&File"));
         menu_File->addAction(action_ScanUsbDevices);
@@ -133,13 +140,15 @@ namespace lpzrobots {
         menu_File->addSeparator();
         menu_File->addAction(action_Exit);
 
+        settingsMenu = menuBar()->addMenu(tr("Settings"));
+        qlog->addActionsToMenu(settingsMenu);
+
         menu_Help = menuBar()->addMenu(tr("&Help"));
         menu_Help->addAction(action_About);
         break;
       }
     }
   }
-
 
   void QMessageDispatchWindow::readSettings() {
     QSettings settings(applicationPath + QString("messagedispatcher.settings"), QSettings::IniFormat);
@@ -149,43 +158,39 @@ namespace lpzrobots {
     move(pos);
   }
 
-
-
   void QMessageDispatchWindow::writeSettings() {
     QSettings settings(applicationPath + QString("messagedispatcher.settings"), QSettings::IniFormat);
     settings.setValue("pos", pos());
     settings.setValue("size", size());
   }
 
-
   void QMessageDispatchWindow::sl_eventHandler(int eventCode) {
 
-    switch (eventCode)
-    {
-      case EVENT_APPLICATION_LOGVIEW_CLEAR:
-      {
+    switch (eventCode) {
+      case EVENT_APPLICATION_LOGVIEW_CLEAR: {
         logView->clearLogViewText();
         break;
       }
-      case EVENT_APPLICATION_CLOSE:
-      {
+      case EVENT_APPLICATION_CLOSE: {
         close();
         break;
       }
-      case EVENT_APPLICATION_ABOUT:
-      {
-        QMessageBox::about(this, tr("About the Application"), tr(
-            "ECB_Robot-Application V2.0, Tool to connect real robots (containing an ecb) onto a neuro-controller located on a standard pc."));
+      case EVENT_APPLICATION_ABOUT: {
+        QMessageBox::about(
+            this,
+            tr("About the Application"),
+            tr(
+                "ECB_Robot-Application V2.0, Tool to connect real robots (containing an ecb) onto a neuro-controller located on a standard pc."));
         break;
       }
-      case EVENT_APPLICATION_SCAN_USBDEVICE:
-      {
+      case EVENT_APPLICATION_SCAN_USBDEVICE: {
         messageDispatcher.scanUsbDevices();
         break;
       }
+      default:
+        break;
     }
   }
-
 
   void QMessageDispatchWindow::closeEvent(QCloseEvent *event) {
     writeSettings();
@@ -194,13 +199,11 @@ namespace lpzrobots {
     event->accept();
   }
 
-
   void QMessageDispatchWindow::sleep(ulong msecs) {
     QTime dieTime = QTime::currentTime().addMSecs(msecs);
     while (QTime::currentTime() < dieTime)
       QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
   }
-
 
   void QMessageDispatchWindow::sl_TextLog(QString sText) {
     statusBar()->showMessage(sText, 5000);

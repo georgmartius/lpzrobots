@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   Revision 1.3  2010-11-19 15:15:00  guettler
+ *   - new QLog feature
+ *   - bugfixes
+ *   - FT232Manager is now in lpzrobots namespace
+ *   - some cleanups
+ *
+ *   Revision 1.2  2010/11/11 15:34:59  wrabe
  *   - some extensions for QMessageClient (e.g. quitServer())
  *   - fixed some includes
  *
@@ -119,7 +125,7 @@ namespace lpzrobots {
     action_SwitchVerbose->setCheckable(true);
     action_SwitchVerbose->setStatusTip(tr("Enable/Disable verbosed output"));
     connect(action_SwitchVerbose, SIGNAL(triggered(int)), this, SLOT(sl_GUIEventHandler(int)));
-    action_SwitchWarning->setChecked(true);
+    action_SwitchVerbose->setChecked(true);
 
     action_SwitchDebug = new QExtAction(EVENT_SWITCH_DEBUG, (tr("&Debug log")), this);
     action_SwitchDebug->setCheckable(true);
@@ -175,7 +181,7 @@ namespace lpzrobots {
     bool warning = settings.value("warning").toBool();
     bool verbose = settings.value("verbose").toBool();
     bool debug = settings.value("debug").toBool();
-    action_SwitchVerbose->setChecked(warning);
+    action_SwitchWarning->setChecked(warning);
     action_SwitchVerbose->setChecked(verbose);
     action_SwitchDebug->setChecked(debug);
     sl_GUIEventHandler(EVENT_SWITCH_WARNING);
@@ -187,9 +193,9 @@ namespace lpzrobots {
     QSettings settings(applicationPath + QString("ecbrobots.settings"), QSettings::IniFormat);
     settings.setValue("pos", pos());
     settings.setValue("size", size());
-    settings.setValue("warning", action_SwitchWarning->isChecked());
-    settings.setValue("verbose", action_SwitchVerbose->isChecked());
-    settings.setValue("debug", action_SwitchDebug->isChecked());
+    settings.setValue("warningOutput", action_SwitchWarning->isChecked());
+    settings.setValue("verboseOutput", action_SwitchVerbose->isChecked());
+    settings.setValue("debugOutput", action_SwitchDebug->isChecked());
   }
 
   void QECBRobotsWindow::closeEvent(QCloseEvent *event) {
