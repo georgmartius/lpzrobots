@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.2  2010-03-08 15:42:49  martius
+ *  Revision 1.3  2010-11-19 10:11:19  guettler
+ *  - bugfix invalid pointer to Mediator
+ *  - added function removeMediatorCollegue(...)
+ *
+ *  Revision 1.2  2010/03/08 15:42:49  martius
  *  unsigned
  *
  *  Revision 1.1  2009/08/10 07:34:49  guettler
@@ -58,6 +62,18 @@ void Mediator::addMediatorCollegue(MediatorCollegue *collegue)
 {
   collegueList.push_back(collegue);
 }
+
+void Mediator::removeMediatorCollegue(MediatorCollegue *collegue)
+{
+  FOREACH(MediatorCollegueListType, collegueList, collIt) {
+    if ((*collIt)==collegue)
+    {
+      collegueList.erase(collIt);
+      break;
+    }
+  }
+}
+
 
 MediatorCollegue* Mediator::getMediatorCollegue(unsigned int index)
 {

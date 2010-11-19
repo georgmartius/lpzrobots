@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-10 07:34:49  guettler
+ *  Revision 1.2  2010-11-19 10:11:19  guettler
+ *  - bugfix invalid pointer to Mediator
+ *  - added function removeMediatorCollegue(...)
+ *
+ *  Revision 1.1  2009/08/10 07:34:49  guettler
  *  -Base classes which support use of design pattern
  *   mediator - similar to callbackable, but with more functionality:
  *   The mediator takes a more central role in mediation, the collegues
@@ -41,17 +45,32 @@
 
 MediatorCollegue::MediatorCollegue(Mediator* myMediator) : myMediator(myMediator)
 {
-  assert(myMediator!=0);
-  myMediator->addMediatorCollegue(this);
+  if (myMediator!=0)
+    myMediator->addMediatorCollegue(this);
 }
 
-MediatorCollegue::~MediatorCollegue() {}
+MediatorCollegue::~MediatorCollegue() {
+  if (myMediator!=0)
+    myMediator->removeMediatorCollegue(this);
+}
 
 void MediatorCollegue::informMediator(MediatorEvent* event)
 {
+  assert(myMediator!=0);
   myMediator->mediatorInformed(this,event);
   delete event;
 }
+
+void MediatorCollegue::setMediator(Mediator* _myMediator) {
+  if (myMediator!=0)
+    myMediator->removeMediatorCollegue(this);
+  if (_myMediator!=0)
+  {
+    myMediator = _myMediator;
+    myMediator->addMediatorCollegue(this);
+  }
+}
+
 
 
 

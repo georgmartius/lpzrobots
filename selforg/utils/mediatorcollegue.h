@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-10 07:34:49  guettler
+ *  Revision 1.2  2010-11-19 10:11:19  guettler
+ *  - bugfix invalid pointer to Mediator
+ *  - added function removeMediatorCollegue(...)
+ *
+ *  Revision 1.1  2009/08/10 07:34:49  guettler
  *  -Base classes which support use of design pattern
  *   mediator - similar to callbackable, but with more functionality:
  *   The mediator takes a more central role in mediation, the collegues
@@ -50,7 +54,7 @@ class MediatorCollegue
 
     static const InformMediatorType DEFAULT_INFORM_MEDIATOR_TYPE = 0;
 
-    MediatorCollegue(Mediator* myMediator);
+    MediatorCollegue(Mediator* myMediator = 0);
     virtual ~MediatorCollegue();
 
     /**
@@ -64,6 +68,15 @@ class MediatorCollegue
      * has to be performed by this collegue instance.
      */
     virtual void doOnMediatorCallBack(MediatorEvent* event) = 0;
+
+  protected:
+
+    /**
+     * Sets the own mediator. Useful if mediator is unknown in initialization.
+     * @param myMediator
+     */
+    void setMediator(Mediator* myMediator);
+
 
   private:
 
