@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-19 15:15:00  guettler
+ *   Revision 1.2  2010-11-23 11:08:06  guettler
+ *   - some helper functions
+ *   - bugfixes
+ *   - better event handling
+ *
+ *   Revision 1.1  2010/11/19 15:15:00  guettler
  *   - new QLog feature
  *   - bugfixes
  *   - FT232Manager is now in lpzrobots namespace
@@ -78,7 +83,7 @@ namespace lpzrobots {
         break;
       case LOG_DEBUG:
         if (instance->debugOutput)
-          emit instance->sig_textLog("<font color=#444444>"+log+"</color>"); // forward
+          emit instance->sig_textLog("<font color=#505050>"+log+"</color>"); // forward
         break;
     }
   }

@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   Revision 1.4  2010-11-23 11:08:06  guettler
+ *   - some helper functions
+ *   - bugfixes
+ *   - better event handling
+ *
+ *   Revision 1.3  2010/11/18 16:58:18  wrabe
  *   - current state of work
  *
  *   Revision 1.2  2010/11/14 20:39:37  wrabe
@@ -48,6 +53,8 @@
 #include "QExtByteArray.h"
 
 namespace lpzrobots {
+
+  class QCommunicationChannel;
 
   /**
    * static methods to reduce the code in class QCommunicationChannel
@@ -73,6 +80,19 @@ namespace lpzrobots {
         USBDevice_XBEE_ADAPTER
       };
 
+      enum timerEvent_t {
+         EVENT_TIMEOUT_GENERAL,
+         EVENT_TIMEOUT_INITIALISE,
+         EVENT_TIMEOUT_NODEDISCOVER,
+         EVENT_TIMEOUT_XBEE_COMMAND,
+         EVENT_TIMEOUT_XBEE_REMOTE_COMMAND,
+         EVENT_TIMEOUT_XBEE_SEND_MESSAGE_RAW,
+         EVENT_TIMEOUT_XBEE_SEND_MESSAGE_CABLE,
+         EVENT_TIMEOUT_XBEE_SEND_MESSAGE_XBEE,
+         EVENT_TIMEOUT_XBEE_SEND_MESSAGE_BL, ///< not used yet
+         EVENT_TIMEOUT_XBEE_SEND_MESSAGE_ISP ///< not used yet
+       };
+
       static usbDeviceType_t getUsbDeviceTypeByName(QString usbDeviceName);
       static int getApplicationModeByName(QString usbDeviceName);
       static int getDefaultBaudrateByName(QString actDeviceName);
@@ -87,6 +107,8 @@ namespace lpzrobots {
       static QString toHexNumberString(uint64 value, uint numberDigits);
       static QString getInitialisedStateString(typeInitialisedState initialisedState);
 
+      static void fillEventDescriptionMap();
+      static QHash<timerEvent_t, QString> eventDescriptionMap;
 
       enum ENUM_MSGGOUPS {
         MsgGroup_ECB_ROBOT_FIRMWARE = 0x01

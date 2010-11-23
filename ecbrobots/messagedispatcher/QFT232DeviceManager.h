@@ -33,7 +33,12 @@
  *  Empfang neuer Daten vom Port                                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   Revision 1.5  2010-11-23 11:08:06  guettler
+ *   - some helper functions
+ *   - bugfixes
+ *   - better event handling
+ *
+ *   Revision 1.4  2010/11/19 15:15:00  guettler
  *   - new QLog feature
  *   - bugfixes
  *   - FT232Manager is now in lpzrobots namespace
@@ -58,9 +63,13 @@
 #include <QtGui>
 #include <QThread>
 #include <QString>
-#include <ftdi.h>
 #include "constants.h"
 #include "types.h"
+
+namespace Ftdi {
+  class Context;
+  class List;
+}
 
 namespace lpzrobots {
 
@@ -68,37 +77,34 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
-      QFT232DeviceManager();
       virtual ~QFT232DeviceManager();
       virtual void run();
 
-      void createDeviceList();
-      QStringList getDeviceList();
-      int openDevice(struct usb_device* usb_dev, int baudrate);
-      int openDeviceByName(QString usb_deviceName_to_open, int baudrate_to_use);
+      static QList<QFT232DeviceManager*> getDeviceManagerList();
+      static QFT232DeviceManager* openDeviceByName(QString usb_deviceName_to_open, int baudrate_to_use);
+
       int setBaudrate(int baudrate_to_set);
       int setLatencyTimer(int latency_to_set);
       int setDTR(int dtr_val);
       int closeDevice();
 
-      bool isDeviceAvailable(QString deviceName);
+      static bool isDeviceAvailable(QString deviceName);
       bool isDeviceOpened() {
         return opened;
       }
+
       int getBaudrate() {
         return baudrate;
       }
-      ;
+
       QString getDeviceName() {
         return deviceName;
       }
-      ;
+
       int writeData(QByteArray msg);
 
-      /*
-       void setDeviceName(QString name){ deviceName = name.toLatin1(); };
-       QString getDeviceName() {return deviceName;};
-       */
+    protected:
+      QFT232DeviceManager(Context* c);
 
     signals:
       void sig_newData(QByteArray msg);
@@ -112,8 +118,7 @@ namespace lpzrobots {
       volatile bool opened;
       volatile bool runListener;
 
-      struct ftdi_context ftdic;
-      struct ftdi_device_list* devlist;
+      Ftdi::Context ftdiContext;
       struct usb_device* usb_device_opened;
 
   };

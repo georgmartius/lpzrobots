@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   Revision 1.5  2010-11-23 11:08:06  guettler
+ *   - some helper functions
+ *   - bugfixes
+ *   - better event handling
+ *
+ *   Revision 1.4  2010/11/19 15:15:00  guettler
  *   - new QLog feature
  *   - bugfixes
  *   - FT232Manager is now in lpzrobots namespace
@@ -53,8 +58,15 @@ namespace lpzrobots {
     this->applicationPath = applicationPath;
     this->setWindowTitle("ECBMessageDispatchWindow");
     logView = new QLogViewWidget();
+    statusLabel = new QLabel(statusBar());
+    statusBar()->addWidget(statusLabel);
+    connect(&statusLabelTimer, SIGNAL(timeout()), this, SLOT(sl_statusLabelTimerExpired()));
 
-    sl_TextLog("ApplicationPath='" + applicationPath + "'");
+    // logging function
+    qlog = new QLog(applicationPath);
+    connect(qlog, SIGNAL(sig_textLog(QString)), this, SLOT(sl_TextLog(QString)));
+
+    QLog::logVerbose("ApplicationPath='" + applicationPath + "'");
 
     setPalette(QPalette(QColor(200, 230, 200)));
 
@@ -72,9 +84,7 @@ namespace lpzrobots {
     setMinimumWidth(900);
     setMaximumWidth(900);
 
-    // logging function
-    qlog = new QLog(applicationPath);
-    connect(qlog, SIGNAL(sig_textLog(QString)), this, SLOT(sl_TextLog(QString)));
+
 
     createActions();
     createMenus();
@@ -119,6 +129,10 @@ namespace lpzrobots {
     action_Exit->setShortcut(tr("Ctrl+Q"));
     action_Exit->setStatusTip(tr("Exit the application"));
     connect(action_Exit, SIGNAL(triggered(int)), this, SLOT(sl_eventHandler(int)));
+
+    action_NDDiscoverTimeout = new QExtAction(EVENT_APPLICATION_SET_NODEDISCOVER_TIMEOUT, tr("&NodeDiscover timeout"), this);
+    action_NDDiscoverTimeout->setStatusTip(tr("Set the XBee's Node Discover timeout"));
+    connect(action_NDDiscoverTimeout, SIGNAL(triggered(int)), this, SLOT(sl_eventHandler(int)));
 
     // Actions About
     action_About = new QExtAction(EVENT_APPLICATION_ABOUT, tr("&About"), this);
@@ -206,8 +220,14 @@ namespace lpzrobots {
   }
 
   void QMessageDispatchWindow::sl_TextLog(QString sText) {
-    statusBar()->showMessage(sText, 5000);
+    statusLabelTimer.stop();
+    statusLabel->setText(sText);
+    statusLabelTimer.start(5000);
     logView->appendLogViewText(sText);
+  }
+
+  void QMessageDispatchWindow::sl_statusLabelTimerExpired() {
+    statusLabel->setText("");
   }
 
 } // namespace lpzrobots

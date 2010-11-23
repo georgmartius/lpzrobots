@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   Revision 1.5  2010-11-23 11:08:06  guettler
+ *   - some helper functions
+ *   - bugfixes
+ *   - better event handling
+ *
+ *   Revision 1.4  2010/11/19 15:15:00  guettler
  *   - new QLog feature
  *   - bugfixes
  *   - FT232Manager is now in lpzrobots namespace
@@ -47,13 +52,15 @@
 
 #include "QECBMessageDispatchServer.h"
 #include "constants.h"
-#include "QCCHelper.h"
+#include "QMDSHelper.h"
 #include "QLog.h"
+
+#include <QHash>
 
 namespace lpzrobots {
 
   QECBMessageDispatchServer::QECBMessageDispatchServer() :
-    QAbstractMessageDispatchServer(), notYetInitialisedCCs(0) {
+    QAbstractMessageDispatchServer(), notYetInitialisedCCs(0), notYetDNSScannedCCs(0) {
 
     QTimer::singleShot(1, this, SLOT(sl_Initialize()));
   }
@@ -75,7 +82,7 @@ namespace lpzrobots {
       {
         commChannelList.removeOne(commChannel);
         commChannel->close();
-        disconnect(commChannel, SIGNAL(sig_cc_initalised()));
+        disconnect(commChannel, SIGNAL(sig_cc_initalised(QCommunicationChannel*)));
         disconnect(commChannel, SIGNAL(sig_cc_dns_name_resolved(QCommunicationChannel*)));
         delete (commChannel);
       }
@@ -93,62 +100,68 @@ namespace lpzrobots {
 
         QCommunicationChannel* commChannel = new QCommunicationChannel(usbDeviceName);
         commChannelList.append(commChannel);
-        connect(commChannel, SIGNAL(sig_cc_initalised()), this, SLOT(sl_CCIsInitialised()));
+        connect(commChannel, SIGNAL(sig_cc_initalised(QCommunicationChannel*)), this,
+            SLOT(sl_CCIsInitialised(QCommunicationChannel*)));
         connect(commChannel, SIGNAL(sig_cc_dns_name_resolved(QCommunicationChannel*)), this,
             SLOT(sl_scanDNSDevicesComplete(QCommunicationChannel*)));
       }
   }
 
-  void QECBMessageDispatchServer::sl_CCIsInitialised() {
-    QLog::logDebug("Another one QCC has been initialised, still pending: " + QString::number(notYetInitialisedCCs - 1));
+  void QECBMessageDispatchServer::sl_CCIsInitialised(QCommunicationChannel* cc) {
+    QLog::logDebug("QCC[" + cc->getUSBDeviceName() + "] has been initialised, still pending: " + QString::number(
+        notYetInitialisedCCs - 1));
     if (--notYetInitialisedCCs == 0) {
-      QLog::logDebug("All QCC initialised.");
+      notYetDNSScannedCCs = commChannelList.size();
+      QLog::logVerbose("All QCC initialised.");
       // all QCC are initialised, now they have to get their available DNSDevices.
       foreach (QCommunicationChannel* cc, commChannelList)
         {
-          if (!cc->isDeviceInitialised())
+          if (!cc->isDeviceInitialised()) {
+            notYetDNSScannedCCs--;
             continue; // skip QCC
+          }
           QStringList deviceTypeStringList;
           QString deviceTypeString = cc->getCCTypeString();
           if (!deviceTypeStringList.contains(deviceTypeString)) {
             deviceTypeStringList.append(deviceTypeString);
             cc->scanDNSDevices();
             // signaling when ready with sl_scanDNSDevicesComplete(QCommunicationChannel* cc);
-          }
-          // wenn doppelt, kein scanDNSDevices aufrufen
+          } else
+            // wenn doppelt, kein scanDNSDevices aufrufen
+            notYetDNSScannedCCs--;
         }
     }
   }
 
   void QECBMessageDispatchServer::sl_scanDNSDevicesComplete(QCommunicationChannel* cc) {
-    QLog::logDebug("Scan of DNS devices complete.");
+    QLog::logDebug("QCC[" + cc->getUSBDeviceName() + "] has completed the device scan, still pending: "
+        + QString::number(notYetDNSScannedCCs - 1));
+
     QStringList DNSdeviceList = cc->getDNSDeviceList();
     dnsDeviceList.append(DNSdeviceList); // for log purposes
     foreach(QString dnsDevice, DNSdeviceList)
       {
+        QLog::logDebug("Found: " + dnsDevice);
         // take the fastest one, USART or XBee?
         if (dnsDeviceToQCCMap.contains(dnsDevice)) {
-          if (cc->getUSBDeviceType() == QCCHelper::USBDevice_USART_ADAPTER) { // replace!
+          if (cc->getResponseTime() < dnsDeviceToQCCMap[dnsDevice]->getResponseTime()) { // replace!
             dnsDeviceToQCCMap.remove(dnsDevice);
-            dnsDeviceToQCCMap.insert(dnsDevice, cc);
+            dnsDeviceToQCCMap[dnsDevice] = cc;
           }
-          // else do not replace!
-          // if (dnsDeviceToQCCMap[dnsDevice]->getUSBDeviceType()== QCCHelper::USBDevice_USART_ADAPTER) not needed to check
-        } else { // not in list yet
-          dnsDeviceToQCCMap.insert(dnsDevice, cc);
+          // else do not replace, skip!
+        } else { // not in list yet, insert
+          dnsDeviceToQCCMap[dnsDevice] = cc;
         }
       }
+    if (--notYetDNSScannedCCs == 0) {
+      QLog::logVerbose("<font color=#008800>Scan of DNS devices complete.</font>");
+      QMDSHelper::printDNSDeviceToQCCMap(&dnsDeviceToQCCMap);
+    }
     // in Liste eintragen cc->getDNSDevices():
   }
 
   void QECBMessageDispatchServer::sl_printDNSDeviceToQCCMap() {
-    if (dnsDeviceToQCCMap.isEmpty())
-      QLog::logWarning("No DNS devices found!");
-    foreach(QString dnsDeviceName, dnsDeviceToQCCMap.keys())
-      {
-        // emit sig_TextLog("DNSDevice = " + dnsName + ", USBDevice = " + dnsDeviceToQCCMap[dnsDevice]->getUSBDeviceName());
-        QLog::logVerbose("[" + dnsDeviceName + "]->[" + dnsDeviceToQCCMap[dnsDeviceName]->getUSBDeviceName() + "]");
-      }
+    QMDSHelper::printDNSDeviceToQCCMap(&dnsDeviceToQCCMap);
   }
 
 } // namespace lpzrobots

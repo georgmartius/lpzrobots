@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   Revision 1.5  2010-11-23 11:08:06  guettler
+ *   - some helper functions
+ *   - bugfixes
+ *   - better event handling
+ *
+ *   Revision 1.4  2010/11/19 15:15:00  guettler
  *   - new QLog feature
  *   - bugfixes
  *   - FT232Manager is now in lpzrobots namespace
@@ -49,13 +54,15 @@
 #define QECBMESSAGEDISPATCHSERVER_H_
 #include <QObject>
 #include <QList>
-#include <QHash>
 #include "types.h"
 #include "constants.h"
 #include "QFT232DeviceManager.h"
 #include "QAbstractMessageClient.h"
 #include "QAbstractMessageDispatchServer.h"
 #include "QCommunicationChannel.h"
+
+
+template<class Key, class T> class QHash;
 
 namespace lpzrobots {
 
@@ -79,7 +86,7 @@ namespace lpzrobots {
     public slots:
       virtual void sl_sendMessage(struct _communicationMessage msg);
       virtual void sl_Initialize();
-      virtual void sl_CCIsInitialised();
+      virtual void sl_CCIsInitialised(QCommunicationChannel* cc);
       virtual void sl_scanDNSDevicesComplete(QCommunicationChannel* cc);
       virtual void sl_printDNSDeviceToQCCMap();
 
@@ -91,6 +98,7 @@ namespace lpzrobots {
 
       QStringList dnsDeviceList;
       int notYetInitialisedCCs;
+      int notYetDNSScannedCCs;
 
       /**
        * key = dnsDeviceName

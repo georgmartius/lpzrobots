@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   Revision 1.5  2010-11-23 11:08:06  guettler
+ *   - some helper functions
+ *   - bugfixes
+ *   - better event handling
+ *
+ *   Revision 1.4  2010/11/19 15:15:00  guettler
  *   - new QLog feature
  *   - bugfixes
  *   - FT232Manager is now in lpzrobots namespace
@@ -48,6 +53,8 @@
 #include "QCommunicationChannel.h"
 #include "QLog.h"
 
+#include <QHash>
+
 namespace lpzrobots {
   
   QCommunicationChannel::QCommunicationChannel(QString usbDeviceName) :
@@ -57,6 +64,8 @@ namespace lpzrobots {
     connect(&usbDeviceManager, SIGNAL(sig_newData(QByteArray)), this, SLOT(sl_messageReceived(QByteArray)));
     usbDeviceType = QCCHelper::getUsbDeviceTypeByName(usbDeviceName);
     openUsbDevice(usbDeviceName);
+
+    QCCHelper::fillEventDescriptionMap();
   }
   
   QCommunicationChannel::~QCommunicationChannel() {
@@ -78,12 +87,14 @@ namespace lpzrobots {
           msg.append((char) 0x01);
           msg.append((char) MsgCode_IspProgrammer_Firmware_SoftwareVersionRead);
           usbDeviceManager.writeData(QCCHelper::toIspMessage(msg));
-          emit sig_cc_initalised();
+          //          initialisedState = QCCHelper::STATE_INITIALISED;
+          //          responseTimer.start(1, QCCHelper::EVENT_TIMEOUT_INITIALISE); // use timer, not signal because you are in the constructor
           break;
         }
         case QCCHelper::USBDevice_USART_ADAPTER: {
           // do nothing
-          QTimer::singleShot(1, this, SIGNAL(sig_cc_initalised()));
+          initialisedState = QCCHelper::STATE_INITIALISED;
+          responseTimer.start(1, QCCHelper::EVENT_TIMEOUT_INITIALISE); // use timer, not signal because you are in the constructor
           break;
         }
         case QCCHelper::USBDevice_XBEE_ADAPTER: {
@@ -91,32 +102,32 @@ namespace lpzrobots {
           initialisedState = QCCHelper::STATE_XBEE_WAIT_FOR_HV;
           // Timer setzen und auf Antwort warten (slot), dann dort Channel abfragen
           // am besten initializingState setzen
-          responseTimer.start(250, EVENT_TIMEOUT_INITIALISE);
+          responseTimer.start(250, QCCHelper::EVENT_TIMEOUT_INITIALISE); // use timer, not signal because you are in the constructor
           break;
         }
         default: {
           QLog::logDebug("unknown usb-device detected.");
-          emit sig_cc_initalised();
+          responseTimer.start(1, QCCHelper::EVENT_TIMEOUT_INITIALISE); // use timer, not signal because you are in the constructor
           break;
         }
       }
     } else {
-      emit sig_cc_initalised();
+      responseTimer.start(1, QCCHelper::EVENT_TIMEOUT_INITIALISE); // use timer, not signal because you are in the constructor
     }
   }
 
   void QCommunicationChannel::sl_ResponseTimerExpired(uint eventId) {
+    responseTimer.stop();
+    QLog::logDebug(QCCHelper::eventDescriptionMap[(QCCHelper::timerEvent_t) eventId]);
     switch (eventId) {
-      case EVENT_TIMEOUT_INITIALISE:
-        QLog::logDebug("["+usbDeviceManager.getDeviceName()+"] QCC initialisation timeout, state = " + QCCHelper::getInitialisedStateString(initialisedState));
-        emit sig_cc_initalised();
+      case QCCHelper::EVENT_TIMEOUT_INITIALISE:
+        emit sig_cc_initalised(this);
         break;
-      case EVENT_TIMEOUT_NODEDISCOVER:
+      case QCCHelper::EVENT_TIMEOUT_NODEDISCOVER:
         emit sig_cc_dns_name_resolved(this);
         break;
-      case EVENT_TIMEOUT_GENERAL:
+      case QCCHelper::EVENT_TIMEOUT_GENERAL:
       default:
-        QLog::logWarning("General timeout (not handled!)");
         break;
     }
   }
@@ -189,7 +200,8 @@ namespace lpzrobots {
               QByteArray msg;
               msg.append(QCCHelper::MsgGroup_ECB_ROBOT_FIRMWARE);
               msg.append(QCCHelper::MsgCode_ECB_DNSName_Read);
-              usbDeviceManager.writeData(QCCHelper::toXBeeS2Message(msg, xbeeRemoteNode->address16, xbeeRemoteNode->address64));
+              usbDeviceManager.writeData(QCCHelper::toXBeeS2Message(msg, xbeeRemoteNode->address16,
+                  xbeeRemoteNode->address64));
               break;
             }
             default:
@@ -209,12 +221,12 @@ namespace lpzrobots {
 
   void QCommunicationChannel::send_XBeeCommand(QByteArray command) {
     usbDeviceManager.writeData(QCCHelper::toXBeeATCommand(command));
-    responseTimer.start(transmitTimerLastAction_XBeeCommand);
+    responseTimer.start(QCCHelper::EVENT_TIMEOUT_XBEE_COMMAND);
   }
 
   void QCommunicationChannel::send_XBeeRemoteCommand(QByteArray command, struct XBeeRemoteNode_t* node) {
     usbDeviceManager.writeData(QCCHelper::toXBeeRemoteATCommand(command, node->address16, node->address64));
-    responseTimer.start(transmitTimerLastAction_XBeeRemoteCommand);
+    responseTimer.start(QCCHelper::EVENT_TIMEOUT_XBEE_REMOTE_COMMAND);
   }
 
   void QCommunicationChannel::send_ECB_Reset(struct XBeeRemoteNode_t* node) {
@@ -241,13 +253,15 @@ namespace lpzrobots {
             commandToSet_D0_high.append((char) 'D');
             commandToSet_D0_high.append((char) '0');
             commandToSet_D0_high.append((char) 0x05);
-            usbDeviceManager.writeData(QCCHelper::toXBeeRemoteATCommand(commandToSet_D0_high, node->address16, node->address64));
+            usbDeviceManager.writeData(QCCHelper::toXBeeRemoteATCommand(commandToSet_D0_high, node->address16,
+                node->address64));
             sleep(100);
             QByteArray commandToSet_D0_low;
             commandToSet_D0_low.append((char) 'D');
             commandToSet_D0_low.append((char) '0');
             commandToSet_D0_low.append((char) 0x00);
-            usbDeviceManager.writeData(QCCHelper::toXBeeRemoteATCommand(commandToSet_D0_low, node->address16, node->address64));
+            usbDeviceManager.writeData(QCCHelper::toXBeeRemoteATCommand(commandToSet_D0_low, node->address16,
+                node->address64));
             sleep(100);
             break;
           }
@@ -265,7 +279,8 @@ namespace lpzrobots {
     commandToSet_D0_low.append((char) 'D');
     commandToSet_D0_low.append((char) '0');
     commandToSet_D0_low.append((char) 0x00);
-    usbDeviceManager.writeData(QCCHelper::toXBeeRemoteATCommand(commandToSet_D0_low, resetted_xbee->address16, resetted_xbee->address64));
+    usbDeviceManager.writeData(QCCHelper::toXBeeRemoteATCommand(commandToSet_D0_low, resetted_xbee->address16,
+        resetted_xbee->address64));
   }
 
   void QCommunicationChannel::printMessage(QString s, QByteArray buffer) {
@@ -280,7 +295,8 @@ namespace lpzrobots {
   }
 
   void QCommunicationChannel::sl_messageReceived(QByteArray received_msg) {
-    printMessage(usbDeviceManager.getDeviceName() + "(" + QString::number(usbDeviceType) + ") :msgReceived ", received_msg);
+    printMessage(usbDeviceManager.getDeviceName() + "(" + QString::number(usbDeviceType) + ") :msgReceived ",
+        received_msg);
     switch (usbDeviceType) {
       case QCCHelper::USBDevice_ISP_ADAPTER: {
         // Stoppe TransmitTimer
@@ -339,7 +355,8 @@ namespace lpzrobots {
                 // 0x05 - MsgCode_ResponsePaket
                 // 0x06 - MsgCode_IspProgrammer_Firmware_SoftwareVersionRead
                 // 0x07 - some chars ....
-                QLog::logDebug("USB-ISP-Adapter: SoftwareVersion = " + QString(received_msg.mid(7, received_msg.length() - 6)));
+                QLog::logDebug("USB-ISP-Adapter: SoftwareVersion = " + QString(received_msg.mid(7,
+                    received_msg.length() - 6)));
                 break;
               }
               default:
@@ -389,7 +406,7 @@ namespace lpzrobots {
               line.append("[" + dnsName + "]");
               QLog::logDebug(line);
 
-              emit sig_cc_initalised();
+              emit sig_cc_dns_name_resolved(this);
             }
             break;
           }
@@ -584,7 +601,7 @@ namespace lpzrobots {
           break;
         default:
           xbee.type = XBeeType_unknown;
-          emit sig_cc_initalised();
+          emit sig_cc_initalised(this);
           //TODO: emit sig_TextLog(usbDeviceManager.getDeviceName() + " XBeeType=unknown, HV=" + QCCHelper::toHexNumberString(xbee.type, 4));
       }//switch(xbee.hardwareVersion)
       // read the operation channel on witch RF connections are made between RF modules:
@@ -605,7 +622,8 @@ namespace lpzrobots {
       xbee.pan_identifier = (((uint16) received_command[8] & 0xFF) << 8) + (received_command[9] & 0xFF);
       responseTimer.stop();
       initialisedState = QCCHelper::STATE_INITIALISED;
-      emit sig_cc_initalised();
+      emit
+      sig_cc_initalised(this);
       return;
     }
 
@@ -686,7 +704,7 @@ namespace lpzrobots {
       }
       case QCCHelper::USBDevice_XBEE_ADAPTER: {
         send_XBeeCommand(QString("ND").toAscii());
-        responseTimer.start(2500, EVENT_TIMEOUT_NODEDISCOVER);
+        QTimer::singleShot(3000, this, SLOT(sl_DNSScanTimeout()));
         break;
       }
       default: {
@@ -703,10 +721,13 @@ namespace lpzrobots {
   }
 
   QStringList QCommunicationChannel::getDNSDeviceList() {
-  QStringList list;
-    foreach (DNSDevice_t* dnsDevice, dnsDeviceList) {
-      list.append(dnsDevice->dns_name);
-    }
+    QStringList list;
+    QLog::logDebug("QCC[" + usbDeviceManager.getDeviceName() + "]: getDNSDeviceList(), number of devices: "
+        + QString::number(dnsDeviceList.size()));
+    foreach (DNSDevice_t* dnsDevice, dnsDeviceList)
+      {
+        list.append(dnsDevice->dns_name);
+      }
     return list;
   }
 
@@ -718,5 +739,21 @@ namespace lpzrobots {
     return usbDeviceManager.getDeviceName();
   }
 
+  void QCommunicationChannel::sl_DNSScanTimeout() {
+    sl_ResponseTimerExpired(QCCHelper::EVENT_TIMEOUT_NODEDISCOVER);
+  }
+
+  uint QCommunicationChannel::getResponseTime() {
+    switch (usbDeviceType) {
+      case QCCHelper::USBDevice_USART_ADAPTER:
+      case QCCHelper::USBDevice_ISP_ADAPTER:
+        return 0;
+        break;
+      case QCCHelper::USBDevice_XBEE_ADAPTER:
+      default:
+        return 20;
+        break;
+    }
+  }
 
 }// namespace lpzrobots

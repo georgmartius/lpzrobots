@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   Revision 1.4  2010-11-23 11:08:06  guettler
+ *   - some helper functions
+ *   - bugfixes
+ *   - better event handling
+ *
+ *   Revision 1.3  2010/11/18 16:58:18  wrabe
  *   - current state of work
  *
  *   Revision 1.2  2010/11/14 20:39:37  wrabe
@@ -108,18 +113,6 @@
 #define Msg_XBEE_Command                                           = 0xFE;
 #define Msg_Reset                                                  = 0xFF;
   //---------------------------------------------------------------------------------
-
-#define transmitTimerLastAction_none              0x00
-#define transmitTimerLastAction_initialize        0x10
-#define transmitTimerLastAction_XBeeCommand       0x20
-#define transmitTimerLastAction_XBeeRemoteCommand 0x21
-#define transmitTimerLastAction_SendMessageRaw    0x30
-#define transmitTimerLastAction_SendMessageCable  0x31
-#define transmitTimerLastAction_SendMessageXBee   0x32
-#define transmitTimerLastAction_SendMessageBL     0x33
-#define transmitTimerLastAction_SendMessageISP    0x34
-
-
 
 // MessageCodes
 //---------------------------------------------------------------------------------

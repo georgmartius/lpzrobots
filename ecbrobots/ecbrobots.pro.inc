@@ -40,10 +40,10 @@ HEADERS 	+= messagedispatcher/QCCHelper.h
 HEADERS 	+= messagedispatcher/QExtByteArray.h
 HEADERS 	+= messagedispatcher/QExtTimer.h
 HEADERS  += messagedispatcher/QLog.h
+HEADERS  += messagedispatcher/QMDSHelper.h
 
 # Input - Sources
 SOURCES   += messagedispatcher/QECBMessageDispatchServer.cpp
-#SOURCES 	+= messagedispatcher/QECBMessageClient.cpp
 SOURCES 	+= messagedispatcher/QMessageDispatchWindow.cpp
 SOURCES   += messagedispatcher/QCommunicationChannel.cpp
 SOURCES 	+= messagedispatcher/QFT232DeviceManager.cpp
@@ -51,3 +51,4 @@ SOURCES 	+= messagedispatcher/QCCHelper.cpp
 SOURCES 	+= messagedispatcher/QExtByteArray.cpp
 SOURCES 	+= messagedispatcher/QExtTimer.cpp
 SOURCES  += messagedispatcher/QLog.cpp
+SOURCES  += messagedispatcher/QMDSHelper.cpp

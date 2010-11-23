@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-19 15:15:00  guettler
+ *   Revision 1.2  2010-11-23 11:08:06  guettler
+ *   - some helper functions
+ *   - bugfixes
+ *   - better event handling
+ *
+ *   Revision 1.1  2010/11/19 15:15:00  guettler
  *   - new QLog feature
  *   - bugfixes
  *   - FT232Manager is now in lpzrobots namespace
@@ -50,6 +55,7 @@ namespace lpzrobots {
   /**
    * Singleton class. Should be instantiated by the object which is responsible for
    * displaying the log.
+   * TODO: log to file
    */
   class QLog : public QObject {
     Q_OBJECT
@@ -69,6 +75,9 @@ namespace lpzrobots {
        */
       static void textLog(QString log, LOG_TYPE logType = LOG_VERBOSE);
 
+      // log critical?
+      // log info?
+      // log debugDetail?
       static void logError(QString log);
       static void logWarning(QString log);
       static void logVerbose(QString log);

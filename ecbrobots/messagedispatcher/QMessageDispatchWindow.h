@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   Revision 1.5  2010-11-23 11:08:06  guettler
+ *   - some helper functions
+ *   - bugfixes
+ *   - better event handling
+ *
+ *   Revision 1.4  2010/11/19 15:15:00  guettler
  *   - new QLog feature
  *   - bugfixes
  *   - FT232Manager is now in lpzrobots namespace
@@ -89,6 +94,7 @@ namespace lpzrobots {
     private slots:
       void sl_TextLog(QString s);
       void sl_eventHandler(int eventCode);
+      void sl_statusLabelTimerExpired();
 
     private:
 
@@ -108,6 +114,8 @@ namespace lpzrobots {
 
       QTabWidget *tabWidget;
       QLogViewWidget *logView;
+      QLabel* statusLabel;
+      QTimer statusLabelTimer;
       QECBMessageDispatchServer messageDispatcher;
       QLog* qlog;
 
@@ -116,6 +124,7 @@ namespace lpzrobots {
       QExtAction *action_ScanUsbDevices;
       QExtAction *action_ClearLogView;
       QExtAction *action_PrintDNSTable;
+      QExtAction *action_NDDiscoverTimeout;
 
       QMenu *menu_File;
       QMenu *settingsMenu;
@@ -129,7 +138,8 @@ namespace lpzrobots {
         EVENT_APPLICATION_CLOSE,
         EVENT_APPLICATION_ABOUT,
         EVENT_APPLICATION_SCAN_USBDEVICE,
-        EVENT_APPLICATION_PRINT_DNS_TABLE
+        EVENT_APPLICATION_PRINT_DNS_TABLE,
+        EVENT_APPLICATION_SET_NODEDISCOVER_TIMEOUT
       //---------------------------------------
       };
 

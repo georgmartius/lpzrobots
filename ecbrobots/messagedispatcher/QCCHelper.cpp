@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-18 16:58:18  wrabe
+ *   Revision 1.4  2010-11-23 11:08:06  guettler
+ *   - some helper functions
+ *   - bugfixes
+ *   - better event handling
+ *
+ *   Revision 1.3  2010/11/18 16:58:18  wrabe
  *   - current state of work
  *
  *   Revision 1.2  2010/11/14 20:39:37  wrabe
@@ -41,6 +46,9 @@
 
 #include "QCCHelper.h"
 #include "constants.h"
+#include "QCommunicationChannel.h"
+
+#include <QHash>
 
 namespace lpzrobots {
   
@@ -204,7 +212,24 @@ namespace lpzrobots {
       case STATE_XBEE_WAIT_FOR_PANID:
         return "wait for PANID info";
     }
+    return QString("not defined");
   }
 
+  QHash<QCCHelper::timerEvent_t, QString> QCCHelper::eventDescriptionMap;
+
+  void QCCHelper::fillEventDescriptionMap() {
+    if (eventDescriptionMap.isEmpty()) {
+      eventDescriptionMap[EVENT_TIMEOUT_GENERAL] = "General timeout (not handled)!";
+      eventDescriptionMap[EVENT_TIMEOUT_INITIALISE] = "Timeout initialising the QCC";
+      eventDescriptionMap[EVENT_TIMEOUT_NODEDISCOVER] = "Timeout discovering nodes (XBee)";
+      eventDescriptionMap[EVENT_TIMEOUT_XBEE_COMMAND] = "Timeout before getting response of XBee command";
+      eventDescriptionMap[EVENT_TIMEOUT_XBEE_REMOTE_COMMAND] = "Timeout before getting response of XBee remote command";
+      eventDescriptionMap[EVENT_TIMEOUT_XBEE_SEND_MESSAGE_RAW] = "Timeout before getting response of raw message";
+      eventDescriptionMap[EVENT_TIMEOUT_XBEE_SEND_MESSAGE_CABLE] = "Timeout before getting response of cable message";
+      eventDescriptionMap[EVENT_TIMEOUT_XBEE_SEND_MESSAGE_XBEE] = "Timeout before getting response of XBee message";
+      eventDescriptionMap[EVENT_TIMEOUT_XBEE_SEND_MESSAGE_BL] = "Timeout before getting response of bootloader message";
+      eventDescriptionMap[EVENT_TIMEOUT_XBEE_SEND_MESSAGE_ISP] = "Timeout before getting response of ISP message";
+    } // else alreasy filled!
+  }
 
 } // namespace lpzrobots

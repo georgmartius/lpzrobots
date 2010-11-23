@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-19 15:15:00  guettler
+ *   Revision 1.5  2010-11-23 11:08:06  guettler
+ *   - some helper functions
+ *   - bugfixes
+ *   - better event handling
+ *
+ *   Revision 1.4  2010/11/19 15:15:00  guettler
  *   - new QLog feature
  *   - bugfixes
  *   - FT232Manager is now in lpzrobots namespace
@@ -53,6 +58,8 @@
 #include "QFT232DeviceManager.h"
 #include "QCCHelper.h"
 #include "QExtTimer.h"
+
+template<class Key, class T> class QHash;
 
 namespace lpzrobots {
 
@@ -100,16 +107,12 @@ namespace lpzrobots {
       bool isDeviceInitialised();
       QCCHelper::usbDeviceType_t getUSBDeviceType();
       QString getUSBDeviceName();
+      uint getResponseTime();
 
     protected:
-      enum timerEvent_t {
-        EVENT_TIMEOUT_GENERAL,
-        EVENT_TIMEOUT_INITIALISE,
-        EVENT_TIMEOUT_NODEDISCOVER
-      };
 
     signals:
-      void sig_cc_initalised();
+      void sig_cc_initalised(QCommunicationChannel* cc);
       void sig_cc_dns_name_resolved(QCommunicationChannel* cc);
 
     private slots:
@@ -117,6 +120,7 @@ namespace lpzrobots {
       void sl_messageReceived(QByteArray received_msg);
       void sl_XBee_ReadDnsNames_Delayed();
       void sl_switchResetOff();
+      void sl_DNSScanTimeout();
 
 
     private:
