@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-26 12:22:37  guettler
+ *   Revision 1.4  2010-11-26 12:28:06  guettler
+ *   - added bounds and description for paramval noise for testing purposes
+ *
+ *   Revision 1.3  2010/11/26 12:22:37  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -83,7 +86,7 @@ namespace lpzrobots {
     addParameterDef("discoverxbeehardwareversiontimeout", &discoverXBeeHardwareVersionTimeout, 50);
     addParameterDef("discovernodestimeout", &discoverNodesTimeout, 3000);
     addParameterDef("cycletime", &cycleTime, 50);
-    addParameterDef("noise", &noise, 0.05);
+    addParameterDef("noise", &noise, 0.05, 0, 1, "global noise used for all controllers added by their used wiring to motor and/or sensor values");
     simStep = 0;
     addParameterDef("benchmarkmode", &benchmarkMode, false);
     addParameterDef("debug", &debugOutput, false);
