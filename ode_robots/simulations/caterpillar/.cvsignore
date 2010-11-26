@@ -3,3 +3,5 @@ start
 *.log
 start_opt
 Makefile
+.history
+ode.msg

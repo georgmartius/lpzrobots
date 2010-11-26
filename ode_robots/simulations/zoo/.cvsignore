@@ -3,3 +3,6 @@ start
 *.log
 start_opt
 Makefile
+.history
+saved_animation.path
+ode.msg

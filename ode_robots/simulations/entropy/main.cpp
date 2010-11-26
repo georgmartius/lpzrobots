@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2010-03-10 13:54:29  guettler
+ *   Revision 1.19  2010-11-26 12:21:13  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - minor bugfixes
+ *
+ *   Revision 1.18  2010/03/10 13:54:29  guettler
  *   some tiny changes
  *
  *   Revision 1.17  2010/03/10 08:54:27  guettler
@@ -166,7 +171,7 @@ public:
   bool connectRobots;
 
   double cInit;
-  double cNonDiag;
+  double bInit;
   StatisticMeasure* convTest0;
   StatisticMeasure* convTest1;
   StatisticMeasure* convTest2;
@@ -176,10 +181,9 @@ public:
   TrackableMeasure* trackableEntropy;
   TrackableMeasure* trackableEntropySLOW;
 
-  ThisSim(double cInit=.1, double cnondiag=0.0) : cInit(cInit), cNonDiag(cnondiag)
+  ThisSim(double cInit=.1, double binit=0.0) : cInit(cInit), bInit(binit)
   {
-    setCaption("lpzrobots Simulator      Martius, Der, Guettler");
-
+    setCaption("LpzRobots Simulator          Martius, Güttler, Der");
   }
 
   ~ThisSim()
@@ -201,27 +205,29 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
-    int number_x=5;
+
+    int number_x=3;
     int number_y=1;
     connectRobots = true;
-    double distance = 1.0;
+    double distance = 1.1;
 
-    setCameraHomePos(Pos(-26.0494,26.5266,10.90516),  Pos(-126.1, -17.6, 0));
+    setCameraHomePos(Pos(-76.7927, 49.4669, 42.7545),  Pos(-124.513, -28.5595, 0));
+    setCameraMode(1);
 
-    global.odeConfig.setParam("noise",0.08);
+    global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("realtimefactor",2);
     global.odeConfig.setParam("gravity",-9);
 
-    Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(100, 0.2, 2.0));
+    Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(50, 0.2, 2.0));
     playground->setColor(Color(1.0f,0.4f,0.26f,1.0f));
     playground->setGroundTexture("Images/wood.rgb");
     playground->setGroundColor(Color(0.2f,0.7f,0.2f,1.0f));
     //playground->setGroundColor(Color(0.2f,0.7f,0.2f,1.0f));
-    //Substance substance;
+    Substance substance;
     //substance.toSnow(0.05);
-    //substance.toMetal(20);
-    playground->setPosition(osg::Vec3(20,20,1.00f));
-    //playground->setGroundSubstance(substance);
+    substance.toRubber(20);
+    playground->setPosition(osg::Vec3(0,0,1.00f));
+    playground->setGroundSubstance(substance);
     global.obstacles.push_back(playground);
     double xboxes=0.0;
     double yboxes=0.0;
@@ -261,20 +267,28 @@ public:
         //      nimm2 = new Nimm2(odeHandle);
         Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
         nimm2conf.size = 1.6;
-        nimm2conf.force = 1.5;
+        nimm2conf.force = 6;
         nimm2conf.speed=20;
         nimm2conf.cigarMode=true;
         nimm2conf.singleMotor=false;
-        nimm2conf.visForce=true;
         nimm2conf.boxMode=true;
+        nimm2conf.visForce =true;
         nimm2conf.bumper=true;
         wiring = new One2OneWiring(new WhiteNormalNoise());
         InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-        invertnconf.cInit = cInit;///////////////////////// cInit;
-        invertnconf.cNonDiagAbs=cNonDiag;
+//        invertnconf.cInit = cInit;///////////////////////// cInit;
+//        invertnconf.cNonDiagAbs=cNonDiag;
+        invertnconf.initialC = matrix::Matrix(2,2);
+        invertnconf.initialC.val(0,0)= cInit;
+        invertnconf.initialC.val(0,1)= bInit;
+        invertnconf.initialC.val(1,0)= bInit;
+        invertnconf.initialC.val(1,1)= cInit;
         controller = new InvertMotorNStep(invertnconf);
-        if ((i==0) && (j==0))
+        //if (j==2)
+        //  nimm2conf.irFront = true;
+        if ((i==0) && (j==1))
         {
+          //nimm2conf.irBack = true;
           agent = new OdeAgent(plotoptions);
           nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2Yellow");
           nimm2->setColor(Color(1.0,1.0,0));
@@ -288,8 +302,8 @@ public:
           agent->addInspectable((Inspectable*)stats);
           agent->addCallbackable((Callbackable*)stats);
           agent->init(onamupaco, nimm2, wiring);
-          controller->setParam("epsC", 0.001);
-          controller->setParam("epsA", 0.0);
+          //controller->setParam("epsC", 0.001);
+          //controller->setParam("epsA", 0.0);
           char cdesc[32];
           sprintf(cdesc, "c=%f_",cInit);
           // agent->setTrackOptions(TrackRobot(true,false, false,false,cdesc,10));
@@ -301,10 +315,12 @@ public:
           agent = new OdeAgent(NoPlot);
           nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
           agent->init(controller, nimm2, wiring);
-          controller->setParam("epsC", 0.001);
-          controller->setParam("epsA", 0.0);
+          controller->setParam("epsC", 0.00);
+          controller->setParam("epsA", 0.00);
           global.configs.push_back(controller);
         }
+        if ((i==0) && (j==1))
+          setWatchingAgent(agent);
         nimm2->place(Pos(j*(1.5+distance),i*1.26,1.0f));
         global.agents.push_back(agent);
         robots[j]=nimm2;
@@ -314,13 +330,13 @@ public:
         {
           Joint* joint = new BallJoint(robots[j]->getMainPrimitive(),
                                        robots[j+1]->getMainPrimitive(),
-                                       Pos((j+0.5)*(1.5+distance)-1.0,i*1.26,0.48)
+                                       Pos((j+0.5)*(1.5+distance)-1.0,i*1.26,1.48)
                                       );
           joint->init(odeHandle,osgHandle,true,distance/6);
           joints.push_back(joint);
         }
     }
-    this->getHUDSM()->addMeasure(mic->getMI(0),"MI"/* 0*/,ID,1);
+  //  this->getHUDSM()->addMeasure(mic->getMI(0),"MI"/* 0*/,ID,1);
     //double& stepdiff = stats->addMeasure(mic->getMI(1),"MI NSTEPDIFF",NORMSTEPDIFF,1);
     //this->getHUDSM()->addMeasure(stepdiff,"MI DIFFAVG",MOVAVG,1000);
 
@@ -347,7 +363,7 @@ public:
 
     showParams(global.configs);
     std::cout << "running with cDiag = " << this->cInit << "." << std::endl;
-    std::cout << "running with cNonDiag = " << this->cNonDiag << "." << std::endl;
+    std::cout << "running with bNonDiag = " << this->bInit << "." << std::endl;
 
   }
 
@@ -417,7 +433,7 @@ public:
 
 };
 
-void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0)
+void runSim(double cinit, int runs, int argc, char **argv,double binit=0.0)
 {
   double sum = 0.0;
   double misum=0.0;
@@ -431,7 +447,7 @@ void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0)
   {
     std::cout << "run number " << (i+1) << "..." << std::endl;
     ThisSim* sim;
-    sim = new ThisSim(cinit,cnondiag);
+    sim = new ThisSim(cinit,binit);
     sim->run(argc,argv);
     double val = sim->trackableEntropySLOW->getValue();
     if (val>avg)
@@ -457,9 +473,9 @@ void runSim(double cinit, int runs, int argc, char **argv,double cnondiag=0.0)
   double h_yx_avg = h_yxsum / ((double)runs);
   FILE* file;
   char filename[256];
-  sprintf(filename, "ent_%f_%f_C.log",cinit,cnondiag);
+  sprintf(filename, "ent_%f_%f_C.log",cinit,binit);
   file = fopen(filename,"a");
-  fprintf(file,"%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n",cinit, cnondiag,avg,mi,h_x,h_yx,loc_avg,mi_avg,h_x_avg,h_yx_avg);
+  fprintf(file,"%f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n",cinit, binit,avg,mi,h_x,h_yx,loc_avg,mi_avg,h_x_avg,h_yx_avg);
   fflush(file);
 
 }
@@ -532,7 +548,7 @@ int main (int argc, char **argv)
 	std::cout << "stepSizex     = " << stepSizex << std::endl;
 	std::cout << "stepSizey     = " << stepSizey << std::endl;
 	std::cout << "cdiag        = " << x << std::endl;
-	std::cout << "cnondiag     = " << y << std::endl;
+	std::cout << "bnondiag     = " << y << std::endl;
 	runSim(x,3,argc,argv,y);
 
     }
@@ -543,7 +559,7 @@ int main (int argc, char **argv)
         double x = startx + ((i-1) % ((int)((endx-startx)/stepSizex+1)))*stepSizex;
         double y = starty + ((i-1) / ((int)((endx-startx)/stepSizex+1)))*stepSizey;
       std::cout << "---cdiag = " << x << std::endl;
-        std::cout << "cnondiag = " << y << std::endl;
+        std::cout << "bnondiag = " << y << std::endl;
         runSim(x,1,argc,argv,y);
     }
   }
@@ -560,7 +576,7 @@ int main (int argc, char **argv)
     if (index && (argc > index)) {
       cinit = atof(argv[index]);
       // check for cnondiag value
-      index =  Simulation::contains(argv, argc, "-cnondiag");
+      index =  Simulation::contains(argv, argc, "-bnondiag");
       double cnondiag=0.2;
       if (index && (argc > index))
         cnondiag=atof(argv[index]);

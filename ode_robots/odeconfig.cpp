@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-03-09 11:53:41  martius
+ *   Revision 1.14  2010-11-26 12:21:13  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - minor bugfixes
+ *
+ *   Revision 1.13  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.12  2010/03/03 14:54:17  martius
@@ -110,7 +115,7 @@ namespace lpzrobots {
     addParameterDef("noise",            &noise,0.1);
     addParameterDef("cameraspeed",      &cameraSpeed,100);
     addParameterDef("motionpersistence",&motionPersistence,0.0);
-    addParameterDef("controlinterval"  ,&controlInterval,1, 
+    addParameterDef("controlinterval"  ,&controlInterval,1, 1, 100,
                     "interval in steps between subsequent controller calls");
     setParamDescr("realtimefactor", "speed of simulation wrt. real time (0: full speed)");
     setParamDescr("simstepsize", "stepsize of the physical simulation (in seconds)");

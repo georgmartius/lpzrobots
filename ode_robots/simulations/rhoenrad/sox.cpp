@@ -25,16 +25,16 @@ SoX::SoX(const SoXConf& conf)
   : AbstractController("SoX", "0.1"), conf(conf) {
   t=0;
 
-  addParameterDef("creativity",&creativity,0, "creativity term (0: disabled) ");
-  addParameterDef("epsC", &epsC, 0.1,  "learning rate of the controller");
-  addParameterDef("epsA", &epsA, 0.1, "learning rate of the model");
-  addParameterDef("harmony", &harmony, 0.01, "harmony term");
-  addParameterDef("s4avg", &s4avg, 1,  "number of steps to smooth the sensor values");
-  addParameterDef("s4delay", &s4delay, 1,  
+  addParameterDef("creativity",&creativity,0, 0, 100, "creativity term (0: disabled) ");
+  addParameterDef("epsC", &epsC, 0.1, 0, 1, "learning rate of the controller");
+  addParameterDef("epsA", &epsA, 0.1, 0, 1,"learning rate of the model");
+  addParameterDef("harmony", &harmony, 0.01, 0, 1,"harmony term");
+  addParameterDef("s4avg", &s4avg, 1,  0, 1000, "number of steps to smooth the sensor values");
+  addParameterDef("s4delay", &s4delay, 1,  0, 1000,
                   "number of steps to delay motor values (delay in the loop)");
-  addParameterDef("dampA", &dampA, 0.00001,  "damping factor for model learning");
-  if(conf.useS) addParameterDef("discountS", &discountS, 0.005,  "discounting od the S term");
-  addParameterDef("biasnoise", &biasnoise, 0.01,  "noise for h terms");
+  addParameterDef("dampA", &dampA, 0.00001,  0, 1, "damping factor for model learning");
+  if(conf.useS) addParameterDef("discountS", &discountS, 0.005, 0, 1, "discounting od the S term");
+  addParameterDef("biasnoise", &biasnoise, 0.01,  0, 1, "noise for h terms");
   //  addParameterDef("logaE", &logaE, false,  "use logarithmic error");
 
 

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-10-29 12:43:59  robot3
+ *   Revision 1.2  2010-11-26 12:21:13  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - minor bugfixes
+ *
+ *   Revision 1.1  2007/10/29 12:43:59  robot3
  *   MAIN WITH DIFFERET OBJECTS AND DERCONTROLLER
  *
  *   Revision 1.1  2007/07/17 07:25:26  martius
@@ -33,7 +38,7 @@
 #ifndef __SKELETON_H
 #define __SKELETON_H
 
-#include "oderobot.h"
+#include <ode_robots/oderobot.h>
 
 namespace lpzrobots {
 

@@ -5,3 +5,4 @@ start
 *.path
 start_opt
 Makefile
+.history
