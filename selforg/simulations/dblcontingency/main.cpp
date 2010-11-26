@@ -37,8 +37,8 @@ public:
     speed = Position(0,0,0);
     t = 0.01;
     // This is how to add configurable parameters
-    addParameterDef("mu",&mu, 0.7, "friction");
-    addParameterDef("mass",&mass, _mass, "mass of the robot");
+    addParameterDef("mu",&mu, 0.7, 0, 1, "friction");
+    addParameterDef("mass",&mass, _mass, 0, 100, "mass of the robot");
   }
 
   ~MyRobot(){

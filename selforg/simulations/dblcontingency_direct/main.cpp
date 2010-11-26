@@ -40,7 +40,7 @@ public:
     : AbstractRobot(name, "$Id$") {
     prevRobot = 0;
     // This is how to add configurable parameters
-    addParameterDef("myparam", &myparam,0, "my parameter description"); 
+    addParameterDef("myparam", &myparam,0, 0, 100, "my parameter description");
     degrees  = dof;
     x = new double[degrees];
     y = new double[degrees];
@@ -154,8 +154,8 @@ int contains(char **list, int len,  const char *str){
 class MySim : public Configurable {
 public:
   MySim(){
-    addParameterDef("noise", &noise, 0.05, "strength of additive noise");
-    addParameterDef("wait",  &wait,  20, "wait in ms");
+    addParameterDef("noise", &noise, 0.05, 0, 1, "strength of additive noise");
+    addParameterDef("wait",  &wait,  20, 0, 1000, "wait in ms");
   }
   
   void run(GlobalData& globaldata){

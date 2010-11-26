@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-03-03 14:56:30  martius
+ *   Revision 1.10  2010-11-26 12:15:05  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *
+ *   Revision 1.9  2010/03/03 14:56:30  martius
  *   improved printing of parameterdescription
  *
  *   Revision 1.8  2009/08/05 22:47:10  martius
@@ -98,6 +102,7 @@
 #include <iostream>
 #include <cstdlib>
 
+#include <limits>
 #include <list>
 #include <utility>
 #include <string>
@@ -170,6 +175,17 @@ class Configurable
 
     typedef std::map<paramkey, paramdescr> paramdescrmap;
 
+    // stuff for bounds
+    typedef std::pair<paramval, paramval> paramvalBounds;
+    typedef std::map<paramkey, paramvalBounds> paramvalBoundsMap;
+    #define valInfinity std::numeric_limits<paramval>::max()
+    #define valNegInfinity std::numeric_limits<paramval>::min()
+
+    typedef std::pair<paramint, paramint> paramintBounds;
+    typedef std::map<paramkey, paramintBounds> paramintBoundsMap;
+    #define intInfinity std::numeric_limits<paramint>::max()
+    #define intNegInfinity std::numeric_limits<paramint>::min()
+
     /// nice predicate function for finding by ID
     struct matchId : public std::unary_function<Configurable*, bool>
     {
@@ -240,6 +256,27 @@ class Configurable
      */
     virtual bool setParam(const paramkey& key, paramval val);
 
+    /**
+     * Sets the bounds (minBound and maxBound) of the given parameter.
+     * Not useful for parambool.
+     * If minBound=maxBound, it is threated as that no bound is given.
+     */
+    virtual inline void setParamBounds(const paramkey& key, paramval minBound, paramval maxBound) {
+      mapOfValBounds[key]=paramvalBounds(minBound,maxBound);
+    }
+
+    virtual inline void setParamBounds(const paramkey& key, paramint minBound, paramint maxBound) {
+      mapOfIntBounds[key]=paramintBounds(minBound,maxBound);
+    }
+
+    virtual inline void setParamBounds(const paramkey& key, paramvalBounds bounds) {
+      mapOfValBounds[key]=bounds;
+    }
+
+    virtual inline void setParamBounds(const paramkey& key, paramintBounds bounds) {
+      mapOfIntBounds[key]=bounds;
+    }
+
     /** The list of all parameters with there value as allocated lists.
 	Note that these are only parameters that are managed manually (with setParam, getParam)
 	@see getAllParamNames()	
@@ -252,10 +289,26 @@ class Configurable
     /// returns all names that are configureable
     virtual std::list<paramkey> getAllParamNames();
 
+    virtual parammap getParamValMap() const {
+      return mapOfValues;
+    }
+
+    virtual paramintmap getParamIntMap() const {
+      return mapOfInteger;
+    }
+
+    virtual paramboolmap getParamBoolMap() const {
+      return mapOfBoolean;
+    }
+
     /// returns the description for the given parameter
     virtual paramdescr getParamDescr(const paramkey& key) const;
 
-    /// sets a description for the given parameter
+    virtual paramvalBounds getParamvalBounds(const paramkey& key) const;
+
+    virtual paramintBounds getParamintBounds(const paramkey& key) const;
+
+        /// sets a description for the given parameter
     virtual void setParamDescr(const paramkey& key, const paramdescr& descr) {
       if(!descr.empty()) mapOfDescr[key] = descr;
     }
@@ -266,10 +319,11 @@ class Configurable
      If you need to do some special treatment for setting (or getting) of the parameter
      you can handle this by overloading getParam and setParam
      */
-    virtual void addParameter(const paramkey& key, paramval* val, 
-                              const paramdescr& descr = paramdescr()) {
+    virtual void addParameter(const paramkey& key, paramval* val, paramval minBound = valNegInfinity, paramval maxBound = valInfinity,
+                              const paramdescr& descr = paramdescr() ) {
       mapOfValues[key] = val;
       if(!descr.empty()) mapOfDescr[key] = descr;
+      mapOfValBounds[key]=paramvalBounds(-minBound,maxBound);
     }
 
     /**
@@ -284,20 +338,21 @@ class Configurable
     /**
      See addParameter(const paramkey& key, paramval* val) but for int values
      */
-    virtual void addParameter(const paramkey& key, paramint* val,
+    virtual void addParameter(const paramkey& key, paramint* val, paramint minBound = intNegInfinity, paramint maxBound = intInfinity,
                               const paramdescr& descr = paramdescr()) {
       mapOfInteger[key] = val;
       if(!descr.empty()) mapOfDescr[key] = descr;
+      mapOfIntBounds[key]=paramintBounds(-minBound,maxBound);
     }
 
     /**
      This function is only provided for convenience. It does the same as addParameter but set the
      variable to the default value
      */
-    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def,
+    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def, paramval minBound = valNegInfinity, paramval maxBound = valInfinity,
                                  const paramdescr& descr = paramdescr()){
       *val = def;
-      addParameter(key,val,descr);
+      addParameter(key,val, minBound, maxBound, descr);
     }
 
     /// See addParameterDef(const paramkey&, paramval*, paramval)
@@ -308,10 +363,10 @@ class Configurable
     }
 
     /// See addParameterDef(const paramkey&, paramval*, paramval)
-    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def,
+    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def, paramint minBound = intNegInfinity, paramint maxBound = intInfinity,
                                  const paramdescr& descr = paramdescr()) {
       *val = def;
-      addParameter(key,val,descr);
+      addParameter(key,val, minBound, maxBound, descr);
     }
 
 
@@ -347,6 +402,11 @@ class Configurable
     paramboolmap mapOfBoolean;
     paramintmap mapOfInteger;
     paramdescrmap mapOfDescr;
+
+    paramvalBoundsMap mapOfValBounds;
+    paramintBoundsMap mapOfIntBounds;
+
+    void initParamBounds(const paramkey& key);
 };
 
 #endif // __CONFIGURABLE_H

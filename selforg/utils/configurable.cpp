@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-03-03 14:56:30  martius
+ *   Revision 1.9  2010-11-26 12:15:05  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *
+ *   Revision 1.8  2010/03/03 14:56:30  martius
  *   improved printing of parameterdescription
  *
  *   Revision 1.7  2010/02/01 15:22:02  guettler
@@ -213,6 +217,21 @@ Configurable::paramdescr Configurable::getParamDescr(const paramkey& key) const 
     return it->second;
   }else return paramdescr();
 }
+
+Configurable::paramvalBounds Configurable::getParamvalBounds(const paramkey& key) const {
+  paramvalBoundsMap::const_iterator it = mapOfValBounds.find(key);
+  if (it != mapOfValBounds.end()) {
+    return it->second;
+  }else return paramvalBounds(-valInfinity,valInfinity);
+}
+
+Configurable::paramintBounds Configurable::getParamintBounds(const paramkey& key) const {
+  paramintBoundsMap::const_iterator it = mapOfIntBounds.find(key);
+  if (it != mapOfIntBounds.end()) {
+    return it->second;
+  }else return paramintBounds(-intInfinity,intInfinity);
+}
+
 
 void Configurable::print(FILE* f, const char* prefix, int columns) const {
   const char* pre = prefix==0 ? "": prefix;    
