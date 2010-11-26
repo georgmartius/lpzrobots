@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-23 11:08:06  guettler
+ *   Revision 1.5  2010-11-26 12:22:36  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.4  2010/11/23 11:08:06  guettler
  *   - some helper functions
  *   - bugfixes
  *   - better event handling
@@ -47,12 +53,14 @@
 #include "QCCHelper.h"
 #include "constants.h"
 #include "QCommunicationChannel.h"
+#include "QLog.h"
+#include "QECBMessageDispatchServer.h"
 
 #include <QHash>
 
 namespace lpzrobots {
   
-  int QCCHelper::getDefaultBaudrateByName(QString actDeviceName) {
+  int QCCHelper::getDefaultBaudrateByName(QString& actDeviceName) {
     if (actDeviceName.startsWith("USB-XBEE-Adapter", Qt::CaseInsensitive))
       return 57600;
     if (actDeviceName.startsWith("USB-USART-Adapter", Qt::CaseInsensitive))
@@ -62,7 +70,7 @@ namespace lpzrobots {
     return 0;
   }
 
-  QByteArray QCCHelper::toIspMessage(QByteArray msgToFormat) {
+  QByteArray QCCHelper::toIspMessage(QByteArray& msgToFormat) {
     QExtByteArray msg;
     uint length = 1 + msgToFormat.length();
     msg.append(0x7E); // 0x00: Startsymbol
@@ -74,7 +82,7 @@ namespace lpzrobots {
     msg.appendChecksum(); // packet checksum
     return (QByteArray) msg;
   }
-  QByteArray QCCHelper::toUsartMessage(QByteArray msgToFormat) {
+  QByteArray QCCHelper::toUsartMessage(QByteArray& msgToFormat) {
     QExtByteArray msg;
     uint length = 1 + msgToFormat.length();
     msg.append(0x7E); // 0x00: Startsymbol
@@ -87,7 +95,7 @@ namespace lpzrobots {
     return (QByteArray) msg;
   }
 
-  QByteArray QCCHelper::toXBeeS1Message(QByteArray msgToFormat, uint16 address16) {
+  QByteArray QCCHelper::toXBeeS1Message(QByteArray& msgToFormat, uint16 address16) {
     QExtByteArray msg;
     uint length = 5 + msgToFormat.length();
     msg.append(0x7E); // 0x00: Startsymbol
@@ -104,7 +112,7 @@ namespace lpzrobots {
     return (QByteArray) msg;
   }
 
-  QByteArray QCCHelper::toXBeeS2Message(QByteArray msgToFormat, uint16 address16, uint64 address64) {
+  QByteArray QCCHelper::toXBeeS2Message(QByteArray& msgToFormat, uint16 address16, uint64 address64) {
     QExtByteArray msg;
     uint length = 5 + msgToFormat.length();
     msg.append(0x7E); // 0x00: Startsymbol
@@ -130,7 +138,7 @@ namespace lpzrobots {
     return (QByteArray) msg;
   }
 
-  QByteArray QCCHelper::toXBeeATCommand(QByteArray msgToFormat) {
+  QByteArray QCCHelper::toXBeeATCommand(QByteArray& msgToFormat) {
     QExtByteArray msg;
     uint length = 2 + msgToFormat.length();
     msg.append(0x7E); // 0x00: Startsymbol
@@ -144,7 +152,7 @@ namespace lpzrobots {
     return (QByteArray) msg;
   }
 
-  QByteArray QCCHelper::toXBeeRemoteATCommand(QByteArray msgToFormat, uint16 address16, uint64 address64) {
+  QByteArray QCCHelper::toXBeeRemoteATCommand(QByteArray& msgToFormat, uint16 address16, uint64 address64) {
     QExtByteArray msg;
     uint length = 13 + msgToFormat.length();
     msg.append(0x7E); // 0x00: Startsymbol
@@ -169,7 +177,7 @@ namespace lpzrobots {
     return (QByteArray) msg;
   }
 
-  QCCHelper::usbDeviceType_t QCCHelper::getUsbDeviceTypeByName(QString usbDeviceName) {
+  QCCHelper::usbDeviceType_t QCCHelper::getUsbDeviceTypeByName(QString& usbDeviceName) {
     if (usbDeviceName.startsWith("USB-ISP-Adapter"))
       return USBDevice_ISP_ADAPTER;
     if (usbDeviceName.startsWith("USB-USART-Adapter"))
@@ -179,7 +187,7 @@ namespace lpzrobots {
     return USBDevice_None;
   }
 
-  int QCCHelper::getApplicationModeByName(QString usbDeviceName) {
+  int QCCHelper::getApplicationModeByName(QString& usbDeviceName) {
     if (usbDeviceName.startsWith("USB-ISP-Adapter"))
       return APPLICATION_MODE_ISP_Adapter;
     if (usbDeviceName.startsWith("USB-USART-Adapter"))
@@ -230,6 +238,66 @@ namespace lpzrobots {
       eventDescriptionMap[EVENT_TIMEOUT_XBEE_SEND_MESSAGE_BL] = "Timeout before getting response of bootloader message";
       eventDescriptionMap[EVENT_TIMEOUT_XBEE_SEND_MESSAGE_ISP] = "Timeout before getting response of ISP message";
     } // else alreasy filled!
+  }
+
+  struct QCCHelper::XBeeRemoteNode_t* QCCHelper::getXBeeRemoteNode(QByteArray& msg,
+      QList<XBeeRemoteNode_t*>& xbeeRemoteNodeList) {
+    // ----------------------
+    // 0x00 - StartDelimiter
+    // 0x01 - Length_HighByte
+    // 0x02 - Length_LowByte
+    // 0x03 - API-Identifier
+    foreach(struct XBeeRemoteNode_t* xbeeRemoteNode, xbeeRemoteNodeList)
+      {
+        switch ((uchar)msg[3]) {
+          case API_XBeeS1_Receive_Packet_16Bit: {
+            // Eine Nachricht wurde über ein USB-XBee-Adapter::XBeeSerie1 empfangen
+            // 0x04 - SourceAddress16_1
+            // 0x05 - SourceAddress16_0
+            uint16 xbee_source_address16 = ((msg[4] & 0xFF) << 8) + msg[5];
+            if (xbeeRemoteNode->address16 == xbee_source_address16)
+              return xbeeRemoteNode;
+            break;
+          }
+          case API_XBeeS2_ZigBee_Receive_Packet: {
+            // Eine Nachricht wurde über ein USB-XBee-Adapter::XBeeSerie2 empfangen
+            // 0x04 - Frame-Id
+            // ----------------------
+            // 0x05 - SourceAddress64_7
+            // 0x06 - SourceAddress64_6
+            // 0x07 - SourceAddress64_5
+            // 0x08 - SourceAddress64_4
+            // 0x09 - SourceAddress64_3
+            // 0x0A - SourceAddress64_2
+            // 0x0B - SourceAddress64_1
+            // 0x0C - SourceAddress64_0
+            uint64 xbee_source_address64 = 0;
+            xbee_source_address64 += ((uint64) (msg[0x05] & 0xFF) << 7 * 8);
+            xbee_source_address64 += ((uint64) (msg[0x06] & 0xFF) << 6 * 8);
+            xbee_source_address64 += ((uint64) (msg[0x07] & 0xFF) << 5 * 8);
+            xbee_source_address64 += ((uint64) (msg[0x08] & 0xFF) << 4 * 8);
+            xbee_source_address64 += ((uint64) (msg[0x09] & 0xFF) << 3 * 8);
+            xbee_source_address64 += ((uint64) (msg[0x0A] & 0xFF) << 2 * 8);
+            xbee_source_address64 += ((uint64) (msg[0x0B] & 0xFF) << 1 * 8);
+            xbee_source_address64 += ((uint64) (msg[0x0C] & 0xFF) << 0 * 8);
+            if (xbeeRemoteNode->address64 == xbee_source_address64)
+              return xbeeRemoteNode;
+            break;
+          }
+        }
+      }
+    // nothing found
+    return NULL;
+  }
+
+  void QCCHelper::printXbeeRemoteNodeInfo(QString usbDeviceName, XBeeRemoteNode_t* xbeeNode) {
+    QString line;
+    line.append("[" + usbDeviceName + "]");
+    line.append("[" + QCCHelper::toHexNumberString(xbeeNode->address16, 4) + ":");
+    line.append(QCCHelper::toHexNumberString(xbeeNode->address64, 16));
+    line.append(":" + xbeeNode->Identifier + "]");
+    line.append("[" + xbeeNode->dns_name + "]");
+    QLog::logDebug(line);
   }
 
 } // namespace lpzrobots

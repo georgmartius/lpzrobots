@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   Revision 1.3  2010-11-26 12:22:37  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.2  2010/11/11 15:34:59  wrabe
  *   - some extensions for QMessageClient (e.g. quitServer())
  *   - fixed some includes
  *
@@ -45,9 +51,8 @@
 namespace lpzrobots {
 
   QECBManager::QECBManager(int argc, char** argv) :
-    Configurable("QECBManager", "$ID$"), simulation_time_reached(false), commInitialized(false), argc(argc), argv(argv) {
-    globalData.configs.push_back(this);
-
+    simulation_time_reached(false), commInitialized(false), argc(argc), argv(argv) {
+    globalData.configs.push_back(&globalData);
   }
 
   QECBManager::~QECBManager() {
@@ -118,37 +123,11 @@ namespace lpzrobots {
     }
     globalData.agents.clear();
     globalData.configs.clear();
+    globalData.configs.push_back(&globalData);
     globalData.plotOptions.clear();
   }
 
   /// CONFIGURABLE INTERFACE
-
-  Configurable::paramval QECBManager::getParam(const paramkey& key) const {
-    /*if(key == "noise") return noise;
-     else if(key == "cycletime") return cycletime;
-     else if(key == "reset") return 0;
-     else */return Configurable::getParam(key);
-  }
-
-  bool QECBManager::setParam(const paramkey& key, paramval val) {
-    /*if(key == "noise") noise = val;
-     else if(key == "cycletime"){
-     cycletime=(long)val;
-     } else if(key == "reset"){
-     doReset=true;
-     } else*/
-    return Configurable::setParam(key, val);
-    //return true;
-  }
-
-  Configurable::paramlist QECBManager::getParamList() const {
-    paramlist list;
-    /*list += pair<paramkey, paramval> (string("noise"), noise);
-     list += pair<paramkey, paramval> (string("cycletime"), cycletime);
-     */
-    //list += pair<paramkey, paramval> (std::string("reset"), 0);
-    return list;
-  }
 
   void QECBManager::sl_textLog(QString log) {
     globalData.textLog(log); // forwarding

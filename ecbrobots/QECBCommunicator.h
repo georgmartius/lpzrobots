@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   Revision 1.3  2010-11-26 12:22:37  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.2  2010/11/11 15:34:59  wrabe
  *   - some extensions for QMessageClient (e.g. quitServer())
  *   - fixed some includes
  *
@@ -95,7 +101,7 @@ namespace lpzrobots {
       virtual void sl_quitServer();
 
     signals:
-      virtual void sig_sendMessage(struct _communicationMessage msg);
+      void sig_sendMessage(struct _communicationMessage msg);
 
       void sig_quitServer();
 
@@ -134,6 +140,8 @@ namespace lpzrobots {
       QString printBuffer(const QByteArray buffer);
       QString printBuffer(const uint8 buffer);
       QString printBuffer(const uint8 buffer[]);
+      QString toHexNumberString(uint64 value, uint numberDigits);
+
 
 
   };

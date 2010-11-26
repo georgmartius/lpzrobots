@@ -8,6 +8,7 @@
 #include "commanddefs.h"
 
 #include <selforg/invertmotornstep.h>
+#include <selforg/sinecontroller.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/abstractcontrolleradapter.h>
 
@@ -16,12 +17,12 @@ using namespace std;
 
 static int zeroRange = 0.00;
 /**
- * Simple cheat to get motors motorsStopped without implemented start and stop command.
+ *
  */
 class CheatedECB : public ECB {
   public:
     CheatedECB(QString dnsName, QGlobalData& globalData, ECBConfig& ecbConfig) :
-      ECB(dnsName, globalData, ecbConfig), motorsStopped(false) {
+      ECB(dnsName, globalData, ecbConfig) {
     }
 
     virtual ~CheatedECB() {
@@ -49,7 +50,7 @@ class CheatedECB : public ECB {
       {
         // Agent and Controller process with double-values
         // The ECB(hardware) has to work with byte-values
-        if (motorsStopped || ((*m) >= -zeroRange && (*m) <= zeroRange))
+        if ((*m) >= -zeroRange && (*m) <= zeroRange)
           event->commPackage.data[i++] = convertToByte(0);
         else
           event->commPackage.data[i++] = convertToByte((*m));
@@ -57,24 +58,7 @@ class CheatedECB : public ECB {
       informMediator(event);
     }
 
-    /**
-     * Send stop command to the ECB to disable the motors
-     */
-    virtual void stopMotors() {
-      motorsStopped = true;
-      sendMotorValuesPackage();
-    }
-
-    /**
-     * Send start command to the ECB to enable the motors
-     */
-    virtual void startMotors() {
-      motorsStopped = false;
-    }
-
-  private:
-    bool motorsStopped;
-};
+ };
 
 class MyController : public AbstractControllerAdapter {
   public:
@@ -118,25 +102,28 @@ class MyECBManager : public QECBManager {
       global.serialReadTimeout = 100;
       global.cycleTime = 50;
       global.noise = 0.05;
-      global.plotOptions.push_back(PlotOption(GuiLogger, 1));
+      //global.plotOptions.push_back(PlotOption(GuiLogger, 1));
 
       int numberNimm2 = 3;
       for (int nimm2Index = 0; nimm2Index < numberNimm2; nimm2Index++)
       {
-        //        if (nimm2Index!=2)
-        //          continue;
+               if (nimm2Index!=1)
+                  continue;
         // create new controller
         InvertMotorNStepConf conConf = InvertMotorNStep::getDefaultConf();
         conConf.initialC = matrix::Matrix(2, 2);
-        conConf.initialC.val(0, 0) = 1.0;
-        conConf.initialC.val(1, 1) = 1.0;
+        conConf.initialC.val(0, 0) = 1.1;
+        conConf.initialC.val(1, 1) = 1.1;
         conConf.initialC.val(1, 0) = -0.07;
         conConf.initialC.val(0, 1) = -0.07;
 
         AbstractController* myCon = new InvertMotorNStep(conConf);
-        //        AbstractController* myCon = new SineController();
-        myCon->setParam("epsA", 0);
-        myCon->setParam("epsC", 0);
+        //AbstractController* myCon = new SineController();
+        //myCon->setParam("period", 500);
+
+       // myCon->setParam("epsA", 0);
+        //myCon->setParam("epsC", 0);
+        global.configs.push_back(myCon);
 
         // create new wiring
         AbstractWiring* myWiring = new One2OneWiring(new WhiteNormalNoise());
@@ -146,18 +133,19 @@ class MyECBManager : public QECBManager {
         // create ECB
         ECBConfig ecbConf = ECB::getDefaultConf();
         ecbConf.maxNumberSensors = 2; // no infrared sensors
+        ecbConf.maxNumberMotors = 2;
         QString* DNSName;
         switch (nimm2Index)
         {
           case 0:
             //            DNSName = new string("NIMM2_PRIMUS");
-            DNSName = new QString("NIMM2_PRIMUS");
+            DNSName = new QString("ECB_NIMM2_PRIMUS");
             break;
           case 1:
-            DNSName = new QString("NIMM2_SECUNDUS");
+            DNSName = new QString("ECB_NIMM2_SECUNDUS");
             break;
           case 2:
-            DNSName = new QString("NIMM2_TERTIUS");
+            DNSName = new QString("ECB_NIMM2_TERTIUS");
             break;
           default:
             break;
@@ -166,7 +154,7 @@ class MyECBManager : public QECBManager {
         myRobot->addECB(myECB);
 
         // create new agent
-        ECBAgent* myAgent = new ECBAgent(PlotOption(GuiLogger_File, 5), global.noise);
+        ECBAgent* myAgent = new ECBAgent(PlotOption(NoPlot, 5), global.noise);
         // init agent with controller, robot and wiring
         myAgent->init(myCon, myRobot, myWiring);
 

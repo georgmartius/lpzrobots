@@ -22,7 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-11-11 15:34:59  wrabe
+ *   Revision 1.15  2010-11-26 12:22:37  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.14  2010/11/11 15:34:59  wrabe
  *   - some extensions for QMessageClient (e.g. quitServer())
  *   - fixed some includes
  *
@@ -311,15 +317,27 @@ namespace lpzrobots {
     currentNumberMotors = result.data[0];
     currentNumberSensors = result.data[1];
 
+
+    globalData->textLog("[" + dnsName + "] found motors: " + QString::number(currentNumberMotors) + ", sensors: "
+        + QString::number(currentNumberSensors));
+
+
     // modify the data-values with the ECB-DnsName
     stringstream ss;
+    QString description;
+    globalData->textLog("[" + dnsName + "] descriptionLine:");
 
     for (int i = 2; i < result.dataLength; i++) {
-      if (result.data[i] == ' ')
+      if (result.data[i] == ' ') {
         ss << "(" << dnsName.toStdString() << ")";
-      ss << result.data[i];
+        globalData->textLog("   - " + description);
+        description.clear();
+      }
+      else {
+        ss << (uchar)result.data[i];
+        description.append(result.data[i]);
+      }
     }
-
     // add the last dnsName to stringstream if its not empty
     if (result.dataLength > 0)
       ss << "(" + dnsName.toStdString() << ")";
@@ -343,14 +361,11 @@ namespace lpzrobots {
           + " reported more sensors than permitted and configured respectively!");
     }
 
-    globalData->textLog("ECB (" + dnsName + ") found motors: " + currentNumberMotors + ", sensors: "
-        + currentNumberSensors);
-    globalData->textLog("ECB(" + dnsName + ") descriptionLine:[" + QString(descriptionLine.c_str()) + "]");
+
+    //globalData->textLog("[" + dnsName + "] descriptionLine:[" + QString(descriptionLine.c_str()) + "]");
 
     initialised = true;
     failureCounter = 0;
-    globalData->textLog(QString::number(currentNumberMotors) + " motors, " + currentNumberSensors + " sensors: "
-        + QString(descriptionLine.c_str()));
 
     // set max motor current if deviating from default value
     if (ecbConfig.maxMotorCurrent != DEFAULT_MAX_MOTOR_CURRENT)
@@ -389,6 +404,10 @@ namespace lpzrobots {
           sendMotorValuesPackage();
         else
           sendResetECB();
+        break;
+      case ECBCommunicationEvent::EVENT_REQUEST_SEND_MOTOR_STOP_PACKAGE:
+        if (initialised)
+          stopMotors();
         break;
       case ECBCommunicationEvent::EVENT_COMMUNICATION_ANSWER_TIMEOUT:
         globalData->textLog("ECB(" + dnsName + ") did not answer: ");

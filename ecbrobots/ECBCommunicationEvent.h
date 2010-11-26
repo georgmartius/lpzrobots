@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-10 09:32:00  guettler
+ *   Revision 1.2  2010-11-26 12:22:37  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.1  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *                                                *
  *                                                                         *
@@ -51,6 +57,7 @@ namespace lpzrobots {
           EVENT_PACKAGE_SENSORS_RECEIVED, //!< indicates that a package with sensor information was received: ECBCommunicator --> ECB
           EVENT_PACKAGE_DIMENSION_RECEIVED, //!< indicates that a package with dimension (and description info) was received: ECBCommunicator --> ECB
           EVENT_REQUEST_SEND_MOTOR_PACKAGE, //!< indicates that a package with new motor values (or reset command) is requested from ECBCommunicator from a ECB: ECBCommunicator --> ECB
+          EVENT_REQUEST_SEND_MOTOR_STOP_PACKAGE,
           EVENT_COMMUNICATION_ANSWER_TIMEOUT, //!< indicates that an awaited package was not received: ECBCommunicator --> ECB
           EVENT_REQUEST_SEND_COMMAND_PACKAGE //!< indicates that the ECB has a package to send out (motor, reset, motorstop, beep,...): ECB --> ECBCommunicator
       };

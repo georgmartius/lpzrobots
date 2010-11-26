@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-11-23 11:08:06  guettler
+ *   Revision 1.6  2010-11-26 12:22:36  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.5  2010/11/23 11:08:06  guettler
  *   - some helper functions
  *   - bugfixes
  *   - better event handling
@@ -75,6 +81,10 @@ namespace lpzrobots {
 
   void QECBMessageDispatchServer::sl_sendMessage(struct _communicationMessage msg) {
     QLog::logVerbose("Client demands a message to be sent to " + msg.ecb_dns_name);
+    if (this->dnsDeviceToQCCMap.contains(msg.ecb_dns_name))
+        dnsDeviceToQCCMap[msg.ecb_dns_name]->sendMessage(msg);
+    else
+      QLog::logWarning("Unknown DNS device " + msg.ecb_dns_name + ".");
   }
 
   void QECBMessageDispatchServer::clear_usbDeviceManagerList() {
@@ -84,6 +94,7 @@ namespace lpzrobots {
         commChannel->close();
         disconnect(commChannel, SIGNAL(sig_cc_initalised(QCommunicationChannel*)));
         disconnect(commChannel, SIGNAL(sig_cc_dns_name_resolved(QCommunicationChannel*)));
+        disconnect(commChannel, SIGNAL(sig_messageReceived(struct _communicationMessage)));
         delete (commChannel);
       }
     dnsDeviceList.clear();
@@ -104,6 +115,8 @@ namespace lpzrobots {
             SLOT(sl_CCIsInitialised(QCommunicationChannel*)));
         connect(commChannel, SIGNAL(sig_cc_dns_name_resolved(QCommunicationChannel*)), this,
             SLOT(sl_scanDNSDevicesComplete(QCommunicationChannel*)));
+        connect(commChannel, SIGNAL(sig_messageReceived(struct _communicationMessage)), this,
+            SIGNAL(sig_messageReceived(struct _communicationMessage)));
       }
   }
 
@@ -163,6 +176,7 @@ namespace lpzrobots {
   void QECBMessageDispatchServer::sl_printDNSDeviceToQCCMap() {
     QMDSHelper::printDNSDeviceToQCCMap(&dnsDeviceToQCCMap);
   }
+
 
 } // namespace lpzrobots
 

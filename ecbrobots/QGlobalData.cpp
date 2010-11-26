@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   Revision 1.3  2010-11-26 12:22:37  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.2  2010/11/11 15:34:59  wrabe
  *   - some extensions for QMessageClient (e.g. quitServer())
  *   - fixed some includes
  *
@@ -68,11 +74,11 @@
 
 namespace lpzrobots {
 
-  QGlobalData::QGlobalData() {
+  QGlobalData::QGlobalData() : Configurable("ECBRobots Control Parameters", "$Id$") {
     // set default communication values and register some of them to be configurable
     baudrate = 57600;
     portName = std::string("/dev/ttyUSB0");
-    addParameterDef("maxfailures", &maxFailures, 4);
+    addParameterDef("maxfailures", &maxFailures, 4, 0,100, "number of allowed discarded messages before reset(ting) the device");
     addParameterDef("serialreadtimeout", &serialReadTimeout, 80);
     addParameterDef("discoverxbeehardwareversiontimeout", &discoverXBeeHardwareVersionTimeout, 50);
     addParameterDef("discovernodestimeout", &discoverNodesTimeout, 3000);
@@ -85,9 +91,10 @@ namespace lpzrobots {
     addParameterDef("testmode", &testMode, false);
     paused = false;
     comm = 0;
-    configs.push_back(this);
     // deploy the Communicator
     comm = new QECBCommunicator(*this);
+    // prepare name;
+   // Configurable::insertCVSInfo(name, "$RCSfile$", "$Revision$");
   }
 
   QGlobalData::~QGlobalData() {

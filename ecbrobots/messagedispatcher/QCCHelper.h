@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-23 11:08:06  guettler
+ *   Revision 1.5  2010-11-26 12:22:36  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.4  2010/11/23 11:08:06  guettler
  *   - some helper functions
  *   - bugfixes
  *   - better event handling
@@ -52,9 +58,12 @@
 #include <QByteArray>
 #include "QExtByteArray.h"
 
+
 namespace lpzrobots {
 
   class QCommunicationChannel;
+
+  struct _communicationMessage;
 
   /**
    * static methods to reduce the code in class QCommunicationChannel
@@ -93,17 +102,52 @@ namespace lpzrobots {
          EVENT_TIMEOUT_XBEE_SEND_MESSAGE_ISP ///< not used yet
        };
 
-      static usbDeviceType_t getUsbDeviceTypeByName(QString usbDeviceName);
-      static int getApplicationModeByName(QString usbDeviceName);
-      static int getDefaultBaudrateByName(QString actDeviceName);
-      static QByteArray toIspMessage(QByteArray msgToFormat);
-      static QByteArray toXBeeS1Message(QByteArray msgToFormat, uint16 address16);
-      static QByteArray toXBeeS2Message(QByteArray msgToFormat, uint16 address16, uint64 address64);
-      static QByteArray toUsartMessage(QByteArray msgToFormat);
-      static QByteArray toXBeeATCommand(QByteArray msgToFormat);
-      static QByteArray toXBeeRemoteATCommand(QByteArray msgToFormat, uint16 address16, uint64 address64);
+      struct XBeeLocalNode_t {
+          XBeeLocalNode_t(){
+            type = 0;
+            hardwareVersion = 0;
+            rf_channel = 0x10000;  // Parameter Range: 0x0B - 0x1A (XBee) , 0x0C - 0x17 (XBee-PRO)
+            pan_identifier = 0x10000;         // Parameter Range: 0 - 0xFFFF
+          };
+          uint16  hardwareVersion;
+          uint    type;
+          uint    rf_channel;
+          uint    pan_identifier;
+      };
+
+      struct DNSDevice_t {
+        public:
+          QString dns_name;
+      };
+
+      struct XBeeRemoteNode_t : public DNSDevice_t {
+        public:
+          XBeeRemoteNode_t(){
+            address16 = 0xFFFE;
+            address64 = 0x000000000000FFFF;
+          };
+          QString Identifier;
+          uint16  address16;
+          uint64  address64;
+      };
+
+      static usbDeviceType_t getUsbDeviceTypeByName(QString& usbDeviceName);
+      static int getApplicationModeByName(QString& usbDeviceName);
+      static int getDefaultBaudrateByName(QString& actDeviceName);
+      static QByteArray toIspMessage(QByteArray& msgToFormat);
+      static QByteArray toXBeeS1Message(QByteArray& msgToFormat, uint16 address16);
+      static QByteArray toXBeeS2Message(QByteArray& msgToFormat, uint16 address16, uint64 address64);
+      static QByteArray toUsartMessage(QByteArray& msgToFormat);
+      static QByteArray toXBeeATCommand(QByteArray& msgToFormat);
+      static QByteArray toXBeeRemoteATCommand(QByteArray& msgToFormat, uint16 address16, uint64 address64);
+
+      /**
+       * Extracts from the package the addresses and lookups which xbee remote node belongs to it.
+       */
+      static struct XBeeRemoteNode_t* getXBeeRemoteNode(QByteArray& msg, QList<XBeeRemoteNode_t*>& xbeeRemoteNodeList);
 
 
+      static void printXbeeRemoteNodeInfo(QString usbDeviceName, XBeeRemoteNode_t* xbeeNode);
       static QString toHexNumberString(uint64 value, uint numberDigits);
       static QString getInitialisedStateString(typeInitialisedState initialisedState);
 

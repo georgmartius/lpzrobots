@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-19 15:15:00  guettler
+ *   Revision 1.4  2010-11-26 12:22:37  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.3  2010/11/19 15:15:00  guettler
  *   - new QLog feature
  *   - bugfixes
  *   - FT232Manager is now in lpzrobots namespace
@@ -43,6 +49,8 @@
  ***************************************************************************/
 
 #include "QECBRobotsWindow.h"
+#include "QConfigurableWidget.h"
+#include  <QScrollArea>
 
 namespace lpzrobots {
 
@@ -65,9 +73,6 @@ namespace lpzrobots {
     tabWidget->addTab(logView, tr("Report"));
     grid->addWidget(tabWidget, 0, 0);
 
-    setMinimumWidth(600);
-    setMaximumWidth(600);
-
     this->ecbManager = manager;
     this->globalData = &(manager->getGlobalData());
     connect(globalData, SIGNAL(sig_textLog(QString)), this, SLOT(sl_textLog(QString)));
@@ -82,6 +87,8 @@ namespace lpzrobots {
 
     // start the QECBManager (1st stage loop, 2nd stage loop is started by QECBCommunicator)
     this->ecbManager->initialize();
+
+    updateConfigurableWidget();
   }
 
   void QECBRobotsWindow::createActions() {
@@ -101,7 +108,7 @@ namespace lpzrobots {
     connect(action_RestartLoop, SIGNAL(triggered(int)), ecbManager, SLOT(sl_GUIEventHandler(int)));
 
     action_PauseLoop = new QExtAction(QECBManager::EVENT_PAUSE_LOOP, (tr("&Pause/Unpause loop")), this);
-    action_PauseLoop->setShortcut(tr("CTRL+P"));
+    action_PauseLoop->setShortcut(tr("SPACE"));
     action_PauseLoop->setStatusTip(tr("Pause and Unpause the control loop"));
     connect(action_PauseLoop, SIGNAL(triggered(int)), ecbManager, SLOT(sl_GUIEventHandler(int)));
 
@@ -178,24 +185,24 @@ namespace lpzrobots {
     QSize size = settings.value("size", QSize(400, 400)).toSize();
     resize(size);
     move(pos);
-    bool warning = settings.value("warning").toBool();
-    bool verbose = settings.value("verbose").toBool();
-    bool debug = settings.value("debug").toBool();
+    bool warning = settings.value("warningOutput").toBool();
+    bool verbose = settings.value("verboseOutput").toBool();
+    bool debug = settings.value("debugOutput").toBool();
     action_SwitchWarning->setChecked(warning);
     action_SwitchVerbose->setChecked(verbose);
     action_SwitchDebug->setChecked(debug);
-    sl_GUIEventHandler(EVENT_SWITCH_WARNING);
-    sl_GUIEventHandler(EVENT_SWITCH_VERBOSE);
-    sl_GUIEventHandler(EVENT_SWITCH_DEBUG);
+    globalData->warningOutput = warning;
+    globalData->verboseOutput = verbose;
+    globalData->debugOutput = debug;
   }
 
   void QECBRobotsWindow::writeSettings() {
     QSettings settings(applicationPath + QString("ecbrobots.settings"), QSettings::IniFormat);
     settings.setValue("pos", pos());
     settings.setValue("size", size());
-    settings.setValue("warningOutput", action_SwitchWarning->isChecked());
-    settings.setValue("verboseOutput", action_SwitchVerbose->isChecked());
-    settings.setValue("debugOutput", action_SwitchDebug->isChecked());
+    settings.setValue("warningOutput", globalData->warningOutput);
+    settings.setValue("verboseOutput", globalData->verboseOutput);
+    settings.setValue("debugOutput", globalData->debugOutput);
   }
 
   void QECBRobotsWindow::closeEvent(QCloseEvent *event) {
@@ -233,6 +240,7 @@ namespace lpzrobots {
         action_PauseLoop->setEnabled(true);
         action_StopLoop->setEnabled(true);
         globalData->textLog("STATE: Running");
+        updateConfigurableWidget();
         break;
       case QECBCommunicator::STATE_PAUSED: //!< state which indicates that all actions are paused
         action_StartLoop->setEnabled(false);
@@ -248,6 +256,7 @@ namespace lpzrobots {
         action_PauseLoop->setEnabled(false);
         action_StopLoop->setEnabled(false);
         globalData->textLog("STATE: Stopped");
+        updateConfigurableWidget();
         break;
     }
   }
@@ -270,5 +279,28 @@ namespace lpzrobots {
         break;
     }
   }
+
+  void QECBRobotsWindow::updateConfigurableWidget() {
+    int index=tabWidget->currentIndex();
+    tabWidget->removeTab(1);
+    tabWidget->insertTab(1,createConfigurableWidget(),"Configurables");
+    tabWidget->setCurrentIndex(index);
+  }
+
+  QWidget* QECBRobotsWindow::createConfigurableWidget() {
+    QWidget* configWidget = new QWidget();
+    QGridLayout* grid = new QGridLayout();
+    configWidget->setLayout(grid);
+    //int i = 0;
+    FOREACH(ConfigList, globalData->configs, config) {
+      grid->addWidget(new QConfigurableWidget((*config)));//, i++, 0, Qt::AlignJustify);
+    }
+    QScrollArea* scrollArea = new QScrollArea();
+     //scrollArea->setBackgroundRole(QPalette::Dark);
+     scrollArea->setWidget(configWidget);
+    return scrollArea;
+  }
+
+
 
 } // namespace lpzrobots

@@ -33,10 +33,11 @@
  *  Empfang neuer Daten vom Port                                           *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-11-23 11:08:06  guettler
- *   - some helper functions
+ *   Revision 1.6  2010-11-26 12:22:36  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
- *   - better event handling
+ *   - current development state of QConfigurable (Qt GUI)
  *
  *   Revision 1.4  2010/11/19 15:15:00  guettler
  *   - new QLog feature
@@ -63,13 +64,9 @@
 #include <QtGui>
 #include <QThread>
 #include <QString>
+#include <ftdi.h>
 #include "constants.h"
 #include "types.h"
-
-namespace Ftdi {
-  class Context;
-  class List;
-}
 
 namespace lpzrobots {
 
@@ -77,34 +74,37 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
+      QFT232DeviceManager();
       virtual ~QFT232DeviceManager();
       virtual void run();
 
-      static QList<QFT232DeviceManager*> getDeviceManagerList();
-      static QFT232DeviceManager* openDeviceByName(QString usb_deviceName_to_open, int baudrate_to_use);
-
+      void createDeviceList();
+      QStringList getDeviceList();
+      int openDevice(struct usb_device* usb_dev, int baudrate);
+      int openDeviceByName(QString usb_deviceName_to_open, int baudrate_to_use);
       int setBaudrate(int baudrate_to_set);
       int setLatencyTimer(int latency_to_set);
       int setDTR(int dtr_val);
       int closeDevice();
 
-      static bool isDeviceAvailable(QString deviceName);
+      bool isDeviceAvailable(QString deviceName);
       bool isDeviceOpened() {
         return opened;
       }
-
       int getBaudrate() {
         return baudrate;
       }
-
+      ;
       QString getDeviceName() {
         return deviceName;
       }
-
+      ;
       int writeData(QByteArray msg);
 
-    protected:
-      QFT232DeviceManager(Context* c);
+      /*
+       void setDeviceName(QString name){ deviceName = name.toLatin1(); };
+       QString getDeviceName() {return deviceName;};
+       */
 
     signals:
       void sig_newData(QByteArray msg);
@@ -118,7 +118,8 @@ namespace lpzrobots {
       volatile bool opened;
       volatile bool runListener;
 
-      Ftdi::Context ftdiContext;
+      struct ftdi_context ftdic;
+      struct ftdi_device_list* devlist;
       struct usb_device* usb_device_opened;
 
   };

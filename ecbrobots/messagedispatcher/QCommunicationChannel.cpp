@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-11-23 11:08:06  guettler
+ *   Revision 1.6  2010-11-26 12:22:36  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.5  2010/11/23 11:08:06  guettler
  *   - some helper functions
  *   - bugfixes
  *   - better event handling
@@ -183,7 +189,7 @@ namespace lpzrobots {
   }
 
   void QCommunicationChannel::sl_XBee_ReadDnsNames_Delayed() {
-    foreach(struct XBeeRemoteNode_t* xbeeRemoteNode, xbeeRemoteNodeList)
+    foreach(struct QCCHelper::XBeeRemoteNode_t* xbeeRemoteNode, xbeeRemoteNodeList)
       {
         QLog::logDebug(usbDeviceManager.getDeviceName() + ":sl_XBee_ReadDnsNames_Delayed");
 
@@ -212,7 +218,7 @@ namespace lpzrobots {
   }
 
   void QCommunicationChannel::clearXbeeRemoteList() {
-    foreach(struct XBeeRemoteNode_t* xbeeRemoteNode, xbeeRemoteNodeList)
+    foreach(struct QCCHelper::XBeeRemoteNode_t* xbeeRemoteNode, xbeeRemoteNodeList)
       {
         free(xbeeRemoteNode);
         xbeeRemoteNodeList.removeOne(xbeeRemoteNode);
@@ -224,12 +230,12 @@ namespace lpzrobots {
     responseTimer.start(QCCHelper::EVENT_TIMEOUT_XBEE_COMMAND);
   }
 
-  void QCommunicationChannel::send_XBeeRemoteCommand(QByteArray command, struct XBeeRemoteNode_t* node) {
+  void QCommunicationChannel::send_XBeeRemoteCommand(QByteArray command, struct QCCHelper::XBeeRemoteNode_t* node) {
     usbDeviceManager.writeData(QCCHelper::toXBeeRemoteATCommand(command, node->address16, node->address64));
     responseTimer.start(QCCHelper::EVENT_TIMEOUT_XBEE_REMOTE_COMMAND);
   }
 
-  void QCommunicationChannel::send_ECB_Reset(struct XBeeRemoteNode_t* node) {
+  void QCommunicationChannel::send_ECB_Reset(struct QCCHelper::XBeeRemoteNode_t* node) {
     switch (usbDeviceType) {
       case QCCHelper::USBDevice_USART_ADAPTER: {
         QByteArray msg;
@@ -398,7 +404,7 @@ namespace lpzrobots {
               uint16 dns_name_length = ((received_msg[1] & 0xFF) << 8) + received_msg[2] - 5;
               QString dnsName;
               dnsName.append(received_msg.mid(0x08, dns_name_length));
-              DNSDevice_t* dnsDeviceStruct = new DNSDevice_t();
+              QCCHelper::DNSDevice_t* dnsDeviceStruct = new QCCHelper::DNSDevice_t();
               dnsDeviceStruct->dns_name = dnsName;
               dnsDeviceList.append(dnsDeviceStruct);
               QString line;
@@ -410,10 +416,40 @@ namespace lpzrobots {
             }
             break;
           }
+          default: {
+            // dispatch packet (find out corresponding DNS device) and send it to the MessageDispatchServer
+            if (dnsDeviceList.isEmpty()) {
+              QLog::logWarning(
+                  "[QCC] Received message from DNS device, but not recognized while scanned for DNS devices.");
+              printMessage(usbDeviceManager.getDeviceName() + ":dispatch_xbee ", received_msg);
+              return;
+            }
+            struct _communicationMessage message;
+            message.ecb_dns_name = dnsDeviceList[0]->dns_name;
+            message.data = received_msg.mid(4);
+            emit
+            sig_messageReceived(message);
+            break;
+          }
         }//switch(msgResponseCode)
+      } else {
+        // dispatch packet (find out corresponding DNS device) and send it to the MessageDispatchServer
+        if (dnsDeviceList.isEmpty()) {
+          QLog::logWarning(
+              "[QCC] Received message from DNS device, but not recognized while scanned for DNS devices.");
+          printMessage(usbDeviceManager.getDeviceName() + ":dispatch_xbee ", received_msg);
+          return;
+        }
+        struct _communicationMessage message;
+        message.ecb_dns_name = dnsDeviceList[0]->dns_name;
+        message.data = received_msg.mid(4);
+        emit
+        sig_messageReceived(message);
       }
     }
   }
+
+
   void QCommunicationChannel::dispatch_xbee(QByteArray received_msg) {
     // Eine Nachricht vom USB-XBEE wurde empfangen
     // ----------------------
@@ -422,6 +458,8 @@ namespace lpzrobots {
     // 0x02 - Length_LowByte
     // 0x03 - API-Identifier
     uint api_Identifier = received_msg[3] & 0xFF;
+
+    QCCHelper::XBeeRemoteNode_t* xbeeRemoteNode = QCCHelper::getXBeeRemoteNode(received_msg, xbeeRemoteNodeList);
 
     //TODO:
     QLog::logDebug(usbDeviceManager.getDeviceName() + ":dispatch_xbee: " + QString::number(api_Identifier, 16));
@@ -437,7 +475,13 @@ namespace lpzrobots {
           printMessage(usbDeviceManager.getDeviceName() + ":dispatch_xbee ", received_msg);
         break;
       }
-      case QCCHelper::API_XBeeS1_Receive_Packet_16Bit: {
+      case QCCHelper::API_XBeeS1_Receive_Packet_16Bit:
+      case QCCHelper::API_XBeeS2_ZigBee_Receive_Packet: {
+        if (xbeeRemoteNode == NULL) {
+          QLog::logWarning("[QCC] Received message from XBee node, but not recognized while discovering nodes.");
+          printMessage(usbDeviceManager.getDeviceName() + ":dispatch_xbee ", received_msg);
+          return;
+        }
         // Eine Nachricht wurde über ein USB-XBee-Adapter::XBeeSerie1 empfangen
         // ----------------------
         // 0x00 - StartDelimiter
@@ -449,115 +493,79 @@ namespace lpzrobots {
         // 0x05 - SourceAddress16_0
         // 0x06 - RSSI
         // 0x07 - Options
-        // ----------------------
         // 0x08 - MsgGroup
         // 0x09 - MsgCode
         // 0x0A - data/params...
-        if ((QByte) received_msg[0x08] == (QByte) MsgGroup_Identifier_ECBRobotFirmware) { // msgGroup-Identifier
-          if ((QByte) received_msg[0x09] == (QByte) MsgCode_ResponsePacket) { // msgCode
-            switch (received_msg[0x0A]) { // msgResponseCode
+        uint indexMsgGroup = 0x08;
+        uint indexMsgCode = 0x09;
+        uint indexData = 0x0A;
+        if (api_Identifier == QCCHelper::API_XBeeS2_ZigBee_Receive_Packet) {
+          // Eine Nachricht wurde über ein USB-XBee-Adapter::XBeeSerie2 empfangen
+          // ----------------------
+          // 0x00 - StartDelimiter
+          // 0x01 - Length_HighByte
+          // 0x02 - Length_LowByte
+          // 0x03 - API-Identifier
+          // ----------------------
+          // 0x04 - Frame-Id
+          // ----------------------
+          // 0x05 - SourceAddress64_7
+          // 0x06 - SourceAddress64_6
+          // 0x07 - SourceAddress64_5
+          // 0x08 - SourceAddress64_4
+          // 0x09 - SourceAddress64_3
+          // 0x0A - SourceAddress64_2
+          // 0x0B - SourceAddress64_1
+          // 0x0C - SourceAddress64_0
+          // ----------------------
+          // 0x0D - SourceAddress16_1
+          // 0x0E - SourceAddress16_0
+          // ----------------------
+          // 0x0F - Options
+          // ----------------------
+          // 0x10 - MsgGroup
+          // 0x11 - MsgCode
+          // 0x12 - data/params...
+          indexMsgGroup = 0x10;
+          indexMsgCode = 0x11;
+          indexData = 0x12;
+        }
+        if ((QByte) received_msg[indexMsgGroup] == (QByte) MsgGroup_Identifier_ECBRobotFirmware) { // msgGroup-Identifier
+          if ((QByte) received_msg[indexMsgCode] == (QByte) MsgCode_ResponsePacket) { // msgCode
+            switch (received_msg[indexData]) { // msgResponseCode
               case MsgCode_ECB_Command_get_DNS_Name: {
                 // MessageStructure
                 // ----------------------
-                // 0x08 - MsgGroup
-                // 0x09 - MsgCode_ResponsePacket
-                // 0x0A - MsgCode_ECB_Command_get_DNS_Name
-                // 0x0B - responseState (0=ok, 1=error)
-                // 0x0C - dns_name...
-                if ((QByte) received_msg[0x0B] == (QByte) 0) {
-                  uint16 xbee_source_address = ((received_msg[4] & 0xFF) << 8) + received_msg[5];
+                // Xbee1 Xbee2 indexData+
+                // 0x08  0x10  ----------  - MsgGroup
+                // 0x09  0x11   0          - MsgCode_ResponsePacket
+                // 0x0A  0x12   1          - MsgCode_ECB_Command_get_DNS_Name
+                // 0x0B  0x13   2          - responseState (0=ok, 1=error)
+                // 0x0C  0x14   3          - dns_name...
+                if ((QByte) received_msg[indexData + 1] == (QByte) 0) {
                   uint16 dns_name_length = ((received_msg[1] & 0xFF) << 8) + received_msg[2] - 9;
                   QString dnsName;
-                  dnsName.append(received_msg.mid(0x0C, dns_name_length));
-                  foreach(struct XBeeRemoteNode_t* xbeeNode, xbeeRemoteNodeList)
-                    {
-                      if (xbeeNode->address16 == xbee_source_address) {
-                        xbeeNode->dns_name = dnsName;
-                        QString line;
-                        line.append("[" + usbDeviceManager.getDeviceName() + "]");
-                        line.append("[" + QCCHelper::toHexNumberString(xbeeNode->address16, 4) + ":");
-                        line.append(QCCHelper::toHexNumberString(xbeeNode->address64, 16));
-                        line.append(":" + xbeeNode->Identifier + "]");
-                        line.append("[" + xbeeNode->dns_name + "]");
-                        QLog::logDebug(line);
-                      }
-                    }
+                  dnsName.append(received_msg.mid(indexData + 2, dns_name_length));
+                  xbeeRemoteNode->dns_name = dnsName;
+                  QCCHelper::printXbeeRemoteNodeInfo(usbDeviceManager.getDeviceName(), xbeeRemoteNode);
                 }
                 break;
               }
-            }//switch(msgResponseCode)
-          }
-        }
-        break;
-      }
-      case QCCHelper::API_XBeeS2_ZigBee_Receive_Packet: {
-        // Eine Nachricht wurde über ein USB-XBee-Adapter::XBeeSerie2 empfangen
-        // ----------------------
-        // 0x00 - StartDelimiter
-        // 0x01 - Length_HighByte
-        // 0x02 - Length_LowByte
-        // 0x03 - API-Identifier
-        // ----------------------
-        // 0x04 - Frame-Id
-        // ----------------------
-        // 0x05 - SourceAddress64_7
-        // 0x06 - SourceAddress64_6
-        // 0x07 - SourceAddress64_5
-        // 0x08 - SourceAddress64_4
-        // 0x09 - SourceAddress64_3
-        // 0x0A - SourceAddress64_2
-        // 0x0B - SourceAddress64_1
-        // 0x0C - SourceAddress64_0
-        // ----------------------
-        // 0x0D - SourceAddress16_1
-        // 0x0E - SourceAddress16_0
-        // ----------------------
-        // 0x0F - Options
-        // ----------------------
-        // 0x10 - MsgGroup
-        // 0x11 - MsgCode
-        // 0x12 - data/params...
-        if ((QByte) received_msg[0x10] == (QByte) MsgGroup_Identifier_ECBRobotFirmware) { // msgGroup-Identifier
-          if ((QByte) received_msg[0x11] == (QByte) MsgCode_ResponsePacket) { // msgCode
-            switch (received_msg[0x12]) { // msgResponseCode
-              case MsgCode_ECB_Command_get_DNS_Name: {
-                // MessageStructure
-                // ----------------------
-                // 0x10 - MsgGroup
-                // 0x11 - MsgCode_ResponsePacket
-                // 0x12 - MsgCode_ECB_Command_get_DNS_Name
-                // 0x13 - responseState (0=ok, 1=error)
-                // 0x14 - dns_name...
-                if ((QByte) received_msg[0x13] == (QByte) 0) { // responseState
-                  uint64 xbee_source_address64 = 0;
-                  xbee_source_address64 += ((uint64) (received_msg[0x05] & 0xFF) << 7 * 8);
-                  xbee_source_address64 += ((uint64) (received_msg[0x06] & 0xFF) << 6 * 8);
-                  xbee_source_address64 += ((uint64) (received_msg[0x07] & 0xFF) << 5 * 8);
-                  xbee_source_address64 += ((uint64) (received_msg[0x08] & 0xFF) << 4 * 8);
-                  xbee_source_address64 += ((uint64) (received_msg[0x09] & 0xFF) << 3 * 8);
-                  xbee_source_address64 += ((uint64) (received_msg[0x0A] & 0xFF) << 2 * 8);
-                  xbee_source_address64 += ((uint64) (received_msg[0x0B] & 0xFF) << 1 * 8);
-                  xbee_source_address64 += ((uint64) (received_msg[0x0C] & 0xFF) << 0 * 8);
-                  uint16 dns_name_length = ((received_msg[1] & 0xFF) << 8) + received_msg[2] - 17;
-                  QString dnsName;
-                  dnsName.append(received_msg.mid(0x14, dns_name_length));
-                  foreach(struct XBeeRemoteNode_t* xbeeNode, xbeeRemoteNodeList)
-                    {
-                      if (xbeeNode->address64 == xbee_source_address64) {
-                        xbeeNode->dns_name = dnsName;
-                        QString line;
-                        line.append("[" + usbDeviceManager.getDeviceName() + "]");
-                        line.append("[" + QCCHelper::toHexNumberString(xbeeNode->address16, 4) + ":");
-                        line.append(QCCHelper::toHexNumberString(xbeeNode->address64, 16));
-                        line.append(":" + xbeeNode->Identifier + "]");
-                        line.append("[" + xbeeNode->dns_name + "]");
-                        QLog::logDebug(line);
-                      }
-                    }
-                }
-                break;
+              default: {
+                // dispatch packet (find out corresponding DNS device) and send it to the MessageDispatchServer
+                struct _communicationMessage message ;
+                message.ecb_dns_name = xbeeRemoteNode->dns_name;
+                message.data = received_msg.mid(indexMsgGroup);
+                emit sig_messageReceived(message);
               }
-            }//switch(msgResponseCode)
+                break;
+            } //switch(msgResponseCode)
+          } else { // if message are initiated by the ECB to the client application
+            // dispatch packet (find out corresponding DNS device) and send it to the MessageDispatchServer
+            struct _communicationMessage message ;
+            message.ecb_dns_name = xbeeRemoteNode->dns_name;
+            message.data = received_msg.mid(indexMsgGroup);
+            emit sig_messageReceived(message);
           }
         }
         break;
@@ -636,7 +644,7 @@ namespace lpzrobots {
         return;
       }
 
-      struct XBeeRemoteNode_t* xbeeRemoteNode = new XBeeRemoteNode_t();
+      struct QCCHelper::XBeeRemoteNode_t* xbeeRemoteNode = new QCCHelper::XBeeRemoteNode_t();
       xbeeRemoteNode->address16 = 0;
       xbeeRemoteNode->address16 += ((uint64) received_command[8] & 0xFF) << 1 * 8;
       xbeeRemoteNode->address16 += ((uint64) received_command[9] & 0xFF) << 0 * 8;
@@ -665,7 +673,7 @@ namespace lpzrobots {
       }//end switch
       // ist dieser Remote-Knoten bereits in der Liste vorhanden?
       bool compare = false;
-      foreach(struct XBeeRemoteNode_t* xbeeNode, xbeeRemoteNodeList)
+      foreach(struct QCCHelper::XBeeRemoteNode_t* xbeeNode, xbeeRemoteNodeList)
         {
           // the address64 is the serial number of the xbee-rf-adapter,
           // therefore the address64 is distinct
@@ -724,7 +732,7 @@ namespace lpzrobots {
     QStringList list;
     QLog::logDebug("QCC[" + usbDeviceManager.getDeviceName() + "]: getDNSDeviceList(), number of devices: "
         + QString::number(dnsDeviceList.size()));
-    foreach (DNSDevice_t* dnsDevice, dnsDeviceList)
+    foreach (QCCHelper::DNSDevice_t* dnsDevice, dnsDeviceList)
       {
         list.append(dnsDevice->dns_name);
       }
@@ -752,6 +760,40 @@ namespace lpzrobots {
       case QCCHelper::USBDevice_XBEE_ADAPTER:
       default:
         return 20;
+        break;
+    }
+  }
+
+  void QCommunicationChannel::sendMessage(struct _communicationMessage& msg) {
+    switch (usbDeviceType) {
+      case QCCHelper::USBDevice_USART_ADAPTER: {
+        usbDeviceManager.writeData(QCCHelper::toUsartMessage(msg.data));
+        responseTimer.start(QCCHelper::EVENT_TIMEOUT_XBEE_SEND_MESSAGE_CABLE);
+        break;
+      }
+      case QCCHelper::USBDevice_XBEE_ADAPTER: {
+        foreach(struct QCCHelper::XBeeRemoteNode_t* xbeeRemoteNode, xbeeRemoteNodeList)
+          {
+            if (xbeeRemoteNode->dns_name == msg.ecb_dns_name) {
+              switch (xbee.type) {
+                case QCCHelper::XBeeType_SERIE_1:
+                  usbDeviceManager.writeData(QCCHelper::toXBeeS1Message(msg.data, xbeeRemoteNode->address16));
+                  break;
+                case QCCHelper::XBeeType_SERIE_2:
+                  usbDeviceManager.writeData(QCCHelper::toXBeeS2Message(msg.data, xbeeRemoteNode->address16,
+                      xbeeRemoteNode->address64));
+                  break;
+              }
+              break;
+            }
+          }
+        responseTimer.start(QCCHelper::EVENT_TIMEOUT_XBEE_SEND_MESSAGE_XBEE);
+        break;
+      } //end case XBEE_ADAPTER
+      case QCCHelper::USBDevice_ISP_ADAPTER:
+      case QCCHelper::USBDevice_None:
+      default:
+        QLog::logWarning("Message to send to DNS device, but wrong ADAPTER (USART, unknown) choosed.");
         break;
     }
   }

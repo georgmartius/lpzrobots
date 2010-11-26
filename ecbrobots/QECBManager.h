@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-10 09:32:00  guettler
+ *   Revision 1.2  2010-11-26 12:22:37  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.1  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *                                                *
  *                                                                         *
@@ -50,7 +56,7 @@ namespace lpzrobots {
   class QECBCommunicator;
   // forward declaration end
 
-  class QECBManager : public QObject, Configurable {
+  class QECBManager : public QObject {
 
     Q_OBJECT
 
@@ -64,14 +70,6 @@ namespace lpzrobots {
        * This initalizes and starts the ECBManager. Do not overload it.
        */
       void initialize();
-
-      /// CONFIGURABLE INTERFACE
-      // TODO: CHECK AND REMOVE
-      virtual paramval getParam(const paramkey& key) const;
-
-      virtual bool setParam(const paramkey& key, paramval val);
-
-      virtual paramlist getParamList() const;
 
       virtual QGlobalData& getGlobalData();
 

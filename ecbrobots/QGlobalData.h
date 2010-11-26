@@ -20,7 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   Revision 1.3  2010-11-26 12:22:37  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.2  2010/11/11 15:34:59  wrabe
  *   - some extensions for QMessageClient (e.g. quitServer())
  *   - fixed some includes
  *
@@ -116,9 +122,9 @@ namespace lpzrobots {
       // global settings for serial communication
       int baudrate;
       std::string portName;
-      paramval maxFailures;
+      paramint maxFailures;
 
-      paramval cycleTime; //!< time for one cycle from step to step (minimum)
+      paramint cycleTime; //!< time for one cycle from step to step (minimum)
 
       paramint serialReadTimeout; //!< read timeout for awaiting messages from ECBs in ms
       paramint discoverXBeeHardwareVersionTimeout; //!< read timeout for discovering which hardware version is connected to PC (XBee Series 1, XBee Series 2 or cable)

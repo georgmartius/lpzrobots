@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-11 15:34:59  wrabe
+ *   Revision 1.3  2010-11-26 12:22:37  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.2  2010/11/11 15:34:59  wrabe
  *   - some extensions for QMessageClient (e.g. quitServer())
  *   - fixed some includes
  *
@@ -85,10 +91,11 @@ namespace lpzrobots {
         + sourceECB->getDNSName());
     _communicationMessage message;
     message.ecb_dns_name = sourceECB->getDNSName();
-    message.data[0] = commandPackage.command;
+    message.data[0] = 0x01; // MsgGroup_ECB_ROBOT_FIRMWARE
+    message.data[1] = commandPackage.command;
     message.data.append((const char*) commandPackage.data, commandPackage.dataLength);
-    if (!globalData.paused)
-      timer.start(globalData.serialReadTimeout);
+//    if (!globalData.paused)
+//      timer.start(globalData.serialReadTimeout);
     emit sig_sendMessage(message);
   }
 
@@ -110,61 +117,47 @@ namespace lpzrobots {
     stopCommunication = false;
     globalData.textLog("QECBCommunicator: entering communication loop...");
     while (!stopCommunication) {
-      switch (globalData.paused) {
-        case true: {
-          if (communicationRunning) {
-            // tell every ECB to stop motors
-            // stop all motors of a robot
-            FOREACH(ECBAgentList, globalData.agents, it) {
-              (*it)->getRobot()->stopMotors();
+      communicationRunning = true;
+      switch (currentCommState) {
+        case STATE_READY_FOR_STEP_OVER_AGENTS:
+          globalData.simStep++;
+          globalData.textLog("ECBCommunicator: loop! simStep=" + QString::number(globalData.simStep));
+          /// With this for loop all agents perform a controller step
+          if (!globalData.testMode) {
+            // sorgt dafür, dass der Zeittakt eingehalten wird:
+            // Berechnung zu schnell -> warte,
+            // Berechnung zu langsam -> Ausgabe, dass time leak stattfindet
+            loopCallback();
+            FOREACH ( AgentList,globalData.agents,a ) {
+              ((ECBAgent*) (*a))->step(globalData.noise, globalData.simStep);
             }
-            communicationRunning = false;
-          } // else do nothing, just wait
-          usleep(1000);
-        }
-          break;
-        case false:
-        default: {
-          communicationRunning = true;
-          switch (currentCommState) {
-            case STATE_READY_FOR_STEP_OVER_AGENTS:
-              globalData.simStep++;
-              globalData.textLog("ECBCommunicator: loop! simStep=" + QString::number(globalData.simStep));
-              /// With this for loop all agents perform a controller step
-              if (!globalData.testMode) {
-                // sorgt dafür, dass der Zeittakt eingehalten wird:
-                // Berechnung zu schnell -> warte,
-                // Berechnung zu langsam -> Ausgabe, dass time leak stattfindet
-                loopCallback();
-                FOREACH ( AgentList,globalData.agents,a ) {
-                  ((ECBAgent*) (*a))->step(globalData.noise, globalData.simStep);
-                }
-              } else {
-                if (!this->testModeCallback())
-                  stopCommunication = true;
-              }
-              globalData.textLog("ECBCommunicator: AgentStep finished.");
-              currentCommState = STATE_READY_FOR_SENDING_PACKAGE_MOTORS;
-              break;
-            case STATE_READY_FOR_SENDING_PACKAGE_MOTORS: //!< indicates that the thread is ready to send new motor values to an ECB
-              if (currentECBIndex < getNumberOfMediatorCollegues()) {
-                mediate(getMediatorCollegue(currentECBIndex), new ECBCommunicationEvent(
-                    ECBCommunicationEvent::EVENT_REQUEST_SEND_MOTOR_PACKAGE));
-                currentCommState = STATE_WAIT_FOR_RECEIVE_PACKAGE_SENSORS;
-              } else {
-                currentECBIndex = 0;
-                currentCommState = STATE_READY_FOR_STEP_OVER_AGENTS;
-              }
-              break;
-            case STATE_WAIT_FOR_RECEIVE_PACKAGE_SENSORS: //!< awaiting package with current sensor informations of current handled ECB
-              usleep(1);
-              break;
-            case STATE_NOT_INITIALISED:
-            case STATE_STOPPED:
-            default:
-              break;
+          } else {
+            if (!this->testModeCallback())
+              stopCommunication = true;
           }
-        }
+          globalData.textLog("ECBCommunicator: AgentStep finished.");
+          currentCommState = STATE_READY_FOR_SENDING_PACKAGE_MOTORS;
+          break;
+        case STATE_READY_FOR_SENDING_PACKAGE_MOTORS: //!< indicates that the thread is ready to send new motor values to an ECB
+          if (currentECBIndex < getNumberOfMediatorCollegues()) {
+            if (globalData.paused)
+              mediate(getMediatorCollegue(currentECBIndex), new ECBCommunicationEvent(
+                  ECBCommunicationEvent::EVENT_REQUEST_SEND_MOTOR_STOP_PACKAGE));
+            else
+              mediate(getMediatorCollegue(currentECBIndex), new ECBCommunicationEvent(
+                  ECBCommunicationEvent::EVENT_REQUEST_SEND_MOTOR_PACKAGE));
+            currentCommState = STATE_WAIT_FOR_RECEIVE_PACKAGE_SENSORS;
+          } else {
+            currentECBIndex = 0;
+            currentCommState = STATE_READY_FOR_STEP_OVER_AGENTS;
+          }
+          break;
+        case STATE_WAIT_FOR_RECEIVE_PACKAGE_SENSORS: //!< awaiting package with current sensor informations of current handled ECB
+          usleep(1);
+          break;
+        case STATE_NOT_INITIALISED:
+        case STATE_STOPPED:
+        default:
           break;
       }
       usleep(1);
@@ -208,11 +201,11 @@ namespace lpzrobots {
           globalData.textLog("Time leak of " + QString::number(abs(diff)) + "ms detected", QGlobalData::LOG_VERBOSE);
         }
       }
-    } else {
-      while (globalData.paused) {
-        usleep(1000);
-      }
-    }
+    } /*else {
+     while (globalData.paused) {
+     usleep(1000);
+     }
+     }*/
     resetSyncTimer();
   }
 
@@ -276,16 +269,19 @@ namespace lpzrobots {
   }
 
   void QECBCommunicator::sl_messageReceived(struct _communicationMessage msg) {
-    // if in paused mode, ignore package
-    if (globalData.paused) {
-      globalData.textLog("Package received, but not handled while in pause mode.");
-      return;
-    }
+//    // if in paused mode, ignore package
+//    if (globalData.paused) {
+//      globalData.textLog("Package received, but not handled while in pause mode.");
+//      return;
+//    }
+    if (msg.data[0] != (char) 0x01)
+      globalData.textLog("Message from MessageDispatchServer received, but not correct MsgGroup (" + toHexNumberString(
+          msg.data[0], 1) + " instead of 0x01)", globalData.LOG_DEBUG);
     ECBCommunicationEvent* event = new ECBCommunicationEvent();
-    event->commPackage.command = (uint8) msg.data[0];
+    event->commPackage.command = (uint8) msg.data[1];
     event->commPackage.dataLength = msg.data.size();
     for (int i = 0; i < event->commPackage.dataLength; i++) { // copy data
-      event->commPackage.data[i] = msg.data[i + 1];
+      event->commPackage.data[i] = msg.data[i + 2];
     }
     // stopTimer is handled in dispatchPackageCommand(event)
     dispatchPackageCommand(event);
@@ -332,5 +328,12 @@ namespace lpzrobots {
     globalData.textLog("QUIT from Server!", QGlobalData::LOG_ERROR);
   }
 
+  QString QECBCommunicator::toHexNumberString(uint64 value, uint numberDigits) {
+    QString hex;
+    for (int i = numberDigits; i > 0; i--) {
+      hex.append(QString::number((value >> (i * 4 - 4)) & 0x0F, 16).toUpper());
+    }
+    return hex;
+  }
 
 } // namespace lpzrobots

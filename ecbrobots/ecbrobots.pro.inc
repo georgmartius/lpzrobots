@@ -50,5 +50,18 @@ SOURCES 	+= messagedispatcher/QFT232DeviceManager.cpp
 SOURCES 	+= messagedispatcher/QCCHelper.cpp
 SOURCES 	+= messagedispatcher/QExtByteArray.cpp
 SOURCES 	+= messagedispatcher/QExtTimer.cpp
-SOURCES  += messagedispatcher/QLog.cpp
-SOURCES  += messagedispatcher/QMDSHelper.cpp
+SOURCES   += messagedispatcher/QLog.cpp
+SOURCES   += messagedispatcher/QMDSHelper.cpp
+
+#qconfigurable
+HEADERS   +=qconfigurable/QConfigurableWidget.h
+HEADERS   +=qconfigurable/QAbstractConfigurableLineWidget.h
+HEADERS   +=qconfigurable/QBoolConfigurableLineWidget.h
+HEADERS   +=qconfigurable/QValConfigurableLineWidget.h
+HEADERS   +=qconfigurable/QIntConfigurableLineWidget.h
+
+SOURCES   +=qconfigurable/QConfigurableWidget.cpp
+SOURCES   +=qconfigurable/QAbstractConfigurableLineWidget.cpp
+SOURCES   +=qconfigurable/QBoolConfigurableLineWidget.cpp
+SOURCES   +=qconfigurable/QValConfigurableLineWidget.cpp
+SOURCES   +=qconfigurable/QIntConfigurableLineWidget.cpp

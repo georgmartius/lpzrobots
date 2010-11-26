@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-11-23 11:08:06  guettler
+ *   Revision 1.6  2010-11-26 12:22:36  guettler
+ *   - Configurable interface now allows to set bounds of paramval and paramint
+ *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
+ *   - bugfixes
+ *   - current development state of QConfigurable (Qt GUI)
+ *
+ *   Revision 1.5  2010/11/23 11:08:06  guettler
  *   - some helper functions
  *   - bugfixes
  *   - better event handling
@@ -58,40 +64,12 @@
 #include "QFT232DeviceManager.h"
 #include "QCCHelper.h"
 #include "QExtTimer.h"
+#include "QECBMessageDispatchServer.h"
 
 template<class Key, class T> class QHash;
 
 namespace lpzrobots {
 
-  struct XBeeLocalNode_t {
-      XBeeLocalNode_t(){
-        type = 0;
-        hardwareVersion = 0;
-        rf_channel = 0x10000;  // Parameter Range: 0x0B - 0x1A (XBee) , 0x0C - 0x17 (XBee-PRO)
-        pan_identifier = 0x10000;         // Parameter Range: 0 - 0xFFFF
-      };
-      uint16  hardwareVersion;
-      uint    type;
-      uint    rf_channel;
-      uint    pan_identifier;
-  };
-
-  struct DNSDevice_t {
-    public:
-      QString dns_name;
-  };
-
-  struct XBeeRemoteNode_t : public DNSDevice_t {
-    public:
-      XBeeRemoteNode_t(){
-        address16 = 0xFFFE;
-        address64 = 0x000000000000FFFF;
-      };
-      QString Identifier;
-      uint16  address16;
-      uint64  address64;
-  };
-  
   class QCommunicationChannel : public QObject {
 
     Q_OBJECT
@@ -108,12 +86,14 @@ namespace lpzrobots {
       QCCHelper::usbDeviceType_t getUSBDeviceType();
       QString getUSBDeviceName();
       uint getResponseTime();
+      void sendMessage(struct _communicationMessage& msg);
 
     protected:
 
     signals:
       void sig_cc_initalised(QCommunicationChannel* cc);
       void sig_cc_dns_name_resolved(QCommunicationChannel* cc);
+      void sig_messageReceived(struct _communicationMessage message);
 
     private slots:
       void sl_ResponseTimerExpired(uint eventId);
@@ -131,8 +111,8 @@ namespace lpzrobots {
       void clearXbeeRemoteList();
 
       void send_XBeeCommand(QByteArray command);
-      void send_XBeeRemoteCommand(QByteArray command, struct XBeeRemoteNode_t* node);
-      void send_ECB_Reset(struct XBeeRemoteNode_t* node);
+      void send_XBeeRemoteCommand(QByteArray command, struct QCCHelper::XBeeRemoteNode_t* node);
+      void send_ECB_Reset(struct QCCHelper::XBeeRemoteNode_t* node);
 
       void printMessage(QString s, QByteArray data);
       void clear_usbDeviceManagerList();
@@ -151,14 +131,14 @@ namespace lpzrobots {
       QWord ECB_OperationRetriesMax;
       QWord ECB_OperationRetries;
       QCCHelper::typeInitialisedState initialisedState;
-      QList<DNSDevice_t*> dnsDeviceList;
+      QList<QCCHelper::DNSDevice_t*> dnsDeviceList;
       QCCHelper::usbDeviceType_t usbDeviceType;
 
 
-      struct XBeeLocalNode_t xbee;
-      QList<XBeeRemoteNode_t*> xbeeRemoteNodeList;
+      struct QCCHelper::XBeeLocalNode_t xbee;
+      QList<QCCHelper::XBeeRemoteNode_t*> xbeeRemoteNodeList;
 
-      struct XBeeRemoteNode_t* resetted_xbee;
+      struct QCCHelper::XBeeRemoteNode_t* resetted_xbee;
 
   };
 
