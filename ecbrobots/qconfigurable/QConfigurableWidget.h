@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-26 12:22:36  guettler
+ *   Revision 1.2  2010-11-28 20:33:44  wrabe
+ *   - current state of work: only paramval´s
+ *   - construct a configurable as a tile containing a QSlider to change the value by drag with mouse as well as a QSpinBox to change the configurable by typing new values (mouse-scrolls are also supported)
+ *   - minimum and maximum boundaries can´t be changed will be so far, only a change- dialog-dummy is reacable over the context-menu
+ *
+ *   Revision 1.1  2010/11/26 12:22:36  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -38,22 +43,24 @@
 #ifndef __QCONFIGURABLEWIDGET_H_
 #define __QCONFIGURABLEWIDGET_H_
 
-#include <qwidget.h>
 #include "selforg/configurable.h"
-#include <QGroupBox>
 #include "QAbstractConfigurableLineWidget.h"
+#include <QGroupBox>
 
 namespace lpzrobots {
 
 
-  class QConfigurableWidget : public QWidget {
+  class QConfigurableWidget : public QGroupBox {
+
+    Q_OBJECT
+
     public:
       QConfigurableWidget(Configurable* config);
       virtual ~QConfigurableWidget();
 
     private:
       Configurable* config;
-      QGroupBox body;
+      //QGroupBox groupBox_body;
       QGridLayout layout;
       QList<QAbstractConfigurableLineWidget*> configLineWidgetList;
 

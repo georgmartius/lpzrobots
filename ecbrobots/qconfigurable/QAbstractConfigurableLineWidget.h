@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-26 12:22:36  guettler
+ *   Revision 1.2  2010-11-28 20:33:44  wrabe
+ *   - current state of work: only paramval´s
+ *   - construct a configurable as a tile containing a QSlider to change the value by drag with mouse as well as a QSpinBox to change the configurable by typing new values (mouse-scrolls are also supported)
+ *   - minimum and maximum boundaries can´t be changed will be so far, only a change- dialog-dummy is reacable over the context-menu
+ *
+ *   Revision 1.1  2010/11/26 12:22:36  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -38,15 +43,20 @@
 #ifndef __QCONFIGURABLELINEWIDGET_H_
 #define __QCONFIGURABLELINEWIDGET_H_
 
-#include <qwidget.h>
-#include <QGridLayout>
 #include "selforg/configurable.h"
+#include <QWidget>
+#include <QGridLayout>
+#include <QDoubleSpinBox>
 #include <QSlider>
+#include <QFrame>
 #include <QLabel>
 
 namespace lpzrobots {
   
-  class QAbstractConfigurableLineWidget : public QWidget {
+  class QAbstractConfigurableLineWidget : public QFrame {
+
+    Q_OBJECT
+
     public:
       QAbstractConfigurableLineWidget(QGridLayout* parentLayout, Configurable* config, Configurable::paramkey& key);
       virtual ~QAbstractConfigurableLineWidget();
@@ -54,6 +64,7 @@ namespace lpzrobots {
       static void resetLineCounter() {
         static_lineCounter = 0;
       }
+      static QSize widgetSize;
 
     protected:
       QGridLayout* parentLayout;
@@ -64,9 +75,11 @@ namespace lpzrobots {
       static int static_lineCounter;
 
 
-      QSlider* setAndCreateSlider(int minBound, int maxBound);
       QLabel* setAndCreateMinBoundLabel(QString minBoundString);
       QLabel* setAndCreateMaxBoundLabel(QString maxBoundString);
+      QSlider* setAndCreateSlider(int minBound, int maxBound, int steps);
+      QDoubleSpinBox* setAndCreateDoubleSpinBox(double val, int minBound, int maxBound);
+
 
   };
 

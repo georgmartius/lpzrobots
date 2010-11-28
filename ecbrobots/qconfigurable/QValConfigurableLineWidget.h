@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-26 12:22:36  guettler
+ *   Revision 1.2  2010-11-28 20:33:44  wrabe
+ *   - current state of work: only paramval´s
+ *   - construct a configurable as a tile containing a QSlider to change the value by drag with mouse as well as a QSpinBox to change the configurable by typing new values (mouse-scrolls are also supported)
+ *   - minimum and maximum boundaries can´t be changed will be so far, only a change- dialog-dummy is reacable over the context-menu
+ *
+ *   Revision 1.1  2010/11/26 12:22:36  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -43,11 +48,29 @@
 namespace lpzrobots {
 
   class QValConfigurableLineWidget : public lpzrobots::QAbstractConfigurableLineWidget {
+
+    Q_OBJECT
+
     public:
       QValConfigurableLineWidget(QGridLayout* parent, Configurable* config, Configurable::paramkey& key);
       virtual ~QValConfigurableLineWidget();
+
+    private slots:
+      void sl_spinBoxValueChanged(double);
+      void sl_sliderValueChanged(int);
+      void sl_execContextMenu(const QPoint &pos);
+      void sl_changeBounds();
+
+    private:
+      QLabel* labelMinBound;
+      QLabel* labelMaxBound;
+      QSlider* slider;
+      QDoubleSpinBox* dsBox;
+
+
+
   };
 
-}
+} // namespace lpzrobots
 
 #endif /* __QVALCONFIGURABLELINEWIDGET_H_ */

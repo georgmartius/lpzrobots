@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-26 12:22:36  guettler
+ *   Revision 1.2  2010-11-28 20:33:44  wrabe
+ *   - current state of work: only paramval´s
+ *   - construct a configurable as a tile containing a QSlider to change the value by drag with mouse as well as a QSpinBox to change the configurable by typing new values (mouse-scrolls are also supported)
+ *   - minimum and maximum boundaries can´t be changed will be so far, only a change- dialog-dummy is reacable over the context-menu
+ *
+ *   Revision 1.1  2010/11/26 12:22:36  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -38,36 +43,49 @@
 #include "QAbstractConfigurableLineWidget.h"
 
 #include "selforg/configurable.h"
-#include <qgridlayout.h>
+#include <QGridLayout>
+#include <QMessageBox>
 #include <QLabel>
+
 
 namespace lpzrobots {
   
   int QAbstractConfigurableLineWidget::static_lineCounter = 0;
+  QSize QAbstractConfigurableLineWidget::widgetSize = QSize(400, 100);
 
   QAbstractConfigurableLineWidget::QAbstractConfigurableLineWidget(QGridLayout* parentLayout, Configurable* config,
       Configurable::paramkey& key) :
     parentLayout(parentLayout), config(config), key(key), lineIndex(static_lineCounter) {
-    parentLayout->addWidget(new QLabel(QString(key.c_str())), lineIndex, 0);
-    QLabel* descLabel = new QLabel(QString(config->getParamDescr(key).c_str()));
-    descLabel->setWordWrap(true);
-    parentLayout->addWidget(descLabel, lineIndex, 5);
 
-    static_lineCounter++;
+    setMinimumSize(QAbstractConfigurableLineWidget::widgetSize);
+    setMaximumSize(QAbstractConfigurableLineWidget::widgetSize);
+
+    setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+
+    setBackgroundRole(QPalette::Background);
+    setAutoFillBackground(true);
+    setFont(QFont("Courier", 12));
   }
   
   QAbstractConfigurableLineWidget::~QAbstractConfigurableLineWidget() {
   }
 
-  QSlider* QAbstractConfigurableLineWidget::setAndCreateSlider(int minBound, int maxBound) {
+  QDoubleSpinBox* QAbstractConfigurableLineWidget::setAndCreateDoubleSpinBox(double val, int minBound, int maxBound) {
+    QDoubleSpinBox* dsBox = new QDoubleSpinBox();
+    dsBox->setAcceptDrops(false);
+    dsBox->setMinimumWidth(100);
+    dsBox->setMinimum(minBound);
+    dsBox->setMaximum(maxBound);
+    parentLayout->addWidget(dsBox, lineIndex, 1);
+    return dsBox;
+  }
+
+  QSlider* QAbstractConfigurableLineWidget::setAndCreateSlider(int minBound, int maxBound, int steps) {
     QSlider* slider = new QSlider();
     slider->setOrientation(Qt::Horizontal);
-
-    // TODO: problem zwischen double und int
-    slider->setMinimum(minBound);
-    slider->setMaximum( maxBound);
-    slider->setValue(config->getParam(key));
-//    slider->setTickInterval((maxBound-minBound)/10);
+    slider->setMinimum(0);
+    slider->setMaximum((maxBound-minBound)*steps);
+    slider->setValue((maxBound-minBound)*steps*config->getParam(key));
     parentLayout->addWidget(slider, lineIndex, 3);
     return slider;
   }
@@ -76,6 +94,8 @@ namespace lpzrobots {
     QLabel* labelMinBound = new QLabel();
     labelMinBound->setText(minBoundString + " <=");
     labelMinBound->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    labelMinBound->setToolTip("double-click to change");
+    //labelMinBound->setFrameStyle(QFrame::Panel | QFrame::Plain);
     parentLayout->addWidget(labelMinBound, lineIndex, 2);
     return labelMinBound;
   }
@@ -83,6 +103,8 @@ namespace lpzrobots {
   QLabel* QAbstractConfigurableLineWidget::setAndCreateMaxBoundLabel(QString maxBoundString) {
     QLabel* labelMaxBound = new QLabel();
     labelMaxBound->setText("<= " + maxBoundString);
+    labelMaxBound->setToolTip("double-click to change");
+    //labelMaxBound->setFrameStyle(QFrame::Panel | QFrame::Plain);
     parentLayout->addWidget(labelMaxBound, lineIndex, 4);
     return labelMaxBound;
   }
