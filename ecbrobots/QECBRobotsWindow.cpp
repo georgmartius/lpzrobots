@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-26 12:22:37  guettler
+ *   Revision 1.5  2010-11-28 20:22:51  wrabe
+ *   - the centralWidget is now the QTabWidget instead of a separate QWidget containing a QTabWidget
+ *
+ *   Revision 1.4  2010/11/26 12:22:37  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -64,14 +67,16 @@ namespace lpzrobots {
 
     // Layout:
     //------------------------------------------------------
-    QGridLayout *grid = new QGridLayout();
-    QWidget *mainpanel = new QWidget();
-    mainpanel->setLayout(grid);
-    setCentralWidget(mainpanel);
+//    QGridLayout *grid = new QGridLayout();
+//    QWidget *mainpanel = new QWidget();
+//    mainpanel->setLayout(grid);
+//    setCentralWidget(mainpanel);
+
+
 
     tabWidget = new QTabWidget;
     tabWidget->addTab(logView, tr("Report"));
-    grid->addWidget(tabWidget, 0, 0);
+    setCentralWidget(tabWidget);
 
     this->ecbManager = manager;
     this->globalData = &(manager->getGlobalData());
@@ -288,7 +293,7 @@ namespace lpzrobots {
   }
 
   QWidget* QECBRobotsWindow::createConfigurableWidget() {
-    QWidget* configWidget = new QWidget();
+    QWidget* configWidget = new QWidget(); // containing some QGroupBoxes (QConfigurableWidget´s)
     QGridLayout* grid = new QGridLayout();
     configWidget->setLayout(grid);
     //int i = 0;
