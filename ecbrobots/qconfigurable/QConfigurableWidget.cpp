@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-30 17:07:06  wrabe
+ *   Revision 1.4  2010-11-30 17:19:03  wrabe
+ *   - bugfix
+ *
+ *   Revision 1.3  2010/11/30 17:07:06  wrabe
  *   - new class QConfigurableTileShowHideDialog
  *   - try to introduce user-arrangeable QConfigurationTiles (current work, not finished)
  *
@@ -184,22 +187,6 @@ namespace lpzrobots {
       QPoint p1 = mapToGlobal(configurableTileDragged->pos());
       ((QValConfigurableLineWidget*) configurableTileDragged)->setName("("+QString::number(p1.x())+":"+QString::number(p1.y())+")");
     }
-
-    foreach(QAbstractConfigurableLineWidget* configurableTile, configLineWidgetMap)
-      {
-
-        QRect rect = configurableTile->geometry();
-        QPoint p1 = configurableTileDragged->pos();
-        QPoint p2 = mapToGlobal(QPoint(rect.left()+rect.width()/2, rect.top()));
-        QPoint p3 = mapToGlobal(QPoint(rect.left()+rect.width()/2, rect.top()+rect.height()));
-
-        if (p1.x() <= p2.x() && p1.y() >= p2.y() && p1.y() <= p3.y()){
-          configurableTileDragged = configurableTile;
-          dragging = true;
-          lastMousePos = p3;
-        }
-      }
-
 
 
     QPoint mousepos = event->globalPos();

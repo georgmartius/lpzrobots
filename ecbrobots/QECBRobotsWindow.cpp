@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-11-28 20:22:51  wrabe
+ *   Revision 1.6  2010-11-30 17:21:20  wrabe
+ *   - bugfix
+ *
+ *   Revision 1.5  2010/11/28 20:22:51  wrabe
  *   - the centralWidget is now the QTabWidget instead of a separate QWidget containing a QTabWidget
  *
  *   Revision 1.4  2010/11/26 12:22:37  guettler
@@ -296,10 +299,11 @@ namespace lpzrobots {
     QWidget* configWidget = new QWidget(); // containing some QGroupBoxes (QConfigurableWidget´s)
     QGridLayout* grid = new QGridLayout();
     configWidget->setLayout(grid);
-    //int i = 0;
+    int i = 0;
     FOREACH(ConfigList, globalData->configs, config) {
-      grid->addWidget(new QConfigurableWidget((*config)));//, i++, 0, Qt::AlignJustify);
+      grid->addWidget(new QConfigurableWidget((*config)), i++, 0, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
     }
+    //grid->setRowStretch(i, 100);
     QScrollArea* scrollArea = new QScrollArea();
      //scrollArea->setBackgroundRole(QPalette::Dark);
      scrollArea->setWidget(configWidget);
