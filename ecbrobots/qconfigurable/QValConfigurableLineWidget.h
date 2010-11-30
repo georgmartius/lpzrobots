@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-28 20:33:44  wrabe
+ *   Revision 1.3  2010-11-30 17:07:06  wrabe
+ *   - new class QConfigurableTileShowHideDialog
+ *   - try to introduce user-arrangeable QConfigurationTiles (current work, not finished)
+ *
+ *   Revision 1.2  2010/11/28 20:33:44  wrabe
  *   - current state of work: only paramval´s
  *   - construct a configurable as a tile containing a QSlider to change the value by drag with mouse as well as a QSpinBox to change the configurable by typing new values (mouse-scrolls are also supported)
  *   - minimum and maximum boundaries can´t be changed will be so far, only a change- dialog-dummy is reacable over the context-menu
@@ -44,6 +48,8 @@
 #define __QVALCONFIGURABLELINEWIDGET_H_
 
 #include "QAbstractConfigurableLineWidget.h"
+#include <QMouseEvent>
+#include <QPalette>
 
 namespace lpzrobots {
 
@@ -52,21 +58,38 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
-      QValConfigurableLineWidget(QGridLayout* parent, Configurable* config, Configurable::paramkey& key);
+      QValConfigurableLineWidget(Configurable* config, Configurable::paramkey& key);
       virtual ~QValConfigurableLineWidget();
+      void setName(QString name);
+
+    protected:
+//      virtual void mousePressEvent(QMouseEvent * event);
+//      virtual void mouseReleaseEvent(QMouseEvent * event);
+//      virtual void mouseMoveEvent(QMouseEvent * event);
+//      virtual void keyPressEvent(QKeyEvent * event);
+//      virtual void keyReleaseEvent(QKeyEvent * event);
+//      virtual void enterEvent(QEvent * event);
+//      virtual void leaveEvent(QEvent * event);
 
     private slots:
       void sl_spinBoxValueChanged(double);
       void sl_sliderValueChanged(int);
       void sl_execContextMenu(const QPoint &pos);
       void sl_changeBounds();
+//      void sl_startDragging();
 
     private:
-      QLabel* labelMinBound;
-      QLabel* labelMaxBound;
-      QSlider* slider;
-      QDoubleSpinBox* dsBox;
+      QGridLayout dialogGrid;
+      QLabel labelMinBound;
+      QLabel labelMaxBound;
+      QLabel lName;
+      QSlider slider;
+      QDoubleSpinBox dsBox;
+      QPoint mouseDownPos;
+      QPalette defaultPalette;
 
+      bool isDragging;
+      bool isControlDown;
 
 
   };

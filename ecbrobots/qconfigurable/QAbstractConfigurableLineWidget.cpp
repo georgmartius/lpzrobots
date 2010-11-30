@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-28 20:33:44  wrabe
+ *   Revision 1.3  2010-11-30 17:07:06  wrabe
+ *   - new class QConfigurableTileShowHideDialog
+ *   - try to introduce user-arrangeable QConfigurationTiles (current work, not finished)
+ *
+ *   Revision 1.2  2010/11/28 20:33:44  wrabe
  *   - current state of work: only paramval´s
  *   - construct a configurable as a tile containing a QSlider to change the value by drag with mouse as well as a QSpinBox to change the configurable by typing new values (mouse-scrolls are also supported)
  *   - minimum and maximum boundaries can´t be changed will be so far, only a change- dialog-dummy is reacable over the context-menu
@@ -51,11 +55,10 @@
 namespace lpzrobots {
   
   int QAbstractConfigurableLineWidget::static_lineCounter = 0;
-  QSize QAbstractConfigurableLineWidget::widgetSize = QSize(400, 100);
+  QSize QAbstractConfigurableLineWidget::widgetSize = QSize(300, 80);
 
-  QAbstractConfigurableLineWidget::QAbstractConfigurableLineWidget(QGridLayout* parentLayout, Configurable* config,
-      Configurable::paramkey& key) :
-    parentLayout(parentLayout), config(config), key(key), lineIndex(static_lineCounter) {
+  QAbstractConfigurableLineWidget::QAbstractConfigurableLineWidget(Configurable* config, Configurable::paramkey& key) :
+    config(config), key(key), lineIndex(static_lineCounter) {
 
     setMinimumSize(QAbstractConfigurableLineWidget::widgetSize);
     setMaximumSize(QAbstractConfigurableLineWidget::widgetSize);
@@ -64,49 +67,51 @@ namespace lpzrobots {
 
     setBackgroundRole(QPalette::Background);
     setAutoFillBackground(true);
-    setFont(QFont("Courier", 12));
   }
   
   QAbstractConfigurableLineWidget::~QAbstractConfigurableLineWidget() {
   }
 
-  QDoubleSpinBox* QAbstractConfigurableLineWidget::setAndCreateDoubleSpinBox(double val, int minBound, int maxBound) {
-    QDoubleSpinBox* dsBox = new QDoubleSpinBox();
-    dsBox->setAcceptDrops(false);
-    dsBox->setMinimumWidth(100);
-    dsBox->setMinimum(minBound);
-    dsBox->setMaximum(maxBound);
-    parentLayout->addWidget(dsBox, lineIndex, 1);
-    return dsBox;
+  QString QAbstractConfigurableLineWidget::getConfigurableName() {
+    return QString(key.c_str());
   }
-
-  QSlider* QAbstractConfigurableLineWidget::setAndCreateSlider(int minBound, int maxBound, int steps) {
-    QSlider* slider = new QSlider();
-    slider->setOrientation(Qt::Horizontal);
-    slider->setMinimum(0);
-    slider->setMaximum((maxBound-minBound)*steps);
-    slider->setValue((maxBound-minBound)*steps*config->getParam(key));
-    parentLayout->addWidget(slider, lineIndex, 3);
-    return slider;
-  }
-
-  QLabel* QAbstractConfigurableLineWidget::setAndCreateMinBoundLabel(QString minBoundString) {
-    QLabel* labelMinBound = new QLabel();
-    labelMinBound->setText(minBoundString + " <=");
-    labelMinBound->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    labelMinBound->setToolTip("double-click to change");
-    //labelMinBound->setFrameStyle(QFrame::Panel | QFrame::Plain);
-    parentLayout->addWidget(labelMinBound, lineIndex, 2);
-    return labelMinBound;
-  }
-
-  QLabel* QAbstractConfigurableLineWidget::setAndCreateMaxBoundLabel(QString maxBoundString) {
-    QLabel* labelMaxBound = new QLabel();
-    labelMaxBound->setText("<= " + maxBoundString);
-    labelMaxBound->setToolTip("double-click to change");
-    //labelMaxBound->setFrameStyle(QFrame::Panel | QFrame::Plain);
-    parentLayout->addWidget(labelMaxBound, lineIndex, 4);
-    return labelMaxBound;
-  }
+//  QDoubleSpinBox* QAbstractConfigurableLineWidget::setAndCreateDoubleSpinBox(double val, int minBound, int maxBound) {
+//    QDoubleSpinBox* dsBox = new QDoubleSpinBox();
+//    dsBox->setAcceptDrops(false);
+//    dsBox->setMinimumWidth(100);
+//    dsBox->setMinimum(minBound);
+//    dsBox->setMaximum(maxBound);
+//    parentLayout->addWidget(dsBox, lineIndex, 1);
+//    return dsBox;
+//  }
+//
+//  QSlider* QAbstractConfigurableLineWidget::setAndCreateSlider(int minBound, int maxBound, int steps) {
+//    QSlider* slider = new QSlider();
+//    slider->setOrientation(Qt::Horizontal);
+//    slider->setMinimum(0);
+//    slider->setMaximum((maxBound-minBound)*steps);
+//    slider->setValue((maxBound-minBound)*steps*config->getParam(key));
+//    parentLayout->addWidget(slider, lineIndex, 3);
+//    return slider;
+//  }
+//
+//  QLabel* QAbstractConfigurableLineWidget::setAndCreateMinBoundLabel(QString minBoundString) {
+//    QLabel* labelMinBound = new QLabel();
+//    labelMinBound->setText(minBoundString + " <=");
+//    labelMinBound->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+//    labelMinBound->setToolTip("double-click to change");
+//    //labelMinBound->setFrameStyle(QFrame::Panel | QFrame::Plain);
+//    parentLayout->addWidget(labelMinBound, lineIndex, 2);
+//    return labelMinBound;
+//  }
+//
+//  QLabel* QAbstractConfigurableLineWidget::setAndCreateMaxBoundLabel(QString maxBoundString) {
+//    QLabel* labelMaxBound = new QLabel();
+//    labelMaxBound->setText("<= " + maxBoundString);
+//    labelMaxBound->setToolTip("double-click to change");
+//    //labelMaxBound->setFrameStyle(QFrame::Panel | QFrame::Plain);
+//    parentLayout->addWidget(labelMaxBound, lineIndex, 4);
+//    return labelMaxBound;
+//  }
 
 }

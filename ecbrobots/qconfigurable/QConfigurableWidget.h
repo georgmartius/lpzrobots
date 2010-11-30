@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-28 20:33:44  wrabe
+ *   Revision 1.3  2010-11-30 17:07:06  wrabe
+ *   - new class QConfigurableTileShowHideDialog
+ *   - try to introduce user-arrangeable QConfigurationTiles (current work, not finished)
+ *
+ *   Revision 1.2  2010/11/28 20:33:44  wrabe
  *   - current state of work: only paramval´s
  *   - construct a configurable as a tile containing a QSlider to change the value by drag with mouse as well as a QSpinBox to change the configurable by typing new values (mouse-scrolls are also supported)
  *   - minimum and maximum boundaries can´t be changed will be so far, only a change- dialog-dummy is reacable over the context-menu
@@ -46,9 +50,13 @@
 #include "selforg/configurable.h"
 #include "QAbstractConfigurableLineWidget.h"
 #include <QGroupBox>
+#include <QFrame>
+#include <QScrollBar>
+#include <QMap>
+#include <QMenu>
+#include <QPalette>
 
 namespace lpzrobots {
-
 
   class QConfigurableWidget : public QGroupBox {
 
@@ -58,15 +66,32 @@ namespace lpzrobots {
       QConfigurableWidget(Configurable* config);
       virtual ~QConfigurableWidget();
 
+    protected:
+      virtual void enterEvent(QEvent * event);
+      virtual void leaveEvent(QEvent * event);
+      virtual void mousePressEvent(QMouseEvent * event);
+      virtual void mouseReleaseEvent(QMouseEvent * event);
+      virtual void mouseMoveEvent(QMouseEvent * event);
+
+
+    private slots:
+      void sl_execContextMenu(const QPoint &pos);
+      void sl_showAndHideConfigurables();
+
+
     private:
-      Configurable* config;
-      //QGroupBox groupBox_body;
+      QMenu contextMenuShowHideDialog;
       QGridLayout layout;
-      QList<QAbstractConfigurableLineWidget*> configLineWidgetList;
+      QPalette defaultPalette;
+      Configurable* config;
+      QMap<QString, QAbstractConfigurableLineWidget*> configLineWidgetMap;
 
       void createConfigurableLines();
       void initBody();
 
+      bool dragging;
+      QPoint lastMousePos;
+      QAbstractConfigurableLineWidget* configurableTileDragged;
 
   };
 

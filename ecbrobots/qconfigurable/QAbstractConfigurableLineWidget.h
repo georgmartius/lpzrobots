@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-28 20:33:44  wrabe
+ *   Revision 1.3  2010-11-30 17:07:06  wrabe
+ *   - new class QConfigurableTileShowHideDialog
+ *   - try to introduce user-arrangeable QConfigurationTiles (current work, not finished)
+ *
+ *   Revision 1.2  2010/11/28 20:33:44  wrabe
  *   - current state of work: only paramval´s
  *   - construct a configurable as a tile containing a QSlider to change the value by drag with mouse as well as a QSpinBox to change the configurable by typing new values (mouse-scrolls are also supported)
  *   - minimum and maximum boundaries can´t be changed will be so far, only a change- dialog-dummy is reacable over the context-menu
@@ -58,16 +62,16 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
-      QAbstractConfigurableLineWidget(QGridLayout* parentLayout, Configurable* config, Configurable::paramkey& key);
+      QAbstractConfigurableLineWidget(Configurable* config, Configurable::paramkey& key);
       virtual ~QAbstractConfigurableLineWidget();
 
+      virtual QString getConfigurableName();
       static void resetLineCounter() {
         static_lineCounter = 0;
       }
       static QSize widgetSize;
 
     protected:
-      QGridLayout* parentLayout;
       Configurable* config;
       Configurable::paramkey key;
       int lineIndex;
@@ -75,10 +79,10 @@ namespace lpzrobots {
       static int static_lineCounter;
 
 
-      QLabel* setAndCreateMinBoundLabel(QString minBoundString);
-      QLabel* setAndCreateMaxBoundLabel(QString maxBoundString);
-      QSlider* setAndCreateSlider(int minBound, int maxBound, int steps);
-      QDoubleSpinBox* setAndCreateDoubleSpinBox(double val, int minBound, int maxBound);
+//      QLabel* setAndCreateMinBoundLabel(QString minBoundString);
+//      QLabel* setAndCreateMaxBoundLabel(QString maxBoundString);
+//      QSlider* setAndCreateSlider(int minBound, int maxBound, int steps);
+//      QDoubleSpinBox* setAndCreateDoubleSpinBox(double val, int minBound, int maxBound);
 
 
   };

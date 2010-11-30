@@ -1,11 +1,11 @@
 /***************************************************************************
- *   Copyright (C) 2010 by                                                 *
- *   Research Network for Self-Organization of Robot Behavior              *
+ *   Copyright (C) 2005 by Robot Group Leipzig                             *
+ *    martius@informatik.uni-leipzig.de                                    *
+ *    fhesse@informatik.uni-leipzig.de                                     *
+ *    der@informatik.uni-leipzig.de                                        *
  *    guettler@informatik.uni-leipzig.de                                   *
- *    wrabe@informatik.uni-leipzig.de                                      *
- *    Georg.Martius@mis.mpg.de                                             *
- *    ralfder@mis.mpg.de                                                   *
- *    frank@nld.ds.mpg.de                                                  *
+ *    jhoffmann@informatik.uni-leipzig.de                                  *
+ *    wolfgang.rabe@01019freenet.de                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,31 +26,57 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-30 17:07:06  wrabe
+ *   Revision 1.1  2010-11-30 17:07:06  wrabe
  *   - new class QConfigurableTileShowHideDialog
  *   - try to introduce user-arrangeable QConfigurationTiles (current work, not finished)
- *
- *   Revision 1.1  2010/11/26 12:22:36  guettler
- *   - Configurable interface now allows to set bounds of paramval and paramint
- *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
- *   - bugfixes
- *   - current development state of QConfigurable (Qt GUI)
  *
  *                                                                         *
  ***************************************************************************/
 
-#include "QBoolConfigurableLineWidget.h"
+#ifndef __QCONFIGURABLETILESHOWHIDEDIALOG_H_
+#define __QCONFIGURABLETILESHOWHIDEDIALOG_H_
+#include <QDialog>
+#include <QCheckBox>
+#include <QScrollArea>
+#include <QFrame>
+#include <QMap>
+#include <QGridLayout>
+#include <QDialogButtonBox>
+
+
+
+#include "QAbstractConfigurableLineWidget.h"
 
 namespace lpzrobots {
   
-  QBoolConfigurableLineWidget::QBoolConfigurableLineWidget(Configurable* config, Configurable::paramkey& key) :
-    QAbstractConfigurableLineWidget(config, key) {
-    // TODO Auto-generated constructor stub
+  class QConfigurableTileShowHideDialog : public QDialog {
 
-  }
-  
-  QBoolConfigurableLineWidget::~QBoolConfigurableLineWidget() {
-    // TODO Auto-generated destructor stub
-  }
+    Q_OBJECT
+
+    public:
+      QConfigurableTileShowHideDialog(QMap<QString, QAbstractConfigurableLineWidget*> configLineWidgetMap, QGridLayout *grid);
+      virtual ~QConfigurableTileShowHideDialog();
+      //void setConfigurableTileNames(QStringList configurabelTileName);
+
+    private slots:
+      void sl_dialogAccept();
+      void sl_dialogReject();
+
+
+    private:
+      QFrame* cbFrame;
+      QScrollArea* scrollArea;
+      QDialogButtonBox* buttonBox;
+      QList<QCheckBox*> checkBoxConfiguableShowHideList;
+      QMap<QString, QAbstractConfigurableLineWidget*> configLineWidgetMap;
+      QGridLayout *parentGridLayout;
+      int cbFrame_ypos;
+
+
+
+
+  };
 
 }
+
+#endif /* __QCONFIGURABLETILESHOWHIDEDIALOG_H_ */
