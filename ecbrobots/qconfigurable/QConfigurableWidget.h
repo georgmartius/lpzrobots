@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-30 17:07:06  wrabe
+ *   Revision 1.4  2010-12-03 11:11:53  wrabe
+ *   - now handled paramVal, paramInt and paramBool, all the params are displayed
+ *     as ConfigurableTiles witch can be show and hide seperatly or arranged by user
+ *     (showHideDialog reacheble by contextMenu (right click an the Widget containing
+ *     the tiles ), arrange the Tiles is can done by drag and drop (there is no history or
+ *     storage implementet yet))
+ *
+ *   Revision 1.3  2010/11/30 17:07:06  wrabe
  *   - new class QConfigurableTileShowHideDialog
  *   - try to introduce user-arrangeable QConfigurationTiles (current work, not finished)
  *
@@ -48,7 +55,7 @@
 #define __QCONFIGURABLEWIDGET_H_
 
 #include "selforg/configurable.h"
-#include "QAbstractConfigurableLineWidget.h"
+#include "QAbstractConfigurableTileWidget.h"
 #include <QGroupBox>
 #include <QFrame>
 #include <QScrollBar>
@@ -70,8 +77,10 @@ namespace lpzrobots {
       virtual void enterEvent(QEvent * event);
       virtual void leaveEvent(QEvent * event);
       virtual void mousePressEvent(QMouseEvent * event);
-      virtual void mouseReleaseEvent(QMouseEvent * event);
-      virtual void mouseMoveEvent(QMouseEvent * event);
+      virtual void dragEnterEvent(QDragEnterEvent *event);
+      virtual void dragMoveEvent(QDragMoveEvent *event);
+      virtual void dropEvent(QDropEvent *event);
+      virtual void dragLeaveEvent(QDragLeaveEvent *event);
 
 
     private slots:
@@ -84,14 +93,18 @@ namespace lpzrobots {
       QGridLayout layout;
       QPalette defaultPalette;
       Configurable* config;
-      QMap<QString, QAbstractConfigurableLineWidget*> configLineWidgetMap;
+      QMap<QString, QAbstractConfigurableTileWidget*> configLineWidgetMap;
 
       void createConfigurableLines();
       void initBody();
+      void arrangeConfigurableTiles();
 
       bool dragging;
       QPoint lastMousePos;
-      QAbstractConfigurableLineWidget* configurableTileDragged;
+      QPoint configruableTile_mousePressedOffset;
+      QAbstractConfigurableTileWidget* configurableTile_dragging;
+
+      QString log;
 
   };
 

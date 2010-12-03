@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-30 17:07:06  wrabe
+ *   Revision 1.2  2010-12-03 11:11:53  wrabe
+ *   - now handled paramVal, paramInt and paramBool, all the params are displayed
+ *     as ConfigurableTiles witch can be show and hide seperatly or arranged by user
+ *     (showHideDialog reacheble by contextMenu (right click an the Widget containing
+ *     the tiles ), arrange the Tiles is can done by drag and drop (there is no history or
+ *     storage implementet yet))
+ *
+ *   Revision 1.1  2010/11/30 17:07:06  wrabe
  *   - new class QConfigurableTileShowHideDialog
  *   - try to introduce user-arrangeable QConfigurationTiles (current work, not finished)
  *
@@ -45,7 +52,7 @@
 
 
 
-#include "QAbstractConfigurableLineWidget.h"
+#include "QAbstractConfigurableTileWidget.h"
 
 namespace lpzrobots {
   
@@ -54,7 +61,7 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
-      QConfigurableTileShowHideDialog(QMap<QString, QAbstractConfigurableLineWidget*> configLineWidgetMap, QGridLayout *grid);
+      QConfigurableTileShowHideDialog(QMap<QString, QAbstractConfigurableTileWidget*> configLineWidgetMap, QGridLayout *grid);
       virtual ~QConfigurableTileShowHideDialog();
       //void setConfigurableTileNames(QStringList configurabelTileName);
 
@@ -68,7 +75,7 @@ namespace lpzrobots {
       QScrollArea* scrollArea;
       QDialogButtonBox* buttonBox;
       QList<QCheckBox*> checkBoxConfiguableShowHideList;
-      QMap<QString, QAbstractConfigurableLineWidget*> configLineWidgetMap;
+      QMap<QString, QAbstractConfigurableTileWidget*> configLineWidgetMap;
       QGridLayout *parentGridLayout;
       int cbFrame_ypos;
 

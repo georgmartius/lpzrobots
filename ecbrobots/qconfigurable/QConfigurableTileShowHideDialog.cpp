@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-30 17:07:06  wrabe
+ *   Revision 1.2  2010-12-03 11:11:53  wrabe
+ *   - now handled paramVal, paramInt and paramBool, all the params are displayed
+ *     as ConfigurableTiles witch can be show and hide seperatly or arranged by user
+ *     (showHideDialog reacheble by contextMenu (right click an the Widget containing
+ *     the tiles ), arrange the Tiles is can done by drag and drop (there is no history or
+ *     storage implementet yet))
+ *
+ *   Revision 1.1  2010/11/30 17:07:06  wrabe
  *   - new class QConfigurableTileShowHideDialog
  *   - try to introduce user-arrangeable QConfigurationTiles (current work, not finished)
  *
@@ -37,10 +44,11 @@
 #include <QDialogButtonBox>
 #include <QRegion>
 #include <QMessageBox>
+#include <QLinkedList>
 
 namespace lpzrobots {
   
-  QConfigurableTileShowHideDialog::QConfigurableTileShowHideDialog(QMap<QString, QAbstractConfigurableLineWidget*> configLineWidgetMap,
+  QConfigurableTileShowHideDialog::QConfigurableTileShowHideDialog(QMap<QString, QAbstractConfigurableTileWidget*> configLineWidgetMap,
       QGridLayout *parentGridLayout) :
     configLineWidgetMap(configLineWidgetMap), parentGridLayout(parentGridLayout) {
 
@@ -54,15 +62,14 @@ namespace lpzrobots {
 
     int row = 0;
     checkBoxConfiguableShowHideList.clear();
-    foreach(QAbstractConfigurableLineWidget* configLineWidget, configLineWidgetMap)
+    foreach(QAbstractConfigurableTileWidget* configLineWidget, configLineWidgetMap)
       {
         QCheckBox* cb = new QCheckBox();
         cb->setText(configLineWidget->getConfigurableName());
-//        cb->setMinimumSize(170, 15);
+        //        cb->setMinimumSize(170, 15);
         if (!configLineWidget->isHidden())
           cb->setCheckState(Qt::Checked);
-        else
-          cb->setCheckState(Qt::Unchecked);
+        else cb->setCheckState(Qt::Unchecked);
         grid->addWidget(cb, row++, 0, Qt::AlignTop);
         checkBoxConfiguableShowHideList.append(cb);
       }
@@ -82,26 +89,47 @@ namespace lpzrobots {
   }
   
   QConfigurableTileShowHideDialog::~QConfigurableTileShowHideDialog() {
-    delete(cbFrame);
-    delete(scrollArea);
+    delete (cbFrame);
+    delete (scrollArea);
 
   }
 
   void QConfigurableTileShowHideDialog::sl_dialogAccept() {
-
-    int numberWidgets = 0;
+    // 1. generate a list of ConfigurableTiles that currently are visible and also should be visible in future
+    // 2. generate a list of ConfigurableTiles that was not vilible until now, but should be visible
+    int index_newbies = 0;
+    int index_visible_max = 0;
+    QMap<int, QAbstractConfigurableTileWidget*> configurableTile_Visibles;
+    QMap<int, QAbstractConfigurableTileWidget*> configurableTile_Newbies;
     foreach(QCheckBox* cb, checkBoxConfiguableShowHideList)
       {
-        parentGridLayout->removeWidget(configLineWidgetMap[cb->text()]);
+        QAbstractConfigurableTileWidget* configurableTile = configLineWidgetMap[cb->text()];
+        if (configurableTile == 0) continue;
 
-        if (cb->checkState() == Qt::Checked) {
-          configLineWidgetMap[cb->text()]->show();
-          parentGridLayout->addWidget(configLineWidgetMap[cb->text()], numberWidgets / 3, numberWidgets % 3);
-          numberWidgets++;
-        } else {
-          configLineWidgetMap[cb->text()]->hide();
+        if (cb->checkState() == Qt::Checked){
+          if (configurableTile->isVisible()){
+            configurableTile_Visibles.insert(configurableTile->getTileIndex(), configurableTile);
+            if (index_visible_max < configurableTile->getTileIndex()) index_visible_max = configurableTile->getTileIndex();
+          }else{
+            configurableTile_Newbies.insert(index_newbies++, configurableTile);
+          }
         }
+        configurableTile->hide();
       }
+
+    int newTileIndex = 0;
+    foreach(QAbstractConfigurableTileWidget* configurableTile, configurableTile_Visibles)
+      {
+        configurableTile->setTileIndex(newTileIndex++);
+        configurableTile->show();
+      }
+
+    foreach(QAbstractConfigurableTileWidget* configurableTile, configurableTile_Newbies)
+      {
+        configurableTile->setTileIndex(newTileIndex++);
+        configurableTile->show();
+      }
+
     this->close();
   }
 

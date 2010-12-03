@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-30 17:19:03  wrabe
+ *   Revision 1.5  2010-12-03 11:11:53  wrabe
+ *   - now handled paramVal, paramInt and paramBool, all the params are displayed
+ *     as ConfigurableTiles witch can be show and hide seperatly or arranged by user
+ *     (showHideDialog reacheble by contextMenu (right click an the Widget containing
+ *     the tiles ), arrange the Tiles is can done by drag and drop (there is no history or
+ *     storage implementet yet))
+ *
+ *   Revision 1.4  2010/11/30 17:19:03  wrabe
  *   - bugfix
  *
  *   Revision 1.3  2010/11/30 17:07:06  wrabe
@@ -48,29 +55,31 @@
  ***************************************************************************/
 
 #include "QConfigurableWidget.h"
-#include <QVBoxLayout>
+#include <QEvent>
+#include <QMouseEvent>
 #include <QMenu>
 #include <QMessageBox>
-#include <QCheckBox>
 #include <QPalette>
 #include <QDialog>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QList>
 #include <QMap>
-#include <QObject>
+#include <QPixmap>
+#include <QRect>
 
-#include "QBoolConfigurableLineWidget.h"
-#include "QIntConfigurableLineWidget.h"
-#include "QValConfigurableLineWidget.h"
+#include "QBoolConfigurableTileWidget.h"
+#include "QIntConfigurableTileWidget.h"
+#include "QValConfigurableTileWidget.h"
 #include "QConfigurableTileShowHideDialog.h"
 
 namespace lpzrobots {
   
   QConfigurableWidget::QConfigurableWidget(Configurable* config) :
-    config(config), dragging(false), configurableTileDragged(0) {
+    config(config), dragging(false), configurableTile_dragging(0) {
     initBody();
     createConfigurableLines();
+    setAcceptDrops(true);
   }
 
   QConfigurableWidget::~QConfigurableWidget() {
@@ -86,34 +95,38 @@ namespace lpzrobots {
     Configurable::parammap valMap = config->getParamValMap();
     FOREACHC(Configurable::parammap, valMap, keyIt) {
       Configurable::paramkey key = (*keyIt).first;
-      QAbstractConfigurableLineWidget* configLineWidget = new QValConfigurableLineWidget(config, key);
-      configLineWidgetMap.insert(configLineWidget->getConfigurableName(), configLineWidget);
-
-      configLineWidget->setAttribute(Qt::WA_DeleteOnClose);
-      configLineWidget->setWindowTitle(QString(key.c_str()));
-
-      layout.addWidget(configLineWidget, numberWidgets / 3, numberWidgets % 3);
+      QAbstractConfigurableTileWidget* configTileWidget = new QValConfigurableTileWidget(config, key);
+      configLineWidgetMap.insert(configTileWidget->getConfigurableName(), configTileWidget);
+      configTileWidget->setTileIndex(numberWidgets);
+      layout.addWidget(configTileWidget, numberWidgets / 3, numberWidgets % 3);
       numberWidgets++;
     }
-    /*
-     Configurable::paramintmap intMap = config->getParamIntMap();
-     FOREACHC(Configurable::paramintmap, intMap, keyIt) {
-     Configurable::paramkey key = (*keyIt).first;
-     QAbstractConfigurableLineWidget* configLineWidget = new QIntConfigurableLineWidget(&layout, config, key);
-     configLineWidgetList.append(configLineWidget);
-     }
-     Configurable::paramboolmap boolMap = config->getParamBoolMap();
-     FOREACHC(Configurable::paramboolmap, boolMap, keyIt) {
-     Configurable::paramkey key = (*keyIt).first;
-     QAbstractConfigurableLineWidget* configLineWidget = new QBoolConfigurableLineWidget(&layout, config, key);
-     configLineWidgetList.append(configLineWidget);
-     }
-     */
+
+    Configurable::paramintmap intMap = config->getParamIntMap();
+    FOREACHC(Configurable::paramintmap, intMap, keyIt) {
+      Configurable::paramkey key = (*keyIt).first;
+      QAbstractConfigurableTileWidget* configTileWidget = new QIntConfigurableTileWidget(config, key);
+      configLineWidgetMap.insert(configTileWidget->getConfigurableName(), configTileWidget);
+      configTileWidget->setTileIndex(numberWidgets);
+      layout.addWidget(configTileWidget, numberWidgets / 3, numberWidgets % 3);
+      numberWidgets++;
+    }
+    Configurable::paramboolmap boolMap = config->getParamBoolMap();
+    FOREACHC(Configurable::paramboolmap, boolMap, keyIt) {
+      Configurable::paramkey key = (*keyIt).first;
+      QAbstractConfigurableTileWidget* configTileWidget = new QBoolConfigurableTileWidget(config, key);
+      configLineWidgetMap.insert(configTileWidget->getConfigurableName(), configTileWidget);
+      configTileWidget->setTileIndex(numberWidgets);
+      layout.addWidget(configTileWidget, numberWidgets / 3, numberWidgets % 3);
+      numberWidgets++;
+    }
+
     //body.setLayout(&layout);
   }
 
   void QConfigurableWidget::initBody() {
-    setTitle(QString(config->getName().c_str()) + "  -  " + QString(config->getRevision().c_str()) + "  [" + QString::number(config->getId()) + "]");
+    setTitle(QString(config->getName().c_str()) + "  -  " + QString(config->getRevision().c_str()) + "  [" + QString::number(
+        config->getId()) + "]");
     setFont(QFont("Courier", 11, QFont::Bold));
 
     QPalette pal = palette();
@@ -136,6 +149,15 @@ namespace lpzrobots {
     QConfigurableTileShowHideDialog* dialog = new QConfigurableTileShowHideDialog(configLineWidgetMap, &layout);
     dialog->exec();
     delete (dialog);
+    arrangeConfigurableTiles();
+  }
+
+  void QConfigurableWidget::arrangeConfigurableTiles() {
+    foreach(QAbstractConfigurableTileWidget* configurableTile, configLineWidgetMap)
+      {
+        layout.removeWidget(configurableTile);
+        layout.addWidget(configurableTile, configurableTile->getTileIndex() / 3, configurableTile->getTileIndex() % 3);
+      }
   }
 
   void QConfigurableWidget::enterEvent(QEvent * event) {
@@ -146,51 +168,101 @@ namespace lpzrobots {
     setBackgroundRole(QPalette::AlternateBase);
     setAutoFillBackground(true);
     update();
-    setMouseTracking(true);
   }
   void QConfigurableWidget::leaveEvent(QEvent * event) {
     setPalette(defaultPalette);
     update();
-    setMouseTracking(false);
   }
   void QConfigurableWidget::mousePressEvent(QMouseEvent * event) {
-    dragging = false;
-    configurableTileDragged = 0;
-    QPoint mousepos = event->globalPos();
-    setTitle("("+QString::number(mousepos.x())+":"+QString::number(mousepos.y())+")");
-    if (event->button() == Qt::LeftButton && event->type() == QEvent::MouseButtonPress) {
-      foreach(QAbstractConfigurableLineWidget* configurableTile, configLineWidgetMap)
+    foreach(QAbstractConfigurableTileWidget* configurableTile, configLineWidgetMap)
+      {
+        if (configurableTile->contains(event->pos())){
+          configurableTile_dragging = configurableTile;
+          configruableTile_mousePressedOffset = event->pos() - configurableTile_dragging->pos();
+          QMimeData *mimeData = new QMimeData;
+          mimeData->setData("mimetype:" + QString::number(config->getId()), 0);
+
+          QDrag *drag = new QDrag(this);
+          drag->setMimeData(mimeData);
+          drag->setPixmap(QPixmap::grabWidget(configurableTile_dragging));
+          drag->setHotSpot(configruableTile_mousePressedOffset);
+          configurableTile_dragging->toDummy(true);
+          drag->exec(Qt::MoveAction);
+        }
+      }
+  }
+  void QConfigurableWidget::dragEnterEvent(QDragEnterEvent *event) {
+    if (event->mimeData()->hasFormat("mimetype:" + QString::number(config->getId()))){
+      if (event->source() == this){
+        configurableTile_dragging->toDummy(true);
+      }else{
+        configurableTile_dragging = 0;
+      }
+      event->setDropAction(Qt::MoveAction);
+      event->accept();
+      return;
+    }
+    event->ignore();
+  }
+
+  void QConfigurableWidget::dragLeaveEvent(QDragLeaveEvent *event) {
+    if (configurableTile_dragging != 0){
+      configurableTile_dragging->toDummy(false);
+    }
+    arrangeConfigurableTiles();
+    event->ignore();
+  }
+
+  void QConfigurableWidget::dragMoveEvent(QDragMoveEvent *event) {
+    if (event->mimeData()->hasFormat("mimetype:" + QString::number(config->getId()))){
+      event->setDropAction(Qt::MoveAction);
+      event->accept();
+      return;
+    }
+    event->ignore();
+  }
+
+  void QConfigurableWidget::dropEvent(QDropEvent *event) {
+    if (event->mimeData()->hasFormat("mimetype:" + QString::number(config->getId()))){
+      event->accept();
+      foreach(QAbstractConfigurableTileWidget* configurableTile, configLineWidgetMap)
         {
+          if (configurableTile != configurableTile_dragging && configurableTile->contains(event->pos())){
 
-          QRect rect = configurableTile->geometry();
-          QPoint p1 = mapToGlobal(QPoint(rect.left(), rect.top()));
-          QPoint p2 = mapToGlobal(QPoint(rect.left()+rect.width(), rect.top()+rect.height()));
-          QPoint p3 = event->globalPos();
+            // Ok, there is a ConfigurationTile under the mouseCursor
+            int tmp_index = configurableTile->getTileIndex();
+            if (tmp_index < configurableTile_dragging->getTileIndex()){
+              // die ConfigurableTiles müssen nach hinten verschoben werden
+              // setze das abzulegende ConfigurableTile an diese Position, alle folgenden bis zur Lücke gehen einen Paltz weiter
+              foreach(QAbstractConfigurableTileWidget* configurableTile_tmp, configLineWidgetMap)
+                {
+                  int i = configurableTile_tmp->getTileIndex();
+                  if (i >= tmp_index && i < configurableTile_dragging->getTileIndex()){
+                    configurableTile_tmp->setTileIndex(i + 1);
+                  }
+                }
 
-          if (p1.x() <= p3.x() && p1.y() <= p3.y() && p3.x() <= p2.x() && p3.y() < p2.y()){
-            configurableTileDragged = configurableTile;
-            dragging = true;
-            lastMousePos = p3;
+            }else{
+              // setze das abzulegende ConfigurableTile an diese Position, alle vorhergehenden rücken auf
+              foreach(QAbstractConfigurableTileWidget* configurableTile_tmp, configLineWidgetMap)
+                {
+                  int i = configurableTile_tmp->getTileIndex();
+                  if (i > configurableTile_dragging->getTileIndex() && i <= tmp_index){
+                    configurableTile_tmp->setTileIndex(i - 1);
+                  }
+                }
+            }
+            configurableTile_dragging->setTileIndex(tmp_index);
+            configurableTile_dragging->toDummy(false);
+            arrangeConfigurableTiles();
+            return;
           }
         }
+      // There is no ConfigurationTile under the mouseCursor
+      configurableTile_dragging->toDummy(false);
+      arrangeConfigurableTiles();
+      return;
     }
   }
-  void QConfigurableWidget::mouseReleaseEvent(QMouseEvent * event) {
-    dragging = false;
-    configurableTileDragged = 0;
-  }
-  void QConfigurableWidget::mouseMoveEvent(QMouseEvent * event) {
-    if (dragging && configurableTileDragged != 0) {
-      QPoint orig = QPoint(configurableTileDragged->pos());
-      configurableTileDragged->move(orig + event->globalPos()-lastMousePos);
-      lastMousePos = event->globalPos();
-      QPoint p1 = mapToGlobal(configurableTileDragged->pos());
-      ((QValConfigurableLineWidget*) configurableTileDragged)->setName("("+QString::number(p1.x())+":"+QString::number(p1.y())+")");
-    }
 
-
-    QPoint mousepos = event->globalPos();
-    setTitle("("+QString::number(mousepos.x())+":"+QString::number(mousepos.y())+")");
-  }
-
-}
+} // namespace lpzrobots
