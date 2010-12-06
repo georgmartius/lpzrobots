@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-11-26 12:15:05  guettler
+ *   Revision 1.11  2010-12-06 14:09:53  guettler
+ *   - use of valDefMinBounds, valDefMaxBounds, intDefMinBounds and intDefMaxBound instead of inf values
+ *
+ *   Revision 1.10  2010/11/26 12:15:05  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *
@@ -178,13 +181,13 @@ class Configurable
     // stuff for bounds
     typedef std::pair<paramval, paramval> paramvalBounds;
     typedef std::map<paramkey, paramvalBounds> paramvalBoundsMap;
-    #define valInfinity std::numeric_limits<paramval>::max()
-    #define valNegInfinity std::numeric_limits<paramval>::min()
+    #define valDefMaxBound 1000.0
+    #define valDefMinBound -1000.0
 
     typedef std::pair<paramint, paramint> paramintBounds;
     typedef std::map<paramkey, paramintBounds> paramintBoundsMap;
-    #define intInfinity std::numeric_limits<paramint>::max()
-    #define intNegInfinity std::numeric_limits<paramint>::min()
+    #define intDefMinBound -1000
+    #define intDefMaxBound 1000
 
     /// nice predicate function for finding by ID
     struct matchId : public std::unary_function<Configurable*, bool>
@@ -319,11 +322,11 @@ class Configurable
      If you need to do some special treatment for setting (or getting) of the parameter
      you can handle this by overloading getParam and setParam
      */
-    virtual void addParameter(const paramkey& key, paramval* val, paramval minBound = valNegInfinity, paramval maxBound = valInfinity,
+    virtual void addParameter(const paramkey& key, paramval* val, paramval minBound = valDefMinBound, paramval maxBound = valDefMaxBound,
                               const paramdescr& descr = paramdescr() ) {
       mapOfValues[key] = val;
       if(!descr.empty()) mapOfDescr[key] = descr;
-      mapOfValBounds[key]=paramvalBounds(-minBound,maxBound);
+      mapOfValBounds[key]=paramvalBounds(minBound,maxBound);
     }
 
     /**
@@ -338,18 +341,18 @@ class Configurable
     /**
      See addParameter(const paramkey& key, paramval* val) but for int values
      */
-    virtual void addParameter(const paramkey& key, paramint* val, paramint minBound = intNegInfinity, paramint maxBound = intInfinity,
+    virtual void addParameter(const paramkey& key, paramint* val, paramint minBound = intDefMinBound, paramint maxBound = intDefMaxBound,
                               const paramdescr& descr = paramdescr()) {
       mapOfInteger[key] = val;
       if(!descr.empty()) mapOfDescr[key] = descr;
-      mapOfIntBounds[key]=paramintBounds(-minBound,maxBound);
+      mapOfIntBounds[key]=paramintBounds(minBound,maxBound);
     }
 
     /**
      This function is only provided for convenience. It does the same as addParameter but set the
      variable to the default value
      */
-    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def, paramval minBound = valNegInfinity, paramval maxBound = valInfinity,
+    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def, paramval minBound = valDefMinBound, paramval maxBound = valDefMaxBound,
                                  const paramdescr& descr = paramdescr()){
       *val = def;
       addParameter(key,val, minBound, maxBound, descr);
@@ -363,7 +366,7 @@ class Configurable
     }
 
     /// See addParameterDef(const paramkey&, paramval*, paramval)
-    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def, paramint minBound = intNegInfinity, paramint maxBound = intInfinity,
+    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def, paramint minBound = valDefMinBound, paramint maxBound = valDefMaxBound,
                                  const paramdescr& descr = paramdescr()) {
       *val = def;
       addParameter(key,val, minBound, maxBound, descr);

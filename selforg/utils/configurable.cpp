@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-11-26 12:15:05  guettler
+ *   Revision 1.10  2010-12-06 14:09:53  guettler
+ *   - use of valDefMinBounds, valDefMaxBounds, intDefMinBounds and intDefMaxBound instead of inf values
+ *
+ *   Revision 1.9  2010/11/26 12:15:05  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *
@@ -222,14 +225,14 @@ Configurable::paramvalBounds Configurable::getParamvalBounds(const paramkey& key
   paramvalBoundsMap::const_iterator it = mapOfValBounds.find(key);
   if (it != mapOfValBounds.end()) {
     return it->second;
-  }else return paramvalBounds(-valInfinity,valInfinity);
+  }else return paramvalBounds(valDefMinBound,valDefMaxBound);
 }
 
 Configurable::paramintBounds Configurable::getParamintBounds(const paramkey& key) const {
   paramintBoundsMap::const_iterator it = mapOfIntBounds.find(key);
   if (it != mapOfIntBounds.end()) {
     return it->second;
-  }else return paramintBounds(-intInfinity,intInfinity);
+  }else return paramintBounds(intDefMinBound,intDefMaxBound);
 }
 
 
