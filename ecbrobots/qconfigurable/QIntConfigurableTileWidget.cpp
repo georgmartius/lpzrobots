@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-03 11:11:41  wrabe
+ *   Revision 1.2  2010-12-06 14:08:57  guettler
+ *   - bugfixes
+ *   - number of decimals is now calculated
+ *
+ *   Revision 1.1  2010/12/03 11:11:41  wrabe
  *   - replace of the ConfigurableLineWidgets by ConfigurableTileWidgets
  *   - (final rename from lines to tiles)
  *   - for history look at the ConfigurableLineWidget-classes
@@ -59,8 +63,8 @@ namespace lpzrobots {
   QIntConfigurableTileWidget::QIntConfigurableTileWidget(Configurable* config, Configurable::paramkey& key) :
     QAbstractConfigurableTileWidget(config, key) {
 
-    int minBound = config->getParamvalBounds(key).first;
-    int maxBound = config->getParamvalBounds(key).second;
+    int minBound = config->getParamintBounds(key).first;
+    int maxBound = config->getParamintBounds(key).second;
     int value = config->getParam(key);
     QString key_name = QString(key.c_str());
     QString toolTipName = QString(config->getParamDescr(key).c_str());
@@ -68,9 +72,9 @@ namespace lpzrobots {
 
     setLayout(&gridLayoutConfigurableTile);
 
-    lName.setText(key_name);
+    lName.setText(key_name + " (="+ QString::number(value)+")");
     lName.setToolTip(toolTipName);
-    lName.setFont(QFont("Courier", 12, QFont::Bold));
+    lName.setFont(QFont("Arial Narrow", 10, QFont::Normal));
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(sl_execContextMenu(const QPoint &)));
@@ -125,7 +129,7 @@ namespace lpzrobots {
   }
   void QIntConfigurableTileWidget::sl_changeBounds() {
     QMessageBox msgBox;
-    msgBox.setText("This is a dummy: will replaced in future by a \ndialog to change the boundaries of the Configurable.");
+    msgBox.setText("This is a dummy: will be replaced in future by a \ndialog to change the boundaries of the Configurable.");
     msgBox.exec();
   }
   void QIntConfigurableTileWidget::toDummy(bool set) {

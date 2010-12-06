@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-03 11:11:41  wrabe
+ *   Revision 1.2  2010-12-06 14:08:57  guettler
+ *   - bugfixes
+ *   - number of decimals is now calculated
+ *
+ *   Revision 1.1  2010/12/03 11:11:41  wrabe
  *   - replace of the ConfigurableLineWidgets by ConfigurableTileWidgets
  *   - (final rename from lines to tiles)
  *   - for history look at the ConfigurableLineWidget-classes
@@ -87,43 +91,6 @@ namespace lpzrobots {
     return false;
   }
 
-//  QDoubleSpinBox* QAbstractConfigurableTileWidget::setAndCreateDoubleSpinBox(double val, int minBound, int maxBound) {
-//    QDoubleSpinBox* dsBox = new QDoubleSpinBox();
-//    dsBox->setAcceptDrops(false);
-//    dsBox->setMinimumWidth(100);
-//    dsBox->setMinimum(minBound);
-//    dsBox->setMaximum(maxBound);
-//    parentLayout->addWidget(dsBox, lineIndex, 1);
-//    return dsBox;
-//  }
-//
-//  QSlider* QAbstractConfigurableTileWidget::setAndCreateSlider(int minBound, int maxBound, int steps) {
-//    QSlider* slider = new QSlider();
-//    slider->setOrientation(Qt::Horizontal);
-//    slider->setMinimum(0);
-//    slider->setMaximum((maxBound-minBound)*steps);
-//    slider->setValue((maxBound-minBound)*steps*config->getParam(key));
-//    parentLayout->addWidget(slider, lineIndex, 3);
-//    return slider;
-//  }
-//
-//  QLabel* QAbstractConfigurableTileWidget::setAndCreateMinBoundLabel(QString minBoundString) {
-//    QLabel* labelMinBound = new QLabel();
-//    labelMinBound->setText(minBoundString + " <=");
-//    labelMinBound->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-//    labelMinBound->setToolTip("double-click to change");
-//    //labelMinBound->setFrameStyle(QFrame::Panel | QFrame::Plain);
-//    parentLayout->addWidget(labelMinBound, lineIndex, 2);
-//    return labelMinBound;
-//  }
-//
-//  QLabel* QAbstractConfigurableTileWidget::setAndCreateMaxBoundLabel(QString maxBoundString) {
-//    QLabel* labelMaxBound = new QLabel();
-//    labelMaxBound->setText("<= " + maxBoundString);
-//    labelMaxBound->setToolTip("double-click to change");
-//    //labelMaxBound->setFrameStyle(QFrame::Panel | QFrame::Plain);
-//    parentLayout->addWidget(labelMaxBound, lineIndex, 4);
-//    return labelMaxBound;
-//  }
+
 
 }

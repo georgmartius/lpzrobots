@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-03 11:11:41  wrabe
+ *   Revision 1.2  2010-12-06 14:08:57  guettler
+ *   - bugfixes
+ *   - number of decimals is now calculated
+ *
+ *   Revision 1.1  2010/12/03 11:11:41  wrabe
  *   - replace of the ConfigurableLineWidgets by ConfigurableTileWidgets
  *   - (final rename from lines to tiles)
  *   - for history look at the ConfigurableLineWidget-classes
@@ -59,10 +63,11 @@
 
 #include "QAbstractConfigurableTileWidget.h"
 #include <QGridLayout>
-#include <QLabel>
-#include <QSlider>
-#include <QDoubleSpinBox>
 #include <QPalette>
+
+class QLabel;
+class QSlider;
+class QDoubleSpinBox;
 
 namespace lpzrobots {
 
@@ -78,6 +83,8 @@ namespace lpzrobots {
       void toDummy(bool set);
 
     protected:
+      int calcNumberDecimals();
+
 
     private slots:
       void sl_spinBoxValueChanged(double);

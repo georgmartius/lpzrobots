@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-03 11:11:41  wrabe
+ *   Revision 1.2  2010-12-06 14:08:57  guettler
+ *   - bugfixes
+ *   - number of decimals is now calculated
+ *
+ *   Revision 1.1  2010/12/03 11:11:41  wrabe
  *   - replace of the ConfigurableLineWidgets by ConfigurableTileWidgets
  *   - (final rename from lines to tiles)
  *   - for history look at the ConfigurableLineWidget-classes
@@ -67,7 +71,7 @@ namespace lpzrobots {
 
     cbBool.setText(key_name);
     cbBool.setToolTip(toolTipName);
-    cbBool.setFont(QFont("Courier", 12, QFont::Bold));
+    cbBool.setFont(QFont("Arial Narrow", 10, QFont::Normal));
     if (config->getParam(key))
       cbBool.setCheckState(Qt::Checked);
     else cbBool.setCheckState(Qt::Unchecked);

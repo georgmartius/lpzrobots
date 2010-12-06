@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-03 11:11:41  wrabe
+ *   Revision 1.2  2010-12-06 14:08:57  guettler
+ *   - bugfixes
+ *   - number of decimals is now calculated
+ *
+ *   Revision 1.1  2010/12/03 11:11:41  wrabe
  *   - replace of the ConfigurableLineWidgets by ConfigurableTileWidgets
  *   - (final rename from lines to tiles)
  *   - for history look at the ConfigurableLineWidget-classes
@@ -57,6 +61,10 @@
 #include "QValConfigurableTileWidget.h"
 #include <QMessageBox>
 #include <QMenu>
+#include <QLabel>
+#include <QSlider>
+#include <QDoubleSpinBox>
+
 
 namespace lpzrobots {
   
@@ -68,13 +76,13 @@ namespace lpzrobots {
     double value = config->getParam(key);
     QString key_name = QString(key.c_str());
     QString toolTipName = QString(config->getParamDescr(key).c_str());
-    QString toolTipVals = "min=" + QString::number(minBound) + ", max=" + QString::number(maxBound);
+    QString toolTipVals = "min=" + QString::number(minBound) + ", max=" + QString::number(maxBound) + " ("+ QString::number(calcNumberDecimals()) + " decimals)";
 
     setLayout(&gridLayoutConfigurableTile);
 
     lName.setText(key_name);
     lName.setToolTip(toolTipName);
-    lName.setFont(QFont("Courier", 12, QFont::Bold));
+    lName.setFont(QFont("Arial Narrow", 10, QFont::Normal));
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(sl_execContextMenu(const QPoint &)));
@@ -84,15 +92,15 @@ namespace lpzrobots {
     dsBox.setMinimum(minBound);
     dsBox.setMaximum(maxBound);
     dsBox.setToolTip(toolTipVals);
-    dsBox.setDecimals(3);
+    dsBox.setDecimals(calcNumberDecimals());
     dsBox.setValue(value);
     dsBox.setSingleStep((maxBound - minBound) / 1000);
     dsBox.setFont(QFont("Courier", 11, QFont::Normal));
 
     slider.setOrientation(Qt::Horizontal);
-    slider.setMinimum(0);
-    slider.setMaximum((maxBound - minBound) * 1000);
-    slider.setValue((maxBound - minBound) * 1000 * value);
+    slider.setMinimum(minBound * 10000);
+    slider.setMaximum(maxBound * 10000);
+    slider.setValue(10000 * value);
     slider.setToolTip(toolTipVals);
 
     gridLayoutConfigurableTile.addWidget(&lName, 0, 0, 1, 2, Qt::AlignLeft);
@@ -114,17 +122,12 @@ namespace lpzrobots {
   }
 
   void QValConfigurableTileWidget::sl_spinBoxValueChanged(double value) {
-    double minBound = config->getParamvalBounds(key).first;
-    double maxBound = config->getParamvalBounds(key).second;
-    //    double value = dsBox->value();
-    slider.setValue((maxBound - minBound) * 1000 * value);
+    slider.setValue(10000 * value);
     config->setParam(key, value);
   }
 
   void QValConfigurableTileWidget::sl_sliderValueChanged(int int_value) {
-    double minBound = config->getParamvalBounds(key).first;
-    double maxBound = config->getParamvalBounds(key).second;
-    double value = int_value / ((maxBound - minBound) * 1000);
+    double value = int_value/10000.0;
     dsBox.setValue(value);
     config->setParam(key, value);
   }
@@ -136,7 +139,7 @@ namespace lpzrobots {
   }
   void QValConfigurableTileWidget::sl_changeBounds() {
     QMessageBox msgBox;
-    msgBox.setText("This is a dummy: will replaced in future by a \ndialog to change the boundaries of the Configurable.");
+    msgBox.setText("This is a dummy: will be replaced in future by a \ndialog to change the boundaries of the Configurable.");
     msgBox.exec();
   }
   void QValConfigurableTileWidget::toDummy(bool set) {
@@ -154,5 +157,23 @@ namespace lpzrobots {
       repaint();
     }
   }
+
+
+  int QValConfigurableTileWidget::calcNumberDecimals() {
+    double minBound = config->getParamvalBounds(key).first;
+    double maxBound = config->getParamvalBounds(key).second;
+    double range = (maxBound - minBound) / 2.;
+    if (range<=0.1)
+      return 4;
+    else if (range<=1)
+      return 3;
+    else if (range<=10)
+      return 2;
+    else if (range<=100)
+      return 1;
+    else
+      return 0;
+  }
+
 
 }
