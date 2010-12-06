@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-06 14:08:57  guettler
+ *   Revision 1.3  2010-12-06 17:49:34  wrabe
+ *   - new QConfigurableSetBoundsDialog to change the
+ *     boundaries of the Configurables (reacheble now by
+ *     context menu of the ConfigurableTile (only paramval/
+ *     paramint))
+ *
+ *   Revision 1.2  2010/12/06 14:08:57  guettler
  *   - bugfixes
  *   - number of decimals is now calculated
  *
@@ -64,7 +70,7 @@
 #include <QLabel>
 #include <QSlider>
 #include <QDoubleSpinBox>
-
+#include "QConfigurableSetBoundsDialog.h"
 
 namespace lpzrobots {
   
@@ -76,7 +82,9 @@ namespace lpzrobots {
     double value = config->getParam(key);
     QString key_name = QString(key.c_str());
     QString toolTipName = QString(config->getParamDescr(key).c_str());
-    QString toolTipVals = "min=" + QString::number(minBound) + ", max=" + QString::number(maxBound) + " ("+ QString::number(calcNumberDecimals()) + " decimals)";
+    QString toolTipVals;
+    toolTipVals.append("min=" + QString::number(minBound) + ", max=" + QString::number(maxBound));
+    toolTipVals.append(" (" + QString::number(calcNumberDecimals()) + " decimals)");
 
     setLayout(&gridLayoutConfigurableTile);
 
@@ -127,7 +135,7 @@ namespace lpzrobots {
   }
 
   void QValConfigurableTileWidget::sl_sliderValueChanged(int int_value) {
-    double value = int_value/10000.0;
+    double value = int_value / 10000.0;
     dsBox.setValue(value);
     config->setParam(key, value);
   }
@@ -138,18 +146,33 @@ namespace lpzrobots {
     menu.exec(this->mapToGlobal(pos));
   }
   void QValConfigurableTileWidget::sl_changeBounds() {
-    QMessageBox msgBox;
-    msgBox.setText("This is a dummy: will be replaced in future by a \ndialog to change the boundaries of the Configurable.");
-    msgBox.exec();
+    QConfigurableSetBoundsDialog* dialog = new QConfigurableSetBoundsDialog(config, key);
+    int ret = dialog->exec();
+    if (ret == QDialog::Accepted) {
+      double minBound = config->getParamvalBounds(key).first;
+      double maxBound = config->getParamvalBounds(key).second;
+      QString toolTipVals;
+      toolTipVals.append("min=" + QString::number(minBound) + ", max=" + QString::number(maxBound));
+      toolTipVals.append(" (" + QString::number(calcNumberDecimals()) + " decimals)");
+      dsBox.setDecimals(calcNumberDecimals());
+      dsBox.setMinimum(minBound);
+      dsBox.setMaximum(maxBound);
+      dsBox.setSingleStep((maxBound - minBound) / 1000);
+      dsBox.setToolTip(toolTipVals);
+      slider.setMinimum(minBound * 10000);
+      slider.setMaximum(maxBound * 10000);
+      slider.setToolTip(toolTipVals);
+    }
+    delete (dialog);
   }
   void QValConfigurableTileWidget::toDummy(bool set) {
-    if(set) {
+    if (set) {
       setAutoFillBackground(false);
       lName.hide();
       slider.hide();
       dsBox.hide();
       repaint();
-    }else {
+    } else {
       setAutoFillBackground(true);
       lName.show();
       slider.show();
@@ -158,22 +181,20 @@ namespace lpzrobots {
     }
   }
 
-
   int QValConfigurableTileWidget::calcNumberDecimals() {
     double minBound = config->getParamvalBounds(key).first;
     double maxBound = config->getParamvalBounds(key).second;
     double range = (maxBound - minBound) / 2.;
-    if (range<=0.1)
+    if (range <= 0.1)
       return 4;
-    else if (range<=1)
+    else if (range <= 1)
       return 3;
-    else if (range<=10)
+    else if (range <= 10)
       return 2;
-    else if (range<=100)
+    else if (range <= 100)
       return 1;
     else
       return 0;
   }
-
 
 }

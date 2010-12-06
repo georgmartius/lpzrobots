@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-03 11:11:53  wrabe
+ *   Revision 1.3  2010-12-06 17:49:34  wrabe
+ *   - new QConfigurableSetBoundsDialog to change the
+ *     boundaries of the Configurables (reacheble now by
+ *     context menu of the ConfigurableTile (only paramval/
+ *     paramint))
+ *
+ *   Revision 1.2  2010/12/03 11:11:53  wrabe
  *   - now handled paramVal, paramInt and paramBool, all the params are displayed
  *     as ConfigurableTiles witch can be show and hide seperatly or arranged by user
  *     (showHideDialog reacheble by contextMenu (right click an the Widget containing
@@ -130,11 +136,11 @@ namespace lpzrobots {
         configurableTile->show();
       }
 
-    this->close();
+    this->accept();
   }
 
   void QConfigurableTileShowHideDialog::sl_dialogReject() {
-    this->close();
+    this->reject();
   }
 
 }

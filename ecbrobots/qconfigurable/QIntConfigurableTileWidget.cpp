@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-06 14:08:57  guettler
+ *   Revision 1.3  2010-12-06 17:49:34  wrabe
+ *   - new QConfigurableSetBoundsDialog to change the
+ *     boundaries of the Configurables (reacheble now by
+ *     context menu of the ConfigurableTile (only paramval/
+ *     paramint))
+ *
+ *   Revision 1.2  2010/12/06 14:08:57  guettler
  *   - bugfixes
  *   - number of decimals is now calculated
  *
@@ -56,6 +62,7 @@
 #include "QIntConfigurableTileWidget.h"
 #include <QMessageBox>
 #include <QMenu>
+#include "QConfigurableSetBoundsDialog.h"
 
 
 namespace lpzrobots {
@@ -128,9 +135,22 @@ namespace lpzrobots {
     menu.exec(this->mapToGlobal(pos));
   }
   void QIntConfigurableTileWidget::sl_changeBounds() {
-    QMessageBox msgBox;
-    msgBox.setText("This is a dummy: will be replaced in future by a \ndialog to change the boundaries of the Configurable.");
-    msgBox.exec();
+    //    QMessageBox msgBox;
+    //    msgBox.setText("This is a dummy: will be replaced in future by a \ndialog to change the boundaries of the Configurable.");
+    //    msgBox.exec();
+        QConfigurableSetBoundsDialog* dialog = new QConfigurableSetBoundsDialog(config, key);
+        if(dialog->exec() == QDialog::Accepted){
+          int minBound = config->getParamintBounds(key).first;
+          int maxBound = config->getParamintBounds(key).second;
+          QString toolTipVals = "min=" + QString::number(minBound) + ", max=" + QString::number(maxBound);
+          spBox.setMinimum(minBound);
+          spBox.setMaximum(maxBound);
+          spBox.setToolTip(toolTipVals);
+          slider.setMinimum(minBound);
+          slider.setMaximum(maxBound);
+          slider.setToolTip(toolTipVals);
+        }
+        delete (dialog);
   }
   void QIntConfigurableTileWidget::toDummy(bool set) {
     if(set) {
