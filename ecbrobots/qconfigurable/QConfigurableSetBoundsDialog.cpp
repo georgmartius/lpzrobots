@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-06 17:49:34  wrabe
+ *   Revision 1.2  2010-12-07 10:08:40  wrabe
+ *   - disabled resizing of QConfigurableSetBoundsDialog
+ *
+ *   Revision 1.1  2010/12/06 17:49:34  wrabe
  *   - new QConfigurableSetBoundsDialog to change the
  *     boundaries of the Configurables (reacheble now by
  *     context menu of the ConfigurableTile (only paramval/
@@ -45,10 +48,11 @@ namespace lpzrobots {
   
   QConfigurableSetBoundsDialog::QConfigurableSetBoundsDialog(Configurable* config, Configurable::paramkey& key) :
     config(config), key(key) {
-    //    setSizePolicy(QSizePolicy::Fixed);
     dialogGridLayout = new QGridLayout();
     setLayout(dialogGridLayout);
     setWindowTitle(QString(key.c_str()));
+    setSizeGripEnabled(false);
+    layout()->setSizeConstraint( QLayout::SetFixedSize );
 
     Configurable::parammap valMap = config->getParamValMap();
     Configurable::paramintmap intMap = config->getParamIntMap();
