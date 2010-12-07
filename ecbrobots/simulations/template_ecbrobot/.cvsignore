@@ -10,3 +10,4 @@ Makefile
 ecbrobots.settings
 messagedispatcher.settings
 log.settings
+.nfs*
