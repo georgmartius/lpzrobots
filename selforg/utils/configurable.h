@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-12-06 14:09:53  guettler
+ *   Revision 1.12  2010-12-08 09:36:07  wrabe
+ *   - change bounds if value is outside of them
+ *
+ *   Revision 1.11  2010/12/06 14:09:53  guettler
  *   - use of valDefMinBounds, valDefMaxBounds, intDefMinBounds and intDefMaxBound instead of inf values
  *
  *   Revision 1.10  2010/11/26 12:15:05  guettler
@@ -325,6 +328,8 @@ class Configurable
     virtual void addParameter(const paramkey& key, paramval* val, paramval minBound = valDefMinBound, paramval maxBound = valDefMaxBound,
                               const paramdescr& descr = paramdescr() ) {
       mapOfValues[key] = val;
+      if (minBound>*val) minBound = (*val)>0 ? 0 : (*val)*2;
+      if (maxBound<*val) maxBound = (*val)>0 ? (*val)*2 : 0;
       if(!descr.empty()) mapOfDescr[key] = descr;
       mapOfValBounds[key]=paramvalBounds(minBound,maxBound);
     }
@@ -344,6 +349,8 @@ class Configurable
     virtual void addParameter(const paramkey& key, paramint* val, paramint minBound = intDefMinBound, paramint maxBound = intDefMaxBound,
                               const paramdescr& descr = paramdescr()) {
       mapOfInteger[key] = val;
+      if (minBound>*val) minBound = (*val)>0 ? 0 : (*val)*2;
+      if (maxBound<*val) maxBound = (*val)>0 ? (*val)*2 : 0;
       if(!descr.empty()) mapOfDescr[key] = descr;
       mapOfIntBounds[key]=paramintBounds(minBound,maxBound);
     }
