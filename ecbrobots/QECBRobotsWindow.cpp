@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-11-30 17:21:20  wrabe
+ *   Revision 1.7  2010-12-08 17:47:27  wrabe
+ *   - bugfixing/introducing new feature:
+ *   - folding of the ConfigurableWidgets now awailable
+ *
+ *   Revision 1.6  2010/11/30 17:21:20  wrabe
  *   - bugfix
  *
  *   Revision 1.5  2010/11/28 20:22:51  wrabe
@@ -60,7 +64,7 @@
 
 namespace lpzrobots {
 
-  QECBRobotsWindow::QECBRobotsWindow(QString applicationPath, QECBManager* manager) {
+  QECBRobotsWindow::QECBRobotsWindow(QString applicationPath, QECBManager* manager) : configWidget(0) {
     this->applicationPath = applicationPath;
     this->setWindowTitle("ECBRobotsWindow");
 
@@ -215,7 +219,6 @@ namespace lpzrobots {
 
   void QECBRobotsWindow::closeEvent(QCloseEvent *event) {
     writeSettings();
-
     event->accept();
   }
 
@@ -296,20 +299,22 @@ namespace lpzrobots {
   }
 
   QWidget* QECBRobotsWindow::createConfigurableWidget() {
-    QWidget* configWidget = new QWidget(); // containing some QGroupBoxes (QConfigurableWidget´s)
+    if (configWidget!=0)
+      delete configWidget;
+    configWidget = new QWidget(); // containing some QGroupBoxes (QConfigurableWidget´s)
     QGridLayout* grid = new QGridLayout();
+    grid->setSizeConstraint(QLayout::SetFixedSize);
     configWidget->setLayout(grid);
     int i = 0;
     FOREACH(ConfigList, globalData->configs, config) {
-      grid->addWidget(new QConfigurableWidget((*config)), i++, 0, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
+      QConfigurableWidget* confWidget = new QConfigurableWidget(*config);
+      grid->addWidget(confWidget, i++, 0, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
     }
-    //grid->setRowStretch(i, 100);
-    QScrollArea* scrollArea = new QScrollArea();
+    grid->setRowStretch(i, 100);
+    scrollArea = new QScrollArea();
      //scrollArea->setBackgroundRole(QPalette::Dark);
      scrollArea->setWidget(configWidget);
     return scrollArea;
   }
-
-
 
 } // namespace lpzrobots

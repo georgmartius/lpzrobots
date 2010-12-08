@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-11-26 12:22:37  guettler
+ *   Revision 1.5  2010-12-08 17:47:27  wrabe
+ *   - bugfixing/introducing new feature:
+ *   - folding of the ConfigurableWidgets now awailable
+ *
+ *   Revision 1.4  2010/11/26 12:22:37  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -132,6 +136,9 @@ namespace lpzrobots {
       QExtAction* action_SwitchWarning;
       QExtAction* action_SwitchVerbose;
       QExtAction* action_SwitchDebug;
+
+      QWidget* configWidget;
+      QScrollArea* scrollArea;
 
   };
 
