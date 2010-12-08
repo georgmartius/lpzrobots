@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-12-06 14:08:02  guettler
+ *   Revision 1.6  2010-12-08 17:54:00  wrabe
+ *   - some configurables removed (noise...)
+ *
+ *   Revision 1.5  2010/12/06 14:08:02  guettler
  *   -added some test variables for QConfigurable
  *
  *   Revision 1.4  2010/11/26 12:28:06  guettler
@@ -89,11 +92,7 @@ namespace lpzrobots {
     addParameterDef("discoverxbeehardwareversiontimeout", &discoverXBeeHardwareVersionTimeout, 50);
     addParameterDef("discovernodestimeout", &discoverNodesTimeout, 3000);
     addParameterDef("cycletime", &cycleTime, 50);
-    addParameterDef("noise01", &noise, 0.05, -0.1, 0.1, "global noise used for all controllers added by their used wiring to motor and/or sensor values");
-    addParameterDef("noise", &noise, 0.05, -1, 1, "global noise used for all controllers added by their used wiring to motor and/or sensor values");
-    addParameterDef("noise10", &noise, 0.05, -10, 10, "global noise used for all controllers added by their used wiring to motor and/or sensor values");
-    addParameterDef("noise100", &noise, 0.05, -100, 100, "global noise used for all controllers added by their used wiring to motor and/or sensor values");
-    addParameterDef("noise1000", &noise, 0.05, -1000, 1000, "global noise used for all controllers added by their used wiring to motor and/or sensor values");
+    addParameterDef("noise", &noise, 0.05, 0, 1, "global noise used for all controllers added by their used wiring to motor and/or sensor values");
     simStep = 0;
     addParameterDef("benchmarkmode", &benchmarkMode, false);
     addParameterDef("testmode", &testMode, false);
