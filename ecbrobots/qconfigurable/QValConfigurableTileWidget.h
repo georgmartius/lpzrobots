@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-06 14:08:57  guettler
+ *   Revision 1.3  2010-12-08 17:52:57  wrabe
+ *   - bugfixing/introducing new feature:
+ *   - folding of the ConfigurableWidgets now awailable
+ *   - highlight the ConfigurableTile when hoovered by mouse
+ *   - load/store of the state of a ConfigurableWidget to file
+ *
+ *   Revision 1.2  2010/12/06 14:08:57  guettler
  *   - bugfixes
  *   - number of decimals is now calculated
  *
@@ -81,6 +87,8 @@ namespace lpzrobots {
       virtual ~QValConfigurableTileWidget();
       void setName(QString name);
       void toDummy(bool set);
+      void setBounds(Configurable::paramvalBounds bounds);
+      void reloadConfigurableData();
 
     protected:
       int calcNumberDecimals();
@@ -91,6 +99,7 @@ namespace lpzrobots {
       void sl_sliderValueChanged(int);
       void sl_execContextMenu(const QPoint &pos);
       void sl_changeBounds();
+      void sl_resetToOriginalValues();
 
     private:
       QGridLayout gridLayoutConfigurableTile;
@@ -100,6 +109,10 @@ namespace lpzrobots {
       QSlider slider;
       QDoubleSpinBox dsBox;
       QPalette defaultPalette;
+
+      Configurable::paramvalBounds origBounds;
+      Configurable::paramval origValue;
+
 
 
   };

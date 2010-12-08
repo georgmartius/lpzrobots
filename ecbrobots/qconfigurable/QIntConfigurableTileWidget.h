@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-03 11:11:41  wrabe
+ *   Revision 1.2  2010-12-08 17:52:57  wrabe
+ *   - bugfixing/introducing new feature:
+ *   - folding of the ConfigurableWidgets now awailable
+ *   - highlight the ConfigurableTile when hoovered by mouse
+ *   - load/store of the state of a ConfigurableWidget to file
+ *
+ *   Revision 1.1  2010/12/03 11:11:41  wrabe
  *   - replace of the ConfigurableLineWidgets by ConfigurableTileWidgets
  *   - (final rename from lines to tiles)
  *   - for history look at the ConfigurableLineWidget-classes
@@ -72,6 +78,8 @@ namespace lpzrobots {
       virtual ~QIntConfigurableTileWidget();
       void setName(QString name);
       void toDummy(bool set);
+      void setBounds(Configurable::paramintBounds bounds);
+      void reloadConfigurableData();
 
     protected:
 
@@ -80,6 +88,7 @@ namespace lpzrobots {
       void sl_sliderValueChanged(int);
       void sl_execContextMenu(const QPoint &pos);
       void sl_changeBounds();
+      void sl_resetToOriginalValues();
 
     private:
       QGridLayout gridLayoutConfigurableTile;
@@ -89,6 +98,10 @@ namespace lpzrobots {
       QSlider slider;
       QSpinBox spBox;
       QPalette defaultPalette;
+
+      Configurable::paramintBounds origBounds;
+      Configurable::paramint origValue;
+
 
   };
 

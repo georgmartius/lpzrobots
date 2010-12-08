@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-03 11:11:41  wrabe
+ *   Revision 1.2  2010-12-08 17:52:57  wrabe
+ *   - bugfixing/introducing new feature:
+ *   - folding of the ConfigurableWidgets now awailable
+ *   - highlight the ConfigurableTile when hoovered by mouse
+ *   - load/store of the state of a ConfigurableWidget to file
+ *
+ *   Revision 1.1  2010/12/03 11:11:41  wrabe
  *   - replace of the ConfigurableLineWidgets by ConfigurableTileWidgets
  *   - (final rename from lines to tiles)
  *   - for history look at the ConfigurableLineWidget-classes
@@ -70,17 +76,23 @@ namespace lpzrobots {
       virtual ~QBoolConfigurableTileWidget();
       void setName(QString name);
       void toDummy(bool set);
+      void reloadConfigurableData();
 
     protected:
 
     private slots:
       void sl_checkStateChanged(int);
+      void sl_execContextMenu(const QPoint &pos);
+      void sl_resetToOriginalValues();
 
     private:
       QGridLayout gridLayoutConfigurableTile;
       QLabel lName;
       QCheckBox cbBool;
       QPalette defaultPalette;
+
+      Configurable::parambool origValue;
+
 
   };
 

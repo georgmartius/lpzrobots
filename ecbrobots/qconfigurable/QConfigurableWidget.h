@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-12-03 11:11:53  wrabe
+ *   Revision 1.5  2010-12-08 17:52:57  wrabe
+ *   - bugfixing/introducing new feature:
+ *   - folding of the ConfigurableWidgets now awailable
+ *   - highlight the ConfigurableTile when hoovered by mouse
+ *   - load/store of the state of a ConfigurableWidget to file
+ *
+ *   Revision 1.4  2010/12/03 11:11:53  wrabe
  *   - now handled paramVal, paramInt and paramBool, all the params are displayed
  *     as ConfigurableTiles witch can be show and hide seperatly or arranged by user
  *     (showHideDialog reacheble by contextMenu (right click an the Widget containing
@@ -65,6 +71,8 @@
 
 namespace lpzrobots {
 
+
+
   class QConfigurableWidget : public QGroupBox {
 
     Q_OBJECT
@@ -73,33 +81,43 @@ namespace lpzrobots {
       QConfigurableWidget(Configurable* config);
       virtual ~QConfigurableWidget();
 
+    signals:
+
     protected:
       virtual void enterEvent(QEvent * event);
       virtual void leaveEvent(QEvent * event);
       virtual void mousePressEvent(QMouseEvent * event);
+      virtual void mouseDoubleClickEvent(QMouseEvent * event);
       virtual void dragEnterEvent(QDragEnterEvent *event);
       virtual void dragMoveEvent(QDragMoveEvent *event);
       virtual void dropEvent(QDropEvent *event);
       virtual void dragLeaveEvent(QDragLeaveEvent *event);
 
-
     private slots:
       void sl_execContextMenu(const QPoint &pos);
-      void sl_showAndHideConfigurables();
-
+      void sl_showAndHideParameters();
+      void sl_loadConfigurableStateToFile();
+      void sl_saveConfigurableStateToFile();
 
     private:
+      void setFolding(bool folding);
+      int loadConfigurableState(const QString &fileName);
+      bool saveConfigurableState(const QString &fileName);
+
+
       QMenu contextMenuShowHideDialog;
       QGridLayout layout;
       QPalette defaultPalette;
       Configurable* config;
-      QMap<QString, QAbstractConfigurableTileWidget*> configLineWidgetMap;
+      QMap<QString, QAbstractConfigurableTileWidget*> configTileWidgetMap;
+      QMap<int, QAbstractConfigurableTileWidget*> configTiles_shownBeforeCollapse;
 
       void createConfigurableLines();
       void initBody();
       void arrangeConfigurableTiles();
 
       bool dragging;
+      bool isCollapsed;
       QPoint lastMousePos;
       QPoint configruableTile_mousePressedOffset;
       QAbstractConfigurableTileWidget* configurableTile_dragging;

@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-12-06 17:49:34  wrabe
+ *   Revision 1.4  2010-12-08 17:52:57  wrabe
+ *   - bugfixing/introducing new feature:
+ *   - folding of the ConfigurableWidgets now awailable
+ *   - highlight the ConfigurableTile when hoovered by mouse
+ *   - load/store of the state of a ConfigurableWidget to file
+ *
+ *   Revision 1.3  2010/12/06 17:49:34  wrabe
  *   - new QConfigurableSetBoundsDialog to change the
  *     boundaries of the Configurables (reacheble now by
  *     context menu of the ConfigurableTile (only paramval/
@@ -64,11 +70,10 @@
 #include <QMenu>
 #include "QConfigurableSetBoundsDialog.h"
 
-
 namespace lpzrobots {
   
   QIntConfigurableTileWidget::QIntConfigurableTileWidget(Configurable* config, Configurable::paramkey& key) :
-    QAbstractConfigurableTileWidget(config, key) {
+    QAbstractConfigurableTileWidget(config, key), origBounds(config->getParamintBounds(key)), origValue(*(config->getParamIntMap()[key])) {
 
     int minBound = config->getParamintBounds(key).first;
     int maxBound = config->getParamintBounds(key).second;
@@ -79,15 +84,17 @@ namespace lpzrobots {
 
     setLayout(&gridLayoutConfigurableTile);
 
-    lName.setText(key_name + " (="+ QString::number(value)+")");
-    lName.setToolTip(toolTipName);
-    lName.setFont(QFont("Arial Narrow", 10, QFont::Normal));
-
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(sl_execContextMenu(const QPoint &)));
 
+    lName.setText(key_name);
+    lName.setToolTip(toolTipName);
+    lName.setFont(QFont("Arial Narrow", 10, QFont::Normal));
+    lName.setWordWrap(true);
+    lName.setMaximumWidth(QAbstractConfigurableTileWidget::widgetSize.width()-150);
+
     spBox.setAcceptDrops(false);
-    spBox.setMinimumWidth(100);
+    //spBox.setMinimumWidth(100);
     spBox.setMinimum(minBound);
     spBox.setMaximum(maxBound);
     spBox.setToolTip(toolTipVals);
@@ -132,40 +139,56 @@ namespace lpzrobots {
   void QIntConfigurableTileWidget::sl_execContextMenu(const QPoint &pos) {
     QMenu menu;
     menu.addAction(tr("Change boundaries of this Configurable."), this, SLOT(sl_changeBounds()));
+    menu.addAction(tr("Reset to original values."), this, SLOT(sl_resetToOriginalValues()));
     menu.exec(this->mapToGlobal(pos));
   }
   void QIntConfigurableTileWidget::sl_changeBounds() {
-    //    QMessageBox msgBox;
-    //    msgBox.setText("This is a dummy: will be replaced in future by a \ndialog to change the boundaries of the Configurable.");
-    //    msgBox.exec();
-        QConfigurableSetBoundsDialog* dialog = new QConfigurableSetBoundsDialog(config, key);
-        if(dialog->exec() == QDialog::Accepted){
-          int minBound = config->getParamintBounds(key).first;
-          int maxBound = config->getParamintBounds(key).second;
-          QString toolTipVals = "min=" + QString::number(minBound) + ", max=" + QString::number(maxBound);
-          spBox.setMinimum(minBound);
-          spBox.setMaximum(maxBound);
-          spBox.setToolTip(toolTipVals);
-          slider.setMinimum(minBound);
-          slider.setMaximum(maxBound);
-          slider.setToolTip(toolTipVals);
-        }
-        delete (dialog);
+    QConfigurableSetBoundsDialog* dialog = new QConfigurableSetBoundsDialog(config, key);
+    if (dialog->exec() == QDialog::Accepted)
+      setBounds(config->getParamintBounds(key));
+    delete (dialog);
   }
   void QIntConfigurableTileWidget::toDummy(bool set) {
-    if(set) {
+    if (set) {
       setAutoFillBackground(false);
       lName.hide();
       slider.hide();
       spBox.hide();
       repaint();
-    }else {
+    } else {
       setAutoFillBackground(true);
       lName.show();
       slider.show();
       spBox.show();
       repaint();
     }
+  }
+
+  void QIntConfigurableTileWidget::sl_resetToOriginalValues() {
+    config->setParam(key, origValue);
+    config->setParamBounds(key, origBounds.first, origBounds.second);
+    setBounds(config->getParamvalBounds(key));
+    // values
+    spBox.setValue(origValue);
+    slider.setValue(origValue);
+  }
+
+  void QIntConfigurableTileWidget::setBounds(Configurable::paramintBounds bounds) {
+    int minBound = config->getParamintBounds(key).first;
+    int maxBound = config->getParamintBounds(key).second;
+    QString toolTipVals = "min=" + QString::number(minBound) + ", max=" + QString::number(maxBound);
+    spBox.setMinimum(minBound);
+    spBox.setMaximum(maxBound);
+    spBox.setToolTip(toolTipVals);
+    slider.setMinimum(minBound);
+    slider.setMaximum(maxBound);
+    slider.setToolTip(toolTipVals);
+  }
+  void QIntConfigurableTileWidget::reloadConfigurableData() {
+    setBounds(config->getParamintBounds(key));
+    int value = *(config->getParamIntMap()[key]);
+    spBox.setValue(value);
+    sl_spinBoxValueChanged(value);
   }
 
 }

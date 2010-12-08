@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-06 14:08:57  guettler
+ *   Revision 1.3  2010-12-08 17:52:57  wrabe
+ *   - bugfixing/introducing new feature:
+ *   - folding of the ConfigurableWidgets now awailable
+ *   - highlight the ConfigurableTile when hoovered by mouse
+ *   - load/store of the state of a ConfigurableWidget to file
+ *
+ *   Revision 1.2  2010/12/06 14:08:57  guettler
  *   - bugfixes
  *   - number of decimals is now calculated
  *
@@ -53,21 +59,18 @@
  *                                                                         *
  ***************************************************************************/
 
+#include <QMenu>
 #include "QBoolConfigurableTileWidget.h"
 
 namespace lpzrobots {
   
   QBoolConfigurableTileWidget::QBoolConfigurableTileWidget(Configurable* config, Configurable::paramkey& key) :
-    QAbstractConfigurableTileWidget(config, key) {
+    QAbstractConfigurableTileWidget(config, key), origValue(*(config->getParamBoolMap()[key])) {
 
     QString key_name = QString(key.c_str());
     QString toolTipName = QString(config->getParamDescr(key).c_str());
 
     setLayout(&gridLayoutConfigurableTile);
-
-    //    lName.setText(key_name);
-    //    lName.setToolTip(toolTipName);
-    //    lName.setFont(QFont("Courier", 12, QFont::Bold));
 
     cbBool.setText(key_name);
     cbBool.setToolTip(toolTipName);
@@ -76,9 +79,10 @@ namespace lpzrobots {
       cbBool.setCheckState(Qt::Checked);
     else cbBool.setCheckState(Qt::Unchecked);
 
-    //    gridLayoutConfigurableTile.addWidget(&lName, 0, 0, 1, 2, Qt::AlignLeft);
     gridLayoutConfigurableTile.addWidget(&cbBool, 0, 0, 1, 2, Qt::AlignLeft | Qt::AlignTop);
 
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(sl_execContextMenu(const QPoint &)));
     connect(&cbBool, SIGNAL(stateChanged(int)), this, SLOT(sl_checkStateChanged(int)));
 
     setBackgroundRole(QPalette::Background);
@@ -88,7 +92,6 @@ namespace lpzrobots {
   QBoolConfigurableTileWidget::~QBoolConfigurableTileWidget() { }
 
   void QBoolConfigurableTileWidget::setName(QString name) {
-//    lName.setText(name);
     cbBool.setText(name);
   }
 
@@ -96,18 +99,31 @@ namespace lpzrobots {
     if(state == Qt::Checked) config->setParam(key, true); else config->setParam(key, true);
   }
 
+  void QBoolConfigurableTileWidget::sl_execContextMenu(const QPoint &pos) {
+    QMenu menu;
+    menu.addAction(tr("Reset to original values."), this, SLOT(sl_resetToOriginalValues()));
+    menu.exec(this->mapToGlobal(pos));
+  }
+
   void QBoolConfigurableTileWidget::toDummy(bool set) {
     if(set) {
       setAutoFillBackground(false);
-//      lName.hide();
       cbBool.hide();
       repaint();
     }else {
       setAutoFillBackground(true);
-//      lName.show();
       cbBool.show();
       repaint();
     }
+  }
+
+  void QBoolConfigurableTileWidget::sl_resetToOriginalValues() {
+    config->setParam(key, origValue);
+    if(origValue) cbBool.setCheckState(Qt::Checked); else cbBool.setCheckState(Qt::Unchecked);
+  }
+
+  void QBoolConfigurableTileWidget::reloadConfigurableData() {
+    bool value = *(config->getParamBoolMap()[key]);
   }
 
 }

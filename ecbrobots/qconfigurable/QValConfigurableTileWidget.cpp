@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-12-06 17:49:34  wrabe
+ *   Revision 1.4  2010-12-08 17:52:57  wrabe
+ *   - bugfixing/introducing new feature:
+ *   - folding of the ConfigurableWidgets now awailable
+ *   - highlight the ConfigurableTile when hoovered by mouse
+ *   - load/store of the state of a ConfigurableWidget to file
+ *
+ *   Revision 1.3  2010/12/06 17:49:34  wrabe
  *   - new QConfigurableSetBoundsDialog to change the
  *     boundaries of the Configurables (reacheble now by
  *     context menu of the ConfigurableTile (only paramval/
@@ -75,7 +81,7 @@
 namespace lpzrobots {
   
   QValConfigurableTileWidget::QValConfigurableTileWidget(Configurable* config, Configurable::paramkey& key) :
-    QAbstractConfigurableTileWidget(config, key) {
+    QAbstractConfigurableTileWidget(config, key), origBounds(config->getParamvalBounds(key)), origValue(*(config->getParamValMap()[key])) {
 
     double minBound = config->getParamvalBounds(key).first;
     double maxBound = config->getParamvalBounds(key).second;
@@ -88,15 +94,17 @@ namespace lpzrobots {
 
     setLayout(&gridLayoutConfigurableTile);
 
-    lName.setText(key_name);
-    lName.setToolTip(toolTipName);
-    lName.setFont(QFont("Arial Narrow", 10, QFont::Normal));
-
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(sl_execContextMenu(const QPoint &)));
 
+    lName.setText(key_name);
+    lName.setToolTip(toolTipName);
+    lName.setFont(QFont("Arial Narrow", 10, QFont::Normal));
+    lName.setWordWrap(true);
+    lName.setMaximumWidth(QAbstractConfigurableTileWidget::widgetSize.width()-150);
+
     dsBox.setAcceptDrops(false);
-    dsBox.setMinimumWidth(100);
+    //dsBox.setMinimumWidth(100);
     dsBox.setMinimum(minBound);
     dsBox.setMaximum(maxBound);
     dsBox.setToolTip(toolTipVals);
@@ -143,26 +151,13 @@ namespace lpzrobots {
   void QValConfigurableTileWidget::sl_execContextMenu(const QPoint &pos) {
     QMenu menu;
     menu.addAction(tr("Change boundaries of this Configurable."), this, SLOT(sl_changeBounds()));
+    menu.addAction(tr("Reset to original values."), this, SLOT(sl_resetToOriginalValues()));
     menu.exec(this->mapToGlobal(pos));
   }
   void QValConfigurableTileWidget::sl_changeBounds() {
     QConfigurableSetBoundsDialog* dialog = new QConfigurableSetBoundsDialog(config, key);
-    int ret = dialog->exec();
-    if (ret == QDialog::Accepted) {
-      double minBound = config->getParamvalBounds(key).first;
-      double maxBound = config->getParamvalBounds(key).second;
-      QString toolTipVals;
-      toolTipVals.append("min=" + QString::number(minBound) + ", max=" + QString::number(maxBound));
-      toolTipVals.append(" (" + QString::number(calcNumberDecimals()) + " decimals)");
-      dsBox.setDecimals(calcNumberDecimals());
-      dsBox.setMinimum(minBound);
-      dsBox.setMaximum(maxBound);
-      dsBox.setSingleStep((maxBound - minBound) / 1000);
-      dsBox.setToolTip(toolTipVals);
-      slider.setMinimum(minBound * 10000);
-      slider.setMaximum(maxBound * 10000);
-      slider.setToolTip(toolTipVals);
-    }
+    if (dialog->exec() == QDialog::Accepted)
+      setBounds(config->getParamvalBounds(key));
     delete (dialog);
   }
   void QValConfigurableTileWidget::toDummy(bool set) {
@@ -195,6 +190,37 @@ namespace lpzrobots {
       return 1;
     else
       return 0;
+  }
+
+  void QValConfigurableTileWidget::sl_resetToOriginalValues() {
+    config->setParam(key, origValue);
+    config->setParamBounds(key, origBounds.first, origBounds.second);
+    setBounds(config->getParamvalBounds(key));
+    // values
+    dsBox.setValue(origValue);
+    sl_spinBoxValueChanged(origValue);
+  }
+
+  void QValConfigurableTileWidget::setBounds(Configurable::paramvalBounds bounds) {
+    double minBound = bounds.first;
+    double maxBound = bounds.second;
+    QString toolTipVals;
+    toolTipVals.append("min=" + QString::number(minBound) + ", max=" + QString::number(maxBound));
+    toolTipVals.append(" (" + QString::number(calcNumberDecimals()) + " decimals)");
+    dsBox.setDecimals(calcNumberDecimals());
+    dsBox.setMinimum(minBound);
+    dsBox.setMaximum(maxBound);
+    dsBox.setSingleStep((maxBound - minBound) / 1000);
+    dsBox.setToolTip(toolTipVals);
+    slider.setMinimum(minBound * 10000);
+    slider.setMaximum(maxBound * 10000);
+    slider.setToolTip(toolTipVals);
+  }
+  void QValConfigurableTileWidget::reloadConfigurableData() {
+    setBounds(config->getParamvalBounds(key));
+    double value = *(config->getParamValMap()[key]);
+    dsBox.setValue(value);
+    sl_spinBoxValueChanged(value);
   }
 
 }

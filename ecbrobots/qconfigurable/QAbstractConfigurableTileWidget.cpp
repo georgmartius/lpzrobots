@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-06 14:08:57  guettler
+ *   Revision 1.3  2010-12-08 17:52:57  wrabe
+ *   - bugfixing/introducing new feature:
+ *   - folding of the ConfigurableWidgets now awailable
+ *   - highlight the ConfigurableTile when hoovered by mouse
+ *   - load/store of the state of a ConfigurableWidget to file
+ *
+ *   Revision 1.2  2010/12/06 14:08:57  guettler
  *   - bugfixes
  *   - number of decimals is now calculated
  *
@@ -89,6 +95,20 @@ namespace lpzrobots {
   bool QAbstractConfigurableTileWidget::contains(QPoint pos) {
     if ((x() <= pos.x()) && (y() <= pos.y()) && (pos.x() < (x() + width())) && (pos.y() < (y() + height()))) return true;
     return false;
+  }
+
+  void QAbstractConfigurableTileWidget::enterEvent(QEvent * event) {
+    defaultPalette = palette();
+    QPalette pal = QPalette(defaultPalette);
+    pal.setColor(QPalette::Window, QColor(220, 200, 200));
+    setPalette(pal);
+    setBackgroundRole(QPalette::Window);
+    setAutoFillBackground(true);
+    update();
+  }
+  void QAbstractConfigurableTileWidget::leaveEvent(QEvent * event) {
+    setPalette(defaultPalette);
+    update();
   }
 
 

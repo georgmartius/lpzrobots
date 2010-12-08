@@ -26,7 +26,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-03 11:11:41  wrabe
+ *   Revision 1.2  2010-12-08 17:52:57  wrabe
+ *   - bugfixing/introducing new feature:
+ *   - folding of the ConfigurableWidgets now awailable
+ *   - highlight the ConfigurableTile when hoovered by mouse
+ *   - load/store of the state of a ConfigurableWidget to file
+ *
+ *   Revision 1.1  2010/12/03 11:11:41  wrabe
  *   - replace of the ConfigurableLineWidgets by ConfigurableTileWidgets
  *   - (final rename from lines to tiles)
  *   - for history look at the ConfigurableLineWidget-classes
@@ -64,6 +70,7 @@
 #include <QSlider>
 #include <QFrame>
 #include <QLabel>
+#include <QPalette>
 
 namespace lpzrobots {
   
@@ -79,6 +86,7 @@ namespace lpzrobots {
       virtual QString getName() {return QString(key.c_str());}
       virtual void toDummy(bool set){}
       virtual bool contains(QPoint pos);
+      virtual void reloadConfigurableData() {}
 
       virtual void setTileIndex(int index) {
         tileIndex = index;
@@ -91,15 +99,13 @@ namespace lpzrobots {
       static QSize widgetSize;
 
     protected:
+      virtual void enterEvent(QEvent * event);
+      virtual void leaveEvent(QEvent * event);
+
+      QPalette defaultPalette;
       Configurable* config;
       Configurable::paramkey key;
       int tileIndex;
-
-      //      QLabel* setAndCreateMinBoundLabel(QString minBoundString);
-      //      QLabel* setAndCreateMaxBoundLabel(QString maxBoundString);
-      //      QSlider* setAndCreateSlider(int minBound, int maxBound, int steps);
-      //      QDoubleSpinBox* setAndCreateDoubleSpinBox(double val, int minBound, int maxBound);
-
 
   };
 
