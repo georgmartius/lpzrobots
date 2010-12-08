@@ -107,8 +107,8 @@ class MyECBManager : public QECBManager {
       int numberNimm2 = 3;
       for (int nimm2Index = 0; nimm2Index < numberNimm2; nimm2Index++)
       {
-               if (nimm2Index!=1)
-                  continue;
+           //    if (nimm2Index!=1)
+            //      continue;
         // create new controller
         InvertMotorNStepConf conConf = InvertMotorNStep::getDefaultConf();
         conConf.initialC = matrix::Matrix(2, 2);
@@ -118,6 +118,7 @@ class MyECBManager : public QECBManager {
         conConf.initialC.val(0, 1) = -0.07;
 
         AbstractController* myCon = new InvertMotorNStep(conConf);
+       // myCon->setName(QString("MyController"+QString::number(nimm2Index)).toStdString());
         //AbstractController* myCon = new SineController();
         //myCon->setParam("period", 500);
 
