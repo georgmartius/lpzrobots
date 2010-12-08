@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-12-08 09:36:07  wrabe
+ *   Revision 1.13  2010-12-08 17:55:44  wrabe
+ *   - new typedefs for paramvalpair, paramintpair and paramboolpair
+ *
+ *   Revision 1.12  2010/12/08 09:36:07  wrabe
  *   - change bounds if value is outside of them
  *
  *   Revision 1.11  2010/12/06 14:09:53  guettler
@@ -191,6 +194,13 @@ class Configurable
     typedef std::map<paramkey, paramintBounds> paramintBoundsMap;
     #define intDefMinBound -1000
     #define intDefMaxBound 1000
+
+    // FOREACHC doesn't work at all, sometimes use foreach from Qt, like:
+    // foreach(paramvalpair pair, getParamValMap()) { paramkey key = pair.first; paramval val = pair.second; }
+    typedef std::pair<paramkey, paramval*> paramvalpair;
+    typedef std::pair<paramkey, parambool*> paramboolpair;
+    typedef std::pair<paramkey, paramint*> paramintpair;
+
 
     /// nice predicate function for finding by ID
     struct matchId : public std::unary_function<Configurable*, bool>
