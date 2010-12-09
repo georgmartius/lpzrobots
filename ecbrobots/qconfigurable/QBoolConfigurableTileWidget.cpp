@@ -26,7 +26,15 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-12-08 17:52:57  wrabe
+ *   Revision 1.4  2010-12-09 17:00:08  wrabe
+ *   - load / save function of ConfigurableState (configurable + GUI)
+ *   - autoload / autosave function of ConfigurableState (configurable
+ *     + GUI)
+ *   - handling of equal Configurable names implemented for autoload
+ *     and -save
+ *   - bugfixing
+ *
+ *   Revision 1.3  2010/12/08 17:52:57  wrabe
  *   - bugfixing/introducing new feature:
  *   - folding of the ConfigurableWidgets now awailable
  *   - highlight the ConfigurableTile when hoovered by mouse
@@ -124,6 +132,7 @@ namespace lpzrobots {
 
   void QBoolConfigurableTileWidget::reloadConfigurableData() {
     bool value = *(config->getParamBoolMap()[key]);
+    if(value) cbBool.setCheckState(Qt::Checked); else cbBool.setCheckState(Qt::Unchecked);
   }
 
 }

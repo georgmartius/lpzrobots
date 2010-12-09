@@ -26,7 +26,15 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-12-08 17:47:27  wrabe
+ *   Revision 1.8  2010-12-09 17:00:08  wrabe
+ *   - load / save function of ConfigurableState (configurable + GUI)
+ *   - autoload / autosave function of ConfigurableState (configurable
+ *     + GUI)
+ *   - handling of equal Configurable names implemented for autoload
+ *     and -save
+ *   - bugfixing
+ *
+ *   Revision 1.7  2010/12/08 17:47:27  wrabe
  *   - bugfixing/introducing new feature:
  *   - folding of the ConfigurableWidgets now awailable
  *
@@ -59,7 +67,6 @@
  ***************************************************************************/
 
 #include "QECBRobotsWindow.h"
-#include "QConfigurableWidget.h"
 #include  <QScrollArea>
 
 namespace lpzrobots {
@@ -90,6 +97,7 @@ namespace lpzrobots {
     connect(globalData, SIGNAL(sig_textLog(QString)), this, SLOT(sl_textLog(QString)));
     connect(ecbManager, SIGNAL(sig_communicationStateChanged(QECBCommunicator::ECBCommunicationState)), this,
         SLOT(sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState)));
+    connect(ecbManager, SIGNAL(sig_storeConfigurableStates()), this, SLOT(sl_storeConfigurableStates()));
     connect(globalData->comm, SIGNAL(sig_quitServer()), this, SLOT(sl_Close()));
 
     createActions();
@@ -100,7 +108,7 @@ namespace lpzrobots {
     // start the QECBManager (1st stage loop, 2nd stage loop is started by QECBCommunicator)
     this->ecbManager->initialize();
 
-    updateConfigurableWidget();
+    //updateConfigurableWidget();
   }
 
   void QECBRobotsWindow::createActions() {
@@ -219,6 +227,7 @@ namespace lpzrobots {
 
   void QECBRobotsWindow::closeEvent(QCloseEvent *event) {
     writeSettings();
+    sl_storeConfigurableStates();
     event->accept();
   }
 
@@ -292,6 +301,7 @@ namespace lpzrobots {
   }
 
   void QECBRobotsWindow::updateConfigurableWidget() {
+    configurableWidgetList.clear();
     int index=tabWidget->currentIndex();
     tabWidget->removeTab(1);
     tabWidget->insertTab(1,createConfigurableWidget(),"Configurables");
@@ -306,15 +316,30 @@ namespace lpzrobots {
     grid->setSizeConstraint(QLayout::SetFixedSize);
     configWidget->setLayout(grid);
     int i = 0;
+    QHash<QString,int> configurableIndexMap;
     FOREACH(ConfigList, globalData->configs, config) {
-      QConfigurableWidget* confWidget = new QConfigurableWidget(*config);
+      QString name = QString((*config)->getName().c_str());
+      int index = 0;
+      if (configurableIndexMap.contains(name)) {
+        index = configurableIndexMap[name]+1;
+      }
+      configurableIndexMap[name] = index;
+      QConfigurableWidget* confWidget = new QConfigurableWidget(*config, configurableIndexMap[name]);
       grid->addWidget(confWidget, i++, 0, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
+      confWidget->autoloadConfigurableState();
+      configurableWidgetList.append(confWidget);
     }
     grid->setRowStretch(i, 100);
     scrollArea = new QScrollArea();
      //scrollArea->setBackgroundRole(QPalette::Dark);
      scrollArea->setWidget(configWidget);
     return scrollArea;
+  }
+
+  void QECBRobotsWindow::sl_storeConfigurableStates() {
+    foreach(QConfigurableWidget* confWidget, configurableWidgetList) {
+      confWidget->autosaveConfigurableState();
+    }
   }
 
 } // namespace lpzrobots

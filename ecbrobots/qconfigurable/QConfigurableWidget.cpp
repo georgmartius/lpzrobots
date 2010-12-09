@@ -26,7 +26,15 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-12-08 17:52:57  wrabe
+ *   Revision 1.7  2010-12-09 17:00:08  wrabe
+ *   - load / save function of ConfigurableState (configurable + GUI)
+ *   - autoload / autosave function of ConfigurableState (configurable
+ *     + GUI)
+ *   - handling of equal Configurable names implemented for autoload
+ *     and -save
+ *   - bugfixing
+ *
+ *   Revision 1.6  2010/12/08 17:52:57  wrabe
  *   - bugfixing/introducing new feature:
  *   - folding of the ConfigurableWidgets now awailable
  *   - highlight the ConfigurableTile when hoovered by mouse
@@ -72,8 +80,8 @@
 
 namespace lpzrobots {
   
-  QConfigurableWidget::QConfigurableWidget(Configurable* config) :
-    config(config), dragging(false), isCollapsed(false), configurableTile_dragging(0) {
+  QConfigurableWidget::QConfigurableWidget(Configurable* config, int nameIndex) :
+    config(config), dragging(false), isCollapsed(false), configurableTile_dragging(0), nameIndex(nameIndex) {
     initBody();
     createConfigurableLines();
     setAcceptDrops(true);
@@ -122,7 +130,8 @@ namespace lpzrobots {
   }
 
   void QConfigurableWidget::initBody() {
-    setTitle(QString(config->getName().c_str()) + "  -  " + QString(config->getRevision().c_str()) + "  [" + QString::number(config->getId()) + "]");
+    //    setTitle(QString(config->getName().c_str()) + "  -  " + QString(config->getRevision().c_str()) + "  [" + QString::number(config->getId()) + "]");
+    setTitle(QString(config->getName().c_str()) + " (" + QString::number(nameIndex) + ")");
     setFont(QFont("Courier", 11, QFont::Bold));
 
     QPalette pal = palette();
@@ -148,9 +157,12 @@ namespace lpzrobots {
     QFileDialog* fileDialog = new QFileDialog();
     fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
     fileDialog->setFileMode(QFileDialog::ExistingFile);
+    QString pathApplication = QCoreApplication::applicationDirPath() + "/";
+    fileDialog->selectFile(pathApplication);
+    fileDialog->setNameFilter(tr("Xml (*.xml)"));
     if (fileDialog->exec() == QDialog::Accepted) {
       QString fileName = fileDialog->selectedFiles().at(0);
-      if (!loadConfigurableState(fileName)) {
+      if (loadConfigurableState(fileName)) {
         QMessageBox::warning(this, this->title(), tr("Configurable state could not be opened."), QMessageBox::Close);
       }
     }
@@ -158,7 +170,13 @@ namespace lpzrobots {
   void QConfigurableWidget::sl_saveConfigurableStateToFile() {
     QFileDialog* fileDialog = new QFileDialog();
     fileDialog->setAcceptMode(QFileDialog::AcceptSave);
-    fileDialog->setFileMode(QFileDialog::AnyFile);
+    //fileDialog->setFileMode(QFileDialog::AnyFile);
+    fileDialog->setNameFilter(tr("Xml (*.xml)"));
+    fileDialog->setDefaultSuffix("xml");
+    QString pathApplication = QCoreApplication::applicationDirPath() + "/";
+    fileDialog->selectFile(pathApplication);
+    QString fileNamePreference = QString(config->getName().c_str());
+    fileDialog->selectFile(fileNamePreference);
     if (fileDialog->exec() == QDialog::Accepted) {
       QString fileName = fileDialog->selectedFiles().at(0);
       if (!saveConfigurableState(fileName)) {
@@ -187,7 +205,6 @@ namespace lpzrobots {
     if (!qde_configurableWidget.isNull()) {
       // By default there exists only one node named "ConfigurableWidget"!
       bool collapse = qde_configurableWidget.attribute("isCollapsed", "0").toInt();
-      setFolding(collapse);
       QDomNode qdn_configurableTileWidgets = qde_configurableWidget.elementsByTagName("ConfigurableTileWidgets").at(0);
       // By default there will only one list of ConfigurableTileWidgets accepted!
       QDomElement qde_configurableTileWidget = qdn_configurableTileWidgets.firstChild().toElement();
@@ -204,7 +221,9 @@ namespace lpzrobots {
         qde_configurableTileWidget = qde_configurableTileWidget.nextSiblingElement();
       }
       arrangeConfigurableTiles();
+      setFolding(collapse);
     }
+    else return -4;
 
     // data...
     QDomElement qde_configurable = qde_configurableState.firstChildElement("Configurable");
@@ -221,8 +240,9 @@ namespace lpzrobots {
         double value = qde_paramval.attribute("value").toDouble();
         double minBound = qde_paramval.attribute("minBound").toDouble();
         double maxBound = qde_paramval.attribute("maxBound").toDouble();
-        if (config->setParam(key.toStdString(), value)) {
+        if (config->getParamValMap().find(key.toStdString()) != config->getParamValMap().end()) {
           config->setParamBounds(key.toStdString(), minBound, maxBound);
+          config->setParam(key.toStdString(), value);
           config->setParamDescr(key.toStdString(), desc.toStdString());
           configTileWidgetMap[key]->reloadConfigurableData();
         }
@@ -233,12 +253,14 @@ namespace lpzrobots {
       QDomElement qde_paramint = qdn_paramints.firstChild().toElement();
       while (!qde_paramint.isNull()) {
         QString key = qde_paramint.attribute("name", "???");
-        QString desc = qde_paramval.attribute("description");
-        int value = qde_paramval.attribute("value").toDouble();
-        int minBound = qde_paramval.attribute("minBound").toDouble();
-        int maxBound = qde_paramval.attribute("maxBound").toDouble();
-        if (config->setParam(key.toStdString(), value)) {
+        QString desc = qde_paramint.attribute("description");
+        int value = qde_paramint.attribute("value").toInt();
+        int minBound = qde_paramint.attribute("minBound").toInt();
+        int maxBound = qde_paramint.attribute("maxBound").toInt();
+
+        if (config->getParamIntMap().find(key.toStdString()) != config->getParamIntMap().end()) {
           config->setParamBounds(key.toStdString(), minBound, maxBound);
+          config->setParam(key.toStdString(), value);
           config->setParamDescr(key.toStdString(), desc.toStdString());
           configTileWidgetMap[key]->reloadConfigurableData();
         }
@@ -249,15 +271,18 @@ namespace lpzrobots {
       QDomElement qde_parambool = qdn_parambools.firstChild().toElement();
       while (!qde_parambool.isNull()) {
         QString key = qde_parambool.attribute("name", "???");
-        QString desc = qde_paramval.attribute("description");
-        bool value = qde_paramval.attribute("value").toDouble();
-        if (config->setParam(key.toStdString(), value)) {
+        QString desc = qde_parambool.attribute("description");
+        bool value = qde_parambool.attribute("value").toInt();
+        if (config->getParamBoolMap().find(key.toStdString()) != config->getParamBoolMap().end()) {
+          config->setParam(key.toStdString(), value);
           config->setParamDescr(key.toStdString(), desc.toStdString());
+          configTileWidgetMap[key]->reloadConfigurableData();
         }
         qde_parambool = qde_parambool.nextSiblingElement();
       }
     }
-    return -4;
+    else return -5;
+    return 0;
   }
 
   bool QConfigurableWidget::saveConfigurableState(const QString &fileName) {
@@ -493,6 +518,29 @@ namespace lpzrobots {
       arrangeConfigurableTiles();
       return;
     }
+  }
+
+  void QConfigurableWidget::autosaveConfigurableState() {
+    QString pathApplication = QCoreApplication::applicationDirPath();
+    QString preferredFileName = pathApplication + "/autosave_" + QString(config->getName().c_str()) + "_" + QString::number(nameIndex) + ".xml";
+    saveConfigurableState(preferredFileName);
+//    QMessageBox msgBox;
+//    msgBox.setText("saved: " + title());
+//    msgBox.exec();
+  }
+
+  void QConfigurableWidget::autoloadConfigurableState() {
+    QString pathApplication = QCoreApplication::applicationDirPath();
+    QString preferredFileName = pathApplication + "/autosave_" + QString(config->getName().c_str()) + "_" + QString::number(nameIndex) + ".xml";
+    int loadState;
+    if ((loadState=loadConfigurableState(preferredFileName)) == -1 && nameIndex != 0) { // file does not exist
+      // try to autoload from index 0
+      preferredFileName = pathApplication + "/autosave_" + QString(config->getName().c_str()) + "_0.xml";
+      loadState=loadConfigurableState(preferredFileName);
+    }
+//    QMessageBox msgBox;
+//    msgBox.setText("loaded ("+QString::number(loadState)+"): " + preferredFileName);
+//    msgBox.exec();
   }
 
 } // namespace lpzrobots

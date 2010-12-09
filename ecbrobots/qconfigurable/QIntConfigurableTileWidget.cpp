@@ -26,7 +26,15 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-12-08 17:52:57  wrabe
+ *   Revision 1.5  2010-12-09 17:00:08  wrabe
+ *   - load / save function of ConfigurableState (configurable + GUI)
+ *   - autoload / autosave function of ConfigurableState (configurable
+ *     + GUI)
+ *   - handling of equal Configurable names implemented for autoload
+ *     and -save
+ *   - bugfixing
+ *
+ *   Revision 1.4  2010/12/08 17:52:57  wrabe
  *   - bugfixing/introducing new feature:
  *   - folding of the ConfigurableWidgets now awailable
  *   - highlight the ConfigurableTile when hoovered by mouse
@@ -73,7 +81,7 @@
 namespace lpzrobots {
   
   QIntConfigurableTileWidget::QIntConfigurableTileWidget(Configurable* config, Configurable::paramkey& key) :
-    QAbstractConfigurableTileWidget(config, key), origBounds(config->getParamintBounds(key)), origValue(*(config->getParamIntMap()[key])) {
+    QAbstractConfigurableTileWidget(config, key), origBounds(config->getParamintBounds(key)), origValue(*(config->getParamIntMap()[key])), stopSignaling(false) {
 
     int minBound = config->getParamintBounds(key).first;
     int maxBound = config->getParamintBounds(key).second;
@@ -91,7 +99,7 @@ namespace lpzrobots {
     lName.setToolTip(toolTipName);
     lName.setFont(QFont("Arial Narrow", 10, QFont::Normal));
     lName.setWordWrap(true);
-    lName.setMaximumWidth(QAbstractConfigurableTileWidget::widgetSize.width()-150);
+    lName.setMaximumWidth(QAbstractConfigurableTileWidget::widgetSize.width() - 150);
 
     spBox.setAcceptDrops(false);
     //spBox.setMinimumWidth(100);
@@ -127,13 +135,17 @@ namespace lpzrobots {
   }
 
   void QIntConfigurableTileWidget::sl_spinBoxValueChanged(int value) {
-    slider.setValue(value);
-    config->setParam(key, value);
+    if (!stopSignaling) {
+      slider.setValue(value);
+      config->setParam(key, value);
+    }
   }
 
   void QIntConfigurableTileWidget::sl_sliderValueChanged(int value) {
-    spBox.setValue(value);
-    config->setParam(key, value);
+    if (!stopSignaling) {
+      spBox.setValue(value);
+      config->setParam(key, value);
+    }
   }
 
   void QIntConfigurableTileWidget::sl_execContextMenu(const QPoint &pos) {
@@ -145,7 +157,7 @@ namespace lpzrobots {
   void QIntConfigurableTileWidget::sl_changeBounds() {
     QConfigurableSetBoundsDialog* dialog = new QConfigurableSetBoundsDialog(config, key);
     if (dialog->exec() == QDialog::Accepted)
-      setBounds(config->getParamintBounds(key));
+      setBounds();
     delete (dialog);
   }
   void QIntConfigurableTileWidget::toDummy(bool set) {
@@ -167,13 +179,13 @@ namespace lpzrobots {
   void QIntConfigurableTileWidget::sl_resetToOriginalValues() {
     config->setParam(key, origValue);
     config->setParamBounds(key, origBounds.first, origBounds.second);
-    setBounds(config->getParamvalBounds(key));
+    setBounds();
     // values
     spBox.setValue(origValue);
     slider.setValue(origValue);
   }
 
-  void QIntConfigurableTileWidget::setBounds(Configurable::paramintBounds bounds) {
+  void QIntConfigurableTileWidget::setBounds() {
     int minBound = config->getParamintBounds(key).first;
     int maxBound = config->getParamintBounds(key).second;
     QString toolTipVals = "min=" + QString::number(minBound) + ", max=" + QString::number(maxBound);
@@ -185,10 +197,12 @@ namespace lpzrobots {
     slider.setToolTip(toolTipVals);
   }
   void QIntConfigurableTileWidget::reloadConfigurableData() {
-    setBounds(config->getParamintBounds(key));
+    stopSignaling = true;
+    setBounds();
     int value = *(config->getParamIntMap()[key]);
     spBox.setValue(value);
-    sl_spinBoxValueChanged(value);
+    slider.setValue(value);
+    stopSignaling = false;
   }
 
 }

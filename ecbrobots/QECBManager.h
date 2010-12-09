@@ -26,7 +26,15 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-26 12:22:37  guettler
+ *   Revision 1.3  2010-12-09 17:00:08  wrabe
+ *   - load / save function of ConfigurableState (configurable + GUI)
+ *   - autoload / autosave function of ConfigurableState (configurable
+ *     + GUI)
+ *   - handling of equal Configurable names implemented for autoload
+ *     and -save
+ *   - bugfixing
+ *
+ *   Revision 1.2  2010/11/26 12:22:37  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -91,6 +99,7 @@ namespace lpzrobots {
 
       void sig_communicationStateChanged(QECBCommunicator::ECBCommunicationState);
       void sig_textLog(QString log);
+      void sig_storeConfigurableStates();
 
     protected:
       bool simulation_time_reached;

@@ -26,7 +26,15 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-12-08 17:52:57  wrabe
+ *   Revision 1.5  2010-12-09 17:00:08  wrabe
+ *   - load / save function of ConfigurableState (configurable + GUI)
+ *   - autoload / autosave function of ConfigurableState (configurable
+ *     + GUI)
+ *   - handling of equal Configurable names implemented for autoload
+ *     and -save
+ *   - bugfixing
+ *
+ *   Revision 1.4  2010/12/08 17:52:57  wrabe
  *   - bugfixing/introducing new feature:
  *   - folding of the ConfigurableWidgets now awailable
  *   - highlight the ConfigurableTile when hoovered by mouse
@@ -81,7 +89,7 @@
 namespace lpzrobots {
   
   QValConfigurableTileWidget::QValConfigurableTileWidget(Configurable* config, Configurable::paramkey& key) :
-    QAbstractConfigurableTileWidget(config, key), origBounds(config->getParamvalBounds(key)), origValue(*(config->getParamValMap()[key])) {
+    QAbstractConfigurableTileWidget(config, key), origBounds(config->getParamvalBounds(key)), origValue(*(config->getParamValMap()[key])), stopSignaling(false) {
 
     double minBound = config->getParamvalBounds(key).first;
     double maxBound = config->getParamvalBounds(key).second;
@@ -101,7 +109,7 @@ namespace lpzrobots {
     lName.setToolTip(toolTipName);
     lName.setFont(QFont("Arial Narrow", 10, QFont::Normal));
     lName.setWordWrap(true);
-    lName.setMaximumWidth(QAbstractConfigurableTileWidget::widgetSize.width()-150);
+    lName.setMaximumWidth(QAbstractConfigurableTileWidget::widgetSize.width() - 150);
 
     dsBox.setAcceptDrops(false);
     //dsBox.setMinimumWidth(100);
@@ -138,14 +146,18 @@ namespace lpzrobots {
   }
 
   void QValConfigurableTileWidget::sl_spinBoxValueChanged(double value) {
-    slider.setValue(10000 * value);
-    config->setParam(key, value);
+    if (!stopSignaling) {
+      slider.setValue(10000 * value);
+      config->setParam(key, value);
+    }
   }
 
   void QValConfigurableTileWidget::sl_sliderValueChanged(int int_value) {
-    double value = int_value / 10000.0;
-    dsBox.setValue(value);
-    config->setParam(key, value);
+    if (!stopSignaling) {
+      double value = int_value / 10000.0;
+      dsBox.setValue(value);
+      config->setParam(key, value);
+    }
   }
 
   void QValConfigurableTileWidget::sl_execContextMenu(const QPoint &pos) {
@@ -217,10 +229,12 @@ namespace lpzrobots {
     slider.setToolTip(toolTipVals);
   }
   void QValConfigurableTileWidget::reloadConfigurableData() {
+    stopSignaling = true;
     setBounds(config->getParamvalBounds(key));
     double value = *(config->getParamValMap()[key]);
     dsBox.setValue(value);
-    sl_spinBoxValueChanged(value);
+    slider.setValue(10000 * value);
+    stopSignaling = false;
   }
 
 }

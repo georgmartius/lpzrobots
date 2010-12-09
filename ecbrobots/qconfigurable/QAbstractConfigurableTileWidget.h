@@ -26,7 +26,15 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-08 17:52:57  wrabe
+ *   Revision 1.3  2010-12-09 17:00:08  wrabe
+ *   - load / save function of ConfigurableState (configurable + GUI)
+ *   - autoload / autosave function of ConfigurableState (configurable
+ *     + GUI)
+ *   - handling of equal Configurable names implemented for autoload
+ *     and -save
+ *   - bugfixing
+ *
+ *   Revision 1.2  2010/12/08 17:52:57  wrabe
  *   - bugfixing/introducing new feature:
  *   - folding of the ConfigurableWidgets now awailable
  *   - highlight the ConfigurableTile when hoovered by mouse
@@ -82,11 +90,11 @@ namespace lpzrobots {
     public:
       QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey& key);
       virtual ~QAbstractConfigurableTileWidget();
-      virtual void setName(QString name) {}
+      virtual void setName(QString name) = 0;
       virtual QString getName() {return QString(key.c_str());}
-      virtual void toDummy(bool set){}
+      virtual void toDummy(bool set) = 0;
       virtual bool contains(QPoint pos);
-      virtual void reloadConfigurableData() {}
+      virtual void reloadConfigurableData() = 0;
 
       virtual void setTileIndex(int index) {
         tileIndex = index;

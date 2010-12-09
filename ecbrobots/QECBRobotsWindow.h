@@ -26,7 +26,15 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-12-08 17:47:27  wrabe
+ *   Revision 1.6  2010-12-09 17:00:08  wrabe
+ *   - load / save function of ConfigurableState (configurable + GUI)
+ *   - autoload / autosave function of ConfigurableState (configurable
+ *     + GUI)
+ *   - handling of equal Configurable names implemented for autoload
+ *     and -save
+ *   - bugfixing
+ *
+ *   Revision 1.5  2010/12/08 17:47:27  wrabe
  *   - bugfixing/introducing new feature:
  *   - folding of the ConfigurableWidgets now awailable
  *
@@ -68,6 +76,7 @@
 #include "QAbstractMessageClient.h"
 #include "QECBManager.h"
 #include "QECBCommunicator.h"
+#include "QConfigurableWidget.h"
 
 namespace lpzrobots {
 
@@ -84,6 +93,8 @@ namespace lpzrobots {
     public slots:
       void sl_textLog(QString s);
       void sl_GUIEventHandler(int eventCode);
+      void sl_storeConfigurableStates();
+
 
     private slots:
       void sl_Close();
@@ -139,6 +150,7 @@ namespace lpzrobots {
 
       QWidget* configWidget;
       QScrollArea* scrollArea;
+      QList<QConfigurableWidget*> configurableWidgetList;
 
   };
 
