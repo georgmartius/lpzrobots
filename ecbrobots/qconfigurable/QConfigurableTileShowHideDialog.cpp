@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-12-06 17:49:34  wrabe
+ *   Revision 1.4  2010-12-13 16:22:18  wrabe
+ *   - autosave function rearranged
+ *   - bugfixes
+ *
+ *   Revision 1.3  2010/12/06 17:49:34  wrabe
  *   - new QConfigurableSetBoundsDialog to change the
  *     boundaries of the Configurables (reacheble now by
  *     context menu of the ConfigurableTile (only paramval/
@@ -56,9 +60,9 @@ namespace lpzrobots {
   
   QConfigurableTileShowHideDialog::QConfigurableTileShowHideDialog(QMap<QString, QAbstractConfigurableTileWidget*> configLineWidgetMap,
       QGridLayout *parentGridLayout) :
-    configLineWidgetMap(configLineWidgetMap), parentGridLayout(parentGridLayout) {
+    configTileWidgetMap(configLineWidgetMap), parentGridLayout(parentGridLayout) {
 
-    setFixedSize(200, 400);
+    setFixedHeight(400);
     setLayout(new QVBoxLayout());
 
     cbFrame_ypos = 0;
@@ -75,7 +79,8 @@ namespace lpzrobots {
         //        cb->setMinimumSize(170, 15);
         if (!configLineWidget->isHidden())
           cb->setCheckState(Qt::Checked);
-        else cb->setCheckState(Qt::Unchecked);
+        else
+          cb->setCheckState(Qt::Unchecked);
         grid->addWidget(cb, row++, 0, Qt::AlignTop);
         checkBoxConfiguableShowHideList.append(cb);
       }
@@ -86,9 +91,16 @@ namespace lpzrobots {
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     scrollArea->setWidget(cbFrame);
 
+    pbSelectAll = new QPushButton(tr("select all"));
+    pbSelectNone = new QPushButton(tr("deselect all"));
+
     buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    buttonBox->addButton(pbSelectAll, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(pbSelectNone, QDialogButtonBox::ActionRole);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(sl_dialogAccept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(sl_dialogReject()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(pbSelectAll, SIGNAL(pressed()), this, SLOT(sl_dialogSelectAll()));
+    connect(pbSelectNone, SIGNAL(pressed()), this, SLOT(sl_dialogSelectNone()));
 
     layout()->addWidget(scrollArea);
     layout()->addWidget(buttonBox);
@@ -109,14 +121,16 @@ namespace lpzrobots {
     QMap<int, QAbstractConfigurableTileWidget*> configurableTile_Newbies;
     foreach(QCheckBox* cb, checkBoxConfiguableShowHideList)
       {
-        QAbstractConfigurableTileWidget* configurableTile = configLineWidgetMap[cb->text()];
-        if (configurableTile == 0) continue;
+        QAbstractConfigurableTileWidget* configurableTile = configTileWidgetMap[cb->text()];
+        if (configurableTile == 0)
+          continue;
 
-        if (cb->checkState() == Qt::Checked){
-          if (configurableTile->isVisible()){
+        if (cb->checkState() == Qt::Checked) {
+          if (configurableTile->isVisible()) {
             configurableTile_Visibles.insert(configurableTile->getTileIndex(), configurableTile);
-            if (index_visible_max < configurableTile->getTileIndex()) index_visible_max = configurableTile->getTileIndex();
-          }else{
+            if (index_visible_max < configurableTile->getTileIndex())
+              index_visible_max = configurableTile->getTileIndex();
+          } else {
             configurableTile_Newbies.insert(index_newbies++, configurableTile);
           }
         }
@@ -139,8 +153,17 @@ namespace lpzrobots {
     this->accept();
   }
 
-  void QConfigurableTileShowHideDialog::sl_dialogReject() {
-    this->reject();
+  void QConfigurableTileShowHideDialog::sl_dialogSelectAll() {
+    foreach(QCheckBox* cbShowConfigurableTileWidget, checkBoxConfiguableShowHideList)
+      {
+        cbShowConfigurableTileWidget->setCheckState(Qt::Checked);
+      }
   }
 
+  void QConfigurableTileShowHideDialog::sl_dialogSelectNone() {
+    foreach(QCheckBox* cbShowConfigurableTileWidget, checkBoxConfiguableShowHideList)
+      {
+        cbShowConfigurableTileWidget->setCheckState(Qt::Unchecked);
+      }
+  }
 }

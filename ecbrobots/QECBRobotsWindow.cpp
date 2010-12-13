@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-12-09 17:00:08  wrabe
+ *   Revision 1.9  2010-12-13 16:22:18  wrabe
+ *   - autosave function rearranged
+ *   - bugfixes
+ *
+ *   Revision 1.8  2010/12/09 17:00:08  wrabe
  *   - load / save function of ConfigurableState (configurable + GUI)
  *   - autoload / autosave function of ConfigurableState (configurable
  *     + GUI)
@@ -71,7 +75,8 @@
 
 namespace lpzrobots {
 
-  QECBRobotsWindow::QECBRobotsWindow(QString applicationPath, QECBManager* manager) : configWidget(0) {
+  QECBRobotsWindow::QECBRobotsWindow(QString applicationPath, QECBManager* manager) :
+    configWidget(0), isClosed(false) {
     this->applicationPath = applicationPath;
     this->setWindowTitle("ECBRobotsWindow");
 
@@ -81,11 +86,10 @@ namespace lpzrobots {
 
     // Layout:
     //------------------------------------------------------
-//    QGridLayout *grid = new QGridLayout();
-//    QWidget *mainpanel = new QWidget();
-//    mainpanel->setLayout(grid);
-//    setCentralWidget(mainpanel);
-
+    //    QGridLayout *grid = new QGridLayout();
+    //    QWidget *mainpanel = new QWidget();
+    //    mainpanel->setLayout(grid);
+    //    setCentralWidget(mainpanel);
 
 
     tabWidget = new QTabWidget;
@@ -226,8 +230,26 @@ namespace lpzrobots {
   }
 
   void QECBRobotsWindow::closeEvent(QCloseEvent *event) {
-    writeSettings();
-    sl_storeConfigurableStates();
+    // Vermutung: es bleibt ein Object erhalten, sodass dadurch dieses
+    // Fenster nicht beendet.
+    // Folge: fehler in der Autosave-Funktion
+    // TODO: behebe es ...
+
+    if(!isClosed){
+//      QString text = "QECBRobotsWindow::closeEvent(";
+//      foreach(QConfigurableWidget* confWidget, configurableWidgetList)
+//        {
+//          text.append(confWidget->title() + ",");
+//        }
+//      text.append(")");
+//      QMessageBox msgBox;
+//      msgBox.setText(text);
+//      msgBox.exec();
+
+      writeSettings();
+      sl_storeConfigurableStates();
+      isClosed = true;
+    }
     event->accept();
   }
 
@@ -245,11 +267,8 @@ namespace lpzrobots {
   }
 
   void QECBRobotsWindow::sl_About() {
-    QMessageBox::about(
-        this,
-        tr("About the Application"),
-        tr(
-            "ECB_Robot-Application V2.0, Tool to connect real robots (containing an ecb) onto a neuro-controller located on a standard pc."));
+    QMessageBox::about(this, tr("About the Application"), tr(
+        "ECB_Robot-Application V2.0, Tool to connect real robots (containing an ecb) onto a neuro-controller located on a standard pc."));
   }
 
   void QECBRobotsWindow::sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState commState) {
@@ -302,26 +321,26 @@ namespace lpzrobots {
 
   void QECBRobotsWindow::updateConfigurableWidget() {
     configurableWidgetList.clear();
-    int index=tabWidget->currentIndex();
+    int index = tabWidget->currentIndex();
     tabWidget->removeTab(1);
-    tabWidget->insertTab(1,createConfigurableWidget(),"Configurables");
+    tabWidget->insertTab(1, createConfigurableWidget(), "Configurables");
     tabWidget->setCurrentIndex(index);
   }
 
   QWidget* QECBRobotsWindow::createConfigurableWidget() {
-    if (configWidget!=0)
+    if (configWidget != 0)
       delete configWidget;
     configWidget = new QWidget(); // containing some QGroupBoxes (QConfigurableWidget´s)
     QGridLayout* grid = new QGridLayout();
     grid->setSizeConstraint(QLayout::SetFixedSize);
     configWidget->setLayout(grid);
     int i = 0;
-    QHash<QString,int> configurableIndexMap;
+    QHash<QString, int> configurableIndexMap;
     FOREACH(ConfigList, globalData->configs, config) {
       QString name = QString((*config)->getName().c_str());
       int index = 0;
       if (configurableIndexMap.contains(name)) {
-        index = configurableIndexMap[name]+1;
+        index = configurableIndexMap[name] + 1;
       }
       configurableIndexMap[name] = index;
       QConfigurableWidget* confWidget = new QConfigurableWidget(*config, configurableIndexMap[name]);
@@ -331,15 +350,52 @@ namespace lpzrobots {
     }
     grid->setRowStretch(i, 100);
     scrollArea = new QScrollArea();
-     //scrollArea->setBackgroundRole(QPalette::Dark);
-     scrollArea->setWidget(configWidget);
+    //scrollArea->setBackgroundRole(QPalette::Dark);
+    scrollArea->setWidget(configWidget);
     return scrollArea;
   }
 
   void QECBRobotsWindow::sl_storeConfigurableStates() {
-    foreach(QConfigurableWidget* confWidget, configurableWidgetList) {
-      confWidget->autosaveConfigurableState();
-    }
+    QString pathApplication = QCoreApplication::applicationDirPath();
+    QString preferredFileName = pathApplication + "/autosave_QConfigurable.xml";
+    QDomDocument doc("ConfigurableStateTypeDefinition");
+    // <ConfigurableStates>
+    QDomElement nodeConfigurableStates = doc.createElement("ConfigurableStates");
+    doc.appendChild(nodeConfigurableStates);
+
+    foreach(QConfigurableWidget* confWidget, configurableWidgetList)
+      {
+      nodeConfigurableStates.appendChild(confWidget->toXml());
+      }
+
+    QFile file(preferredFileName);
+    if (!file.open(QIODevice::WriteOnly))
+      return;
+    QTextStream ts(&file);
+    ts << doc.toString();
+    file.close();
+  }
+
+
+  void QECBRobotsWindow::sl_loadConfigurableStates() {
+    QString pathApplication = QCoreApplication::applicationDirPath();
+    QString preferredFileName = pathApplication + "/autosave_QConfigurable.xml";
+    QDomDocument doc("ConfigurableStateTypeDefinition");
+    // <ConfigurableStates>
+    QDomElement nodeConfigurableStates = doc.createElement("ConfigurableStates");
+    doc.appendChild(nodeConfigurableStates);
+
+    foreach(QConfigurableWidget* confWidget, configurableWidgetList)
+      {
+      nodeConfigurableStates.appendChild(confWidget->toXml());
+      }
+
+    QFile file(preferredFileName);
+    if (!file.open(QIODevice::ReadOnly))
+      return;
+    QTextStream ts(&file);
+    ts << doc.toString();
+    file.close();
   }
 
 } // namespace lpzrobots

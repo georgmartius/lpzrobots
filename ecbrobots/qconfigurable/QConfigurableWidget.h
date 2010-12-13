@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-12-09 17:00:08  wrabe
+ *   Revision 1.7  2010-12-13 16:22:18  wrabe
+ *   - autosave function rearranged
+ *   - bugfixes
+ *
+ *   Revision 1.6  2010/12/09 17:00:08  wrabe
  *   - load / save function of ConfigurableState (configurable + GUI)
  *   - autoload / autosave function of ConfigurableState (configurable
  *     + GUI)
@@ -76,6 +80,7 @@
 #include <QMap>
 #include <QMenu>
 #include <QPalette>
+#include <QDomElement>
 
 namespace lpzrobots {
 
@@ -88,6 +93,8 @@ namespace lpzrobots {
     public:
       QConfigurableWidget(Configurable* config, int nameIndex);
       virtual ~QConfigurableWidget();
+      QDomElement toXml();
+      int fromXml(const QDomElement &qde_configurableState);
       void autosaveConfigurableState();
       void autoloadConfigurableState();
 

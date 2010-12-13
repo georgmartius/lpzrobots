@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-12-09 17:00:08  wrabe
+ *   Revision 1.4  2010-12-13 16:22:18  wrabe
+ *   - autosave function rearranged
+ *   - bugfixes
+ *
+ *   Revision 1.3  2010/12/09 17:00:08  wrabe
  *   - load / save function of ConfigurableState (configurable + GUI)
  *   - autoload / autosave function of ConfigurableState (configurable
  *     + GUI)
@@ -86,12 +90,13 @@ namespace lpzrobots {
 
     Q_OBJECT
 
-
     public:
       QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey& key);
       virtual ~QAbstractConfigurableTileWidget();
       virtual void setName(QString name) = 0;
-      virtual QString getName() {return QString(key.c_str());}
+      virtual QString getName() {
+        return QString(key.c_str());
+      }
       virtual void toDummy(bool set) = 0;
       virtual bool contains(QPoint pos);
       virtual void reloadConfigurableData() = 0;

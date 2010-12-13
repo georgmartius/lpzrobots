@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-12-09 17:00:08  wrabe
+ *   Revision 1.8  2010-12-13 16:22:18  wrabe
+ *   - autosave function rearranged
+ *   - bugfixes
+ *
+ *   Revision 1.7  2010/12/09 17:00:08  wrabe
  *   - load / save function of ConfigurableState (configurable + GUI)
  *   - autoload / autosave function of ConfigurableState (configurable
  *     + GUI)
@@ -184,6 +188,8 @@ namespace lpzrobots {
       }
     }
   }
+
+
   int QConfigurableWidget::loadConfigurableState(const QString &fileName) {
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly))
@@ -196,15 +202,19 @@ namespace lpzrobots {
     }
     file.close();
 
-    QDomElement qde_configurableState = doc.documentElement();
-    if (qde_configurableState.tagName() != "ConfigurableState")
+    QDomElement qde_configurableStates = doc.documentElement();
+    if (qde_configurableStates.tagName() != "ConfigurableStates")
       return -3;
 
+    return fromXml(qde_configurableStates.elementsByTagName("ConfigurableState").at(0).toElement());
+  }
+
+  int QConfigurableWidget::fromXml(const QDomElement &qde_configurableState) {
     // GUI-Elements...
     QDomElement qde_configurableWidget = qde_configurableState.firstChildElement("ConfigurableWidget");
     if (!qde_configurableWidget.isNull()) {
       // By default there exists only one node named "ConfigurableWidget"!
-      bool collapse = qde_configurableWidget.attribute("isCollapsed", "0").toInt();
+      QString collapse = qde_configurableWidget.attribute("isCollapsed", "true");
       QDomNode qdn_configurableTileWidgets = qde_configurableWidget.elementsByTagName("ConfigurableTileWidgets").at(0);
       // By default there will only one list of ConfigurableTileWidgets accepted!
       QDomElement qde_configurableTileWidget = qdn_configurableTileWidgets.firstChild().toElement();
@@ -212,18 +222,21 @@ namespace lpzrobots {
       while (!qde_configurableTileWidget.isNull()) {
         QString tileName = qde_configurableTileWidget.attribute("name", "???");
         int tileIndex = qde_configurableTileWidget.attribute("tileIndex", QString::number(tmpTileIndex++)).toInt();
-        bool visible = qde_configurableTileWidget.attribute("isVisible", "0").toInt();
+        QString visible = qde_configurableTileWidget.attribute("isVisible", "true");
         QAbstractConfigurableTileWidget* tileWidget = configTileWidgetMap[tileName];
         if (tileWidget != 0) {
           tileWidget->setTileIndex(tileIndex);
-          tileWidget->setVisible(visible);
+          if (visible.startsWith("true"))
+            tileWidget->show();
+          else
+            tileWidget->hide();
         }
         qde_configurableTileWidget = qde_configurableTileWidget.nextSiblingElement();
       }
       arrangeConfigurableTiles();
-      setFolding(collapse);
-    }
-    else return -4;
+      setFolding(collapse.startsWith("true"));
+    } else
+      return -4;
 
     // data...
     QDomElement qde_configurable = qde_configurableState.firstChildElement("Configurable");
@@ -280,21 +293,40 @@ namespace lpzrobots {
         }
         qde_parambool = qde_parambool.nextSiblingElement();
       }
-    }
-    else return -5;
+    } else
+      return -5;
     return 0;
   }
 
   bool QConfigurableWidget::saveConfigurableState(const QString &fileName) {
     QDomDocument doc("ConfigurableStateTypeDefinition");
+    // <ConfigurableStates>
+    QDomElement nodeConfigurableStates = doc.createElement("ConfigurableStates");
+    doc.appendChild(nodeConfigurableStates);
+    nodeConfigurableStates.appendChild(toXml());
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly))
+      return false;
+    QTextStream ts(&file);
+    ts << doc.toString();
+    file.close();
+    return true;
+  }
+
+  QDomElement QConfigurableWidget::toXml() {
+    QDomDocument doc("ConfigurableStateTypeDefinition");
     // <ConfigurableState>
+
     QDomElement nodeConfigurableState = doc.createElement("ConfigurableState");
+//    QDomElement nodeConfigurableState = new QDomElement();
+//    nodeConfigurableState->setTagName("ConfigurableState");
     doc.appendChild(nodeConfigurableState);
+    nodeConfigurableState.setAttribute("name", QString(config->getName().c_str()) + "_" + QString::number(nameIndex));
 
     // <ConfigurableState><ConfigurableWidget>
     QDomElement nodeConfigurableWidget = doc.createElement("ConfigurableWidget");
     nodeConfigurableState.appendChild(nodeConfigurableWidget);
-    nodeConfigurableWidget.setAttribute("isCollapsed", isCollapsed);
+    nodeConfigurableWidget.setAttribute("isCollapsed", isCollapsed ? "true" : "false");
 
     // <ConfigurableState><ConfigurableWidget><ConfigurableTileWidgets>
     QDomElement nodeConfigurableTileWidgets = doc.createElement("ConfigurableTileWidgets");
@@ -306,7 +338,7 @@ namespace lpzrobots {
         nodeConfigurableTileWidgets.appendChild(nodeConfigurableTileWidget);
         nodeConfigurableTileWidget.setAttribute("name", configurableTile->getName());
         nodeConfigurableTileWidget.setAttribute("tileIndex", configurableTile->getTileIndex());
-        nodeConfigurableTileWidget.setAttribute("isVisible", configurableTile->isVisible());
+        nodeConfigurableTileWidget.setAttribute("isVisible", configurableTile->isVisible()?"true":"false");
       }
 
     // <ConfigurableState><Configurable>
@@ -364,13 +396,7 @@ namespace lpzrobots {
         nodeParambool.setAttribute("description", QString(config->getParamDescr(key).c_str()));
       }
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly))
-      return false;
-    QTextStream ts(&file);
-    ts << doc.toString();
-    file.close();
-    return true;
+    return nodeConfigurableState;
   }
 
   void QConfigurableWidget::sl_showAndHideParameters() {
@@ -524,23 +550,23 @@ namespace lpzrobots {
     QString pathApplication = QCoreApplication::applicationDirPath();
     QString preferredFileName = pathApplication + "/autosave_" + QString(config->getName().c_str()) + "_" + QString::number(nameIndex) + ".xml";
     saveConfigurableState(preferredFileName);
-//    QMessageBox msgBox;
-//    msgBox.setText("saved: " + title());
-//    msgBox.exec();
+    //    QMessageBox msgBox;
+    //    msgBox.setText("saved: " + title());
+    //    msgBox.exec();
   }
 
   void QConfigurableWidget::autoloadConfigurableState() {
     QString pathApplication = QCoreApplication::applicationDirPath();
     QString preferredFileName = pathApplication + "/autosave_" + QString(config->getName().c_str()) + "_" + QString::number(nameIndex) + ".xml";
     int loadState;
-    if ((loadState=loadConfigurableState(preferredFileName)) == -1 && nameIndex != 0) { // file does not exist
+    if ((loadState = loadConfigurableState(preferredFileName)) == -1 && nameIndex != 0) { // file does not exist
       // try to autoload from index 0
       preferredFileName = pathApplication + "/autosave_" + QString(config->getName().c_str()) + "_0.xml";
-      loadState=loadConfigurableState(preferredFileName);
+      loadState = loadConfigurableState(preferredFileName);
     }
-//    QMessageBox msgBox;
-//    msgBox.setText("loaded ("+QString::number(loadState)+"): " + preferredFileName);
-//    msgBox.exec();
+    //    QMessageBox msgBox;
+    //    msgBox.setText("loaded ("+QString::number(loadState)+"): " + preferredFileName);
+    //    msgBox.exec();
   }
 
 } // namespace lpzrobots

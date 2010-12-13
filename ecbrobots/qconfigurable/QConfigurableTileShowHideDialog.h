@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-03 11:11:53  wrabe
+ *   Revision 1.3  2010-12-13 16:22:18  wrabe
+ *   - autosave function rearranged
+ *   - bugfixes
+ *
+ *   Revision 1.2  2010/12/03 11:11:53  wrabe
  *   - now handled paramVal, paramInt and paramBool, all the params are displayed
  *     as ConfigurableTiles witch can be show and hide seperatly or arranged by user
  *     (showHideDialog reacheble by contextMenu (right click an the Widget containing
@@ -49,6 +53,7 @@
 #include <QMap>
 #include <QGridLayout>
 #include <QDialogButtonBox>
+#include <QPushButton>
 
 
 
@@ -67,7 +72,8 @@ namespace lpzrobots {
 
     private slots:
       void sl_dialogAccept();
-      void sl_dialogReject();
+      void sl_dialogSelectAll();
+      void sl_dialogSelectNone();
 
 
     private:
@@ -75,8 +81,10 @@ namespace lpzrobots {
       QScrollArea* scrollArea;
       QDialogButtonBox* buttonBox;
       QList<QCheckBox*> checkBoxConfiguableShowHideList;
-      QMap<QString, QAbstractConfigurableTileWidget*> configLineWidgetMap;
+      QMap<QString, QAbstractConfigurableTileWidget*> configTileWidgetMap;
       QGridLayout *parentGridLayout;
+      QPushButton* pbSelectAll;
+      QPushButton* pbSelectNone;
       int cbFrame_ypos;
 
 

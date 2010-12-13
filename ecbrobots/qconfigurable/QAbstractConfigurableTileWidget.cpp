@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-12-08 17:52:57  wrabe
+ *   Revision 1.4  2010-12-13 16:22:18  wrabe
+ *   - autosave function rearranged
+ *   - bugfixes
+ *
+ *   Revision 1.3  2010/12/08 17:52:57  wrabe
  *   - bugfixing/introducing new feature:
  *   - folding of the ConfigurableWidgets now awailable
  *   - highlight the ConfigurableTile when hoovered by mouse
@@ -110,7 +114,5 @@ namespace lpzrobots {
     setPalette(defaultPalette);
     update();
   }
-
-
 
 }
