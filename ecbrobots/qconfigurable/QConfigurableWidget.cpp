@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-12-13 16:22:18  wrabe
+ *   Revision 1.9  2010-12-14 10:10:12  guettler
+ *   -autoload/autosave now uses only one xml file
+ *   -fixed getName of TileWidget which produced invisible widgets in xml files
+ *
+ *   Revision 1.8  2010/12/13 16:22:18  wrabe
  *   - autosave function rearranged
  *   - bugfixes
  *
@@ -136,6 +140,7 @@ namespace lpzrobots {
   void QConfigurableWidget::initBody() {
     //    setTitle(QString(config->getName().c_str()) + "  -  " + QString(config->getRevision().c_str()) + "  [" + QString::number(config->getId()) + "]");
     setTitle(QString(config->getName().c_str()) + " (" + QString::number(nameIndex) + ")");
+    configName = QString(config->getName().c_str()) + "_" + QString::number(nameIndex);
     setFont(QFont("Courier", 11, QFont::Bold));
 
     QPalette pal = palette();
@@ -544,29 +549,6 @@ namespace lpzrobots {
       arrangeConfigurableTiles();
       return;
     }
-  }
-
-  void QConfigurableWidget::autosaveConfigurableState() {
-    QString pathApplication = QCoreApplication::applicationDirPath();
-    QString preferredFileName = pathApplication + "/autosave_" + QString(config->getName().c_str()) + "_" + QString::number(nameIndex) + ".xml";
-    saveConfigurableState(preferredFileName);
-    //    QMessageBox msgBox;
-    //    msgBox.setText("saved: " + title());
-    //    msgBox.exec();
-  }
-
-  void QConfigurableWidget::autoloadConfigurableState() {
-    QString pathApplication = QCoreApplication::applicationDirPath();
-    QString preferredFileName = pathApplication + "/autosave_" + QString(config->getName().c_str()) + "_" + QString::number(nameIndex) + ".xml";
-    int loadState;
-    if ((loadState = loadConfigurableState(preferredFileName)) == -1 && nameIndex != 0) { // file does not exist
-      // try to autoload from index 0
-      preferredFileName = pathApplication + "/autosave_" + QString(config->getName().c_str()) + "_0.xml";
-      loadState = loadConfigurableState(preferredFileName);
-    }
-    //    QMessageBox msgBox;
-    //    msgBox.setText("loaded ("+QString::number(loadState)+"): " + preferredFileName);
-    //    msgBox.exec();
   }
 
 } // namespace lpzrobots

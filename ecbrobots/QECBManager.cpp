@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-12-09 17:00:08  wrabe
+ *   Revision 1.5  2010-12-14 10:10:12  guettler
+ *   -autoload/autosave now uses only one xml file
+ *   -fixed getName of TileWidget which produced invisible widgets in xml files
+ *
+ *   Revision 1.4  2010/12/09 17:00:08  wrabe
  *   - load / save function of ConfigurableState (configurable + GUI)
  *   - autoload / autosave function of ConfigurableState (configurable
  *     + GUI)
@@ -142,6 +146,7 @@ namespace lpzrobots {
   }
 
   void QECBManager::startLoop() {
+    emit sig_communicationStateWillChange(QECBCommunicator::STATE_RUNNING);
     globalData.textLog("QECBManager: calling start function...");
     globalData.comm->initialize();
     commInitialized = true;
@@ -152,9 +157,9 @@ namespace lpzrobots {
   }
 
   void QECBManager::stopLoop() {
+    emit sig_communicationStateWillChange(QECBCommunicator::STATE_STOPPED);
     globalData.textLog("QECBManager: stopping communication...");
     globalData.comm->shutdown();
-    emit sig_storeConfigurableStates();
     cleanup();
     emit sig_communicationStateChanged(QECBCommunicator::STATE_STOPPED);
   }
@@ -170,9 +175,11 @@ namespace lpzrobots {
         break;
       case EVENT_PAUSE_LOOP: // paused
         if (globalData.paused) { // paused, so continue now
+          emit sig_communicationStateWillChange(QECBCommunicator::STATE_RUNNING);
           globalData.paused = false;
           emit sig_communicationStateChanged(QECBCommunicator::STATE_RUNNING);
         } else { // not paused yet
+          emit sig_communicationStateWillChange(QECBCommunicator::STATE_PAUSED);
           globalData.paused = true;
           emit sig_communicationStateChanged(QECBCommunicator::STATE_PAUSED);
         }

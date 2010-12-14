@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-12-13 16:22:18  wrabe
+ *   Revision 1.8  2010-12-14 10:10:12  guettler
+ *   -autoload/autosave now uses only one xml file
+ *   -fixed getName of TileWidget which produced invisible widgets in xml files
+ *
+ *   Revision 1.7  2010/12/13 16:22:18  wrabe
  *   - autosave function rearranged
  *   - bugfixes
  *
@@ -95,8 +99,9 @@ namespace lpzrobots {
       virtual ~QConfigurableWidget();
       QDomElement toXml();
       int fromXml(const QDomElement &qde_configurableState);
-      void autosaveConfigurableState();
-      void autoloadConfigurableState();
+      int getNameIndex() {return nameIndex; }
+      Configurable* getConfigurable() const { return config; }
+      QString getName() { return configName; }
 
     signals:
 
@@ -140,6 +145,7 @@ namespace lpzrobots {
       QAbstractConfigurableTileWidget* configurableTile_dragging;
 
       QString log;
+      QString configName;
       int nameIndex;
 
   };

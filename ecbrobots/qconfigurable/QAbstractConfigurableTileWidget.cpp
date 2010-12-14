@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-12-13 16:22:18  wrabe
+ *   Revision 1.5  2010-12-14 10:10:12  guettler
+ *   -autoload/autosave now uses only one xml file
+ *   -fixed getName of TileWidget which produced invisible widgets in xml files
+ *
+ *   Revision 1.4  2010/12/13 16:22:18  wrabe
  *   - autosave function rearranged
  *   - bugfixes
  *
@@ -80,7 +84,7 @@ namespace lpzrobots {
   QSize QAbstractConfigurableTileWidget::widgetSize = QSize(300, 80);
 
   QAbstractConfigurableTileWidget::QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey& key) :
-    config(config), key(key), tileIndex(0) {
+    config(config), key(key), tileIndex(0), internalVisible(true) {
 
     setMinimumSize(QAbstractConfigurableTileWidget::widgetSize);
     setMaximumSize(QAbstractConfigurableTileWidget::widgetSize);
@@ -114,5 +118,11 @@ namespace lpzrobots {
     setPalette(defaultPalette);
     update();
   }
+
+  void QAbstractConfigurableTileWidget::setVisible(bool visible) {
+    internalVisible = visible;
+    QFrame::setVisible(visible);
+  }
+
 
 }

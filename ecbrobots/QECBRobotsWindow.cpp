@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-12-13 16:22:18  wrabe
+ *   Revision 1.10  2010-12-14 10:10:12  guettler
+ *   -autoload/autosave now uses only one xml file
+ *   -fixed getName of TileWidget which produced invisible widgets in xml files
+ *
+ *   Revision 1.9  2010/12/13 16:22:18  wrabe
  *   - autosave function rearranged
  *   - bugfixes
  *
@@ -80,6 +84,8 @@ namespace lpzrobots {
     this->applicationPath = applicationPath;
     this->setWindowTitle("ECBRobotsWindow");
 
+    autoloadConfigurableStates();
+
     logView = new QLogViewWidget();
 
     logView->appendLogViewText("ApplicationPath='" + applicationPath + "'");
@@ -99,9 +105,10 @@ namespace lpzrobots {
     this->ecbManager = manager;
     this->globalData = &(manager->getGlobalData());
     connect(globalData, SIGNAL(sig_textLog(QString)), this, SLOT(sl_textLog(QString)));
+    connect(ecbManager, SIGNAL(sig_communicationStateWillChange(QECBCommunicator::ECBCommunicationState)), this,
+        SLOT(sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState)));
     connect(ecbManager, SIGNAL(sig_communicationStateChanged(QECBCommunicator::ECBCommunicationState)), this,
         SLOT(sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState)));
-    connect(ecbManager, SIGNAL(sig_storeConfigurableStates()), this, SLOT(sl_storeConfigurableStates()));
     connect(globalData->comm, SIGNAL(sig_quitServer()), this, SLOT(sl_Close()));
 
     createActions();
@@ -235,19 +242,20 @@ namespace lpzrobots {
     // Folge: fehler in der Autosave-Funktion
     // TODO: behebe es ...
 
-    if(!isClosed){
-//      QString text = "QECBRobotsWindow::closeEvent(";
-//      foreach(QConfigurableWidget* confWidget, configurableWidgetList)
-//        {
-//          text.append(confWidget->title() + ",");
-//        }
-//      text.append(")");
-//      QMessageBox msgBox;
-//      msgBox.setText(text);
-//      msgBox.exec();
+    if (!isClosed) {
+      //      QString text = "QECBRobotsWindow::closeEvent(";
+      //      foreach(QConfigurableWidget* confWidget, configurableWidgetList)
+      //        {
+      //          text.append(confWidget->getName() + ",");
+      //        }
+      //      text.append(")");
+      //      QMessageBox msgBox;
+      //      msgBox.setText(text);
+      //      msgBox.exec();
 
       writeSettings();
-      sl_storeConfigurableStates();
+      bookmarkConfigurableStates();
+      autostoreConfigurableStates();
       isClosed = true;
     }
     event->accept();
@@ -267,8 +275,24 @@ namespace lpzrobots {
   }
 
   void QECBRobotsWindow::sl_About() {
-    QMessageBox::about(this, tr("About the Application"), tr(
-        "ECB_Robot-Application V2.0, Tool to connect real robots (containing an ecb) onto a neuro-controller located on a standard pc."));
+    QMessageBox::about(
+        this,
+        tr("About the Application"),
+        tr(
+            "ECB_Robot-Application V2.0, Tool to connect real robots (containing an ecb) onto a neuro-controller located on a standard pc."));
+  }
+
+  void QECBRobotsWindow::sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState commState) {
+    switch (commState) {
+      case QECBCommunicator::STATE_PAUSED: //!< state which indicates that all actions are paused
+        break;
+      case QECBCommunicator::STATE_RUNNING: //!< state which indicates that the loop is running
+      case QECBCommunicator::STATE_STOPPED: //!< state which indicates that all actions are stopped, quitted and leaved. Bye bye.
+      default:
+        // bookmark now their state, because the Configurable instances in global->configs maybe deleted after them.
+        bookmarkConfigurableStates();
+        break;
+    }
   }
 
   void QECBRobotsWindow::sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState commState) {
@@ -345,9 +369,9 @@ namespace lpzrobots {
       configurableIndexMap[name] = index;
       QConfigurableWidget* confWidget = new QConfigurableWidget(*config, configurableIndexMap[name]);
       grid->addWidget(confWidget, i++, 0, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
-      confWidget->autoloadConfigurableState();
       configurableWidgetList.append(confWidget);
     }
+    recallConfigurableStates(); // autoload function
     grid->setRowStretch(i, 100);
     scrollArea = new QScrollArea();
     //scrollArea->setBackgroundRole(QPalette::Dark);
@@ -355,7 +379,7 @@ namespace lpzrobots {
     return scrollArea;
   }
 
-  void QECBRobotsWindow::sl_storeConfigurableStates() {
+  void QECBRobotsWindow::autostoreConfigurableStates() {
     QString pathApplication = QCoreApplication::applicationDirPath();
     QString preferredFileName = pathApplication + "/autosave_QConfigurable.xml";
     QDomDocument doc("ConfigurableStateTypeDefinition");
@@ -363,11 +387,8 @@ namespace lpzrobots {
     QDomElement nodeConfigurableStates = doc.createElement("ConfigurableStates");
     doc.appendChild(nodeConfigurableStates);
 
-    foreach(QConfigurableWidget* confWidget, configurableWidgetList)
-      {
-      nodeConfigurableStates.appendChild(confWidget->toXml());
-      }
-
+    foreach (QDomElement entry, nodeConfigurableStateMap)
+        nodeConfigurableStates.appendChild(entry);
     QFile file(preferredFileName);
     if (!file.open(QIODevice::WriteOnly))
       return;
@@ -376,26 +397,51 @@ namespace lpzrobots {
     file.close();
   }
 
-
-  void QECBRobotsWindow::sl_loadConfigurableStates() {
+  void QECBRobotsWindow::autoloadConfigurableStates() {
     QString pathApplication = QCoreApplication::applicationDirPath();
     QString preferredFileName = pathApplication + "/autosave_QConfigurable.xml";
-    QDomDocument doc("ConfigurableStateTypeDefinition");
-    // <ConfigurableStates>
-    QDomElement nodeConfigurableStates = doc.createElement("ConfigurableStates");
-    doc.appendChild(nodeConfigurableStates);
-
-    foreach(QConfigurableWidget* confWidget, configurableWidgetList)
-      {
-      nodeConfigurableStates.appendChild(confWidget->toXml());
-      }
-
     QFile file(preferredFileName);
     if (!file.open(QIODevice::ReadOnly))
       return;
-    QTextStream ts(&file);
-    ts << doc.toString();
+
+    QDomDocument doc("ConfigurableStateTypeDefinition");
+    if (!doc.setContent(&file)) {
+      file.close();
+      return;
+    }
     file.close();
+
+    // put all ConfigurableStates into the nodeConfigurableStateMap
+    QDomElement qde_configurableStates = doc.documentElement();
+    if (qde_configurableStates.tagName() != "ConfigurableStates")
+      return;
+
+    QDomNodeList nodeList = qde_configurableStates.elementsByTagName("ConfigurableState");
+    for (int index = 0; index < nodeList.size(); index++) {
+      QDomElement nodeConfigurableState = nodeList.item(index).toElement();
+      QString name = nodeConfigurableState.attribute("name", "DefaultName");
+      nodeConfigurableStateMap.insert(name, nodeConfigurableState);
+    }
+  }
+
+  void QECBRobotsWindow::recallConfigurableStates() {
+    foreach(QConfigurableWidget* confWidget, configurableWidgetList)
+      {
+        QString configName = confWidget->getName();
+        if (!nodeConfigurableStateMap.contains(configName) && confWidget->getNameIndex() != 0) {
+          // try to load from another instance, the first one of a Configurable with the same name
+          configName = QString(confWidget->getConfigurable()->getName().c_str()) + "_0";
+        }
+        if (nodeConfigurableStateMap.contains(configName)) {
+          confWidget->fromXml(nodeConfigurableStateMap.value(configName));
+        }
+      }
+  }
+
+  void QECBRobotsWindow::bookmarkConfigurableStates() {
+    // if some older ones exist, just overwrite them
+    foreach(QConfigurableWidget* confWidget, configurableWidgetList)
+        nodeConfigurableStateMap.insert(confWidget->getName(), confWidget->toXml());
   }
 
 } // namespace lpzrobots

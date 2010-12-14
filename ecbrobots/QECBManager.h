@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-12-09 17:00:08  wrabe
+ *   Revision 1.4  2010-12-14 10:10:12  guettler
+ *   -autoload/autosave now uses only one xml file
+ *   -fixed getName of TileWidget which produced invisible widgets in xml files
+ *
+ *   Revision 1.3  2010/12/09 17:00:08  wrabe
  *   - load / save function of ConfigurableState (configurable + GUI)
  *   - autoload / autosave function of ConfigurableState (configurable
  *     + GUI)
@@ -98,8 +102,8 @@ namespace lpzrobots {
     signals:
 
       void sig_communicationStateChanged(QECBCommunicator::ECBCommunicationState);
+      void sig_communicationStateWillChange(QECBCommunicator::ECBCommunicationState);
       void sig_textLog(QString log);
-      void sig_storeConfigurableStates();
 
     protected:
       bool simulation_time_reached;

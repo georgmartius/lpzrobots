@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-12-13 16:22:18  wrabe
+ *   Revision 1.8  2010-12-14 10:10:12  guettler
+ *   -autoload/autosave now uses only one xml file
+ *   -fixed getName of TileWidget which produced invisible widgets in xml files
+ *
+ *   Revision 1.7  2010/12/13 16:22:18  wrabe
  *   - autosave function rearranged
  *   - bugfixes
  *
@@ -74,6 +78,7 @@
 #include <QStyleOptionProgressBarV2>
 #include <qdom.h>
 #include "QExtAction.h"
+#include <QHash>
 
 #include "types.h"
 #include "QLogViewWidget.h"
@@ -97,8 +102,6 @@ namespace lpzrobots {
     public slots:
       void sl_textLog(QString s);
       void sl_GUIEventHandler(int eventCode);
-      void sl_storeConfigurableStates();
-      void sl_loadConfigurableStates();
 
 
     private slots:
@@ -106,6 +109,7 @@ namespace lpzrobots {
       void sl_ClearLogView();
       void sl_About();
 
+      void sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState commState);
       void sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState commState);
 
     private:
@@ -118,6 +122,10 @@ namespace lpzrobots {
       void sleep(ulong msecs);
       QWidget* createConfigurableWidget();
       void updateConfigurableWidget();
+      void bookmarkConfigurableStates();
+      void recallConfigurableStates();
+      void autostoreConfigurableStates();
+      void autoloadConfigurableStates();
 
       enum GUI_EVENT {
         EVENT_SWITCH_WARNING, EVENT_SWITCH_VERBOSE, EVENT_SWITCH_DEBUG
@@ -156,7 +164,7 @@ namespace lpzrobots {
       QWidget* configWidget;
       QScrollArea* scrollArea;
       QList<QConfigurableWidget*> configurableWidgetList;
-      QDomNodeList nodeConfigurableStateList;
+      QHash<QString,QDomElement> nodeConfigurableStateMap;
 
       bool isClosed;
 

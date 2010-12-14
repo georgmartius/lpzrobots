@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-12-13 16:22:18  wrabe
+ *   Revision 1.5  2010-12-14 10:10:12  guettler
+ *   -autoload/autosave now uses only one xml file
+ *   -fixed getName of TileWidget which produced invisible widgets in xml files
+ *
+ *   Revision 1.4  2010/12/13 16:22:18  wrabe
  *   - autosave function rearranged
  *   - bugfixes
  *
@@ -110,6 +114,8 @@ namespace lpzrobots {
 
       virtual QString getConfigurableName();
       static QSize widgetSize;
+      virtual void setVisible(bool visible);
+      virtual bool isVisible() { return internalVisible; }
 
     protected:
       virtual void enterEvent(QEvent * event);
@@ -119,6 +125,7 @@ namespace lpzrobots {
       Configurable* config;
       Configurable::paramkey key;
       int tileIndex;
+      bool internalVisible;
 
   };
 
