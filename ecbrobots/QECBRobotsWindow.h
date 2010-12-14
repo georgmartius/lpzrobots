@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-12-14 10:10:12  guettler
+ *   Revision 1.9  2010-12-14 11:11:06  guettler
+ *   -preparations for global save functionality
+ *
+ *   Revision 1.8  2010/12/14 10:10:12  guettler
  *   -autoload/autosave now uses only one xml file
  *   -fixed getName of TileWidget which produced invisible widgets in xml files
  *
@@ -111,6 +114,8 @@ namespace lpzrobots {
 
       void sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState commState);
       void sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState commState);
+      void sl_saveCurrentConfigurableStatesToFile(QString configName);
+      void sl_loadCurrentConfigurableStatesFromFile(QString configName);
 
     private:
 

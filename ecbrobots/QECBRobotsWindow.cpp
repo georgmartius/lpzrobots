@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-12-14 10:10:12  guettler
+ *   Revision 1.11  2010-12-14 11:11:06  guettler
+ *   -preparations for global save functionality
+ *
+ *   Revision 1.10  2010/12/14 10:10:12  guettler
  *   -autoload/autosave now uses only one xml file
  *   -fixed getName of TileWidget which produced invisible widgets in xml files
  *
@@ -443,5 +446,26 @@ namespace lpzrobots {
     foreach(QConfigurableWidget* confWidget, configurableWidgetList)
         nodeConfigurableStateMap.insert(confWidget->getName(), confWidget->toXml());
   }
+
+
+  // if configName == "", save from all
+  void QECBRobotsWindow::sl_saveCurrentConfigurableStatesToFile(QString configName) {
+    QFileDialog* fileDialog = new QFileDialog();
+    fileDialog->setAcceptMode(QFileDialog::AcceptSave);
+    //fileDialog->setFileMode(QFileDialog::AnyFile);
+    fileDialog->setNameFilter(tr("Xml (*.xml)"));
+    fileDialog->setDefaultSuffix("xml");
+    QString pathApplication = QCoreApplication::applicationDirPath() + "/";
+    fileDialog->selectFile(pathApplication);
+    QString fileNamePreference = QString(config->getName().c_str());
+    fileDialog->selectFile(fileNamePreference);
+    if (fileDialog->exec() == QDialog::Accepted) {
+      QString fileName = fileDialog->selectedFiles().at(0);
+      if (!saveConfigurableState(fileName)) {
+        QMessageBox::warning(this, this->title(), tr("Configurable state could not be saved."), QMessageBox::Close);
+      }
+    }
+  }
+
 
 } // namespace lpzrobots
