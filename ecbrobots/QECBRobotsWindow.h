@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-12-15 11:00:06  wrabe
+ *   Revision 1.11  2010-12-15 11:10:26  wrabe
+ *   -clear function for AutoSave File
+ *
+ *   Revision 1.10  2010/12/15 11:00:06  wrabe
  *   -load/save multiple ConfigurableStates from one file
  *   -All current ConfigurableStates can be stored and loaded now via menu
  *   -loading a ConfigurableState for one Configurable from a file containing multiple ConfigurableStates allows to choose one desired ConfigurableState
@@ -121,6 +124,7 @@ namespace lpzrobots {
       void sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState commState);
       void sl_saveCurrentConfigurableStatesToFile();
       void sl_loadCurrentConfigurableStatesFromFile();
+      void sl_clearAutoSaveFile();
 
     private:
 
@@ -159,6 +163,7 @@ namespace lpzrobots {
       // File-Menu
       QAction *action_SaveConfigurableState;
       QAction *action_LoadConfigurableState;
+      QAction *action_ClearAutoSaveFile;
       QAction *action_Exit;
       // Help-Menu
       QAction *action_About;

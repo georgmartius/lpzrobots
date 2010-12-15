@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-12-15 11:00:06  wrabe
+ *   Revision 1.13  2010-12-15 11:10:26  wrabe
+ *   -clear function for AutoSave File
+ *
+ *   Revision 1.12  2010/12/15 11:00:06  wrabe
  *   -load/save multiple ConfigurableStates from one file
  *   -All current ConfigurableStates can be stored and loaded now via menu
  *   -loading a ConfigurableState for one Configurable from a file containing multiple ConfigurableStates allows to choose one desired ConfigurableState
@@ -142,6 +145,10 @@ namespace lpzrobots {
     action_LoadConfigurableState->setStatusTip(tr("load ConfigurableStates from file ..."));
     connect(action_LoadConfigurableState, SIGNAL(triggered()), this, SLOT(sl_loadCurrentConfigurableStatesFromFile()));
 
+    action_ClearAutoSaveFile = new QAction((tr("Clear AutoSave File")), this);
+    action_ClearAutoSaveFile->setStatusTip(tr("removes all currently not used saved ConfigurableStates from the AutoSave File"));
+    connect(action_ClearAutoSaveFile, SIGNAL(triggered()), this, SLOT(sl_clearAutoSaveFile()));
+
     action_Exit = new QAction(tr("&Quit"), this);
     action_Exit->setShortcut(tr("Ctrl+Q"));
     action_Exit->setStatusTip(tr("Exit the application"));
@@ -209,6 +216,7 @@ namespace lpzrobots {
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(action_SaveConfigurableState);
     fileMenu->addAction(action_LoadConfigurableState);
+    fileMenu->addAction(action_ClearAutoSaveFile);
     fileMenu->addSeparator();
     fileMenu->addAction(action_Exit);
 
@@ -498,26 +506,14 @@ namespace lpzrobots {
 
   // if widget == 0, save all Configurables
   void QECBRobotsWindow::sl_saveCurrentConfigurableStatesToFile() {
-
     QConfigurableLoadSaveDialog* dialog = new QConfigurableLoadSaveDialog(configurableWidgetMap);
     dialog->exec();
-
-    // TODO:
-    //    QFileDialog* fileDialog = new QFileDialog();
-    //    fileDialog->setAcceptMode(QFileDialog::AcceptSave);
-    //    //fileDialog->setFileMode(QFileDialog::AnyFile);
-    //    fileDialog->setNameFilter(tr("Xml (*.xml)"));
-    //    fileDialog->setDefaultSuffix("xml");
-    //    QString pathApplication = QCoreApplication::applicationDirPath() + "/";
-    //    fileDialog->selectFile(pathApplication);
-    //    QString fileNamePreference = QString(widget->getConfigurableName());
-    //    fileDialog->selectFile(fileNamePreference);
-    //    if (fileDialog->exec() == QDialog::Accepted) {
-    //      QString fileName = fileDialog->selectedFiles().at(0);
-    //      if (!saveConfigurableState(fileName)) {
-    //        QMessageBox::warning(this, this->title(), tr("Configurable state could not be saved."), QMessageBox::Close);
-    //      }
-    //    }
   }
+
+  void QECBRobotsWindow::sl_clearAutoSaveFile() {
+    nodeConfigurableStateMap.clear();
+    bookmarkConfigurableStates();
+  }
+
 
 } // namespace lpzrobots
