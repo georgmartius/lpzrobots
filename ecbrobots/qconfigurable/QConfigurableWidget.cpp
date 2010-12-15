@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-12-15 17:26:28  wrabe
+ *   Revision 1.12  2010-12-15 18:06:55  wrabe
+ *   -regression fix: drag and drop of tileWidgets
+ *
+ *   Revision 1.11  2010/12/15 17:26:28  wrabe
  *   - number of colums for tileWidgets and width of tileWidgets can
  *   now be changed (independently for each Configurable)
  *   - bugfixes
@@ -111,6 +114,7 @@ namespace lpzrobots {
     foreach(QAbstractConfigurableTileWidget* tileWidget, configTileWidgetMap){
       disconnect(tileWidget, SIGNAL(sig_resize(QSize)));
       disconnect(this, SIGNAL(sig_tileWidgetResize(QSize)));
+      disconnect(tileWidget, SIGNAL(sig_mousePressEvent(QMouseEvent*)));
     }
   }
 
@@ -128,6 +132,7 @@ namespace lpzrobots {
       configTileWidget->setTileIndex(tileIndex);
       connect(configTileWidget, SIGNAL(sig_resize(QSize)), this, SIGNAL(sig_tileWidgetResize(QSize)));
       connect(this, SIGNAL(sig_tileWidgetResize(QSize)), configTileWidget, SLOT(sl_resize(QSize)));
+      connect(configTileWidget, SIGNAL(sig_mousePressEvent(QMouseEvent*)), this, SLOT(sl_mousePressEvent(QMouseEvent*)));
       //layout.addWidget(configTileWidget, numberWidgets / numberTilesPerLine, numberWidgets % numberTilesPerLine);
       tileIndex++;
     }
@@ -140,6 +145,7 @@ namespace lpzrobots {
       configTileWidget->setTileIndex(tileIndex);
       connect(configTileWidget, SIGNAL(sig_resize(QSize)), this, SIGNAL(sig_tileWidgetResize(QSize)));
       connect(this, SIGNAL(sig_tileWidgetResize(QSize)), configTileWidget, SLOT(sl_resize(QSize)));
+      connect(configTileWidget, SIGNAL(sig_mousePressEvent(QMouseEvent*)), this, SLOT(sl_mousePressEvent(QMouseEvent*)));
       //layout.addWidget(configTileWidget, numberWidgets / 3, numberWidgets % 3);
       tileIndex++;
     }
@@ -151,6 +157,7 @@ namespace lpzrobots {
       configTileWidget->setTileIndex(tileIndex);
       connect(configTileWidget, SIGNAL(sig_resize(QSize)), this, SIGNAL(sig_tileWidgetResize(QSize)));
       connect(this, SIGNAL(sig_tileWidgetResize(QSize)), configTileWidget, SLOT(sl_resize(QSize)));
+      connect(configTileWidget, SIGNAL(sig_mousePressEvent(QMouseEvent*)), this, SLOT(sl_mousePressEvent(QMouseEvent*)));
       //layout.addWidget(configTileWidget, numberWidgets / 3, numberWidgets % 3);
       tileIndex++;
     }
@@ -517,19 +524,26 @@ namespace lpzrobots {
       {
         if (configurableTile->isVisible() && configurableTile->contains(event->pos())) {
           configurableTile_dragging = configurableTile;
-          configruableTile_mousePressedOffset = event->pos() - configurableTile_dragging->pos();
+          configurableTile_mousePressedOffset = event->pos() - configurableTile_dragging->pos();
           QMimeData *mimeData = new QMimeData;
           mimeData->setData("mimetype:" + QString::number(config->getId()), 0);
 
           QDrag *drag = new QDrag(this);
           drag->setMimeData(mimeData);
           drag->setPixmap(QPixmap::grabWidget(configurableTile_dragging));
-          drag->setHotSpot(configruableTile_mousePressedOffset);
+          drag->setHotSpot(configurableTile_mousePressedOffset);
           configurableTile_dragging->toDummy(true);
           drag->exec(Qt::MoveAction);
         }
       }
   }
+
+  void QConfigurableWidget::sl_mousePressEvent(QMouseEvent* event) {
+    QMouseEvent* modEvent = new QMouseEvent(event->type(),mapFromGlobal(event->globalPos()),event->globalPos(), event->button(), event->buttons(), event->modifiers());
+    mousePressEvent(modEvent);
+  }
+
+
   void QConfigurableWidget::mouseDoubleClickEvent(QMouseEvent * event) {
     if (event->button() == Qt::LeftButton) {
       setFolding(!isCollapsed);
@@ -576,27 +590,7 @@ namespace lpzrobots {
 
             // Ok, there is a ConfigurationTile under the mouseCursor
             int tmp_index = configurableTile->getTileIndex();
-            if (tmp_index < configurableTile_dragging->getTileIndex()) {
-              // die ConfigurableTiles müssen nach hinten verschoben werden
-              // setze das abzulegende ConfigurableTile an diese Position, alle folgenden bis zur Lücke gehen einen Paltz weiter
-              foreach(QAbstractConfigurableTileWidget* configurableTile_tmp, configTileWidgetMap)
-                {
-                  int i = configurableTile_tmp->getTileIndex();
-                  if (i >= tmp_index && i < configurableTile_dragging->getTileIndex()) {
-                    configurableTile_tmp->setTileIndex(i + 1);
-                  }
-                }
-
-            } else {
-              // setze das abzulegende ConfigurableTile an diese Position, alle vorhergehenden rücken auf
-              foreach(QAbstractConfigurableTileWidget* configurableTile_tmp, configTileWidgetMap)
-                {
-                  int i = configurableTile_tmp->getTileIndex();
-                  if (i > configurableTile_dragging->getTileIndex() && i <= tmp_index) {
-                    configurableTile_tmp->setTileIndex(i - 1);
-                  }
-                }
-            }
+            configurableTile->setTileIndex(configurableTile_dragging->getTileIndex());
             configurableTile_dragging->setTileIndex(tmp_index);
             configurableTile_dragging->toDummy(false);
             arrangeConfigurableTiles();
@@ -609,5 +603,47 @@ namespace lpzrobots {
       return;
     }
   }
+//  void QConfigurableWidget::dropEvent(QDropEvent *event) {
+//    if (event->mimeData()->hasFormat("mimetype:" + QString::number(config->getId()))) {
+//      event->accept();
+//      foreach(QAbstractConfigurableTileWidget* configurableTile, configTileWidgetMap)
+//        {
+//          if (configurableTile != configurableTile_dragging && configurableTile->contains(event->pos())) {
+//
+//            // Ok, there is a ConfigurationTile under the mouseCursor
+//            int tmp_index = configurableTile->getTileIndex();
+//            if (tmp_index < configurableTile_dragging->getTileIndex()) {
+//              // die ConfigurableTiles müssen nach hinten verschoben werden
+//              // setze das abzulegende ConfigurableTile an diese Position, alle folgenden bis zur Lücke gehen einen Paltz weiter
+//              foreach(QAbstractConfigurableTileWidget* configurableTile_tmp, configTileWidgetMap)
+//                {
+//                  int i = configurableTile_tmp->getTileIndex();
+//                  if (i >= tmp_index && i < configurableTile_dragging->getTileIndex()) {
+//                    configurableTile_tmp->setTileIndex(i + 1);
+//                  }
+//                }
+//
+//            } else {
+//              // setze das abzulegende ConfigurableTile an diese Position, alle vorhergehenden rücken auf
+//              foreach(QAbstractConfigurableTileWidget* configurableTile_tmp, configTileWidgetMap)
+//                {
+//                  int i = configurableTile_tmp->getTileIndex();
+//                  if (i > configurableTile_dragging->getTileIndex() && i <= tmp_index) {
+//                    configurableTile_tmp->setTileIndex(i - 1);
+//                  }
+//                }
+//            }
+//            configurableTile_dragging->setTileIndex(tmp_index);
+//            configurableTile_dragging->toDummy(false);
+//            arrangeConfigurableTiles();
+//            return;
+//          }
+//        }
+//      // There is no ConfigurationTile under the mouseCursor
+//      configurableTile_dragging->toDummy(false);
+//      arrangeConfigurableTiles();
+//      return;
+//    }
+//  }
 
 } // namespace lpzrobots

@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-12-15 17:26:28  wrabe
+ *   Revision 1.8  2010-12-15 18:06:55  wrabe
+ *   -regression fix: drag and drop of tileWidgets
+ *
+ *   Revision 1.7  2010/12/15 17:26:28  wrabe
  *   - number of colums for tileWidgets and width of tileWidgets can
  *   now be changed (independently for each Configurable)
  *   - bugfixes
@@ -128,6 +131,7 @@ namespace lpzrobots {
 
       signals:
         void sig_resize(QSize newSize);
+        void sig_mousePressEvent(QMouseEvent* event);
 
       public slots:
         virtual void sl_resize(QSize newSize);

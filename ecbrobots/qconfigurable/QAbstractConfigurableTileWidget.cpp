@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-12-15 17:26:28  wrabe
+ *   Revision 1.8  2010-12-15 18:06:55  wrabe
+ *   -regression fix: drag and drop of tileWidgets
+ *
+ *   Revision 1.7  2010/12/15 17:26:28  wrabe
  *   - number of colums for tileWidgets and width of tileWidgets can
  *   now be changed (independently for each Configurable)
  *   - bugfixes
@@ -150,7 +153,8 @@ namespace lpzrobots {
   void QAbstractConfigurableTileWidget::mousePressEvent(QMouseEvent * event) {
     if (enableResizing && event->button() == Qt::LeftButton) {
       isResizing = true;
-    }
+    } else
+      emit sig_mousePressEvent(event);
   }
 
   void QAbstractConfigurableTileWidget::mouseReleaseEvent(QMouseEvent * event) {
@@ -162,12 +166,10 @@ namespace lpzrobots {
   }
 
   void QAbstractConfigurableTileWidget::sl_resize(QSize newSize) {
-    if (newSize.width()<130)
+    if (newSize.width() < 130)
       setFixedSize(130, newSize.height());
     else
       setFixedSize(newSize);
   }
-
-
 
 }
