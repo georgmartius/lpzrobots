@@ -284,6 +284,7 @@ int GuiLogger::analyzeFile() {
       {
         i = fread(&c, 1, 1, instream);
         if(i==1) { 
+          if(c== 10 || c == 13) break;             
           size++; 
           if(size>=buffersize){
             buffersize=buffersize*2+1;
@@ -295,15 +296,17 @@ int GuiLogger::analyzeFile() {
           break;
         }
       }
-    s[size-1]='\0';
-    channelData.receiveRawData(QString(s).trimmed());
-    if (s[0] == '#' && s[1] == 'C') channelline=true;       
+    if(size>1){
+      s[size-1]='\0';
+      channelData.receiveRawData(QString(s).trimmed());
+      if (s[0] == '#' && s[1] == 'C') channelline=true;       
+    }
   }
 
   do
     {   i = fread(&c, 1, 1, instream);
       if(i!=1) break;
-      if(c == 10 || c == 13) linecount++;  // count only lines with data
+      if(c == 10) linecount++;  // count only lines with data
     } while(i==1);
 
   fclose(instream);
