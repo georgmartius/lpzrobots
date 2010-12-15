@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-12-15 11:19:30  wrabe
+ *   Revision 1.15  2010-12-15 17:26:28  wrabe
+ *   - number of colums for tileWidgets and width of tileWidgets can
+ *   now be changed (independently for each Configurable)
+ *   - bugfixes
+ *
+ *   Revision 1.14  2010/12/15 11:19:30  wrabe
  *   -some shortcuts rearranged
  *   -last active tab is remarked in settings
  *
@@ -258,7 +263,7 @@ namespace lpzrobots {
     globalData->warningOutput = warning;
     globalData->verboseOutput = verbose;
     globalData->debugOutput = debug;
-    tabWidget->setCurrentIndex(settings.value("activeTabIndex",1).toInt());
+    tabWidget->setCurrentIndex(settings.value("activeTabIndex", 1).toInt());
   }
 
   void QECBRobotsWindow::writeSettings() {
@@ -500,11 +505,12 @@ namespace lpzrobots {
         return;
 
       // generate qde_configurableStateMap
-      QHash<QString,QDomElement> qde_configurableStateMap;
+      QHash<QString, QDomElement> qde_configurableStateMap;
       QDomNodeList qdn_List = qde_configurableStates.elementsByTagName("ConfigurableState");
       for (int i = 0; i < qdn_List.size(); i++)
         qde_configurableStateMap.insert(qdn_List.at(i).toElement().attribute("name"), qdn_List.at(i).toElement());
-      QConfigurableLoadSaveDialog* dialog = new QConfigurableLoadSaveDialog(configurableWidgetMap, qde_configurableStateMap, QConfigurableLoadSaveDialog::ConfigurableLoadMultiple);
+      QConfigurableLoadSaveDialog* dialog = new QConfigurableLoadSaveDialog(configurableWidgetMap, qde_configurableStateMap,
+          QConfigurableLoadSaveDialog::ConfigurableLoadMultiple);
       dialog->exec();
     }
 
@@ -520,6 +526,5 @@ namespace lpzrobots {
     nodeConfigurableStateMap.clear();
     bookmarkConfigurableStates();
   }
-
 
 } // namespace lpzrobots

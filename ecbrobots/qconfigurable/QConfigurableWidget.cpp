@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-12-15 11:00:06  wrabe
+ *   Revision 1.11  2010-12-15 17:26:28  wrabe
+ *   - number of colums for tileWidgets and width of tileWidgets can
+ *   now be changed (independently for each Configurable)
+ *   - bugfixes
+ *
+ *   Revision 1.10  2010/12/15 11:00:06  wrabe
  *   -load/save multiple ConfigurableStates from one file
  *   -All current ConfigurableStates can be stored and loaded now via menu
  *   -loading a ConfigurableState for one Configurable from a file containing multiple ConfigurableStates allows to choose one desired ConfigurableState
@@ -91,34 +96,40 @@
 #include "QValConfigurableTileWidget.h"
 #include "QConfigurableTileShowHideDialog.h"
 #include "QConfigurableLoadSaveDialog.h"
+#include "QChangeNumberTileColumnsDialog.h"
 
 namespace lpzrobots {
   
   QConfigurableWidget::QConfigurableWidget(Configurable* config, int nameIndex) :
-    config(config), dragging(false), isCollapsed(false), configurableTile_dragging(0), nameIndex(nameIndex) {
+    config(config), dragging(false), isCollapsed(false), configurableTile_dragging(0), nameIndex(nameIndex), numberTilesPerLine(3) {
     initBody();
     createConfigurableLines();
     setAcceptDrops(true);
   }
 
   QConfigurableWidget::~QConfigurableWidget() {
+    foreach(QAbstractConfigurableTileWidget* tileWidget, configTileWidgetMap){
+      disconnect(tileWidget, SIGNAL(sig_resize(QSize)));
+      disconnect(this, SIGNAL(sig_tileWidgetResize(QSize)));
+    }
   }
 
   void QConfigurableWidget::createConfigurableLines() {
 
-    layout.setColumnStretch(3, 100);
 
     setLayout(&layout);
-    int numberWidgets = 0;
+    int tileIndex = 0;
 
     Configurable::parammap valMap = config->getParamValMap();
     FOREACHC(Configurable::parammap, valMap, keyIt) {
       Configurable::paramkey key = (*keyIt).first;
       QAbstractConfigurableTileWidget* configTileWidget = new QValConfigurableTileWidget(config, key);
       configTileWidgetMap.insert(configTileWidget->getConfigurableName(), configTileWidget);
-      configTileWidget->setTileIndex(numberWidgets);
-      layout.addWidget(configTileWidget, numberWidgets / 3, numberWidgets % 3);
-      numberWidgets++;
+      configTileWidget->setTileIndex(tileIndex);
+      connect(configTileWidget, SIGNAL(sig_resize(QSize)), this, SIGNAL(sig_tileWidgetResize(QSize)));
+      connect(this, SIGNAL(sig_tileWidgetResize(QSize)), configTileWidget, SLOT(sl_resize(QSize)));
+      //layout.addWidget(configTileWidget, numberWidgets / numberTilesPerLine, numberWidgets % numberTilesPerLine);
+      tileIndex++;
     }
 
     Configurable::paramintmap intMap = config->getParamIntMap();
@@ -126,20 +137,25 @@ namespace lpzrobots {
       Configurable::paramkey key = (*keyIt).first;
       QAbstractConfigurableTileWidget* configTileWidget = new QIntConfigurableTileWidget(config, key);
       configTileWidgetMap.insert(configTileWidget->getConfigurableName(), configTileWidget);
-      configTileWidget->setTileIndex(numberWidgets);
-      layout.addWidget(configTileWidget, numberWidgets / 3, numberWidgets % 3);
-      numberWidgets++;
+      configTileWidget->setTileIndex(tileIndex);
+      connect(configTileWidget, SIGNAL(sig_resize(QSize)), this, SIGNAL(sig_tileWidgetResize(QSize)));
+      connect(this, SIGNAL(sig_tileWidgetResize(QSize)), configTileWidget, SLOT(sl_resize(QSize)));
+      //layout.addWidget(configTileWidget, numberWidgets / 3, numberWidgets % 3);
+      tileIndex++;
     }
     Configurable::paramboolmap boolMap = config->getParamBoolMap();
     FOREACHC(Configurable::paramboolmap, boolMap, keyIt) {
       Configurable::paramkey key = (*keyIt).first;
       QAbstractConfigurableTileWidget* configTileWidget = new QBoolConfigurableTileWidget(config, key);
       configTileWidgetMap.insert(configTileWidget->getConfigurableName(), configTileWidget);
-      configTileWidget->setTileIndex(numberWidgets);
-      layout.addWidget(configTileWidget, numberWidgets / 3, numberWidgets % 3);
-      numberWidgets++;
+      configTileWidget->setTileIndex(tileIndex);
+      connect(configTileWidget, SIGNAL(sig_resize(QSize)), this, SIGNAL(sig_tileWidgetResize(QSize)));
+      connect(this, SIGNAL(sig_tileWidgetResize(QSize)), configTileWidget, SLOT(sl_resize(QSize)));
+      //layout.addWidget(configTileWidget, numberWidgets / 3, numberWidgets % 3);
+      tileIndex++;
     }
 
+    arrangeConfigurableTiles();
     //body.setLayout(&layout);
   }
 
@@ -158,6 +174,7 @@ namespace lpzrobots {
     // Prepare the context menu to show the configurable show and hide dialog
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(sl_execContextMenu(const QPoint &)));
+    contextMenuShowHideDialog.addAction("set number of tile columns", this, SLOT(sl_changeNumberTileColumns()));
     contextMenuShowHideDialog.addAction("show/hide parameters", this, SLOT(sl_showAndHideParameters()));
     contextMenuShowHideDialog.addAction("load configurable state from file ...", this, SLOT(sl_loadConfigurableStateFromFile()));
     contextMenuShowHideDialog.addAction("save current configurable state to file ...", this, SLOT(sl_saveConfigurableStateToFile()));
@@ -168,6 +185,13 @@ namespace lpzrobots {
       contextMenuShowHideDialog.exec(this->mapToGlobal(pos));
     }
   }
+
+  void QConfigurableWidget::sl_changeNumberTileColumns() {
+    QChangeNumberTileColumnsDialog* dialog = new QChangeNumberTileColumnsDialog(&numberTilesPerLine);
+    dialog->exec();
+    arrangeConfigurableTiles();
+  }
+
   void QConfigurableWidget::sl_loadConfigurableStateFromFile() {
     QFileDialog* fileDialog = new QFileDialog();
     fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
@@ -248,6 +272,8 @@ namespace lpzrobots {
     if (!qde_configurableWidget.isNull()) {
       // By default there exists only one node named "ConfigurableWidget"!
       QString collapse = qde_configurableWidget.attribute("isCollapsed", "true");
+      numberTilesPerLine = qde_configurableWidget.attribute("numberTilesPerLine", "4").toInt();
+      int tileWidgetWidth = qde_configurableWidget.attribute("tileWidgetWidth", QString::number(QAbstractConfigurableTileWidget::defaultWidgetSize.width())).toInt();
       QDomNode qdn_configurableTileWidgets = qde_configurableWidget.elementsByTagName("ConfigurableTileWidgets").at(0);
       // By default there will only one list of ConfigurableTileWidgets accepted!
       QDomElement qde_configurableTileWidget = qdn_configurableTileWidgets.firstChild().toElement();
@@ -259,6 +285,7 @@ namespace lpzrobots {
         QAbstractConfigurableTileWidget* tileWidget = configTileWidgetMap.value(tileName);
         if (tileWidget != 0) {
           tileWidget->setTileIndex(tileIndex);
+          tileWidget->sl_resize(QSize(tileWidgetWidth,QAbstractConfigurableTileWidget::defaultWidgetSize.height()));
           if (visible.startsWith("true"))
             tileWidget->show();
           else
@@ -360,6 +387,9 @@ namespace lpzrobots {
     QDomElement nodeConfigurableWidget = doc.createElement("ConfigurableWidget");
     nodeConfigurableState.appendChild(nodeConfigurableWidget);
     nodeConfigurableWidget.setAttribute("isCollapsed", isCollapsed ? "true" : "false");
+    nodeConfigurableWidget.setAttribute("numberTilesPerLine", numberTilesPerLine);
+    if (!configTileWidgetMap.isEmpty())
+      nodeConfigurableWidget.setAttribute("tileWidgetWidth", configTileWidgetMap.values().at(0)->width());
 
     // <ConfigurableState><ConfigurableWidget><ConfigurableTileWidgets>
     QDomElement nodeConfigurableTileWidgets = doc.createElement("ConfigurableTileWidgets");
@@ -443,8 +473,9 @@ namespace lpzrobots {
     foreach(QAbstractConfigurableTileWidget* configurableTile, configTileWidgetMap)
       {
         layout.removeWidget(configurableTile);
-        layout.addWidget(configurableTile, configurableTile->getTileIndex() / 3, configurableTile->getTileIndex() % 3);
+        layout.addWidget(configurableTile, configurableTile->getTileIndex() / numberTilesPerLine, configurableTile->getTileIndex() % numberTilesPerLine, Qt::AlignLeft);
       }
+    layout.setColumnStretch(numberTilesPerLine+1, 100);
   }
 
   void QConfigurableWidget::setFolding(bool folding) {

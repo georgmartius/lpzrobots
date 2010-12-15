@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-12-15 11:00:06  wrabe
+ *   Revision 1.10  2010-12-15 17:26:28  wrabe
+ *   - number of colums for tileWidgets and width of tileWidgets can
+ *   now be changed (independently for each Configurable)
+ *   - bugfixes
+ *
+ *   Revision 1.9  2010/12/15 11:00:06  wrabe
  *   -load/save multiple ConfigurableStates from one file
  *   -All current ConfigurableStates can be stored and loaded now via menu
  *   -loading a ConfigurableState for one Configurable from a file containing multiple ConfigurableStates allows to choose one desired ConfigurableState
@@ -109,6 +114,8 @@ namespace lpzrobots {
       QString getName() { return configName; }
 
     signals:
+      void sig_tileWidgetResize(QSize newSize);
+
 
     protected:
       virtual void enterEvent(QEvent * event);
@@ -122,6 +129,7 @@ namespace lpzrobots {
 
     private slots:
       void sl_execContextMenu(const QPoint &pos);
+      void sl_changeNumberTileColumns();
       void sl_showAndHideParameters();
       void sl_loadConfigurableStateFromFile();
       void sl_saveConfigurableStateToFile();
@@ -152,6 +160,7 @@ namespace lpzrobots {
       QString log;
       QString configName;
       int nameIndex;
+      int numberTilesPerLine;
 
   };
 

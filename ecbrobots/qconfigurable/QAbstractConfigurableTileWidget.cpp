@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-12-15 11:24:39  guettler
+ *   Revision 1.7  2010-12-15 17:26:28  wrabe
+ *   - number of colums for tileWidgets and width of tileWidgets can
+ *   now be changed (independently for each Configurable)
+ *   - bugfixes
+ *
+ *   Revision 1.6  2010/12/15 11:24:39  guettler
  *   -new QDummyConfigurableTileWidget
  *
  *   Revision 1.5  2010/12/14 10:10:12  guettler
@@ -81,19 +86,19 @@
 #include <QGridLayout>
 #include <QMessageBox>
 #include <QLabel>
+#include <QPoint>
 
 namespace lpzrobots {
   
-  QSize QAbstractConfigurableTileWidget::widgetSize = QSize(300, 80);
+  QSize QAbstractConfigurableTileWidget::defaultWidgetSize = QSize(300, 80);
 
   QAbstractConfigurableTileWidget::QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey key) :
-    config(config), key(key), tileIndex(0), internalVisible(true) {
-
-    setMinimumSize(QAbstractConfigurableTileWidget::widgetSize);
-    setMaximumSize(QAbstractConfigurableTileWidget::widgetSize);
-
+    config(config), key(key), tileIndex(0), internalVisible(true), enableResizing(false), isResizing(false) {
+    defaultPalette = palette();
+    setFixedSize(defaultWidgetSize);
     setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
     setAttribute(Qt::WA_DeleteOnClose);
+    setMouseTracking(true);
   }
   
   QAbstractConfigurableTileWidget::~QAbstractConfigurableTileWidget() {
@@ -104,12 +109,13 @@ namespace lpzrobots {
   }
 
   bool QAbstractConfigurableTileWidget::contains(QPoint pos) {
-    if ((x() <= pos.x()) && (y() <= pos.y()) && (pos.x() < (x() + width())) && (pos.y() < (y() + height()))) return true;
+    if ((x() <= pos.x()) && (y() <= pos.y()) && (pos.x() < (x() + width())) && (pos.y() < (y() + height())))
+      return true;
     return false;
   }
 
   void QAbstractConfigurableTileWidget::enterEvent(QEvent * event) {
-    defaultPalette = palette();
+
     QPalette pal = QPalette(defaultPalette);
     pal.setColor(QPalette::Window, QColor(220, 200, 200));
     setPalette(pal);
@@ -117,6 +123,7 @@ namespace lpzrobots {
     setAutoFillBackground(true);
     update();
   }
+
   void QAbstractConfigurableTileWidget::leaveEvent(QEvent * event) {
     setPalette(defaultPalette);
     update();
@@ -126,6 +133,41 @@ namespace lpzrobots {
     internalVisible = visible;
     QFrame::setVisible(visible);
   }
+
+  void QAbstractConfigurableTileWidget::mouseMoveEvent(QMouseEvent * event) {
+    QPoint p = event->pos();
+    if (isResizing) {
+      sl_resize(QSize(event->pos().x(), defaultWidgetSize.height()));
+    } else if (width() - 3 <= p.x() && p.x() <= width() + 3) {
+      grabMouse(Qt::SizeHorCursor);
+      enableResizing = true;
+    } else {
+      releaseMouse();
+      enableResizing = false;
+    }
+  }
+
+  void QAbstractConfigurableTileWidget::mousePressEvent(QMouseEvent * event) {
+    if (enableResizing && event->button() == Qt::LeftButton) {
+      isResizing = true;
+    }
+  }
+
+  void QAbstractConfigurableTileWidget::mouseReleaseEvent(QMouseEvent * event) {
+    if (isResizing) {
+      sl_resize(QSize(event->pos().x(), defaultWidgetSize.height()));
+      isResizing = false;
+      emit sig_resize(QSize(event->pos().x(), defaultWidgetSize.height()));
+    }
+  }
+
+  void QAbstractConfigurableTileWidget::sl_resize(QSize newSize) {
+    if (newSize.width()<130)
+      setFixedSize(130, newSize.height());
+    else
+      setFixedSize(newSize);
+  }
+
 
 
 }

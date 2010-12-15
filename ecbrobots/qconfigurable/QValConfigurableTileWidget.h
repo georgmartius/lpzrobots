@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-12-09 17:00:08  wrabe
+ *   Revision 1.5  2010-12-15 17:26:28  wrabe
+ *   - number of colums for tileWidgets and width of tileWidgets can
+ *   now be changed (independently for each Configurable)
+ *   - bugfixes
+ *
+ *   Revision 1.4  2010/12/09 17:00:08  wrabe
  *   - load / save function of ConfigurableState (configurable + GUI)
  *   - autoload / autosave function of ConfigurableState (configurable
  *     + GUI)
@@ -98,9 +103,11 @@ namespace lpzrobots {
       void setBounds(Configurable::paramvalBounds bounds);
       void reloadConfigurableData();
 
+    public slots:
+      virtual void sl_resize(QSize newSize);
+
     protected:
       int calcNumberDecimals();
-
 
     private slots:
       void sl_spinBoxValueChanged(double);

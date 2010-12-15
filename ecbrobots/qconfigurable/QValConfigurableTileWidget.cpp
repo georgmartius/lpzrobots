@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-12-09 17:00:08  wrabe
+ *   Revision 1.6  2010-12-15 17:26:28  wrabe
+ *   - number of colums for tileWidgets and width of tileWidgets can
+ *   now be changed (independently for each Configurable)
+ *   - bugfixes
+ *
+ *   Revision 1.5  2010/12/09 17:00:08  wrabe
  *   - load / save function of ConfigurableState (configurable + GUI)
  *   - autoload / autosave function of ConfigurableState (configurable
  *     + GUI)
@@ -109,10 +114,10 @@ namespace lpzrobots {
     lName.setToolTip(toolTipName);
     lName.setFont(QFont("Arial Narrow", 10, QFont::Normal));
     lName.setWordWrap(true);
-    lName.setMaximumWidth(QAbstractConfigurableTileWidget::widgetSize.width() - 150);
+    //lName.setMaximumWidth(QAbstractConfigurableTileWidget::widgetSize.width() - 150);
 
     dsBox.setAcceptDrops(false);
-    //dsBox.setMinimumWidth(100);
+    dsBox.setFixedWidth(80);
     dsBox.setMinimum(minBound);
     dsBox.setMaximum(maxBound);
     dsBox.setToolTip(toolTipVals);
@@ -236,5 +241,16 @@ namespace lpzrobots {
     slider.setValue(10000 * value);
     stopSignaling = false;
   }
+
+
+  void QValConfigurableTileWidget::sl_resize(QSize newSize) {
+     if (newSize.width()<130)
+       lName.setMaximumWidth(30);
+     else
+       lName.setMaximumWidth(newSize.width() - 100);
+     QAbstractConfigurableTileWidget::sl_resize(newSize);
+   }
+
+
 
 }

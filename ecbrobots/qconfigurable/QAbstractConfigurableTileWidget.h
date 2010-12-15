@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-12-15 11:24:40  guettler
+ *   Revision 1.7  2010-12-15 17:26:28  wrabe
+ *   - number of colums for tileWidgets and width of tileWidgets can
+ *   now be changed (independently for each Configurable)
+ *   - bugfixes
+ *
+ *   Revision 1.6  2010/12/15 11:24:40  guettler
  *   -new QDummyConfigurableTileWidget
  *
  *   Revision 1.5  2010/12/14 10:10:12  guettler
@@ -90,6 +95,7 @@
 #include <QFrame>
 #include <QLabel>
 #include <QPalette>
+#include <QMoveEvent>
 
 namespace lpzrobots {
   
@@ -116,19 +122,31 @@ namespace lpzrobots {
       }
 
       virtual QString getConfigurableName();
-      static QSize widgetSize;
+      static QSize defaultWidgetSize;
       virtual void setVisible(bool visible);
       virtual bool isVisible() { return internalVisible; }
+
+      signals:
+        void sig_resize(QSize newSize);
+
+      public slots:
+        virtual void sl_resize(QSize newSize);
 
     protected:
       virtual void enterEvent(QEvent * event);
       virtual void leaveEvent(QEvent * event);
+      virtual void mouseMoveEvent(QMouseEvent * event);
+      virtual void mousePressEvent(QMouseEvent * event);
+      virtual void mouseReleaseEvent(QMouseEvent * event);
+
 
       QPalette defaultPalette;
       Configurable* config;
       Configurable::paramkey key;
       int tileIndex;
       bool internalVisible;
+      bool enableResizing;
+      bool isResizing;
 
   };
 
