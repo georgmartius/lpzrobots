@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-15 11:24:40  guettler
+ *   Revision 1.2  2010-12-15 18:28:34  wrabe
+ *   -preparations for drag&drop of tileWidgets to empty places
+ *
+ *   Revision 1.1  2010/12/15 11:24:40  guettler
  *   -new QDummyConfigurableTileWidget
  *
  *                                                                         *
@@ -36,7 +39,7 @@
 
 namespace lpzrobots {
   
-  QDummyConfigurableTileWidget::QDummyConfigurableTileWidget(Configurable* config) : QAbstractConfigurableTileWidget(config, "dummyKEY") {
+  QDummyConfigurableTileWidget::QDummyConfigurableTileWidget(Configurable* config) : QAbstractConfigurableTileWidget(config, "dummyKEY"), name("dummy") {
 
 
       setLayout(&gridLayoutConfigurableTile);

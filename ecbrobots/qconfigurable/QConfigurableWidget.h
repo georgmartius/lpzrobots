@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-12-15 18:06:55  wrabe
+ *   Revision 1.12  2010-12-15 18:28:34  wrabe
+ *   -preparations for drag&drop of tileWidgets to empty places
+ *
+ *   Revision 1.11  2010/12/15 18:06:55  wrabe
  *   -regression fix: drag and drop of tileWidgets
  *
  *   Revision 1.10  2010/12/15 17:26:28  wrabe
@@ -98,6 +101,8 @@
 #include <QMenu>
 #include <QPalette>
 #include <QDomElement>
+#include "QDummyConfigurableTileWidget.h"
+
 
 namespace lpzrobots {
 
@@ -152,6 +157,7 @@ namespace lpzrobots {
       Configurable* config;
       QMap<QString, QAbstractConfigurableTileWidget*> configTileWidgetMap;
       QMap<int, QAbstractConfigurableTileWidget*> configTiles_shownBeforeCollapse;
+      QList<QDummyConfigurableTileWidget*> dummyConfigTileList;
 
       void createConfigurableLines();
       void initBody();

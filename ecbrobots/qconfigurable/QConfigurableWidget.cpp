@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-12-15 18:06:55  wrabe
+ *   Revision 1.13  2010-12-15 18:28:34  wrabe
+ *   -preparations for drag&drop of tileWidgets to empty places
+ *
+ *   Revision 1.12  2010/12/15 18:06:55  wrabe
  *   -regression fix: drag and drop of tileWidgets
  *
  *   Revision 1.11  2010/12/15 17:26:28  wrabe
@@ -554,6 +557,17 @@ namespace lpzrobots {
     if (event->mimeData()->hasFormat("mimetype:" + QString::number(config->getId()))) {
       if (event->source() == this) {
         configurableTile_dragging->toDummy(true);
+        int numberDummies = (configTileWidgetMap.count()-1) % numberTilesPerLine;
+        while (numberDummies>0) {
+          QDummyConfigurableTileWidget* dummy = new QDummyConfigurableTileWidget(config);
+          int index = configTileWidgetMap.count();
+          dummy->setTileIndex(index);
+          layout.addWidget(dummy, index / numberTilesPerLine, index % numberTilesPerLine, Qt::AlignLeft);
+          dummy->setName("Dummy_"+QString::number(index));
+          configTileWidgetMap.insert(dummy->getName(), dummy);
+          dummyConfigTileList.append(dummy);
+          numberDummies--;
+        }
       } else {
         configurableTile_dragging = 0;
       }
@@ -599,6 +613,12 @@ namespace lpzrobots {
         }
       // There is no ConfigurationTile under the mouseCursor
       configurableTile_dragging->toDummy(false);
+      foreach (QDummyConfigurableTileWidget* dummy, dummyConfigTileList) {
+        dummy->hide();
+        configTileWidgetMap.remove(dummy->getName());
+        layout.removeWidget(dummy);
+      }
+      dummyConfigTileList.clear();
       arrangeConfigurableTiles();
       return;
     }
