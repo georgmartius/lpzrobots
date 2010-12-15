@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-12-14 10:10:12  guettler
+ *   Revision 1.10  2010-12-15 11:00:06  wrabe
+ *   -load/save multiple ConfigurableStates from one file
+ *   -All current ConfigurableStates can be stored and loaded now via menu
+ *   -loading a ConfigurableState for one Configurable from a file containing multiple ConfigurableStates allows to choose one desired ConfigurableState
+ *
+ *   Revision 1.9  2010/12/14 10:10:12  guettler
  *   -autoload/autosave now uses only one xml file
  *   -fixed getName of TileWidget which produced invisible widgets in xml files
  *
@@ -85,6 +90,7 @@
 #include "QIntConfigurableTileWidget.h"
 #include "QValConfigurableTileWidget.h"
 #include "QConfigurableTileShowHideDialog.h"
+#include "QConfigurableLoadSaveDialog.h"
 
 namespace lpzrobots {
   
@@ -153,7 +159,7 @@ namespace lpzrobots {
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(sl_execContextMenu(const QPoint &)));
     contextMenuShowHideDialog.addAction("show/hide parameters", this, SLOT(sl_showAndHideParameters()));
-    contextMenuShowHideDialog.addAction("load configurable state from file ...", this, SLOT(sl_loadConfigurableStateToFile()));
+    contextMenuShowHideDialog.addAction("load configurable state from file ...", this, SLOT(sl_loadConfigurableStateFromFile()));
     contextMenuShowHideDialog.addAction("save current configurable state to file ...", this, SLOT(sl_saveConfigurableStateToFile()));
   }
 
@@ -162,18 +168,41 @@ namespace lpzrobots {
       contextMenuShowHideDialog.exec(this->mapToGlobal(pos));
     }
   }
-  void QConfigurableWidget::sl_loadConfigurableStateToFile() {
+  void QConfigurableWidget::sl_loadConfigurableStateFromFile() {
     QFileDialog* fileDialog = new QFileDialog();
     fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
     fileDialog->setFileMode(QFileDialog::ExistingFile);
-    QString pathApplication = QCoreApplication::applicationDirPath() + "/";
+    QString pathApplication = QCoreApplication::applicationDirPath() + "/*.xml";
     fileDialog->selectFile(pathApplication);
     fileDialog->setNameFilter(tr("Xml (*.xml)"));
     if (fileDialog->exec() == QDialog::Accepted) {
-      QString fileName = fileDialog->selectedFiles().at(0);
-      if (loadConfigurableState(fileName)) {
-        QMessageBox::warning(this, this->title(), tr("Configurable state could not be opened."), QMessageBox::Close);
+      QFile file(fileDialog->selectedFiles().at(0));
+      if (!file.open(QIODevice::ReadOnly))
+        return;
+
+      QDomDocument doc("ConfigurableStateTypeDefinition");
+      if (!doc.setContent(&file)) {
+        file.close();
+        return;
       }
+      file.close();
+
+      QDomElement qde_configurableStates = doc.documentElement();
+      if (qde_configurableStates.tagName() != "ConfigurableStates")
+        return;
+
+      // generate qde_configurableStateMap
+      QHash<QString,QDomElement> qde_configurableStateMap;
+      QDomNodeList qdn_List = qde_configurableStates.elementsByTagName("ConfigurableState");
+      for (int i = 0; i < qdn_List.size(); i++)
+        qde_configurableStateMap.insert(qdn_List.at(i).toElement().attribute("name"), qdn_List.at(i).toElement());
+
+      QMap<QString, QConfigurableWidget*> configurableWidgetMap;
+      configurableWidgetMap.insert(getName(), this);
+
+      QConfigurableLoadSaveDialog* dialog = new QConfigurableLoadSaveDialog(configurableWidgetMap, qde_configurableStateMap, QConfigurableLoadSaveDialog::ConfigurableLoadSingle);
+      dialog->exec();
+      //QMessageBox::warning(this, this->title(), tr("Configurable state could not be opened."), QMessageBox::Close);
     }
   }
   void QConfigurableWidget::sl_saveConfigurableStateToFile() {
@@ -183,8 +212,7 @@ namespace lpzrobots {
     fileDialog->setNameFilter(tr("Xml (*.xml)"));
     fileDialog->setDefaultSuffix("xml");
     QString pathApplication = QCoreApplication::applicationDirPath() + "/";
-    fileDialog->selectFile(pathApplication);
-    QString fileNamePreference = QString(config->getName().c_str());
+    QString fileNamePreference = pathApplication + QString(config->getName().c_str());
     fileDialog->selectFile(fileNamePreference);
     if (fileDialog->exec() == QDialog::Accepted) {
       QString fileName = fileDialog->selectedFiles().at(0);
@@ -228,7 +256,7 @@ namespace lpzrobots {
         QString tileName = qde_configurableTileWidget.attribute("name", "???");
         int tileIndex = qde_configurableTileWidget.attribute("tileIndex", QString::number(tmpTileIndex++)).toInt();
         QString visible = qde_configurableTileWidget.attribute("isVisible", "true");
-        QAbstractConfigurableTileWidget* tileWidget = configTileWidgetMap[tileName];
+        QAbstractConfigurableTileWidget* tileWidget = configTileWidgetMap.value(tileName);
         if (tileWidget != 0) {
           tileWidget->setTileIndex(tileIndex);
           if (visible.startsWith("true"))
@@ -258,11 +286,11 @@ namespace lpzrobots {
         double value = qde_paramval.attribute("value").toDouble();
         double minBound = qde_paramval.attribute("minBound").toDouble();
         double maxBound = qde_paramval.attribute("maxBound").toDouble();
-        if (config->getParamValMap().find(key.toStdString()) != config->getParamValMap().end()) {
+        if (config->getParamValMap().find(key.toStdString()) != config->getParamValMap().end() && configTileWidgetMap.contains(key)) {
           config->setParamBounds(key.toStdString(), minBound, maxBound);
           config->setParam(key.toStdString(), value);
           config->setParamDescr(key.toStdString(), desc.toStdString());
-          configTileWidgetMap[key]->reloadConfigurableData();
+          configTileWidgetMap.value(key)->reloadConfigurableData();
         }
         qde_paramval = qde_paramval.nextSiblingElement();
       }
@@ -276,11 +304,11 @@ namespace lpzrobots {
         int minBound = qde_paramint.attribute("minBound").toInt();
         int maxBound = qde_paramint.attribute("maxBound").toInt();
 
-        if (config->getParamIntMap().find(key.toStdString()) != config->getParamIntMap().end()) {
+        if (config->getParamIntMap().find(key.toStdString()) != config->getParamIntMap().end() && configTileWidgetMap.contains(key)) {
           config->setParamBounds(key.toStdString(), minBound, maxBound);
           config->setParam(key.toStdString(), value);
           config->setParamDescr(key.toStdString(), desc.toStdString());
-          configTileWidgetMap[key]->reloadConfigurableData();
+          configTileWidgetMap.value(key)->reloadConfigurableData();
         }
         qde_paramint = qde_paramint.nextSiblingElement();
       }
@@ -291,10 +319,10 @@ namespace lpzrobots {
         QString key = qde_parambool.attribute("name", "???");
         QString desc = qde_parambool.attribute("description");
         bool value = qde_parambool.attribute("value").toInt();
-        if (config->getParamBoolMap().find(key.toStdString()) != config->getParamBoolMap().end()) {
+        if (config->getParamBoolMap().find(key.toStdString()) != config->getParamBoolMap().end() && configTileWidgetMap.contains(key)) {
           config->setParam(key.toStdString(), value);
           config->setParamDescr(key.toStdString(), desc.toStdString());
-          configTileWidgetMap[key]->reloadConfigurableData();
+          configTileWidgetMap.value(key)->reloadConfigurableData();
         }
         qde_parambool = qde_parambool.nextSiblingElement();
       }

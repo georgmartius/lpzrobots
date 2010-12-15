@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-12-14 10:10:12  guettler
+ *   Revision 1.9  2010-12-15 11:00:06  wrabe
+ *   -load/save multiple ConfigurableStates from one file
+ *   -All current ConfigurableStates can be stored and loaded now via menu
+ *   -loading a ConfigurableState for one Configurable from a file containing multiple ConfigurableStates allows to choose one desired ConfigurableState
+ *
+ *   Revision 1.8  2010/12/14 10:10:12  guettler
  *   -autoload/autosave now uses only one xml file
  *   -fixed getName of TileWidget which produced invisible widgets in xml files
  *
@@ -118,7 +123,7 @@ namespace lpzrobots {
     private slots:
       void sl_execContextMenu(const QPoint &pos);
       void sl_showAndHideParameters();
-      void sl_loadConfigurableStateToFile();
+      void sl_loadConfigurableStateFromFile();
       void sl_saveConfigurableStateToFile();
 
     private:

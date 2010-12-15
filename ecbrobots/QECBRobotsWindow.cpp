@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-12-14 11:11:06  guettler
+ *   Revision 1.12  2010-12-15 11:00:06  wrabe
+ *   -load/save multiple ConfigurableStates from one file
+ *   -All current ConfigurableStates can be stored and loaded now via menu
+ *   -loading a ConfigurableState for one Configurable from a file containing multiple ConfigurableStates allows to choose one desired ConfigurableState
+ *
+ *   Revision 1.11  2010/12/14 11:11:06  guettler
  *   -preparations for global save functionality
  *
  *   Revision 1.10  2010/12/14 10:10:12  guettler
@@ -78,6 +83,7 @@
  ***************************************************************************/
 
 #include "QECBRobotsWindow.h"
+#include "QConfigurableLoadSaveDialog.h"
 #include  <QScrollArea>
 
 namespace lpzrobots {
@@ -126,6 +132,16 @@ namespace lpzrobots {
   }
 
   void QECBRobotsWindow::createActions() {
+    action_SaveConfigurableState = new QAction((tr("Save ConfigurableStates ...")), this);
+    action_SaveConfigurableState->setShortcut(tr("Alt+S"));
+    action_SaveConfigurableState->setStatusTip(tr("save ConfigurableStates to file ..."));
+    connect(action_SaveConfigurableState, SIGNAL(triggered()), this, SLOT(sl_saveCurrentConfigurableStatesToFile()));
+
+    action_LoadConfigurableState = new QAction((tr("Load ConfigurableStates ...")), this);
+    action_LoadConfigurableState->setShortcut(tr("Alt+L"));
+    action_LoadConfigurableState->setStatusTip(tr("load ConfigurableStates from file ..."));
+    connect(action_LoadConfigurableState, SIGNAL(triggered()), this, SLOT(sl_loadCurrentConfigurableStatesFromFile()));
+
     action_Exit = new QAction(tr("&Quit"), this);
     action_Exit->setShortcut(tr("Ctrl+Q"));
     action_Exit->setStatusTip(tr("Exit the application"));
@@ -191,6 +207,8 @@ namespace lpzrobots {
     this->menuBar()->clear();
 
     fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(action_SaveConfigurableState);
+    fileMenu->addAction(action_LoadConfigurableState);
     fileMenu->addSeparator();
     fileMenu->addAction(action_Exit);
 
@@ -278,11 +296,8 @@ namespace lpzrobots {
   }
 
   void QECBRobotsWindow::sl_About() {
-    QMessageBox::about(
-        this,
-        tr("About the Application"),
-        tr(
-            "ECB_Robot-Application V2.0, Tool to connect real robots (containing an ecb) onto a neuro-controller located on a standard pc."));
+    QMessageBox::about(this, tr("About the Application"), tr(
+        "ECB_Robot-Application V2.0, Tool to connect real robots (containing an ecb) onto a neuro-controller located on a standard pc."));
   }
 
   void QECBRobotsWindow::sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState commState) {
@@ -347,7 +362,7 @@ namespace lpzrobots {
   }
 
   void QECBRobotsWindow::updateConfigurableWidget() {
-    configurableWidgetList.clear();
+    configurableWidgetMap.clear();
     int index = tabWidget->currentIndex();
     tabWidget->removeTab(1);
     tabWidget->insertTab(1, createConfigurableWidget(), "Configurables");
@@ -372,7 +387,7 @@ namespace lpzrobots {
       configurableIndexMap[name] = index;
       QConfigurableWidget* confWidget = new QConfigurableWidget(*config, configurableIndexMap[name]);
       grid->addWidget(confWidget, i++, 0, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
-      configurableWidgetList.append(confWidget);
+      configurableWidgetMap.insert(confWidget->getName(), confWidget);
     }
     recallConfigurableStates(); // autoload function
     grid->setRowStretch(i, 100);
@@ -428,7 +443,7 @@ namespace lpzrobots {
   }
 
   void QECBRobotsWindow::recallConfigurableStates() {
-    foreach(QConfigurableWidget* confWidget, configurableWidgetList)
+    foreach(QConfigurableWidget* confWidget, configurableWidgetMap)
       {
         QString configName = confWidget->getName();
         if (!nodeConfigurableStateMap.contains(configName) && confWidget->getNameIndex() != 0) {
@@ -443,29 +458,66 @@ namespace lpzrobots {
 
   void QECBRobotsWindow::bookmarkConfigurableStates() {
     // if some older ones exist, just overwrite them
-    foreach(QConfigurableWidget* confWidget, configurableWidgetList)
+    foreach(QConfigurableWidget* confWidget, configurableWidgetMap)
         nodeConfigurableStateMap.insert(confWidget->getName(), confWidget->toXml());
   }
 
-
-  // if configName == "", save from all
-  void QECBRobotsWindow::sl_saveCurrentConfigurableStatesToFile(QString configName) {
+  void QECBRobotsWindow::sl_loadCurrentConfigurableStatesFromFile() {
     QFileDialog* fileDialog = new QFileDialog();
-    fileDialog->setAcceptMode(QFileDialog::AcceptSave);
-    //fileDialog->setFileMode(QFileDialog::AnyFile);
-    fileDialog->setNameFilter(tr("Xml (*.xml)"));
-    fileDialog->setDefaultSuffix("xml");
-    QString pathApplication = QCoreApplication::applicationDirPath() + "/";
+    fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
+    fileDialog->setFileMode(QFileDialog::ExistingFile);
+    QString pathApplication = QCoreApplication::applicationDirPath() + "/*.xml";
     fileDialog->selectFile(pathApplication);
-    QString fileNamePreference = QString(config->getName().c_str());
-    fileDialog->selectFile(fileNamePreference);
+    fileDialog->setNameFilter(tr("Xml (*.xml)"));
     if (fileDialog->exec() == QDialog::Accepted) {
-      QString fileName = fileDialog->selectedFiles().at(0);
-      if (!saveConfigurableState(fileName)) {
-        QMessageBox::warning(this, this->title(), tr("Configurable state could not be saved."), QMessageBox::Close);
+      QFile file(fileDialog->selectedFiles().at(0));
+      if (!file.open(QIODevice::ReadOnly))
+        return;
+
+      QDomDocument doc("ConfigurableStateTypeDefinition");
+      if (!doc.setContent(&file)) {
+        file.close();
+        return;
       }
+      file.close();
+
+      QDomElement qde_configurableStates = doc.documentElement();
+      if (qde_configurableStates.tagName() != "ConfigurableStates")
+        return;
+
+      // generate qde_configurableStateMap
+      QHash<QString,QDomElement> qde_configurableStateMap;
+      QDomNodeList qdn_List = qde_configurableStates.elementsByTagName("ConfigurableState");
+      for (int i = 0; i < qdn_List.size(); i++)
+        qde_configurableStateMap.insert(qdn_List.at(i).toElement().attribute("name"), qdn_List.at(i).toElement());
+      QConfigurableLoadSaveDialog* dialog = new QConfigurableLoadSaveDialog(configurableWidgetMap, qde_configurableStateMap, QConfigurableLoadSaveDialog::ConfigurableLoadMultiple);
+      dialog->exec();
     }
+
   }
 
+  // if widget == 0, save all Configurables
+  void QECBRobotsWindow::sl_saveCurrentConfigurableStatesToFile() {
+
+    QConfigurableLoadSaveDialog* dialog = new QConfigurableLoadSaveDialog(configurableWidgetMap);
+    dialog->exec();
+
+    // TODO:
+    //    QFileDialog* fileDialog = new QFileDialog();
+    //    fileDialog->setAcceptMode(QFileDialog::AcceptSave);
+    //    //fileDialog->setFileMode(QFileDialog::AnyFile);
+    //    fileDialog->setNameFilter(tr("Xml (*.xml)"));
+    //    fileDialog->setDefaultSuffix("xml");
+    //    QString pathApplication = QCoreApplication::applicationDirPath() + "/";
+    //    fileDialog->selectFile(pathApplication);
+    //    QString fileNamePreference = QString(widget->getConfigurableName());
+    //    fileDialog->selectFile(fileNamePreference);
+    //    if (fileDialog->exec() == QDialog::Accepted) {
+    //      QString fileName = fileDialog->selectedFiles().at(0);
+    //      if (!saveConfigurableState(fileName)) {
+    //        QMessageBox::warning(this, this->title(), tr("Configurable state could not be saved."), QMessageBox::Close);
+    //      }
+    //    }
+  }
 
 } // namespace lpzrobots

@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-12-14 11:11:06  guettler
+ *   Revision 1.10  2010-12-15 11:00:06  wrabe
+ *   -load/save multiple ConfigurableStates from one file
+ *   -All current ConfigurableStates can be stored and loaded now via menu
+ *   -loading a ConfigurableState for one Configurable from a file containing multiple ConfigurableStates allows to choose one desired ConfigurableState
+ *
+ *   Revision 1.9  2010/12/14 11:11:06  guettler
  *   -preparations for global save functionality
  *
  *   Revision 1.8  2010/12/14 10:10:12  guettler
@@ -114,8 +119,8 @@ namespace lpzrobots {
 
       void sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState commState);
       void sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState commState);
-      void sl_saveCurrentConfigurableStatesToFile(QString configName);
-      void sl_loadCurrentConfigurableStatesFromFile(QString configName);
+      void sl_saveCurrentConfigurableStatesToFile();
+      void sl_loadCurrentConfigurableStatesFromFile();
 
     private:
 
@@ -152,6 +157,8 @@ namespace lpzrobots {
 
       // --- Actions ----------------------------------
       // File-Menu
+      QAction *action_SaveConfigurableState;
+      QAction *action_LoadConfigurableState;
       QAction *action_Exit;
       // Help-Menu
       QAction *action_About;
@@ -168,7 +175,7 @@ namespace lpzrobots {
 
       QWidget* configWidget;
       QScrollArea* scrollArea;
-      QList<QConfigurableWidget*> configurableWidgetList;
+      QMap<QString, QConfigurableWidget*> configurableWidgetMap;
       QHash<QString,QDomElement> nodeConfigurableStateMap;
 
       bool isClosed;

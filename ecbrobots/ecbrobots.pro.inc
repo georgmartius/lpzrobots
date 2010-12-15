@@ -61,6 +61,7 @@ HEADERS   +=qconfigurable/QValConfigurableTileWidget.h
 HEADERS   +=qconfigurable/QIntConfigurableTileWidget.h
 HEADERS   +=qconfigurable/QConfigurableTileShowHideDialog.h
 HEADERS   +=qconfigurable/QConfigurableSetBoundsDialog.h
+HEADERS   +=qconfigurable/QConfigurableLoadSaveDialog.h
 
 SOURCES   +=qconfigurable/QConfigurableWidget.cpp
 SOURCES   +=qconfigurable/QAbstractConfigurableTileWidget.cpp
@@ -69,3 +70,4 @@ SOURCES   +=qconfigurable/QValConfigurableTileWidget.cpp
 SOURCES   +=qconfigurable/QIntConfigurableTileWidget.cpp
 SOURCES   +=qconfigurable/QConfigurableTileShowHideDialog.cpp
 SOURCES   +=qconfigurable/QConfigurableSetBoundsDialog.cpp
+SOURCES   +=qconfigurable/QConfigurableLoadSaveDialog.cpp
