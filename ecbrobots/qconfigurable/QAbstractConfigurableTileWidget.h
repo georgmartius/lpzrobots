@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-12-14 10:10:12  guettler
+ *   Revision 1.6  2010-12-15 11:24:40  guettler
+ *   -new QDummyConfigurableTileWidget
+ *
+ *   Revision 1.5  2010/12/14 10:10:12  guettler
  *   -autoload/autosave now uses only one xml file
  *   -fixed getName of TileWidget which produced invisible widgets in xml files
  *
@@ -95,7 +98,7 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
-      QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey& key);
+      QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey key);
       virtual ~QAbstractConfigurableTileWidget();
       virtual void setName(QString name) = 0;
       virtual QString getName() {

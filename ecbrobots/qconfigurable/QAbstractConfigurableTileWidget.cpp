@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-12-14 10:10:12  guettler
+ *   Revision 1.6  2010-12-15 11:24:39  guettler
+ *   -new QDummyConfigurableTileWidget
+ *
+ *   Revision 1.5  2010/12/14 10:10:12  guettler
  *   -autoload/autosave now uses only one xml file
  *   -fixed getName of TileWidget which produced invisible widgets in xml files
  *
@@ -83,7 +86,7 @@ namespace lpzrobots {
   
   QSize QAbstractConfigurableTileWidget::widgetSize = QSize(300, 80);
 
-  QAbstractConfigurableTileWidget::QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey& key) :
+  QAbstractConfigurableTileWidget::QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey key) :
     config(config), key(key), tileIndex(0), internalVisible(true) {
 
     setMinimumSize(QAbstractConfigurableTileWidget::widgetSize);
