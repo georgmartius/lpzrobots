@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-12-15 11:10:26  wrabe
+ *   Revision 1.14  2010-12-15 11:19:30  wrabe
+ *   -some shortcuts rearranged
+ *   -last active tab is remarked in settings
+ *
+ *   Revision 1.13  2010/12/15 11:10:26  wrabe
  *   -clear function for AutoSave File
  *
  *   Revision 1.12  2010/12/15 11:00:06  wrabe
@@ -136,12 +140,12 @@ namespace lpzrobots {
 
   void QECBRobotsWindow::createActions() {
     action_SaveConfigurableState = new QAction((tr("Save ConfigurableStates ...")), this);
-    action_SaveConfigurableState->setShortcut(tr("Alt+S"));
+    action_SaveConfigurableState->setShortcut(tr("F7"));
     action_SaveConfigurableState->setStatusTip(tr("save ConfigurableStates to file ..."));
     connect(action_SaveConfigurableState, SIGNAL(triggered()), this, SLOT(sl_saveCurrentConfigurableStatesToFile()));
 
     action_LoadConfigurableState = new QAction((tr("Load ConfigurableStates ...")), this);
-    action_LoadConfigurableState->setShortcut(tr("Alt+L"));
+    action_LoadConfigurableState->setShortcut(tr("F8"));
     action_LoadConfigurableState->setStatusTip(tr("load ConfigurableStates from file ..."));
     connect(action_LoadConfigurableState, SIGNAL(triggered()), this, SLOT(sl_loadCurrentConfigurableStatesFromFile()));
 
@@ -230,7 +234,7 @@ namespace lpzrobots {
     additionalsMenu = menuBar()->addMenu(tr("&Additionals"));
     additionalsMenu->addAction(action_StartStopGuiLogger);
 
-    settingsMenu = menuBar()->addMenu(tr("Settings"));
+    settingsMenu = menuBar()->addMenu(tr("&Settings"));
     settingsMenu->addAction(action_SwitchWarning);
     settingsMenu->addAction(action_SwitchVerbose);
     settingsMenu->addAction(action_SwitchDebug);
@@ -254,6 +258,7 @@ namespace lpzrobots {
     globalData->warningOutput = warning;
     globalData->verboseOutput = verbose;
     globalData->debugOutput = debug;
+    tabWidget->setCurrentIndex(settings.value("activeTabIndex",1).toInt());
   }
 
   void QECBRobotsWindow::writeSettings() {
@@ -263,6 +268,7 @@ namespace lpzrobots {
     settings.setValue("warningOutput", globalData->warningOutput);
     settings.setValue("verboseOutput", globalData->verboseOutput);
     settings.setValue("debugOutput", globalData->debugOutput);
+    settings.setValue("activeTabIndex", tabWidget->currentIndex());
   }
 
   void QECBRobotsWindow::closeEvent(QCloseEvent *event) {
