@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2010-12-15 17:26:28  wrabe
+ *   Revision 1.16  2010-12-16 16:48:47  wrabe
+ *   -integrated the statusbar
+ *
+ *   Revision 1.15  2010/12/15 17:26:28  wrabe
  *   - number of colums for tileWidgets and width of tileWidgets can
  *   now be changed (independently for each Configurable)
  *   - bugfixes
@@ -104,6 +107,10 @@ namespace lpzrobots {
     configWidget(0), isClosed(false) {
     this->applicationPath = applicationPath;
     this->setWindowTitle("ECBRobotsWindow");
+    statusLabel = new QLabel(statusBar());
+    statusBar()->addWidget(statusLabel);
+    connect(&statusLabelTimer, SIGNAL(timeout()), this, SLOT(sl_statusLabelTimerExpired()));
+
 
     autoloadConfigurableStates();
 
@@ -302,8 +309,14 @@ namespace lpzrobots {
   }
 
   void QECBRobotsWindow::sl_textLog(QString sText) {
-    //statusBar()->showMessage(sText, 5000);
+    statusLabelTimer.stop();
+    statusLabel->setText(sText);
+    statusLabelTimer.start(5000);
     logView->appendLogViewText(sText);
+  }
+
+  void QECBRobotsWindow::sl_statusLabelTimerExpired() {
+    statusLabel->setText("");
   }
 
   void QECBRobotsWindow::sl_ClearLogView() {

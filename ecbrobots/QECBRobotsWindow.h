@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-12-15 11:10:26  wrabe
+ *   Revision 1.12  2010-12-16 16:48:47  wrabe
+ *   -integrated the statusbar
+ *
+ *   Revision 1.11  2010/12/15 11:10:26  wrabe
  *   -clear function for AutoSave File
  *
  *   Revision 1.10  2010/12/15 11:00:06  wrabe
@@ -125,6 +128,7 @@ namespace lpzrobots {
       void sl_saveCurrentConfigurableStatesToFile();
       void sl_loadCurrentConfigurableStatesFromFile();
       void sl_clearAutoSaveFile();
+      void sl_statusLabelTimerExpired();
 
     private:
 
@@ -182,6 +186,10 @@ namespace lpzrobots {
       QScrollArea* scrollArea;
       QMap<QString, QConfigurableWidget*> configurableWidgetMap;
       QHash<QString,QDomElement> nodeConfigurableStateMap;
+
+      QLabel* statusLabel;
+      QTimer statusLabelTimer;
+
 
       bool isClosed;
 
