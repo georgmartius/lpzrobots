@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-07 10:08:40  wrabe
+ *   Revision 1.3  2010-12-16 18:37:39  wrabe
+ *   -added several tooltips
+ *   -corrected sentences, notation, syntax for improved informational value
+ *   -bugfix: if in collapsed mode, all tiles were stored as invisible
+ *   -cosmetic ui changes
+ *   -other minor things
+ *
+ *   Revision 1.2  2010/12/07 10:08:40  wrabe
  *   - disabled resizing of QConfigurableSetBoundsDialog
  *
  *   Revision 1.1  2010/12/06 17:49:34  wrabe
@@ -50,9 +57,10 @@ namespace lpzrobots {
     config(config), key(key) {
     dialogGridLayout = new QGridLayout();
     setLayout(dialogGridLayout);
-    setWindowTitle(QString(key.c_str()));
+    setWindowTitle("Change the boundaries");
     setSizeGripEnabled(false);
-    layout()->setSizeConstraint( QLayout::SetFixedSize );
+    setMinimumWidth(335);
+   // layout()->setSizeConstraint( QLayout::SetFixedSize );
 
     Configurable::parammap valMap = config->getParamValMap();
     Configurable::paramintmap intMap = config->getParamIntMap();
@@ -93,10 +101,10 @@ namespace lpzrobots {
     double maxBound = config->getParamvalBounds(key).second;
 
     lMinBound = new QLabel();
-    lMinBound->setText("minBound");
+    lMinBound->setText(QString(key.c_str()) + ":  minBound");
 
     lMaxBound = new QLabel();
-    lMaxBound->setText("maxBound");
+    lMaxBound->setText(QString(key.c_str()) + ": maxBound");
 
     doubleValidator = new QDoubleValidator(this);
     doubleValidator->setNotation(QDoubleValidator::StandardNotation);
@@ -109,7 +117,7 @@ namespace lpzrobots {
     leMaxBound->setValidator(doubleValidator);
     leMaxBound->setText(QString::number(maxBound));
 
-    pbSetDefault = new QPushButton(tr("Defaults"));
+    pbSetDefault = new QPushButton(tr("defaults"));
     buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     buttonBox->addButton(pbSetDefault, QDialogButtonBox::ActionRole);
 
@@ -130,10 +138,10 @@ namespace lpzrobots {
     int maxBound = config->getParamintBounds(key).second;
 
     lMinBound = new QLabel();
-    lMinBound->setText("minBound");
+    lMinBound->setText(QString(key.c_str()) + ":  minBound");
 
     lMaxBound = new QLabel();
-    lMaxBound->setText("maxBound");
+    lMaxBound->setText(QString(key.c_str()) + ": maxBound");
 
     intValidator = new QIntValidator(this);
 
@@ -145,7 +153,7 @@ namespace lpzrobots {
     leMaxBound->setValidator(intValidator);
     leMaxBound->setText(QString::number(maxBound));
 
-    pbSetDefault = new QPushButton(tr("Defaults"));
+    pbSetDefault = new QPushButton(tr("defaults"));
     buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     buttonBox->addButton(pbSetDefault, QDialogButtonBox::ActionRole);
 
@@ -164,9 +172,9 @@ namespace lpzrobots {
     internal_content = content_none;
 
     QString helpText;
-    helpText.append("This is a dialog to set the boundaries of\n");
-    helpText.append("configurables (int/double), the dialog will\n");
-    helpText.append("not work with a parambool!");
+    helpText.append("This is a dialog sets the boundaries of\n");
+    helpText.append("Configurables (int/val), the dialog\n");
+    helpText.append("doesn't work with a parambool!");
 
     QLabel lHelpText;
     lHelpText.setText(helpText);

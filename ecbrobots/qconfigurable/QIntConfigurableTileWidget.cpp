@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-12-16 16:39:25  wrabe
+ *   Revision 1.8  2010-12-16 18:37:39  wrabe
+ *   -added several tooltips
+ *   -corrected sentences, notation, syntax for improved informational value
+ *   -bugfix: if in collapsed mode, all tiles were stored as invisible
+ *   -cosmetic ui changes
+ *   -other minor things
+ *
+ *   Revision 1.7  2010/12/16 16:39:25  wrabe
  *   - drag&drop reworked: user can now drag a parameter to a any place
  *   - rearrangement of parameters now made only when user wants this
  *   - bugfixes
@@ -160,8 +167,8 @@ namespace lpzrobots {
 
   void QIntConfigurableTileWidget::sl_execContextMenu(const QPoint &pos) {
     QMenu menu;
-    menu.addAction(tr("Change boundaries of this Configurable."), this, SLOT(sl_changeBounds()));
-    menu.addAction(tr("Reset to original values."), this, SLOT(sl_resetToOriginalValues()));
+    menu.addAction(tr("change boundaries of this Configurable ..."), this, SLOT(sl_changeBounds()));
+    menu.addAction(tr("reset to original value and bounds"), this, SLOT(sl_resetToOriginalValues()));
     menu.exec(this->mapToGlobal(pos));
   }
   void QIntConfigurableTileWidget::sl_changeBounds() {

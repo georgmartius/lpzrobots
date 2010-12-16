@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-15 11:00:06  wrabe
+ *   Revision 1.2  2010-12-16 18:37:40  wrabe
+ *   -added several tooltips
+ *   -corrected sentences, notation, syntax for improved informational value
+ *   -bugfix: if in collapsed mode, all tiles were stored as invisible
+ *   -cosmetic ui changes
+ *   -other minor things
+ *
+ *   Revision 1.1  2010/12/15 11:00:06  wrabe
  *   -load/save multiple ConfigurableStates from one file
  *   -All current ConfigurableStates can be stored and loaded now via menu
  *   -loading a ConfigurableState for one Configurable from a file containing multiple ConfigurableStates allows to choose one desired ConfigurableState
@@ -73,8 +80,9 @@ namespace lpzrobots {
     function = ConfigurableSave;
 
     setFixedHeight(200);
+    setMinimumWidth(300);
     setLayout(new QVBoxLayout());
-    setWindowTitle("save ConfigurableStates to file ...");
+    setWindowTitle("Select the ConfigurableStates to be saved");
 
     cbFrame_ypos = 0;
     cbFrame = new QFrame();
@@ -120,6 +128,7 @@ namespace lpzrobots {
     configurableWidgetMap(configurableWidgetMap), qde_configurableStateMap(qde_configurableStateMap), function(function) {
 
     setFixedHeight(200);
+    setMinimumWidth(440);
     setLayout(new QVBoxLayout());
 
     cbFrame_ypos = 0;
@@ -134,7 +143,7 @@ namespace lpzrobots {
         QString name = qde_configurableState.attribute("name");
         switch (function) {
           case ConfigurableLoadSingle: {
-            setWindowTitle("select one ConfigurableState to load/use");
+            setWindowTitle("Select one ConfigurableState to load/use");
             QRadioButton* rb = new QRadioButton();
             rb->setText(name);
             grid->addWidget(rb, row++, 0, Qt::AlignTop);
@@ -145,7 +154,7 @@ namespace lpzrobots {
             break;
           }
           case ConfigurableLoadMultiple: {
-            setWindowTitle("select ConfigurableStates to load/use");
+            setWindowTitle("Select the ConfigurableStates to load/use");
             QCheckBox* cb = new QCheckBox();
             cb->setText(name);
             if (!configurableWidgetMap.contains(name))
@@ -229,6 +238,7 @@ namespace lpzrobots {
   }
   void QConfigurableLoadSaveDialog::onAcceptFunctionSave() {
     QFileDialog* fileDialog = new QFileDialog();
+    fileDialog->setWindowTitle("Select the XML file to store the ConfigurableState(s)");
     fileDialog->setAcceptMode(QFileDialog::AcceptSave);
     fileDialog->setNameFilter(tr("Xml (*.xml)"));
     fileDialog->setDefaultSuffix("xml");

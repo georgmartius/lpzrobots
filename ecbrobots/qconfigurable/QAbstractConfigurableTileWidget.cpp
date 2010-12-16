@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-12-16 16:39:25  wrabe
+ *   Revision 1.10  2010-12-16 18:37:40  wrabe
+ *   -added several tooltips
+ *   -corrected sentences, notation, syntax for improved informational value
+ *   -bugfix: if in collapsed mode, all tiles were stored as invisible
+ *   -cosmetic ui changes
+ *   -other minor things
+ *
+ *   Revision 1.9  2010/12/16 16:39:25  wrabe
  *   - drag&drop reworked: user can now drag a parameter to a any place
  *   - rearrangement of parameters now made only when user wants this
  *   - bugfixes
@@ -107,6 +114,10 @@ namespace lpzrobots {
     setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
     setAttribute(Qt::WA_DeleteOnClose);
     setMouseTracking(true);
+    if (config->getParamDescr(key).size() == 0)
+      setToolTip(QString(key.c_str())+" (no description available)");
+    else
+      setToolTip(QString(config->getParamDescr(key).c_str()));
   }
   
   QAbstractConfigurableTileWidget::~QAbstractConfigurableTileWidget() {
@@ -138,10 +149,6 @@ namespace lpzrobots {
     update();
   }
 
-  void QAbstractConfigurableTileWidget::setVisible(bool visible) {
-    internalVisible = visible;
-    QFrame::setVisible(visible);
-  }
 
   void QAbstractConfigurableTileWidget::mouseMoveEvent(QMouseEvent * event) {
     QPoint p = event->pos();
@@ -178,4 +185,19 @@ namespace lpzrobots {
       setFixedSize(newSize);
   }
 
+  void QAbstractConfigurableTileWidget::setVisible(bool visible) {
+    internalVisible = visible;
+    QFrame::setVisible(visible);
+  }
+
+
+  bool QAbstractConfigurableTileWidget::isVisible() {
+    return internalVisible;
+  }
+
+  void QAbstractConfigurableTileWidget::setInCollapseMode(bool inCollapseMode) {
+    QFrame::setVisible(!inCollapseMode);
+  }
+
 }
+

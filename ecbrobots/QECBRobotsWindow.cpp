@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2010-12-16 16:48:47  wrabe
+ *   Revision 1.17  2010-12-16 18:37:40  wrabe
+ *   -added several tooltips
+ *   -corrected sentences, notation, syntax for improved informational value
+ *   -bugfix: if in collapsed mode, all tiles were stored as invisible
+ *   -cosmetic ui changes
+ *   -other minor things
+ *
+ *   Revision 1.16  2010/12/16 16:48:47  wrabe
  *   -integrated the statusbar
  *
  *   Revision 1.15  2010/12/15 17:26:28  wrabe
@@ -106,7 +113,7 @@ namespace lpzrobots {
   QECBRobotsWindow::QECBRobotsWindow(QString applicationPath, QECBManager* manager) :
     configWidget(0), isClosed(false) {
     this->applicationPath = applicationPath;
-    this->setWindowTitle("ECBRobotsWindow");
+    this->setWindowTitle("ECB_Robot-Application V2.0");
     statusLabel = new QLabel(statusBar());
     statusBar()->addWidget(statusLabel);
     connect(&statusLabelTimer, SIGNAL(timeout()), this, SLOT(sl_statusLabelTimerExpired()));
@@ -153,63 +160,63 @@ namespace lpzrobots {
   void QECBRobotsWindow::createActions() {
     action_SaveConfigurableState = new QAction((tr("Save ConfigurableStates ...")), this);
     action_SaveConfigurableState->setShortcut(tr("F7"));
-    action_SaveConfigurableState->setStatusTip(tr("save ConfigurableStates to file ..."));
+    action_SaveConfigurableState->setStatusTip(tr("Saves one or more currently used ConfigurableStates to an XML file."));
     connect(action_SaveConfigurableState, SIGNAL(triggered()), this, SLOT(sl_saveCurrentConfigurableStatesToFile()));
 
     action_LoadConfigurableState = new QAction((tr("Load ConfigurableStates ...")), this);
     action_LoadConfigurableState->setShortcut(tr("F8"));
-    action_LoadConfigurableState->setStatusTip(tr("load ConfigurableStates from file ..."));
+    action_LoadConfigurableState->setStatusTip(tr("Loads one or more ConfigurableStates from an XML file."));
     connect(action_LoadConfigurableState, SIGNAL(triggered()), this, SLOT(sl_loadCurrentConfigurableStatesFromFile()));
 
     action_ClearAutoSaveFile = new QAction((tr("Clear AutoSave File")), this);
-    action_ClearAutoSaveFile->setStatusTip(tr("removes all currently not used saved ConfigurableStates from the AutoSave File"));
+    action_ClearAutoSaveFile->setStatusTip(tr("Removes all currently not used saved ConfigurableStates from the AutoSave File (autosave_QConfigurable.xml)."));
     connect(action_ClearAutoSaveFile, SIGNAL(triggered()), this, SLOT(sl_clearAutoSaveFile()));
 
     action_Exit = new QAction(tr("&Quit"), this);
     action_Exit->setShortcut(tr("Ctrl+Q"));
-    action_Exit->setStatusTip(tr("Exit the application"));
+    action_Exit->setStatusTip(tr("Closes the application."));
     connect(action_Exit, SIGNAL(triggered()), this, SLOT(close()));
 
     action_StartLoop = new QExtAction(QECBManager::EVENT_START_LOOP, (tr("&Start loop")), this);
     action_StartLoop->setShortcut(tr("CTRL+S"));
-    action_StartLoop->setStatusTip(tr("Start the control loop"));
+    action_StartLoop->setStatusTip(tr("Starts the control loop."));
     connect(action_StartLoop, SIGNAL(triggered(int)), ecbManager, SLOT(sl_GUIEventHandler(int)));
 
     action_RestartLoop = new QExtAction(QECBManager::EVENT_RESTART_LOOP, (tr("&Restart loop")), this);
     action_RestartLoop->setShortcut(tr("CTRL+R"));
-    action_RestartLoop->setStatusTip(tr("Stop and Restart the control loop"));
+    action_RestartLoop->setStatusTip(tr("Stops and Restarts the control loop."));
     connect(action_RestartLoop, SIGNAL(triggered(int)), ecbManager, SLOT(sl_GUIEventHandler(int)));
 
     action_PauseLoop = new QExtAction(QECBManager::EVENT_PAUSE_LOOP, (tr("&Pause/Unpause loop")), this);
     action_PauseLoop->setShortcut(tr("SPACE"));
-    action_PauseLoop->setStatusTip(tr("Pause and Unpause the control loop"));
+    action_PauseLoop->setStatusTip(tr("Pauses or Unpauses the control loop."));
     connect(action_PauseLoop, SIGNAL(triggered(int)), ecbManager, SLOT(sl_GUIEventHandler(int)));
 
     action_StopLoop = new QExtAction(QECBManager::EVENT_STOP_LOOP, (tr("&Stop loop")), this);
     action_StopLoop->setShortcut(tr("CTRL+S"));
-    action_StopLoop->setStatusTip(tr("Stop the control loop"));
+    action_StopLoop->setStatusTip(tr("Stops the control loop."));
     connect(action_StopLoop, SIGNAL(triggered(int)), ecbManager, SLOT(sl_GUIEventHandler(int)));
 
     action_StartStopGuiLogger = new QExtAction(QECBManager::EVENT_START_GUILOGGER, (tr("Start/Stop &Guilogger")), this);
     action_StartStopGuiLogger->setShortcut(tr("CTRL+G"));
-    action_StartStopGuiLogger->setStatusTip(tr("Start/Stop the Guilogger"));
+    action_StartStopGuiLogger->setStatusTip(tr("Starts/Stops the Guilogger(s)."));
     connect(action_StartStopGuiLogger, SIGNAL(triggered(int)), ecbManager, SLOT(sl_GUIEventHandler(int)));
 
     action_SwitchWarning = new QExtAction(EVENT_SWITCH_WARNING, (tr("&Warning log")), this);
     action_SwitchWarning->setCheckable(true);
-    action_SwitchWarning->setStatusTip(tr("Enable/Disable verbosed output"));
+    action_SwitchWarning->setStatusTip(tr("Enables/Disables the warning output."));
     connect(action_SwitchWarning, SIGNAL(triggered(int)), this, SLOT(sl_GUIEventHandler(int)));
     action_SwitchWarning->setChecked(true);
 
     action_SwitchVerbose = new QExtAction(EVENT_SWITCH_VERBOSE, (tr("&Verbose log")), this);
     action_SwitchVerbose->setCheckable(true);
-    action_SwitchVerbose->setStatusTip(tr("Enable/Disable verbosed output"));
+    action_SwitchVerbose->setStatusTip(tr("Enables/Disables the verbose output."));
     connect(action_SwitchVerbose, SIGNAL(triggered(int)), this, SLOT(sl_GUIEventHandler(int)));
     action_SwitchVerbose->setChecked(true);
 
     action_SwitchDebug = new QExtAction(EVENT_SWITCH_DEBUG, (tr("&Debug log")), this);
     action_SwitchDebug->setCheckable(true);
-    action_SwitchDebug->setStatusTip(tr("Enable/Disable debug output"));
+    action_SwitchDebug->setStatusTip(tr("Enables/Disables the debug output."));
     connect(action_SwitchDebug, SIGNAL(triggered(int)), this, SLOT(sl_GUIEventHandler(int)));
     action_SwitchDebug->setChecked(false);
 
@@ -219,8 +226,8 @@ namespace lpzrobots {
     sl_GUIEventHandler(EVENT_SWITCH_DEBUG);
 
     // Actions About
-    action_About = new QAction(tr("About"), this);
-    action_About->setStatusTip(tr("Show the application's About box"));
+    action_About = new QAction(tr("About ..."), this);
+    action_About->setStatusTip(tr("Shows the application's About box."));
     connect(action_About, SIGNAL(triggered()), this, SLOT(sl_About()));
 
   }
@@ -329,7 +336,7 @@ namespace lpzrobots {
 
   void QECBRobotsWindow::sl_About() {
     QMessageBox::about(this, tr("About the Application"), tr(
-        "ECB_Robot-Application V2.0, Tool to connect real robots (containing an ecb) onto a neuro-controller located on a standard pc."));
+        "ECB_Robot-Application V2.0, a tool to connect real robots (containing an ECB) onto a neuro-controller located on a standard desktop PC."));
   }
 
   void QECBRobotsWindow::sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState commState) {
@@ -408,7 +415,7 @@ namespace lpzrobots {
     QGridLayout* grid = new QGridLayout();
     grid->setSizeConstraint(QLayout::SetFixedSize);
     configWidget->setLayout(grid);
-    int i = 0;
+    int configurableWidgetIndex = 0;
     QHash<QString, int> configurableIndexMap;
     FOREACH(ConfigList, globalData->configs, config) {
       QString name = QString((*config)->getName().c_str());
@@ -418,14 +425,15 @@ namespace lpzrobots {
       }
       configurableIndexMap[name] = index;
       QConfigurableWidget* confWidget = new QConfigurableWidget(*config, configurableIndexMap[name]);
-      grid->addWidget(confWidget, i++, 0, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
+      grid->addWidget(confWidget, configurableWidgetIndex++, 0, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
       configurableWidgetMap.insert(confWidget->getName(), confWidget);
     }
     recallConfigurableStates(); // autoload function
-    grid->setRowStretch(i, 100);
+    grid->setRowStretch(configurableWidgetIndex, 100);
     scrollArea = new QScrollArea();
     //scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(configWidget);
+    scrollArea->setToolTip(QString::number(configurableWidgetIndex) + " Configurables");
     return scrollArea;
   }
 
@@ -496,6 +504,7 @@ namespace lpzrobots {
 
   void QECBRobotsWindow::sl_loadCurrentConfigurableStatesFromFile() {
     QFileDialog* fileDialog = new QFileDialog();
+    fileDialog->setWindowTitle("Select the XML file containing the ConfigurableState(s)");
     fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
     fileDialog->setFileMode(QFileDialog::ExistingFile);
     QString pathApplication = QCoreApplication::applicationDirPath() + "/*.xml";

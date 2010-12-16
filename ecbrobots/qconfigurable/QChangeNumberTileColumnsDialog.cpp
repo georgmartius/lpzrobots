@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-16 16:39:25  wrabe
+ *   Revision 1.3  2010-12-16 18:37:39  wrabe
+ *   -added several tooltips
+ *   -corrected sentences, notation, syntax for improved informational value
+ *   -bugfix: if in collapsed mode, all tiles were stored as invisible
+ *   -cosmetic ui changes
+ *   -other minor things
+ *
+ *   Revision 1.2  2010/12/16 16:39:25  wrabe
  *   - drag&drop reworked: user can now drag a parameter to a any place
  *   - rearrangement of parameters now made only when user wants this
  *   - bugfixes
@@ -58,16 +65,16 @@ namespace lpzrobots {
   QChangeNumberTileColumnsDialog::QChangeNumberTileColumnsDialog(int* tileCount) :
     tileCount(tileCount) {
     setLayout(&dialogGridLayout);
-    setWindowTitle("Set number of tiles per line");
+    setWindowTitle("Set number of columns per row");
     setSizeGripEnabled(false);
     layout()->setSizeConstraint( QLayout::SetFixedSize );
 
-    lTextLineEdit.setText("tileCount");
+    lTextLineEdit.setText("number of columns per row");
 
     spNumberTiles.setAcceptDrops(false);
     spNumberTiles.setMinimum(1);
     spNumberTiles.setMaximum(10);
-    spNumberTiles.setToolTip("Set the number of ConfigurableTiles per line.");
+    spNumberTiles.setToolTip("Sets the number of placeable parameters per row.");
     spNumberTiles.setValue(*tileCount);
     spNumberTiles.setSingleStep(1);
     spNumberTiles.setFont(QFont("Courier", 11, QFont::Normal));

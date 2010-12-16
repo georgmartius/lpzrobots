@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-12-16 16:39:25  wrabe
+ *   Revision 1.5  2010-12-16 18:37:39  wrabe
+ *   -added several tooltips
+ *   -corrected sentences, notation, syntax for improved informational value
+ *   -bugfix: if in collapsed mode, all tiles were stored as invisible
+ *   -cosmetic ui changes
+ *   -other minor things
+ *
+ *   Revision 1.4  2010/12/16 16:39:25  wrabe
  *   - drag&drop reworked: user can now drag a parameter to a any place
  *   - rearrangement of parameters now made only when user wants this
  *   - bugfixes
@@ -76,6 +83,8 @@ namespace lpzrobots {
       virtual ~QConfigurableTileShowHideDialog();
       //void setConfigurableTileNames(QStringList configurabelTileName);
 
+      int getNumberOfVisibleTiles() { return numberOfVisibleTiles; }
+
     private slots:
       void sl_dialogAccept();
       void sl_dialogSelectAll();
@@ -93,6 +102,7 @@ namespace lpzrobots {
       QPushButton* pbSelectNone;
       int cbFrame_ypos;
       int numberOfTilesPerRow;
+      int numberOfVisibleTiles;
 
 
 

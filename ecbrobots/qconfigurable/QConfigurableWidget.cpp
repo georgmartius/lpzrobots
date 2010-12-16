@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-12-16 16:39:25  wrabe
+ *   Revision 1.15  2010-12-16 18:37:40  wrabe
+ *   -added several tooltips
+ *   -corrected sentences, notation, syntax for improved informational value
+ *   -bugfix: if in collapsed mode, all tiles were stored as invisible
+ *   -cosmetic ui changes
+ *   -other minor things
+ *
+ *   Revision 1.14  2010/12/16 16:39:25  wrabe
  *   - drag&drop reworked: user can now drag a parameter to a any place
  *   - rearrangement of parameters now made only when user wants this
  *   - bugfixes
@@ -112,10 +119,11 @@
 namespace lpzrobots {
   
   QConfigurableWidget::QConfigurableWidget(Configurable* config, int nameIndex) :
-    config(config), dragging(false), isCollapsed(false), configurableTile_dragging(0), nameIndex(nameIndex), numberOfTilesPerRow(3) {
+    config(config), dragging(false), isCollapsed(false), configurableTile_dragging(0), nameIndex(nameIndex), numberOfTilesPerRow(3), numberOfVisibleTiles(0) {
     initBody();
     createConfigurableLines();
     setAcceptDrops(true);
+    setToolTip();
   }
 
   QConfigurableWidget::~QConfigurableWidget() {
@@ -169,7 +177,7 @@ namespace lpzrobots {
       //layout.addWidget(configTileWidget, numberWidgets / 3, numberWidgets % 3);
       tileIndex++;
     }
-
+    numberOfVisibleTiles = tileIndex;
     sl_rearrangeConfigurableTiles();
     //body.setLayout(&layout);
   }
@@ -189,9 +197,9 @@ namespace lpzrobots {
     // Prepare the context menu to show the configurable show and hide dialog
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(sl_execContextMenu(const QPoint &)));
-    contextMenuShowHideDialog.addAction("set number of parameter columns", this, SLOT(sl_changeNumberTileColumns()));
+    contextMenuShowHideDialog.addAction("set number of parameter columns ...", this, SLOT(sl_changeNumberTileColumns()));
     contextMenuShowHideDialog.addAction("rearrange parameters", this, SLOT(sl_rearrangeConfigurableTiles()));
-    contextMenuShowHideDialog.addAction("show/hide parameters", this, SLOT(sl_showAndHideParameters()));
+    contextMenuShowHideDialog.addAction("show/hide parameters ...", this, SLOT(sl_showAndHideParameters()));
     contextMenuShowHideDialog.addAction("load configurable state from file ...", this, SLOT(sl_loadConfigurableStateFromFile()));
     contextMenuShowHideDialog.addAction("save current configurable state to file ...", this, SLOT(sl_saveConfigurableStateToFile()));
 
@@ -216,6 +224,7 @@ namespace lpzrobots {
 
   void QConfigurableWidget::sl_loadConfigurableStateFromFile() {
     QFileDialog* fileDialog = new QFileDialog();
+    fileDialog->setWindowTitle("Select the XML file containing the ConfigurableState(s)");
     fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
     fileDialog->setFileMode(QFileDialog::ExistingFile);
     QString pathApplication = QCoreApplication::applicationDirPath() + "/*.xml";
@@ -254,6 +263,7 @@ namespace lpzrobots {
   }
   void QConfigurableWidget::sl_saveConfigurableStateToFile() {
     QFileDialog* fileDialog = new QFileDialog();
+    fileDialog->setWindowTitle("Select the XML file to store the ConfigurableState");
     fileDialog->setAcceptMode(QFileDialog::AcceptSave);
     //fileDialog->setFileMode(QFileDialog::AnyFile);
     fileDialog->setNameFilter(tr("Xml (*.xml)"));
@@ -294,13 +304,14 @@ namespace lpzrobots {
     if (!qde_configurableWidget.isNull()) {
       // By default there exists only one node named "ConfigurableWidget"!
       QString collapse = qde_configurableWidget.attribute("isCollapsed", "true");
-      numberOfTilesPerRow = qde_configurableWidget.attribute("numberTilesPerLine", "4").toInt();
+      numberOfTilesPerRow = qde_configurableWidget.attribute("numberOfTilesPerRow", "4").toInt();
       int tileWidgetWidth =
           qde_configurableWidget.attribute("tileWidgetWidth", QString::number(QAbstractConfigurableTileWidget::defaultWidgetSize.width())).toInt();
       QDomNode qdn_configurableTileWidgets = qde_configurableWidget.elementsByTagName("ConfigurableTileWidgets").at(0);
       // By default there will only one list of ConfigurableTileWidgets accepted!
       QDomElement qde_configurableTileWidget = qdn_configurableTileWidgets.firstChild().toElement();
       int tmpTileIndex = 0;
+      numberOfVisibleTiles = 0;
       while (!qde_configurableTileWidget.isNull()) {
         QString tileName = qde_configurableTileWidget.attribute("name", "???");
         int gridColumn = qde_configurableTileWidget.attribute("gridColumn", QString::number(tmpTileIndex % numberOfTilesPerRow)).toInt();
@@ -311,6 +322,7 @@ namespace lpzrobots {
           tileWidget->setGridPos(gridRow, gridColumn);
           tileWidget->sl_resize(QSize(tileWidgetWidth, QAbstractConfigurableTileWidget::defaultWidgetSize.height()));
           if (visible.startsWith("true")) {
+            numberOfVisibleTiles++;
             tileWidget->show();
           } else {
             tileWidget->hide();
@@ -381,6 +393,7 @@ namespace lpzrobots {
       }
     } else
       return -5;
+    setToolTip();
     return 0;
   }
 
@@ -413,7 +426,7 @@ namespace lpzrobots {
     QDomElement nodeConfigurableWidget = doc.createElement("ConfigurableWidget");
     nodeConfigurableState.appendChild(nodeConfigurableWidget);
     nodeConfigurableWidget.setAttribute("isCollapsed", isCollapsed ? "true" : "false");
-    nodeConfigurableWidget.setAttribute("numberTilesPerLine", numberOfTilesPerRow);
+    nodeConfigurableWidget.setAttribute("numberOfTilesPerRow", numberOfTilesPerRow);
     if (!configTileWidgetMap.isEmpty())
       nodeConfigurableWidget.setAttribute("tileWidgetWidth", configTileWidgetMap.values().at(0)->width());
 
@@ -492,8 +505,10 @@ namespace lpzrobots {
   void QConfigurableWidget::sl_showAndHideParameters() {
     QConfigurableTileShowHideDialog* dialog = new QConfigurableTileShowHideDialog(configTileWidgetMap, tileIndexConfigWidgetMap, numberOfTilesPerRow);
     dialog->exec();
+    numberOfVisibleTiles = dialog->getNumberOfVisibleTiles();
     delete (dialog);
     arrangeConfigurableTiles();
+    setToolTip();
   }
 
   void QConfigurableWidget::arrangeConfigurableTiles() {
@@ -508,10 +523,12 @@ namespace lpzrobots {
     int tileIndex = 0;
     foreach(QAbstractConfigurableTileWidget* configurableTile, configTileWidgetMap)
       {
-        layout.removeWidget(configurableTile);
-        configurableTile->setGridPos(tileIndex / numberOfTilesPerRow, tileIndex % numberOfTilesPerRow);
-        layout.addWidget(configurableTile, tileIndex / numberOfTilesPerRow, tileIndex % numberOfTilesPerRow, Qt::AlignLeft);
-        tileIndex++;
+        if (configurableTile->isVisible()) {
+          layout.removeWidget(configurableTile);
+          configurableTile->setGridPos(tileIndex / numberOfTilesPerRow, tileIndex % numberOfTilesPerRow);
+          layout.addWidget(configurableTile, tileIndex / numberOfTilesPerRow, tileIndex % numberOfTilesPerRow, Qt::AlignLeft);
+          tileIndex++;
+        }
       }
   }
 
@@ -521,18 +538,19 @@ namespace lpzrobots {
         {
           if (configurableTile->isVisible()) {
             configTiles_shownBeforeCollapse.insert(configurableTile->getGridPos(), configurableTile);
-            configurableTile->hide();
+            configurableTile->setInCollapseMode(true);
           }
         }
       isCollapsed = true;
     } else {
       foreach(QAbstractConfigurableTileWidget* configurableTile, configTiles_shownBeforeCollapse)
         {
-          configurableTile->show();
+        configurableTile->setInCollapseMode(false);
         }
       isCollapsed = false;
       configTiles_shownBeforeCollapse.clear();
     }
+    setToolTip();
   }
 
   void QConfigurableWidget::enterEvent(QEvent * event) {
@@ -701,7 +719,15 @@ namespace lpzrobots {
   //    }
   //  }
 
-  void lampyris_noctiluca(int bugNumber) {
+  void QConfigurableWidget::setToolTip() {
+    if (isCollapsed)
+      QGroupBox::setToolTip("Configurable is folded.\n(double click to unfold)");
+    else
+      QGroupBox::setToolTip(QString::number(numberOfVisibleTiles) + " visible parameters\n" + QString::number(configTileWidgetMap.count()
+          - numberOfVisibleTiles) + " hidden parameters\n(double click to fold)");
+  }
+
+  void sl_lampyris_noctiluca() {
     QMessageBox msgBox;
     msgBox.setText("lampyris noctiluca - lat. Leuchtkäfer.");
     msgBox.exec();

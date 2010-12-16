@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-12-16 16:39:25  wrabe
+ *   Revision 1.14  2010-12-16 18:37:40  wrabe
+ *   -added several tooltips
+ *   -corrected sentences, notation, syntax for improved informational value
+ *   -bugfix: if in collapsed mode, all tiles were stored as invisible
+ *   -cosmetic ui changes
+ *   -other minor things
+ *
+ *   Revision 1.13  2010/12/16 16:39:25  wrabe
  *   - drag&drop reworked: user can now drag a parameter to a any place
  *   - rearrangement of parameters now made only when user wants this
  *   - bugfixes
@@ -126,7 +133,7 @@ namespace lpzrobots {
       int getNameIndex() {return nameIndex; }
       Configurable* getConfigurable() const { return config; }
       QString getName() { return configName; }
-      void lampyris_noctiluca(int bugNumber);
+      void lampyris_noctiluca();
 
     public slots:
       void sl_mousePressEvent(QMouseEvent* event);
@@ -160,6 +167,7 @@ namespace lpzrobots {
       void createConfigurableLines();
       void initBody();
       void arrangeConfigurableTiles();
+      void setToolTip();
 
 
       QMenu contextMenuShowHideDialog;
@@ -182,6 +190,7 @@ namespace lpzrobots {
       QString configName;
       int nameIndex;
       int numberOfTilesPerRow;
+      int numberOfVisibleTiles;
 
   };
 
