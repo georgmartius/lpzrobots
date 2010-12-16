@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-12-08 17:55:44  wrabe
+ *   Revision 1.14  2010-12-16 14:58:22  der
+ *   configurable: addparameter functions without range, but with description added
+ *
+ *   Revision 1.13  2010/12/08 17:55:44  wrabe
  *   - new typedefs for paramvalpair, paramintpair and paramboolpair
  *
  *   Revision 1.12  2010/12/08 09:36:07  wrabe
@@ -335,7 +338,7 @@ class Configurable
      If you need to do some special treatment for setting (or getting) of the parameter
      you can handle this by overloading getParam and setParam
      */
-    virtual void addParameter(const paramkey& key, paramval* val, paramval minBound = valDefMinBound, paramval maxBound = valDefMaxBound,
+    virtual void addParameter(const paramkey& key, paramval* val, paramval minBound, paramval maxBound,
                               const paramdescr& descr = paramdescr() ) {
       mapOfValues[key] = val;
       if (minBound>*val) minBound = (*val)>0 ? 0 : (*val)*2;
@@ -343,6 +346,12 @@ class Configurable
       if(!descr.empty()) mapOfDescr[key] = descr;
       mapOfValBounds[key]=paramvalBounds(minBound,maxBound);
     }
+
+    ///  See addParameter(const paramkey& key, paramval* val, paramval minBound, paramval maxBound, const paramdescr& descr)
+    virtual void addParameter(const paramkey& key, paramval* val, const paramdescr& descr = paramdescr()){
+      addParameter(key,val,valDefMinBound, valDefMaxBound, descr);
+    }
+
 
     /**
      See addParameter(const paramkey& key, paramval* val) but for bool values
@@ -356,7 +365,7 @@ class Configurable
     /**
      See addParameter(const paramkey& key, paramval* val) but for int values
      */
-    virtual void addParameter(const paramkey& key, paramint* val, paramint minBound = intDefMinBound, paramint maxBound = intDefMaxBound,
+    virtual void addParameter(const paramkey& key, paramint* val, paramint minBound, paramint maxBound,
                               const paramdescr& descr = paramdescr()) {
       mapOfInteger[key] = val;
       if (minBound>*val) minBound = (*val)>0 ? 0 : (*val)*2;
@@ -365,15 +374,24 @@ class Configurable
       mapOfIntBounds[key]=paramintBounds(minBound,maxBound);
     }
 
+    virtual void addParameter(const paramkey& key, paramint* val, const paramdescr& descr = paramdescr()){
+      addParameter(key,val,intDefMinBound, intDefMaxBound, descr);
+    }
+
     /**
      This function is only provided for convenience. It does the same as addParameter but set the
      variable to the default value
      */
-    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def, paramval minBound = valDefMinBound, paramval maxBound = valDefMaxBound,
+    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def, paramval minBound, paramval maxBound,
                                  const paramdescr& descr = paramdescr()){
       *val = def;
       addParameter(key,val, minBound, maxBound, descr);
     }
+
+    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def, const paramdescr& descr = paramdescr()){
+      addParameterDef(key,val,def,valDefMinBound, valDefMaxBound, descr);
+    }
+
 
     /// See addParameterDef(const paramkey&, paramval*, paramval)
     virtual void addParameterDef(const paramkey& key, parambool* val, parambool def,
@@ -383,11 +401,16 @@ class Configurable
     }
 
     /// See addParameterDef(const paramkey&, paramval*, paramval)
-    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def, paramint minBound = valDefMinBound, paramint maxBound = valDefMaxBound,
+    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def, paramint minBound, paramint maxBound,
                                  const paramdescr& descr = paramdescr()) {
       *val = def;
       addParameter(key,val, minBound, maxBound, descr);
     }
+
+    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def, const paramdescr& descr = paramdescr()) {
+      addParameterDef(key,val,def,intDefMinBound, intDefMaxBound, descr);
+    }
+
 
 
     /** This is a utility function for inserting the filename and the revision number
