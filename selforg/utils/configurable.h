@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-12-16 14:58:22  der
+ *   Revision 1.15  2010-12-16 15:26:09  martius
+ *   added copyParameter
+ *
+ *   Revision 1.14  2010/12/16 14:58:22  der
  *   configurable: addparameter functions without range, but with description added
  *
  *   Revision 1.13  2010/12/08 17:55:44  wrabe
@@ -430,11 +433,17 @@ class Configurable
     virtual bool restoreCfg(const char* filenamestem);
     /// prints the keys, values and descriptions to the file. Each line is prefixed
     void print(FILE* f, const char* prefix, int columns=90) const;
-    // internal function to print only description in multiline fasion
-  void printdescr(FILE* f, const char* prefix, const paramkey& key, 
-                  int columns, int indent) const;
 
     void parse(FILE* f);
+
+  protected:
+    /// copies the internal params of the given configurable
+    void copyParameters(const Configurable&);
+
+    // internal function to print only description in multiline fasion
+    void printdescr(FILE* f, const char* prefix, const paramkey& key, 
+                  int columns, int indent) const;
+
 
   private:
     int id;

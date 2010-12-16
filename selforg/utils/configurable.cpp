@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-12-06 14:09:53  guettler
+ *   Revision 1.11  2010-12-16 15:26:09  martius
+ *   added copyParameter
+ *
+ *   Revision 1.10  2010/12/06 14:09:53  guettler
  *   - use of valDefMinBounds, valDefMaxBounds, intDefMinBounds and intDefMaxBound instead of inf values
  *
  *   Revision 1.9  2010/11/26 12:15:05  guettler
@@ -221,6 +224,17 @@ Configurable::paramdescr Configurable::getParamDescr(const paramkey& key) const 
   }else return paramdescr();
 }
 
+// copies the internal params of the given configurable
+void Configurable::copyParameters(const Configurable& c){
+  mapOfValues  = c.mapOfValues;
+  mapOfBoolean = c.mapOfBoolean;
+  mapOfInteger = c.mapOfInteger;
+  mapOfDescr   = c.mapOfDescr;
+  
+  mapOfValBounds = c.mapOfValBounds;
+  mapOfIntBounds = c.mapOfIntBounds;
+}
+
 Configurable::paramvalBounds Configurable::getParamvalBounds(const paramkey& key) const {
   paramvalBoundsMap::const_iterator it = mapOfValBounds.find(key);
   if (it != mapOfValBounds.end()) {
@@ -234,7 +248,6 @@ Configurable::paramintBounds Configurable::getParamintBounds(const paramkey& key
     return it->second;
   }else return paramintBounds(intDefMinBound,intDefMaxBound);
 }
-
 
 void Configurable::print(FILE* f, const char* prefix, int columns) const {
   const char* pre = prefix==0 ? "": prefix;    
@@ -295,6 +308,7 @@ void Configurable::printdescr(FILE* f, const char* prefix,
   };
   fprintf(f, " %s\n",descr.c_str());  
 }
+
 
 void Configurable::parse(FILE* f) {
   char* buffer = (char*)malloc(sizeof(char)*512);    
