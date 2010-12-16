@@ -25,12 +25,12 @@ SoX::SoX(const SoXConf& conf)
   : AbstractController("SoX", "0.1"), conf(conf) {
   t=0;
 
-  addParameterDef("creativity",&creativity,0, 0, 100, "creativity term (0: disabled) ");
+  addParameterDef("creativity",&creativity,0, 0, 3, "creativity term (0: disabled) ");
   addParameterDef("epsC", &epsC, 0.1, 0, 1, "learning rate of the controller");
   addParameterDef("epsA", &epsA, 0.1, 0, 1,"learning rate of the model");
   addParameterDef("harmony", &harmony, 0.01, 0, 1,"harmony term");
-  addParameterDef("s4avg", &s4avg, 1,  0, 1000, "number of steps to smooth the sensor values");
-  addParameterDef("s4delay", &s4delay, 1,  0, 1000,
+  addParameterDef("s4avg", &s4avg, 1,  0, 10, "number of steps to smooth the sensor values");
+  addParameterDef("s4delay", &s4delay, 1,  0, 10,
                   "number of steps to delay motor values (delay in the loop)");
   addParameterDef("dampA", &dampA, 0.00001,  0, 1, "damping factor for model learning");
   if(conf.useS) addParameterDef("discountS", &discountS, 0.005, 0, 1, "discounting od the S term");
@@ -151,14 +151,14 @@ void SoX::stepNoLearning(const sensor* x_, int number_sensors,
 // performs control step (activates network and stores results in buffer and y_)
 void SoX::control(const Matrix& x, motor* y_, int number_motors){
   // averaging over the last s4avg values of x_buffer
-  // x_smooth += (x - x_smooth)*(1.0/max(s4avg,1));
+  x_smooth += (x - x_smooth)*(1.0/max(s4avg,1));
   // calculate controller values based on smoothed input values
   //   Matrix y = (C*(x_smooth) + h).map(g);
   //  const Matrix& y =   (C*(x + v_avg*creativity) + h).map(g);
-  cNet->process(x);
+  cNet->process(x_smooth);
 
   // output is in the controller layer  + creativity
-  const Matrix& y =  cNet->getLayerOutput(numControllerLayer-1) + eta_avg*creativity;
+  const Matrix& y =  (cNet->getLayerOutput(numControllerLayer-1) + eta_avg*creativity) * 2; //TEST
   
   y_buffer[t%buffersize] = y;   // Put new output vector in ring buffer y_buffer  
   y.convertToBuffer(y_, number_motors); // convert y to motor* 
@@ -188,18 +188,20 @@ void SoX::learn(const Matrix& x, const Matrix& y){
   eta_avg = eta_avg*.9 + v[numControllerLayer]*.1;
 
   // double factor = logaE ? 0.001/(E+0.000001) : 1.0; // logarithmic error does not work!
-  double factor = 1;
+  double factor = 2;//TEST
+
+  E = .1/(E  + .0001);
       
   Matrices mu;  
   cNet->backpropagation(chi, 0, &mu);
-  
+  // cout << "hallo"<< endl; 
   // learning rule
   // TODO: the effective y is not used here!
   for(unsigned int l=0; l < numControllerLayer; l++){    
-    const Matrix& epsl =  (mu[l] & zeta[l]) * epsC;
+    const Matrix& epsl =  (mu[l] & zeta[l]) * epsC*E;
     const Matrix& y     = cNet->getLayerOutput(l);
     const Matrix& y_lm1 = l==0 ? x : cNet->getLayerOutput(l-1);
-    cNet->getWeights(l) += ((mu[l] * (v[l]^T) * epsC) 
+    cNet->getWeights(l) += ((mu[l] * (v[l]^T) * epsC*E) 
                             - ((y * (y_lm1^T)) & epsl * (2 * factor))).mapP(0.03, clip);
     cNet->getBias(l) += (y & epsl * (-2 * factor)).mapP(0.03, clip);
     if(epsC!=0){

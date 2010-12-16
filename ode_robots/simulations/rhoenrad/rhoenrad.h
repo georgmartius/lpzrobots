@@ -37,7 +37,6 @@ namespace lpzrobots {
   class TwoAxisServo;  
   class AngularMotor;  
 
-
   typedef struct {
   public:
     double size;       ///< scaling factor for robot (height)
@@ -46,6 +45,7 @@ namespace lpzrobots {
     double relWheelmass;   ///< relative mass of the wheel
     double wheelWidth;     ///< absolute width of the wheel
     double wheelSize;      ///< absolute width of the wheel
+    int wheelType;         ///< see Rhoenrad::WheelType
 
     bool   useVelocityServos; ///< if true the more stable velocity controlling servos are used
     bool   useOrientationSensor; ///< if true the orienation of the wheel is available as sensor value
@@ -108,6 +108,7 @@ namespace lpzrobots {
     Color bodyColor;
     Color trunkColor;
     Color handColor;
+    Color wheelColor;
 
 
     std::string headTexture; // texture of the head
@@ -129,6 +130,8 @@ namespace lpzrobots {
                     Right_Thigh, Right_Shin, Right_Foot,
                     LastPart };    
   
+    enum WheelType {Sphre,Capsl,Cylndr};
+
     /**
      * constructor of Rhoenrad robot
      * @param odeHandle data structure for accessing ODE
@@ -151,6 +154,8 @@ namespace lpzrobots {
       c.relWheelmass = 0.1;  
       c.wheelSize    = .95; 
       c.wheelWidth   = 1.0; 
+      c.wheelType    = Cylndr;
+	
       c.useOrientationSensor = false; 
 
 
@@ -221,8 +226,10 @@ namespace lpzrobots {
       c.bodyTexture="Images/dusty.rgb";
       c.bodyColor=Color(207/255.0, 199/255.0, 139/255.0, 1.0f);
       c.trunkTexture="Images/dusty.rgb";//"Images/whitemetal_farbig_small.rgb";
-      c.trunkColor=Color(207/255.0, 199/255.0, 139/255.0, 1.0f);
+      c.trunkColor=Color(.1,.3,.8, 1.0f);
+      c.trunkColor=Color(177.0/255.0, 51.0/255.0, 29.0/255.0, 1.0f);
       c.handColor=Color(247.0/255, 182.0/255,52.0/255, 1.0f);
+      c.wheelColor=Color(128.0/255, 128.0/255,128.0/255, .5);
       return c;
     }
 
@@ -304,6 +311,8 @@ namespace lpzrobots {
 
     /** returns the position of the trunk */
     virtual Position getTrunkPosition();
+    
+    virtual std::list<Primitive*> getAllPrimitives();
 
   protected:
 

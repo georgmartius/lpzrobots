@@ -56,8 +56,6 @@
 // used robot
 #include "rhoenrad.h" // if robot is local
 
-
-
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 using namespace std;
@@ -67,7 +65,7 @@ public:
   enum Grounds { Normal, Octa, Pit, Uterus, Stacked };
   
   // playground parameter
-  const static double widthground = 25.85;// 100; //1.3;
+  const static double widthground = 1025.85;// 100; //1.3;
   const static double heightground = .8;// 1.2;
   const static double diamOcta = 2;
   const static double pitsize = 2;
@@ -119,8 +117,9 @@ public:
      //RhoenradConf conf = Rhoenrad::getDefaultConf();
      // velocity servos
      RhoenradConf conf = Rhoenrad::getDefaultConfVelServos();
-      
-     conf.powerfactor = .15 ; //.15;// .95;//.65;//5;
+     conf.relWheelmass=4;
+     conf.powerfactor = .25;// .95;//.65;//5;
+     conf.onlyPrimaryFunctions = false;
      if (i==0)
        conf.trunkColor=Color(0.1, 0.3, 0.8);
      else	
@@ -128,7 +127,7 @@ public:
 
      conf.useOrientationSensor=false;
 
-     conf.jointLimitFactor = 1.4;
+     conf.jointLimitFactor = 1.1;
     
 
      OdeHandle skelHandle=odeHandle;
@@ -136,7 +135,7 @@ public:
     //     skelHandle.substance.toPlastic(.5);//TEST sonst 40
      // skelHandle.substance.toRubber(5.00);//TEST sonst 40
      Rhoenrad* human = new Rhoenrad(skelHandle, osgHandle,conf, "Humanoid");           
-     
+     robot=human;
      human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
 		  //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
 		  *osg::Matrix::translate(.2*i,2*i,.841/*7*/ +2*i));
@@ -154,12 +153,13 @@ public:
      SoXConf sc = SoX::getDefaultConf();
      sc.useHiddenContr=false;
      sc.useHiddenModel=false;
-     sc.someInternalParams=false;
+     sc.someInternalParams=true;
      sc.useS=false;
      AbstractController* controller = new SoX(sc);
      controller->setParam("epsC",0.05);
-     controller->setParam("epsA",0.05);
+     controller->setParam("epsA",0.05555555);
      controller->setParam("harmony",0.0);
+     controller->setParam("s4avg",5.0);
 
      //     AbstractController* controller = new BasicController(cc);
      //   AbstractController* controller = new SineController(1<<14); // only motor 14
@@ -214,7 +214,7 @@ public:
 	    forcepoint = new Sphere(0.1);
 	    forcepoint->init(odeHandle, 0, osgHandle /*osgHandle.changeAlpha(0.4)*/, 
 			     Primitive::Geom | Primitive::Draw);
-	  }
+  }
 	  forcepoint->setPosition(point);
 	  forcepoint->update();
 	}
@@ -284,6 +284,22 @@ public:
 	  }
 	  return true;
 	  break;
+	case 'r': 
+	  if(robot) {	    
+	    Primitive* wheel = robot->getAllPrimitives().front();
+	    Axis a(0,0,100);
+	    wheel->applyTorque(Pos(wheel->toGlobal(a)));
+	  }
+	  return true;
+	  break;
+	case 'R': 
+	  if(robot) {
+	    Primitive* wheel = robot->getAllPrimitives().front();
+	    Axis a(0,0,-100);
+	    wheel->applyTorque(Pos(wheel->toGlobal(a)));
+	  }
+	  return true;
+	  break;
 	default:
 	  return false;
 	  break;
@@ -298,9 +314,9 @@ public:
       {
         playground = new Playground(odeHandle, osgHandle,osg::Vec3(widthground, 0.208, heightground)); 
         playground->setColor(Color(1.,1.,1.,.99)); 
-        //     playground->setTexture("Images/really_white.rgb");
-        //     playground->setGroundTexture("Images/dusty.rgb");
-        //playground->setGroundColor(Color(1.,1.,1.,1.));
+	//playground->setGroundTexture("Images/really_white.rgb");
+        playground->setGroundTexture("Images/desert.jpg");
+        //playground->setGroundColor(Color(54.0/255,.5,54.0/255));
         playground->setPosition(osg::Vec3(0,0,.1));
         //      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(1.0875, 8.8, 1.3975)); 
         //       playground->setColor(Color(0.88f,0.4f,0.26f,1));
@@ -423,6 +439,7 @@ public:
   Primitive* reck;
   //  Playground* playground; 
   AbstractGround* playground; 
+  OdeRobot* robot; 
   double hardness;
   bool reckturner;
   osg::Vec3 center;

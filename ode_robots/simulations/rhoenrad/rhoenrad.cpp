@@ -167,10 +167,9 @@ namespace lpzrobots {
 
   };
 
-
   int Rhoenrad::getMotorNumber(){
     if(conf.onlyPrimaryFunctions)
-      return hipservos.size() + kneeservos.size() + ankleservos.size() + armservos.size()+ 1/*pelvis*/ ;
+      return hipservos.size() + kneeservos.size() + armservos.size() + arm1servos.size() + 1/*pelvis*/ ;
     else
       return hipservos.size()*2 + kneeservos.size() + ankleservos.size() + armservos.size()*2 + arm1servos.size() + 
 	1/*pelvis*/+ backservos.size() +2*headservos.size();
@@ -200,12 +199,15 @@ namespace lpzrobots {
       n++;
     }
     FOREACH(vector <OneAxisServo*>, ankleservos, s){
-      (*s)->set(motors[n]);
-      n++;
+      if(!conf.onlyPrimaryFunctions){	
+	(*s)->set(motors[n]);
+	n++;
+      } else
+	(*s)->set(.5);
     }
     FOREACH(vector <TwoAxisServo*>, armservos, s){
       if(conf.onlyPrimaryFunctions){
-	(*s)->set(motors[n],0);
+	(*s)->set(motors[n],.5); //0
       } else {
 	(*s)->set(motors[n],motors[n+1]);
 	n++;
@@ -250,7 +252,6 @@ namespace lpzrobots {
       (*s)->set(0, 0.0); 
       (*s)->set(1, 0.0);
     }
-        
     assert(len==n);
   };
 
@@ -258,7 +259,7 @@ namespace lpzrobots {
     int numberSensors=0;
     
     if(conf.onlyPrimaryFunctions){
-      numberSensors +=hipservos.size() + kneeservos.size() + ankleservos.size() + 
+      numberSensors +=hipservos.size() + kneeservos.size() +
 	armservos.size() + arm1servos.size() + 1 /*pelvis*/;
     } else {
     //  return 1;
@@ -310,17 +311,18 @@ GUIDE adding new sensors
       sensors[n]   = (*s)->get();
       n++;
     }
-    FOREACHC(vector <OneAxisServo*>, ankleservos, s){//6-7
-      sensors[n]   = (*s)->get();
-      n++;
+    
+    if(!conf.onlyPrimaryFunctions){
+      FOREACHC(vector <OneAxisServo*>, ankleservos, s){//6-7
+	sensors[n]   = (*s)->get();
+	n++;
+      }
     }
     FOREACHC(vector <TwoAxisServo*>, armservos, s){//8-11
-      sensors[n]   = (*s)->get1();
-      if(!conf.onlyPrimaryFunctions){
-	n++;
-	sensors[n]   = (*s)->get2();	
-      } 
-      n++;
+      sensors[n++]   = (*s)->get1();	
+      if(!conf.onlyPrimaryFunctions)
+	sensors[n++]   = (*s)->get2();
+
     }
     FOREACHC(vector <OneAxisServo*>, arm1servos, s){//12-13
       sensors[n]   = (*s)->get();
@@ -328,7 +330,7 @@ GUIDE adding new sensors
     }
     sensors[n] = pelvisservo->get(); // 14
     n++;
-    if(conf.useBackJoint){            // 15 - 16
+    if(conf.useBackJoint && !conf.onlyPrimaryFunctions){            // 15 - 16
       FOREACHC(vector <OneAxisServo*>, backservos, s){
 	sensors[n]   = (*s)->get();
 	n++;
@@ -340,10 +342,12 @@ GUIDE adding new sensors
     // 	sensors[n]   = (*s)->get();
     // 	n++;
     //}
-    FOREACHC(vector <TwoAxisServo*>, headservos, s){ // 17-18
-      sensors[n]   = (*s)->get1();
-      sensors[n+1]   = (*s)->get2();
-      n+=2;
+    if(!conf.useBackJoint){
+      FOREACHC(vector <TwoAxisServo*>, headservos, s){ // 17-18
+	sensors[n]   = (*s)->get1();
+	sensors[n+1]   = (*s)->get2();
+	n+=2;
+      }
     }
 
    n += irSensorBank.get(sensors+n, sensornumber-n);
@@ -358,7 +362,6 @@ GUIDE adding new sensors
     assert(len==n);
     return n;
   };
-
 
   void Rhoenrad::place(const Matrix& pose){
     // the position of the robot is the center of the body
@@ -662,10 +665,26 @@ GUIDE adding new sensors
     // create wheel
     OdeHandle wheelHandle(odeHandle);
     wheelHandle.substance.toMetal(1);
-    Cylinder* wheel = new Cylinder(conf.wheelSize, conf.wheelWidth);
-    wheel->setTexture(conf.bodyTexture);
+    Primitive* wheel;
+    switch (conf.wheelType){
+    case Sphre:
+      wheel = new Sphere(conf.wheelSize);
+      break;
+    case Capsl:
+      wheel = new Capsule(conf.wheelSize, conf.wheelWidth);
+      break;
+    case Cylndr:
+    default:
+      wheel = new Cylinder(conf.wheelSize, conf.wheelWidth);
+      break;
+    }
+
+
+    // Cylinder* wheel = new Cylinder(conf.wheelSize, conf.wheelWidth);
+    //  Capsule* wheel = new Capsule(conf.wheelSize, 0.1*conf.wheelWidth);
+    //   wheel->setTexture(conf.bodyTexture);
     
-    wheel->init(wheelHandle, conf.relWheelmass*conf.massfactor,osgHandle.changeColor(1,1,0,0.5));
+    wheel->init(wheelHandle, conf.relWheelmass*conf.massfactor,osgHandle.changeColor(conf.wheelColor));
     wheel->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(0,.95,0) * pose );
     objects[Wheel]=wheel;
 
@@ -1101,7 +1120,8 @@ GUIDE adding new sensors
 	(*i)->setDamping1(conf.armDamping);
 	(*i)->setDamping2(conf.armDamping);
 	(*i)->setMaxVel(conf.armVelocity); 
-	(*i)->setMinMax1(-conf.armJointLimit, conf.armJointLimit);
+	(*i)->setMinMax1(.5, 1.8*conf.armJointLimit);
+//	(*i)->setMinMax1(-conf.armJointLimit, conf.armJointLimit);
 	(*i)->setMinMax2(-conf.armJointLimit*.3, conf.armJointLimit);
       } 
     }
@@ -1153,6 +1173,11 @@ GUIDE adding new sensors
     else if(o->getBody())
       return Position(dBodyGetPosition(o->getBody()));     
     else return Position(0,0,0);
+  }
+
+  std::list<Primitive*> Rhoenrad::getAllPrimitives() {    
+    list<Primitive*> ps(&objects[0],&objects[LastPart]);
+    return ps;
   }
 
 
