@@ -315,7 +315,8 @@ public:
         playground = new Playground(odeHandle, osgHandle,osg::Vec3(widthground, 0.208, heightground)); 
         playground->setColor(Color(1.,1.,1.,.99)); 
 	//playground->setGroundTexture("Images/really_white.rgb");
-        playground->setGroundTexture("Images/desert.jpg");
+	//        playground->setGroundTexture("Images/desert.jpg");
+        playground->setGroundTexture("Images/sand.jpg");
         //playground->setGroundColor(Color(54.0/255,.5,54.0/255));
         playground->setPosition(osg::Vec3(0,0,.1));
         //      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(1.0875, 8.8, 1.3975)); 

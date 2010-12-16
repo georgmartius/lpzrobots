@@ -34,6 +34,7 @@
 #include <selforg/motorbabbler.h>
 #include <selforg/derlininvert.h>
 #include <selforg/dercontroller.h>
+#include <selforg/sinecontroller.h>
 
 // used wiring
 #include <selforg/one2onewiring.h>
@@ -72,7 +73,7 @@ public:
   const static double widthground = 25.85;// 100; //1.3;
   const static double heightground = .8;// 1.2;
   const static double diamOcta = 2;
-  const static double pitsize = 2;
+  const static double pitsize = 1;
   const static double pitheight = 2;
   const static double uterussize = 1;
 
@@ -102,9 +103,9 @@ public:
     bool fixedInAir = true;
     reckturner = false;
     // Playground types
-    addParameterDef("centerforce", &centerforce, .0);//2.0
+    addParameterDef("centerforce", &centerforce, 7.0);//2.0
     addParameterDef("forwardforce", &forwardforce, 0.0);
-    center = osg::Vec3(20,20,3);
+    center = osg::Vec3(0,0,3);
     forcepoint = 0;
     global.configs.push_back(this);
 
@@ -155,9 +156,9 @@ public:
      //       conf.ankleJointLimit=0.001; //!
      //     conf.pelvisPower=20;
      // if(reckturner)      conf.armPower = 30;
-     
-     conf.powerfactor = .15 ; //.15;// .95;//.65;//5;
-     if (reckturner) conf.powerfactor *=.2;
+     conf.onlyPrimaryFunctions=false;
+     conf.powerFactor = .15 ; //.15;// .95;//.65;//5;
+     if (reckturner) conf.powerFactor *=.2;
      if (i==0)
        conf.trunkColor=Color(0.1, 0.3, 0.8);
      else	
@@ -166,7 +167,7 @@ public:
        conf.handsRotating = true;
 
      conf.useBackJoint = true;
-     conf.jointLimitFactor = 1.4;
+     conf.jointLimitFactor = 1;
     
      //     conf.irSensors = true;
      
@@ -209,19 +210,24 @@ public:
      
 
      SoXConf sc = SoX::getDefaultConf();
-     sc.useHiddenContr=false;
-     sc.useHiddenModel=false;
-     sc.someInternalParams=false;
-     sc.useS=false;
+   
+     sc.useHiddenContr=true;
+     sc.useHiddenModel=true;
+     sc.someInternalParams=true;
+     sc.useS=true;
      AbstractController* controller = new SoX(sc);
      controller->setParam("epsC",0.05);
      controller->setParam("epsA",0.05);
      controller->setParam("harmony",0.0);
+     controller->setParam("s4avg",3.0);
 
      //     AbstractController* controller = new BasicController(cc);
      //   AbstractController* controller = new SineController(1<<14); // only motor 14
-     // controller = new MotorBabbler();
-     //AbstractController* controller = new SineController(0,SineController::Impulse);
+     //controller = new MotorBabbler();
+     controller = new SineController(/*,SineController::Impulse*/);
+     controller->setParam("phaseshift",0);
+     controller->setParam("period",100);
+     controller->setParam("amplitude",.7);
       
      global.configs.push_back(controller);
       
@@ -563,7 +569,7 @@ public:
 	  Primitive* body = (*a)->getRobot()->getMainPrimitive();
 	  osg::Vec3 pos = body->getPosition();
 	  osg::Vec3 d = (center - pos);
-	  dBodyAddForce(body->getBody(), d.x()*centerforce, d.y()*centerforce,  d.z()*centerforce*10.8);//1.8
+	  dBodyAddForce(body->getBody(), d.x()*centerforce, d.y()*centerforce,  d.z()*centerforce*50);//1.8
 	}
       }
       if(forwardforce!=0){

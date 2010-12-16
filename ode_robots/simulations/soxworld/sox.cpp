@@ -29,7 +29,7 @@ SoX::SoX(const SoXConf& conf)
   addParameterDef("epsC", &epsC, 0.1,  "learning rate of the controller");
   addParameterDef("epsA", &epsA, 0.1, "learning rate of the model");
   addParameterDef("harmony", &harmony, 0.01, "harmony term");
-  addParameterDef("s4avg", &s4avg, 1,  "number of steps to smooth the sensor values");
+  addParameterDef("s4avg", &s4avg, 2,  "number of steps to smooth the sensor values");
   addParameterDef("s4delay", &s4delay, 1,  
                   "number of steps to delay motor values (delay in the loop)");
   addParameterDef("dampA", &dampA, 0.00001,  "damping factor for model learning");
@@ -182,6 +182,9 @@ void SoX::learn(const Matrix& x, const Matrix& y){
   const Matrix& L = cNet->response();
   const Matrix& chi = (L.multMT().secureInverse()) * xi;
   const Matrix& v0   = (L^T)*chi;
+  //TEST chi -> xi:
+  //  const Matrix& chi =  xi;
+  //  const Matrix& v0   = (L^-1)*xi;
   E = v0.multTM().val(0,0);
   
   cNet->forwardpropagation(v0, &v, &zeta);
@@ -189,17 +192,18 @@ void SoX::learn(const Matrix& x, const Matrix& y){
 
   // double factor = logaE ? 0.001/(E+0.000001) : 1.0; // logarithmic error does not work!
   double factor = 1;
+  factor = 2; //TEST
       
   Matrices mu;  
   cNet->backpropagation(chi, 0, &mu);
-  
+  E = .1/(E+.0001);
   // learning rule
   // TODO: the effective y is not used here!
   for(unsigned int l=0; l < numControllerLayer; l++){    
-    const Matrix& epsl =  (mu[l] & zeta[l]) * epsC;
+    const Matrix& epsl =  (mu[l] & zeta[l]) * epsC*E;
     const Matrix& y     = cNet->getLayerOutput(l);
     const Matrix& y_lm1 = l==0 ? x : cNet->getLayerOutput(l-1);
-    cNet->getWeights(l) += ((mu[l] * (v[l]^T) * epsC) 
+    cNet->getWeights(l) += ((mu[l] * (v[l]^T) * epsC*E) 
                             - ((y * (y_lm1^T)) & epsl * (2 * factor))).mapP(0.03, clip);
     cNet->getBias(l) += (y & epsl * (-2 * factor)).mapP(0.03, clip);
     if(epsC!=0){
@@ -255,7 +259,7 @@ void SoX::motorBabblingStep(const sensor* x_, int number_sensors,
   Matrix y(number_motors,1,y_);
   y_buffer[t%buffersize] = y;
 
-  double factor = .1; // we learn slower here
+  double factor = 3;//stärkere Nichtlinearität //.1; // we learn slower here
   // learn model:
   const Matrix& x_tm1 = x_buffer[(t - 1 + buffersize) % buffersize];
   const Matrix& y_tm1 = y_buffer[(t - 1 + buffersize) % buffersize];

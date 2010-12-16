@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-05 13:54:05  martius
+ *   Revision 1.4  2010-12-16 14:57:30  der
+ *   humanoid gets changeable power and joint factor
+ *
+ *   Revision 1.3  2010/11/05 13:54:05  martius
  *   store and restore for robots implemented
  *
  *   Revision 1.2  2010/10/21 14:25:42  martius
@@ -155,7 +158,7 @@ namespace lpzrobots {
     double backVelocity; ///< velocity of back joint servo
     double backJointLimit; ///< angle range of back joint
 
-    double powerfactor; ///< scale factor for maximal forces of the servos
+    double powerFactor; ///< scale factor for maximal forces of the servos
     double dampingfactor; ///< scale factor for damping of the servos
     
     double jointLimitFactor; ///< factor between servo range (XXXJointLimit, see above) and physical joint limit
@@ -216,7 +219,7 @@ namespace lpzrobots {
       c.relArmmass = 1;// 0.3; unused
 
       c.useVelocityServos = false;
-      c.powerfactor=1.0;
+      c.powerFactor=1.0;
       c.dampingfactor=1.0;
       c.jointLimitFactor=1.0;
 
@@ -355,7 +358,7 @@ namespace lpzrobots {
     virtual bool setParam(const paramkey& key, paramval val);
 
     /** the main object of the robot, which is used for position and speed tracking */
-    virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }
+    virtual Primitive* getMainPrimitive() const { return objects[Belly]; }
 
     /** all parts of the robot */
     virtual std::vector<Primitive*>& getPrimitives() { return objects; }
