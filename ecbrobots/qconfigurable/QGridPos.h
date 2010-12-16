@@ -26,71 +26,38 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-16 16:39:25  wrabe
+ *   Revision 1.1  2010-12-16 16:39:25  wrabe
  *   - drag&drop reworked: user can now drag a parameter to a any place
  *   - rearrangement of parameters now made only when user wants this
  *   - bugfixes
  *
- *   Revision 1.1  2010/12/15 17:26:28  wrabe
- *   - number of colums for tileWidgets and width of tileWidgets can
- *   now be changed (independently for each Configurable)
- *   - bugfixes
- *
- *   Revision 1.2  2010/12/07 10:08:40  wrabe
- *   - disabled resizing of QChangeNumberTileColumnsDialog
- *
- *   Revision 1.1  2010/12/06 17:49:34  wrabe
- *   - new QChangeNumberTileColumnsDialog to change the
- *     boundaries of the Configurables (reacheble now by
- *     context menu of the ConfigurableTile (only paramval/
- *     paramint))
- *
  *                                                                         *
  ***************************************************************************/
 
-#include "QChangeNumberTileColumnsDialog.h"
-#include <QLabel>
-#include <QString>
-#include <QMessageBox>
+#ifndef __QGRIDPOS_H_
+#define __QGRIDPOS_H_
+
+#include <qpoint.h>
 
 namespace lpzrobots {
   
-  QChangeNumberTileColumnsDialog::QChangeNumberTileColumnsDialog(int* tileCount) :
-    tileCount(tileCount) {
-    setLayout(&dialogGridLayout);
-    setWindowTitle("Set number of tiles per line");
-    setSizeGripEnabled(false);
-    layout()->setSizeConstraint( QLayout::SetFixedSize );
+  class QGridPos : public QPoint {
+    public:
+      QGridPos(int row, int column) : QPoint(column,row) {}
+      virtual ~QGridPos() {}
 
-    lTextLineEdit.setText("tileCount");
+      virtual inline int row() const { return y(); }
+      virtual inline int column() const { return x(); }
 
-    spNumberTiles.setAcceptDrops(false);
-    spNumberTiles.setMinimum(1);
-    spNumberTiles.setMaximum(10);
-    spNumberTiles.setToolTip("Set the number of ConfigurableTiles per line.");
-    spNumberTiles.setValue(*tileCount);
-    spNumberTiles.setSingleStep(1);
-    spNumberTiles.setFont(QFont("Courier", 11, QFont::Normal));
+      friend inline bool operator<(const QGridPos& p1, const QGridPos& p2) {
+        return ((p1.row() < p2.row()) || (p1.row() == p2.row() && p1.column() < p2.column()));
+      }
 
-
-    buttonBox.addButton(QDialogButtonBox::Ok);
-    buttonBox.addButton(QDialogButtonBox::Cancel);
-    connect(&buttonBox, SIGNAL(accepted()), this, SLOT(sl_dialogAccept()));
-    connect(&buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-    dialogGridLayout.addWidget(&lTextLineEdit, 0, 0, Qt::AlignRight);
-    dialogGridLayout.addWidget(&spNumberTiles, 0, 1, Qt::AlignLeft);
-    dialogGridLayout.addWidget(&buttonBox, 1, 0, 1, 2);
-
-  }
-  
-  QChangeNumberTileColumnsDialog::~QChangeNumberTileColumnsDialog() {
-  }
-
-
-  void QChangeNumberTileColumnsDialog::sl_dialogAccept() {
-    *tileCount = spNumberTiles.value();
-    this->accept();
-  }
+    private:
+      using QPoint::x;
+      using QPoint::y;
+  };
 
 }
+
+#endif /* __QGRIDPOS_H_ */

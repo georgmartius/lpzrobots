@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-12-15 18:06:55  wrabe
+ *   Revision 1.9  2010-12-16 16:39:25  wrabe
+ *   - drag&drop reworked: user can now drag a parameter to a any place
+ *   - rearrangement of parameters now made only when user wants this
+ *   - bugfixes
+ *
+ *   Revision 1.8  2010/12/15 18:06:55  wrabe
  *   -regression fix: drag and drop of tileWidgets
  *
  *   Revision 1.7  2010/12/15 17:26:28  wrabe
@@ -99,6 +104,7 @@
 #include <QLabel>
 #include <QPalette>
 #include <QMoveEvent>
+#include "QGridPos.h"
 
 namespace lpzrobots {
   
@@ -107,7 +113,7 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
-      QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey key);
+      QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey key, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap);
       virtual ~QAbstractConfigurableTileWidget();
       virtual void setName(QString name) = 0;
       virtual QString getName() {
@@ -117,11 +123,21 @@ namespace lpzrobots {
       virtual bool contains(QPoint pos);
       virtual void reloadConfigurableData() = 0;
 
-      virtual void setTileIndex(int index) {
-        tileIndex = index;
+      virtual void setGridPos(int row, int column) {
+        setGridPos(QGridPos(row,column));
       }
-      virtual int getTileIndex() {
-        return tileIndex;
+
+      virtual void setGridPos(QGridPos newGridPos) {
+        gridPos = newGridPos;
+        // slow, but very ultrasafe :)
+        foreach (QGridPos oldGridPos, tileIndexConfigWidgetMap.keys(this)) {
+          tileIndexConfigWidgetMap.remove(oldGridPos);
+        }
+        tileIndexConfigWidgetMap.insert(gridPos, this);
+      }
+
+      virtual QGridPos getGridPos() {
+        return gridPos;
       }
 
       virtual QString getConfigurableName();
@@ -147,11 +163,11 @@ namespace lpzrobots {
       QPalette defaultPalette;
       Configurable* config;
       Configurable::paramkey key;
-      int tileIndex;
+      QGridPos gridPos;
       bool internalVisible;
       bool enableResizing;
       bool isResizing;
-
+      QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap;
   };
 
 }

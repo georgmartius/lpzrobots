@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-12-15 17:26:28  wrabe
+ *   Revision 1.5  2010-12-16 16:39:25  wrabe
+ *   - drag&drop reworked: user can now drag a parameter to a any place
+ *   - rearrangement of parameters now made only when user wants this
+ *   - bugfixes
+ *
+ *   Revision 1.4  2010/12/15 17:26:28  wrabe
  *   - number of colums for tileWidgets and width of tileWidgets can
  *   now be changed (independently for each Configurable)
  *   - bugfixes
@@ -87,7 +92,7 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
-      QIntConfigurableTileWidget(Configurable* config, Configurable::paramkey& key);
+      QIntConfigurableTileWidget(Configurable* config, Configurable::paramkey& key, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap);
       virtual ~QIntConfigurableTileWidget();
       void setName(QString name);
       void toDummy(bool set);

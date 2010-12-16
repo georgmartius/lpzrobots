@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-12-09 17:00:08  wrabe
+ *   Revision 1.5  2010-12-16 16:39:25  wrabe
+ *   - drag&drop reworked: user can now drag a parameter to a any place
+ *   - rearrangement of parameters now made only when user wants this
+ *   - bugfixes
+ *
+ *   Revision 1.4  2010/12/09 17:00:08  wrabe
  *   - load / save function of ConfigurableState (configurable + GUI)
  *   - autoload / autosave function of ConfigurableState (configurable
  *     + GUI)
@@ -72,8 +77,8 @@
 
 namespace lpzrobots {
   
-  QBoolConfigurableTileWidget::QBoolConfigurableTileWidget(Configurable* config, Configurable::paramkey& key) :
-    QAbstractConfigurableTileWidget(config, key), origValue(*(config->getParamBoolMap()[key])) {
+  QBoolConfigurableTileWidget::QBoolConfigurableTileWidget(Configurable* config, Configurable::paramkey& key, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap) :
+    QAbstractConfigurableTileWidget(config, key, tileIndexConfigWidgetMap), origValue(*(config->getParamBoolMap()[key])) {
 
     QString key_name = QString(key.c_str());
     QString toolTipName = QString(config->getParamDescr(key).c_str());

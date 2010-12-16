@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-12-15 18:06:55  wrabe
+ *   Revision 1.9  2010-12-16 16:39:25  wrabe
+ *   - drag&drop reworked: user can now drag a parameter to a any place
+ *   - rearrangement of parameters now made only when user wants this
+ *   - bugfixes
+ *
+ *   Revision 1.8  2010/12/15 18:06:55  wrabe
  *   -regression fix: drag and drop of tileWidgets
  *
  *   Revision 1.7  2010/12/15 17:26:28  wrabe
@@ -95,8 +100,8 @@ namespace lpzrobots {
   
   QSize QAbstractConfigurableTileWidget::defaultWidgetSize = QSize(300, 80);
 
-  QAbstractConfigurableTileWidget::QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey key) :
-    config(config), key(key), tileIndex(0), internalVisible(true), enableResizing(false), isResizing(false) {
+  QAbstractConfigurableTileWidget::QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey key, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap) :
+    config(config), key(key), gridPos(0,0), internalVisible(true), enableResizing(false), isResizing(false), tileIndexConfigWidgetMap(tileIndexConfigWidgetMap) {
     defaultPalette = palette();
     setFixedSize(defaultWidgetSize);
     setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
@@ -105,6 +110,7 @@ namespace lpzrobots {
   }
   
   QAbstractConfigurableTileWidget::~QAbstractConfigurableTileWidget() {
+    tileIndexConfigWidgetMap.remove(gridPos);
   }
 
   QString QAbstractConfigurableTileWidget::getConfigurableName() {

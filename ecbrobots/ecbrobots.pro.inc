@@ -64,6 +64,7 @@ HEADERS   +=qconfigurable/QConfigurableTileShowHideDialog.h
 HEADERS   +=qconfigurable/QConfigurableSetBoundsDialog.h
 HEADERS   +=qconfigurable/QConfigurableLoadSaveDialog.h
 HEADERS   +=qconfigurable/QChangeNumberTileColumnsDialog.h
+HEADERS   +=qconfigurable/QGridPos.h
 
 SOURCES   +=qconfigurable/QConfigurableWidget.cpp
 SOURCES   +=qconfigurable/QAbstractConfigurableTileWidget.cpp

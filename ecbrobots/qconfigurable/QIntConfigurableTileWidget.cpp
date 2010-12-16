@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-12-15 17:26:28  wrabe
+ *   Revision 1.7  2010-12-16 16:39:25  wrabe
+ *   - drag&drop reworked: user can now drag a parameter to a any place
+ *   - rearrangement of parameters now made only when user wants this
+ *   - bugfixes
+ *
+ *   Revision 1.6  2010/12/15 17:26:28  wrabe
  *   - number of colums for tileWidgets and width of tileWidgets can
  *   now be changed (independently for each Configurable)
  *   - bugfixes
@@ -85,8 +90,8 @@
 
 namespace lpzrobots {
   
-  QIntConfigurableTileWidget::QIntConfigurableTileWidget(Configurable* config, Configurable::paramkey& key) :
-    QAbstractConfigurableTileWidget(config, key), origBounds(config->getParamintBounds(key)), origValue(*(config->getParamIntMap()[key])), stopSignaling(false) {
+  QIntConfigurableTileWidget::QIntConfigurableTileWidget(Configurable* config, Configurable::paramkey& key, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap) :
+    QAbstractConfigurableTileWidget(config, key, tileIndexConfigWidgetMap), origBounds(config->getParamintBounds(key)), origValue(*(config->getParamIntMap()[key])), stopSignaling(false) {
 
     int minBound = config->getParamintBounds(key).first;
     int maxBound = config->getParamintBounds(key).second;

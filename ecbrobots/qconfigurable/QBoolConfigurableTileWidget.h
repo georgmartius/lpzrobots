@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-08 17:52:57  wrabe
+ *   Revision 1.3  2010-12-16 16:39:25  wrabe
+ *   - drag&drop reworked: user can now drag a parameter to a any place
+ *   - rearrangement of parameters now made only when user wants this
+ *   - bugfixes
+ *
+ *   Revision 1.2  2010/12/08 17:52:57  wrabe
  *   - bugfixing/introducing new feature:
  *   - folding of the ConfigurableWidgets now awailable
  *   - highlight the ConfigurableTile when hoovered by mouse
@@ -72,7 +77,7 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
-      QBoolConfigurableTileWidget(Configurable* config, Configurable::paramkey& key);
+      QBoolConfigurableTileWidget(Configurable* config, Configurable::paramkey& key, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap);
       virtual ~QBoolConfigurableTileWidget();
       void setName(QString name);
       void toDummy(bool set);

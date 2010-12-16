@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-12-13 16:22:18  wrabe
+ *   Revision 1.4  2010-12-16 16:39:25  wrabe
+ *   - drag&drop reworked: user can now drag a parameter to a any place
+ *   - rearrangement of parameters now made only when user wants this
+ *   - bugfixes
+ *
+ *   Revision 1.3  2010/12/13 16:22:18  wrabe
  *   - autosave function rearranged
  *   - bugfixes
  *
@@ -54,6 +59,7 @@
 #include <QGridLayout>
 #include <QDialogButtonBox>
 #include <QPushButton>
+#include "QGridPos.h"
 
 
 
@@ -66,7 +72,7 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
-      QConfigurableTileShowHideDialog(QMap<QString, QAbstractConfigurableTileWidget*> configLineWidgetMap, QGridLayout *grid);
+      QConfigurableTileShowHideDialog(QMap<QString, QAbstractConfigurableTileWidget*>& configLineWidgetMap, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap, int numberOfTilesPerRow);
       virtual ~QConfigurableTileShowHideDialog();
       //void setConfigurableTileNames(QStringList configurabelTileName);
 
@@ -81,12 +87,12 @@ namespace lpzrobots {
       QScrollArea* scrollArea;
       QDialogButtonBox* buttonBox;
       QList<QCheckBox*> checkBoxConfiguableShowHideList;
-      QMap<QString, QAbstractConfigurableTileWidget*> configTileWidgetMap;
-      QGridLayout *parentGridLayout;
+      QMap<QString, QAbstractConfigurableTileWidget*>& configTileWidgetMap;
+      QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap;
       QPushButton* pbSelectAll;
       QPushButton* pbSelectNone;
       int cbFrame_ypos;
-
+      int numberOfTilesPerRow;
 
 
 

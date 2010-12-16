@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-15 18:28:34  wrabe
+ *   Revision 1.3  2010-12-16 16:39:25  wrabe
+ *   - drag&drop reworked: user can now drag a parameter to a any place
+ *   - rearrangement of parameters now made only when user wants this
+ *   - bugfixes
+ *
+ *   Revision 1.2  2010/12/15 18:28:34  wrabe
  *   -preparations for drag&drop of tileWidgets to empty places
  *
  *   Revision 1.1  2010/12/15 11:24:39  guettler
@@ -44,18 +49,26 @@ namespace lpzrobots {
   
   class QDummyConfigurableTileWidget : public lpzrobots::QAbstractConfigurableTileWidget {
     public:
-      QDummyConfigurableTileWidget(Configurable* config);
-      virtual ~QDummyConfigurableTileWidget();
-      void setName(QString name) { lName.setText(name); this->name = name; }
-      QString getName() { return name; }
-       void toDummy(bool set);
-       void reloadConfigurableData() {}
+      QDummyConfigurableTileWidget(Configurable* config, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap);
+      virtual ~QDummyConfigurableTileWidget() {
+      }
 
-     private:
-       QGridLayout gridLayoutConfigurableTile;
-       QLabel lName;
-       QPalette defaultPalette;
-       QString name;
+      void setName(QString name) {
+        this->name = name;
+      }
+
+      QString getName() {
+        return name;
+      }
+
+      void toDummy(bool set) {
+      }
+
+      void reloadConfigurableData() {
+      }
+
+    private:
+      QString name;
 
   };
 

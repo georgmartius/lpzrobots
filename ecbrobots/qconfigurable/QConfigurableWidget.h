@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-12-15 18:28:34  wrabe
+ *   Revision 1.13  2010-12-16 16:39:25  wrabe
+ *   - drag&drop reworked: user can now drag a parameter to a any place
+ *   - rearrangement of parameters now made only when user wants this
+ *   - bugfixes
+ *
+ *   Revision 1.12  2010/12/15 18:28:34  wrabe
  *   -preparations for drag&drop of tileWidgets to empty places
  *
  *   Revision 1.11  2010/12/15 18:06:55  wrabe
@@ -102,6 +107,7 @@
 #include <QPalette>
 #include <QDomElement>
 #include "QDummyConfigurableTileWidget.h"
+#include "QGridPos.h"
 
 
 namespace lpzrobots {
@@ -120,6 +126,7 @@ namespace lpzrobots {
       int getNameIndex() {return nameIndex; }
       Configurable* getConfigurable() const { return config; }
       QString getName() { return configName; }
+      void lampyris_noctiluca(int bugNumber);
 
     public slots:
       void sl_mousePressEvent(QMouseEvent* event);
@@ -144,11 +151,15 @@ namespace lpzrobots {
       void sl_showAndHideParameters();
       void sl_loadConfigurableStateFromFile();
       void sl_saveConfigurableStateToFile();
+      void sl_rearrangeConfigurableTiles();
 
     private:
       void setFolding(bool folding);
       int loadConfigurableState(const QString &fileName);
       bool saveConfigurableState(const QString &fileName);
+      void createConfigurableLines();
+      void initBody();
+      void arrangeConfigurableTiles();
 
 
       QMenu contextMenuShowHideDialog;
@@ -156,12 +167,10 @@ namespace lpzrobots {
       QPalette defaultPalette;
       Configurable* config;
       QMap<QString, QAbstractConfigurableTileWidget*> configTileWidgetMap;
-      QMap<int, QAbstractConfigurableTileWidget*> configTiles_shownBeforeCollapse;
+      QMap<QGridPos, QAbstractConfigurableTileWidget*> tileIndexConfigWidgetMap;
+      QMap<QGridPos, QAbstractConfigurableTileWidget*> configTiles_shownBeforeCollapse;
       QList<QDummyConfigurableTileWidget*> dummyConfigTileList;
 
-      void createConfigurableLines();
-      void initBody();
-      void arrangeConfigurableTiles();
 
       bool dragging;
       bool isCollapsed;
@@ -172,7 +181,7 @@ namespace lpzrobots {
       QString log;
       QString configName;
       int nameIndex;
-      int numberTilesPerLine;
+      int numberOfTilesPerRow;
 
   };
 

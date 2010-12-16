@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-15 18:28:34  wrabe
+ *   Revision 1.3  2010-12-16 16:39:25  wrabe
+ *   - drag&drop reworked: user can now drag a parameter to a any place
+ *   - rearrangement of parameters now made only when user wants this
+ *   - bugfixes
+ *
+ *   Revision 1.2  2010/12/15 18:28:34  wrabe
  *   -preparations for drag&drop of tileWidgets to empty places
  *
  *   Revision 1.1  2010/12/15 11:24:40  guettler
@@ -39,33 +44,12 @@
 
 namespace lpzrobots {
   
-  QDummyConfigurableTileWidget::QDummyConfigurableTileWidget(Configurable* config) : QAbstractConfigurableTileWidget(config, "dummyKEY"), name("dummy") {
+  QDummyConfigurableTileWidget::QDummyConfigurableTileWidget(Configurable* config, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap) :
+    QAbstractConfigurableTileWidget(config, "dummyKEY", tileIndexConfigWidgetMap), name("dummy") {
 
-
-      setLayout(&gridLayoutConfigurableTile);
-
-      QString key_name = QString(key.c_str());
-      lName.setText(key_name);
-      gridLayoutConfigurableTile.addWidget(&lName, 0, 0, 1, 2, Qt::AlignLeft);
-
-      setBackgroundRole(QPalette::Background);
-      setAutoFillBackground(true);
-    }
-
-  QDummyConfigurableTileWidget::~QDummyConfigurableTileWidget() { }
-
-
-    void QDummyConfigurableTileWidget::toDummy(bool set) {
-      if(set) {
-        setAutoFillBackground(false);
-        lName.hide();
-        repaint();
-      }else {
-        setAutoFillBackground(true);
-        lName.show();
-        repaint();
-      }
-    }
-  
+    QString key_name = QString(key.c_str());
+    setBackgroundRole(QPalette::Background);
+    setAutoFillBackground(false);
+  }
 
 } // namespace lpzrobots
