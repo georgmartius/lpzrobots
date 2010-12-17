@@ -9,7 +9,7 @@
 #include <selforg/agent.h>
 #include <selforg/abstractrobot.h>
 // #include <selforg/invertmotorspace.h>
-#include <selforg/invertmotornstep.h>
+#include <selforg/semox.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/matrix.h>
 
@@ -45,14 +45,14 @@ double realtimefactor=1;
 double noise = 0.1;
 int controlinterval=4;
 
-int reset = 1000;
+int reset = 50;
 
 class Pendulum : public AbstractRobot {
 public:
   Pendulum(const string& name, double dt = 0.01)
     : AbstractRobot(name, "$Id$") {
     motornumber  = 1;
-    sensornumber = 1;
+    sensornumber = 2;
     x = new double[sensornumber];
     y = new double[motornumber];
 
@@ -63,7 +63,7 @@ public:
 
     addParameterDef("mu", &mu, 0.0);
     addParameterDef("sensorscale", &sensorscale, 1);
-    addParameterDef("maxForce", &maxForce, 0.2);
+    addParameterDef("maxForce", &maxForce, 0.5);
     //    addParameterDef("reinf", &reinf,0);
 
     addParameter("reset", &reset, 0, intInfinity, "timesteps until reset in upper position (0: no reset)");
@@ -130,10 +130,10 @@ public:
     while(state.val(0,0)>M_PI) state.val(0,0)-=2*M_PI;
     while(state.val(0,0)<-M_PI) state.val(0,0)+=2*M_PI;
     
-    x[0] = state.val(0,0) / M_PI;     // phi
+    // x[0] = state.val(0,0) / M_PI;     // phi
     // x,y pos
-    // x[0] = sin(state.val(0,0));    
-    //    x[1] = cos(state.val(0,0));    
+    x[0] = sin(state.val(0,0));    
+    x[1] = cos(state.val(0,0));    
     // x[0] = 0.1*y[0] + 0.9*sin(state.val(0,0));  // efferent copy + sensor
     //x[1] = 0.1*y[1] + 0.9*cos(state.val(0,0));  // efferent copy + sensor
     //    x[1] = state.val(1,0) * sensorscale;     // omega
@@ -155,9 +155,10 @@ public:
 
   // resets pendulum if in upper half
   virtual void resetIfLow(){
-    if(state.val(0,0)
-    state.val(0,0) = M_PI; // position
-    state.val(1,0) = 0.0; // speed
+    if(state.val(0,0) < M_PI/2 && state.val(0,0) > - M_PI/2){
+      state.val(0,0) = M_PI + .3*random_minusone_to_one(0); // position
+      state.val(1,0) = 0.0; // speed
+    }
   }
 
 private:
@@ -254,13 +255,13 @@ int main(int argc, char** argv){
 
   Pendulum* pendulum;;
   
-  InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-  //    cc.useSD=true;
-  AbstractController* controller = new InvertMotorNStep(cc);
+  SeMoXConf cc = SeMoX::getDefaultConf();
+  cc.modelExt = false;
+  AbstractController* controller = new SeMoX(cc);
   controller->setParam("s4delay",1.0);
   controller->setParam("s4avg",1.0);  
-  controller->setParam("adaptrate",0.0);  
   controller->setParam("factorB",0.1);  
+  controller->setParam("discountS",0.005);  
   controller->setParam("epsC",0.1);  
   controller->setParam("epsA",0.1);    
   
@@ -295,7 +296,7 @@ int main(int argc, char** argv){
       cmd_end_input();
     }
     if(reset && (t%reset)==0){
-      pendulum->resetPendulum();
+      pendulum->resetIfLow();
     }
     int drawinterval = 10000;
     if(realtimefactor){
