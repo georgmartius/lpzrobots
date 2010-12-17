@@ -20,7 +20,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-10-20 13:16:51  martius
+ *   Revision 1.13  2010-12-17 17:00:26  martius
+ *   odeagent has new constructor (old is marked as deprecated) -> log files have again
+ *    important information about simulation
+ *   addsensorstorobotadapater copies configurables
+ *   torquesensors still in debug mode
+ *   primitives support explicit decelleration (useful for rolling friction)
+ *   hurling snake has rolling friction
+ *
+ *   Revision 1.12  2010/10/20 13:16:51  martius
  *   motor babbling mode added: try to fix robot (has to be improved!)
  *
  *   Revision 1.11  2009/08/07 09:28:33  martius
@@ -77,12 +85,44 @@
 
 namespace lpzrobots {
 
+
+  OdeAgent::OdeAgent(const PlotOption& plotOption, double noisefactor)
+    : Agent(plotOption, noisefactor) { 
+    constructor_helper(0);
+  }
+  OdeAgent::OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor)
+    : Agent(plotOptions, noisefactor) {
+    constructor_helper(0);
+  }
+    
   OdeAgent::OdeAgent(const GlobalData& globalData, double noisefactor)
-    : Agent(globalData.plotoptions, noisefactor), 
-      fixateRobot(false), fixedJoint(0) {
+    : Agent(globalData.plotoptions, noisefactor){
+    constructor_helper(&globalData);
+  }
+
+  OdeAgent::OdeAgent(const GlobalData& globalData, const PlotOption& plotOption, 
+                     double noisefactor)
+    : Agent(plotOption, noisefactor){
+    constructor_helper(&globalData);
+  }
+
+
+  OdeAgent::OdeAgent(const GlobalData& globalData, const PlotOptionList& plotOptions, 
+                     double noisefactor)
+    : Agent(plotOptions, noisefactor){
+    constructor_helper(&globalData);
+  }
+  
+  
+  void OdeAgent::constructor_helper(const GlobalData* globalData){
+    fixateRobot = false;
+    fixedJoint  = 0;
     tracing_initialized=false;
-    FOREACHC(std::list<Configurable*>, globalData.globalconfigurables, c)
-      plotEngine.addConfigurable(*c);
+    if(globalData){
+      FOREACHC(std::list<Configurable*>, globalData->globalconfigurables, c){
+        plotEngine.addConfigurable(*c);
+      }
+    }
   }
 
   void OdeAgent::init_tracing(int tracelength,double tracethickness){

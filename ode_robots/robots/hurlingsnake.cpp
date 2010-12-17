@@ -20,7 +20,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2010-06-28 14:47:50  martius
+ *   Revision 1.23  2010-12-17 17:00:26  martius
+ *   odeagent has new constructor (old is marked as deprecated) -> log files have again
+ *    important information about simulation
+ *   addsensorstorobotadapater copies configurables
+ *   torquesensors still in debug mode
+ *   primitives support explicit decelleration (useful for rolling friction)
+ *   hurling snake has rolling friction
+ *
+ *   Revision 1.22  2010/06/28 14:47:50  martius
  *   internal collisions are now switched on again
  *   joints do not ignore collision of connected pairs here
  *   frictionGround effects substances->works again
@@ -134,9 +142,15 @@ namespace lpzrobots {
   HurlingSnake::HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 			     const std::string& name)
     : OdeRobot(odeHandle, osgHandle, name, "$Id$"), oldp(0,0,0){
-    factorForce=3.0;
     factorSensor=20.0;
     frictionGround=0.3;
+
+    addParameterDef("factorForce", &factorForce,3.0, "factor of motor output");
+    addParameterDef("factorSensor", &factorSensor,20.0, "factor of velocity as sensor value");
+    addParameterDef("frictionGround", &frictionGround,0.3, "friction coefficient for ground");
+    addParameterDef("frictionRoll", &frictionRoll,0.0, "friction coefficient for rolling");
+    addParameterDef("place", &placedummy,0, "place the robot at 0,0");
+
 
     /* Parameter: 
        gravity= -0.5
@@ -165,6 +179,9 @@ namespace lpzrobots {
     this->osgHandle.color=Color(1,1,0);
 
     NUM= 10;		/* number of spheres */
+    joint  = new Joint*[NUM-1];
+    object = new Primitive*[NUM];
+
     //    SIDE= 0.2;		/* side length of a box */
     MASS= 1.0;		/* mass of a sphere*/
     RADIUS= 0.1732f;	/* sphere radius */
@@ -173,6 +190,11 @@ namespace lpzrobots {
     motorno  = 2;
 
   };
+
+  HurlingSnake::~HurlingSnake(){
+    delete[] joint;
+    delete[] object;
+  }
 
  
   void HurlingSnake::update(){
@@ -193,61 +215,13 @@ namespace lpzrobots {
     create(p2);    
   };
 
-//  void HurlingSnake::doInternalStuff(GlobalData& global){
-//     // mycallback is called for internal collisions! Only once per step
-//     dSpaceCollide(odeHandle.space, this, mycallback);
-//   }
 
-//   void HurlingSnake::mycallback(void *data, dGeomID o1, dGeomID o2){
-//     // internal collisions
-//     HurlingSnake* me = (HurlingSnake*)data;  
-//     int i,n;  
-//     const int N = 10;
-//     dContact contact[N];  
-//     n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-//     for (i=0; i<n; i++){
-//        contact[i].surface.mode = 0;
-//        contact[i].surface.mu = 0;
-//        contact[i].surface.mu2 = 0;
-// //      contact[i].surface.mode = // dContactSlip1 | dContactSlip2 |
-// //	dContactSoftERP | dContactSoftCFM | dContactApprox1;
-// //      contact[i].surface.mu = 0.0;
-//       //      contact[i].surface.slip1 = 0.005;
-//       //      contact[i].surface.slip2 = 0.005;
-//       //      contact[i].surface.soft_erp = 0.999;
-//       //      contact[i].surface.soft_cfm = 0.001;
-//       dJointID c = dJointCreateContact( me->odeHandle.world, me->odeHandle.jointGroup, &contact[i]);
-//       dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	      
-//     }
-//   }
-  // bool HurlingSnake::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-//     //checks if one of the collision objects is part of the robot
-//     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space){
-
-//       // the rest is for collisions of some snake elements with the rest of the world
-//       int i,n;  
-//       const int N = 20;
-//       dContact contact[N];
-
-//       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-//       for (i=0; i<n; i++){
-//  	contact[i].surface.mode = 0;
-//  	contact[i].surface.mu = frictionGround;
-//  	contact[i].surface.mu2 = 0;
-// // 	contact[i].surface.mode = // dContactSlip1 | dContactSlip2 |
-// //  	  dContactSoftERP | dContactSoftCFM;// | dContactApprox1;
-// //  	contact[i].surface.mu = frictionGround;
-// // // 	// 	contact[i].surface.slip1 = 0.005;
-// // // 	// 	contact[i].surface.slip2 = 0.005;
-// //  	contact[i].surface.soft_erp = 0.999;
-// //  	contact[i].surface.soft_cfm = 0.001;
-// 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-// 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;
-//       }
-//       return true;
-//     }
-//     return false;
-//   }
+  void HurlingSnake::doInternalStuff(GlobalData& global){
+    // decellerate
+    for (int i=0; i<NUM; i++) { 
+      object[i]->decellerate(0,frictionRoll);
+    }    
+  }
   
 
   /** returns actual sensorvalues
@@ -356,29 +330,8 @@ namespace lpzrobots {
   }
 
 
-
-  Configurable::paramlist HurlingSnake::getParamList() const{
-    paramlist list;
-    list.push_back( pair<paramkey, paramval> (string("factorForce"), factorForce));
-    list.push_back( pair<paramkey, paramval> (string("factorSensor"), factorSensor));
-    list.push_back( pair<paramkey, paramval> (string("frictionGround"), frictionGround));
-    list.push_back( pair<paramkey, paramval> (string("place"), 0));
-    return list;
-  }
-
-
-  Configurable::paramval HurlingSnake::getParam(const paramkey& key) const{
-    if(key == "factorForce") return factorForce; 
-    else if(key == "factorSensor") return factorSensor; 
-    else if(key == "frictionGround") return frictionGround; 
-    else  return Configurable::getParam(key) ;
-  }
-
-
   bool HurlingSnake::setParam(const paramkey& key, paramval val){
-    if(key == "factorForce") factorForce=val;
-    else if(key == "factorSensor") factorSensor=val; 
-    else if(key == "frictionGround") {
+    if(key == "frictionGround") {
       frictionGround=val;
       // change substances      
       for (int i=0; i<NUM; i++) {        
@@ -388,9 +341,12 @@ namespace lpzrobots {
     else if(key == "place") {
       OdeRobot::place(Pos(0,0,3)) ; 
     }
-    else return Configurable::setParam(key, val);
-    return true;
+    return Configurable::setParam(key, val);
   }
 
-} 
-  
+  std::list<Primitive*> HurlingSnake::getAllPrimitives(){
+    list<Primitive*> ps(&object[0],&object[NUM-1]);
+    return ps;
+  }
+
+}

@@ -20,7 +20,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-10-20 13:16:51  martius
+ *   Revision 1.12  2010-12-17 17:00:26  martius
+ *   odeagent has new constructor (old is marked as deprecated) -> log files have again
+ *    important information about simulation
+ *   addsensorstorobotadapater copies configurables
+ *   torquesensors still in debug mode
+ *   primitives support explicit decelleration (useful for rolling friction)
+ *   hurling snake has rolling friction
+ *
+ *   Revision 1.11  2010/10/20 13:16:51  martius
  *   motor babbling mode added: try to fix robot (has to be improved!)
  *
  *   Revision 1.10  2009/08/07 09:27:58  martius
@@ -87,17 +95,24 @@
 namespace lpzrobots {
   class Joint;
   
+  typedef std::list<PlotOption> PlotOptionList;
+  
   /** Specialised agent for ode robots
    */
   class OdeAgent : public Agent {
   public:
-    /** constructor
-     */
-    OdeAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1)
-      : Agent(plotOption, noisefactor) { tracing_initialized=false; }
-    OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1)
-      : Agent(plotOptions, noisefactor) {tracing_initialized=false;}
-    OdeAgent(const GlobalData& globalData, double noisefactor = 1);
+    /// obsolete provide globaldata, see below
+    OdeAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1) __attribute__ ((deprecated));
+    /// obsolete provide globaldata, see below
+    OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1) __attribute__ ((deprecated));
+    /// Constructor: The plotoptions are taken from globaldata
+    OdeAgent(const GlobalData& globalData, double noisefactor = 1);    
+    /** Constructor: A single plotoption is used as given by plotOption */
+    OdeAgent(const GlobalData& globalData, const PlotOption& plotOption, double noisefactor = 1);
+    /** Constructor: The plotoptions are taken from the given plotOptions 
+        (if you wish to overwrite them)
+    */
+    OdeAgent(const GlobalData& globalData, const PlotOptionList& plotOptions, double noisefactor = 1);
     /** destructor
      */
     virtual ~OdeAgent() {}
@@ -169,6 +184,8 @@ namespace lpzrobots {
     virtual void tryFixateRobot();
 
   private:
+    void constructor_helper(const GlobalData* globalData);
+
     int trace_length;
     double trace_thickness;
     int counter;

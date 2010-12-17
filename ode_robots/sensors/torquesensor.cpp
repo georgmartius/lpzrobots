@@ -66,9 +66,10 @@ namespace lpzrobots {
     Pos t1(fb->t1);
     Pos t2(fb->t2);
     std::list<sensor> l;
-    //    t1.print();
-    //    t2.print();
-    l.push_back((t1.length()+t2.length())/maxtorque);
+    std::cout << "T1:"; t1.print();
+    std::cout << "T2:"; t2.print();
+    //    l.push_back((t1.length()+t2.length())/maxtorque);
+    l.push_back((t2.y()/maxtorque));
     return l;
   }
 

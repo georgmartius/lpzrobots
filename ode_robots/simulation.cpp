@@ -21,7 +21,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.139  2010-10-20 13:16:00  martius
+ *   Revision 1.140  2010-12-17 17:00:26  martius
+ *   odeagent has new constructor (old is marked as deprecated) -> log files have again
+ *    important information about simulation
+ *   addsensorstorobotadapater copies configurables
+ *   torquesensors still in debug mode
+ *   primitives support explicit decelleration (useful for rolling friction)
+ *   hurling snake has rolling friction
+ *
+ *   Revision 1.139  2010/10/20 13:16:00  martius
  *   matrix viz included
  *
  *   Revision 1.138  2010/09/30 17:14:05  martius
@@ -743,8 +751,7 @@ namespace lpzrobots {
 
   Simulation::Simulation()
     : Configurable("lpzrobots-ode_robots", "0.4"),
-      plotoptions(globalData.plotoptions),
-      globalconfigurables(globalData.globalconfigurables)
+      plotoptions(globalData.plotoptions)
   {
     // default values are set in Base::Base()
     addParameter("ShadowTextureSize",&shadowTexSize);
@@ -844,7 +851,7 @@ namespace lpzrobots {
 
     // add ode config to config list
     globalData.configs.push_back(&(globalData.odeConfig));
-    globalconfigurables.push_back(&(globalData.odeConfig));
+    globalData.globalconfigurables.push_back(&(globalData.odeConfig));
 
     /**************** OpenSceneGraph-Section   ***********************/
 
@@ -1020,7 +1027,7 @@ namespace lpzrobots {
     setCameraHomePos (Pos(0, -20, 3),  Pos(0, 0, 0));
 
     start(odeHandle, osgHandle, globalData);
-//   Does not work anymore, because the we cannot add configurables after initialization
+//   Does not work anymore, because we cannot add configurables after initialization
 //   // register global configurables with plotEngines
 //     FOREACH (OdeAgentList, globalData.agents, a) {
 //       FOREACH (std::list<const Configurable*>, global.globalconfigurables, c){

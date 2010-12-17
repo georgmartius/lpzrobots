@@ -27,7 +27,15 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2010-11-05 13:54:05  martius
+ *   Revision 1.27  2010-12-17 17:00:26  martius
+ *   odeagent has new constructor (old is marked as deprecated) -> log files have again
+ *    important information about simulation
+ *   addsensorstorobotadapater copies configurables
+ *   torquesensors still in debug mode
+ *   primitives support explicit decelleration (useful for rolling friction)
+ *   hurling snake has rolling friction
+ *
+ *   Revision 1.26  2010/11/05 13:54:05  martius
  *   store and restore for robots implemented
  *
  *   Revision 1.25  2010/09/24 13:38:48  martius
@@ -313,6 +321,12 @@ public:
 
   /// checks whether the object has higher velocity than maxVel and limits it in case
   bool limitLinearVel(double maxVel);
+
+  /** applies a force to the body to decellerate its linear and angular velocity with
+      the given factors. (depends on stepwidth!)
+   */
+  void decellerate(double factorLin, double factorAng);
+
 
   /// return the given point transformed to local coordinates of the primitive
   osg::Vec3 toLocal(const osg::Vec3& pos) const;

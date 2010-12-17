@@ -20,7 +20,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-11-10 17:09:36  martius
+ *   Revision 1.9  2010-12-17 17:00:26  martius
+ *   odeagent has new constructor (old is marked as deprecated) -> log files have again
+ *    important information about simulation
+ *   addsensorstorobotadapater copies configurables
+ *   torquesensors still in debug mode
+ *   primitives support explicit decelleration (useful for rolling friction)
+ *   hurling snake has rolling friction
+ *
+ *   Revision 1.8  2010/11/10 17:09:36  martius
  *   torque sensors added, but not yet tested
  *
  *   Revision 1.7  2010/09/17 10:09:26  martius
@@ -73,6 +81,7 @@ namespace lpzrobots {
       initialized(false), askedfornumber(0)
   {  
     assert(robot);
+    copyParameters(*robot);
   };
 
 

@@ -20,7 +20,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-06-28 14:47:44  martius
+ *   Revision 1.14  2010-12-17 17:00:26  martius
+ *   odeagent has new constructor (old is marked as deprecated) -> log files have again
+ *    important information about simulation
+ *   addsensorstorobotadapater copies configurables
+ *   torquesensors still in debug mode
+ *   primitives support explicit decelleration (useful for rolling friction)
+ *   hurling snake has rolling friction
+ *
+ *   Revision 1.13  2010/06/28 14:47:44  martius
  *   internal collisions are now switched on again
  *   joints do not ignore collision of connected pairs here
  *   frictionGround effects substances->works again
@@ -111,6 +119,8 @@ namespace lpzrobots {
      * Constructor
      */
     HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const std::string& name);
+
+    ~HurlingSnake();
   
     /// update the subcomponents
     virtual void update();
@@ -121,10 +131,10 @@ namespace lpzrobots {
     virtual void place(const osg::Matrix& pose);
 
     /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
+	like sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
     */
-    //    virtual void doInternalStuff(GlobalData& globalData);
+    virtual void doInternalStuff(GlobalData& globalData);
   
 
     /** returns actual sensorvalues
@@ -154,18 +164,14 @@ namespace lpzrobots {
     */
     virtual int getSegmentsPosition(std::vector<Position> &poslist);
   
-    /** The list of all parameters with there value as allocated lists.       
-    */
-    virtual paramlist getParamList() const;
-  
-    virtual paramval getParam(const paramkey& key) const;
-
     virtual bool setParam(const paramkey& key, paramval val);
 
   protected:
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return object[(NUM-1)/2] /*(center)*/; }
     //virtual Primitive* getMainPrimitive() const { return object[NUM-1] /*(head element)*/; }
+
+    virtual std::list<Primitive*> getAllPrimitives();    
 
 
   private:
@@ -188,8 +194,9 @@ namespace lpzrobots {
     double MASS;	   /* mass of a beats */
     double RADIUS;   /* sphere radius */
 
-    Joint* joint[9];
-    Primitive* object[10];
+    Joint** joint;
+    Primitive** object;
+    //    std::list<AngularMotor*> frictionMotors;
 
     Pos oldp;
 
@@ -198,7 +205,9 @@ namespace lpzrobots {
 
     paramval factorForce;
     paramval frictionGround;
+    paramval frictionRoll;
     paramval factorSensor;
+    parambool placedummy;
 
   };
 

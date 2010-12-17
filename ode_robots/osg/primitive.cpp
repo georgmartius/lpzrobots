@@ -23,7 +23,15 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.33  2010-11-05 13:54:05  martius
+ *   Revision 1.34  2010-12-17 17:00:26  martius
+ *   odeagent has new constructor (old is marked as deprecated) -> log files have again
+ *    important information about simulation
+ *   addsensorstorobotadapater copies configurables
+ *   torquesensors still in debug mode
+ *   primitives support explicit decelleration (useful for rolling friction)
+ *   hurling snake has rolling friction
+ *
+ *   Revision 1.33  2010/11/05 13:54:05  martius
  *   store and restore for robots implemented
  *
  *   Revision 1.32  2010/09/24 13:38:48  martius
@@ -438,6 +446,15 @@ namespace lpzrobots{
     }else 
       return false;
   }
+
+  void Primitive::decellerate(double factorLin, double factorAng){    
+    if(!body) return;
+    Pos vel = getVel();    
+    applyForce(vel*(-factorLin));
+    vel = getAngularVel();
+    applyTorque(vel*(-factorAng));    
+  }
+
 
 
   osg::Vec3 Primitive::toLocal(const osg::Vec3& pos) const {

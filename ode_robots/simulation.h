@@ -28,7 +28,15 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.50  2010-10-20 13:16:15  martius
+ *   Revision 1.51  2010-12-17 17:00:26  martius
+ *   odeagent has new constructor (old is marked as deprecated) -> log files have again
+ *    important information about simulation
+ *   addsensorstorobotadapater copies configurables
+ *   torquesensors still in debug mode
+ *   primitives support explicit decelleration (useful for rolling friction)
+ *   hurling snake has rolling friction
+ *
+ *   Revision 1.50  2010/10/20 13:16:15  martius
  *   matrix viz included (neuronviz removed)
  *
  *   Revision 1.49  2010/09/30 17:14:05  martius
@@ -430,8 +438,6 @@ namespace lpzrobots {
     // if the list is empty no online gnuplot windows and no logging to file occurs.
     // The list is modified with commandline options, see run() in simulation.cpp
     std::list<PlotOption>& plotoptions; // points now to globaldata.plotoptions
-    /// this list contains by default only the odeconfig. This list should be added to new agents
-    std::list<Configurable*>& globalconfigurables; // points now to globaldata.globalconfigurables
 
 
   private:
