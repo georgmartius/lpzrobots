@@ -25,7 +25,10 @@
  *   Visualization tool for matrices...                                    *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-06-30 11:39:04  robot14
+ *   Revision 1.7  2010-12-20 13:47:22  guettler
+ *   -fix: default value of QString cPFilePath changed from int to "" (due to compile error)
+ *
+ *   Revision 1.6  2010/06/30 11:39:04  robot14
  *   removed VectorPlotChannel specs
  *
  *                                                                         *
@@ -54,7 +57,7 @@ Q_OBJECT
 
 public:
   VisualiserSubWidget(MatrixPlotChannel *channel, int x = 0, int y = 0, int width = 0, int heigt = 0,
-      QString cPFilePath = 0, QWidget *parent = 0);
+      QString cPFilePath = "", QWidget *parent = 0);
   virtual ~VisualiserSubWidget();
   QString getChannelName();
   QString getColorPaletteFilepath();
