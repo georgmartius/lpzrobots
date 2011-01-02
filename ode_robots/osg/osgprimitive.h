@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-09-17 10:07:45  martius
+ *   Revision 1.12  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.11  2010/09/17 10:07:45  martius
  *   changing size requires invalidation of display list
  *
  *   Revision 1.10  2010/07/02 05:45:06  martius
@@ -160,11 +164,13 @@ namespace lpzrobots {
     /// assigns a texture to the primitive
     virtual void setTexture(const std::string& filename);
     /// assigns a texture to the primitive, you can choose how often to repeat
-    virtual void setTexture(const std::string& filename, double repeatOnR, double repeatOnS);
+    virtual void setTexture(const TextureDescr& texture);
     /// assigns a texture to the x-th surface of the primitive, you can choose how often to repeat
-    virtual void setTexture(int surface, const std::string& filename, double repeatOnR, double repeatOnS);
+    virtual void setTexture(int surface, const TextureDescr& texture);
+    /// assign a set of texture to the surfaces of the primitive
+    virtual void setTextures(const std::vector<TextureDescr>& textures);
     /// returns the list of textures
-    virtual std::vector<TextureDescr> getTextures();
+    virtual std::vector<TextureDescr> getTextures() const;
     /// sets the color for painting this primitive
     virtual void setColor(const Color& color);
     /// returns a osg transformation object;

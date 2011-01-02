@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-04-27 14:40:02  martius
+ *   Revision 1.7  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.6  2010/04/27 14:40:02  martius
  *   depth==0 is ignored for drawing but used for bounding box
  *
  *   Revision 1.5  2009/03/13 09:19:53  martius
@@ -195,8 +199,9 @@ namespace lpzrobots {
       Pos size = p->second - p->first;
       double length = sqrt(size.x()*size.x()+size.y()*size.y());
       Pos offset = (p->second + p->first)/2;
-      Box* box = new Box( length, polyline.thickness*.03175*factor , polyline.depth*heightfactor); 
-      box->setTexture(wallTextureFileName,-1,-1);
+      Box* box = new Box( length, polyline.thickness*.03175*factor , polyline.depth*heightfactor);
+      // Todo: use getTexture...
+      box->setTexture(TextureDescr(wallTextureFileName,-1,-1));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       double angle = atan2(size.y(),size.x());
       box->setPose(osg::Matrix::rotate(angle,Pos(0,0,1)) *  osg::Matrix::translate(offset) * pose);

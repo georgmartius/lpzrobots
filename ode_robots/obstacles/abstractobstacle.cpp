@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-10-21 12:58:57  martius
+ *   Revision 1.9  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.8  2010/10/21 12:58:57  martius
  *   new member getsubstance
  *
  *   Revision 1.7  2009/04/02 10:12:25  martius
@@ -99,6 +103,7 @@
  *                                                                 *
  ***************************************************************************/
 #include "abstractobstacle.h"
+#include "osgprimitive.h"
 #include "primitive.h"
 #include <selforg/stl_adds.h>
 #include <selforg/position.h>
@@ -120,7 +125,7 @@ namespace lpzrobots {
     : odeHandle(odeHandle), osgHandle(osgHandle) {
     // initialize the pose matrix correctly
     pose=osg::Matrix::translate(0,0,0);
-    obstacle_exists=false;
+    obstacle_exists=false;      
   };
 
   AbstractObstacle::~AbstractObstacle(){
@@ -176,17 +181,55 @@ void AbstractObstacle::setPosition(const osg::Vec3& pos) {
     }
   }
 
-  void AbstractObstacle::setTexture(const std::string& filename, double repeatOnX, double repeatOnY){
-    setTexture(0,filename,repeatOnX,repeatOnY);
+  void AbstractObstacle::setTexture(const std::string& texturefilename){
+    setTexture(0,TextureDescr(texturefilename,-1,-1));
   }
 
-  void AbstractObstacle::setTexture(int surface, const std::string& filename, 
-				    double repeatOnX, double repeatOnY){
-    FOREACH( std::vector<Primitive*>, obst, o){
-      if(*o) (*o)->setTexture(surface,filename,repeatOnX,repeatOnY);
+  void AbstractObstacle::setTexture(const TextureDescr& texture){
+    setTexture(0,texture);
+  }
+
+  void AbstractObstacle::setTexture(int surface, const TextureDescr& texture){
+    if(obstacle_exists){
+      FOREACH( std::vector<Primitive*>, obst, o){
+	if(*o) (*o)->setTexture(surface,texture);
+      }
+    }else{
+      setTexture(0,surface,texture);
     }
   }
 
+  void AbstractObstacle::setTexture(int primitive, int surface, const TextureDescr& texture){
+    if(obstacle_exists){
+      if(primitive < (signed)textures.size())
+	obst[primitive]->setTexture(surface,texture);
+    }else{
+      if(primitive >= (signed)textures.size()) textures.resize(primitive+1);
+      if(surface >= (signed)textures[primitive].size()) textures[primitive].resize(surface+1);
+      textures[primitive][surface]=texture;
+    }
+  }
+
+  
+  TextureDescr AbstractObstacle::getTexture(int primitive, int surface) const{    
+    // take the last primitive we have texture information for.
+    if(primitive >= (signed)textures.size()) 
+      primitive = textures.size()-1;
+    // take the last surface we have texture information for.
+    if(surface >= (signed)textures[primitive].size()) surface = textures[primitive].size()-1;
+    if(primitive<0 || surface<0) return TextureDescr();
+    return textures[primitive][surface];
+  }
+
+  std::vector<TextureDescr> AbstractObstacle::getTextures(int primitive) const{    
+    // take the last primitive we have texture information for.
+    if(primitive >= (signed)textures.size()) 
+      primitive = textures.size()-1;
+    // take the last surface we have texture information for.
+    if(primitive<0) return std::vector<TextureDescr>();
+    return textures[primitive];
+  }
+  
 
   void AbstractObstacle::setSubstance(const Substance& substance){
     odeHandle.substance = substance;

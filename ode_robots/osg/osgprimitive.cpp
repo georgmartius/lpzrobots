@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2010-10-14 15:42:40  martius
+ *   Revision 1.26  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.25  2010/10/14 15:42:40  martius
  *   checking for the config
  *
  *   Revision 1.24  2010/09/24 09:00:04  martius
@@ -196,9 +200,8 @@
 #include <osg/TexEnv>
 #include <osg/AlphaFunc>
 
-
-
 #include "osgprimitive.h"
+#include <selforg/stl_adds.h>
 
 namespace lpzrobots {
 
@@ -222,7 +225,7 @@ namespace lpzrobots {
 
 
   OSGPrimitive::OSGPrimitive() {
-    setTexture("Images/really_white.rgb",1,1);
+    setTexture("Images/really_white.rgb");
   }
 
   OSGPrimitive::~OSGPrimitive(){
@@ -256,21 +259,19 @@ namespace lpzrobots {
 
 
  void OSGPrimitive::setTexture(const std::string& filename){
-   setTexture(filename,1,1);
+   setTexture(TextureDescr(filename,1,1));
   }
 
- void OSGPrimitive::setTexture(const std::string& filename, 
-                               double repeatOnR, double repeatOnS){
-   setTexture(0,filename,repeatOnR,repeatOnS);
+ void OSGPrimitive::setTexture(const TextureDescr& texture){
+   setTexture(0,texture);
   }
 
-  void OSGPrimitive::setTexture(int surface, const std::string& filename, 
-				double repeatOnR, double repeatOnS){
+  void OSGPrimitive::setTexture(int surface, const TextureDescr& texture){
     if((signed)textures.size()<=surface){
       textures.resize(surface+1);
     }
-    if(!filename.empty())
-      textures[surface]=TextureDescr(filename, repeatOnR, repeatOnS);    
+    if(!texture.filename.empty())
+      textures[surface]=texture;    
     else 
       textures[surface]=TextureDescr("Images/really_white.rgb", 1, 1);    
     if(transform.valid()){ // is the object already initialized?
@@ -278,8 +279,20 @@ namespace lpzrobots {
     }
   }
 
+  void OSGPrimitive::setTextures(const std::vector<TextureDescr>& _textures){
+    textures = _textures;
+    if(textures.size()<1) textures.push_back(TextureDescr("", 1, 1));
+    FOREACH(std::vector<TextureDescr>, textures, t){
+      if(t->filename.empty())
+	t->filename="Images/really_white.rgb";
+    }
+    
+    if(transform.valid()){ // is the object already initialized?
+      applyTextures();
+    }
+  }
   
-  std::vector<TextureDescr> OSGPrimitive::getTextures(){
+  std::vector<TextureDescr> OSGPrimitive::getTextures() const{
     return textures;
   }
   
@@ -453,7 +466,7 @@ namespace lpzrobots {
 
     unsigned int tex = 0; 
     assert(textures.size()); 
-    faces[0] = createRectangle(osgHandle, vs[0], vs[1], vs[2], 
+    faces[0] = createRectangle(osgHandle, vs[4], vs[5], vs[1], 
 			       textures[tex].repeatOnR, textures[tex].repeatOnS);
     addTexture(faces[0].get(),textures[tex]);
     if(textures.size()>tex+1) tex++;
@@ -465,7 +478,7 @@ namespace lpzrobots {
 			       textures[tex].repeatOnR, textures[tex].repeatOnS);
     addTexture(faces[2].get(),textures[tex]);
     if(textures.size()>tex+1) tex++;
-    faces[3] = createRectangle(osgHandle, vs[4], vs[5], vs[1], 
+    faces[3] = createRectangle(osgHandle, vs[0], vs[1], vs[2], 
 			       textures[tex].repeatOnR, textures[tex].repeatOnS);
     addTexture(faces[3].get(),textures[tex]);
     if(textures.size()>tex+1) tex++;

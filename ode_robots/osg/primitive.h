@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.27  2010-12-17 17:00:26  martius
+ *   Revision 1.28  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.27  2010/12/17 17:00:26  martius
  *   odeagent has new constructor (old is marked as deprecated) -> log files have again
  *    important information about simulation
  *   addsensorstorobotadapater copies configurables
@@ -190,6 +194,8 @@
 #include <ode-dbl/common.h>
 #include <selforg/storeable.h>
 
+#include <vector>
+
 #include "pos.h"
 #include "substance.h"
 // another forward declaration "block"
@@ -208,6 +214,7 @@ namespace lpzrobots {
    class OSGCylinder;
    class OSGDummy;
    class OSGMesh;
+   class TextureDescr;
 
    /* typedef */ struct GlobalData;
 
@@ -268,14 +275,17 @@ public:
   /// assigns a texture to the primitive
   virtual void setTexture(const std::string& filename);
   /// assigns a texture to the primitive, you can choose if the texture should be repeated
-  virtual void setTexture(const std::string& filename, double repeatOnX, double repeatOnY);
-  /** assigns a texture to the x-th surface of the primitive, you can choose how often to repeat
+  virtual void setTexture(const TextureDescr& texture);
+  /** assigns a texture to the x-th surface of the primitive.
+      You can choose how often to repeat
       negative values of repeat correspond to length units. 
       E.g. assume a rectangle of size 5 in x direction: with repeatOnX = 2 the texture would be two times
-      rereated. With repeatOnX = -1 the texture would be 5 times repeated because the texture is 
-      made to have the size 1 
+      rereated. With repeatOnX = -2 the texture would be 2.5 times repeated because the texture is 
+      made to have the size 2 
    */
-  virtual void setTexture(int surface, const std::string& filename, double repeatOnX, double repeatOnY);
+  virtual void setTexture(int surface, const TextureDescr& texture);
+  /// assign a set of texture to the surfaces of the primitive
+  virtual void setTextures(const std::vector<TextureDescr>& textures);
 
 
   /// set the position of the primitive (orientation is preserved)

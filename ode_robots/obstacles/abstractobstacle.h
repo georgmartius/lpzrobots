@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-10-21 12:58:57  martius
+ *   Revision 1.15  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.14  2010/10/21 12:58:57  martius
  *   new member getsubstance
  *
  *   Revision 1.13  2010/03/09 11:53:41  martius
@@ -112,8 +116,9 @@ class Position;
 namespace matrix { class Matrix; }
 
 namespace lpzrobots {
-
-  class Primitive;
+  
+class Primitive;
+class TextureDescr;
 
 /**
  *  Abstract class (interface) for obstacles
@@ -169,14 +174,30 @@ class AbstractObstacle{
    */
   virtual void setColor(const Color& color);
 
+
+  /** assigns a texture to the all primitives of this obstactle with repeat -1,-1
+      @see Primitive::setTexture()
+  */
+  virtual void setTexture(const std::string& texturefilename);
   /** assigns a texture to the all primitives of this obstactle
       @see Primitive::setTexture()
   */
-  virtual void setTexture(const std::string& filename, double repeatOnX=1, double repeatOnY=1);
+  virtual void setTexture(const TextureDescr& texture);
   /** assigns a texture to the x-th surface of each primitive, 
       @see Primitive::setTexture()
   */
-  virtual void setTexture(int surface, const std::string& filename, double repeatOnX, double repeatOnY);
+  virtual void setTexture(int surface, const TextureDescr& texture);
+  /** assigns a texture to the x-th surface of the k-th primitive, (The texture setting of the 
+      last primitve is repeated for the remaining ones)
+      @see Primitive::setTexture()
+  */
+  virtual void setTexture(int primitive, int surface, const TextureDescr& texture);
+
+  /// returns the texture of the given surface on the given primitive
+  virtual TextureDescr getTexture(int primitive, int surface) const ;
+
+  /// returns the textures of the given primitive
+  virtual std::vector<TextureDescr> getTextures(int primitive) const;
 
   /// return the "main" primitive of the obtactle. The meaning of "main" is arbitrary
   virtual Primitive* getMainPrimitive() const = 0;
@@ -216,6 +237,8 @@ class AbstractObstacle{
 
  protected:
   std::vector<Primitive*> obst; ///< primitives which belong to this obstacle
+  
+  std::vector<std::vector<TextureDescr> > textures; ///< for each primitive the texture settings per surface
 
   osg::Matrix pose;
   bool obstacle_exists;

@@ -1,3 +1,4 @@
+
 /***************************************************************************
  *   Copyright (C) 2005 by Robot Group Leipzig                             *
  *    martius@informatik.uni-leipzig.de                                    *
@@ -21,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-09-30 17:07:08  martius
+ *   Revision 1.9  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.8  2010/09/30 17:07:08  martius
  *   tests and vision experiments improved
  *
  *   Revision 1.7  2010/09/16 15:20:35  martius
@@ -366,7 +371,7 @@ public:
       //  controller->setParam("rootE",3);
       
       AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
-      OdeAgent* agent = new OdeAgent( i==0 ? plotoptions : std::list<PlotOption>(),0.1);
+      OdeAgent* agent = i==0 ? new OdeAgent(global,0.1) : new OdeAgent(global,NoPlot,0.1);
       agent->init(controller, vehicle, wiring);
       global.configs.push_back(controller);
       global.agents.push_back(agent);
@@ -430,7 +435,7 @@ public:
                                                         mkVector(noise,2));
       
       //    AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
-      OdeAgent* agent = new OdeAgent( i==0 ? plotoptions : std::list<PlotOption>());
+      OdeAgent* agent = i==0 ? new OdeAgent(global) : new OdeAgent(global,NoPlot);
       agent->addInspectable(this);
       agent->init(controller, vehicle, wiring);
       global.configs.push_back(controller);
@@ -459,7 +464,7 @@ public:
       controller->setParam("gamma_teach",0.003);
 
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      OdeAgent* agent = new OdeAgent();
+      OdeAgent* agent = new OdeAgent(global,NoPlot);
       agent->init(controller, vehicle, wiring);
       global.agents.push_back(agent);
     }

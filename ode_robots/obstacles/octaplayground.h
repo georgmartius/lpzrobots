@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-01-07 14:06:24  der
+ *   Revision 1.12  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.11  2010/01/07 14:06:24  der
  *   adapted to new wall texture
  *
  *   Revision 1.10  2009/03/13 09:19:53  martius
@@ -138,7 +142,7 @@ protected:
     double r = sqrt(pow((1+cos(angle))/2, 2) + pow( sin(angle)/2 ,2)) * radius;
     for (int i=0; i<number_elements; i++){
       Box* box =  new Box(width , box_length , height);
-      box->setTexture(wallTextureFileName,-1.5,-3);
+      box->setTextures(getTextures(i));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       osg::Matrix R = osg::Matrix::rotate(- i*angle, 0,0,1) * 
 	osg::Matrix::translate( cos(M_PI - i*angle) * r, 

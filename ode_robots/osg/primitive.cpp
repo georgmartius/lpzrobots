@@ -23,7 +23,11 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.34  2010-12-17 17:00:26  martius
+ *   Revision 1.35  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.34  2010/12/17 17:00:26  martius
  *   odeagent has new constructor (old is marked as deprecated) -> log files have again
  *    important information about simulation
  *   addsensorstorobotadapater copies configurables
@@ -319,14 +323,19 @@ namespace lpzrobots{
       getOSGPrimitive()->setTexture(filename);
   }
   
-  void Primitive::setTexture(const std::string& filename, double repeatOnX, double repeatOnY){
+  void Primitive::setTexture(const TextureDescr& texture){
     if(getOSGPrimitive())
-      getOSGPrimitive()->setTexture(filename, repeatOnX, repeatOnY);
+      getOSGPrimitive()->setTexture(texture);
   }
 
-  void Primitive::setTexture(int surface, const std::string& filename, double repeatOnX, double repeatOnY){
+  void Primitive::setTexture(int surface, const TextureDescr& texture){
     if(getOSGPrimitive()) 
-      getOSGPrimitive()->setTexture(surface, filename, repeatOnX, repeatOnY);
+      getOSGPrimitive()->setTexture(surface, texture);
+  }
+
+  void Primitive::setTextures(const std::vector<TextureDescr>& textures){
+    if(getOSGPrimitive()) 
+      getOSGPrimitive()->setTextures(textures);
   }
 
   void Primitive::setPosition(const Pos& pos){

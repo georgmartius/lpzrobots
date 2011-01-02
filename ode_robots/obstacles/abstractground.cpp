@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2010-03-31 07:38:21  martius
+ *   Revision 1.21  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.20  2010/03/31 07:38:21  martius
  *   changed wall texture
  *
  *   Revision 1.19  2010/03/29 16:28:21  martius
@@ -137,7 +141,7 @@ namespace lpzrobots {
       groundWidth(groundWidth), wallThickness(wallThickness), 
       groundSubstance(odeHandle.substance) {
     groundPlane=0;
-    wallTextureFileName="Images/wall.jpg"; // was: wall.rgb 
+    setTexture(0,0,TextureDescr("Images/wall.jpg",-1.5,-3)); // was: wall.rgb 
     groundTextureFileName="Images/greenground.rgb";
     groundColor=Color(1.0f,1.0f,1.0f);
   };
@@ -169,15 +173,7 @@ namespace lpzrobots {
     this->groundWidth = length*factorxy;
     this->wallThickness = wallThickness;
   }
-
-  void AbstractGround::setTexture(const std::string& filename, double repeatOnX, double repeatOnY){
-    wallTextureFileName=filename;
-    if (obstacle_exists) {
-      destroy();
-      create();
-    }
-  }
-
+  
   Primitive* AbstractGround::getMainPrimitive() const { 
     if(groundPlane)
       return groundPlane; 
@@ -223,7 +219,7 @@ namespace lpzrobots {
     if (creategroundPlane) {
       // now create the plane in the middle
       groundPlane = new Box(groundLength+1.95*wallThickness, groundWidth+1.95*wallThickness, 10.0f);
-      groundPlane->setTexture(groundTextureFileName,-5,-5);
+      groundPlane->setTexture(TextureDescr(groundTextureFileName,-5,-5));
       groundPlane->init(odeHandle, 0, osgHandle.changeColor(groundColor),
 			Primitive::Geom | Primitive::Draw);
       groundPlane->setSubstance(groundSubstance);

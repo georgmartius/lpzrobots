@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-03-29 16:28:21  martius
+ *   Revision 1.13  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.12  2010/03/29 16:28:21  martius
  *   abstract ground rembers groundsubstance
  *   comments and typos
  *   osgprimitive uses white for empty texture
@@ -124,9 +128,6 @@ public:
     virtual void setPose(const osg::Matrix& pose);
 
     virtual void createGround(bool create);
-
-    /// sets texture of walls. Attention, repeats are so far ignored
-    virtual void setTexture(const std::string& filename, double repeatOnX=1, double repeatOnY=1);
 
     virtual Primitive* getMainPrimitive() const;
 

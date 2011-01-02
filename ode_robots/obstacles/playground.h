@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2010-10-21 07:45:13  martius
+ *   Revision 1.23  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.22  2010/10/21 07:45:13  martius
  *   removed setWallSubstance since it is the same as setSubstance
  *
  *   Revision 1.21  2010/01/07 14:06:17  der
@@ -181,36 +185,34 @@ namespace lpzrobots {
       createGround();
       
       Box* box;
-      osg::Vec3 offset(- (length/2 + width/2),
-		       0,
+      osg::Vec3 offset(0, 
+		       (length/2 + width/2),		       
 		       height/2+0.01f/*reduces graphic errors and ode collisions*/);
-      box = new Box( width , (length * factorlength2) + 2 * width , height);
-      box->setTexture(wallTextureFileName, -1.5, -3);
+      box = new Box( length * factorlength2 + 2 * width , width, height);      
+      box->setTextures(getTextures(0));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * pose);
       obst.push_back(box);
 
-      offset.x() = length/2 + width/2;
-      box = new Box( width , (length * factorlength2) + 2 * width , height);
-      box->setTexture(wallTextureFileName, -1.5, -3);
+      box = new Box( length * factorlength2 + 2 * width , width, height);      
+      box->setTextures(getTextures(1));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-      box->setPose(osg::Matrix::translate(offset) * pose);
+      box->setPose(osg::Matrix::translate(offset) * osg::Matrix::rotate(M_PI, 0,0,1) * pose);
       obst.push_back(box);
 
-      offset.x() = 0;
-      offset.y() = -( (length*factorlength2)/2 +width/2);
-      box = new Box( length, width, height);
-      box->setTexture(wallTextureFileName, -1.5, -3);
+      box = new Box( length * factorlength2 , width, height);      
+      box->setTextures(getTextures(2));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-      box->setPose(osg::Matrix::translate(offset) * pose);
+      box->setPose(osg::Matrix::translate(offset) * osg::Matrix::rotate(M_PI/2.0, 0,0,1) * pose);
       obst.push_back(box);
 
-      offset.y() = (length*factorlength2)/2 +width/2;
-      box = new Box( length, width, height);
-      box->setTexture(wallTextureFileName, -1.5, -3);
+      box = new Box( length * factorlength2 , width, height);      
+      box->setTextures(getTextures(3));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-      box->setPose(osg::Matrix::translate(offset) * pose);
+      box->setPose(osg::Matrix::translate(offset) * osg::Matrix::rotate(3.0*M_PI/2.0, 0,0,1) 
+		   * pose);
       obst.push_back(box);
+
     
       obstacle_exists=true;
     };

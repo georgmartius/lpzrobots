@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-03-13 09:19:53  martius
+ *   Revision 1.8  2011-01-02 23:09:52  martius
+ *   texture handling of boxes changed
+ *   playground walls changed
+ *
+ *   Revision 1.7  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -96,7 +100,7 @@ namespace lpzrobots {
       heightfield = new HeightField(filename, x_size, y_size, height);
     }
     if(!texture.empty())
-      heightfield->setTexture(texture, true, true);
+      heightfield->setTexture(texture);
     heightfield->setPose(pose);
     heightfield->init(odeHandle, 0, osgHandle);
     obst.push_back(heightfield);
