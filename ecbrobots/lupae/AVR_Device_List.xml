@@ -251,5 +251,39 @@
 			</FuseBitsExt>
 		</FuseBytes>
 	</AVR_Device>
+	<AVR_Device DeviceName="ATMega1284P" Signature="1E9705" PageSize="256" NumberPages="512" NumberFuseBytes="3">
+		<FuseBytes>
+			<FuseBitsLow defaultValue="62" enabledBitMask="FF">
+				<FuseBit number="0" name="CKSEL0"	description="Select Clock source" />
+				<FuseBit number="1" name="CKSEL1"	description="Select Clock source" />
+				<FuseBit number="2" name="CKSEL2"	description="Select Clock source" />
+				<FuseBit number="3" name="CKSEL3"	description="Select Clock source" />
+				<FuseBit number="4" name="SUT0"		description="Select start-up time" />
+				<FuseBit number="5" name="SUT1"		description="Select start-up time" />
+				<FuseBit number="6" name="CKOUT" 	description="Clock output" />
+				<FuseBit number="7" name="CKDIV8" 	description="Divide clock by 8" />
+			</FuseBitsLow>
+			<FuseBitsHigh defaultValue="99" enabledBitMask="FF">
+				<FuseBit number="0" name="BOOTRST"	description="Select Reset Vector" />
+				<FuseBit number="1" name="BOOTSZ0"	description="Select Boot Size" />
+				<FuseBit number="2" name="BOOTSZ1"	description="Select Boot Size" />
+				<FuseBit number="3" name="EESAVE"	description="EEPROM memory is preserved through the Chip Erase" />
+				<FuseBit number="4" name="WDTON"	description="Watchdog Timer always on" />
+				<FuseBit number="5" name="SPIEN"	description="Enable Serial Program and Data Downloading" />
+				<FuseBit number="6" name="JTAGEN" 	description="Enable JTAG" />
+				<FuseBit number="7" name="OCDEN" 	description="Enable OCD" />
+			</FuseBitsHigh>
+			<FuseBitsExt defaultValue="FF" enabledBitMask="7">
+				<FuseBit number="0" name="BODLEVEL0"	description="Brown-out Detector trigger level" />
+				<FuseBit number="1" name="BODLEVEL1"	description="Brown-out Detector trigger level" />
+				<FuseBit number="2" name="BODLEVEL2"	description="Brown-out Detector trigger level" />
+				<FuseBit number="3" name="-"		description="-" />
+				<FuseBit number="4" name="-"		description="-" />
+				<FuseBit number="5" name="-"		description="-" />
+				<FuseBit number="6" name="-" 		description="-" />
+				<FuseBit number="7" name="-" 		description="-" />
+			</FuseBitsExt>
+		</FuseBytes>
+	</AVR_Device>
 
 </AVR_Devices>
