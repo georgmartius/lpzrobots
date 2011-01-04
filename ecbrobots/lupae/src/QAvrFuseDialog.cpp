@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-09 17:56:55  wrabe
+ *   Revision 1.3  2011-01-04 13:37:50  wrabe
+ *   - setting now WindowTitle at FuseBitsEditor
+ *
+ *   Revision 1.2  2010/11/09 17:56:55  wrabe
  *   - change of the communication protocoll between lupae and usb-isp-adapter
  *   - therefore recoding the dedicated methods
  *   - reduction of the overloded send_Message methods to one method only
@@ -54,6 +57,8 @@ namespace lpzrobots {
     setPalette(QPalette(QColor(220, 230, 220)));
     setAutoFillBackground(true);
     setFixedSize(520, 420);
+
+    setWindowTitle("LUPAE - Fuse-Bits-Editor");
 
     QGridLayout *grid = new QGridLayout();
     grid->setColumnStretch(4, 1);
