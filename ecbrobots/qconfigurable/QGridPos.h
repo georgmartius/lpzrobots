@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-16 16:39:25  wrabe
+ *   Revision 1.2  2011-01-04 12:00:46  guettler
+ *   -bughunting
+ *
+ *   Revision 1.1  2010/12/16 16:39:25  wrabe
  *   - drag&drop reworked: user can now drag a parameter to a any place
  *   - rearrangement of parameters now made only when user wants this
  *   - bugfixes
@@ -43,7 +46,9 @@ namespace lpzrobots {
   
   class QGridPos : public QPoint {
     public:
+      QGridPos() : QPoint() {}
       QGridPos(int row, int column) : QPoint(column,row) {}
+      QGridPos(const QGridPos& gridPos) : QPoint(gridPos.x(), gridPos.y()) {}
       virtual ~QGridPos() {}
 
       virtual inline int row() const { return y(); }
@@ -53,7 +58,7 @@ namespace lpzrobots {
         return ((p1.row() < p2.row()) || (p1.row() == p2.row() && p1.column() < p2.column()));
       }
 
-    private:
+    protected:
       using QPoint::x;
       using QPoint::y;
   };

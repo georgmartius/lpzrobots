@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-12-16 18:37:40  wrabe
+ *   Revision 1.11  2011-01-04 12:00:46  guettler
+ *   -bughunting
+ *
+ *   Revision 1.10  2010/12/16 18:37:40  wrabe
  *   -added several tooltips
  *   -corrected sentences, notation, syntax for improved informational value
  *   -bugfix: if in collapsed mode, all tiles were stored as invisible
@@ -121,7 +124,8 @@ namespace lpzrobots {
   }
   
   QAbstractConfigurableTileWidget::~QAbstractConfigurableTileWidget() {
-    tileIndexConfigWidgetMap.remove(gridPos);
+    if (tileIndexConfigWidgetMap.value(gridPos) == this)
+      tileIndexConfigWidgetMap.remove(gridPos);
   }
 
   QString QAbstractConfigurableTileWidget::getConfigurableName() {
