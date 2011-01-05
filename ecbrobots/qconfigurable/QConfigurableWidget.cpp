@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2010-12-16 18:37:40  wrabe
+ *   Revision 1.16  2011-01-05 13:28:45  guettler
+ *   - bugfix: auto delete functionality of qt lead to SIGSEV by reason of wrong
+ *     processing order of destructors from child (QAbstractConfigurableTileWidget) and
+ *     parent (QConfigurableWidget) objects
+ *
+ *   Revision 1.15  2010/12/16 18:37:40  wrabe
  *   -added several tooltips
  *   -corrected sentences, notation, syntax for improved informational value
  *   -bugfix: if in collapsed mode, all tiles were stored as invisible
@@ -132,6 +137,7 @@ namespace lpzrobots {
         disconnect(tileWidget, SIGNAL(sig_resize(QSize)));
         disconnect(this, SIGNAL(sig_tileWidgetResize(QSize)));
         disconnect(tileWidget, SIGNAL(sig_mousePressEvent(QMouseEvent*)));
+        delete tileWidget;
       }
   }
 
