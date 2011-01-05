@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2011-01-04 12:00:46  guettler
+ *   Revision 1.3  2011-01-05 13:29:21  guettler
+ *   - code cleaned up, including performance enhancements
+ *
+ *   Revision 1.2  2011/01/04 12:00:46  guettler
  *   -bughunting
  *
  *   Revision 1.1  2010/12/16 16:39:25  wrabe
@@ -46,16 +49,14 @@ namespace lpzrobots {
   
   class QGridPos : public QPoint {
     public:
-      QGridPos() : QPoint() {}
-      QGridPos(int row, int column) : QPoint(column,row) {}
-      QGridPos(const QGridPos& gridPos) : QPoint(gridPos.x(), gridPos.y()) {}
-      virtual ~QGridPos() {}
+      inline QGridPos() : QPoint() {}
+      inline QGridPos(int row, int column) : QPoint(column,row) {}
 
-      virtual inline int row() const { return y(); }
-      virtual inline int column() const { return x(); }
+      inline int row() const { return y(); }
+      inline int column() const { return x(); }
 
-      friend inline bool operator<(const QGridPos& p1, const QGridPos& p2) {
-        return ((p1.row() < p2.row()) || (p1.row() == p2.row() && p1.column() < p2.column()));
+      inline bool operator<(const QGridPos& p2) const {
+        return ((row() < p2.row()) || (row() == p2.row() && column() < p2.column()));
       }
 
     protected:
