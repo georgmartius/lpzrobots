@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2010-06-30 11:31:11  robot14
+ *  Revision 1.4  2011-01-10 16:36:17  guettler
+ *  -fixed memory leak: many many VERTEX were created but not deleted (after 10min 12GB RAM were full!)
+ *  -use references for VERTEX instead of pointers for better performance
+ *
+ *  Revision 1.3  2010/06/30 11:31:11  robot14
  *  VectorPlotChannel specs removed
  *
  *                       *
@@ -109,23 +113,23 @@ void LandscapeVisualisation::paintGL(){
   for (int j = 0; j < maxY; j++) {
     for (int i = 0; i < maxX; i++) {
       double p00, p01, p10, p11;
-      VERTEX *v1_00, *v1_01, *v1_10, *v1_11, *v2_00, *v2_01, *v3_00, *v4_00, *v4_10;
+      VERTEX v1_00, v1_01, v1_10, v1_11, v2_00, v2_01, v3_00, v4_00, v4_10;
       p00 = clip(colorPalette->getScaledValue(channel->getValue(i, j)));
       //clipping:
 
       //zeichnen des plateaus (i -> x, j -> -z)
-      v1_00 = new VERTEX((GLfloat) (-1. * plateauRadius), (GLfloat) p00, (GLfloat) plateauRadius);
-      v1_01 = new VERTEX((GLfloat) (-1. * plateauRadius), (GLfloat) p00, (GLfloat) (-1. * plateauRadius));
-      v1_10 = new VERTEX((GLfloat) plateauRadius, (GLfloat) p00, (GLfloat) plateauRadius);
-      v1_11 = new VERTEX((GLfloat) plateauRadius, (GLfloat) p00, (GLfloat) (-1. * plateauRadius));
+      v1_00 = VERTEX((GLfloat) (-1. * plateauRadius), (GLfloat) p00, (GLfloat) plateauRadius);
+      v1_01 = VERTEX((GLfloat) (-1. * plateauRadius), (GLfloat) p00, (GLfloat) (-1. * plateauRadius));
+      v1_10 = VERTEX((GLfloat) plateauRadius, (GLfloat) p00, (GLfloat) plateauRadius);
+      v1_11 = VERTEX((GLfloat) plateauRadius, (GLfloat) p00, (GLfloat) (-1. * plateauRadius));
       drawTriangle(v1_00, v1_11, v1_10);
       drawTriangle(v1_00, v1_01, v1_11);
 
       //verbindung i richtung
       if (i < maxX - 1) {
         p10 = clip(colorPalette->getScaledValue(channel->getValue(i + 1, j)));
-        v2_00 = new VERTEX((GLfloat) ((-1. * plateauRadius) + 1), (GLfloat) p10, (GLfloat) plateauRadius);
-        v2_01 = new VERTEX((GLfloat) ((-1. * plateauRadius) + 1), (GLfloat) p10, (GLfloat) (-1. * plateauRadius));
+        v2_00 = VERTEX((GLfloat) ((-1. * plateauRadius) + 1), (GLfloat) p10, (GLfloat) plateauRadius);
+        v2_01 = VERTEX((GLfloat) ((-1. * plateauRadius) + 1), (GLfloat) p10, (GLfloat) (-1. * plateauRadius));
         divideAndDrawTriangle(v1_10, v2_01, v2_00);
         divideAndDrawTriangle(v1_10, v1_11, v2_01);
       }
@@ -133,15 +137,15 @@ void LandscapeVisualisation::paintGL(){
       //vebindung in j richtung
       if (j < maxY - 1) {
         p01 = clip(colorPalette->getScaledValue(channel->getValue(i, j + 1)));
-        v4_00 = new VERTEX((GLfloat) (-1. * plateauRadius), (GLfloat) p01, (GLfloat) (plateauRadius - 1));
-        v4_10 = new VERTEX((GLfloat) plateauRadius, (GLfloat) p01, (GLfloat) (plateauRadius - 1));
+        v4_00 = VERTEX((GLfloat) (-1. * plateauRadius), (GLfloat) p01, (GLfloat) (plateauRadius - 1));
+        v4_10 = VERTEX((GLfloat) plateauRadius, (GLfloat) p01, (GLfloat) (plateauRadius - 1));
         divideAndDrawTriangle(v1_01, v4_00, v4_10);
         divideAndDrawTriangle(v1_01, v4_10, v1_11);
       }
 
       if (i < maxX - 1 && j < maxY - 1) { //fläche zwischen 4stops
         p11 = clip(colorPalette->getScaledValue(channel->getValue(i + 1, j + 1)));
-        v3_00 = new VERTEX((GLfloat) ((-1. * plateauRadius) + 1), (GLfloat) p11, (GLfloat) (plateauRadius - 1));
+        v3_00 = VERTEX((GLfloat) ((-1. * plateauRadius) + 1), (GLfloat) p11, (GLfloat) (plateauRadius - 1));
 
         if (fabs((p01 + p11 + p10) / 3) > fabs((p00 + p01 + p10 + p11) / 4) || fabs((p00 + p01 + p10) / 3) > fabs((p00
             + p01 + p10 + p11) / 4)) {
@@ -170,22 +174,21 @@ double LandscapeVisualisation::clip(double val){
     return val;
 }
 // algorithm for triangulation of stops within the landscape edges
-void LandscapeVisualisation::divideAndDrawTriangle(VERTEX* v1, VERTEX* v2, VERTEX* v3, VERTEX* n){
+void LandscapeVisualisation::divideAndDrawTriangle(VERTEX& v1, VERTEX& v2, VERTEX& v3, VERTEX& n){
   if(debug) cout << "LandscapeVisualisation::divideAndDrawTriangle"/* << v1->y << v2->y << v3->y */<< endl;
   // y -> values
-  if(n == NULL) n = getNormal(v1, v2, v3);
-  double stop1 = colorPalette->getNextStopPosition(v1->y,v2->y);
-  if(v1->y == v2->y && v2->y == v3->y){
+  double stop1 = colorPalette->getNextStopPosition(v1.y,v2.y);
+  if(v1.y == v2.y && v2.y == v3.y){
     drawTriangle(v1, v2, v3, n);
     return;
   }
-  if(stop1 != v2->y){ //if there exists stop between v1 and v2
-    VERTEX* v12 = getVertexBetween(v1,v2, stop1);
+  if(stop1 != v2.y){ //if there exists stop between v1 and v2
+    VERTEX v12 = getVertexBetween(v1,v2, stop1);
     //2. search v1->v3
-    double stop2 = colorPalette->getNextStopPosition(v1->y,v3->y);
+    double stop2 = colorPalette->getNextStopPosition(v1.y,v3.y);
 
-    if(stop2 != v3->y){ // between v1 and v3 too
-      VERTEX* v13 = getVertexBetween(v1,v3, stop2);
+    if(stop2 != v3.y){ // between v1 and v3 too
+      VERTEX v13 = getVertexBetween(v1,v3, stop2);
       // -1-
       if(debug) cout << "-1-" << endl;
       drawTriangle(v1, v12, v13, n);
@@ -193,10 +196,10 @@ void LandscapeVisualisation::divideAndDrawTriangle(VERTEX* v1, VERTEX* v2, VERTE
       divideAndDrawTriangle(v12, v3, v13, n);
     }else{
       //3. search v2->v3
-      double stop3 = colorPalette->getNextStopPosition(v3->y,v2->y);
+      double stop3 = colorPalette->getNextStopPosition(v3.y,v2.y);
 
-      if(stop3 != v2->y){
-        VERTEX* v32 = getVertexBetween(v3, v2, stop3);
+      if(stop3 != v2.y){
+        VERTEX v32 = getVertexBetween(v3, v2, stop3);
         // -2-
         if(debug) cout << "-2-" << endl;
         drawTriangle(v1, v12, v32, n);
@@ -211,17 +214,17 @@ void LandscapeVisualisation::divideAndDrawTriangle(VERTEX* v1, VERTEX* v2, VERTE
     }
   }else{
     //3. search v2->v3
-    double stop3 = colorPalette->getNextStopPosition((double) (v2->y), (double) (v3->y));
+    double stop3 = colorPalette->getNextStopPosition((double) (v2.y), (double) (v3.y));
 
-    if(stop3 != v3->y){
-      VERTEX* v23 = getVertexBetween(v2, v3, stop3);
+    if(stop3 != v3.y){
+      VERTEX v23 = getVertexBetween(v2, v3, stop3);
       //2. search v1->v3
-      double stop2 = colorPalette->getNextStopPosition((double) (v1->y),(double) (v3->y));
+      double stop2 = colorPalette->getNextStopPosition((double) (v1.y),(double) (v3.y));
 
-      if(stop2 != v3->y){
+      if(stop2 != v3.y){
         // -4-
         if(debug) cout << "-4-" << endl;
-        VERTEX* v13 = getVertexBetween(v1, v3, stop2);
+        VERTEX v13 = getVertexBetween(v1, v3, stop2);
         drawTriangle(v1, v2, v23, n);
         drawTriangle(v1, v23, v13, n);
         divideAndDrawTriangle(v13, v23, v3, n);
@@ -233,10 +236,10 @@ void LandscapeVisualisation::divideAndDrawTriangle(VERTEX* v1, VERTEX* v2, VERTE
       }
     }else{
       //2. search v1->v3
-      double stop2 = colorPalette->getNextStopPosition(v1->y,v3->y);
+      double stop2 = colorPalette->getNextStopPosition(v1.y,v3.y);
 
-      if (stop2 != v3->y) { // between v1 and v3 too
-        VERTEX* v13 = getVertexBetween(v1, v3, stop2);
+      if (stop2 != v3.y) { // between v1 and v3 too
+        VERTEX v13 = getVertexBetween(v1, v3, stop2);
         // -6-
         if(debug) cout << "-6-" << endl;
         drawTriangle(v1, v2, v13, n);
@@ -250,27 +253,26 @@ void LandscapeVisualisation::divideAndDrawTriangle(VERTEX* v1, VERTEX* v2, VERTE
   }
 }
 
-void LandscapeVisualisation::drawTriangle(VERTEX* v1, VERTEX* v2, VERTEX* v3, VERTEX* n){
+void LandscapeVisualisation::drawTriangle(VERTEX& v1, VERTEX& v2, VERTEX& v3, VERTEX& n){
   if(debug) cout << "LandscapeVisualisation::drawTriangle"/* << v1->y << "; " << v2->y << "; " << v3->y*/ << endl;
-  if(n == NULL) n = getNormal(v1, v2, v3);
-  QColor c1 = colorPalette->pickColor(v1->y),
-            c2 = colorPalette->pickColor(v2->y),
-            c3 = colorPalette->pickColor(v3->y);
+  QColor c1 = colorPalette->pickColor(v1.y),
+            c2 = colorPalette->pickColor(v2.y),
+            c3 = colorPalette->pickColor(v3.y);
   glBegin( GL_TRIANGLES); //kante zwischen p10 u p01
-   glNormal3f(n->x, n->y, n->z);
-   qglColor(c1); glVertex3f(v1->x, v1->y, v1->z);
-   qglColor(c2); glVertex3f(v2->x, v2->y, v2->z);
-   qglColor(c3); glVertex3f(v3->x, v3->y, v3->z);
+   glNormal3f(n.x, n.y, n.z);
+   qglColor(c1); glVertex3f(v1.x, v1.y, v1.z);
+   qglColor(c2); glVertex3f(v2.x, v2.y, v2.z);
+   qglColor(c3); glVertex3f(v3.x, v3.y, v3.z);
   glEnd();
 }
 
-VERTEX* LandscapeVisualisation::getNormal(VERTEX* v1, VERTEX* v2, VERTEX* v3){
-  GLfloat a1 = v2->x - v1->x,
-      a2 = v2->y - v1->y,
-      a3 = v2->z - v1->z,
-      b1 = v3->x - v1->x,
-      b2 = v3->y - v1->y,
-      b3 = v3->z - v1->z;
+VERTEX LandscapeVisualisation::getNormal(VERTEX& v1, VERTEX& v2, VERTEX& v3){
+  GLfloat a1 = v2.x - v1.x,
+      a2 = v2.y - v1.y,
+      a3 = v2.z - v1.z,
+      b1 = v3.x - v1.x,
+      b2 = v3.y - v1.y,
+      b3 = v3.z - v1.z;
   /*
    * cross product v1->v2 x v1->v3
    */
@@ -282,18 +284,14 @@ VERTEX* LandscapeVisualisation::getNormal(VERTEX* v1, VERTEX* v2, VERTEX* v3){
     y = -1.f * y;
     z = -1.f * z;
   }
-  return new VERTEX(x,y,z);
+  return VERTEX(x,y,z);
 }
 
-VERTEX* LandscapeVisualisation::getVertexBetween(VERTEX* v1, VERTEX* v2, double pos){
+VERTEX LandscapeVisualisation::getVertexBetween(VERTEX& v1, VERTEX& v2, double pos){
   if(debug) cout << "LandscapeVisualisation::getVertexBetween" << endl;
   //schnittpunkt mit ebene y = pos
-  GLfloat alpha = (pos - v1->y) / (v2->y -v1->y);
-  VERTEX* vert = new VERTEX();
-  vert->x = v1->x + alpha * (v2->x - v1->x);
-  vert->y = (GLfloat) pos;
-  vert->z = v1->z + alpha * (v2->z - v1->z);
-  return vert;
+  GLfloat alpha = (pos - v1.y) / (v2.y -v1.y);
+  return VERTEX(v1.x + alpha * (v2.x - v1.x), (GLfloat) pos, v1.z + alpha * (v2.z - v1.z));
 }
 
 void LandscapeVisualisation::mouseMoveEvent ( QMouseEvent *event ){

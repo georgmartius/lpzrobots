@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.3  2010-06-30 11:31:11  robot14
+ *  Revision 1.4  2011-01-10 16:36:17  guettler
+ *  -fixed memory leak: many many VERTEX were created but not deleted (after 10min 12GB RAM were full!)
+ *  -use references for VERTEX instead of pointers for better performance
+ *
+ *  Revision 1.3  2010/06/30 11:31:11  robot14
  *  VectorPlotChannel specs removed
  *
  *                       *
@@ -59,9 +63,9 @@ protected:
    void initializeGL();
    void resizeGL(int w, int h);
    void paintGL();
-   void divideAndDrawTriangle(VERTEX* v1, VERTEX* v2, VERTEX* v3, VERTEX* n = 0);
-   void drawTriangle(VERTEX* v1, VERTEX* v2, VERTEX* v3, VERTEX* n = 0);
-   VERTEX* getVertexBetween(VERTEX* v1, VERTEX* v2, double pos);
+   void divideAndDrawTriangle(VERTEX& v1, VERTEX& v2, VERTEX& v3, VERTEX& n);
+   void drawTriangle(VERTEX& v1, VERTEX& v2, VERTEX& v3, VERTEX& n);
+   VERTEX getVertexBetween(VERTEX& v1, VERTEX& v2, double pos);
    void mouseMoveEvent ( QMouseEvent *event ); // TODO mousePressed...
    void wheelEvent(QWheelEvent * event);
    void mousePressEvent ( QMouseEvent *event );
@@ -74,9 +78,20 @@ private:
    GLfloat zoom;
    int mouseX, mouseY;
    const static bool debug = false;
+   VERTEX getNormal(VERTEX& v1, VERTEX& v2, VERTEX& v3);
 
    double clip(double val);
-   VERTEX* getNormal(VERTEX* v1, VERTEX* v2, VERTEX* v3);
+
+   inline void divideAndDrawTriangle(VERTEX& v1, VERTEX& v2, VERTEX& v3) {
+     VERTEX n = getNormal(v1, v2, v3);
+     divideAndDrawTriangle(v1, v2, v3, n);
+   }
+
+   inline void drawTriangle(VERTEX& v1, VERTEX& v2, VERTEX& v3) {
+     VERTEX n = getNormal(v1, v2, v3);
+     drawTriangle(v1, v2, v3, n);
+   }
+
 };
 
 #endif /* __LANDSCAPEVISUALISATION_H_ */
