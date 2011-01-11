@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-10-18 15:08:28  martius
+ *   Revision 1.10  2011-01-11 13:17:27  guettler
+ *   - added typedef for infoLinesList (necessary for FOREACH)
+ *
+ *   Revision 1.9  2010/10/18 15:08:28  martius
  *   matrices are now explicitly const (as it should be)
  *
  *   Revision 1.8  2009/10/14 09:58:29  martius
@@ -122,6 +125,7 @@ public:
   // the bool says whether  only 4x4AndDiag is used
   typedef std::pair<iparamkey,std::pair< const matrix::Matrix*, bool > > imatrixpair; 
   typedef std::list<iparamkey> iparamkeylist;
+  typedef std::list<std::string> infoLinesList;
   typedef std::list<iparamval> iparamvallist;
   typedef std::list<iparamval*> iparamvalptrlist;
   typedef std::list<iparampair> iparampairlist;
@@ -277,13 +281,13 @@ public:
    * This function is called by the PlotOptionEngine.
    * @return all added infolines.
    */
-  virtual const std::list<std::string>& getInfoLines() const;
+  virtual const infoLinesList& getInfoLines() const;
 
 protected:
   iparampairlist mapOfValues;
   imatrixpairlist mapOfMatrices;
 
-  std::list<std::string> infoLineStringList;
+  infoLinesList infoLineStringList;
 
 
 };
