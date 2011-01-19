@@ -21,6 +21,8 @@
 #include "channeldata.h"
 #include "stl_adds.h"
 #include <stdio.h>
+#include <QString>
+#include <QStringList>
 
 ChannelData::ChannelData(int buffersize)
   : numchannels(0), buffersize(0), time(0), initialized(false){
@@ -368,7 +370,7 @@ void ChannelData::receiveRawData(QString data){
       int i=0;
       
       FOREACH(QStringList, parsedString, s){
-	dat[i] = (*s).stripWhiteSpace().toFloat();
+        dat[i] = (*s).stripWhiteSpace().toDouble();
         i++;
       }
       setData(dat);

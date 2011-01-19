@@ -2,6 +2,7 @@
 #include "gnuplot.h"
 #include "stl_adds.h"
 #include <stdio.h>
+#include <locale.h> // need to set LC_NUMERIC to have a '.' in the numbers piped to gnuplot
 
 Gnuplot::Gnuplot(const PlotInfo* plotInfo)
   : plotInfo(plotInfo), pipe(0) {
@@ -17,6 +18,7 @@ void Gnuplot::init(const QString& gnuplotcmd, int w,int h, int x, int y){
 
 bool Gnuplot::open(const QString& gnuplotcmd, int w,int h, int x, int y){
   char cmd[512];
+  setlocale(LC_NUMERIC,"en_US"); // set us type output
 #if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__) \
         || defined (_WIN64) || defined(__CYGWIN__) || defined(__MINGW32__)
   sprintf(cmd, "%s", gnuplotcmd.latin1());
