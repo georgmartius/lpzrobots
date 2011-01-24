@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   Revision 1.3  2011-01-24 13:39:24  guettler
+ *   format source
+ *
+ *   Revision 1.2  2010/11/14 20:39:37  wrabe
  *   - save current developent state
  *
  *   Revision 1.1  2010/11/11 15:35:59  wrabe
@@ -43,23 +46,25 @@
 
 namespace lpzrobots {
 
-class QAbstractMessageDispatchServer : public QObject {
-Q_OBJECT
-public:
+  class QAbstractMessageDispatchServer : public QObject {
+    Q_OBJECT
+    public:
 
-  QAbstractMessageDispatchServer() : QObject() {}
+      QAbstractMessageDispatchServer() :
+        QObject() {
+      }
 
-signals:
-  void sig_messageReceived(struct _communicationMessage msg);
-  void sig_stdOut(QString sText);
-  void sig_quitServer();
+    signals:
+      void sig_messageReceived(struct _communicationMessage msg);
+      void sig_stdOut(QString sText);
+      void sig_quitServer();
 
-public slots:
-  virtual void sl_sendMessage(struct _communicationMessage msg) = 0;
-  // optional
-  // virtual void sl_quitClient() = 0;
+    public slots:
+      virtual void sl_sendMessage(struct _communicationMessage msg) = 0;
+      // optional
+      // virtual void sl_quitClient() = 0;
 
-};
+  };
 
 } // namespace lpzrobots
 
