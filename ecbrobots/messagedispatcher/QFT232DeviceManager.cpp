@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-11-26 12:22:36  guettler
+ *   Revision 1.7  2011-01-24 16:25:39  guettler
+ *   -use new QLog feature
+ *   -remove deprecated comments
+ *
+ *   Revision 1.6  2010/11/26 12:22:36  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -69,12 +73,10 @@ namespace lpzrobots {
     /* Initialize context for subsequent function calls */
     ret = ftdi_init(&ftdic);
     if (ret < 0) {
-      //fprintf(stderr, "<ftdi_init> failure: error-Code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-      QLog::logDebug("<ftdi_init> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic)
+      QLogDebug("ftdi_init() failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic)
           + ")");
     } else {
-      //fprintf(stdout, "<ftdi_init> ok.\n");
-      QLog::logDebug("<ftdi_init> ok.");
+      QLogDebug("ftdi_init() ok.");
     }
 
     createDeviceList();
@@ -96,12 +98,10 @@ namespace lpzrobots {
 
     ret = ftdi_usb_find_all(&ftdic, &devlist, 0x0403, 0x6001);
     if (ret < 0) {
-      // fprintf(stderr, "<ftdi_usb_find_all> failure: error-code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-      QLog::logDebug("<ftdi_usb_find_all> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(
+      QLogDebug("ftdi_usb_find_all() failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(
           &ftdic) + ")");
     } else {
-      // fprintf(stdout, "<ftdi_device_list> ok, number devices found %d.\n", ret);
-      QLog::logDebug("<ftdi_usb_find_all> ok, number devices found " + QString::number(ret) + ".");
+      QLogDebug("ftdi_usb_find_all() ok, number devices found " + QString::number(ret) + ".");
 
       struct ftdi_device_list* devlist_tmp = devlist;
       while (devlist_tmp != NULL) {
@@ -111,8 +111,7 @@ namespace lpzrobots {
 
         ret = ftdi_usb_get_strings(&ftdic, devlist_tmp->dev, (char*) &manufacturer, 100, (char*) &product_description,
             100, (char*) &serial_string, 100);
-        QLog::logDebug("  " + QString(manufacturer) + "-" + QString(product_description));
-
+        QLogDebug("  " + QString(manufacturer) + "-" + QString(product_description));
         devlist_tmp = devlist_tmp->next;
       }
     }
@@ -177,12 +176,10 @@ namespace lpzrobots {
     // Öffne dieses Device zum lesen und schreiben!
     ret = ftdi_usb_open_dev(&ftdic, usb_device_to_open);
     if (ret < 0) {
-      //fprintf(stderr, "<ftdi_usb_open_dev> failure: error-Code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-      QLog::logDebug("<ftdi_usb_open_dev> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(
+      QLogDebug("ftdi_usb_open_dev() failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(
           &ftdic) + ")");
     } else {
-      //fprintf(stdout, "<ftdi_usb_open_dev> ok.\n");
-      QLog::logDebug("<ftdi_usb_open_dev> ok.");
+      QLogDebug("ftdi_usb_open_dev() ok.");
 
       // Setze die Baudrate
       setBaudrate(baudrate_to_use);
@@ -218,7 +215,7 @@ namespace lpzrobots {
       ret = ftdi_usb_get_strings(&ftdic, devlist_tmp->dev, (char*) &manufacturer, 100, (char*) &product_description,
           100, (char*) &serial_string, 100);
       if (ret < 0) {
-        QLog::logDebug("<ftdi_usb_get_strings> failure: error-Code " + QString::number(ret) + " ("
+        QLogDebug("ftdi_usb_get_strings() failure: error-Code " + QString::number(ret) + " ("
             + ftdi_get_error_string(&ftdic) + ")");
       } else {
 
@@ -226,12 +223,10 @@ namespace lpzrobots {
           // Öffne dieses Device zum lesen und schreiben!
           ret = ftdi_usb_open_dev(&ftdic, devlist_tmp->dev);
           if (ret < 0) {
-            //fprintf(stderr, "<ftdi_usb_open_dev> failure: error-Code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-            QLog::logDebug("<ftdi_usb_open_dev> failure: error-Code " + QString::number(ret) + " ("
+            QLogDebug("ftdi_usb_open_dev() failure: error-Code " + QString::number(ret) + " ("
                 + ftdi_get_error_string(&ftdic) + ")");
           } else {
-            //fprintf(stdout, "<ftdi_usb_open_dev> ok.\n");
-            QLog::logDebug("<ftdi_usb_open_dev> ok, '" + usb_deviceName_to_open + "'");
+            QLogDebug("ftdi_usb_open_dev() ok, '" + usb_deviceName_to_open + "'");
 
             // Setze die Baudrate
             setBaudrate(baudrate_to_use);
@@ -263,12 +258,10 @@ namespace lpzrobots {
     // Setze die Baudrate
     ret = ftdi_set_baudrate(&ftdic, baudrate_to_set);
     if (ret < 0) {
-      //fprintf(stderr, "<ftdi_set_baudrate> failure: error-Code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-      QLog::logDebug("<ftdi_set_baudrate> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(
+      QLogDebug("ftdi_set_baudrate() failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(
           &ftdic) + ")");
     } else {
-      // fprintf(stdout, "<ftdi_set_baudrate> ok.\n");
-      QLog::logDebug("<ftdi_set_baudrate> ok, set to " + QString::number(baudrate_to_set) + "bd.");
+      QLogDebug("ftdi_set_baudrate() ok, set to " + QString::number(baudrate_to_set) + "bd.");
       baudrate = baudrate_to_set;
     }
     return ret;
@@ -280,20 +273,20 @@ namespace lpzrobots {
     unsigned char latency = 0;
     ret = ftdi_get_latency_timer(&ftdic, &latency);
     if (ret < 0) {
-      QLog::logDebug("<ftdi_get_latency_timer> failure: error-Code " + QString::number(ret) + " ("
+      QLogDebug("ftdi_get_latency_timer() failure: error-Code " + QString::number(ret) + " ("
           + ftdi_get_error_string(&ftdic) + ")");
     } else {
       // Is latency allready set?
       if (latency_to_set == latency) {
-        QLog::logDebug("<ftdi_get_latency_timer> ok, latency allready set to " + QString::number(latency_to_set) + ".");
+        QLogDebug("ftdi_get_latency_timer() ok, latency allready set to " + QString::number(latency_to_set) + ".");
       } else {
         // set to new latency-time
         ret = ftdi_set_latency_timer(&ftdic, latency_to_set);
         if (ret < 0) {
-          QLog::logDebug("<ftdi_set_latency_timer> failure: error-Code " + QString::number(ret) + " ("
+          QLogDebug("ftdi_set_latency_timer() failure: error-Code " + QString::number(ret) + " ("
               + ftdi_get_error_string(&ftdic) + ")");
         } else {
-          QLog::logDebug("<ftdi_set_latency_timer> ok, set to " + QString::number(latency_to_set) + ".");
+          QLogDebug("ftdi_set_latency_timer() ok, set to " + QString::number(latency_to_set) + ".");
         }
       }
     }
@@ -305,10 +298,10 @@ namespace lpzrobots {
 
     ret = ftdi_setdtr(&ftdic, dtr_val);
     if (ret < 0) {
-      QLog::logDebug("<ftdi_setdtr> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic)
+      QLogDebug("ftdi_setdtr() failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(&ftdic)
           + ")");
     } else {
-      QLog::logDebug("<ftdi_setdtr> ok, set to " + QString::number(dtr_val) + ".");
+      QLogDebug("ftdi_setdtr() ok, set to " + QString::number(dtr_val) + ".");
     }
     return ret;
   }
@@ -322,12 +315,10 @@ namespace lpzrobots {
 
     ret = ftdi_usb_close(&ftdic);
     if (ret < 0) {
-      //fprintf(stderr, "<ftdi_usb_close> failure: error-Code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-      QLog::logDebug("<ftdi_usb_close> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(
+      QLogDebug("ftdi_usb_close() failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(
           &ftdic) + ")");
     } else {
-      //fprintf(stdout, "<ftdi_usb_close> ok, usb device closed.\n");
-      QLog::logDebug("<ftdi_usb_close> ok.");
+      QLogDebug("ftdi_usb_close() ok.");
     }
     return ret;
   }
@@ -336,15 +327,12 @@ namespace lpzrobots {
 
     ret = ftdi_write_data(&ftdic, (unsigned char *) msg.data(), msg.length());
     if (ret < 0) {
-      //fprintf(stderr, "<ftdi_write_data> failure: error-Code %d (%s)\n", ret, ftdi_get_error_string(&ftdic));
-      QLog::logDebug("<ftdi_write_data> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(
+      QLogDebug("<ftdi_write_data> failure: error-Code " + QString::number(ret) + " (" + ftdi_get_error_string(
           &ftdic) + ")");
     } else {
-      //fprintf(stdout, "<ftdi_write_data> ok, %d byte written.\n", ret);
-      //for(i=0; i<ret; i++) fprintf(stdout, "%X%X ", msg[i]>>4&0xFF, msg[i]>>0&0x0F); fprintf(stdout, "\n");
-      QLog::logDebug("<ftdi_write_data> ok, " + QString::number(ret) + " bytes written.");
+      QLogDebug("<ftdi_write_data> ok, " + QString::number(ret) + " bytes written.");
 
-      if (debug) {
+      if (QLog::isLevel(QLog::LOG_DEBUG)) {
         int i;
         QString msg_hex_line;
         for (i = 0; i < ret; i++) {
@@ -352,7 +340,7 @@ namespace lpzrobots {
           msg_hex_line += QString::number(msg[i] >> 0 & 0x0F, 16).toUpper();
           msg_hex_line += " ";
         }
-        QLog::logDebug((msg_hex_line));
+        QLogDebug((msg_hex_line));
       }
 
     }
@@ -367,11 +355,12 @@ namespace lpzrobots {
     int iPacketLength = 0;
 
     if (!opened) {
-      QLog::logDebug("Device is not open yet. Unable to read!");
+      QLogWarning("Device is not open yet. Unable to read!");
       return;
     }
 
-    QLog::logDebug("thread '" + QString::number(currentThreadId()) + "' started.");
+
+    QLogDebug("'thread '" + QString::number(currentThreadId()) + "' started.");
 
     while (runListener) // main loop
     {
