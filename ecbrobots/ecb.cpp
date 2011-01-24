@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2010-11-26 12:22:37  guettler
+ *   Revision 1.16  2011-01-24 14:16:25  guettler
+ *   - removed deprecated comments
+ *   - setMotors now uses currentNumberMotors instead of maximum value
+ *
+ *   Revision 1.15  2010/11/26 12:22:37  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -106,14 +110,6 @@ namespace lpzrobots {
         dnsName(dnsName) {
     failureCounter = 0;
     initialised = false;
-
-    //PORTG of ATmega128 has only 4 pins for use
-    //   ecbConfig.PORTG.max_pinnumber = 4;
-    //set pin 0 of PORTA as output
-    //   ecbConfig.PORTA.pin[0] = OUTPUT;
-
-    motorList.push_back(0.);
-    motorList.push_back(0.);
   }
 
   ECB::~ECB() {
@@ -208,10 +204,9 @@ namespace lpzrobots {
    * return     - the number of adding motor-values
    */
   int ECB::setMotors(const motor* motorArray, int beginIndex, int maxIndex) {
-    int numberMotors = motorList.size();
     motorList.clear();
     int i = 0;
-    for (i = beginIndex; i < numberMotors; i++) {
+    for (i = beginIndex; i < currentNumberMotors; i++) {
       motorList.push_back(motorArray[i]);
       if (i == maxIndex)
         break;
