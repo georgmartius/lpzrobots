@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-11-23 11:08:06  guettler
+ *   Revision 1.6  2011-01-24 16:26:50  guettler
+ *   -use new QLog feature
+ *
+ *   Revision 1.5  2010/11/23 11:08:06  guettler
  *   - some helper functions
  *   - bugfixes
  *   - better event handling
@@ -66,7 +69,7 @@ namespace lpzrobots {
     qlog = new QLog(applicationPath);
     connect(qlog, SIGNAL(sig_textLog(QString)), this, SLOT(sl_TextLog(QString)));
 
-    QLog::logVerbose("ApplicationPath='" + applicationPath + "'");
+    QLogVerbose("ApplicationPath='" + applicationPath + "'");
 
     setPalette(QPalette(QColor(200, 230, 200)));
 

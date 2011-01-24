@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-23 11:08:06  guettler
+ *   Revision 1.2  2011-01-24 16:26:50  guettler
+ *   -use new QLog feature
+ *
+ *   Revision 1.1  2010/11/23 11:08:06  guettler
  *   - some helper functions
  *   - bugfixes
  *   - better event handling
@@ -46,11 +49,11 @@ namespace lpzrobots {
   
   void QMDSHelper::printDNSDeviceToQCCMap(QHash<QString,QCommunicationChannel*>* map) {
      if (map->isEmpty())
-       QLog::logWarning("No DNS devices found!");
+       QLogWarning("No DNS devices found!");
      foreach(QString dnsDeviceName, map->keys())
        {
          // emit sig_TextLog("DNSDevice = " + dnsName + ", USBDevice = " + dnsDeviceToQCCMap[dnsDevice]->getUSBDeviceName());
-         QLog::logVerbose("[" + dnsDeviceName + "]->[" + (*map)[dnsDeviceName]->getUSBDeviceName() + "]");
+         QLogVerbose("[" + dnsDeviceName + "]->[" + (*map)[dnsDeviceName]->getUSBDeviceName() + "]");
        }
    }
 

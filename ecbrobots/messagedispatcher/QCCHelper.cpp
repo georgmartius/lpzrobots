@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-11-26 12:22:36  guettler
+ *   Revision 1.6  2011-01-24 16:24:03  guettler
+ *   -use new QLog feature
+ *
+ *   Revision 1.5  2010/11/26 12:22:36  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -297,7 +300,7 @@ namespace lpzrobots {
     line.append(QCCHelper::toHexNumberString(xbeeNode->address64, 16));
     line.append(":" + xbeeNode->Identifier + "]");
     line.append("[" + xbeeNode->dns_name + "]");
-    QLog::logDebug(line);
+    QLogDebug(line);
   }
 
 } // namespace lpzrobots

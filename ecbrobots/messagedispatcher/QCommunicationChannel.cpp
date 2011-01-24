@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-11-26 12:22:36  guettler
+ *   Revision 1.7  2011-01-24 16:24:46  guettler
+ *   -use new QLog feature
+ *
+ *   Revision 1.6  2010/11/26 12:22:36  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -85,7 +88,7 @@ namespace lpzrobots {
       initialisedState = QCCHelper::STATE_USBDEVICE_OPENED;
       // XBee HV + XBee Channel + XBee PanID
       // über Signals und Slots abarbeiten!
-      QLog::logDebug("usbDevice opended: " + usbDeviceName);
+      QLogDebug("usbDevice opended: " + usbDeviceName);
 
       switch (usbDeviceType) {
         case QCCHelper::USBDevice_ISP_ADAPTER: {
@@ -112,7 +115,7 @@ namespace lpzrobots {
           break;
         }
         default: {
-          QLog::logDebug("unknown usb-device detected.");
+          QLogDebug("unknown usb-device detected.");
           responseTimer.start(1, QCCHelper::EVENT_TIMEOUT_INITIALISE); // use timer, not signal because you are in the constructor
           break;
         }
@@ -124,7 +127,7 @@ namespace lpzrobots {
 
   void QCommunicationChannel::sl_ResponseTimerExpired(uint eventId) {
     responseTimer.stop();
-    QLog::logDebug(QCCHelper::eventDescriptionMap[(QCCHelper::timerEvent_t) eventId]);
+    QLogDebug(QCCHelper::eventDescriptionMap[(QCCHelper::timerEvent_t) eventId]);
     switch (eventId) {
       case QCCHelper::EVENT_TIMEOUT_INITIALISE:
         emit sig_cc_initalised(this);
@@ -191,7 +194,7 @@ namespace lpzrobots {
   void QCommunicationChannel::sl_XBee_ReadDnsNames_Delayed() {
     foreach(struct QCCHelper::XBeeRemoteNode_t* xbeeRemoteNode, xbeeRemoteNodeList)
       {
-        QLog::logDebug(usbDeviceManager.getDeviceName() + ":sl_XBee_ReadDnsNames_Delayed");
+        QLogDebug(usbDeviceManager.getDeviceName() + ":sl_XBee_ReadDnsNames_Delayed");
 
         if (usbDeviceType == QCCHelper::USBDevice_XBEE_ADAPTER) {
           switch (xbee.type) {
@@ -249,11 +252,11 @@ namespace lpzrobots {
           case QCCHelper::XBeeType_SERIE_1:
           case QCCHelper::XBeeType_SERIE_2: {
             if (node->address16 == 0xFFFE && node->address64 == 0x000000000000FFFF) {
-              QLog::logWarning("Please select a node first!");
+              QLogWarning("Please select a node first!");
               return;
             }
 
-            QLog::logDebug(usbDeviceManager.getDeviceName() + ":" + node->Identifier + ":reset");
+            QLogDebug(usbDeviceManager.getDeviceName() + ":" + node->Identifier + ":reset");
 
             QByteArray commandToSet_D0_high;
             commandToSet_D0_high.append((char) 'D');
@@ -297,7 +300,7 @@ namespace lpzrobots {
       line.append(QCCHelper::toHexNumberString(buffer[i], 2));
       line.append(" ");
     }
-    QLog::logDebug(s + ": " + line);
+    QLogDebug(s + ": " + line);
   }
 
   void QCommunicationChannel::sl_messageReceived(QByteArray received_msg) {
@@ -361,7 +364,7 @@ namespace lpzrobots {
                 // 0x05 - MsgCode_ResponsePaket
                 // 0x06 - MsgCode_IspProgrammer_Firmware_SoftwareVersionRead
                 // 0x07 - some chars ....
-                QLog::logDebug("USB-ISP-Adapter: SoftwareVersion = " + QString(received_msg.mid(7,
+                QLogDebug("USB-ISP-Adapter: SoftwareVersion = " + QString(received_msg.mid(7,
                     received_msg.length() - 6)));
                 break;
               }
@@ -410,7 +413,7 @@ namespace lpzrobots {
               QString line;
               line.append("[" + usbDeviceManager.getDeviceName() + "]");
               line.append("[" + dnsName + "]");
-              QLog::logDebug(line);
+              QLogDebug(line);
 
               emit sig_cc_dns_name_resolved(this);
             }
@@ -419,8 +422,7 @@ namespace lpzrobots {
           default: {
             // dispatch packet (find out corresponding DNS device) and send it to the MessageDispatchServer
             if (dnsDeviceList.isEmpty()) {
-              QLog::logWarning(
-                  "[QCC] Received message from DNS device, but not recognized while scanned for DNS devices.");
+              QLogWarning("[QCC] Received message from DNS device, but not recognized while scanned for DNS devices.");
               printMessage(usbDeviceManager.getDeviceName() + ":dispatch_xbee ", received_msg);
               return;
             }
@@ -435,8 +437,7 @@ namespace lpzrobots {
       } else {
         // dispatch packet (find out corresponding DNS device) and send it to the MessageDispatchServer
         if (dnsDeviceList.isEmpty()) {
-          QLog::logWarning(
-              "[QCC] Received message from DNS device, but not recognized while scanned for DNS devices.");
+          QLogWarning("[QCC] Received message from DNS device, but not recognized while scanned for DNS devices.");
           printMessage(usbDeviceManager.getDeviceName() + ":dispatch_xbee ", received_msg);
           return;
         }
@@ -462,7 +463,7 @@ namespace lpzrobots {
     QCCHelper::XBeeRemoteNode_t* xbeeRemoteNode = QCCHelper::getXBeeRemoteNode(received_msg, xbeeRemoteNodeList);
 
     //TODO:
-    QLog::logDebug(usbDeviceManager.getDeviceName() + ":dispatch_xbee: " + QString::number(api_Identifier, 16));
+    QLogDebug(usbDeviceManager.getDeviceName() + ":dispatch_xbee: " + QString::number(api_Identifier, 16));
 
     switch (api_Identifier) {
       case QCCHelper::API_XBee_AT_Command_Response: {
@@ -478,7 +479,7 @@ namespace lpzrobots {
       case QCCHelper::API_XBeeS1_Receive_Packet_16Bit:
       case QCCHelper::API_XBeeS2_ZigBee_Receive_Packet: {
         if (xbeeRemoteNode == NULL) {
-          QLog::logWarning("[QCC] Received message from XBee node, but not recognized while discovering nodes.");
+          QLogWarning("[QCC] Received message from XBee node, but not recognized while discovering nodes.");
           printMessage(usbDeviceManager.getDeviceName() + ":dispatch_xbee ", received_msg);
           return;
         }
@@ -691,7 +692,7 @@ namespace lpzrobots {
         line.append("[" + QCCHelper::toHexNumberString(xbeeRemoteNode->address16, 4) + ":");
         line.append(QCCHelper::toHexNumberString(xbeeRemoteNode->address64, 16));
         line.append(":" + xbeeRemoteNode->Identifier + "]");
-        QLog::logDebug(line);
+        QLogDebug(line);
       }
 
     }
@@ -716,7 +717,7 @@ namespace lpzrobots {
         break;
       }
       default: {
-        QLog::logDebug("unknown usb-device detected.");
+        QLogDebug("unknown usb-device detected.");
         break;
       }
     }
@@ -730,11 +731,12 @@ namespace lpzrobots {
 
   QStringList QCommunicationChannel::getDNSDeviceList() {
     QStringList list;
-    QLog::logDebug("QCC[" + usbDeviceManager.getDeviceName() + "]: getDNSDeviceList(), number of devices: "
+    QLogDebug("[" + usbDeviceManager.getDeviceName() + "]: getDNSDeviceList(), number of devices: "
         + QString::number(dnsDeviceList.size()));
     foreach (QCCHelper::DNSDevice_t* dnsDevice, dnsDeviceList)
       {
         list.append(dnsDevice->dns_name);
+        QLogDebug("deviceName = " + dnsDevice->dns_name);
       }
     return list;
   }
@@ -793,7 +795,7 @@ namespace lpzrobots {
       case QCCHelper::USBDevice_ISP_ADAPTER:
       case QCCHelper::USBDevice_None:
       default:
-        QLog::logWarning("Message to send to DNS device, but wrong ADAPTER (USART, unknown) choosed.");
+        QLogWarning("Message to send to DNS device, but wrong ADAPTER (USART, unknown) choosed.");
         break;
     }
   }

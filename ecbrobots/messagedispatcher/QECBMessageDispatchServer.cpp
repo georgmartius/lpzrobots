@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-11-26 12:22:36  guettler
+ *   Revision 1.7  2011-01-24 16:25:16  guettler
+ *   -use new QLog feature
+ *
+ *   Revision 1.6  2010/11/26 12:22:36  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -74,17 +77,17 @@ namespace lpzrobots {
   QECBMessageDispatchServer::~QECBMessageDispatchServer() {
   }
   void QECBMessageDispatchServer::sl_Initialize() {
-    QLog::logDebug("QMessageDispatchServer initialised.");
+    QLogDebug("QMessageDispatchServer initialised.");
 
     scanUsbDevices();
   }
 
   void QECBMessageDispatchServer::sl_sendMessage(struct _communicationMessage msg) {
-    QLog::logVerbose("Client demands a message to be sent to " + msg.ecb_dns_name);
+    QLogVerbose("Client demands a message to be sent to " + msg.ecb_dns_name);
     if (this->dnsDeviceToQCCMap.contains(msg.ecb_dns_name))
         dnsDeviceToQCCMap[msg.ecb_dns_name]->sendMessage(msg);
     else
-      QLog::logWarning("Unknown DNS device " + msg.ecb_dns_name + ".");
+      QLogWarning("Unknown DNS device " + msg.ecb_dns_name + ".");
   }
 
   void QECBMessageDispatchServer::clear_usbDeviceManagerList() {
@@ -103,11 +106,11 @@ namespace lpzrobots {
   void QECBMessageDispatchServer::scanUsbDevices() {
     clear_usbDeviceManagerList();
     QStringList usbDeviceNameList = static_usbDeviceManager.getDeviceList();
-    QLog::logVerbose("number USB-Devices found " + QString::number(usbDeviceNameList.length()));
+    QLogVerbose("number USB-Devices found " + QString::number(usbDeviceNameList.length()));
     notYetInitialisedCCs = usbDeviceNameList.length();
     foreach (QString usbDeviceName, usbDeviceNameList)
       {
-        QLog::logVerbose(usbDeviceName);
+        QLogVerbose(usbDeviceName);
 
         QCommunicationChannel* commChannel = new QCommunicationChannel(usbDeviceName);
         commChannelList.append(commChannel);
@@ -121,11 +124,11 @@ namespace lpzrobots {
   }
 
   void QECBMessageDispatchServer::sl_CCIsInitialised(QCommunicationChannel* cc) {
-    QLog::logDebug("QCC[" + cc->getUSBDeviceName() + "] has been initialised, still pending: " + QString::number(
+    QLogDebug("QCC[" + cc->getUSBDeviceName() + "] has been initialised, still pending: " + QString::number(
         notYetInitialisedCCs - 1));
     if (--notYetInitialisedCCs == 0) {
       notYetDNSScannedCCs = commChannelList.size();
-      QLog::logVerbose("All QCC initialised.");
+      QLogVerbose("All QCC initialised.");
       // all QCC are initialised, now they have to get their available DNSDevices.
       foreach (QCommunicationChannel* cc, commChannelList)
         {
@@ -147,14 +150,14 @@ namespace lpzrobots {
   }
 
   void QECBMessageDispatchServer::sl_scanDNSDevicesComplete(QCommunicationChannel* cc) {
-    QLog::logDebug("QCC[" + cc->getUSBDeviceName() + "] has completed the device scan, still pending: "
+    QLogDebug("[" + cc->getUSBDeviceName() + "] has completed the device scan, still pending: "
         + QString::number(notYetDNSScannedCCs - 1));
 
     QStringList DNSdeviceList = cc->getDNSDeviceList();
     dnsDeviceList.append(DNSdeviceList); // for log purposes
     foreach(QString dnsDevice, DNSdeviceList)
       {
-        QLog::logDebug("Found: " + dnsDevice);
+        QLogDebug("Found: " + dnsDevice);
         // take the fastest one, USART or XBee?
         if (dnsDeviceToQCCMap.contains(dnsDevice)) {
           if (cc->getResponseTime() < dnsDeviceToQCCMap[dnsDevice]->getResponseTime()) { // replace!
@@ -167,7 +170,7 @@ namespace lpzrobots {
         }
       }
     if (--notYetDNSScannedCCs == 0) {
-      QLog::logVerbose("<font color=#008800>Scan of DNS devices complete.</font>");
+      QLogVerbose("<font color=#008800>Scan of DNS devices complete.</font>");
       QMDSHelper::printDNSDeviceToQCCMap(&dnsDeviceToQCCMap);
     }
     // in Liste eintragen cc->getDNSDevices():
