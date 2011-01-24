@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2011-01-24 14:17:39  guettler
+ *   Revision 1.19  2011-01-24 16:58:25  guettler
+ *   - QMessageDispatchServer is now informed when client app closes itself
+ *   - QMessageDispatchWindow actually closes if client app closes itself
+ *   - hint: this should late be
+ *
+ *   Revision 1.18  2011/01/24 14:17:39  guettler
  *   - new menu entry start/stop MatrixViz
  *
  *   Revision 1.17  2010/12/16 18:37:40  wrabe
@@ -148,6 +153,7 @@ namespace lpzrobots {
     connect(ecbManager, SIGNAL(sig_communicationStateChanged(QECBCommunicator::ECBCommunicationState)), this,
         SLOT(sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState)));
     connect(globalData->comm, SIGNAL(sig_quitServer()), this, SLOT(sl_Close()));
+    connect(this, SIGNAL(sig_quitClient()), globalData->comm, SLOT(sl_quitClient()));
 
     createActions();
     createMenus();
@@ -320,6 +326,7 @@ namespace lpzrobots {
       bookmarkConfigurableStates();
       autostoreConfigurableStates();
       isClosed = true;
+      emit sig_quitClient();
     }
     event->accept();
   }

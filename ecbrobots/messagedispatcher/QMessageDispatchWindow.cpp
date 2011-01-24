@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2011-01-24 16:26:50  guettler
+ *   Revision 1.7  2011-01-24 16:58:25  guettler
+ *   - QMessageDispatchServer is now informed when client app closes itself
+ *   - QMessageDispatchWindow actually closes if client app closes itself
+ *   - hint: this should late be
+ *
+ *   Revision 1.6  2011/01/24 16:26:50  guettler
  *   -use new QLog feature
  *
  *   Revision 1.5  2010/11/23 11:08:06  guettler
@@ -94,6 +99,7 @@ namespace lpzrobots {
     readSettings();
 
     connect(this, SIGNAL(sig_quitServer()), &messageDispatcher, SIGNAL(sig_quitServer()));
+    connect(&messageDispatcher, SIGNAL(sig_quitClient()), this, SLOT(sl_Close()));
 
   }
 
@@ -233,4 +239,7 @@ namespace lpzrobots {
     statusLabel->setText("");
   }
 
+  void QMessageDispatchWindow::sl_Close() {
+      close();
+    }
 } // namespace lpzrobots

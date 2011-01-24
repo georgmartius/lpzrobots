@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-26 12:22:37  guettler
+ *   Revision 1.4  2011-01-24 16:58:25  guettler
+ *   - QMessageDispatchServer is now informed when client app closes itself
+ *   - QMessageDispatchWindow actually closes if client app closes itself
+ *   - hint: this should late be
+ *
+ *   Revision 1.3  2010/11/26 12:22:37  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -99,11 +104,13 @@ namespace lpzrobots {
 
       virtual void sl_messageReceived(struct _communicationMessage msg);
       virtual void sl_quitServer();
+      virtual void sl_quitClient() { emit sig_quitClient(); }
 
     signals:
       void sig_sendMessage(struct _communicationMessage msg);
 
       void sig_quitServer();
+      void sig_quitClient();
 
     private slots:
       void sl_TimerExpired();

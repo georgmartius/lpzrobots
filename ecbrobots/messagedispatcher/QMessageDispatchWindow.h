@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-11-23 11:08:06  guettler
+ *   Revision 1.6  2011-01-24 16:58:25  guettler
+ *   - QMessageDispatchServer is now informed when client app closes itself
+ *   - QMessageDispatchWindow actually closes if client app closes itself
+ *   - hint: this should late be
+ *
+ *   Revision 1.5  2010/11/23 11:08:06  guettler
  *   - some helper functions
  *   - bugfixes
  *   - better event handling
@@ -95,6 +100,7 @@ namespace lpzrobots {
       void sl_TextLog(QString s);
       void sl_eventHandler(int eventCode);
       void sl_statusLabelTimerExpired();
+      void sl_Close();
 
     private:
 

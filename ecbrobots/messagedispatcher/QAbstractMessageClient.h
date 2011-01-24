@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-14 20:39:37  wrabe
+ *   Revision 1.3  2011-01-24 16:58:25  guettler
+ *   - QMessageDispatchServer is now informed when client app closes itself
+ *   - QMessageDispatchWindow actually closes if client app closes itself
+ *   - hint: this should late be
+ *
+ *   Revision 1.2  2010/11/14 20:39:37  wrabe
  *   - save current developent state
  *
  *   Revision 1.1  2010/11/11 15:35:59  wrabe
@@ -61,9 +66,8 @@ namespace lpzrobots {
   virtual ~QAbstractMessageClient() {}
 
   signals:
-    void sig_sendMessage(struct _communicationMessage msg);
-    // optional
-    //virtual void sig_quitClient() = 0;
+    virtual void sig_sendMessage(struct _communicationMessage msg) = 0;
+    virtual void sig_quitClient() = 0;
 
   public slots:
     virtual void sl_messageReceived(struct _communicationMessage msg) = 0;

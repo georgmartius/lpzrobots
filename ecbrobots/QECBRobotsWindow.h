@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2011-01-24 14:17:39  guettler
+ *   Revision 1.14  2011-01-24 16:58:25  guettler
+ *   - QMessageDispatchServer is now informed when client app closes itself
+ *   - QMessageDispatchWindow actually closes if client app closes itself
+ *   - hint: this should late be
+ *
+ *   Revision 1.13  2011/01/24 14:17:39  guettler
  *   - new menu entry start/stop MatrixViz
  *
  *   Revision 1.12  2010/12/16 16:48:47  wrabe
@@ -120,7 +125,6 @@ namespace lpzrobots {
       void sl_textLog(QString s);
       void sl_GUIEventHandler(int eventCode);
 
-
     private slots:
       void sl_Close();
       void sl_ClearLogView();
@@ -132,6 +136,9 @@ namespace lpzrobots {
       void sl_loadCurrentConfigurableStatesFromFile();
       void sl_clearAutoSaveFile();
       void sl_statusLabelTimerExpired();
+
+    signals:
+      void sig_quitClient();
 
     private:
 
@@ -189,11 +196,10 @@ namespace lpzrobots {
       QWidget* configWidget;
       QScrollArea* scrollArea;
       QMap<QString, QConfigurableWidget*> configurableWidgetMap;
-      QHash<QString,QDomElement> nodeConfigurableStateMap;
+      QHash<QString, QDomElement> nodeConfigurableStateMap;
 
       QLabel* statusLabel;
       QTimer statusLabelTimer;
-
 
       bool isClosed;
 
