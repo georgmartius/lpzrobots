@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-23 11:08:06  guettler
+ *   Revision 1.3  2011-01-24 16:26:36  guettler
+ *   - new QLog feature ensures better performance if log levels are disabled
+ *
+ *   Revision 1.2  2010/11/23 11:08:06  guettler
  *   - some helper functions
  *   - bugfixes
  *   - better event handling
@@ -67,9 +70,9 @@ namespace lpzrobots {
     instance = 0;
   }
 
-  void QLog::textLog(QString log, LOG_TYPE logType /*= LOG_VERBOSE*/) {
+  void QLog::textLog(QString log, LOG_LEVEL logLevel /*= LOG_VERBOSE*/) {
     QLog* instance = getInstance();
-    switch (logType) {
+    switch (logLevel) {
       case LOG_ERROR: // always log errors
         emit instance->sig_textLog("<b><font color=red>"+log+"</color></b>"); // forward
         break;
@@ -83,7 +86,9 @@ namespace lpzrobots {
         break;
       case LOG_DEBUG:
         if (instance->debugOutput)
-          emit instance->sig_textLog("<font color=#505050>"+log+"</color>"); // forward
+          emit instance->sig_textLog("<font color=#404040>"+log+"</color>"); // forward
+        break;
+      default:
         break;
     }
   }
@@ -101,15 +106,33 @@ namespace lpzrobots {
     textLog(log, LOG_VERBOSE);
   }
 
-  void QLog::logDebug(QString log) {
-    textLog(log, LOG_DEBUG);
+  void QLog::logDebug(QString log, QString sourceFile, int sourceLine, QString sourceFunction) {
+    textLog(formatDebugSource(sourceFile, sourceLine, sourceFunction).append(log), LOG_DEBUG);
   }
 
-  QLog* QLog::getInstance() {
-    if (instance == 0)
-      instance = new QLog();
-    return instance;
+  bool QLog::isLevel(LOG_LEVEL logLevel /*= LOG_VERBOSE*/) {
+    switch (logLevel) {
+      case LOG_ERROR: // always log errors
+        return true;
+        break;
+      case LOG_WARNING:
+        if (getInstance()->warningOutput)
+          return true;
+        break;
+      case LOG_VERBOSE:
+        if (getInstance()->verboseOutput)
+          return true;
+        break;
+      case LOG_DEBUG:
+        if (getInstance()->debugOutput)
+          return true;
+        break;
+      default:
+        break;
+    }
+    return false;
   }
+
 
   void QLog::sl_GUIEventHandler(int eventCode) {
 
@@ -172,5 +195,13 @@ namespace lpzrobots {
     settings.setValue("verboseOutput", verboseOutput);
     settings.setValue("debugOutput", debugOutput);
   }
+
+  QString QLog::formatDebugSource(QString file, int line, QString sourceFunction) {
+    if (sourceFunction.size()==0)
+      return QString("<font color=#707070>[").append(file.mid(file.lastIndexOf('/')+1)).append(":").append(QString::number(line)).append("]</font>");
+    else
+      return QString("<font color=#707070>[").append(file.mid(file.lastIndexOf('/')+1)).append(":").append(QString::number(line)).append(":").append(sourceFunction).append("()]</font>");
+  }
+
 
 }

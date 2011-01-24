@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-23 11:08:06  guettler
+ *   Revision 1.3  2011-01-24 16:26:36  guettler
+ *   - new QLog feature ensures better performance if log levels are disabled
+ *
+ *   Revision 1.2  2010/11/23 11:08:06  guettler
  *   - some helper functions
  *   - bugfixes
  *   - better event handling
@@ -48,6 +51,24 @@
 class QMenu;
 class QString;
 
+#include <linux/kernel.h>
+
+#define QLOG(String, Level)\
+  if(QLog::isLevel(Level)) QLog::textLog(String, Level);
+
+// note: always log errors
+#define QLogError(errorString)\
+    QLog::textLog(errorString, QLog::LOG_ERROR);
+
+#define QLogWarning(warningString)\
+  if(QLog::isLevelWarning()) QLog::textLog(warningString, QLog::LOG_WARNING);
+
+#define QLogVerbose(verboseString)\
+  if(QLog::isLevelVerbose()) QLog::textLog(verboseString, QLog::LOG_VERBOSE);
+
+#define QLogDebug(debugString)\
+  if(QLog::isLevelDebug()) QLog::textLog(QLog::formatDebugSource(__FILE__, __LINE__, __FUNCTION__).append(debugString), QLog::LOG_DEBUG);
+
 namespace lpzrobots {
   
   class QExtAction;
@@ -65,7 +86,7 @@ namespace lpzrobots {
 
       virtual ~QLog();
 
-      enum LOG_TYPE {
+      enum LOG_LEVEL {
         LOG_ERROR, LOG_WARNING, LOG_VERBOSE, LOG_DEBUG,
       };
 
@@ -73,15 +94,26 @@ namespace lpzrobots {
        * @param given QString will be forwarded to the log window (via sig_textLog)
        * @param determines which type of log is made (error, warningOutput, verboseOutput, debug)
        */
-      static void textLog(QString log, LOG_TYPE logType = LOG_VERBOSE);
+      static void textLog(QString log, LOG_LEVEL logLevel = LOG_VERBOSE);
 
-      // log critical?
-      // log info?
-      // log debugDetail?
-      static void logError(QString log);
-      static void logWarning(QString log);
-      static void logVerbose(QString log);
-      static void logDebug(QString log);
+      static QString formatDebugSource(QString file, int line, QString sourceFunction);
+
+      /**
+       * Determines if the given log level is actual active.
+       * Inactive log levels are neither not logged to file nor forwarded.
+       * @param logType
+       * @return true or false
+       */
+      static bool isLevel(LOG_LEVEL logLevel = LOG_VERBOSE);
+      static inline bool isLevelWarning() {
+        return getInstance()->warningOutput;
+      }
+      static inline bool isLevelVerbose() {
+        return getInstance()->verboseOutput;
+      }
+      static inline bool isLevelDebug() {
+        return getInstance()->debugOutput;
+      }
 
       /**
        * In order to toggle the log outputs this method adds all needed actions to the given menu.
@@ -115,10 +147,14 @@ namespace lpzrobots {
 
       /**
        * Returns the singleton instance of this class.
-       * If not exists, it will be created (but logs are not forwarded).
+       * If not exists, it will be created (but logs are not forwarded yet).
        * @return
        */
-      static QLog* getInstance();
+      static inline QLog* getInstance() {
+        if (instance == 0)
+          instance = new QLog();
+        return instance;
+      }
 
       void createActions();
 
@@ -128,6 +164,32 @@ namespace lpzrobots {
     protected slots:
 
       void sl_GUIEventHandler(int eventCode);
+
+    protected:
+      // log critical?
+      // log info?
+      // log debugDetail?
+      /**
+       * @deprecated
+       * @param log
+       */
+      static void logError(QString log);
+      /**
+       * @deprecated
+       * @param log
+       */
+      static void logWarning(QString log);
+      /**
+       * @deprecated
+       * @param log
+       */
+      static void logVerbose(QString log);
+      /**
+       * @deprecated
+       * @param log
+       */
+      static void logDebug(QString log, QString sourceFile, int sourceLine, QString sourceFunction);
+
   };
 
 }
