@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-12-16 16:48:47  wrabe
+ *   Revision 1.13  2011-01-24 14:17:39  guettler
+ *   - new menu entry start/stop MatrixViz
+ *
+ *   Revision 1.12  2010/12/16 16:48:47  wrabe
  *   -integrated the statusbar
  *
  *   Revision 1.11  2010/12/15 11:10:26  wrabe
@@ -177,6 +180,7 @@ namespace lpzrobots {
       QExtAction* action_PauseLoop;
       QExtAction* action_StopLoop;
       QExtAction* action_StartStopGuiLogger;
+      QExtAction* action_StartStopMatrixViz;
 
       QExtAction* action_SwitchWarning;
       QExtAction* action_SwitchVerbose;

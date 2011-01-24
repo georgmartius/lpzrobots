@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2010-12-16 18:37:40  wrabe
+ *   Revision 1.18  2011-01-24 14:17:39  guettler
+ *   - new menu entry start/stop MatrixViz
+ *
+ *   Revision 1.17  2010/12/16 18:37:40  wrabe
  *   -added several tooltips
  *   -corrected sentences, notation, syntax for improved informational value
  *   -bugfix: if in collapsed mode, all tiles were stored as invisible
@@ -202,6 +205,11 @@ namespace lpzrobots {
     action_StartStopGuiLogger->setStatusTip(tr("Starts/Stops the Guilogger(s)."));
     connect(action_StartStopGuiLogger, SIGNAL(triggered(int)), ecbManager, SLOT(sl_GUIEventHandler(int)));
 
+    action_StartStopMatrixViz = new QExtAction(QECBManager::EVENT_START_MATRIXVIZ, (tr("Start/Stop &MatrixViz")), this);
+    action_StartStopMatrixViz->setShortcut(tr("CTRL+M"));
+    action_StartStopMatrixViz->setStatusTip(tr("Starts/Stops the MatrixViz(s)."));
+    connect(action_StartStopMatrixViz, SIGNAL(triggered(int)), ecbManager, SLOT(sl_GUIEventHandler(int)));
+
     action_SwitchWarning = new QExtAction(EVENT_SWITCH_WARNING, (tr("&Warning log")), this);
     action_SwitchWarning->setCheckable(true);
     action_SwitchWarning->setStatusTip(tr("Enables/Disables the warning output."));
@@ -252,6 +260,7 @@ namespace lpzrobots {
 
     additionalsMenu = menuBar()->addMenu(tr("&Additionals"));
     additionalsMenu->addAction(action_StartStopGuiLogger);
+    additionalsMenu->addAction(action_StartStopMatrixViz);
 
     settingsMenu = menuBar()->addMenu(tr("&Settings"));
     settingsMenu->addAction(action_SwitchWarning);

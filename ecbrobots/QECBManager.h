@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-12-14 10:10:12  guettler
+ *   Revision 1.5  2011-01-24 14:17:57  guettler
+ *   - new menu entry start/stop MatrixViz
+ *
+ *   Revision 1.4  2010/12/14 10:10:12  guettler
  *   -autoload/autosave now uses only one xml file
  *   -fixed getName of TileWidget which produced invisible widgets in xml files
  *
@@ -90,7 +93,8 @@ namespace lpzrobots {
         EVENT_RESTART_LOOP,
         EVENT_PAUSE_LOOP,
         EVENT_STOP_LOOP,
-        EVENT_START_GUILOGGER
+        EVENT_START_GUILOGGER,
+        EVENT_START_MATRIXVIZ
       };
 
     public slots:

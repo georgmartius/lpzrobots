@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-12-14 10:10:12  guettler
+ *   Revision 1.6  2011-01-24 14:17:57  guettler
+ *   - new menu entry start/stop MatrixViz
+ *
+ *   Revision 1.5  2010/12/14 10:10:12  guettler
  *   -autoload/autosave now uses only one xml file
  *   -fixed getName of TileWidget which produced invisible widgets in xml files
  *
@@ -188,10 +191,21 @@ namespace lpzrobots {
         for (ECBAgentList::iterator i = globalData.agents.begin(); i != globalData.agents.end(); i++) {
           if (!(*i)->removePlotOption(GuiLogger)) {
             PlotOption po(GuiLogger, 5);
-            (*i)->addAndInitPlotOption(po);
+            (*i)->addPlotOption(po);
+            (*i)->setParam("restartPlotOptionEngine", 1);
           }
         }
         globalData.textLog("All Guiloggers startet/stopped.");
+        break;
+      case EVENT_START_MATRIXVIZ:
+        for (ECBAgentList::iterator i = globalData.agents.begin(); i != globalData.agents.end(); i++) {
+          if (!(*i)->removePlotOption(MatrixViz)) {
+            PlotOption po(MatrixViz, 5);
+            (*i)->addPlotOption(po);
+            (*i)->setParam("restartPlotEngine", 1);
+          }
+        }
+        globalData.textLog("All MatrixVizs startet/stopped.");
         break;
       case EVENT_STOP_LOOP: // stop
       default:
