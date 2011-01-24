@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-12-16 18:37:39  wrabe
+ *   Revision 1.7  2011-01-24 17:49:02  guettler
+ *   - bugfix: if unchecked, set parambool in Configurable to false
+ *
+ *   Revision 1.6  2010/12/16 18:37:39  wrabe
  *   -added several tooltips
  *   -corrected sentences, notation, syntax for improved informational value
  *   -bugfix: if in collapsed mode, all tiles were stored as invisible
@@ -116,7 +119,7 @@ namespace lpzrobots {
   }
 
   void QBoolConfigurableTileWidget::sl_checkStateChanged(int state) {
-    if(state == Qt::Checked) config->setParam(key, true); else config->setParam(key, true);
+    if(state == Qt::Checked) config->setParam(key, true); else config->setParam(key, false);
   }
 
   void QBoolConfigurableTileWidget::sl_execContextMenu(const QPoint &pos) {
