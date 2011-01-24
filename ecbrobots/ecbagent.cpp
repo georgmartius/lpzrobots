@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-11-10 09:32:00  guettler
+ *   Revision 1.7  2011-01-24 14:16:55  guettler
+ *   - added comment
+ *   - cosmetic changes
+ *
+ *   Revision 1.6  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *
  *   Revision 1.5  2009/08/11 15:49:05  guettler
@@ -66,17 +70,16 @@ using namespace std;
 
 namespace lpzrobots {
 
-
   ECBAgent::ECBAgent(const PlotOption& plotOption /* = PlotOption(NoPlot)*/, double noisefactor /*= 1*/) :
     Agent(plotOption, noisefactor), internalInitialised(false) {
     addConfigurable(this);
-    addParameterDef("restartplotengine",&restartPlotEngine, true);
+    addParameterDef("restartPlotEngine", &restartPlotEngine, true);
   }
 
   ECBAgent::ECBAgent(const std::list<PlotOption>& plotOptions, double noisefactor /*= 1*/) :
     Agent(plotOptions, noisefactor), internalInitialised(false) {
     addConfigurable(this);
-    addParameterDef("restartplotengine",&restartPlotEngine, true);
+    addParameterDef("restartPlotEngine", &restartPlotEngine, true);
   }
 
   ECBAgent::~ECBAgent() {
@@ -102,22 +105,21 @@ namespace lpzrobots {
   void ECBAgent::step(double noise, double time) {
     if (internalInitialised) {
       if (getRobot()->isInitialised()) {
-        if (restartPlotEngine)
+        if (restartPlotEngine) {
           plotEngine.reInit();
-        restartPlotEngine = false;
+          restartPlotEngine = false;
+        }
         Agent::step(noise, time);
       } else { // not (anymore) initialised, something changed. Wait and close pipes of PlotEngine.
         plotEngine.closePipes();
         restartPlotEngine = true;
       }
-    } else if (getRobot()->isInitialised()){
+    } else if (getRobot()->isInitialised()) {
       Agent::init(controller, robot, wiring);
       internalInitialised = true;
-      restartPlotEngine = false;
-      Agent::step(noise,time);
+      restartPlotEngine = false; // (re-)start is done by Agent::step(...)
+      Agent::step(noise, time);
     } // else do nothing and wait
   }
-
-
 
 }
