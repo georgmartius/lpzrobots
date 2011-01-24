@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-12-16 18:37:40  wrabe
+ *   Revision 1.3  2011-01-24 18:40:48  guettler
+ *   - autosave functionality now stores only values, bounds and descriptions of
+ *   parameters if they differ from their original values
+ *
+ *   Revision 1.2  2010/12/16 18:37:40  wrabe
  *   -added several tooltips
  *   -corrected sentences, notation, syntax for improved informational value
  *   -bugfix: if in collapsed mode, all tiles were stored as invisible
@@ -254,7 +258,7 @@ namespace lpzrobots {
       foreach(QCheckBox* cbConfig, checkBoxConfiguableWidgetList)
         {
           if (cbConfig->isChecked()) {
-            nodeConfigurableStates.appendChild(configurableWidgetMap.value(cbConfig->text())->toXml());
+            nodeConfigurableStates.appendChild(configurableWidgetMap.value(cbConfig->text())->toXml(true));
           }
         }
       QFile file(fileName);

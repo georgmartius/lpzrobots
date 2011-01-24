@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2011-01-04 12:00:46  guettler
+ *   Revision 1.12  2011-01-24 18:40:48  guettler
+ *   - autosave functionality now stores only values, bounds and descriptions of
+ *   parameters if they differ from their original values
+ *
+ *   Revision 1.11  2011/01/04 12:00:46  guettler
  *   -bughunting
  *
  *   Revision 1.10  2010/12/16 18:37:40  wrabe
@@ -111,7 +115,7 @@ namespace lpzrobots {
   QSize QAbstractConfigurableTileWidget::defaultWidgetSize = QSize(300, 80);
 
   QAbstractConfigurableTileWidget::QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey key, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap) :
-    config(config), key(key), gridPos(0,0), internalVisible(true), enableResizing(false), isResizing(false), tileIndexConfigWidgetMap(tileIndexConfigWidgetMap) {
+    config(config), key(key), origDescription(config->getParamDescr(key)), gridPos(0,0), internalVisible(true), enableResizing(false), isResizing(false), tileIndexConfigWidgetMap(tileIndexConfigWidgetMap) {
     defaultPalette = palette();
     setFixedSize(defaultWidgetSize);
     setFrameStyle(QFrame::StyledPanel | QFrame::Raised);

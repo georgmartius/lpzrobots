@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-12-16 16:39:25  wrabe
+ *   Revision 1.7  2011-01-24 18:40:48  guettler
+ *   - autosave functionality now stores only values, bounds and descriptions of
+ *   parameters if they differ from their original values
+ *
+ *   Revision 1.6  2010/12/16 16:39:25  wrabe
  *   - drag&drop reworked: user can now drag a parameter to a any place
  *   - rearrangement of parameters now made only when user wants this
  *   - bugfixes
@@ -107,6 +111,16 @@ namespace lpzrobots {
       void toDummy(bool set);
       void setBounds(Configurable::paramvalBounds bounds);
       void reloadConfigurableData();
+
+      inline bool valueChanged() {
+        return (*config->getParamValMap()[key] != origValue);
+      }
+
+      inline bool boundsChanged() {
+        return (config->getParamvalBounds(key) != origBounds);
+      }
+
+
 
     public slots:
       virtual void sl_resize(QSize newSize);

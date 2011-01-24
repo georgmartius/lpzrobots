@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-12-16 18:37:40  wrabe
+ *   Revision 1.11  2011-01-24 18:40:48  guettler
+ *   - autosave functionality now stores only values, bounds and descriptions of
+ *   parameters if they differ from their original values
+ *
+ *   Revision 1.10  2010/12/16 18:37:40  wrabe
  *   -added several tooltips
  *   -corrected sentences, notation, syntax for improved informational value
  *   -bugfix: if in collapsed mode, all tiles were stored as invisible
@@ -151,6 +155,11 @@ namespace lpzrobots {
       virtual bool isVisible();
       virtual void setInCollapseMode(bool inCollapseMode);
 
+      inline bool descriptionChanged() {
+        return (config->getParamDescr(key) != origDescription);
+      }
+
+
       signals:
         void sig_resize(QSize newSize);
         void sig_mousePressEvent(QMouseEvent* event);
@@ -169,6 +178,7 @@ namespace lpzrobots {
       QPalette defaultPalette;
       Configurable* config;
       Configurable::paramkey key;
+      Configurable::paramdescr origDescription;
       QGridPos gridPos;
       bool internalVisible;
       bool enableResizing;

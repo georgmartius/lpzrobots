@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2011-01-24 16:58:25  guettler
+ *   Revision 1.20  2011-01-24 18:40:48  guettler
+ *   - autosave functionality now stores only values, bounds and descriptions of
+ *   parameters if they differ from their original values
+ *
+ *   Revision 1.19  2011/01/24 16:58:25  guettler
  *   - QMessageDispatchServer is now informed when client app closes itself
  *   - QMessageDispatchWindow actually closes if client app closes itself
  *   - hint: this should late be
@@ -515,7 +519,7 @@ namespace lpzrobots {
   void QECBRobotsWindow::bookmarkConfigurableStates() {
     // if some older ones exist, just overwrite them
     foreach(QConfigurableWidget* confWidget, configurableWidgetMap)
-        nodeConfigurableStateMap.insert(confWidget->getName(), confWidget->toXml());
+        nodeConfigurableStateMap.insert(confWidget->getName(), confWidget->toXml(false));
   }
 
   void QECBRobotsWindow::sl_loadCurrentConfigurableStatesFromFile() {

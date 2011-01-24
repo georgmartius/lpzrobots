@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-12-16 18:37:40  wrabe
+ *   Revision 1.15  2011-01-24 18:40:48  guettler
+ *   - autosave functionality now stores only values, bounds and descriptions of
+ *   parameters if they differ from their original values
+ *
+ *   Revision 1.14  2010/12/16 18:37:40  wrabe
  *   -added several tooltips
  *   -corrected sentences, notation, syntax for improved informational value
  *   -bugfix: if in collapsed mode, all tiles were stored as invisible
@@ -128,7 +132,7 @@ namespace lpzrobots {
     public:
       QConfigurableWidget(Configurable* config, int nameIndex);
       virtual ~QConfigurableWidget();
-      QDomElement toXml();
+      QDomElement toXml(bool insertDefaultConfigurableValues);
       int fromXml(const QDomElement &qde_configurableState);
       int getNameIndex() {return nameIndex; }
       Configurable* getConfigurable() const { return config; }
