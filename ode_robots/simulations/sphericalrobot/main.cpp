@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.29  2010-01-27 10:21:17  martius
+ *   Revision 1.30  2011-01-26 13:18:19  martius
+ *   spherical settings changed
+ *
+ *   Revision 1.29  2010/01/27 10:21:17  martius
  *   nothing
  *
  *   Revision 1.28  2009/12/01 15:50:30  martius
@@ -132,7 +135,7 @@
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
 
-#include <selforg/invertnchannelcontroller.h>
+#include <selforg/semox.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/sinecontroller.h>
@@ -173,6 +176,7 @@
 using namespace lpzrobots;
 using namespace std;
 
+bool calm=false;      
 
 class ThisSim : public Simulation {
 public:
@@ -184,11 +188,10 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    int num_barrels=1;
+    int num_barrels=0;
     int num_barrels_test=0;
-    int num_spheres=0;
+    int num_spheres=1;
     useReinforcement=0;
-
     sensor=0;
 
     bool labyrint=false;      
@@ -200,7 +203,7 @@ public:
     // initialization
     global.odeConfig.setParam("noise",0.1);
     //  global.odeConfig.setParam("gravity",-10);
-    global.odeConfig.setParam("controlinterval",2);
+    global.odeConfig.setParam("controlinterval",1);
     global.odeConfig.setParam("realtimefactor",5);
 
     if(normalplayground){
@@ -303,7 +306,7 @@ public:
       //       AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
       AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05));
       //      OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
-      OdeAgent* agent = new OdeAgent ( plotoptions );
+      OdeAgent* agent = new OdeAgent ( global );
       agent->init ( controller , sphere1 , wiring );
       //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
       global.agents.push_back ( agent );
@@ -335,7 +338,7 @@ public:
       //       dc.useFirstD=false;
       //       AbstractWiring* wiring = new DerivativeWiring(dc,new ColorUniformNoise());
       AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise());
-      OdeAgent* agent = new OdeAgent ( plotoptions );
+      OdeAgent* agent = new OdeAgent ( global );
       agent->init ( controller , sphere1 , wiring );
       //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
       global.agents.push_back ( agent );
@@ -347,11 +350,15 @@ public:
     for(int i=0; i< num_spheres; i++){
       //****************
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.25; //0.15 
-      conf.motorpowerfactor  = 150;     
-      //      conf.spheremass = 1;
-      conf.spheremass = 0.4;
-      //      conf.motorpowerfactor  = 50;    
+      OdeHandle sphereOdeHandle = odeHandle;      
+      if(!calm){
+        conf.pendularrange  = 0.25; //0.15 
+        conf.motorpowerfactor  = 150;     
+        //      conf.spheremass = 1;
+        conf.spheremass = 0.4;
+        //      conf.motorpowerfactor  = 50;    
+        sphereOdeHandle.substance.roughness=10;
+      }
 
       conf.motorsensor=false;
       sensor = new AxisOrientationSensor(AxisOrientationSensor::ZProjection);      
@@ -366,60 +373,63 @@ public:
       // conf.irRing=true;
       // conf.irSide=true;
       //       conf.drawIRs=false;
-      OdeHandle sphereOdeHandle = odeHandle;
-      sphereOdeHandle.substance.roughness=10;
       sphere1 = new Sphererobot3Masses ( sphereOdeHandle, 
 					 osgHandle.changeColor(Color(2,0.0,0.0)), 
 					 conf, "Sphere", 0.2);       
-      //// FORCEDSPHERE
-      // ForcedSphereConf fsc = ForcedSphere::getDefaultConf();
-      // fsc.drivenDimensions=ForcedSphere::X;
-      // fsc.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
-      // sphere1 = new ForcedSphere(odeHandle, osgHandle, fsc, "FSphere");
-      // 
-      //      sphere1->place ( osg::Matrix::translate(6.25,0,0.2));
-      sphere1->place ( osg::Matrix::translate(0,0,0.2));
-      
-      InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-      //      DerControllerConf cc = DerController::getDefaultConf();
-      cc.cInit=1.0;
-      //      cc.useSD=true;
-      //controller = new DerController(cc);    
-      //controller = new InvertMotorNStep(cc);    
-//       controller = new InvertNChannelController(20);    
-//       controller->setParam("eps", 0.05);    
-//       controller->setParam("factor_a", 2);
+      sphere1->place ( osg::Matrix::translate(0,0,0.01));
 
-      controller = new SineController();
-      //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
-      controller->setParam("steps", 1);    
-      //    controller->setParam("adaptrate", 0.001);    
-      controller->setParam("adaptrate", 0.0);    
-      controller->setParam("nomupdate", 0.005);    
-      if(useReinforcement){
-	controller->setParam("epsC", 0.2);    
-	controller->setParam("epsA", 0.4); 
-      }else{
-	controller->setParam("epsC", 0.1);    
-	controller->setParam("epsA", 0.2); // 0.5    	
+
+      if(calm){
+        SeMoXConf cc = SeMoX::getDefaultConf();    
+        cc.modelExt=true;
+        controller = new SeMoX(cc);  
+        
+        controller->setParam("epsC", 0.1);
+        controller->setParam("epsA", 0.1);        
+        controller->setParam("rootE", 0);
+        controller->setParam("steps", 1);
+        controller->setParam("s4avg", 1);
+        controller->setParam("dampModel", 0.9e-5);
+        controller->setParam("discountS", 0.01);
+      }else{            
+        SeMoXConf cc = SeMoX::getDefaultConf();    
+        cc.modelExt=true;
+        controller = new SeMoX(cc);  
+        
+        controller->setParam("epsC", 0.2);
+        controller->setParam("epsA", 0.2);        
+        controller->setParam("rootE", 3);
+        controller->setParam("steps", 1);
+        controller->setParam("s4avg", 1);
+        controller->setParam("dampModel", 0.9e-5);
+        controller->setParam("discountS", 0.1);
+        // InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+        // cc.cInit=1.0;
+        // cc.useSD=true;
+        // controller = new InvertMotorNStep(cc);    
+        // controller->setParam("steps", 1);    
+        // controller->setParam("adaptrate", 0.0);    
+        // if(useReinforcement){
+        //   controller->setParam("epsC", 0.2);    
+        //   controller->setParam("epsA", 0.4); 
+        // }else{
+        //   controller->setParam("epsC", 0.1);    
+        //   controller->setParam("epsA", 0.2); // 0.5    	
+        // }
+        // controller->setParam("rootE", 3);    
+        // controller->setParam("logaE", 0);    
       }
-      //    controller->setParam("rootE", 1);    
-      //    controller->setParam("logaE", 2);    
-      controller->setParam("steps", 1);    
-      controller->setParam("rootE", 3);    
-      controller->setParam("logaE", 0);    
-      //     controller = new SineController();  
-      controller->setParam("sinerate", 15);  
-      controller->setParam("phaseshift", 0.45);
     
-      // One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.2) );
-      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.2), 
-							  new select_from_to(0,2), 
-							  AbstractWiring::Robot);
-      std::list<PlotOption> l;
-      l.push_back(PlotOption(GuiLogger, 5));
+      //      One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.1) );
+      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.1), 
+                                                         // AbstractWiring* wiring = new SelectiveOne2OneWiring(new WhiteUniformNoise(), 
+         						  new select_from_to(0,2), 
+                                                          AbstractWiring::Robot);
+
+      //      std::list<PlotOption> l;
+      //      l.push_back(PlotOption(GuiLogger, 5));
       //      l.push_back(PlotOption(File, 1));      
-      OdeAgent* agent = new OdeAgent ( l );
+      OdeAgent* agent = new OdeAgent ( global);
 
       //       OdeAgent* agent = new OdeAgent ( plotoptions);
       agent->init ( controller , sphere1 , wiring );
@@ -551,6 +561,11 @@ public:
 int main (int argc, char **argv)
 { 
   ThisSim sim;
+
+  if(sim.contains(argv,argc,"-calm")!=0) {
+    calm=true;
+  }
+
   sim.setCaption("Spherical Robot (lpzrobots Simulator)   Martius,Der 2007");
   sim.setGroundTexture("Images/yellowground.rgb");
   // run simulation
