@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2011-01-24 14:17:57  guettler
+ *   Revision 1.7  2011-01-27 09:31:15  guettler
+ *   - Guilogger opens again when desired by user (menu or CTRL+G)
+ *
+ *   Revision 1.6  2011/01/24 14:17:57  guettler
  *   - new menu entry start/stop MatrixViz
  *
  *   Revision 1.5  2010/12/14 10:10:12  guettler
@@ -192,7 +195,7 @@ namespace lpzrobots {
           if (!(*i)->removePlotOption(GuiLogger)) {
             PlotOption po(GuiLogger, 5);
             (*i)->addPlotOption(po);
-            (*i)->setParam("restartPlotOptionEngine", 1);
+            (*i)->setParam("restartPlotEngine", 1);
           }
         }
         globalData.textLog("All Guiloggers startet/stopped.");
