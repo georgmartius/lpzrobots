@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2011-01-24 18:40:48  guettler
+ *   Revision 1.16  2011-01-27 09:04:12  guettler
+ *   - some preparations for checkbox in order to switch the autosave function
+ *
+ *   Revision 1.15  2011/01/24 18:40:48  guettler
  *   - autosave functionality now stores only values, bounds and descriptions of
  *   parameters if they differ from their original values
  *
@@ -142,6 +145,7 @@ namespace lpzrobots {
     public slots:
       void sl_mousePressEvent(QMouseEvent* event);
 
+
     signals:
       void sig_tileWidgetResize(QSize newSize);
 
@@ -163,6 +167,7 @@ namespace lpzrobots {
       void sl_loadConfigurableStateFromFile();
       void sl_saveConfigurableStateToFile();
       void sl_rearrangeConfigurableTiles();
+      void sl_toggled(bool on);
 
     private:
       void setFolding(bool folding);

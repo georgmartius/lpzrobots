@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2011-01-24 18:40:48  guettler
+ *   Revision 1.18  2011-01-27 09:04:12  guettler
+ *   - some preparations for checkbox in order to switch the autosave function
+ *
+ *   Revision 1.17  2011/01/24 18:40:48  guettler
  *   - autosave functionality now stores only values, bounds and descriptions of
  *   parameters if they differ from their original values
  *
@@ -150,7 +153,6 @@ namespace lpzrobots {
 
   void QConfigurableWidget::createConfigurableLines() {
 
-    setLayout(&layout);
     int tileIndex = 0;
 
     Configurable::parammap valMap = config->getParamValMap();
@@ -199,6 +201,12 @@ namespace lpzrobots {
   }
 
   void QConfigurableWidget::initBody() {
+    setLayout(&layout);
+
+    // TODO: show checkbox to switch between autosave configurable values
+    //setCheckable(true);
+    connect(this, SIGNAL(toggled(bool)), this, SLOT(sl_toggled(bool)));
+
     //    setTitle(QString(config->getName().c_str()) + "  -  " + QString(config->getRevision().c_str()) + "  [" + QString::number(config->getId()) + "]");
     setTitle(QString(config->getName().c_str()) + " (" + QString::number(nameIndex) + ")");
     configName = QString(config->getName().c_str()) + "_" + QString::number(nameIndex);
@@ -222,6 +230,13 @@ namespace lpzrobots {
         SLOT(sl_saveConfigurableStateToFile()));
 
     layout.setColumnStretch(10, 100);
+  }
+
+  void QConfigurableWidget::sl_toggled(bool on) {
+    foreach(QAbstractConfigurableTileWidget* configurableTile, configTileWidgetMap)
+      {
+        configurableTile->setEnabled(true);
+      }
   }
 
   void QConfigurableWidget::sl_execContextMenu(const QPoint & pos) {
@@ -374,8 +389,8 @@ namespace lpzrobots {
           double value = qde_paramval.attribute("value", QString::number(config->getParam(stdKey))).toDouble();
           double minBound =
               qde_paramval.attribute("minBound", QString::number(config->getParamvalBounds(stdKey).first)).toDouble();
-          double maxBound =
-              qde_paramval.attribute("maxBound", QString::number(config->getParamvalBounds(stdKey).second)).toDouble();
+          double maxBound = qde_paramval.attribute("maxBound",
+              QString::number(config->getParamvalBounds(stdKey).second)).toDouble();
           config->setParamBounds(stdKey, minBound, maxBound);
           config->setParam(stdKey, value);
           config->setParamDescr(stdKey, desc.toStdString());
@@ -410,8 +425,8 @@ namespace lpzrobots {
       while (!qde_parambool.isNull()) {
         QString key = qde_parambool.attribute("name", "???");
         string stdKey = key.toStdString();
-        if (config->getParamBoolMap().find(stdKey) != config->getParamBoolMap().end()
-            && configTileWidgetMap.contains(key)) {
+        if (config->getParamBoolMap().find(stdKey) != config->getParamBoolMap().end() && configTileWidgetMap.contains(
+            key)) {
           QString desc = qde_parambool.attribute("description", QString(config->getParamDescr(stdKey).c_str()));
           bool value = qde_parambool.attribute("value", QString::number(config->getParam(stdKey))).toInt();
           config->setParam(stdKey, value);
@@ -481,7 +496,10 @@ namespace lpzrobots {
     nodeConfigurable.setAttribute("id", config->getId());
 
     if (!insertDefaultConfigurableValues) {
-      QDomComment nodeComment = doc.createComment("While in autosave mode, only values, bounds and descriptions of parameters which are differing from their original values are stored.");
+      QDomComment
+          nodeComment =
+              doc.createComment(
+                  "While in autosave mode, only values, bounds and descriptions of parameters which are differing from their original values are stored.");
       nodeConfigurable.appendChild(nodeComment);
     }
 
