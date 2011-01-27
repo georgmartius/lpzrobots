@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2011-01-27 15:48:01  guettler
+ *   Revision 1.5  2011-01-27 17:50:17  guettler
+ *   - when timeout occurs, step for ECB ignored
+ *
+ *   Revision 1.4  2011/01/27 15:48:01  guettler
  *   - pause modus fixed
  *
  *   Revision 1.3  2010/11/26 12:22:37  guettler
@@ -97,8 +100,8 @@ namespace lpzrobots {
     message.data[0] = 0x01; // MsgGroup_ECB_ROBOT_FIRMWARE
     message.data[1] = commandPackage.command;
     message.data.append((const char*) commandPackage.data, commandPackage.dataLength);
-//    if (!globalData.paused)
-//      timer.start(globalData.serialReadTimeout);
+    if (!globalData.paused)
+      timer.start(globalData.serialReadTimeout);
     emit sig_sendMessage(message);
   }
 
