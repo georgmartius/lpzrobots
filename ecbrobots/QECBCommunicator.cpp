@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-26 12:22:37  guettler
+ *   Revision 1.4  2011-01-27 15:48:01  guettler
+ *   - pause modus fixed
+ *
+ *   Revision 1.3  2010/11/26 12:22:37  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -120,23 +123,25 @@ namespace lpzrobots {
       communicationRunning = true;
       switch (currentCommState) {
         case STATE_READY_FOR_STEP_OVER_AGENTS:
-          globalData.simStep++;
-          globalData.textLog("ECBCommunicator: loop! simStep=" + QString::number(globalData.simStep));
-          /// With this for loop all agents perform a controller step
-          if (!globalData.testMode) {
-            // sorgt dafür, dass der Zeittakt eingehalten wird:
-            // Berechnung zu schnell -> warte,
-            // Berechnung zu langsam -> Ausgabe, dass time leak stattfindet
-            loopCallback();
-            FOREACH ( AgentList,globalData.agents,a ) {
-              ((ECBAgent*) (*a))->step(globalData.noise, globalData.simStep);
+          if (!globalData.paused) {
+            globalData.simStep++;
+            globalData.textLog("ECBCommunicator: loop! simStep=" + QString::number(globalData.simStep));
+            /// With this for loop all agents perform a controller step
+            if (!globalData.testMode) {
+              // sorgt dafür, dass der Zeittakt eingehalten wird:
+              // Berechnung zu schnell -> warte,
+              // Berechnung zu langsam -> Ausgabe, dass time leak stattfindet
+              loopCallback();
+              FOREACH ( AgentList,globalData.agents,a ) {
+                ((ECBAgent*) (*a))->step(globalData.noise, globalData.simStep);
+              }
+            } else {
+              if (!this->testModeCallback())
+                stopCommunication = true;
             }
-          } else {
-            if (!this->testModeCallback())
-              stopCommunication = true;
+            globalData.textLog("ECBCommunicator: AgentStep finished.");
+            currentCommState = STATE_READY_FOR_SENDING_PACKAGE_MOTORS;
           }
-          globalData.textLog("ECBCommunicator: AgentStep finished.");
-          currentCommState = STATE_READY_FOR_SENDING_PACKAGE_MOTORS;
           break;
         case STATE_READY_FOR_SENDING_PACKAGE_MOTORS: //!< indicates that the thread is ready to send new motor values to an ECB
           if (currentECBIndex < getNumberOfMediatorCollegues()) {

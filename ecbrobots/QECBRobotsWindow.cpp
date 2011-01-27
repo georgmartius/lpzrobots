@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2011-01-24 18:40:48  guettler
+ *   Revision 1.21  2011-01-27 15:48:01  guettler
+ *   - pause modus fixed
+ *
+ *   Revision 1.20  2011/01/24 18:40:48  guettler
  *   - autosave functionality now stores only values, bounds and descriptions of
  *   parameters if they differ from their original values
  *
@@ -126,9 +129,13 @@ namespace lpzrobots {
     configWidget(0), isClosed(false) {
     this->applicationPath = applicationPath;
     this->setWindowTitle("ECB_Robot-Application V2.0");
+    loopStateLabel = new QLabel(statusBar());
     statusLabel = new QLabel(statusBar());
-    statusBar()->addWidget(statusLabel);
+
+    statusBar()->addWidget(statusLabel, 1);
+    statusBar()->addWidget(loopStateLabel);
     connect(&statusLabelTimer, SIGNAL(timeout()), this, SLOT(sl_statusLabelTimerExpired()));
+    loopStateLabel->setText("STOPPED");
 
 
     autoloadConfigurableStates();
@@ -381,6 +388,8 @@ namespace lpzrobots {
         action_StopLoop->setEnabled(true);
         globalData->textLog("STATE: Running");
         updateConfigurableWidget();
+        loopStateLabel->setText("RUNNING");
+
         break;
       case QECBCommunicator::STATE_PAUSED: //!< state which indicates that all actions are paused
         action_StartLoop->setEnabled(false);
@@ -388,6 +397,7 @@ namespace lpzrobots {
         action_PauseLoop->setEnabled(true);
         action_StopLoop->setEnabled(true);
         globalData->textLog("STATE: Paused");
+        loopStateLabel->setText("PAUSED");
         break;
       case QECBCommunicator::STATE_STOPPED: //!< state which indicates that all actions are stopped, quitted and leaved. Bye bye.
       default:
@@ -396,6 +406,7 @@ namespace lpzrobots {
         action_PauseLoop->setEnabled(false);
         action_StopLoop->setEnabled(false);
         globalData->textLog("STATE: Stopped");
+        loopStateLabel->setText("STOPPED");
         updateConfigurableWidget();
         break;
     }

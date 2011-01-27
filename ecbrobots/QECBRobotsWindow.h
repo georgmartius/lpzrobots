@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2011-01-24 16:58:25  guettler
+ *   Revision 1.15  2011-01-27 15:48:01  guettler
+ *   - pause modus fixed
+ *
+ *   Revision 1.14  2011/01/24 16:58:25  guettler
  *   - QMessageDispatchServer is now informed when client app closes itself
  *   - QMessageDispatchWindow actually closes if client app closes itself
  *   - hint: this should late be
@@ -200,6 +203,7 @@ namespace lpzrobots {
 
       QLabel* statusLabel;
       QTimer statusLabelTimer;
+      QLabel* loopStateLabel;
 
       bool isClosed;
 
