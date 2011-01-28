@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-04-02 13:36:48  fhesse
+ *   Revision 1.6  2011-01-28 11:32:31  martius
+ *   bugfix in new playground implementation
+ *   passive box and sphere, ... use textures again
+ *
+ *   Revision 1.5  2009/04/02 13:36:48  fhesse
  *   constructor, create() and setPose() adapted to allow replacing
  *   during siumulation; if mass=0.0 elements without a body are
  *   generated (as in PassiveBox)
@@ -141,6 +145,7 @@ class PassiveSphere : public AbstractObstacle{
   
  protected:
   virtual void create(){
+    sphere->setTextures(getTextures(0));
     if (mass==0.0) {
       sphere->init(odeHandle, mass, osgHandle, Primitive::Geom | Primitive::Draw);
      } else {

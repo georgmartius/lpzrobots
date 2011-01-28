@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-04-02 13:10:03  fhesse
+ *   Revision 1.10  2011-01-28 11:32:31  martius
+ *   bugfix in new playground implementation
+ *   passive box and sphere, ... use textures again
+ *
+ *   Revision 1.9  2009/04/02 13:10:03  fhesse
  *   replace() removed; setPose() and create() adapted such
  *   that replacing is now possible
  *
@@ -120,6 +124,7 @@ class PassiveBox : public AbstractObstacle{
 
  protected:
   virtual void create(){
+    box->setTextures(getTextures(0));
     if (mass==0.0) {
       box->init(odeHandle, mass, osgHandle, Primitive::Geom | Primitive::Draw);
     } else {

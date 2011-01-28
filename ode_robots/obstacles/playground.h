@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2011-01-02 23:09:52  martius
+ *   Revision 1.24  2011-01-28 11:32:31  martius
+ *   bugfix in new playground implementation
+ *   passive box and sphere, ... use textures again
+ *
+ *   Revision 1.23  2011/01/02 23:09:52  martius
  *   texture handling of boxes changed
  *   playground walls changed
  *
@@ -186,30 +190,32 @@ namespace lpzrobots {
       
       Box* box;
       osg::Vec3 offset(0, 
-		       (length/2 + width/2),		       
+		       (length/2 * factorlength2 + width/2),		       
 		       height/2+0.01f/*reduces graphic errors and ode collisions*/);
-      box = new Box( length * factorlength2 + 2 * width , width, height);      
+      box = new Box( length + 2 * width , width, height);      
       box->setTextures(getTextures(0));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * pose);
       obst.push_back(box);
 
-      box = new Box( length * factorlength2 + 2 * width , width, height);      
+      box = new Box( length + 2 * width , width, height);      
       box->setTextures(getTextures(1));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * osg::Matrix::rotate(M_PI, 0,0,1) * pose);
       obst.push_back(box);
 
+      osg::Vec3 offset2(0, (length/2 + width/2), 
+                       height/2+0.01f/*reduces graphic errors and ode collisions*/);
       box = new Box( length * factorlength2 , width, height);      
       box->setTextures(getTextures(2));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-      box->setPose(osg::Matrix::translate(offset) * osg::Matrix::rotate(M_PI/2.0, 0,0,1) * pose);
+      box->setPose(osg::Matrix::translate(offset2) * osg::Matrix::rotate(M_PI/2.0, 0,0,1) * pose);
       obst.push_back(box);
 
       box = new Box( length * factorlength2 , width, height);      
       box->setTextures(getTextures(3));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-      box->setPose(osg::Matrix::translate(offset) * osg::Matrix::rotate(3.0*M_PI/2.0, 0,0,1) 
+      box->setPose(osg::Matrix::translate(offset2) * osg::Matrix::rotate(3.0*M_PI/2.0, 0,0,1) 
 		   * pose);
       obst.push_back(box);
 
