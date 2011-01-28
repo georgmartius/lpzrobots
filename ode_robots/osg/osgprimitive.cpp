@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2011-01-02 23:09:52  martius
+ *   Revision 1.27  2011-01-28 11:31:19  martius
+ *   changed texture order on osgBox, CreateRectable normal inverted (right handed now)
+ *
+ *   Revision 1.26  2011/01/02 23:09:52  martius
  *   texture handling of boxes changed
  *   playground walls changed
  *
@@ -466,27 +469,27 @@ namespace lpzrobots {
 
     unsigned int tex = 0; 
     assert(textures.size()); 
-    faces[0] = createRectangle(osgHandle, vs[4], vs[5], vs[1], 
+    faces[0] = createRectangle(osgHandle, vs[0], vs[1], vs[5], // 4 5 1
 			       textures[tex].repeatOnR, textures[tex].repeatOnS);
     addTexture(faces[0].get(),textures[tex]);
     if(textures.size()>tex+1) tex++;
-    faces[1] = createRectangle(osgHandle, vs[3], vs[2], vs[6], 
+    faces[1] = createRectangle(osgHandle, vs[2], vs[3], vs[7],  // 3 2 6 
 			       textures[tex].repeatOnR, textures[tex].repeatOnS);
     addTexture(faces[1].get(),textures[tex]);
     if(textures.size()>tex+1) tex++;
-    faces[2] = createRectangle(osgHandle, vs[7], vs[6], vs[5], 
+    faces[2] = createRectangle(osgHandle, vs[7], vs[4], vs[5],  // 7 6 5 
 			       textures[tex].repeatOnR, textures[tex].repeatOnS);
     addTexture(faces[2].get(),textures[tex]);
     if(textures.size()>tex+1) tex++;
-    faces[3] = createRectangle(osgHandle, vs[0], vs[1], vs[2], 
+    faces[3] = createRectangle(osgHandle, vs[0], vs[3], vs[2], // 0 1 2
 			       textures[tex].repeatOnR, textures[tex].repeatOnS);
     addTexture(faces[3].get(),textures[tex]);
     if(textures.size()>tex+1) tex++;
-    faces[4] = createRectangle(osgHandle, vs[2], vs[1], vs[5], 
+    faces[4] = createRectangle(osgHandle, vs[1], vs[2], vs[6],  // 2 1 5
 			       textures[tex].repeatOnR, textures[tex].repeatOnS);
     addTexture(faces[4].get(),textures[tex]);
     if(textures.size()>tex+1) tex++;
-    faces[5] = createRectangle(osgHandle, vs[7], vs[4], vs[0], 
+    faces[5] = createRectangle(osgHandle, vs[3], vs[0], vs[4],  // 7 4 0
 			       textures[tex].repeatOnR, textures[tex].repeatOnS);
     addTexture(faces[5].get(),textures[tex]);
 
@@ -749,7 +752,7 @@ namespace lpzrobots {
     geometry->addPrimitiveSet(base);
     // one normal for the all corners
     osg::Vec3Array* normals = new osg::Vec3Array;
-    Vec3 normal = (v1-v2) ^ (v3-v2);
+    Vec3 normal = (v1-v2) ^ (v3-v2) * -1;
     normal.normalize();
     normals->push_back(normal);
     geometry->setNormalArray(normals);
