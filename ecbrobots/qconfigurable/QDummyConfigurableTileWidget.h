@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-12-16 16:39:25  wrabe
+ *   Revision 1.4  2011-01-28 12:15:37  guettler
+ *   - restore of AutoSave File from a backup implemented
+ *   - reset to original values, values AND bounds for Configurable implemented
+ *   - reset to original values for tileWidgets implemented
+ *
+ *   Revision 1.3  2010/12/16 16:39:25  wrabe
  *   - drag&drop reworked: user can now drag a parameter to a any place
  *   - rearrangement of parameters now made only when user wants this
  *   - bugfixes
@@ -61,11 +66,13 @@ namespace lpzrobots {
         return name;
       }
 
-      void toDummy(bool set) {
-      }
+      void toDummy(bool set) {}
 
-      void reloadConfigurableData() {
-      }
+      void reloadConfigurableData() {}
+
+    public slots:
+      virtual void sl_resetToOriginalValues() {}
+      virtual void sl_resetToOriginalValuesAndBounds() {}
 
     private:
       QString name;

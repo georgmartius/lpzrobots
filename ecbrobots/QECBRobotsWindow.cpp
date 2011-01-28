@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2011-01-28 11:32:12  guettler
+ *   Revision 1.23  2011-01-28 12:15:37  guettler
+ *   - restore of AutoSave File from a backup implemented
+ *   - reset to original values, values AND bounds for Configurable implemented
+ *   - reset to original values for tileWidgets implemented
+ *
+ *   Revision 1.22  2011/01/28 11:32:12  guettler
  *   - original values are written back to the Configurable instances if the QConfigurable interface is restarted
  *
  *   Revision 1.21  2011/01/27 15:48:01  guettler
@@ -195,6 +200,10 @@ namespace lpzrobots {
     action_ClearAutoSaveFile->setStatusTip(tr("Removes all currently not used saved ConfigurableStates from the AutoSave File (autosave_QConfigurable.xml)."));
     connect(action_ClearAutoSaveFile, SIGNAL(triggered()), this, SLOT(sl_clearAutoSaveFile()));
 
+    action_RestoreAutoSaveFile = new QAction((tr("Restore AutoSave File")), this);
+    action_RestoreAutoSaveFile->setStatusTip(tr("Restores the AutoSave File from a backup created at the start of this program and restores the ConfigurableStates (autosave_QConfigurable_backup.xml)."));
+    connect(action_RestoreAutoSaveFile, SIGNAL(triggered()), this, SLOT(sl_restoreAutoSaveFile()));
+
     action_Exit = new QAction(tr("&Quit"), this);
     action_Exit->setShortcut(tr("Ctrl+Q"));
     action_Exit->setStatusTip(tr("Closes the application."));
@@ -268,6 +277,7 @@ namespace lpzrobots {
     fileMenu->addAction(action_SaveConfigurableState);
     fileMenu->addAction(action_LoadConfigurableState);
     fileMenu->addAction(action_ClearAutoSaveFile);
+    fileMenu->addAction(action_RestoreAutoSaveFile);
     fileMenu->addSeparator();
     fileMenu->addAction(action_Exit);
 
@@ -496,10 +506,12 @@ namespace lpzrobots {
   void QECBRobotsWindow::autoloadConfigurableStates() {
     QString pathApplication = QCoreApplication::applicationDirPath();
     QString preferredFileName = pathApplication + "/autosave_QConfigurable.xml";
+    // first backup autosave file
+    QFile::remove(pathApplication + "/autosave_QConfigurable_backup.xml");
+    QFile::copy(preferredFileName, pathApplication + "/autosave_QConfigurable_backup.xml");
     QFile file(preferredFileName);
     if (!file.open(QIODevice::ReadOnly))
       return;
-
     QDomDocument doc("ConfigurableStateTypeDefinition");
     if (!doc.setContent(&file)) {
       file.close();
@@ -518,6 +530,18 @@ namespace lpzrobots {
       QString name = nodeConfigurableState.attribute("name", "DefaultName");
       nodeConfigurableStateMap.insert(name, nodeConfigurableState);
     }
+  }
+
+  void QECBRobotsWindow::sl_restoreAutoSaveFile() {
+    QString pathApplication = QCoreApplication::applicationDirPath();
+    QString preferredFileName = pathApplication + "/autosave_QConfigurable.xml";
+    // restore autosave file from backup
+    QFile::remove(pathApplication + "/autosave_QConfigurable.xml");
+    QFile::copy(pathApplication + "/autosave_QConfigurable_backup.xml", pathApplication + "/autosave_QConfigurable.xml");
+    // load restored file
+    nodeConfigurableStateMap.clear();
+    autoloadConfigurableStates();
+    recallConfigurableStates();
   }
 
   void QECBRobotsWindow::recallConfigurableStates() {

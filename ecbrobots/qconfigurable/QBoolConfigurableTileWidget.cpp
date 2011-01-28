@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2011-01-28 11:32:12  guettler
+ *   Revision 1.9  2011-01-28 12:15:37  guettler
+ *   - restore of AutoSave File from a backup implemented
+ *   - reset to original values, values AND bounds for Configurable implemented
+ *   - reset to original values for tileWidgets implemented
+ *
+ *   Revision 1.8  2011/01/28 11:32:12  guettler
  *   - original values are written back to the Configurable instances if the QConfigurable interface is restarted
  *
  *   Revision 1.7  2011/01/24 17:49:02  guettler
@@ -144,6 +149,11 @@ namespace lpzrobots {
       repaint();
     }
   }
+
+  void QBoolConfigurableTileWidget::sl_resetToOriginalValuesAndBounds() {
+    sl_resetToOriginalValues();
+  }
+
 
   void QBoolConfigurableTileWidget::sl_resetToOriginalValues() {
     config->setParam(key, origValue);

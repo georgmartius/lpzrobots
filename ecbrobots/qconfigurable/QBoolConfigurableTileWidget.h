@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2011-01-24 18:40:48  guettler
+ *   Revision 1.5  2011-01-28 12:15:37  guettler
+ *   - restore of AutoSave File from a backup implemented
+ *   - reset to original values, values AND bounds for Configurable implemented
+ *   - reset to original values for tileWidgets implemented
+ *
+ *   Revision 1.4  2011/01/24 18:40:48  guettler
  *   - autosave functionality now stores only values, bounds and descriptions of
  *   parameters if they differ from their original values
  *
@@ -73,7 +78,6 @@
 #include <QCheckBox>
 #include <QPalette>
 
-
 namespace lpzrobots {
   
   class QBoolConfigurableTileWidget : public lpzrobots::QAbstractConfigurableTileWidget {
@@ -81,7 +85,8 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
-      QBoolConfigurableTileWidget(Configurable* config, Configurable::paramkey& key, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap);
+      QBoolConfigurableTileWidget(Configurable* config, Configurable::paramkey& key, QMap<QGridPos,
+          QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap);
       virtual ~QBoolConfigurableTileWidget();
       void setName(QString name);
       void toDummy(bool set);
@@ -91,12 +96,15 @@ namespace lpzrobots {
         return (*config->getParamBoolMap()[key] != origValue);
       }
 
+    public slots:
+      virtual void sl_resetToOriginalValues();
+      virtual void sl_resetToOriginalValuesAndBounds();
+
     protected:
 
     private slots:
       void sl_checkStateChanged(int);
       void sl_execContextMenu(const QPoint &pos);
-      void sl_resetToOriginalValues();
 
     private:
       QGridLayout gridLayoutConfigurableTile;
@@ -105,7 +113,6 @@ namespace lpzrobots {
       QPalette defaultPalette;
 
       Configurable::parambool origValue;
-
 
   };
 

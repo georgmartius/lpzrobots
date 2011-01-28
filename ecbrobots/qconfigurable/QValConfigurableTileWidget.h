@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-01-24 18:40:48  guettler
+ *   Revision 1.8  2011-01-28 12:15:37  guettler
+ *   - restore of AutoSave File from a backup implemented
+ *   - reset to original values, values AND bounds for Configurable implemented
+ *   - reset to original values for tileWidgets implemented
+ *
+ *   Revision 1.7  2011/01/24 18:40:48  guettler
  *   - autosave functionality now stores only values, bounds and descriptions of
  *   parameters if they differ from their original values
  *
@@ -124,6 +129,8 @@ namespace lpzrobots {
 
     public slots:
       virtual void sl_resize(QSize newSize);
+      virtual void sl_resetToOriginalValues();
+      virtual void sl_resetToOriginalValuesAndBounds();
 
     protected:
       int calcNumberDecimals();
@@ -133,7 +140,6 @@ namespace lpzrobots {
       void sl_sliderValueChanged(int);
       void sl_execContextMenu(const QPoint &pos);
       void sl_changeBounds();
-      void sl_resetToOriginalValues();
 
     private:
       QGridLayout gridLayoutConfigurableTile;

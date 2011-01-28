@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-01-28 11:32:12  guettler
+ *   Revision 1.10  2011-01-28 12:15:37  guettler
+ *   - restore of AutoSave File from a backup implemented
+ *   - reset to original values, values AND bounds for Configurable implemented
+ *   - reset to original values for tileWidgets implemented
+ *
+ *   Revision 1.9  2011/01/28 11:32:12  guettler
  *   - original values are written back to the Configurable instances if the QConfigurable interface is restarted
  *
  *   Revision 1.8  2010/12/16 18:37:40  wrabe
@@ -185,7 +190,8 @@ namespace lpzrobots {
   void QValConfigurableTileWidget::sl_execContextMenu(const QPoint &pos) {
     QMenu menu;
     menu.addAction(tr("change boundaries of this configurable ..."), this, SLOT(sl_changeBounds()));
-    menu.addAction(tr("reset to original value and bounds"), this, SLOT(sl_resetToOriginalValues()));
+    menu.addAction(tr("reset to original value"), this, SLOT(sl_resetToOriginalValues()));
+    menu.addAction(tr("reset to original value AND bounds"), this, SLOT(sl_resetToOriginalValuesAndBounds()));
     menu.exec(this->mapToGlobal(pos));
   }
   void QValConfigurableTileWidget::sl_changeBounds() {
@@ -227,6 +233,13 @@ namespace lpzrobots {
   }
 
   void QValConfigurableTileWidget::sl_resetToOriginalValues() {
+    config->setParam(key, origValue);
+    // values
+    dsBox.setValue(origValue);
+    sl_spinBoxValueChanged(origValue);
+  }
+
+  void QValConfigurableTileWidget::sl_resetToOriginalValuesAndBounds() {
     config->setParam(key, origValue);
     config->setParamBounds(key, origBounds.first, origBounds.second);
     setBounds(config->getParamvalBounds(key));

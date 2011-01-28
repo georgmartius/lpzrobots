@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2011-01-27 09:04:12  guettler
+ *   Revision 1.19  2011-01-28 12:15:37  guettler
+ *   - restore of AutoSave File from a backup implemented
+ *   - reset to original values, values AND bounds for Configurable implemented
+ *   - reset to original values for tileWidgets implemented
+ *
+ *   Revision 1.18  2011/01/27 09:04:12  guettler
  *   - some preparations for checkbox in order to switch the autosave function
  *
  *   Revision 1.17  2011/01/24 18:40:48  guettler
@@ -221,16 +226,35 @@ namespace lpzrobots {
     // Prepare the context menu to show the configurable show and hide dialog
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(sl_execContextMenu(const QPoint &)));
-    contextMenuShowHideDialog.addAction("set number of parameter columns ...", this, SLOT(sl_changeNumberTileColumns()));
-    contextMenuShowHideDialog.addAction("rearrange parameters", this, SLOT(sl_rearrangeConfigurableTiles()));
-    contextMenuShowHideDialog.addAction("show/hide parameters ...", this, SLOT(sl_showAndHideParameters()));
-    contextMenuShowHideDialog.addAction("load configurable state from file ...", this,
+    contextMenuShowHideDialog.addAction(tr("set number of parameter columns ..."), this,
+        SLOT(sl_changeNumberTileColumns()));
+    contextMenuShowHideDialog.addAction(tr("rearrange parameters"), this, SLOT(sl_rearrangeConfigurableTiles()));
+    contextMenuShowHideDialog.addAction(tr("show/hide parameters ..."), this, SLOT(sl_showAndHideParameters()));
+    contextMenuShowHideDialog.addAction(tr("load configurable state from file ..."), this,
         SLOT(sl_loadConfigurableStateFromFile()));
-    contextMenuShowHideDialog.addAction("save current configurable state to file ...", this,
+    contextMenuShowHideDialog.addAction(tr("save current configurable state to file ..."), this,
         SLOT(sl_saveConfigurableStateToFile()));
-
+    contextMenuShowHideDialog.addAction(tr("reset all parameters to original values"), this,
+        SLOT(sl_resetToOriginalValues()));
+    contextMenuShowHideDialog.addAction(tr("reset all parameters to original values AND bounds"), this,
+        SLOT(sl_resetToOriginalValuesAndBounds()));
     layout.setColumnStretch(10, 100);
   }
+
+  void QConfigurableWidget::sl_resetToOriginalValues() {
+    foreach(QAbstractConfigurableTileWidget* configurableTile, configTileWidgetMap)
+      {
+        configurableTile->sl_resetToOriginalValues();
+      }
+  }
+
+  void QConfigurableWidget::sl_resetToOriginalValuesAndBounds() {
+    foreach(QAbstractConfigurableTileWidget* configurableTile, configTileWidgetMap)
+      {
+        configurableTile->sl_resetToOriginalValuesAndBounds();
+      }
+  }
+
 
   void QConfigurableWidget::sl_toggled(bool on) {
     foreach(QAbstractConfigurableTileWidget* configurableTile, configTileWidgetMap)

@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2011-01-27 15:48:01  guettler
+ *   Revision 1.16  2011-01-28 12:15:37  guettler
+ *   - restore of AutoSave File from a backup implemented
+ *   - reset to original values, values AND bounds for Configurable implemented
+ *   - reset to original values for tileWidgets implemented
+ *
+ *   Revision 1.15  2011/01/27 15:48:01  guettler
  *   - pause modus fixed
  *
  *   Revision 1.14  2011/01/24 16:58:25  guettler
@@ -138,6 +143,7 @@ namespace lpzrobots {
       void sl_saveCurrentConfigurableStatesToFile();
       void sl_loadCurrentConfigurableStatesFromFile();
       void sl_clearAutoSaveFile();
+      void sl_restoreAutoSaveFile();
       void sl_statusLabelTimerExpired();
 
     signals:
@@ -181,6 +187,7 @@ namespace lpzrobots {
       QAction *action_SaveConfigurableState;
       QAction *action_LoadConfigurableState;
       QAction *action_ClearAutoSaveFile;
+      QAction *action_RestoreAutoSaveFile;
       QAction *action_Exit;
       // Help-Menu
       QAction *action_About;

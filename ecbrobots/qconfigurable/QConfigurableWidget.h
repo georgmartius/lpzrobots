@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2011-01-27 09:04:12  guettler
+ *   Revision 1.17  2011-01-28 12:15:37  guettler
+ *   - restore of AutoSave File from a backup implemented
+ *   - reset to original values, values AND bounds for Configurable implemented
+ *   - reset to original values for tileWidgets implemented
+ *
+ *   Revision 1.16  2011/01/27 09:04:12  guettler
  *   - some preparations for checkbox in order to switch the autosave function
  *
  *   Revision 1.15  2011/01/24 18:40:48  guettler
@@ -168,6 +173,8 @@ namespace lpzrobots {
       void sl_saveConfigurableStateToFile();
       void sl_rearrangeConfigurableTiles();
       void sl_toggled(bool on);
+      void sl_resetToOriginalValues();
+      void sl_resetToOriginalValuesAndBounds();
 
     private:
       void setFolding(bool folding);
