@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-12-16 18:37:39  wrabe
+ *   Revision 1.9  2011-01-28 11:32:12  guettler
+ *   - original values are written back to the Configurable instances if the QConfigurable interface is restarted
+ *
+ *   Revision 1.8  2010/12/16 18:37:39  wrabe
  *   -added several tooltips
  *   -corrected sentences, notation, syntax for improved informational value
  *   -bugfix: if in collapsed mode, all tiles were stored as invisible
@@ -145,6 +148,8 @@ namespace lpzrobots {
   }
   
   QIntConfigurableTileWidget::~QIntConfigurableTileWidget() {
+    config->setParam(key,origValue);
+    config->setParamBounds(key,origBounds.first, origBounds.second);
   }
 
   void QIntConfigurableTileWidget::setName(QString name) {

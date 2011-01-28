@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2011-01-27 15:48:01  guettler
+ *   Revision 1.22  2011-01-28 11:32:12  guettler
+ *   - original values are written back to the Configurable instances if the QConfigurable interface is restarted
+ *
+ *   Revision 1.21  2011/01/27 15:48:01  guettler
  *   - pause modus fixed
  *
  *   Revision 1.20  2011/01/24 18:40:48  guettler
@@ -432,6 +435,10 @@ namespace lpzrobots {
   }
 
   void QECBRobotsWindow::updateConfigurableWidget() {
+    // manual delete so they can restore the original parameters of the Configurables
+    foreach(QConfigurableWidget* configWidget, configurableWidgetMap) {
+      delete configWidget;
+    }
     configurableWidgetMap.clear();
     int index = tabWidget->currentIndex();
     tabWidget->removeTab(1);

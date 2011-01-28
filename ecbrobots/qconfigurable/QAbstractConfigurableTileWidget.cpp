@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2011-01-24 18:40:48  guettler
+ *   Revision 1.13  2011-01-28 11:32:12  guettler
+ *   - original values are written back to the Configurable instances if the QConfigurable interface is restarted
+ *
+ *   Revision 1.12  2011/01/24 18:40:48  guettler
  *   - autosave functionality now stores only values, bounds and descriptions of
  *   parameters if they differ from their original values
  *
@@ -130,6 +133,7 @@ namespace lpzrobots {
   QAbstractConfigurableTileWidget::~QAbstractConfigurableTileWidget() {
     if (tileIndexConfigWidgetMap.value(gridPos) == this)
       tileIndexConfigWidgetMap.remove(gridPos);
+    config->setParamDescr(key, origDescription);
   }
 
   QString QAbstractConfigurableTileWidget::getConfigurableName() {

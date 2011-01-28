@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-01-24 17:49:02  guettler
+ *   Revision 1.8  2011-01-28 11:32:12  guettler
+ *   - original values are written back to the Configurable instances if the QConfigurable interface is restarted
+ *
+ *   Revision 1.7  2011/01/24 17:49:02  guettler
  *   - bugfix: if unchecked, set parambool in Configurable to false
  *
  *   Revision 1.6  2010/12/16 18:37:39  wrabe
@@ -112,7 +115,9 @@ namespace lpzrobots {
     setAutoFillBackground(true);
   }
   
-  QBoolConfigurableTileWidget::~QBoolConfigurableTileWidget() { }
+  QBoolConfigurableTileWidget::~QBoolConfigurableTileWidget() {
+    config->setParam(key, origValue);
+  }
 
   void QBoolConfigurableTileWidget::setName(QString name) {
     cbBool.setText(name);
