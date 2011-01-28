@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2010-12-16 15:26:09  martius
+ *   Revision 1.16  2011-01-28 11:25:06  guettler
+ *   - delete paramdescr in map on set if description is empty
+ *
+ *   Revision 1.15  2010/12/16 15:26:09  martius
  *   added copyParameter
  *
  *   Revision 1.14  2010/12/16 14:58:22  der
@@ -332,7 +335,10 @@ class Configurable
 
         /// sets a description for the given parameter
     virtual void setParamDescr(const paramkey& key, const paramdescr& descr) {
-      if(!descr.empty()) mapOfDescr[key] = descr;
+      if(!descr.empty())
+        mapOfDescr[key] = descr;
+      else // delete entry if exist
+        mapOfDescr.erase(key);
     }
 
     /**
