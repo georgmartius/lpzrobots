@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2010-11-26 12:21:13  guettler
+ *   Revision 1.20  2011-01-31 10:46:11  martius
+ *   made it compile again
+ *
+ *   Revision 1.19  2010/11/26 12:21:13  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - minor bugfixes
@@ -212,7 +215,7 @@ public:
     double distance = 1.1;
 
     setCameraHomePos(Pos(-76.7927, 49.4669, 42.7545),  Pos(-124.513, -28.5595, 0));
-    setCameraMode(1);
+    setCameraMode(Follow);
 
     global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("realtimefactor",2);
@@ -289,7 +292,7 @@ public:
         if ((i==0) && (j==1))
         {
           //nimm2conf.irBack = true;
-          agent = new OdeAgent(plotoptions);
+          agent = new OdeAgent(global);
           nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2Yellow");
           nimm2->setColor(Color(1.0,1.0,0));
           trackableList.push_back(nimm2);
@@ -312,7 +315,7 @@ public:
         }
         else
         {
-          agent = new OdeAgent(NoPlot);
+          agent = new OdeAgent(global, NoPlot);
           nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
           agent->init(controller, nimm2, wiring);
           controller->setParam("epsC", 0.00);
@@ -587,7 +590,7 @@ int main (int argc, char **argv)
       }
     } else
     {
-      double fineadjustment=.1;
+      // double fineadjustment=.1;
       /*    for (double cinit=0.0;cinit<0.95;cinit+=fineadjustment)
             runSim(cinit,runs,argc,argv);
           for (double cinit=0.95;cinit<1.15;cinit+=fineadjustment/2.0)
