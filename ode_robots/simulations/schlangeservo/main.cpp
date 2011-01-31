@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-11-05 13:54:05  martius
+ *   Revision 1.15  2011-01-31 11:31:10  martius
+ *   renamed sox to soml
+ *
+ *   Revision 1.14  2010/11/05 13:54:05  martius
  *   store and restore for robots implemented
  *
  *   Revision 1.13  2008/09/16 19:44:38  martius
@@ -95,7 +98,7 @@
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/sinecontroller.h>
-#include <selforg/sox.h>
+#include <selforg/soml.h>
 
 
 #include <ode_robots/schlangeservo2.h>
@@ -175,8 +178,8 @@ public:
     //     cc.useS=false;
     //     AbstractController *controller = new DerController(cc);  
 
-    SoXConf sc = SoX::getDefaultConf();
-    SoX* controller = new SoX(sc);
+    SoMLConf sc = SoML::getDefaultConf();
+    SoML* controller = new SoML(sc);
 
 
     // AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2011-01-31 10:46:11  martius
+ *   Revision 1.21  2011-01-31 11:31:10  martius
+ *   renamed sox to soml
+ *
+ *   Revision 1.20  2011/01/31 10:46:11  martius
  *   made it compile again
  *
  *   Revision 1.19  2010/11/26 12:21:13  guettler
@@ -315,7 +318,7 @@ public:
         }
         else
         {
-          agent = new OdeAgent(global, NoPlot);
+          agent = new OdeAgent(global, PlotOption(NoPlot));
           nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
           agent->init(controller, nimm2, wiring);
           controller->setParam("epsC", 0.00);

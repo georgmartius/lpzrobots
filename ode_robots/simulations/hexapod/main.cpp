@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-11-05 13:54:05  martius
+ *   Revision 1.6  2011-01-31 11:31:10  martius
+ *   renamed sox to soml
+ *
+ *   Revision 1.5  2010/11/05 13:54:05  martius
  *   store and restore for robots implemented
  *
  *   Revision 1.4  2010/10/20 13:18:38  martius
@@ -67,7 +70,7 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/feedbackwiring.h>
 #include <selforg/stl_adds.h>
-#include <selforg/sox.h>
+#include <selforg/soml.h>
 
 #include <ode_robots/hexapod.h>
 
@@ -151,12 +154,12 @@ public:
 //     semox->setParam("continuity", 0.005);
 //     semox->setParam("teacher", teacher);
 
-    SoXConf sc = SoX::getDefaultConf();
+    SoMLConf sc = SoML::getDefaultConf();
     sc.useHiddenContr=true;
     sc.useHiddenModel=false;
     sc.someInternalParams=false;
     sc.useS=false;
-    SoX* sox = new SoX(sc);
+    SoML* sox = new SoML(sc);
     sox->setParam("epsC",0.05);
     sox->setParam("epsA",0.05);
 

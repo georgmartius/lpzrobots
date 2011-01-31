@@ -17,12 +17,12 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "sox.h"
+#include "soml.h"
 using namespace matrix;
 using namespace std;
 
-SoX::SoX(const SoXConf& conf)
-  : AbstractController("SoX", "0.1"), conf(conf) {
+SoML::SoML(const SoMLConf& conf)
+  : AbstractController("SoML", "0.1"), conf(conf) {
   t=0;
 
   addParameterDef("creativity",&creativity,0, "creativity term (0: disabled) ");
@@ -41,16 +41,16 @@ SoX::SoX(const SoXConf& conf)
   cNet=0;
 };
 
-SoX::~SoX(){
+SoML::~SoML(){
   if (cNet) delete cNet;
 }
 
-ControllerNet* SoX::getCNet(){
+ControllerNet* SoML::getCNet(){
   return cNet;
 }
 
 
-void SoX::init(int sensornumber, int motornumber, RandGen* randGen){
+void SoML::init(int sensornumber, int motornumber, RandGen* randGen){
   if(!randGen) randGen = new RandGen(); // this gives a small memory leak
  
   number_sensors= sensornumber;
@@ -115,7 +115,7 @@ void SoX::init(int sensornumber, int motornumber, RandGen* randGen){
 
 
 /// performs one step (includes learning). Calulates motor commands from sensor inputs.
-void SoX::step(const sensor* x_, int number_sensors, 
+void SoML::step(const sensor* x_, int number_sensors, 
                        motor* y_, int number_motors){
   x.set(number_sensors,1,x_); // store sensor values  
   x_buffer[t%buffersize] = x; // Put new output vector in ring buffer y_buffer
@@ -135,7 +135,7 @@ void SoX::step(const sensor* x_, int number_sensors,
 };
 
 // performs one step without learning. Calulates motor commands from sensor inputs.
-void SoX::stepNoLearning(const sensor* x_, int number_sensors, 
+void SoML::stepNoLearning(const sensor* x_, int number_sensors, 
                                  motor* y_, int number_motors){
   assert((unsigned)number_sensors <= this->number_sensors 
          && (unsigned)number_motors <= this->number_motors);
@@ -149,7 +149,7 @@ void SoX::stepNoLearning(const sensor* x_, int number_sensors,
 };
   
 // performs control step (activates network and stores results in buffer and y_)
-void SoX::control(const Matrix& x, motor* y_, int number_motors){
+void SoML::control(const Matrix& x, motor* y_, int number_motors){
   // averaging over the last s4avg values of x_buffer
   // x_smooth += (x - x_smooth)*(1.0/max(s4avg,1));
   // calculate controller values based on smoothed input values
@@ -165,7 +165,7 @@ void SoX::control(const Matrix& x, motor* y_, int number_motors){
 }
 
 // learn cNet
-void SoX::learn(const Matrix& x, const Matrix& y){
+void SoML::learn(const Matrix& x, const Matrix& y){
   // Note: The network is activated in the control function (last timestep)
   const Matrix& xp = cNet->getLayerOutput(-1); // previous output of the network  
   const Matrix& xi = x  - xp;
@@ -227,7 +227,7 @@ void SoX::learn(const Matrix& x, const Matrix& y){
 }
 
 
-void SoX::learnModelBP(double factor){
+void SoML::learnModelBP(double factor){
   // we assume te network is activated with sensor value from last time step (not current x)
   const Matrix& xp = cNet->getLayerOutput(-1); // previous output of the network  
   const Matrix& xi = x  - xp;
@@ -250,7 +250,7 @@ void SoX::learnModelBP(double factor){
   }
 }
 
-void SoX::motorBabblingStep(const sensor* x_, int number_sensors,
+void SoML::motorBabblingStep(const sensor* x_, int number_sensors,
                             const motor* y_, int number_motors){
   assert((unsigned)number_sensors <= this->number_sensors 
          && (unsigned)number_motors <= this->number_motors);
@@ -284,7 +284,7 @@ void SoX::motorBabblingStep(const sensor* x_, int number_sensors,
 
 
 /** stores the controller values to a given file. */
-bool SoX::store(FILE* f) const{  
+bool SoML::store(FILE* f) const{  
   // save matrix values
   cNet->store(f);  
   Configurable::print(f,0);
@@ -292,7 +292,7 @@ bool SoX::store(FILE* f) const{
 }
 
 /** loads the controller values from a given file. */
-bool SoX::restore(FILE* f){
+bool SoML::restore(FILE* f){
   // save matrix values
   cNet->restore(f);  
   Configurable::parse(f);

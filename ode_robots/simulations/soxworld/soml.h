@@ -18,8 +18,8 @@
  *                                                                         *
  *                                                                         *
  ***************************************************************************/
-#ifndef __SOX_H
-#define __SOX_H
+#ifndef __SOML_H
+#define __SOML_H
 
 #include <selforg/abstractcontroller.h>
 #include <selforg/controller_misc.h>
@@ -30,8 +30,8 @@
 
 #include <selforg/matrix.h>
 
-/// Configuration object for SoX controller
-struct SoXConf {
+/// Configuration object for SoML controller
+struct SoMLConf {
   bool useHiddenContr; ///< use a hidden layer in the controller network?
   /// ratio of motor units and hidden units in the controller (2 -> double amount of hidden unit)
   double hiddenContrUnitsRatio; 
@@ -48,13 +48,13 @@ struct SoXConf {
  * This controller implements the homeokinetic learning algorihm
  * in sensor space with extended controller network
  */
-class SoX : public AbstractController {
+class SoML : public AbstractController {
 
 public:
-  SoX(const SoXConf& conf = getDefaultConf());
+  SoML(const SoMLConf& conf = getDefaultConf());
 
-  static SoXConf getDefaultConf(){
-    SoXConf c;
+  static SoMLConf getDefaultConf(){
+    SoMLConf c;
     c.useHiddenContr = true;
     c.useHiddenModel = true;
     c.hiddenContrUnitsRatio = 1.0;
@@ -67,7 +67,7 @@ public:
   
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
 
-  virtual ~SoX();
+  virtual ~SoML();
 
   /// returns the number of sensors the controller was initialised with or 0 if not initialised
   virtual int getSensorNumber() const { return number_sensors; }
@@ -119,7 +119,7 @@ protected:
   ControllerNet* cNet; ///< Controller network
   unsigned int numControllerLayer; ///< number of controller layer
 
-  SoXConf conf; ///< configuration object
+  SoMLConf conf; ///< configuration object
 
   matrix::Matrix x;        // current sensor value vector
   matrix::Matrix x_smooth; // time average of x values

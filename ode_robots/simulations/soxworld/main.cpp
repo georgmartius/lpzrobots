@@ -209,13 +209,13 @@ public:
       
      
 
-     SoXConf sc = SoX::getDefaultConf();
+     SoMLConf sc = SoML::getDefaultConf();
    
      sc.useHiddenContr=true;
      sc.useHiddenModel=true;
      sc.someInternalParams=true;
      sc.useS=true;
-     AbstractController* controller = new SoX(sc);
+     AbstractController* controller = new SoML(sc);
      controller->setParam("epsC",0.05);
      controller->setParam("epsA",0.05);
      controller->setParam("harmony",0.0);
