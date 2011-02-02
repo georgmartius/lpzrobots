@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2009-08-05 22:57:09  martius
+ *   Revision 1.26  2011-02-02 10:37:36  martius
+ *   error handling
+ *   new sox controller
+ *
+ *   Revision 1.25  2009/08/05 22:57:09  martius
  *   use new plotoptionsengine entirely
  *   wirings provide the sensor and motors such that the entire
  *    old functionality (and more) is now available with through
@@ -268,9 +272,12 @@ void Agent::onlyControlRobot(){
 // sets the trackoptions which enable tracking of a robot
 void Agent::setTrackOptions(const TrackRobot& trackrobot){
   this->trackrobot = trackrobot;
+  if(!robot){
+    fprintf(stderr, "Agent.cpp: call setTrackOptions after init! <<<<<<<<<<<<<\n");
+  }
   if (trackrobot.trackPos || trackrobot.trackSpeed || trackrobot.trackOrientation){
     if(!this->trackrobot.open(robot)){
-      fprintf(stderr, "could not open trackfile!\n");
+      fprintf(stderr, "Agent.cpp() ERROR: could not open trackfile! <<<<<<<<<<<<<\n");
     }else{
       // print all robot and wiring
       robot->print(this->trackrobot.file, "# ");
