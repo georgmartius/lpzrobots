@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2011-01-28 11:25:06  guettler
+ *   Revision 1.17  2011-02-02 10:36:42  martius
+ *   comment removed
+ *
+ *   Revision 1.16  2011/01/28 11:25:06  guettler
  *   - delete paramdescr in map on set if description is empty
  *
  *   Revision 1.15  2010/12/16 15:26:09  martius
@@ -204,8 +207,6 @@ class Configurable
     #define intDefMinBound -1000
     #define intDefMaxBound 1000
 
-    // FOREACHC doesn't work at all, sometimes use foreach from Qt, like:
-    // foreach(paramvalpair pair, getParamValMap()) { paramkey key = pair.first; paramval val = pair.second; }
     typedef std::pair<paramkey, paramval*> paramvalpair;
     typedef std::pair<paramkey, parambool*> paramboolpair;
     typedef std::pair<paramkey, paramint*> paramintpair;
