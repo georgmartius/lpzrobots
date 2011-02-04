@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2011-01-28 12:15:37  guettler
+ *   Revision 1.11  2011-02-04 13:03:16  wrabe
+ *   - bugfix: Configurables are restored now when event "CommunicationStateWillChange" occurs, not in destructor
+ *
+ *   Revision 1.10  2011/01/28 12:15:37  guettler
  *   - restore of AutoSave File from a backup implemented
  *   - reset to original values, values AND bounds for Configurable implemented
  *   - reset to original values for tileWidgets implemented
@@ -164,8 +167,6 @@ namespace lpzrobots {
   }
   
   QValConfigurableTileWidget::~QValConfigurableTileWidget() {
-    config->setParam(key, origValue);
-    config->setParamBounds(key, origBounds.first, origBounds.second);
   }
 
   void QValConfigurableTileWidget::setName(QString name) {

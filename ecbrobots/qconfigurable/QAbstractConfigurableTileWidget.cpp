@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2011-01-28 11:32:12  guettler
+ *   Revision 1.14  2011-02-04 13:03:16  wrabe
+ *   - bugfix: Configurables are restored now when event "CommunicationStateWillChange" occurs, not in destructor
+ *
+ *   Revision 1.13  2011/01/28 11:32:12  guettler
  *   - original values are written back to the Configurable instances if the QConfigurable interface is restarted
  *
  *   Revision 1.12  2011/01/24 18:40:48  guettler
@@ -133,7 +136,6 @@ namespace lpzrobots {
   QAbstractConfigurableTileWidget::~QAbstractConfigurableTileWidget() {
     if (tileIndexConfigWidgetMap.value(gridPos) == this)
       tileIndexConfigWidgetMap.remove(gridPos);
-    config->setParamDescr(key, origDescription);
   }
 
   QString QAbstractConfigurableTileWidget::getConfigurableName() {
