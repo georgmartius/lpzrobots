@@ -214,6 +214,8 @@ int main(int argc, char *argv[]) {
       SLOT(sl_messageReceived(struct _communicationMessage)));
   QObject::connect(messageDispatchWindow->getQMessageDispatchServer(), SIGNAL(sig_quitServer()), ecbManager.getGlobalData().comm,
       SLOT(sl_quitServer()));
+  QObject::connect(ecbManager.getGlobalData().comm, SIGNAL(sig_quitClient()), messageDispatchWindow->getQMessageDispatchServer(),
+      SLOT(sl_quitClient()));
 
   messageDispatchWindow->show();
   ecbWindow->show();
