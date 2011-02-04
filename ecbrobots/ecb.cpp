@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2011-01-24 14:16:25  guettler
+ *   Revision 1.17  2011-02-04 12:59:05  wrabe
+ *   - convert function for short values added
+ *
+ *   Revision 1.16  2011/01/24 14:16:25  guettler
  *   - removed deprecated comments
  *   - setMotors now uses currentNumberMotors instead of maximum value
  *
@@ -106,8 +109,7 @@ using namespace std;
 
 namespace lpzrobots {
   ECB::ECB(QString dnsName, QGlobalData& globalData, ECBConfig& ecbConfig) :
-    Configurable("ECB", "$ID$"), MediatorCollegue(globalData.comm), globalData(&globalData), ecbConfig(ecbConfig),
-        dnsName(dnsName) {
+    Configurable("ECB", "$ID$"), MediatorCollegue(globalData.comm), globalData(&globalData), ecbConfig(ecbConfig), dnsName(dnsName) {
     failureCounter = 0;
     initialised = false;
   }
@@ -261,6 +263,36 @@ namespace lpzrobots {
     return (uint8) byteVal;
   }
 
+  double ECB::convertToDouble(short shortVal, short minBound, short maxBound) {
+    assert(minBound <= maxBound);
+    assert(minBound !=0 && maxBound!=0);
+    if (shortVal > maxBound)
+      shortVal = maxBound;
+    if (shortVal < minBound)
+      shortVal = minBound;
+    // shift zero point!
+    shortVal += (maxBound + minBound)/2;
+    if (shortVal > 0) {
+      return (shortVal / (double)maxBound);
+    } else if (shortVal < 0) {
+      return -(shortVal / (double)minBound);
+    } else {
+      return 0;
+    }
+  }
+
+  short ECB::convertToShort(double doubleVal, short minBound, short maxBound) {
+    if (doubleVal >= 1)
+      doubleVal = 1;
+    if (doubleVal <= -1)
+      doubleVal = -1;
+
+    int zero = (maxBound + minBound)/2;
+    int range = maxBound - minBound;
+    short shortVal = (short) (doubleVal * 0.5 * range + zero);
+    return shortVal;
+  }
+
   /// STORABLE INTERFACE
 
   /** stores the object to the given file stream (binary). */
@@ -312,10 +344,7 @@ namespace lpzrobots {
     currentNumberMotors = result.data[0];
     currentNumberSensors = result.data[1];
 
-
-    globalData->textLog("[" + dnsName + "] found motors: " + QString::number(currentNumberMotors) + ", sensors: "
-        + QString::number(currentNumberSensors));
-
+    globalData->textLog("[" + dnsName + "] found motors: " + QString::number(currentNumberMotors) + ", sensors: " + QString::number(currentNumberSensors));
 
     // modify the data-values with the ECB-DnsName
     stringstream ss;
@@ -327,9 +356,8 @@ namespace lpzrobots {
         ss << "(" << dnsName.toStdString() << ")";
         globalData->textLog("   - " + description);
         description.clear();
-      }
-      else {
-        ss << (uchar)result.data[i];
+      } else {
+        ss << (uchar) result.data[i];
         description.append(result.data[i]);
       }
     }
@@ -347,15 +375,12 @@ namespace lpzrobots {
     descriptionLine = ss.str();
 
     if (currentNumberMotors > ecbConfig.maxNumberMotors) {
-      globalData->textLog("Warning: ECB " + dnsName
-          + " reported more motors than permitted and configured respectively!");
+      globalData->textLog("Warning: ECB " + dnsName + " reported more motors than permitted and configured respectively!");
     }
 
     if (currentNumberSensors > ecbConfig.maxNumberSensors) {
-      globalData->textLog("Warning: ECB " + dnsName
-          + " reported more sensors than permitted and configured respectively!");
+      globalData->textLog("Warning: ECB " + dnsName + " reported more sensors than permitted and configured respectively!");
     }
-
 
     //globalData->textLog("[" + dnsName + "] descriptionLine:[" + QString(descriptionLine.c_str()) + "]");
 
@@ -408,8 +433,7 @@ namespace lpzrobots {
         globalData->textLog("ECB(" + dnsName + ") did not answer: ");
         if (initialised) {
           if (failureCounter >= globalData->maxFailures) { // try to send reset next time
-            globalData->textLog(" failure count=" + QString::number(failureCounter + 1)
-                + " reached maximum, reset to initial state.");
+            globalData->textLog(" failure count=" + QString::number(failureCounter + 1) + " reached maximum, reset to initial state.");
             initialised = false;
             failureCounter = 0;
           } else {

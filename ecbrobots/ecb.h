@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-11-11 15:34:59  wrabe
+ *   Revision 1.13  2011-02-04 12:59:05  wrabe
+ *   - convert function for short values added
+ *
+ *   Revision 1.12  2010/11/11 15:34:59  wrabe
  *   - some extensions for QMessageClient (e.g. quitServer())
  *   - fixed some includes
  *
@@ -305,6 +308,32 @@ namespace lpzrobots
        * @return
        */
       virtual uint8 convertToByte(double doubleVal);
+
+
+      /**
+       * Converts a given shortVal to a double value
+       * shortVal=minBound   -> doubleVal=-1
+       * shortVal=(minBound + maxBound) / 2 -> doubleVal=0 (zero point is shifted with average of minBound and maxBound)
+       * shortVal=maxBound   -> doubleVal=1
+       * @param shortVal
+       * @param minBound the value which indicates the minimal operating range (see above)
+       * @param maxBound the value which indicates the maximal operating range (see above)
+       * @return
+       */
+      virtual double convertToDouble(short shortVal, short minBound, short maxBound);
+
+      /**
+       * Converts a given doubleVal to a unsigned short value
+       * doubleVal=-1 -> shortVal=minBound
+       * doubleVal=0  -> shortVal=(minBound + maxBound) / 2
+       * doubleVal=1  -> shortVal=maxBound
+       * @param doubleVal
+       * @param minBound the value which indicates the minimal operating range (see above)
+       * @param maxBound the value which indicates the maximal operating range (see above)
+       * @return
+       */
+      virtual short convertToShort(double doubleVal, short minBound, short maxBound);
+
 
       /**
        * Useful for command packages which contain no additional
