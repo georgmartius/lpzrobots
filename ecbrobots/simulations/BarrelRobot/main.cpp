@@ -1,0 +1,221 @@
+//#include <QApplication>
+#include <qapplication.h>
+#include "QECBRobotsWindow.h"
+#include "QMessageDispatchWindow.h"
+#include "QECBCommunicator.h"
+#include "ecb.h"
+
+#include "commanddefs.h"
+
+#include <selforg/sos.h>
+#include <selforg/sinecontroller.h>
+#include <selforg/one2onewiring.h>
+#include <selforg/abstractcontrolleradapter.h>
+#include <assert.h>
+
+using namespace lpzrobots;
+using namespace std;
+
+/**
+ *
+ */
+class BarrelRobotECB : public ECB {
+  public:
+    BarrelRobotECB(QString dnsName, QGlobalData& globalData, ECBConfig& ecbConfig) :
+      ECB(dnsName, globalData, ecbConfig) {
+    }
+
+    virtual ~BarrelRobotECB() {
+    }
+
+    void sendMotorValuesPackage() {
+      // at first start of ECB, it must be initialized with a reset-command
+      assert(initialised && failureCounter <= globalData->maxFailures);
+
+      globalData->textLog("ECB(" + dnsName + "): sendMotorPackage()!");
+
+      // prepare the communication-protocol
+      ECBCommunicationEvent* event = new ECBCommunicationEvent(ECBCommunicationEvent::EVENT_REQUEST_SEND_COMMAND_PACKAGE);
+
+      event->commPackage.command = COMMAND_MOTORS;
+      event->commPackage.dataLength = currentNumberMotors * 2;
+      // set motor-data
+      int i = 0;
+      // motorList was update by ECBAgent->ECBRobot:setMotors()->(to all ECBs)-> ECB:setMotors()
+      FOREACH (list<motor>,motorList,m) {
+        // Agent and Controller process with double-values
+        // The ECB(hardware) has to work with short-values
+        int shortValue = convertToShort((*m), -950, 950);
+        event->commPackage.data[i++] = shortValue >> 0;
+        event->commPackage.data[i++] = shortValue >> 8;
+      }
+      informMediator(event);
+    }
+
+    void commandSensorsReceived(ECBCommunicationEvent* event) {
+      globalData->textLog("sensor package received");
+      ECBCommunicationData result = event->commPackage;
+
+      QString hex;
+      QString line;
+      for (int i = 0; i < result.dataLength; i++) {
+        line.append(QString::number((result.data[i] >> 4) & 0x0F, 16).toUpper());
+        line.append(QString::number((result.data[i] >> 0) & 0x0F, 16).toUpper());
+        line.append(" ");
+      }
+      globalData->textLog(line);
+
+      /// fill sensorList which will be the input for agent or controller
+      sensorList.clear();
+      QString sensorLine;
+      int sensorNumber = 0;
+      for (int i = 0; i < result.dataLength && i < 4; i += 2) {
+        //short val = reinterpret_cast<short>((unsigned short)((unsigned short)result.data[i] << 0) | (((unsigned short)result.data[i+1]) << 8));
+        short val = result.data[i] << 0 | (result.data[i + 1] << 8);
+        sensorLine.append(" sensor[" + QString::number(sensorNumber++) + "]=" + QString::number(val));
+        sensorList.push_back(convertToDouble(val, -950, 950));
+      }
+      for (int i = 4; i < result.dataLength; i += 2) {
+        // TODO: highByte enthält bits 2…10 lowbyte bits 0…1
+
+        short val = (((char) result.data[i+1]) * 4) + (result.data[i] / 32);
+
+        //short val = ((result.data[i] << 0) | (result.data[i + 1] << 8))/64;
+        sensorLine.append(" sensor[" + QString::number(sensorNumber++) + "]=" + QString::number(val));
+        sensorList.push_back(convertToDouble(val, -512, 512));
+      }
+      globalData->textLog(sensorLine);
+
+      // reset the counter, because communication was successful
+      failureCounter = 0;
+    }
+
+};
+
+class MyController : public AbstractControllerAdapter {
+  public:
+    MyController(AbstractController* controller) :
+      AbstractControllerAdapter(controller) {
+
+    }
+
+    virtual void step(const sensor* sensors, int sensornumber, motor* motors, int motornumber) {
+      controller->step(sensors, sensornumber, motors, motornumber);
+      // motors[0] = 0;
+      //motors[1] = -1;
+    }
+};
+
+class MyECBManager : public QECBManager {
+
+  public:
+
+    MyECBManager(int argc, char** argv) :
+      QECBManager(argc, argv) {
+    }
+
+    virtual ~MyECBManager() {
+    }
+
+    /**
+     * This function is for the initialisation of
+     * ECBagents, ECBRobots and their heart, the Controller.
+     * @param global
+     * @return true if initialisation was successful
+     */
+    virtual bool start(QGlobalData& global) {
+
+      // set specific communication values
+      //   global.baudrate = 460800;
+      global.baudrate = 57600;
+
+      global.portName = "/dev/ttyUSB0";
+      global.maxFailures = 4;
+      global.serialReadTimeout = 100;
+      global.cycleTime = 50;
+      global.noise = 0.05;
+      //global.plotOptions.push_back(PlotOption(GuiLogger, 1));
+
+
+      //      AbstractController* myCon = new Sos();
+      AbstractController* myCon = new SineController();
+      global.configs.push_back(myCon);
+
+      // create new wiring
+      AbstractWiring* myWiring = new One2OneWiring(new WhiteNormalNoise());
+      // create new robot
+      ECBRobot* myRobot = new ECBRobot(global);
+
+      // create ECB
+      ECBConfig ecbConf = ECB::getDefaultConf();
+      ecbConf.maxNumberSensors = 5; // no acceleration sensor (x,y,z)
+      ecbConf.maxNumberMotors = 2;
+      QString* DNSName = new QString("ECB_BARRELROBOT");
+      ECB* myECB = new BarrelRobotECB(*DNSName, global, ecbConf);
+      myRobot->addECB(myECB);
+
+      // create new agent
+      ECBAgent* myAgent = new ECBAgent(PlotOption(GuiLogger, 10), global.noise);
+      // init agent with controller, robot and wiring
+      myAgent->init(myCon, myRobot, myWiring);
+
+      // register agents
+      global.agents.push_back(myAgent);
+
+      return true;
+    }
+
+    /** optional additional callback function which is called every simulation step.
+     Called between physical simulation step and drawing.
+     @param paused indicates that simulation is paused
+     @param control indicates that robots have been controlled this timestep
+     */
+    virtual void addCallback(QGlobalData& globalData, bool pause, bool control) {
+
+    }
+
+    /** add own key handling stuff here, just insert some case values
+     *
+     * @param globalData
+     * @param key
+     * @return
+     */
+    virtual bool command(QGlobalData& globalData, int key) {
+      return false;
+    }
+
+};
+
+/**
+ * normally here do not change anything
+ * @param argc
+ * @param argv
+ * @return
+ */
+int main(int argc, char *argv[]) {
+
+  // create your custom ECBManager
+  MyECBManager ecbManager(argc, argv);
+
+  Q_INIT_RESOURCE( ecbrobots);
+
+  QApplication app(argc, argv);
+
+  QString appPath = QString(argv[0]);
+  QECBRobotsWindow *ecbWindow = new QECBRobotsWindow(appPath.mid(0, appPath.lastIndexOf("/") + 1), &ecbManager);
+  QMessageDispatchWindow *messageDispatchWindow = new QMessageDispatchWindow(appPath.mid(0, appPath.lastIndexOf("/") + 1));
+
+  qRegisterMetaType<struct _communicationMessage> ("_communicationMessage");
+  QObject::connect(ecbManager.getGlobalData().comm, SIGNAL(sig_sendMessage(struct _communicationMessage)), messageDispatchWindow->getQMessageDispatchServer(),
+      SLOT(sl_sendMessage(struct _communicationMessage)));
+  QObject::connect(messageDispatchWindow->getQMessageDispatchServer(), SIGNAL(sig_messageReceived(struct _communicationMessage)), ecbManager.getGlobalData().comm,
+      SLOT(sl_messageReceived(struct _communicationMessage)));
+  QObject::connect(messageDispatchWindow->getQMessageDispatchServer(), SIGNAL(sig_quitServer()), ecbManager.getGlobalData().comm, SLOT(sl_quitServer()));
+  QObject::connect(ecbManager.getGlobalData().comm, SIGNAL(sig_quitClient()), messageDispatchWindow->getQMessageDispatchServer(), SLOT(sl_quitClient()));
+
+  messageDispatchWindow->show();
+  ecbWindow->show();
+
+  return app.exec();
+}
+
