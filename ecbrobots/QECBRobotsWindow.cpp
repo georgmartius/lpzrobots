@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2011-01-28 12:15:37  guettler
+ *   Revision 1.24  2011-02-04 13:00:50  wrabe
+ *   - bugfix: Configurables are restored now when event "CommunicationStateWillChange" occurs
+ *
+ *   Revision 1.23  2011/01/28 12:15:37  guettler
  *   - restore of AutoSave File from a backup implemented
  *   - reset to original values, values AND bounds for Configurable implemented
  *   - reset to original values for tileWidgets implemented
@@ -388,6 +391,7 @@ namespace lpzrobots {
       default:
         // bookmark now their state, because the Configurable instances in global->configs maybe deleted after them.
         bookmarkConfigurableStates();
+        restoreOriginalConfigurables();
         break;
     }
   }
@@ -444,11 +448,14 @@ namespace lpzrobots {
     }
   }
 
-  void QECBRobotsWindow::updateConfigurableWidget() {
+  void QECBRobotsWindow::restoreOriginalConfigurables() {
     // manual delete so they can restore the original parameters of the Configurables
     foreach(QConfigurableWidget* configWidget, configurableWidgetMap) {
-      delete configWidget;
+      configWidget->sl_resetToOriginalValuesAndBounds();
     }
+  }
+
+  void QECBRobotsWindow::updateConfigurableWidget() {
     configurableWidgetMap.clear();
     int index = tabWidget->currentIndex();
     tabWidget->removeTab(1);

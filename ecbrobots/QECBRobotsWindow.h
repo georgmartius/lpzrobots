@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2011-01-28 12:15:37  guettler
+ *   Revision 1.17  2011-02-04 13:00:50  wrabe
+ *   - bugfix: Configurables are restored now when event "CommunicationStateWillChange" occurs
+ *
+ *   Revision 1.16  2011/01/28 12:15:37  guettler
  *   - restore of AutoSave File from a backup implemented
  *   - reset to original values, values AND bounds for Configurable implemented
  *   - reset to original values for tileWidgets implemented
@@ -159,6 +162,7 @@ namespace lpzrobots {
       void sleep(ulong msecs);
       QWidget* createConfigurableWidget();
       void updateConfigurableWidget();
+      void restoreOriginalConfigurables();
       void bookmarkConfigurableStates();
       void recallConfigurableStates();
       void autostoreConfigurableStates();
