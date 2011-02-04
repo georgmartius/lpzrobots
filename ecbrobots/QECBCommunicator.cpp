@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2011-01-27 17:50:17  guettler
+ *   Revision 1.6  2011-02-04 12:59:33  wrabe
+ *   - corrected datalength of received package
+ *
+ *   Revision 1.5  2011/01/27 17:50:17  guettler
  *   - when timeout occurs, step for ECB ignored
  *
  *   Revision 1.4  2011/01/27 15:48:01  guettler
@@ -282,12 +285,13 @@ namespace lpzrobots {
 //      globalData.textLog("Package received, but not handled while in pause mode.");
 //      return;
 //    }
+    //globalData.textLog("QECBCommunicator::sl_messageReceived(): "+printBuffer(msg.data));
     if (msg.data[0] != (char) 0x01)
       globalData.textLog("Message from MessageDispatchServer received, but not correct MsgGroup (" + toHexNumberString(
           msg.data[0], 1) + " instead of 0x01)", globalData.LOG_DEBUG);
     ECBCommunicationEvent* event = new ECBCommunicationEvent();
     event->commPackage.command = (uint8) msg.data[1];
-    event->commPackage.dataLength = msg.data.size();
+    event->commPackage.dataLength = msg.data.size()-2;
     for (int i = 0; i < event->commPackage.dataLength; i++) { // copy data
       event->commPackage.data[i] = msg.data[i + 2];
     }
