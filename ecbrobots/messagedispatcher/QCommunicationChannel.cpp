@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-01-24 16:24:46  guettler
+ *   Revision 1.8  2011-02-04 13:02:10  wrabe
+ *   - removed unnecessary debug message
+ *   - sendMessage does not set time of responseTimer anymore
+ *
+ *   Revision 1.7  2011/01/24 16:24:46  guettler
  *   -use new QLog feature
  *
  *   Revision 1.6  2010/11/26 12:22:36  guettler
@@ -770,7 +774,8 @@ namespace lpzrobots {
     switch (usbDeviceType) {
       case QCCHelper::USBDevice_USART_ADAPTER: {
         usbDeviceManager.writeData(QCCHelper::toUsartMessage(msg.data));
-        responseTimer.start(QCCHelper::EVENT_TIMEOUT_XBEE_SEND_MESSAGE_CABLE);
+        QLogDebug("responseTimer = " + QString::number(100));
+        responseTimer.start(100, QCCHelper::EVENT_TIMEOUT_XBEE_SEND_MESSAGE_CABLE);
         break;
       }
       case QCCHelper::USBDevice_XBEE_ADAPTER: {
