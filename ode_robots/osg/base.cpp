@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.50  2010-09-24 09:00:04  martius
+ *   Revision 1.51  2011-02-07 14:54:18  martius
+ *   horizon bright
+ *
+ *   Revision 1.50  2010/09/24 09:00:04  martius
  *   fixed lighing bug! Juhu. The StateSet was shared such that the material
  *    was shared. In this way the last material was used for all primitives
  *
@@ -723,13 +726,13 @@ namespace lpzrobots {
     float lev[] = {-5.0, -1.0, 2.0, 12.0, 30.0, 60.0, 90.0  };
     float cc[][4] =
       {
-        { 0.0, 0.0, 0.15 },
-        { 0.0, 0.0, 0.15 },
+        { 0.5, 0.5, 0.65 }, // horizon
+        { 0.5, 0.5, 0.65 },
         { 0.4, 0.4, 0.7 },
         { 0.2, 0.2, 0.6 },
         { 0.1, 0.1, 0.6 },
         { 0.1, 0.1, 0.6 },
-        { 0.1, 0.1, 0.6 },
+        { 0.1, 0.1, 0.6 }, // zenit
       };
     float x, y, z;
     float alpha, theta;
