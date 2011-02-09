@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-01-24 16:58:25  guettler
+ *   Revision 1.8  2011-02-09 14:46:02  wrabe
+ *   - no fixed size of the resulting window
+ *
+ *   Revision 1.7  2011/01/24 16:58:25  guettler
  *   - QMessageDispatchServer is now informed when client app closes itself
  *   - QMessageDispatchWindow actually closes if client app closes itself
  *   - hint: this should late be
@@ -89,8 +92,7 @@ namespace lpzrobots {
     tabWidget->addTab(logView, tr("Report"));
     grid->addWidget(tabWidget, 0, 0);
 
-    setMinimumWidth(900);
-    setMaximumWidth(900);
+    setMinimumSize(400, 500);
 
 
 
