@@ -17,7 +17,8 @@ QT = core gui xml
 # Input - Header
 
 # Input - Sources
-SOURCES 	+= main.cpp
+SOURCES 	+= main.cpp sos.cpp
+HEADERS   += sos.h
 
 #include all ecbrobots core files
 include(../../ecbrobots.pro.inc)
