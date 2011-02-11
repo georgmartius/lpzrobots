@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-11-10 09:32:00  guettler
+ *   Revision 1.10  2011-02-11 12:14:23  guettler
+ *   - fixed getECBlist() which now returns the address instead of a copy
+ *
+ *   Revision 1.9  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *
  *   Revision 1.8  2009/08/11 15:49:05  guettler
@@ -153,7 +156,7 @@ namespace lpzrobots {
        * For the ECBCommunicator, accessing all ECBs of a robot
        * @return
        */
-      virtual std::list<ECB*> getECBlist() const {
+      inline const std::list<ECB*>& getECBlist() const {
         return ECBlist;
       }
 
