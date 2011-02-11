@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2011-01-28 12:15:37  guettler
+ *   Revision 1.20  2011-02-11 12:12:11  guettler
+ *   - UI: some seperators added
+ *
+ *   Revision 1.19  2011/01/28 12:15:37  guettler
  *   - restore of AutoSave File from a backup implemented
  *   - reset to original values, values AND bounds for Configurable implemented
  *   - reset to original values for tileWidgets implemented
@@ -228,12 +231,14 @@ namespace lpzrobots {
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(sl_execContextMenu(const QPoint &)));
     contextMenuShowHideDialog.addAction(tr("set number of parameter columns ..."), this,
         SLOT(sl_changeNumberTileColumns()));
-    contextMenuShowHideDialog.addAction(tr("rearrange parameters"), this, SLOT(sl_rearrangeConfigurableTiles()));
     contextMenuShowHideDialog.addAction(tr("show/hide parameters ..."), this, SLOT(sl_showAndHideParameters()));
+    contextMenuShowHideDialog.addAction(tr("rearrange parameters"), this, SLOT(sl_rearrangeConfigurableTiles()));
+    contextMenuShowHideDialog.addSeparator();
     contextMenuShowHideDialog.addAction(tr("load configurable state from file ..."), this,
         SLOT(sl_loadConfigurableStateFromFile()));
     contextMenuShowHideDialog.addAction(tr("save current configurable state to file ..."), this,
         SLOT(sl_saveConfigurableStateToFile()));
+    contextMenuShowHideDialog.addSeparator();
     contextMenuShowHideDialog.addAction(tr("reset all parameters to original values"), this,
         SLOT(sl_resetToOriginalValues()));
     contextMenuShowHideDialog.addAction(tr("reset all parameters to original values AND bounds"), this,

@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2011-02-04 13:03:16  wrabe
+ *   Revision 1.12  2011-02-11 12:12:11  guettler
+ *   - UI: some seperators added
+ *
+ *   Revision 1.11  2011/02/04 13:03:16  wrabe
  *   - bugfix: Configurables are restored now when event "CommunicationStateWillChange" occurs, not in destructor
  *
  *   Revision 1.10  2011/01/28 12:15:37  guettler
@@ -179,6 +182,7 @@ namespace lpzrobots {
   void QIntConfigurableTileWidget::sl_execContextMenu(const QPoint &pos) {
     QMenu menu;
     menu.addAction(tr("change boundaries of this Configurable ..."), this, SLOT(sl_changeBounds()));
+    menu.addSeparator();
     menu.addAction(tr("reset to original value"), this, SLOT(sl_resetToOriginalValues()));
     menu.addAction(tr("reset to original value AND bounds"), this, SLOT(sl_resetToOriginalValuesAndBounds()));
     menu.exec(this->mapToGlobal(pos));

@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2011-02-04 13:00:50  wrabe
+ *   Revision 1.25  2011-02-11 12:12:01  guettler
+ *   - UI: some seperators added
+ *
+ *   Revision 1.24  2011/02/04 13:00:50  wrabe
  *   - bugfix: Configurables are restored now when event "CommunicationStateWillChange" occurs
  *
  *   Revision 1.23  2011/01/28 12:15:37  guettler
@@ -279,6 +282,7 @@ namespace lpzrobots {
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(action_SaveConfigurableState);
     fileMenu->addAction(action_LoadConfigurableState);
+    fileMenu->addSeparator();
     fileMenu->addAction(action_ClearAutoSaveFile);
     fileMenu->addAction(action_RestoreAutoSaveFile);
     fileMenu->addSeparator();
