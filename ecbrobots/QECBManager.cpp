@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-01-27 09:31:15  guettler
+ *   Revision 1.8  2011-02-11 12:16:28  guettler
+ *   - new signal/slots initlializationOfAgentDone(ECBAgent*) and stepDone() implemented, forwarded to QECBManager
+ *   - QECBManager now supports addCallback() function again, divided into addCallbackAgentInitialized(...) and addCallbackStep(...)
+ *
+ *   Revision 1.7  2011/01/27 09:31:15  guettler
  *   - Guilogger opens again when desired by user (menu or CTRL+G)
  *
  *   Revision 1.6  2011/01/24 14:17:57  guettler
@@ -130,9 +134,8 @@ namespace lpzrobots {
     globalData.textLog("QECBManager: handling console parameters...");
     handleStartParameters();
 
-    // init the PlotOptionEngine
-    globalData.textLog("QECBManager: starting the PlotOptionEngine...");
-
+    connect(globalData.comm, SIGNAL(sig_initializationOfAgentDone(ECBAgent*)), this, SLOT(sl_initializationOfAgentDone(ECBAgent*)));
+    connect(globalData.comm, SIGNAL(sig_stepDone()), this, SLOT(sl_stepDone()));
   }
 
   void QECBManager::cleanup() {
@@ -216,5 +219,17 @@ namespace lpzrobots {
         break;
     }
   }
+
+
+  void QECBManager::sl_stepDone() {
+    // param control is reserved as a not yet implemented feature
+    addCallbackStep(globalData,globalData.paused, true);
+  }
+
+  void QECBManager::sl_initializationOfAgentDone(ECBAgent* agent) {
+    addCallbackAgentInitialized(globalData, agent);
+  }
+
+
 
 } // namespace lpzrobots

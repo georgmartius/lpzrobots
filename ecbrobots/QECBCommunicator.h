@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2011-01-24 16:58:25  guettler
+ *   Revision 1.5  2011-02-11 12:16:28  guettler
+ *   - new signal/slots initlializationOfAgentDone(ECBAgent*) and stepDone() implemented, forwarded to QECBManager
+ *   - QECBManager now supports addCallback() function again, divided into addCallbackAgentInitialized(...) and addCallbackStep(...)
+ *
+ *   Revision 1.4  2011/01/24 16:58:25  guettler
  *   - QMessageDispatchServer is now informed when client app closes itself
  *   - QMessageDispatchWindow actually closes if client app closes itself
  *   - hint: this should late be
@@ -59,6 +63,7 @@ namespace lpzrobots {
 
   class QGlobalData;
   class ECB;
+  class ECBAgent;
 
   class QECBCommunicator : public QAbstractMessageClient, public Mediator {
 
@@ -108,6 +113,8 @@ namespace lpzrobots {
 
     signals:
       void sig_sendMessage(struct _communicationMessage msg);
+      void sig_initializationOfAgentDone(ECBAgent* agentInitialized);
+      void sig_stepDone();
 
       void sig_quitServer();
       void sig_quitClient();

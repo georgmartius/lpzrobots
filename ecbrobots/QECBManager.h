@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2011-01-24 14:17:57  guettler
+ *   Revision 1.6  2011-02-11 12:16:28  guettler
+ *   - new signal/slots initlializationOfAgentDone(ECBAgent*) and stepDone() implemented, forwarded to QECBManager
+ *   - QECBManager now supports addCallback() function again, divided into addCallbackAgentInitialized(...) and addCallbackStep(...)
+ *
+ *   Revision 1.5  2011/01/24 14:17:57  guettler
  *   - new menu entry start/stop MatrixViz
  *
  *   Revision 1.4  2010/12/14 10:10:12  guettler
@@ -102,6 +106,8 @@ namespace lpzrobots {
       void sl_GUIEventHandler(int);
 
       void sl_textLog(QString log);  // forwarded to QECBRobotsWindow, using sig_textLog(QString log)
+      void sl_stepDone();
+      void sl_initializationOfAgentDone(ECBAgent* agent);
 
     signals:
 
@@ -121,6 +127,18 @@ namespace lpzrobots {
        */
       virtual bool start(QGlobalData& global) = 0;
 
+
+      /** optional additional callback function which is called when closed loop
+       * is established (hardware ECBs, ECBAgent etc. are initialized)
+       * To use this method, just overload it.
+       * @param globalData The struct which contains all neccessary objects
+       * like Agents
+       * @agentInitialized the ECBAgent which is intialized
+       */
+      virtual void addCallbackAgentInitialized(QGlobalData& globalData, ECBAgent* agentInitialized) {
+      }
+
+
       /** optional additional callback function which is called every
        * simulation step.
        * To use this method, just overload it.
@@ -129,9 +147,10 @@ namespace lpzrobots {
        * @param paused indicates that simulation is paused
        * @param control indicates that robots have been controlled this timestep (default: true)
        */
-      void addCallback(QGlobalData& globalData, bool pause, bool control) {
+      virtual void addCallbackStep(QGlobalData& globalData, bool pause, bool control) {
       }
-      ;
+
+
 
       /** add own key handling stuff here, just insert some case values
        * To use this method, just overload it

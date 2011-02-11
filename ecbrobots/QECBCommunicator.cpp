@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2011-02-04 12:59:33  wrabe
+ *   Revision 1.7  2011-02-11 12:16:28  guettler
+ *   - new signal/slots initlializationOfAgentDone(ECBAgent*) and stepDone() implemented, forwarded to QECBManager
+ *   - QECBManager now supports addCallback() function again, divided into addCallbackAgentInitialized(...) and addCallbackStep(...)
+ *
+ *   Revision 1.6  2011/02/04 12:59:33  wrabe
  *   - corrected datalength of received package
  *
  *   Revision 1.5  2011/01/27 17:50:17  guettler
@@ -139,8 +143,15 @@ namespace lpzrobots {
               // Berechnung zu langsam -> Ausgabe, dass time leak stattfindet
               loopCallback();
               FOREACH ( AgentList,globalData.agents,a ) {
-                ((ECBAgent*) (*a))->step(globalData.noise, globalData.simStep);
+                ECBAgent* agent = *a;
+                if (!agent->isInitialized() && agent->getRobot()->isInitialised()) {
+                  agent->init();
+                  emit sig_initializationOfAgentDone(agent);
+                }
+                if (agent->isInitialized())
+                  agent->step(globalData.noise, globalData.simStep);
               }
+              emit sig_stepDone();
             } else {
               if (!this->testModeCallback())
                 stopCommunication = true;
