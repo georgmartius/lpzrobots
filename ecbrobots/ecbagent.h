@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-11-10 09:32:00  guettler
+ *   Revision 1.7  2011-02-11 12:13:31  guettler
+ *   - renamed init to preInit function
+ *   - ECB are added as configurables to PlotOptionEngine automatically
+ *
+ *   Revision 1.6  2010/11/10 09:32:00  guettler
  *   - port to Qt part 1
  *
  *   Revision 1.5  2009/08/11 15:49:05  guettler
@@ -90,13 +94,24 @@ namespace lpzrobots {
       virtual ECBRobot* getRobot();
 
       /**
-       * Initializes the object with the given controller, robot and wiring
+       * Pre-Initializes the object with the given controller, robot and wiring
        * and initializes the output options.
        * The initialisation is internally delayed until the ECBRobot is fully initialised
        * (all ECBs are initialised).
        */
-      virtual bool init(AbstractController* controller, ECBRobot* robot, AbstractWiring* wiring);
+      virtual bool preInit(AbstractController* controller, ECBRobot* robot, AbstractWiring* wiring);
 
+
+      /**
+       * Called by QECBCommunicator
+       */
+      virtual bool init();
+
+
+      /**
+       * Returns true if ECBAgent is initialized, that means the Controller, ECBRobot and Wiring too.
+       */
+      virtual bool isInitialized();
 
       /** Performs an step of the agent, including sensor reading, pushing sensor values through the wiring,
           controller step, pushing controller outputs (= motorcommands) back through the wiring and sent

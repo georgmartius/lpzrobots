@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-01-24 14:16:55  guettler
+ *   Revision 1.8  2011-02-11 12:13:31  guettler
+ *   - renamed init to preInit function
+ *   - ECB are added as configurables to PlotOptionEngine automatically
+ *
+ *   Revision 1.7  2011/01/24 14:16:55  guettler
  *   - added comment
  *   - cosmetic changes
  *
@@ -95,10 +99,13 @@ namespace lpzrobots {
     return (ECBRobot*) robot;
   }
 
-  bool ECBAgent::init(AbstractController *controller, ECBRobot *robot, AbstractWiring *wiring) {
+  bool ECBAgent::preInit(AbstractController *controller, ECBRobot *robot, AbstractWiring *wiring) {
     this->controller = controller;
     this->robot = robot;
     this->wiring = wiring;
+    FOREACHC(list<ECB*>, robot->getECBlist(), ecbIt) {
+      addConfigurable(*ecbIt);
+    }
     return true;
   }
 
@@ -115,11 +122,20 @@ namespace lpzrobots {
         restartPlotEngine = true;
       }
     } else if (getRobot()->isInitialised()) {
-      Agent::init(controller, robot, wiring);
-      internalInitialised = true;
-      restartPlotEngine = false; // (re-)start is done by Agent::step(...)
+      init();
       Agent::step(noise, time);
     } // else do nothing and wait
+  }
+
+  bool ECBAgent::init() {
+    internalInitialised = Agent::init(controller, robot, wiring);
+    if (internalInitialised)
+      restartPlotEngine = false; // (re-)start is done by Agent::step(...)
+    return internalInitialised;
+  }
+
+  bool ECBAgent::isInitialized() {
+    return internalInitialised;
   }
 
 }
