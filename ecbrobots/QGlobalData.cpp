@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-12-08 17:54:00  wrabe
+ *   Revision 1.7  2011-02-11 12:16:56  guettler
+ *   - removed obsolete configurable parameters
+ *
+ *   Revision 1.6  2010/12/08 17:54:00  wrabe
  *   - some configurables removed (noise...)
  *
  *   Revision 1.5  2010/12/06 14:08:02  guettler
@@ -88,11 +91,9 @@ namespace lpzrobots {
     baudrate = 57600;
     portName = std::string("/dev/ttyUSB0");
     addParameterDef("maxfailures", &maxFailures, 4, 0,100, "number of allowed discarded messages before reset(ting) the device");
-    addParameterDef("serialreadtimeout", &serialReadTimeout, 80);
-    addParameterDef("discoverxbeehardwareversiontimeout", &discoverXBeeHardwareVersionTimeout, 50);
-    addParameterDef("discovernodestimeout", &discoverNodesTimeout, 3000);
-    addParameterDef("cycletime", &cycleTime, 50);
-    addParameterDef("noise", &noise, 0.05, 0, 1, "global noise used for all controllers added by their used wiring to motor and/or sensor values");
+    addParameterDef("serialreadtimeout", &serialReadTimeout, 80, 1, 600);
+    addParameterDef("cycletime", &cycleTime, 50, 0, 300);
+    addParameterDef("noiseFactor", &noise, 0.05, 0, 1, "global noise factor used for all controllers added by their used wiring to motor and/or sensor values");
     simStep = 0;
     addParameterDef("benchmarkmode", &benchmarkMode, false);
     addParameterDef("testmode", &testMode, false);
