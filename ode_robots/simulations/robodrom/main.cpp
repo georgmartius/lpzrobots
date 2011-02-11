@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2008-05-01 22:03:56  martius
+ *   Revision 1.20  2011-02-11 18:16:41  martius
+ *   single pot replication
+ *
+ *   Revision 1.19  2008/05/01 22:03:56  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -71,10 +74,13 @@
 
 // used wiring
 #include <selforg/one2onewiring.h>
+#include <selforg/selectiveone2onewiring.h>
 
 // used robot
 #include <ode_robots/sphererobot3masses.h>
 #include <ode_robots/axisorientationsensor.h>
+#include <ode_robots/speedsensor.h>
+
 
 
 // used arena
@@ -85,7 +91,8 @@
 #include <ode_robots/passivecapsule.h>
 
 // used controller
-//#include <selforg/invertnchannelcontroller.h>
+#include <selforg/sos.h>
+#include <selforg/semox.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
 
@@ -95,8 +102,10 @@ using namespace std;
 
 Sphererobot3Masses* sphere ;
 //const double height = 6.5;
-const double height = 2;
+const double height = 1.8;
 
+enum Env {ThreeBump, SingleBasin};
+Env env = SingleBasin;
 
 class ThisSim : public Simulation {
 public:
@@ -108,38 +117,78 @@ public:
     Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
     conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
     conf.diameter=1.0;
-    conf.pendularrange= 0.35; // 0.15;
+    conf.pendularrange= 0.30; // 0.15;
+    // conf.motorpowerfactor  = 150;     
+    conf.spheremass = 1;
+    conf.motorsensor=false;
+    
+    conf.addSensor(new SpeedSensor(5, SpeedSensor::RotationalRel));
+    
+
     //SphererobotArms* sphere = new SphererobotArms ( odeHandle, conf);
-    if(i==0){
+    switch(i){
+    case 0:
       col.r()=0;
       col.g()=1;
       col.b()=0.1;
-      sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere", 0.4);
+      sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere 1", 0.4);
       sphere->place ( osg::Matrix::translate(9.5 , 0 , height+1 ));
-    }else
-      if(i==1){
-	col.r()=1;
-	col.g()=0.2;
-	col.b()=0;
-	sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere", 0.4);
-	sphere->place ( osg::Matrix::translate( 2 , -2 , height+1 ));
-      } else {
-	col.r()=0;
-	col.g()=1;
-	col.b()=0.4;
-	sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere", 0.4);
-	sphere->place ( osg::Matrix::translate( double(rand())/RAND_MAX*10 , 0 , height+1 ));
-      }
+      break;
+    case 1:
+      col.r()=1;
+      col.g()=0.2;
+      col.b()=0;
+      sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere 2", 0.4);
+      sphere->place ( osg::Matrix::translate( 2 , -2 , height+1 ));
+      break;
+    case 3:
+      col.r()=0;
+      col.g()=0;
+      col.b()=1;
+      sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere", 0.4);
+      sphere->place ( osg::Matrix::translate( 0 , 0 , .5 ));
+      break;
+    default:
+    case 2:
+      col.r()=0;
+      col.g()=1;
+      col.b()=0.4;
+      sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere 3", 0.4);
+      sphere->place ( osg::Matrix::translate( double(rand())/RAND_MAX*10 , 0 , height+1 ));
+      break;
+    }
   
   
-    //AbstractController *controller = new InvertNChannelController(10);  
-    AbstractController *controller = new InvertMotorNStep();
-    //    controller->setParam("factorB", 0.1);
-    controller->setParam("steps", 2);
-    //    controller->setParam("nomupdate", 0.005);
+    // //AbstractController *controller = new InvertNChannelController(10);  
+    // AbstractController *controller = new InvertMotorNStep();
+    // //    controller->setParam("factorB", 0.1);
+    // controller->setParam("steps", 2);
+    // //    controller->setParam("nomupdate", 0.005);
+    //     AbstractController *controller = new Sos(.8);    
+    SeMoXConf cc = SeMoX::getDefaultConf();    
+    cc.modelExt=true;
+    AbstractController* controller = new SeMoX(cc);  
+    
+    controller->setParam("epsC", 0.05);
+    controller->setParam("epsA", 0.1);        
+    controller->setParam("rootE", 0);
+    controller->setParam("steps", 1);
+    controller->setParam("s4avg", 1);
+    controller->setParam("dampModel", 0.9e-5);
+    controller->setParam("discountS", 0.05);
+    
+    
   
-    AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
-    OdeAgent* agent = new OdeAgent ( i==0 ? plotoptions : list<PlotOption>() );
+    //    AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );   
+  AbstractWiring* wiring = new SelectiveOne2OneWiring(new WhiteUniformNoise(), 
+                                                      new select_from_to(0,2), 
+                                                      AbstractWiring::Robot);
+  
+    OdeAgent* agent;
+    if(i==0)
+      agent = new OdeAgent (global);
+    else
+      agent = new OdeAgent (global, PlotOption(NoPlot));
     agent->init ( controller , sphere , wiring );
     global.agents.push_back ( agent );
     global.configs.push_back ( controller );  
@@ -160,10 +209,11 @@ public:
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     setCameraHomePos(Pos(16.3129, 18.2069, 12.5683),  Pos(137.914, -28.1771, 0));
+    setCameraMode(Static);
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
-    global.odeConfig.noise=0.1;
+    global.odeConfig.noise=0.05;
     //  global.odeConfig.setParam("gravity", 0);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
@@ -178,19 +228,37 @@ public:
     playground->setPosition(osg::Vec3(0,0,0.01)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
-
-//     TerrainGround* terrainground = 
-//       new TerrainGround(odeHandle, osgHandle,
-//  			"terrains/threebumps.ppm", "terrains/threebumps.ppm", 20, 20, height);
-    TerrainGround* terrainground = 
-      new TerrainGround(odeHandle, osgHandle.changeColor(Color(1.0f,194.0/255.0,41.0/255.0)),
-			"terrains/macrospheresLMH_64.ppm",""/*"Images/dusty.rgb" "terrains/macrospheresTex_256.ppm"*/, 
-			20, 20, height, OSGHeightField::LowMidHigh);
-    terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
-    global.obstacles.push_back(terrainground);
-    
-    addRobot(odeHandle, osgHandle, global, 0);
-    addRobot(odeHandle, osgHandle, global, 1);
+    int numpassive=0;
+    switch(env){
+    case ThreeBump:
+      {
+        //     TerrainGround* terrainground = 
+        //       new TerrainGround(odeHandle, osgHandle,
+        //  			"terrains/threebumps.ppm", "terrains/threebumps.ppm", 20, 20, height);
+        TerrainGround* terrainground = 
+          new TerrainGround(odeHandle, osgHandle.changeColor(Color(1.0f,194.0/255.0,41.0/255.0)),
+                            "terrains/macrospheresLMH_64.ppm",""/*"Images/dusty.rgb" "terrains/macrospheresTex_256.ppm"*/, 
+                            20, 20, height, OSGHeightField::LowMidHigh);
+        terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
+        global.obstacles.push_back(terrainground);
+        addRobot(odeHandle, osgHandle, global, 0);
+        addRobot(odeHandle, osgHandle, global, 1);
+        numpassive=4;
+      }
+      break;
+    case SingleBasin:
+      {
+        TerrainGround* terrainground = 
+          new TerrainGround(odeHandle, osgHandle.changeColor(Color(1.0f,1.0f,1.0f)),
+                            "terrains/dip128_flat.ppm","terrains/dip128_flat_texture.ppm", 
+                            20, 20, height, OSGHeightField::Red);
+        terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
+        global.obstacles.push_back(terrainground);
+        addRobot(odeHandle, osgHandle, global, 3);
+      }
+      break;
+    }
+        
 
     // add passive spheres as obstacles
     // - create pointer to sphere (with odehandle, osghandle and 
@@ -198,7 +266,7 @@ public:
     // - set Pose(Position) of sphere 
     // - set a texture for the sphere
     // - add sphere to list of obstacles
-    for (int i=0; i< 4; i+=1){
+    for (int i=0; i< numpassive; i+=1){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5,0.1);
       s1->setPosition(osg::Vec3(-8+2*i,-2,height+0.5));
       s1->setTexture("Images/dusty.rgb");
