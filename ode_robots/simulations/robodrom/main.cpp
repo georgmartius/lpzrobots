@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2011-02-11 18:16:41  martius
+ *   Revision 1.21  2011-02-13 20:30:44  martius
+ *   parameters and eliptic version
+ *
+ *   Revision 1.20  2011/02/11 18:16:41  martius
  *   single pot replication
  *
  *   Revision 1.19  2008/05/01 22:03:56  martius
@@ -45,7 +48,7 @@
  *   Revision 1.15.4.5  2006/05/29 18:58:13  martius
  *   terrainground is used again
  *
- *   Revision 1.15.4.4  2006/05/28 22:14:18  martius
+ *   Revision 1.1.4.4  2006/05/28 22:14:18  martius
  *   new meshground
  *
  *   Revision 1.15.4.3  2006/05/23 21:57:28  martius
@@ -91,7 +94,7 @@
 #include <ode_robots/passivecapsule.h>
 
 // used controller
-#include <selforg/sos.h>
+#include <selforg/sox.h>
 #include <selforg/semox.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
@@ -102,10 +105,12 @@ using namespace std;
 
 Sphererobot3Masses* sphere ;
 //const double height = 6.5;
-const double height = 1.8;
+const double height = 2;
 
-enum Env {ThreeBump, SingleBasin};
+enum Env {ThreeBump, SingleBasin, ElipticBasin};
 Env env = SingleBasin;
+bool track=false;
+const char* envnames[3] = {"ThreePot", "SingleBasin","ElipticBasin"};
 
 class ThisSim : public Simulation {
 public:
@@ -118,7 +123,7 @@ public:
     conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
     conf.diameter=1.0;
     conf.pendularrange= 0.30; // 0.15;
-    // conf.motorpowerfactor  = 150;     
+    conf.motorpowerfactor  = 150;     
     conf.spheremass = 1;
     conf.motorsensor=false;
     
@@ -145,7 +150,8 @@ public:
       col.r()=0;
       col.g()=0;
       col.b()=1;
-      sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere", 0.4);
+      sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere" + 
+					string(envnames[env]), 0.4);
       sphere->place ( osg::Matrix::translate( 0 , 0 , .5 ));
       break;
     default:
@@ -164,18 +170,29 @@ public:
     // //    controller->setParam("factorB", 0.1);
     // controller->setParam("steps", 2);
     // //    controller->setParam("nomupdate", 0.005);
-    //     AbstractController *controller = new Sos(.8);    
-    SeMoXConf cc = SeMoX::getDefaultConf();    
-    cc.modelExt=true;
-    AbstractController* controller = new SeMoX(cc);  
+    AbstractController *controller = new Sox(1.2,false);    
+    controller->setParam("epsC", 0.2);
+    controller->setParam("epsA", 0.2);        
+    if(env==ElipticBasin){
+      controller->setParam("epsC", 0.3);
+      controller->setParam("epsA", 0.3);        
+    }
+    controller->setParam("Logarithmic", 0);
+    controller->setParam("sense", 0.5);
+    // 1297536669
+    // 1297586370.000000
     
-    controller->setParam("epsC", 0.05);
-    controller->setParam("epsA", 0.1);        
-    controller->setParam("rootE", 0);
-    controller->setParam("steps", 1);
-    controller->setParam("s4avg", 1);
-    controller->setParam("dampModel", 0.9e-5);
-    controller->setParam("discountS", 0.05);
+    // SeMoXConf cc = SeMoX::getDefaultConf();    
+    // cc.modelExt=true;
+    // AbstractController* controller = new SeMoX(cc);  
+    
+    // controller->setParam("epsC", 0.05);
+    // controller->setParam("epsA", 0.1);        
+    // controller->setParam("rootE", 0);
+    // controller->setParam("steps", 1);
+    // controller->setParam("s4avg", 1);
+    // controller->setParam("dampModel", 0.9e-5);
+    // controller->setParam("discountS", 0.05);
     
     
   
@@ -185,13 +202,19 @@ public:
                                                       AbstractWiring::Robot);
   
     OdeAgent* agent;
-    if(i==0)
+    if(i==0 || i==3 ){
       agent = new OdeAgent (global);
+    }
     else
       agent = new OdeAgent (global, PlotOption(NoPlot));
+
     agent->init ( controller , sphere , wiring );
+    if(track)
+      agent->setTrackOptions(TrackRobot(true,false,false,false,"",2));
+
     global.agents.push_back ( agent );
     global.configs.push_back ( controller );  
+    global.configs.push_back ( sphere);  
   }
 
   void removeRobot(GlobalData& global){
@@ -224,7 +247,16 @@ public:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(20, 0.2, height+0.3f));
+    Playground* playground;
+    if(env==ElipticBasin){
+      playground = new Playground(odeHandle, osgHandle, 
+				  osg::Vec3(20, 0.2, height+1.f), 2);
+    }else{
+      playground = new Playground(odeHandle, osgHandle, 
+				  osg::Vec3(20, 0.2, height+0.3f), 1);
+    }
+    playground->setColor(Color(.1,0.7,.1));
+    playground->setTexture("");
     playground->setPosition(osg::Vec3(0,0,0.01)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
 
@@ -247,11 +279,17 @@ public:
       }
       break;
     case SingleBasin:
+      // at Radius 3.92 height difference of 0.5 and at 6.2 height difference of 1 
+      // ./start -single track -f 2 -r 1297536669
+
+    case ElipticBasin:
+      // ./start -eliptic -f 5 -track -r 1297628680
       {
         TerrainGround* terrainground = 
           new TerrainGround(odeHandle, osgHandle.changeColor(Color(1.0f,1.0f,1.0f)),
-                            "terrains/dip128_flat.ppm","terrains/dip128_flat_texture.ppm", 
-                            20, 20, height, OSGHeightField::Red);
+			    //                        "terrains/dip128_flat.ppm","terrains/dip128_flat_texture.ppm", 
+                            "terrains/dip128.ppm","terrains/dip128_texture.ppm", 
+                            20, env == SingleBasin ? 20 : 40, height, OSGHeightField::Red);
         terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
         global.obstacles.push_back(terrainground);
         addRobot(odeHandle, osgHandle, global, 3);
@@ -281,8 +319,7 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
+		default:
 	  return false;
 	  break;
 	}
@@ -296,7 +333,15 @@ public:
 
 int main (int argc, char **argv)
 { 
-  ThisSim sim;
+  if(Simulation::contains(argv,argc,"-eliptic")>0)
+    env=ElipticBasin;
+  if(Simulation::contains(argv,argc,"-single")>0)
+    env=SingleBasin;
+  if(Simulation::contains(argv,argc,"-three")>0)
+    env=ThreeBump;
+  track = (Simulation::contains(argv,argc,"-track")>0);
+  
+  ThisSim sim;  
   return sim.run(argc, argv) ? 0 : 1;
 
 }
