@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2010-11-10 17:09:09  martius
+ *   Revision 1.16  2011-02-14 15:21:44  martius
+ *   min and max values can have any sign (BUG pointed out by Martin Biehl)
+ *
+ *   Revision 1.15  2010/11/10 17:09:09  martius
  *   new formula for compliance
  *
  *   Revision 1.14  2010/08/03 12:49:18  martius
@@ -140,8 +143,8 @@ namespace lpzrobots {
     virtual void setMinMax(double _min, double _max){
       min=_min;
       max=_max;
-      joint->setParam(dParamLoStop, min * jointLimit);
-      joint->setParam(dParamHiStop, max * jointLimit);
+      joint->setParam(dParamLoStop, min  - abs(min) * (jointLimit-1));
+      joint->setParam(dParamHiStop, max  + abs(max) * (jointLimit-1));
     }
 
     /** adjusts the power of the servo*/
