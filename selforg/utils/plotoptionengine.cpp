@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.12  2010-07-11 22:04:13  martius
+ *  Revision 1.13  2011-02-17 17:33:04  martius
+ *  changed locale
+ *
+ *  Revision 1.12  2010/07/11 22:04:13  martius
  *  ported to MinGW/Msys
  *
  *  Revision 1.11  2010/07/02 15:57:25  martius
@@ -87,6 +90,7 @@
 #include <assert.h>
 #include <string.h>
 #include <algorithm>
+#include <locale.h> // need to set LC_NUMERIC to have a '.' in the numbers written or piped to gnuplot 
 
 using namespace std;
 
@@ -110,6 +114,8 @@ PlotOptionEngine::~PlotOptionEngine() {
 
 
 bool PlotOptionEngine::init(AbstractController* maybe_controller){
+  setlocale(LC_NUMERIC,"en_US"); // set us type output
+  
   this->maybe_controller = maybe_controller;
 #ifdef SIGPIPE // is not defined on windows
   // this prevents the simulation to terminate if the child  closes
