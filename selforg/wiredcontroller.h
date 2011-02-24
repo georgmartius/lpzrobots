@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2010-10-20 13:15:01  martius
+ *   Revision 1.16  2011-02-24 20:43:39  martius
+ *   fixRobot added to motorbabbling
+ *
+ *   Revision 1.15  2010/10/20 13:15:01  martius
  *   motorbabbling added
  *   sox controller with new learning rule for S
  *
@@ -163,9 +166,11 @@ public:
   /** Enables the motor babbling mode for given number of steps (typically 1000).
       Optionally a controller can be
       given that is used for the babbling (default is MotorBabbler) (deleted automatically).
-      During motor babbling the function motorbabbling of the normal controller is called instead of step
+      During motor babbling the function motorbabbling of the normal controller is called instead of step.
+      The parameter fixRobot is intended for simulations
    */
-  virtual void startMotorBabblingMode (int steps, AbstractController* babblecontroller = 0);
+  virtual void startMotorBabblingMode (int steps, AbstractController* babblecontroller = 0, 
+				       bool fixRobot = true);
 
   /** stops the motor babbling mode. */
   virtual void stopMotorBabblingMode () { motorBabblingSteps = 0; }

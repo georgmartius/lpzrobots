@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2010-10-20 13:15:01  martius
+ *   Revision 1.21  2011-02-24 20:43:39  martius
+ *   fixRobot added to motorbabbling
+ *
+ *   Revision 1.20  2010/10/20 13:15:01  martius
  *   motorbabbling added
  *   sox controller with new learning rule for S
  *
@@ -184,7 +187,8 @@ bool WiredController::init(AbstractController* controller, AbstractWiring* wirin
   return true;
 }
 
-void WiredController::startMotorBabblingMode (int steps, AbstractController* babblecontroller){
+void WiredController::startMotorBabblingMode (int steps, 
+					      AbstractController* babblecontroller, bool ){
   if(babblecontroller){
     if(motorBabbler) delete motorBabbler;
     motorBabbler = babblecontroller;

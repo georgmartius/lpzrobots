@@ -49,22 +49,17 @@ CXX = g++
 normal: libselforg 
 	$(MAKE) $(EXEC)
 opt   : libselforg_opt
-	$(MAKE) $(EXEC_OPT)
-dgb   : libselforg_dbg
-	$(MAKE) $(EXEC_DBG)
+	$(MAKE) CPPFLAGS="$(CPPFLAGS_OPT)" SELFORGLIB="$(SELFORGLIB_OPT)" $(EXEC_OPT)
+dbg   : libselforg_dbg
+	$(MAKE) CPPFLAGS="$(CPPFLAGS_DBG)" SELFORGLIB="$(SELFORGLIB_DBG)" $(EXEC_DBG)
 
 $(EXEC): Makefile.depend $(OFILES) $(LIBSELFORGLIB)
 	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC)
 
-$(EXEC_DBG): CPPFLAGS = $(CPPFLAGS_DBG)
-$(EXEC_DBG): SELFORGLIB = $(SELFORGLIB_DBG)
-$(EXEC_DBG): Makefile.depend $(OFILES) libselforg_dbg $(LIBSELFORGLIB)
+$(EXEC_DBG): Makefile.depend $(OFILES) $(LIBSELFORGLIB)
 	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC_DBG)
 
-
-$(EXEC_OPT): CPPFLAGS = $(CPPFLAGS_OPT)
-$(EXEC_OPT): SELFORGLIB = $(SELFORGLIB_OPT)
-$(EXEC_OPT): Makefile.depend $(OFILES) libselforg_opt $(LIBSELFORGLIB)
+$(EXEC_OPT): Makefile.depend $(OFILES) $(LIBSELFORGLIB)
 	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC_OPT)
 
 libselforg: 
