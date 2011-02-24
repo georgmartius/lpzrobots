@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-12-17 17:00:26  martius
+ *   Revision 1.14  2011-02-24 20:45:21  martius
+ *   added fixRobot parameter to motorbabbling
+ *
+ *   Revision 1.13  2010/12/17 17:00:26  martius
  *   odeagent has new constructor (old is marked as deprecated) -> log files have again
  *    important information about simulation
  *   addsensorstorobotadapater copies configurables
@@ -192,16 +195,19 @@ namespace lpzrobots {
     }
   }
 
-  void OdeAgent::startMotorBabblingMode (int steps, AbstractController* babblecontroller){
-    WiredController::startMotorBabblingMode(steps, babblecontroller);
-    OdeRobot* r = dynamic_cast<OdeRobot*>(robot);
-    if(!r) return;
-    Primitive* main = r->getMainPrimitive();
-    if(main){
-      fixatingPos = main->getPosition();
-      if(fixatingPos.z()< 1)
-        fixatingPos.z() += 1;    
-      fixateRobot = true;
+  void OdeAgent::startMotorBabblingMode (int steps, AbstractController* babblecontroller, 
+					 bool fixRobot){
+    WiredController::startMotorBabblingMode(steps, babblecontroller, fixRobot);
+    if(fixRobot){
+      OdeRobot* r = dynamic_cast<OdeRobot*>(robot);
+      if(!r) return;
+      Primitive* main = r->getMainPrimitive();
+      if(main){
+	fixatingPos = main->getPosition();
+	if(fixatingPos.z()< 1)
+	  fixatingPos.z() += 1;    
+	  fixateRobot = true;
+      }    
     }
   }
     

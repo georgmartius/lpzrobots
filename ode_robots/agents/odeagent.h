@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-12-17 17:00:26  martius
+ *   Revision 1.13  2011-02-24 20:45:21  martius
+ *   added fixRobot parameter to motorbabbling
+ *
+ *   Revision 1.12  2010/12/17 17:00:26  martius
  *   odeagent has new constructor (old is marked as deprecated) -> log files have again
  *    important information about simulation
  *   addsensorstorobotadapater copies configurables
@@ -145,10 +148,12 @@ namespace lpzrobots {
     virtual void setMotorsGetSensors();
 
     /** Enables the motor babbling mode. 
-        The robot move to the air and is fixed by a fixed joint.
+        The robot is move into the air and is fixed by a fixed joint if fixRobot==true
         See WiredController::startMotorBabblingMode().
     */
-    virtual void startMotorBabblingMode (int steps, AbstractController* babblecontroller = 0);
+    virtual void startMotorBabblingMode (int steps,
+					 AbstractController* babblecontroller = 0,
+					 bool fixRobot=true);
     
     /** stops the motor babbling mode. */
     virtual void stopMotorBabblingMode ();
