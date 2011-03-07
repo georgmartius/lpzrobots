@@ -184,7 +184,7 @@ class MyECBManager : public QECBManager {
       plotting.push_back(PlotOption(File, 1));
       ECBAgent* myAgent = new ECBAgent(plotting, global.noise);
       // init agent with controller, robot and wiring
-      myAgent->init(myCon, myRobot, myWiring);
+      myAgent->preInit(myCon, myRobot, myWiring);
 
       // register agents
       global.agents.push_back(myAgent);
