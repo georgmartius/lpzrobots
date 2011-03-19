@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-01-26 09:58:15  martius
+ *   Revision 1.7  2011-03-19 08:47:55  guettler
+ *   - unique names are generated even for e.g. spheres, snakes
+ *
+ *   Revision 1.6  2010/01/26 09:58:15  martius
  *   changed a lot parameter
  *
  *   Revision 1.5  2009/03/25 15:44:23  guettler
@@ -272,7 +275,7 @@ public:
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       Sphererobot3Masses* sphere1 =
 	new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(r!=1,r==4,r==1)),
-				 conf, "Sphere1", 0.2);
+				 conf, "Sphere_" + std::itos(r), 0.2);
       ((OdeRobot*)sphere1)->place ( Pos( -2.5*r , 0 , height+0.05));
       controller = new InvertMotorSpace(15);
       One2OneWiring* wiring2 = new One2OneWiring ( new ColorUniformNoise() );
@@ -373,12 +376,12 @@ public:
 	schlange1 =
 	  new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
 			       //  new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),
-			       conf, "S1");
+			       conf, "S1_" + std::itos(i));
       } else {
 	schlange1 =
 	  new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
 			       // new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(0.8, 0.4, .3)),
-			       conf, "S2");
+			       conf, "S2_" + std::itos(i));
       }
       //Positionieren und rotieren
       schlange1->place(osg::Matrix::rotate(M_PI/2, 0, 1, 0)*
