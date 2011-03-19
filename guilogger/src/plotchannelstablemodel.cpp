@@ -24,13 +24,13 @@
 int PlotChannelsTableModel::rowCount(const QModelIndex&) const {
   if(plotInfos && plotInfos->size() > 0){
     return (*plotInfos)[0]->getChannelData().getNumChannels()+rowoffset;
-  } else 
+  } else
     return 0;
 }
 
 int PlotChannelsTableModel::columnCount(const QModelIndex& /*parent */) const {
   if(plotInfos)
-    return plotInfos->size()+1; // one additional column for decription
+    return plotInfos->size()+2; // two additional column for description and object name
   else
     return 0;
 }
@@ -40,8 +40,8 @@ QVariant PlotChannelsTableModel::data(const QModelIndex &index, int role) const 
 
   if (!index.isValid() || !plotInfos || plotInfos->size() == 0)
     return QVariant();
-  
-  if (index.column() > plotInfos->size())
+
+  if (index.column() > plotInfos->size()+1)
     return QVariant();
 
   const ChannelData& cd = (*plotInfos)[0]->getChannelData();
@@ -49,7 +49,7 @@ QVariant PlotChannelsTableModel::data(const QModelIndex &index, int role) const 
   if (row >= cd.getNumChannels())
     return QVariant();
 
-  // description in last column
+  // description in last-1 column
   if (index.column() == plotInfos->size()){
     if(role == Qt::DisplayRole){
       switch(index.row()){
@@ -61,10 +61,26 @@ QVariant PlotChannelsTableModel::data(const QModelIndex &index, int role) const 
 	else
 	  return QVariant();
       }
-    }else 
+    }else
       return QVariant();
   }
-  
+  // objectName in last column
+  else if (index.column() == plotInfos->size()+1) {
+   if(role == Qt::DisplayRole){
+      switch(index.row()){
+        case 0: return "                              ";
+        case 1: return QVariant();
+        default:
+          if(row<cd.getInfos().size()) {
+            return cd.getInfos()[row].objectName;
+          }
+          else
+            return QVariant();
+      }
+    }else
+      return QVariant();
+  }
+
   // any normal column
   if(index.row()==0){ // enable/disable row
     if(role == Qt::CheckStateRole){
@@ -79,7 +95,7 @@ QVariant PlotChannelsTableModel::data(const QModelIndex &index, int role) const 
   }
 
   // also normal row  
-// if (role == Qt::DisplayRole)    
+// if (role == Qt::DisplayRole)
 //     return QVariant((*plotInfos)[index.column()]->getChannelShow(index.row()));
 
   if(role == Qt::CheckStateRole){
@@ -96,15 +112,17 @@ QVariant PlotChannelsTableModel::headerData(int section, Qt::Orientation orienta
   if (orientation == Qt::Horizontal){
     if(section<plotInfos->size())
       return QString("  %1  ").arg(section+1);
-    else 
+    else if (section<plotInfos->size()+1)
       return QString("Description");
+    else
+      return QString("Object");
   }  else {
     if(section==0){
       return "Enable";
     }else if(section==1){
       return "Reference";
-    } else     
-      return (*plotInfos)[0]->getChannelData().getChannelName(section-rowoffset); 
+    } else
+      return (*plotInfos)[0]->getChannelData().getChannelName(section-rowoffset);
     // QString("Channel %1").arg(section);  
   }
 }
@@ -119,18 +137,18 @@ Qt::ItemFlags PlotChannelsTableModel::flags(const QModelIndex &index) const {
     return QAbstractItemModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
   }else if(index.row()==1){
     return QAbstractItemModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsEditable;
-  } else   
+  } else
     //  return QAbstractItemModel::flags(index) | Qt::ItemIsUserCheckable | Qt::ItemIsEditable;
     return QAbstractItemModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 
 bool PlotChannelsTableModel::setData(const QModelIndex &index, const QVariant &value, int role){
 //   if (index.isValid() && role == Qt::EditRole) {
-//     (*plotInfos)[index.column()]->setChannelShow(index.row(), value.toBool());    
+//     (*plotInfos)[index.column()]->setChannelShow(index.row(), value.toBool());
 //     emit dataChanged(index, index);
 //     return true;
-//   }else 
-  
+//   }else
+
   
   if (!index.isValid() || index.column()>=plotInfos->size()) return false;
   if(index.row()==0){
@@ -144,9 +162,9 @@ bool PlotChannelsTableModel::setData(const QModelIndex &index, const QVariant &v
       return true;
     }
   } else{
-    if( role == Qt::CheckStateRole) {        
+    if( role == Qt::CheckStateRole) {
       int row = index.row() - rowoffset;
-      (*plotInfos)[index.column()]->setChannelShow(row, value.toBool());    
+      (*plotInfos)[index.column()]->setChannelShow(row, value.toBool());
       emit dataChanged(index, index);
       emit updateWindow(index.column());
       return true;

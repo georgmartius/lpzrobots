@@ -84,6 +84,7 @@ void ChannelData::setChannels(const QStringList& newchannels){
       } else {
 	channels[i].name  = *n;
 	channels[i].descr = "";
+	channels[i].objectName = "";
 	channels[i].type  = AutoDetection;   
       }
       if(channels[i].type == AutoDetection){
@@ -145,8 +146,10 @@ MultiChannel ChannelData::extractMultiChannel(int* i){
     mc.info.name = root + "_";
     if(preset.contains(mc.info.name)){
       mc.info.descr= preset[mc.info.name].descr;
+      mc.info.objectName= preset[mc.info.name].objectName;
     } else {
       mc.info.descr="";
+      mc.info.objectName="";
     }
     mc.startindex = index;
     mc.columns = 1;
@@ -170,6 +173,8 @@ MultiChannel ChannelData::extractMultiChannel(int* i){
 	    channels[index].descr = (mc.info.descr.isEmpty() ? root : mc.info.descr)
               + QString(" elem %1,%2").arg(col+1).arg(row+1);
           }
+          if(channels[index].objectName.isEmpty())
+            channels[index].objectName = mc.info.objectName;
 	  mc.columns = mc.columns < col+1 ? col+1 : mc.columns;
 	  mc.rows    = mc.rows    < row+1 ? row+1 : mc.rows;	
 	} else {
@@ -194,6 +199,8 @@ MultiChannel ChannelData::extractMultiChannel(int* i){
 	    channels[index].descr = (mc.info.descr.isEmpty() ? root : mc.info.descr)
               + QString(" elem %1").arg(row+1);
           }
+          if(channels[index].objectName.isEmpty())
+            channels[index].objectName = mc.info.objectName;
 	  mc.rows    = mc.rows    < row+1 ? row+1 : mc.rows;	
 	} else {
 	  fprintf(stderr, "error while parsing vector element %s!", 
@@ -246,17 +253,20 @@ int ChannelData::getMultiChannelIndex(const ChannelName& name) const {
 }
 
 
-void ChannelData::setChannelDescription(const ChannelName& name, const ChannelDescr& description){
+void ChannelData::setChannelDescription(const ChannelObjectName& objectName, const ChannelName& name, const ChannelDescr& description){
   if(initialized){
     int index = getChannelIndex(name);
-    if(index>=0 && index < numchannels)
-      channels[index].descr = description;      
+    if(index>=0 && index < numchannels) {
+      channels[index].descr = description;
+      channels[index].objectName = objectName;
+    }
     else {
       if(!preset.contains(name)){
         preset[name].name  = name;
         preset[name].type  = AutoDetection;
       }
       preset[name].descr = description;    
+      preset[name].objectName = objectName;
     }
   }else{
     // store in preset information
@@ -265,6 +275,7 @@ void ChannelData::setChannelDescription(const ChannelName& name, const ChannelDe
       preset[name].type  = AutoDetection;
     }
     preset[name].descr = description;
+    preset[name].objectName = objectName;
   }
 }
 
@@ -351,15 +362,31 @@ void ChannelData::receiveRawData(QString data){
     {
       parsedString.erase(parsedString.begin());
       QString type = *(parsedString.begin());
-      if(!type.isEmpty() && type == "D"){ // description 
-        // now we expect: channelname description
-        parsedString.erase(parsedString.begin());
-        QString key = *(parsedString.begin());
-        parsedString.erase(parsedString.begin());
-        setChannelDescription(key, parsedString.join(" "));        
-      }            
+      if(!type.isEmpty() && (type == "D" || (type.startsWith("[") && type.endsWith("]")))){ // description
+        // now we expect: [channelObjectName] D channelname description
+        if (type.startsWith("[") && type.endsWith("]")) {
+          // new style
+          QString objectName = type.mid(1,type.size()-2); // eliminate [ and ]
+          parsedString.erase(parsedString.begin());
+          parsedString.erase(parsedString.begin());
+          QString key = *(parsedString.begin());
+          parsedString.erase(parsedString.begin());
+          setChannelDescription(objectName, key, parsedString.join(" "));
+        } else {
+          // D channelname description (old style, used e.g. for timestep t)
+          QString objectName = "";
+          parsedString.erase(parsedString.begin());
+          QString key = *(parsedString.begin());
+          parsedString.erase(parsedString.begin());
+          setChannelDescription(objectName, key, parsedString.join(" "));
+        }
+      }
     }
-  else if(first.length()>=2 &&  first[0] == '#' && first[1] == 'Q')   //Quit
+  else if (first == "#IN") { // name of PlotOption
+    parsedString.erase(parsedString.begin());
+    QString name = *(parsedString.begin());
+    emit rootNameUpdate(name);
+  } else if(first.length()>=2 &&  first[0] == '#' && first[1] == 'Q')   //Quit
     {
       printf("Guilogger: Received Quit\n");
       emit quit();

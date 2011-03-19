@@ -28,6 +28,7 @@
 #include <QStringList>
 #include <QHash>
 
+typedef QString ChannelObjectName;
 typedef QString ChannelName;
 typedef QString ChannelDescr;
 
@@ -37,6 +38,7 @@ enum ChannelType { AutoDetection, Single, Matrix, Vector,
 typedef struct _ChannelInfo{
   ChannelName  name;
   ChannelDescr descr;
+  ChannelObjectName objectName;
   ChannelType  type;
   int row;    // only valid for vectors and matrices
   int column; // only valid for vectors and matrices
@@ -90,7 +92,7 @@ public:
   /** sets the desription of a channel 
       (can be used before initialization and also for multichannels) 
   */
-  void setChannelDescription(const ChannelName& name, const ChannelDescr& description);
+  void setChannelDescription(const ChannelObjectName& objectName, const ChannelName& name, const ChannelDescr& description);
 
   /// inserts a new set of data into the ring buffer
   void setData(const QVector<double>& data); 
@@ -129,6 +131,7 @@ signals:
   void quit();
   void channelsChanged();
   void update();
+  void rootNameUpdate(QString name);
   
 private:
   /** first array is the ring buffer

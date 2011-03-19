@@ -97,6 +97,7 @@ private slots:
   void horizonSliderReleased();
   void sendButtonPressed();
   void doQuit();
+  void updateRootName(QString name);
 
 signals:
   void quit();

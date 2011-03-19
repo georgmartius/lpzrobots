@@ -39,6 +39,7 @@ GuiLogger::GuiLogger(const CommLineParser& configobj, const QRect& screenSize)
   filename = configobj.getFile();  
 
   connect(&channelData, SIGNAL(quit()), this, SLOT(doQuit()));
+  connect(&channelData, SIGNAL(rootNameUpdate(QString)), this, SLOT(updateRootName(QString)));
 
   load();  // load Config File
 
@@ -139,7 +140,7 @@ GuiLogger::GuiLogger(const CommLineParser& configobj, const QRect& screenSize)
     horizonslidervalue->setText(QString::number(filePlotHorizon, 10));
   } else { 
     horizonslider->setMinimum(10);
-    horizonslider->setMaximum(maxplottimer);   // MaxTimer für Plottimer
+    horizonslider->setMaximum(maxplottimer);   // MaxTimer fï¿½r Plottimer
     horizonslider->setValue(startplottimer);       // actual Value for Plottimer
     horizonsliderlayout->addWidget(new QLabel("Interval", horizonsliderwidget));
     horizonslidervalue->setText(QString("%1\nms").arg(startplottimer));
@@ -191,10 +192,10 @@ GuiLogger::GuiLogger(const CommLineParser& configobj, const QRect& screenSize)
   
   plottimer = new QTimer( this);
   if(mode == "file"){
-    resize( 480, 600 );
+    resize( 520, 600 );
     updateSliderPlot();
   }else{  
-    resize( 400, 600 );
+    resize( 520, 600 );
     connect(plottimer, SIGNAL(timeout()), SLOT(plotUpdate()));
     plottimer->setSingleShot(false);
     plottimer->start(startplottimer);
@@ -311,7 +312,7 @@ int GuiLogger::analyzeFile() {
 
   fclose(instream);
 
-  //    linecount = (linecount-250 > 0)?linecount:0;  // um in einem Datensatz < Buffersize nicht scrollen zu können
+  //    linecount = (linecount-250 > 0)?linecount:0;  // um in einem Datensatz < Buffersize nicht scrollen zu kï¿½nnen
 
   //         printf("%i\n", linecount);
   if(s != NULL) free(s);
@@ -571,6 +572,11 @@ void GuiLogger::editconfig(){
 void GuiLogger::doQuit(){
   emit quit();
 }
+
+void GuiLogger::updateRootName(QString name) {
+  setWindowTitle("GUI Logger - " + name);
+}
+
 
 void GuiLogger::plotChannelsChanged(int window){
   if(mode=="file") 
