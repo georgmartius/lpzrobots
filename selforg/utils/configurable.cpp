@@ -24,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-12-16 15:26:09  martius
+ *   Revision 1.12  2011-03-21 17:45:36  guettler
+ *   enhanced configurable interface:
+ *   - support for configurable childs of a configurable
+ *   - some new helper functions
+ *
+ *   Revision 1.11  2010/12/16 15:26:09  martius
  *   added copyParameter
  *
  *   Revision 1.10  2010/12/06 14:09:53  guettler
@@ -151,7 +156,7 @@ bool Configurable::restoreCfg(const char* filenamestem){
 }
 
 
-Configurable::paramval Configurable::getParam(const paramkey& key) const {  
+Configurable::paramval Configurable::getParam(const paramkey& key, bool useChilds) const {
   parammap::const_iterator it = mapOfValues.find(key);
   if (it != mapOfValues.end()) {
     return *((*it).second);
@@ -159,46 +164,75 @@ Configurable::paramval Configurable::getParam(const paramkey& key) const {
     // now try to find in map for int values
     paramintmap::const_iterator intit = mapOfInteger.find(key);
     if (intit != mapOfInteger.end()) {
-      return (paramval)*((*intit).second);
-      
-    } else { 
+      return (paramval) *((*intit).second);
+    } else {
       // now try to find in map for boolean values
       paramboolmap::const_iterator boolit = mapOfBoolean.find(key);
       if (boolit != mapOfBoolean.end()) {
-	return (paramval)*((*boolit).second);
+        return (paramval) *((*boolit).second);
       } else {
-	std::cerr << name << ": " << __FUNCTION__ << ": parameter " << key << " unknown\n";
-	return 0;
+        if (useChilds) {
+          // search in all configurable childs
+          FOREACHC(configurableList, ListOfConfigurableChilds, conf) {
+            if ((*conf)->hasParam(key))
+              return ((*conf)->getParam(key));
+          }
+        }
+        std::cerr << name << ": " << __FUNCTION__ << ": parameter " << key << " unknown\n";
+        return 0;
       }
     }
   }
 }
 
-bool Configurable::setParam(const paramkey& key, paramval val) {
+bool Configurable::hasParam(const paramkey& key, bool useChilds) const {
+  if(mapOfValues.find(key) != mapOfValues.end()
+             || mapOfInteger.find(key) != mapOfInteger.end()
+             || mapOfBoolean.find(key) != mapOfBoolean.end())
+    return true;
+  if (useChilds) {
+    // search in all configurable childs
+    FOREACHC(configurableList, ListOfConfigurableChilds, conf) {
+      if ((*conf)->hasParam(key))
+        return true;
+    }
+  }
+  return false;
+}
+
+bool Configurable::setParam(const paramkey& key, paramval val, bool useChilds) {
   parammap::const_iterator it = mapOfValues.find(key);
   if (it != mapOfValues.end()) {
     *(mapOfValues[key]) = val;
     return true;
-  } else{
+  } else {
     // now try to find in map for boolean values
     paramintmap::const_iterator intit = mapOfInteger.find(key);
     if (intit != mapOfInteger.end()) {
-      *(mapOfInteger[key]) = (int)val;
+      *(mapOfInteger[key]) = (int) val;
       return true;
     } else {
       // now try to find in map for boolean values
       paramboolmap::const_iterator boolit = mapOfBoolean.find(key);
       if (boolit != mapOfBoolean.end()) {
-	*(mapOfBoolean[key]) = val!=0?true:false;
-	return true;
-      } else
-	return false; // fprintf(stderr, "%s:parameter %s unknown\n", __FUNCTION__, key);
+        *(mapOfBoolean[key]) = val != 0 ? true : false;
+        return true;
+      } else {
+        // search in all configurable childs
+        if (useChilds) {
+          FOREACHC(configurableList, ListOfConfigurableChilds, conf) {
+            if ((*conf)->hasParam(key))
+              return ((*conf)->setParam(key, val));
+          }
+        }
+        return false; // fprintf(stderr, "%s:parameter %s unknown\n", __FUNCTION__, key);
+      }
     }
   }
 }
 
 
-std::list<Configurable::paramkey> Configurable::getAllParamNames(){
+std::list<Configurable::paramkey> Configurable::getAllParamNames(bool useChilds){
   std::list<paramkey> l;
   FOREACHC(parammap, mapOfValues, i) {
      l += (*i).first;
@@ -214,18 +248,42 @@ std::list<Configurable::paramkey> Configurable::getAllParamNames(){
   FOREACHC(paramlist, list, i) {
     l += (*i).first;
   }
+  if (useChilds) {
+    // add all parameters from the configurable childs
+    FOREACHC(configurableList, ListOfConfigurableChilds, conf) {
+      l+= (*conf)->getAllParamNames();
+    }
+  }
   return l;
 }
 
-Configurable::paramdescr Configurable::getParamDescr(const paramkey& key) const {
+Configurable::paramdescr Configurable::getParamDescr(const paramkey& key, bool useChilds) const {
   paramdescrmap::const_iterator it = mapOfDescr.find(key);
   if (it != mapOfDescr.end()) {
     return it->second;
-  }else return paramdescr();
+  }else if (useChilds) {
+    FOREACHC(configurableList, ListOfConfigurableChilds, conf) {
+      if ((*conf)->hasParamDescr(key))
+        return ((*conf)->getParamDescr(key));
+    }
+  }
+  return paramdescr();
+}
+
+bool Configurable::hasParamDescr(const paramkey& key, bool useChilds) const {
+  if (mapOfDescr.find(key)!=mapOfDescr.end())
+      return true;
+  if (useChilds) {
+    FOREACHC(configurableList, ListOfConfigurableChilds, conf) {
+      if ((*conf)->hasParamDescr(key))
+        return true;
+    }
+  }
+  return false;
 }
 
 // copies the internal params of the given configurable
-void Configurable::copyParameters(const Configurable& c){
+void Configurable::copyParameters(const Configurable& c, bool useChilds){
   mapOfValues  = c.mapOfValues;
   mapOfBoolean = c.mapOfBoolean;
   mapOfInteger = c.mapOfInteger;
@@ -233,21 +291,110 @@ void Configurable::copyParameters(const Configurable& c){
   
   mapOfValBounds = c.mapOfValBounds;
   mapOfIntBounds = c.mapOfIntBounds;
+  if (useChilds) {
+    ListOfConfigurableChilds = c.ListOfConfigurableChilds;
+    parent = c.parent;
+  }
 }
 
-Configurable::paramvalBounds Configurable::getParamvalBounds(const paramkey& key) const {
+Configurable::paramvalBounds Configurable::getParamvalBounds(const paramkey& key, bool useChilds) const {
   paramvalBoundsMap::const_iterator it = mapOfValBounds.find(key);
   if (it != mapOfValBounds.end()) {
     return it->second;
-  }else return paramvalBounds(valDefMinBound,valDefMaxBound);
+  }else if (useChilds) {
+    FOREACHC(configurableList, ListOfConfigurableChilds, conf) {
+      if ((*conf)->hasParamvalBounds(key))
+        return (*conf)->getParamvalBounds(key);
+    }
+  }
+  return paramvalBounds(valDefMinBound,valDefMaxBound);
 }
 
-Configurable::paramintBounds Configurable::getParamintBounds(const paramkey& key) const {
+bool Configurable::hasParamvalBounds(const paramkey& key, bool useChilds) const {
+  if (mapOfValBounds.find(key)!=mapOfValBounds.end())
+    return true;
+  if (useChilds) {
+    FOREACHC(configurableList, ListOfConfigurableChilds, conf) {
+      if ((*conf)->hasParamvalBounds(key))
+        return true;
+    }
+  }
+  return false;
+}
+
+Configurable::paramintBounds Configurable::getParamintBounds(const paramkey& key, bool useChilds) const {
   paramintBoundsMap::const_iterator it = mapOfIntBounds.find(key);
   if (it != mapOfIntBounds.end()) {
     return it->second;
-  }else return paramintBounds(intDefMinBound,intDefMaxBound);
+  }else if (useChilds) {
+    FOREACHC(configurableList, ListOfConfigurableChilds, conf) {
+      if ((*conf)->hasParamintBounds(key))
+        return (*conf)->getParamintBounds(key);
+    }
+  }
+  return paramintBounds(intDefMinBound,intDefMaxBound);
 }
+
+
+bool Configurable::hasParamintBounds(const paramkey& key, bool useChilds) const {
+  if (mapOfIntBounds.find(key)!=mapOfIntBounds.end())
+    return true;
+  if (useChilds) {
+    FOREACHC(configurableList, ListOfConfigurableChilds, conf) {
+      if ((*conf)->hasParamintBounds(key))
+        return true;
+    }
+  }
+  return false;
+}
+
+
+void Configurable::setParamBounds(const paramkey& key, paramval minBound, paramval maxBound, bool useChilds) {
+  if (mapOfValBounds.find(key)!=mapOfValBounds.end())
+    mapOfValBounds[key]=paramvalBounds(minBound,maxBound);
+  else if (useChilds) {
+    FOREACH(configurableList, ListOfConfigurableChilds, conf) {
+      if ((*conf)->hasParamvalBounds(key))
+        return (*conf)->setParamBounds(key, minBound, maxBound);
+    }
+  }
+}
+
+void Configurable::setParamBounds(const paramkey& key, paramint minBound, paramint maxBound, bool useChilds) {
+  if (mapOfIntBounds.find(key)!=mapOfIntBounds.end())
+    mapOfIntBounds[key]=paramintBounds(minBound,maxBound);
+  else if (useChilds) {
+    FOREACH(configurableList, ListOfConfigurableChilds, conf) {
+      if ((*conf)->hasParamintBounds(key))
+        return (*conf)->setParamBounds(key, minBound, maxBound);
+    }
+  }
+  mapOfIntBounds[key]=paramintBounds(minBound,maxBound);
+}
+
+void Configurable::setParamBounds(const paramkey& key, paramvalBounds bounds, bool useChilds) {
+  setParamBounds(key, bounds.first, bounds.second, useChilds);
+}
+
+void Configurable::setParamBounds(const paramkey& key, paramintBounds bounds, bool useChilds) {
+  setParamBounds(key, bounds.first, bounds.second, useChilds);
+}
+
+void Configurable::setParamDescr(const paramkey& key, const paramdescr& descr, bool useChilds) {
+  if (hasParam(key, false)) {
+    if(!descr.empty())
+      mapOfDescr[key] = descr;
+    else // delete entry if exist
+      mapOfDescr.erase(key);
+  } else if (useChilds) {
+    FOREACH(configurableList, ListOfConfigurableChilds, conf) {
+      if ((*conf)->hasParam(key))
+        (*conf)->setParamDescr(key, descr);
+    }
+  }
+}
+
+
 
 void Configurable::print(FILE* f, const char* prefix, int columns) const {
   const char* pre = prefix==0 ? "": prefix;    
@@ -325,6 +472,23 @@ void Configurable::parse(FILE* f) {
     }    
   }
   free(buffer);
+}
+
+void Configurable::addConfigurable(Configurable* conf) {
+  ListOfConfigurableChilds.push_back(conf);
+  conf->parent=this;
+}
+
+void Configurable::removeConfigurable(Configurable* conf) {
+  configurableList::iterator pos = std::posInColl<configurableList, const Configurable*>(ListOfConfigurableChilds, conf);
+  if (pos != ListOfConfigurableChilds.end()) {
+    conf->parent=0;
+    ListOfConfigurableChilds.erase(pos);
+  }
+}
+
+const Configurable::configurableList& Configurable::getConfigurables() const {
+  return ListOfConfigurableChilds;
 }
 
 #endif

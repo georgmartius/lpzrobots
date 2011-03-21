@@ -24,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2011-02-02 10:36:42  martius
+ *   Revision 1.18  2011-03-21 17:45:36  guettler
+ *   enhanced configurable interface:
+ *   - support for configurable childs of a configurable
+ *   - some new helper functions
+ *
+ *   Revision 1.17  2011/02/02 10:36:42  martius
  *   comment removed
  *
  *   Revision 1.16  2011/01/28 11:25:06  guettler
@@ -199,18 +204,19 @@ class Configurable
     // stuff for bounds
     typedef std::pair<paramval, paramval> paramvalBounds;
     typedef std::map<paramkey, paramvalBounds> paramvalBoundsMap;
-    #define valDefMaxBound 1000.0
-    #define valDefMinBound -1000.0
+    #define valDefMaxBound 10.0
+    #define valDefMinBound -10.0
 
     typedef std::pair<paramint, paramint> paramintBounds;
     typedef std::map<paramkey, paramintBounds> paramintBoundsMap;
-    #define intDefMinBound -1000
-    #define intDefMaxBound 1000
+    #define intDefMinBound -10
+    #define intDefMaxBound 10
 
     typedef std::pair<paramkey, paramval*> paramvalpair;
     typedef std::pair<paramkey, parambool*> paramboolpair;
     typedef std::pair<paramkey, paramint*> paramintpair;
 
+    typedef std::vector<Configurable*> configurableList;
 
     /// nice predicate function for finding by ID
     struct matchId : public std::unary_function<Configurable*, bool>
@@ -275,33 +281,32 @@ class Configurable
     /** returns the value of the requested parameter
      or 0 (+ error message to stderr) if unknown.
      */
-    virtual paramval getParam(const paramkey& key) const;
+    virtual paramval getParam(const paramkey& key, bool useChilds = true) const;
+
+    /**
+     * Returns if the requested parameter is part of the configurable or their childs
+     * @param key to search for
+     * @return true if key found, otherwise false
+     */
+    virtual bool hasParam(const paramkey& key, bool useChilds = true) const;
 
     /** sets the value of the given parameter
      or does nothing if unknown.
      */
-    virtual bool setParam(const paramkey& key, paramval val);
+    virtual bool setParam(const paramkey& key, paramval val, bool useChilds = true);
 
     /**
      * Sets the bounds (minBound and maxBound) of the given parameter.
      * Not useful for parambool.
      * If minBound=maxBound, it is threated as that no bound is given.
      */
-    virtual inline void setParamBounds(const paramkey& key, paramval minBound, paramval maxBound) {
-      mapOfValBounds[key]=paramvalBounds(minBound,maxBound);
-    }
+    virtual void setParamBounds(const paramkey& key, paramval minBound, paramval maxBound, bool useChilds = true);
 
-    virtual inline void setParamBounds(const paramkey& key, paramint minBound, paramint maxBound) {
-      mapOfIntBounds[key]=paramintBounds(minBound,maxBound);
-    }
+    virtual void setParamBounds(const paramkey& key, paramint minBound, paramint maxBound, bool useChilds = true);
 
-    virtual inline void setParamBounds(const paramkey& key, paramvalBounds bounds) {
-      mapOfValBounds[key]=bounds;
-    }
+    virtual void setParamBounds(const paramkey& key, paramvalBounds bounds, bool useChilds = true);
 
-    virtual inline void setParamBounds(const paramkey& key, paramintBounds bounds) {
-      mapOfIntBounds[key]=bounds;
-    }
+    virtual void setParamBounds(const paramkey& key, paramintBounds bounds, bool useChilds = true);
 
     /** The list of all parameters with there value as allocated lists.
 	Note that these are only parameters that are managed manually (with setParam, getParam)
@@ -313,7 +318,7 @@ class Configurable
     }
 
     /// returns all names that are configureable
-    virtual std::list<paramkey> getAllParamNames();
+    virtual std::list<paramkey> getAllParamNames(bool useChilds = true);
 
     virtual parammap getParamValMap() const {
       return mapOfValues;
@@ -328,19 +333,21 @@ class Configurable
     }
 
     /// returns the description for the given parameter
-    virtual paramdescr getParamDescr(const paramkey& key) const;
+    virtual paramdescr getParamDescr(const paramkey& key, bool useChilds = true) const;
 
-    virtual paramvalBounds getParamvalBounds(const paramkey& key) const;
+    virtual paramvalBounds getParamvalBounds(const paramkey& key, bool useChilds = true) const;
 
-    virtual paramintBounds getParamintBounds(const paramkey& key) const;
+    virtual paramintBounds getParamintBounds(const paramkey& key, bool useChilds = true) const;
+
+    virtual bool hasParamDescr(const paramkey& key, bool useChilds = true) const;
+
+    virtual bool hasParamvalBounds(const paramkey& key, bool useChilds = true) const;
+
+    virtual bool hasParamintBounds(const paramkey& key, bool useChilds = true) const;
+
 
         /// sets a description for the given parameter
-    virtual void setParamDescr(const paramkey& key, const paramdescr& descr) {
-      if(!descr.empty())
-        mapOfDescr[key] = descr;
-      else // delete entry if exist
-        mapOfDescr.erase(key);
-    }
+    virtual void setParamDescr(const paramkey& key, const paramdescr& descr, bool useChilds = true);
 
     /**
      This is the new style for adding configurable parameters. Just call this function
@@ -443,9 +450,26 @@ class Configurable
 
     void parse(FILE* f);
 
+    /**
+      * Adds a configurable as a child object.
+      * @param conf the instance to add
+      */
+    virtual void addConfigurable(Configurable* conf);
+
+    /**
+      * Removes a configurable as a child object.
+      * @param conf the instance to remove
+      */
+    virtual void removeConfigurable(Configurable* conf);
+
+    /**
+     * Returns the list containing all configurable childs.
+     */
+    virtual const configurableList& getConfigurables() const;
+
   protected:
     /// copies the internal params of the given configurable
-    void copyParameters(const Configurable&);
+    void copyParameters(const Configurable&, bool useChilds = true);
 
     // internal function to print only description in multiline fasion
     void printdescr(FILE* f, const char* prefix, const paramkey& key, 
@@ -466,6 +490,9 @@ class Configurable
     paramintBoundsMap mapOfIntBounds;
 
     void initParamBounds(const paramkey& key);
+
+    configurableList ListOfConfigurableChilds;
+    Configurable* parent;
 };
 
 #endif // __CONFIGURABLE_H
