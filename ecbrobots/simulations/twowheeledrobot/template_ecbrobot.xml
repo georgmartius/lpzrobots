@@ -1,0 +1,33 @@
+<!DOCTYPE ConfigurableStateTypeDefinition>
+<ConfigurableStates>
+ <ConfigurableState name="ECBRobots Control Parameters_0">
+  <ConfigurableWidget tileWidgetWidth="300" isCollapsed="false" numberOfTilesPerRow="3">
+   <ConfigurableTileWidgets>
+    <ConfigurableTileWidget gridRow="0" gridColumn="0" name="benchmarkmode" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="0" gridColumn="1" name="cycletime" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="0" gridColumn="2" name="discovernodestimeout" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="1" gridColumn="0" name="discoverxbeehardwareversiontimeout" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="1" gridColumn="1" name="maxfailures" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="1" gridColumn="2" name="noise" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="2" gridColumn="0" name="serialreadtimeout" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="2" gridColumn="1" name="testmode" isVisible="true"/>
+   </ConfigurableTileWidgets>
+  </ConfigurableWidget>
+  <Configurable revision="$Id$" id="1804289383" name="ECBRobots Control Parameters">
+   <paramvals>
+    <paramval description="global noise used for all controllers added by their used wiring to motor and/or sensor values" maxBound="1" value="0,05" name="noise" minBound="0"/>
+   </paramvals>
+   <paramints>
+    <paramint description="" maxBound="1000" value="50" name="cycletime" minBound="-1000"/>
+    <paramint description="" maxBound="6000" value="3000" name="discovernodestimeout" minBound="-1000"/>
+    <paramint description="" maxBound="1000" value="50" name="discoverxbeehardwareversiontimeout" minBound="-1000"/>
+    <paramint description="number of allowed discarded messages before reset(ting) the device" maxBound="100" value="4" name="maxfailures" minBound="0"/>
+    <paramint description="" maxBound="1000" value="80" name="serialreadtimeout" minBound="-1000"/>
+   </paramints>
+   <parambools>
+    <parambool description="" value="0" name="benchmarkmode"/>
+    <parambool description="" value="0" name="testmode"/>
+   </parambools>
+  </Configurable>
+ </ConfigurableState>
+</ConfigurableStates>

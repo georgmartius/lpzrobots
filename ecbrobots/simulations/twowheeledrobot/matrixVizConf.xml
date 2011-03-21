@@ -1,0 +1,8 @@
+<!DOCTYPE MatrixVizConfigFile>
+<MatrixVizConfiguration>
+ <MatrixVizWindow X="1271" Y="197"/>
+ <VisualisationWindow width="300" mode="matrix" X="402" Y="166" visMode="0" height="300" source="(mi30)P0" colorPaletteFile="/u/guettler/workspace/lpzRobots/ecb_robots/simulations/template_ecbrobot/probs.xml"/>
+ <VisualisationWindow width="300" mode="matrix" X="0" Y="0" visMode="0" height="300" source="A" colorPaletteFile=""/>
+ <VisualisationWindow width="300" mode="matrix" X="0" Y="327" visMode="0" height="300" source="C" colorPaletteFile=""/>
+ <VisualisationWindow width="300" mode="vector" X="854" Y="199" visMode="3" height="300" source="x" colorPaletteFile=""/>
+</MatrixVizConfiguration>

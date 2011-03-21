@@ -1,0 +1,14 @@
+*.o
+*.cpp~
+*.log
+.history
+start
+Makefile.depend
+qrc_ecbrobots.cpp
+application.settings
+Makefile
+ecbrobots.settings
+messagedispatcher.settings
+log.settings
+.nfs*
+autosave_*.xml
