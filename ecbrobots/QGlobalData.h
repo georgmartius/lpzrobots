@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-12-06 14:08:02  guettler
+ *   Revision 1.5  2011-03-21 17:30:21  guettler
+ *   - adapted to enhanced configurable interface
+ *
+ *   Revision 1.4  2010/12/06 14:08:02  guettler
  *   -added some test variables for QConfigurable
  *
  *   Revision 1.3  2010/11/26 12:22:37  guettler
@@ -92,7 +95,7 @@ namespace lpzrobots {
   class ECBRobot;
   class QECBRobotsWindow;
 
-  typedef std::vector<Configurable*> ConfigList; //!< list of Configurables
+  typedef Configurable::configurableList ConfigList; //!< list of Configurables
   typedef std::vector<ECBAgent*> ECBAgentList; //!< list of ECBAgents
   typedef ECBAgentList AgentList; //!< for compatibility reason: List of (ECB)Agents
   // 20090126; guettler: changed from vector to list for better method signature matching of WiredController

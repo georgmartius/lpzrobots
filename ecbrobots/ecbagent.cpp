@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2011-02-11 12:13:31  guettler
+ *   Revision 1.9  2011-03-21 17:30:35  guettler
+ *   - adapted to enhanced configurable interface
+ *
+ *   Revision 1.8  2011/02/11 12:13:31  guettler
  *   - renamed init to preInit function
  *   - ECB are added as configurables to PlotOptionEngine automatically
  *
@@ -76,13 +79,13 @@ namespace lpzrobots {
 
   ECBAgent::ECBAgent(const PlotOption& plotOption /* = PlotOption(NoPlot)*/, double noisefactor /*= 1*/) :
     Agent(plotOption, noisefactor), internalInitialised(false) {
-    addConfigurable(this);
+    WiredController::addConfigurable(this);
     addParameterDef("restartPlotEngine", &restartPlotEngine, true);
   }
 
   ECBAgent::ECBAgent(const std::list<PlotOption>& plotOptions, double noisefactor /*= 1*/) :
     Agent(plotOptions, noisefactor), internalInitialised(false) {
-    addConfigurable(this);
+    WiredController::addConfigurable(this);
     addParameterDef("restartPlotEngine", &restartPlotEngine, true);
   }
 
@@ -104,7 +107,7 @@ namespace lpzrobots {
     this->robot = robot;
     this->wiring = wiring;
     FOREACHC(list<ECB*>, robot->getECBlist(), ecbIt) {
-      addConfigurable(*ecbIt);
+      Configurable::addConfigurable(*ecbIt);
     }
     return true;
   }
