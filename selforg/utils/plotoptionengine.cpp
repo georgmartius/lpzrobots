@@ -27,7 +27,13 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.13  2011-02-17 17:33:04  martius
+ *  Revision 1.14  2011-03-21 17:48:13  guettler
+ *  adapted to enhanced Inspectable interface:
+ *  - has now a name shown also in GuiLogger
+ *  - supports plotting of inspectable childs of an inspectable
+ *  - inspectable names are plotted out in description line additionally
+ *
+ *  Revision 1.13  2011/02/17 17:33:04  martius
  *  changed locale
  *
  *  Revision 1.12  2010/07/11 22:04:13  martius
@@ -94,7 +100,7 @@
 
 using namespace std;
 
-PlotOptionEngine::PlotOptionEngine(const PlotOption& plotOption) : maybe_controller(0) {
+PlotOptionEngine::PlotOptionEngine(const PlotOption& plotOption) : maybe_controller(0), name("") {
   if(plotOption.mode!=NoPlot) 
     plotOptions.push_back(plotOption);
   initialised = false;  
@@ -102,7 +108,7 @@ PlotOptionEngine::PlotOptionEngine(const PlotOption& plotOption) : maybe_control
 }
 
 PlotOptionEngine::PlotOptionEngine(const list<PlotOption>& plotOptions)
-  : plotOptions(plotOptions), maybe_controller(0) {
+  : plotOptions(plotOptions), maybe_controller(0), name("") {
   initialised = false;  
   t=1;
 }
@@ -135,6 +141,8 @@ bool PlotOptionEngine::initPlotOption(PlotOption& po){
     // print start
     time_t t = time(0);
     fprintf(po.pipe,"# Start %s", ctime(&t));
+    if (po.getName().size()>0) // print name of PlotOption
+      fprintf(po.pipe, "#IN %s\n", po.getName().c_str());
     // print network description given by the structural information of the controller
     if(maybe_controller){
       printNetworkDescription(po.pipe, maybe_controller->getName(), maybe_controller);
@@ -147,12 +155,7 @@ bool PlotOptionEngine::initPlotOption(PlotOption& po){
     }
     // print infolines of all inspectables
     fprintf(po.pipe,"#I D t time (s)\n"); // add description for time
-    FOREACHC(list<const Inspectable*>, inspectables, insp) {
-      const list<string>& infoLines = (*insp)->getInfoLines();
-      FOREACHC(list<string>, infoLines, infoLine) {
-        fprintf(po.pipe,"%s", string("#I ").append(*infoLine).append("\n").c_str());
-      }
-    }
+    printInspectableInfoLines(po.pipe, inspectables);
 
     fprintf(po.pipe,"#######\n");
     // print head line with all parameter names
@@ -180,14 +183,18 @@ void PlotOptionEngine::closePipes() {
   }
 }
 
-void PlotOptionEngine::setName(const string& name){
+void PlotOptionEngine::setName(const string& _name){
+  name = _name;
   FOREACH(list<PlotOption>, plotOptions, po){
-    po->setName(name);
+    po->setName(_name);
   }
 }
 
 PlotOption& PlotOptionEngine::addPlotOption(PlotOption& plotOption) {
   PlotOption po = plotOption;
+  // set name of PlotOption if not existent
+  if (po.getName().size()==0)
+    po.setName(name);
   // if plotoption with the same mode exists -> delete it
   removePlotOption(po.mode);
   

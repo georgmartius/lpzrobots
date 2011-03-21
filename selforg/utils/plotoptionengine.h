@@ -27,7 +27,13 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.7  2010-07-02 15:57:25  martius
+ *  Revision 1.8  2011-03-21 17:48:13  guettler
+ *  adapted to enhanced Inspectable interface:
+ *  - has now a name shown also in GuiLogger
+ *  - supports plotting of inspectable childs of an inspectable
+ *  - inspectable names are plotted out in description line additionally
+ *
+ *  Revision 1.7  2010/07/02 15:57:25  martius
  *  wirings have new initIntern signature -> less errors can be made
  *  abstractwiring generates the noise of given length
  *
@@ -150,8 +156,11 @@ protected:
   
   bool initialised;
 
+
   // old artefact, should be removed in future releases
   AbstractController* maybe_controller;
+
+  std::string name; // name given to PlotOptions
 };
 
 #endif /* PLOTOPTIONENGINE_H_ */

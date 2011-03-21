@@ -27,7 +27,13 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.5  2010-10-18 15:16:21  martius
+ *  Revision 1.6  2011-03-21 17:48:13  guettler
+ *  adapted to enhanced Inspectable interface:
+ *  - has now a name shown also in GuiLogger
+ *  - supports plotting of inspectable childs of an inspectable
+ *  - inspectable names are plotted out in description line additionally
+ *
+ *  Revision 1.5  2010/10/18 15:16:21  martius
  *  MatrixVis to MatrixViz
  *
  *  Revision 1.4  2009/10/27 11:44:30  robot14
@@ -128,6 +134,7 @@ public:
 
   void addConfigurable(const Configurable*);
   void setName(const std::string& name) { this->name = name;}
+  const std::string& getName() const { return name; }
 
   bool open(); ///< opens the connections to the plot tool
   void close();///< closes the connections to the plot tool

@@ -22,7 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-06-03 09:52:18  martius
+ *   Revision 1.15  2011-03-21 17:48:13  guettler
+ *   adapted to enhanced Inspectable interface:
+ *   - has now a name shown also in GuiLogger
+ *   - supports plotting of inspectable childs of an inspectable
+ *   - inspectable names are plotted out in description line additionally
+ *
+ *   Revision 1.14  2010/06/03 09:52:18  martius
  *   using const list references as it should be
  *
  *   Revision 1.13  2009/08/05 20:25:29  martius
@@ -98,6 +104,18 @@ void printInspectableNames(FILE* f, const list<const Inspectable*>& inspectables
     }
   }
   fprintf(f,"\n"); // terminate line
+}
+
+void printInspectableInfoLines(FILE* f, const list<const Inspectable*>& inspectables) {
+  if (!f)
+    return;
+  FOREACHC(list<const Inspectable*>, inspectables, insp) {
+    const list<string>& infoLines = (*insp)->getInfoLines();
+    FOREACHC(list<string>, infoLines, infoLine) {
+      fprintf(f,"%s", string("#I [").append((*insp)->getNameOfInspectable()).append("] ").append(*infoLine).append("\n").c_str());
+    }
+    printInspectableInfoLines(f, (*insp)->getInspectables());
+  }
 }
 
 void printInternalParameterNames(FILE* f,

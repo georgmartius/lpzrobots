@@ -12,6 +12,8 @@ void printInternalParameterNames(FILE* f,
                                  int sensornumber, int motornumber,
                                  const std::list<const Inspectable*>& inspectables);
 
+void printInspectableInfoLines(FILE* f, const std::list<const Inspectable*>& inspectables);
+
 
 void printInspectables(FILE* f, const std::list<const Inspectable*>& inspectables);
 
