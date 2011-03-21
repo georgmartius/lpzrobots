@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-26 12:22:37  guettler
+ *   Revision 1.3  2011-03-21 17:31:12  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.2  2010/11/26 12:22:37  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -65,10 +68,10 @@ namespace lpzrobots {
       CommunicationEventType type;
       ECBCommunicationData commPackage;
 
-      ECBCommunicationEvent() {}
-      ECBCommunicationEvent(CommunicationEventType type) : type(type) {}
-      ECBCommunicationEvent(ECBCommunicationData commPackage) : commPackage(commPackage) {}
-      ECBCommunicationEvent(CommunicationEventType type, ECBCommunicationData commPackage) : type(type), commPackage(commPackage) {}
+      ECBCommunicationEvent() : Inspectable("ECBCommunicationEvent") {}
+      ECBCommunicationEvent(CommunicationEventType type) : Inspectable("ECBCommunicationEvent"), type(type) {}
+      ECBCommunicationEvent(ECBCommunicationData commPackage) : Inspectable("ECBCommunicationEvent"), commPackage(commPackage) {}
+      ECBCommunicationEvent(CommunicationEventType type, ECBCommunicationData commPackage) : Inspectable("ECBCommunicationEvent"), type(type), commPackage(commPackage) {}
   };
 
 } // namespace lpzrobots

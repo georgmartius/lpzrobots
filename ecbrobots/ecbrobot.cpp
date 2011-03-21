@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-11-11 15:34:59  wrabe
+ *   Revision 1.11  2011-03-21 17:31:30  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.10  2010/11/11 15:34:59  wrabe
  *   - some extensions for QMessageClient (e.g. quitServer())
  *   - fixed some includes
  *
@@ -82,7 +85,7 @@ using namespace std;
 namespace lpzrobots {
 
   ECBRobot::ECBRobot(QGlobalData& globalData) :
-    AbstractRobot("ECBRobot", "$ID$"), globalData(globalData), numberECBInitialised(0), initialised(false) {
+    AbstractRobot("ECBRobot", "$ID$"), Inspectable("ECBRobot"), globalData(globalData), numberECBInitialised(0), initialised(false) {
     globalData.textLog("New ECBRobot created.");
 
     // remember: motors UND sensors werden automatisch geplottet durch Agent (setMotors und getSensors)
