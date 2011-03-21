@@ -3,6 +3,7 @@
 
 #include<list>
 #include<string>
+#include <vector>
 
 #define FOREACH(colltype, coll, it) for( colltype::iterator it = (coll).begin(); it!= (coll).end(); it++)
 #define FOREACHC(colltype, coll, it) for( colltype::const_iterator it = (coll).begin(); it!= (coll).end() ; it++ )
@@ -39,6 +40,20 @@ namespace std {
   }
 
   string itos(int i);
+
+  /**
+   * Determines if a collection contains an element and at which position
+   * it was found. -- O(n)
+   * @param coll the collection to search through
+   * @param elem the element to find
+   * @return the iterator pointing to the element if found, otherwise coll.end()
+   */
+  template<typename collT, typename elemT> typename collT::iterator posInColl(collT coll, elemT elem) {
+      FOREACH(typename collT, coll, it)
+        if (*it==elem)
+          return it;
+      return coll.end();
+  }
 
 }
 
