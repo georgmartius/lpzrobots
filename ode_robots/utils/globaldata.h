@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2009-08-07 13:31:54  martius
+ *   Revision 1.9  2011-03-21 18:22:32  guettler
+ *   - adapted to enhanced configurable interface
+ *
+ *   Revision 1.8  2009/08/07 13:31:54  martius
  *   sim_steps moved here
  *
  *   Revision 1.7  2009/08/07 09:11:18  martius
@@ -73,7 +76,7 @@ class AbstractObstacle;
 class Primitive;
 
 typedef std::vector<AbstractObstacle*> ObstacleList;      
-typedef std::vector<Configurable*> ConfigList;
+typedef Configurable::configurableList ConfigList;
 typedef std::vector<OdeAgent*>     OdeAgentList; 
 typedef std::list<Sound>           SoundList; 
 typedef std::list<PlotOption>      PlotOptionList;
