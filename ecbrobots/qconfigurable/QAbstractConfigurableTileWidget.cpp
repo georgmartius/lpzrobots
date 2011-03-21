@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2011-02-04 13:03:16  wrabe
+ *   Revision 1.15  2011-03-21 17:33:43  guettler
+ *   - color changes now if parameter value or bounds is changed
+ *   - adapted to enhanced configurable interface
+ *
+ *   Revision 1.14  2011/02/04 13:03:16  wrabe
  *   - bugfix: Configurables are restored now when event "CommunicationStateWillChange" occurs, not in destructor
  *
  *   Revision 1.13  2011/01/28 11:32:12  guettler
@@ -121,8 +125,9 @@ namespace lpzrobots {
   QSize QAbstractConfigurableTileWidget::defaultWidgetSize = QSize(300, 80);
 
   QAbstractConfigurableTileWidget::QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey key, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap) :
-    config(config), key(key), origDescription(config->getParamDescr(key)), gridPos(0,0), internalVisible(true), enableResizing(false), isResizing(false), tileIndexConfigWidgetMap(tileIndexConfigWidgetMap) {
-    defaultPalette = palette();
+    config(config), key(key), origDescription(config->getParamDescr(key)), gridPos(0,0), internalVisible(true), enableResizing(false), isResizing(false), tileIndexConfigWidgetMap(tileIndexConfigWidgetMap), entered(false) {
+    defaultPalette = QPalette(palette());
+    actualPalette = palette();
     setFixedSize(defaultWidgetSize);
     setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -150,17 +155,19 @@ namespace lpzrobots {
 
   void QAbstractConfigurableTileWidget::enterEvent(QEvent * event) {
 
-    QPalette pal = QPalette(defaultPalette);
+    QPalette pal = QPalette(actualPalette);
     pal.setColor(QPalette::Window, QColor(220, 200, 200));
     setPalette(pal);
     setBackgroundRole(QPalette::Window);
     setAutoFillBackground(true);
     update();
+    entered = true;
   }
 
   void QAbstractConfigurableTileWidget::leaveEvent(QEvent * event) {
-    setPalette(defaultPalette);
+    setPalette(actualPalette);
     update();
+    entered = false;
   }
 
 
@@ -213,5 +220,23 @@ namespace lpzrobots {
     QFrame::setVisible(!inCollapseMode);
   }
 
-}
+
+  void QAbstractConfigurableTileWidget::updatePaletteChanged() {
+    if (valueChanged() || boundsChanged() || descriptionChanged()) {
+      if (valueChanged()) {
+        actualPalette.setColor(QPalette::Window, QColor(225, 225, 200));
+
+      } else {
+        actualPalette.setColor(QPalette::Window, QColor(220, 220, 210));
+      }
+    } else {
+      actualPalette = QPalette(defaultPalette);
+    }
+    if (!entered) {
+      setPalette(actualPalette);
+      update();
+    }
+  }
+
+ }
 

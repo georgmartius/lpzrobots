@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2011-02-11 12:12:11  guettler
+ *   Revision 1.13  2011-03-21 17:34:28  guettler
+ *   - color changes now if parameter value or bounds is changed
+ *   - adapted to enhanced configurable interface
+ *
+ *   Revision 1.12  2011/02/11 12:12:11  guettler
  *   - UI: some seperators added
  *
  *   Revision 1.11  2011/02/04 13:03:16  wrabe
@@ -120,7 +124,7 @@
 namespace lpzrobots {
   
   QValConfigurableTileWidget::QValConfigurableTileWidget(Configurable* config, Configurable::paramkey& key, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap) :
-    QAbstractConfigurableTileWidget(config, key, tileIndexConfigWidgetMap), origBounds(config->getParamvalBounds(key)), origValue(*(config->getParamValMap()[key])), stopSignaling(false) {
+    QAbstractConfigurableTileWidget(config, key, tileIndexConfigWidgetMap), origBounds(config->getParamvalBounds(key)), origValue(config->getParam(key)), stopSignaling(false) {
 
     double minBound = config->getParamvalBounds(key).first;
     double maxBound = config->getParamvalBounds(key).second;
@@ -181,6 +185,7 @@ namespace lpzrobots {
       slider.setValue(10000 * value);
       config->setParam(key, value);
     }
+    updatePaletteChanged();
   }
 
   void QValConfigurableTileWidget::sl_sliderValueChanged(int int_value) {
@@ -189,6 +194,7 @@ namespace lpzrobots {
       dsBox.setValue(value);
       config->setParam(key, value);
     }
+    updatePaletteChanged();
   }
 
   void QValConfigurableTileWidget::sl_execContextMenu(const QPoint &pos) {
@@ -200,11 +206,13 @@ namespace lpzrobots {
     menu.exec(this->mapToGlobal(pos));
   }
   void QValConfigurableTileWidget::sl_changeBounds() {
-    QConfigurableSetBoundsDialog* dialog = new QConfigurableSetBoundsDialog(config, key);
+    QConfigurableSetBoundsDialog* dialog = new QConfigurableSetBoundsDialog(config, key, QConfigurableSetBoundsDialog::MODE_PARAMVAL);
     if (dialog->exec() == QDialog::Accepted)
       setBounds(config->getParamvalBounds(key));
     delete (dialog);
+    updatePaletteChanged();
   }
+
   void QValConfigurableTileWidget::toDummy(bool set) {
     if (set) {
       setAutoFillBackground(false);
@@ -242,6 +250,7 @@ namespace lpzrobots {
     // values
     dsBox.setValue(origValue);
     sl_spinBoxValueChanged(origValue);
+    updatePaletteChanged();
   }
 
   void QValConfigurableTileWidget::sl_resetToOriginalValuesAndBounds() {
@@ -251,6 +260,7 @@ namespace lpzrobots {
     // values
     dsBox.setValue(origValue);
     sl_spinBoxValueChanged(origValue);
+    updatePaletteChanged();
   }
 
   void QValConfigurableTileWidget::setBounds(Configurable::paramvalBounds bounds) {
@@ -267,14 +277,17 @@ namespace lpzrobots {
     slider.setMinimum(minBound * 10000);
     slider.setMaximum(maxBound * 10000);
     slider.setToolTip(toolTipVals);
+    updatePaletteChanged();
   }
+
   void QValConfigurableTileWidget::reloadConfigurableData() {
     stopSignaling = true;
     setBounds(config->getParamvalBounds(key));
-    double value = *(config->getParamValMap()[key]);
+    double value = config->getParam(key);
     dsBox.setValue(value);
     slider.setValue(10000 * value);
     stopSignaling = false;
+    updatePaletteChanged();
   }
 
 

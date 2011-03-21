@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2011-01-28 12:15:37  guettler
+ *   Revision 1.13  2011-03-21 17:33:56  guettler
+ *   - color changes now if parameter value or bounds is changed
+ *   - adapted to enhanced configurable interface
+ *
+ *   Revision 1.12  2011/01/28 12:15:37  guettler
  *   - restore of AutoSave File from a backup implemented
  *   - reset to original values, values AND bounds for Configurable implemented
  *   - reset to original values for tileWidgets implemented
@@ -163,6 +167,8 @@ namespace lpzrobots {
       inline bool descriptionChanged() {
         return (config->getParamDescr(key) != origDescription);
       }
+      virtual bool valueChanged() = 0;
+      virtual bool boundsChanged() = 0;
 
 
       signals:
@@ -181,8 +187,10 @@ namespace lpzrobots {
       virtual void mouseMoveEvent(QMouseEvent * event);
       virtual void mousePressEvent(QMouseEvent * event);
       virtual void mouseReleaseEvent(QMouseEvent * event);
+      virtual void updatePaletteChanged();
 
 
+      QPalette actualPalette;
       QPalette defaultPalette;
       Configurable* config;
       Configurable::paramkey key;
@@ -192,6 +200,7 @@ namespace lpzrobots {
       bool enableResizing;
       bool isResizing;
       QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap;
+      bool entered;
   };
 
 }

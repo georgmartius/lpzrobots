@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2011-02-04 13:03:16  wrabe
+ *   Revision 1.11  2011-03-21 17:34:28  guettler
+ *   - color changes now if parameter value or bounds is changed
+ *   - adapted to enhanced configurable interface
+ *
+ *   Revision 1.10  2011/02/04 13:03:16  wrabe
  *   - bugfix: Configurables are restored now when event "CommunicationStateWillChange" occurs, not in destructor
  *
  *   Revision 1.9  2011/01/28 12:15:37  guettler
@@ -99,7 +103,7 @@
 namespace lpzrobots {
   
   QBoolConfigurableTileWidget::QBoolConfigurableTileWidget(Configurable* config, Configurable::paramkey& key, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap) :
-    QAbstractConfigurableTileWidget(config, key, tileIndexConfigWidgetMap), origValue(*(config->getParamBoolMap()[key])) {
+    QAbstractConfigurableTileWidget(config, key, tileIndexConfigWidgetMap), origValue(config->getParam(key)) {
 
     QString key_name = QString(key.c_str());
     QString toolTipName = QString(config->getParamDescr(key).c_str());
@@ -132,6 +136,7 @@ namespace lpzrobots {
 
   void QBoolConfigurableTileWidget::sl_checkStateChanged(int state) {
     if(state == Qt::Checked) config->setParam(key, true); else config->setParam(key, false);
+    updatePaletteChanged();
   }
 
   void QBoolConfigurableTileWidget::sl_execContextMenu(const QPoint &pos) {
@@ -154,17 +159,20 @@ namespace lpzrobots {
 
   void QBoolConfigurableTileWidget::sl_resetToOriginalValuesAndBounds() {
     sl_resetToOriginalValues();
+    updatePaletteChanged();
   }
 
 
   void QBoolConfigurableTileWidget::sl_resetToOriginalValues() {
     config->setParam(key, origValue);
     if(origValue) cbBool.setCheckState(Qt::Checked); else cbBool.setCheckState(Qt::Unchecked);
+    updatePaletteChanged();
   }
 
   void QBoolConfigurableTileWidget::reloadConfigurableData() {
-    bool value = *(config->getParamBoolMap()[key]);
+    bool value = config->getParam(key);
     if(value) cbBool.setCheckState(Qt::Checked); else cbBool.setCheckState(Qt::Unchecked);
+    updatePaletteChanged();
   }
 
 }

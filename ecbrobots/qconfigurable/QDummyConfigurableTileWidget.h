@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2011-01-28 12:15:37  guettler
+ *   Revision 1.5  2011-03-21 17:34:28  guettler
+ *   - color changes now if parameter value or bounds is changed
+ *   - adapted to enhanced configurable interface
+ *
+ *   Revision 1.4  2011/01/28 12:15:37  guettler
  *   - restore of AutoSave File from a backup implemented
  *   - reset to original values, values AND bounds for Configurable implemented
  *   - reset to original values for tileWidgets implemented
@@ -69,6 +73,8 @@ namespace lpzrobots {
       void toDummy(bool set) {}
 
       void reloadConfigurableData() {}
+      inline bool valueChanged() { return false; }
+      inline bool boundsChanged() { return false; }
 
     public slots:
       virtual void sl_resetToOriginalValues() {}
