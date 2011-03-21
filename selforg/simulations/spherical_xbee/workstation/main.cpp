@@ -457,8 +457,8 @@ private:
 /// special wiring for the spherical Robot
 class OurWiring : public AbstractWiring{
 public:
-  OurWiring(NoiseGenerator* noise)
-    : AbstractWiring(noise){
+  OurWiring(NoiseGenerator* noise, const std::string& name = "OurWiring")
+    : AbstractWiring(noise, Controller, name){
     lastmotors = 0;
     numMotorSensors=2;
   }

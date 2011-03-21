@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-08-20 08:57:40  fhesse
+ *   Revision 1.3  2011-03-21 17:39:55  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.2  2008/08/20 08:57:40  fhesse
  *   adapted noise generator->add call to new version
  *
  *   Revision 1.1  2007/09/17 19:27:55  fhesse
@@ -34,8 +37,8 @@
 
 
 /// constructor
-IRInvertWiring::IRInvertWiring(NoiseGenerator* noise, bool plotNoise)
-  : One2OneWiring(noise, plotNoise)
+IRInvertWiring::IRInvertWiring(NoiseGenerator* noise, bool plotNoise, const std::string& name)
+  : One2OneWiring(noise, plotNoise, 0, name)
 {
 
 }

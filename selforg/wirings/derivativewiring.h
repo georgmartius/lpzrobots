@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-07-02 15:57:25  martius
+ *   Revision 1.12  2011-03-21 17:49:39  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.11  2010/07/02 15:57:25  martius
  *   wirings have new initIntern signature -> less errors can be made
  *   abstractwiring generates the noise of given length
  *
@@ -119,7 +122,7 @@ public:
       @param noise NoiseGenerator that is used for adding noise to sensor values  
   */
   DerivativeWiring(const DerivativeWiringConf& conf, 
-		   NoiseGenerator* noise);
+		   NoiseGenerator* noise, const std::string& name = "DerivativeWiring");
 
   /** destructor
    */

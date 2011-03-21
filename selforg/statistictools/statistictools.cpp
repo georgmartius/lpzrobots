@@ -25,7 +25,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-08-10 07:39:54  guettler
+ *   Revision 1.6  2011-03-21 17:42:55  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.5  2009/08/10 07:39:54  guettler
  *   implements new Callbackable interface
  *
  *   Revision 1.4  2009/07/21 08:47:33  robot12
@@ -114,7 +117,7 @@ double& StatisticTools::addMeasure(double& observedValue, const char* measureNam
 StatisticMeasure* StatisticTools::getMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
     StatisticMeasure* newMeasure = new StatisticMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
     this->activeMeasures.push_back(newMeasure);
-  addInspectableValue(newMeasure->getName(),&newMeasure->getValueAddress());
+  	addInspectableValue(newMeasure->getName(),&newMeasure->getValueAddress());
   return newMeasure;
 }
 

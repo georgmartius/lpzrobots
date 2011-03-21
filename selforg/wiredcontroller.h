@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2011-02-24 20:43:39  martius
+ *   Revision 1.17  2011-03-21 17:42:19  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.16  2011/02/24 20:43:39  martius
  *   fixRobot added to motorbabbling
  *
  *   Revision 1.15  2010/10/20 13:15:01  martius
@@ -129,11 +132,11 @@ public:
   /** constructor. PlotOption as output setting.
       noisefactor is used to set the relative noise strength of this agent
    */
-  WiredController(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1);
+  WiredController(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1, const iparamkey& name = "WiredController");
   /** constructor. A list of PlotOption can given.
       noisefactor is used to set the relative noise strength of this agent
    */
-  WiredController(const std::list<PlotOption>& plotOptions, double noisefactor = 1);
+  WiredController(const std::list<PlotOption>& plotOptions, double noisefactor = 1, const iparamkey& name = "WiredController");
 
   /** destructor
    */

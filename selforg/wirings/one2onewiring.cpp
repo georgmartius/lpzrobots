@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-07-02 15:57:25  martius
+ *   Revision 1.14  2011-03-21 17:49:38  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.13  2010/07/02 15:57:25  martius
  *   wirings have new initIntern signature -> less errors can be made
  *   abstractwiring generates the noise of given length
  *
@@ -111,8 +114,8 @@
 #include <cstring>
 
 /// constructor
-One2OneWiring::One2OneWiring(NoiseGenerator* noise, int plotMode, int blind)
-  : AbstractWiring(noise,plotMode), blind(blind){
+One2OneWiring::One2OneWiring(NoiseGenerator* noise, int plotMode, int blind, const std::string& name)
+  : AbstractWiring(noise, plotMode, name), blind(blind){
   blindmotors=0;
 }
 

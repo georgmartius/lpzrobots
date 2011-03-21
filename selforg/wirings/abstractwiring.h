@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2010-09-27 14:53:21  martius
+ *   Revision 1.14  2011-03-21 17:49:39  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.13  2010/09/27 14:53:21  martius
  *   store randGen for further use
  *
  *   Revision 1.12  2010/07/02 15:57:25  martius
@@ -125,8 +128,8 @@ public:
   /** constructor
    *  @param noise NoiseGenerator that is used for adding noise to sensor values
    */
-  AbstractWiring(NoiseGenerator* noise, int plotMode=Controller)
-    : plotMode(plotMode) {
+  AbstractWiring(NoiseGenerator* noise, int plotMode=Controller, const std::string& name = "AbstractWiring")
+    : Inspectable(name), plotMode(plotMode) {
     rsensornumber = 0;
     rmotornumber  = 0;
     csensornumber = 0;

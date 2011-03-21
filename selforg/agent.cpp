@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2011-02-02 10:37:36  martius
+ *   Revision 1.27  2011-03-21 17:42:19  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.26  2011/02/02 10:37:36  martius
  *   error handling
  *   new sox controller
  *
@@ -205,15 +208,15 @@
 
 using namespace std;
 
-Agent::Agent(const PlotOption& plotOption, double noisefactor)
-  : WiredController(plotOption, noisefactor) {
+Agent::Agent(const PlotOption& plotOption, double noisefactor, const iparamkey& name)
+  : WiredController(plotOption, noisefactor, name) {
   robot      = 0;
   rsensors=0; rmotors=0;
 }
 
 
-Agent::Agent(const std::list<PlotOption>& plotOptions, double noisefactor)
-  : WiredController(plotOptions, noisefactor){
+Agent::Agent(const std::list<PlotOption>& plotOptions, double noisefactor, const iparamkey& name)
+  : WiredController(plotOptions, noisefactor, name) {
   robot      = 0;
   rsensors=0; rmotors=0;
 }
@@ -230,6 +233,9 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot,
 		 AbstractWiring* wiring, long int seed){
   this->robot   = robot;
   assert(robot);  
+  // take the name of the robot for it's own inspectable name
+  setNameOfInspectable(robot->getName());
+
   if(!seed) seed=rand();
   randGen.init(seed);
 

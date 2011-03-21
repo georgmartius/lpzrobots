@@ -30,7 +30,10 @@
  *   class.                                                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-10-14 10:01:53  martius
+ *   Revision 1.5  2011-03-21 17:46:21  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.4  2009/10/14 10:01:53  martius
  *   comments corrected
  *
  *   Revision 1.3  2009/08/05 13:22:21  robot12
@@ -64,7 +67,7 @@ public:
          * all their variables already!
 	 * @param list (list<Inspectable*>&) the list
 	 */
-	InspectableProxy(const std::list<Inspectable*>& list);
+	InspectableProxy(const std::list<Inspectable*>& list, const iparamkey& name = "InspectableProxy");
 
 	/**
 	 * default destructor
@@ -88,7 +91,7 @@ private:
 	 * disable the default constructor
 	 * @return
 	 */
-	InspectableProxy();
+	InspectableProxy(const iparamkey& name = "InspectableProxy");
 };
 
 #endif /* INSPECTABLEPROXY_H_ */

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2009-08-05 22:57:09  martius
+ *   Revision 1.22  2011-03-21 17:42:19  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.21  2009/08/05 22:57:09  martius
  *   use new plotoptionsengine entirely
  *   wirings provide the sensor and motors such that the entire
  *    old functionality (and more) is now available with through
@@ -179,12 +182,14 @@ class Agent : public WiredController {
 public:
   /** constructor. PlotOption as output setting.
       noisefactor is used to set the relative noise strength of this agent
+      The name of the agent will be changed at initialization and taken from the robot.
    */
-  Agent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1);
+  Agent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1, const iparamkey& name = "Agent");
   /** constructor. A list of PlotOption can given.
       noisefactor is used to set the relative noise strength of this agent
+      The name of the agent will be changed at initialization and taken from the robot.
    */
-  Agent(const std::list<PlotOption>& plotOptions, double noisefactor = 1);
+  Agent(const std::list<PlotOption>& plotOptions, double noisefactor = 1, const iparamkey& name = "Agent");
 
   /** destructor
    */

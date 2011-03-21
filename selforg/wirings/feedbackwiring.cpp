@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-07-02 15:57:25  martius
+ *   Revision 1.8  2011-03-21 17:49:38  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.7  2010/07/02 15:57:25  martius
  *   wirings have new initIntern signature -> less errors can be made
  *   abstractwiring generates the noise of given length
  *
@@ -64,8 +67,8 @@
 
 /// constructor
 FeedbackWiring::FeedbackWiring(NoiseGenerator* noise, Mode mode,
-			       double feedbackratio)
-  : AbstractWiring(noise), mode(mode), defaultfeedbackratio(feedbackratio) {
+			       double feedbackratio,  const std::string& name)
+  : AbstractWiring(noise, Controller, name), mode(mode), defaultfeedbackratio(feedbackratio) {
   motors=0;
   initialised=false;
   vmotornumber=0;

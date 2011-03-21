@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-10-21 14:26:45  martius
+ *   Revision 1.4  2011-03-21 17:38:48  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.3  2010/10/21 14:26:45  martius
  *   use local headerfile (can be copied to simulation)
  *
  *   Revision 1.2  2010/10/21 14:25:26  martius
@@ -138,7 +141,7 @@ namespace lpzrobots {
   // - give handle for ODE and OSG stuff
   Skeleton::Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 	   SkeletonConf& c, const std::string& name)
-    : OdeRobot(odeHandle, osgHandle, name, "$Id$"), conf(c)
+    : OdeRobot(odeHandle, osgHandle, name, "$Id$"), Inspectable(name), conf(c)
   { 
     // robot is not created till now
     created=false;

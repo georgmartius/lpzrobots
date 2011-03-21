@@ -30,7 +30,10 @@
  *   class.                                                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-08-05 13:22:21  robot12
+ *   Revision 1.4  2011-03-21 17:46:21  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.3  2009/08/05 13:22:21  robot12
  *   add one clean up, the function replaceList now modified the old list and don't delete all and make it new
  *
  *   Revision 1.2  2009/07/21 08:47:33  robot12
@@ -45,11 +48,11 @@
 #include "inspectableproxy.h"
 #include <string>
 
-InspectableProxy::InspectableProxy() {
+InspectableProxy::InspectableProxy(const iparamkey& name) : Inspectable(name) {
 	// nothing
 }
 
-InspectableProxy::InspectableProxy(const std::list<Inspectable*>& list) {
+InspectableProxy::InspectableProxy(const std::list<Inspectable*>& list, const iparamkey& name) : Inspectable(name) {
 	//add all parameters of the inspectable in the own list.
 	for(std::list<Inspectable*>::const_iterator iter = list.begin(); iter!=list.end(); iter++) {
 		//m_list.push_back(*iter);

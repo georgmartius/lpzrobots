@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2011-02-24 20:43:39  martius
+ *   Revision 1.22  2011-03-21 17:42:19  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.21  2011/02/24 20:43:39  martius
  *   fixRobot added to motorbabbling
  *
  *   Revision 1.20  2010/10/20 13:15:01  martius
@@ -122,14 +125,14 @@
 
 using namespace std;
 
-WiredController::WiredController(const PlotOption& plotOption, double noisefactor) 
-  : noisefactor(noisefactor), plotEngine(plotOption) {
+WiredController::WiredController(const PlotOption& plotOption, double noisefactor, const iparamkey& name)
+  : Inspectable(name), noisefactor(noisefactor), plotEngine(plotOption) {
   internInit();  
 }
 
 
-WiredController::WiredController(const std::list<PlotOption>& plotOptions, double noisefactor)
-  : noisefactor(noisefactor), plotEngine(plotOptions) {
+WiredController::WiredController(const std::list<PlotOption>& plotOptions, double noisefactor, const iparamkey& name)
+  : Inspectable(name), noisefactor(noisefactor), plotEngine(plotOptions) {
   internInit();
 }
 

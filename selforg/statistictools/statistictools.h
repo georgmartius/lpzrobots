@@ -25,7 +25,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-08-10 07:39:54  guettler
+ *   Revision 1.8  2011-03-21 17:42:55  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.7  2009/08/10 07:39:54  guettler
  *   implements new Callbackable interface
  *
  *   Revision 1.6  2009/07/28 09:09:28  robot12
@@ -117,7 +120,7 @@ class ComplexMeasure;
 class StatisticTools : public Inspectable, public Callbackable {
 
 public:
-  StatisticTools() : beginMeasureCounter(0) { }
+  StatisticTools(const std::string& name = "StatisticTools") : Inspectable(name), beginMeasureCounter(0) { }
 
 	/**
 	 * adds a variable to observe and measure the value

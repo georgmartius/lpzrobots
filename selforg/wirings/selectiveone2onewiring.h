@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-07-02 15:57:25  martius
+ *   Revision 1.9  2011-03-21 17:49:38  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.8  2010/07/02 15:57:25  martius
  *   wirings have new initIntern signature -> less errors can be made
  *   abstractwiring generates the noise of given length
  *
@@ -106,7 +109,7 @@ public:
       @param sel_sensor binary predicate taking the index and the length (number of sensors) 
              and decides which sensor to select
   */
-  SelectiveOne2OneWiring(NoiseGenerator* noise, select_predicate* sel_sensor, int plotMode = Controller);
+  SelectiveOne2OneWiring(NoiseGenerator* noise, select_predicate* sel_sensor, int plotMode = Controller, const std::string& name = "SelectiveOne2OneWiring");
   virtual ~SelectiveOne2OneWiring();
 
 protected:

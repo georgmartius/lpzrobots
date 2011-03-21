@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-07-02 15:57:25  martius
+ *   Revision 1.13  2011-03-21 17:49:39  guettler
+ *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
+ *
+ *   Revision 1.12  2010/07/02 15:57:25  martius
  *   wirings have new initIntern signature -> less errors can be made
  *   abstractwiring generates the noise of given length
  *
@@ -88,10 +91,10 @@
 #include <cstring>
 
 /// constructor
-SelectiveOne2OneWiring::SelectiveOne2OneWiring(NoiseGenerator* noise, 
+SelectiveOne2OneWiring::SelectiveOne2OneWiring(NoiseGenerator* noise,
 					       select_predicate* sel_sensor,
-					       int plotMode)
-  : One2OneWiring(noise, plotMode), sel_sensor(sel_sensor) {
+					       int plotMode, const std::string& name)
+  : One2OneWiring(noise, plotMode, 0, name), sel_sensor(sel_sensor) {
   assert(sel_sensor);
 }
 
