@@ -7,10 +7,14 @@
 
 #include "commanddefs.h"
 
-#include <selforg/invertmotornstep.h>
+#include <selforg/sos.h>
+#include <selforg/sox.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/abstractcontrolleradapter.h>
+#include <selforg/measureadapter.h>
+#include <selforg/oneactivemultipassivecontroller.h>
+#include <selforg/mutualinformationcontroller.h>
 
 using namespace lpzrobots;
 using namespace std;
@@ -30,8 +34,7 @@ class CheatedECB : public ECB {
 
     virtual void sendMotorValuesPackage() {
       // at first start of ECB, it must be initialized with a reset-command
-      if (!(initialised && failureCounter <= globalData->maxFailures))
-      {
+      if (!(initialised && failureCounter <= globalData->maxFailures)) {
         sendResetECB();
         return;
       }
@@ -39,15 +42,15 @@ class CheatedECB : public ECB {
       globalData->textLog("ECB(" + dnsName + "): sendMotorPackage()!");
 
       // prepare the communication-protocol
-      ECBCommunicationEvent* event = new ECBCommunicationEvent(ECBCommunicationEvent::EVENT_REQUEST_SEND_COMMAND_PACKAGE);
+      ECBCommunicationEvent* event = new ECBCommunicationEvent(
+          ECBCommunicationEvent::EVENT_REQUEST_SEND_COMMAND_PACKAGE);
 
       event->commPackage.command = COMMAND_MOTORS;
       event->commPackage.dataLength = currentNumberMotors;
       // set motor-data
       int i = 0;
       // motorList was update by ECBAgent->ECBRobot:setMotors()->(to all ECBs)-> ECB:setMotors()
-      FOREACH (list<motor>,motorList,m)
-      {
+      FOREACH (list<motor>,motorList,m) {
         // Agent and Controller process with double-values
         // The ECB(hardware) has to work with byte-values
         if ((*m) >= -zeroRange && (*m) <= zeroRange)
@@ -58,7 +61,7 @@ class CheatedECB : public ECB {
       informMediator(event);
     }
 
- };
+};
 
 class MyController : public AbstractControllerAdapter {
   public:
@@ -77,6 +80,8 @@ class MyController : public AbstractControllerAdapter {
 class MyECBManager : public QECBManager {
 
   public:
+
+    Sos* myCon;
 
     MyECBManager(int argc, char** argv) :
       QECBManager(argc, argv) {
@@ -105,24 +110,25 @@ class MyECBManager : public QECBManager {
       //global.plotOptions.push_back(PlotOption(GuiLogger, 1));
 
       int numberNimm2 = 3;
-      for (int nimm2Index = 0; nimm2Index < numberNimm2; nimm2Index++)
-      {
-           //    if (nimm2Index!=1)
-            //      continue;
+      for (int nimm2Index = 0; nimm2Index < numberNimm2; nimm2Index++) {
+        if (nimm2Index != 1)
+          continue;
         // create new controller
-        InvertMotorNStepConf conConf = InvertMotorNStep::getDefaultConf();
-        conConf.initialC = matrix::Matrix(2, 2);
-        conConf.initialC.val(0, 0) = 1.1;
-        conConf.initialC.val(1, 1) = 1.1;
-        conConf.initialC.val(1, 0) = -0.07;
-        conConf.initialC.val(0, 1) = -0.07;
 
-        AbstractController* myCon = new InvertMotorNStep(conConf);
-       // myCon->setName(QString("MyController"+QString::number(nimm2Index)).toStdString());
+//        conConf.initialC = matrix::Matrix(2, 2);
+//        conConf.initialC.val(0, 0) = 1.1;
+//        conConf.initialC.val(1, 1) = 1.1;
+//        conConf.initialC.val(1, 0) = -0.07;
+//        conConf.initialC.val(0, 1) = -0.07;*/
+
+          myCon = new Sos();
+//        myCon = new SineController();
+
+        // myCon->setName(QString("MyController"+QString::number(nimm2Index)).toStdString());
         //AbstractController* myCon = new SineController();
         //myCon->setParam("period", 500);
 
-       // myCon->setParam("epsA", 0);
+        // myCon->setParam("epsA", 0);
         //myCon->setParam("epsC", 0);
         global.configs.push_back(myCon);
 
@@ -136,8 +142,7 @@ class MyECBManager : public QECBManager {
         ecbConf.maxNumberSensors = 2; // no infrared sensors
         ecbConf.maxNumberMotors = 2;
         QString* DNSName;
-        switch (nimm2Index)
-        {
+        switch (nimm2Index) {
           case 0:
             //            DNSName = new string("NIMM2_PRIMUS");
             DNSName = new QString("ECB_NIMM2_PRIMUS");
@@ -155,26 +160,64 @@ class MyECBManager : public QECBManager {
         myRobot->addECB(myECB);
 
         // create new agent
-        ECBAgent* myAgent = new ECBAgent(PlotOption(NoPlot, 5), global.noise);
+        list<PlotOption> plotList;
+        plotList.push_back(PlotOption(GuiLogger, 5));
+//        plotList.push_back(PlotOption(MatrixViz, 5));
+        plotList.push_back(PlotOption(File, 5));
+        ECBAgent* myAgent = new ECBAgent(plotList);
+
+        StatisticTools* stats = new StatisticTools;
+        OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(myCon,"main");
+//          mic = new MutualInformationController(1, -1, 1, true, true);
+        MutualInformationController* mic = new MutualInformationController(30, -1, 1, true, true);
+
+        MeasureAdapter* ma = new MeasureAdapter(mic);
+        onamupaco->addPassiveController(ma,"mi30");
+        myAgent->addInspectable((Inspectable*)stats);
+        myAgent->addCallbackable((Callbackable*)stats);
         // init agent with controller, robot and wiring
-        myAgent->init(myCon, myRobot, myWiring);
+
+        myAgent->preInit(onamupaco, myRobot, myWiring);
 
         // register agents
         global.agents.push_back(myAgent);
+
+        delete DNSName;
 
       }
 
       return true;
     }
 
-    /** optional additional callback function which is called every simulation step.
-     Called between physical simulation step and drawing.
-     @param paused indicates that simulation is paused
-     @param control indicates that robots have been controlled this timestep
-     */
-    virtual void addCallback(QGlobalData& globalData, bool pause, bool control) {
 
+    /** optional additional callback function which is called when closed loop
+     * is established (hardware ECBs, ECBAgent etc. are initialized)
+     * To use this method, just overload it.
+     * @param globalData The struct which contains all neccessary objects
+     * like Agents
+     * @agentInitialized the ECBAgent which is intialized
+     */
+    virtual void addCallbackAgentInitialized(QGlobalData& globalData, ECBAgent* agent) {
+      matrix::Matrix initialC(2,2);
+      initialC.val(0,0) = 1.1;
+      initialC.val(0,1) = 0;
+      initialC.val(1,0) = 0;
+      initialC.val(1,1) = 1.1;
+      myCon->setC(initialC);
     }
+
+
+    /** optional additional callback function which is called every
+     * simulation step.
+     * To use this method, just overload it.
+     * @param globalData The struct which contains all neccessary objects
+     * like Agents
+     * @param paused indicates that simulation is paused
+     * @param control indicates that robots have been controlled this timestep (default: true)
+     */
+    virtual void addCallbackStep(QGlobalData& globalData, bool pause, bool control) {
+    }
+
 
     /** add own key handling stuff here, just insert some case values
      *
@@ -204,18 +247,20 @@ int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
 
   QString appPath = QString(argv[0]);
-  QECBRobotsWindow *ecbWindow = new QECBRobotsWindow(appPath.mid(0, appPath.lastIndexOf("/")+1), &ecbManager);
-  QMessageDispatchWindow *messageDispatchWindow = new QMessageDispatchWindow(appPath.mid(0, appPath.lastIndexOf("/") + 1));
+  QECBRobotsWindow *ecbWindow = new QECBRobotsWindow(appPath.mid(0, appPath.lastIndexOf("/") + 1), &ecbManager);
+  QMessageDispatchWindow *messageDispatchWindow = new QMessageDispatchWindow(appPath.mid(0, appPath.lastIndexOf("/")
+      + 1));
 
-  qRegisterMetaType<struct _communicationMessage>("_communicationMessage");
-  QObject::connect(ecbManager.getGlobalData().comm, SIGNAL(sig_sendMessage(struct _communicationMessage)), messageDispatchWindow->getQMessageDispatchServer(),
-      SLOT(sl_sendMessage(struct _communicationMessage)));
-  QObject::connect(messageDispatchWindow->getQMessageDispatchServer(), SIGNAL(sig_messageReceived(struct _communicationMessage)), ecbManager.getGlobalData().comm,
+  qRegisterMetaType<struct _communicationMessage> ("_communicationMessage");
+  QObject::connect(ecbManager.getGlobalData().comm, SIGNAL(sig_sendMessage(struct _communicationMessage)),
+      messageDispatchWindow->getQMessageDispatchServer(), SLOT(sl_sendMessage(struct _communicationMessage)));
+  QObject::connect(messageDispatchWindow->getQMessageDispatchServer(),
+      SIGNAL(sig_messageReceived(struct _communicationMessage)), ecbManager.getGlobalData().comm,
       SLOT(sl_messageReceived(struct _communicationMessage)));
-  QObject::connect(messageDispatchWindow->getQMessageDispatchServer(), SIGNAL(sig_quitServer()), ecbManager.getGlobalData().comm,
-      SLOT(sl_quitServer()));
-  QObject::connect(ecbManager.getGlobalData().comm, SIGNAL(sig_quitClient()), messageDispatchWindow->getQMessageDispatchServer(),
-      SLOT(sl_quitClient()));
+  QObject::connect(messageDispatchWindow->getQMessageDispatchServer(), SIGNAL(sig_quitServer()),
+      ecbManager.getGlobalData().comm, SLOT(sl_quitServer()));
+  QObject::connect(ecbManager.getGlobalData().comm, SIGNAL(sig_quitClient()),
+      messageDispatchWindow->getQMessageDispatchServer(), SLOT(sl_quitClient()));
 
   messageDispatchWindow->show();
   ecbWindow->show();
