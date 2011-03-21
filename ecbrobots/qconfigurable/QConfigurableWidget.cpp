@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2011-02-11 12:12:11  guettler
+ *   Revision 1.21  2011-03-21 17:35:26  guettler
+ *   - new autosave checkbox in context menu implemented and used
+ *
+ *   Revision 1.20  2011/02/11 12:12:11  guettler
  *   - UI: some seperators added
  *
  *   Revision 1.19  2011/01/28 12:15:37  guettler
@@ -238,6 +241,12 @@ namespace lpzrobots {
         SLOT(sl_loadConfigurableStateFromFile()));
     contextMenuShowHideDialog.addAction(tr("save current configurable state to file ..."), this,
         SLOT(sl_saveConfigurableStateToFile()));
+
+    actionToggleAutoSave = new QAction(tr("enable autosave function for this Configurable"), this);
+    actionToggleAutoSave->setCheckable(true);
+    actionToggleAutoSave->setChecked(true); // default value
+    contextMenuShowHideDialog.addAction(actionToggleAutoSave);
+
     contextMenuShowHideDialog.addSeparator();
     contextMenuShowHideDialog.addAction(tr("reset all parameters to original values"), this,
         SLOT(sl_resetToOriginalValues()));
@@ -259,7 +268,6 @@ namespace lpzrobots {
         configurableTile->sl_resetToOriginalValuesAndBounds();
       }
   }
-
 
   void QConfigurableWidget::sl_toggled(bool on) {
     foreach(QAbstractConfigurableTileWidget* configurableTile, configTileWidgetMap)
@@ -357,10 +365,10 @@ namespace lpzrobots {
     if (qde_configurableStates.tagName() != "ConfigurableStates")
       return -3;
 
-    return fromXml(qde_configurableStates.elementsByTagName("ConfigurableState").at(0).toElement());
+    return fromXml(qde_configurableStates.elementsByTagName("ConfigurableState").at(0).toElement(), false);
   }
 
-  int QConfigurableWidget::fromXml(const QDomElement &qde_configurableState) {
+  int QConfigurableWidget::fromXml(const QDomElement &qde_configurableState, bool inAutoSaveMode) {
     // GUI-Elements...
     QDomElement qde_configurableWidget = qde_configurableState.firstChildElement("ConfigurableWidget");
     if (!qde_configurableWidget.isNull()) {
@@ -404,8 +412,10 @@ namespace lpzrobots {
     QDomElement qde_configurable = qde_configurableState.firstChildElement("Configurable");
     if (!qde_configurable.isNull()) {
       // By default there exists only one node named "Configurable"!
-      // this node has attributes named: revision, name
+      // this node has attributes named: revision, name, autosaveFunction
       // this node has childs named <paramvals>, <paramints> and <parambools>
+      QString collapse = qde_configurableWidget.attribute("autosaveFunction", "true");
+      actionToggleAutoSave->setChecked(collapse.startsWith("true"));
       QDomNode qdn_paramvals = qde_configurable.elementsByTagName("paramvals").at(0);
       // By default there exists only one node named "paramvals", meaning there is only one list ...
       QDomElement qde_paramval = qdn_paramvals.firstChild().toElement();
@@ -414,15 +424,17 @@ namespace lpzrobots {
         string stdKey = key.toStdString();
         if (config->getParamValMap().find(stdKey) != config->getParamValMap().end()
             && configTileWidgetMap.contains(key)) {
-          QString desc = qde_paramval.attribute("description", QString(config->getParamDescr(stdKey).c_str()));
-          double value = qde_paramval.attribute("value", QString::number(config->getParam(stdKey))).toDouble();
-          double minBound =
-              qde_paramval.attribute("minBound", QString::number(config->getParamvalBounds(stdKey).first)).toDouble();
-          double maxBound = qde_paramval.attribute("maxBound",
-              QString::number(config->getParamvalBounds(stdKey).second)).toDouble();
-          config->setParamBounds(stdKey, minBound, maxBound);
-          config->setParam(stdKey, value);
-          config->setParamDescr(stdKey, desc.toStdString());
+          if ((inAutoSaveMode && actionToggleAutoSave->isChecked()) || !inAutoSaveMode) {
+            QString desc = qde_paramval.attribute("description", QString(config->getParamDescr(stdKey).c_str()));
+            double value = qde_paramval.attribute("value", QString::number(config->getParam(stdKey))).toDouble();
+            double minBound =
+                qde_paramval.attribute("minBound", QString::number(config->getParamvalBounds(stdKey).first)).toDouble();
+            double maxBound = qde_paramval.attribute("maxBound",
+                QString::number(config->getParamvalBounds(stdKey).second)).toDouble();
+            config->setParamBounds(stdKey, minBound, maxBound);
+            config->setParam(stdKey, value);
+            config->setParamDescr(stdKey, desc.toStdString());
+          }
           configTileWidgetMap.value(key)->reloadConfigurableData();
         }
         qde_paramval = qde_paramval.nextSiblingElement();
@@ -435,15 +447,17 @@ namespace lpzrobots {
         string stdKey = key.toStdString();
         if (config->getParamIntMap().find(stdKey) != config->getParamIntMap().end()
             && configTileWidgetMap.contains(key)) {
-          QString desc = qde_paramint.attribute("description", QString(config->getParamDescr(stdKey).c_str()));
-          int value = qde_paramint.attribute("value", QString::number(config->getParam(stdKey))).toInt();
-          int minBound =
-              qde_paramint.attribute("minBound", QString::number(config->getParamintBounds(stdKey).first)).toInt();
-          int maxBound =
-              qde_paramint.attribute("maxBound", QString::number(config->getParamintBounds(stdKey).second)).toInt();
-          config->setParamBounds(stdKey, minBound, maxBound);
-          config->setParam(stdKey, value);
-          config->setParamDescr(stdKey, desc.toStdString());
+          if ((inAutoSaveMode && actionToggleAutoSave->isChecked()) || !inAutoSaveMode) {
+            QString desc = qde_paramint.attribute("description", QString(config->getParamDescr(stdKey).c_str()));
+            int value = qde_paramint.attribute("value", QString::number(config->getParam(stdKey))).toInt();
+            int minBound =
+                qde_paramint.attribute("minBound", QString::number(config->getParamintBounds(stdKey).first)).toInt();
+            int maxBound =
+                qde_paramint.attribute("maxBound", QString::number(config->getParamintBounds(stdKey).second)).toInt();
+            config->setParamBounds(stdKey, minBound, maxBound);
+            config->setParam(stdKey, value);
+            config->setParamDescr(stdKey, desc.toStdString());
+          }
           configTileWidgetMap.value(key)->reloadConfigurableData();
         }
         qde_paramint = qde_paramint.nextSiblingElement();
@@ -456,10 +470,12 @@ namespace lpzrobots {
         string stdKey = key.toStdString();
         if (config->getParamBoolMap().find(stdKey) != config->getParamBoolMap().end() && configTileWidgetMap.contains(
             key)) {
-          QString desc = qde_parambool.attribute("description", QString(config->getParamDescr(stdKey).c_str()));
-          bool value = qde_parambool.attribute("value", QString::number(config->getParam(stdKey))).toInt();
-          config->setParam(stdKey, value);
-          config->setParamDescr(stdKey, desc.toStdString());
+          if ((inAutoSaveMode && actionToggleAutoSave->isChecked()) || !inAutoSaveMode) {
+            QString desc = qde_parambool.attribute("description", QString(config->getParamDescr(stdKey).c_str()));
+            bool value = qde_parambool.attribute("value", QString::number(config->getParam(stdKey))).toInt();
+            config->setParam(stdKey, value);
+            config->setParamDescr(stdKey, desc.toStdString());
+          }
           configTileWidgetMap.value(key)->reloadConfigurableData();
         }
         qde_parambool = qde_parambool.nextSiblingElement();
@@ -475,7 +491,7 @@ namespace lpzrobots {
     // <ConfigurableStates>
     QDomElement nodeConfigurableStates = doc.createElement("ConfigurableStates");
     doc.appendChild(nodeConfigurableStates);
-    nodeConfigurableStates.appendChild(toXml(true));
+    nodeConfigurableStates.appendChild(toXml(true, false));
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly))
       return false;
@@ -485,7 +501,7 @@ namespace lpzrobots {
     return true;
   }
 
-  QDomElement QConfigurableWidget::toXml(bool insertDefaultConfigurableValues) {
+  QDomElement QConfigurableWidget::toXml(bool insertDefaultConfigurableValues, bool inAutoSaveMode) {
     QDomDocument doc("ConfigurableStateTypeDefinition");
     // <ConfigurableState>
 
@@ -523,12 +539,19 @@ namespace lpzrobots {
     nodeConfigurable.setAttribute("name", QString(config->getName().c_str()));
     nodeConfigurable.setAttribute("revision", QString(config->getRevision().c_str()));
     nodeConfigurable.setAttribute("id", config->getId());
+    nodeConfigurable.setAttribute("autosaveFunction", actionToggleAutoSave->isChecked());
 
-    if (!insertDefaultConfigurableValues) {
-      QDomComment
-          nodeComment =
-              doc.createComment(
-                  "While in autosave mode, only values, bounds and descriptions of parameters which are differing from their original values are stored.");
+    if (inAutoSaveMode && !insertDefaultConfigurableValues) {
+      QDomComment nodeComment;
+      if (actionToggleAutoSave->isChecked()) {
+        nodeComment
+            = doc.createComment(
+                "While in autosave mode, only values, bounds and descriptions of parameters which are differing from their original values are stored.");
+      } else {
+        nodeComment
+            = doc.createComment(
+                "While in autosave mode and autosave function is disabled, nothing except the widget part and the parameter names will be stored.");
+      }
       nodeConfigurable.appendChild(nodeComment);
     }
 
@@ -545,14 +568,16 @@ namespace lpzrobots {
             QString(key.c_str())));
         nodeParamvals.appendChild(nodeParamval);
         nodeParamval.setAttribute("name", QString(key.c_str()));
-        if (insertDefaultConfigurableValues || configTile->valueChanged())
-          nodeParamval.setAttribute("value", *(config->getParamValMap()[key]));
-        if (insertDefaultConfigurableValues || configTile->boundsChanged()) {
-          nodeParamval.setAttribute("minBound", config->getParamvalBounds(key).first);
-          nodeParamval.setAttribute("maxBound", config->getParamvalBounds(key).second);
+        if ((inAutoSaveMode && actionToggleAutoSave->isChecked()) || !inAutoSaveMode) {
+          if (insertDefaultConfigurableValues || configTile->valueChanged())
+            nodeParamval.setAttribute("value", *(config->getParamValMap()[key]));
+          if (insertDefaultConfigurableValues || configTile->boundsChanged()) {
+            nodeParamval.setAttribute("minBound", config->getParamvalBounds(key).first);
+            nodeParamval.setAttribute("maxBound", config->getParamvalBounds(key).second);
+          }
+          if (insertDefaultConfigurableValues || configTile->descriptionChanged())
+            nodeParamval.setAttribute("description", QString(config->getParamDescr(key).c_str()));
         }
-        if (insertDefaultConfigurableValues || configTile->descriptionChanged())
-          nodeParamval.setAttribute("description", QString(config->getParamDescr(key).c_str()));
         i++;
       }
 
@@ -568,14 +593,16 @@ namespace lpzrobots {
         QDomElement nodeParamint = doc.createElement("paramint");
         nodeParamints.appendChild(nodeParamint);
         nodeParamint.setAttribute("name", QString(key.c_str()));
-        if (insertDefaultConfigurableValues || configTile->valueChanged())
-          nodeParamint.setAttribute("value", *(config->getParamIntMap()[key]));
-        if (insertDefaultConfigurableValues || configTile->boundsChanged()) {
-          nodeParamint.setAttribute("minBound", config->getParamintBounds(key).first);
-          nodeParamint.setAttribute("maxBound", config->getParamintBounds(key).second);
+        if ((inAutoSaveMode && actionToggleAutoSave->isChecked()) || !inAutoSaveMode) {
+          if (insertDefaultConfigurableValues || configTile->valueChanged())
+            nodeParamint.setAttribute("value", *(config->getParamIntMap()[key]));
+          if (insertDefaultConfigurableValues || configTile->boundsChanged()) {
+            nodeParamint.setAttribute("minBound", config->getParamintBounds(key).first);
+            nodeParamint.setAttribute("maxBound", config->getParamintBounds(key).second);
+          }
+          if (insertDefaultConfigurableValues || configTile->descriptionChanged())
+            nodeParamint.setAttribute("description", QString(config->getParamDescr(key).c_str()));
         }
-        if (insertDefaultConfigurableValues || configTile->descriptionChanged())
-          nodeParamint.setAttribute("description", QString(config->getParamDescr(key).c_str()));
       }
 
     // <ConfigurableState><Configurable><parambools>
@@ -590,10 +617,12 @@ namespace lpzrobots {
         QDomElement nodeParambool = doc.createElement("parambool");
         nodeParambools.appendChild(nodeParambool);
         nodeParambool.setAttribute("name", QString(key.c_str()));
-        if (insertDefaultConfigurableValues || configTile->valueChanged())
-          nodeParambool.setAttribute("value", *(config->getParamBoolMap()[key]));
-        if (insertDefaultConfigurableValues || configTile->descriptionChanged())
-          nodeParambool.setAttribute("description", QString(config->getParamDescr(key).c_str()));
+        if ((inAutoSaveMode && actionToggleAutoSave->isChecked()) || !inAutoSaveMode) {
+          if (insertDefaultConfigurableValues || configTile->valueChanged())
+            nodeParambool.setAttribute("value", *(config->getParamBoolMap()[key]));
+          if (insertDefaultConfigurableValues || configTile->descriptionChanged())
+            nodeParambool.setAttribute("description", QString(config->getParamDescr(key).c_str()));
+        }
       }
 
     return nodeConfigurableState;

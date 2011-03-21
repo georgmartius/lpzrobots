@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2011-02-04 13:03:16  wrabe
+ *   Revision 1.19  2011-03-21 17:35:26  guettler
+ *   - new autosave checkbox in context menu implemented and used
+ *
+ *   Revision 1.18  2011/02/04 13:03:16  wrabe
  *   - bugfix: Configurables are restored now when event "CommunicationStateWillChange" occurs, not in destructor
  *
  *   Revision 1.17  2011/01/28 12:15:37  guettler
@@ -143,8 +146,8 @@ namespace lpzrobots {
     public:
       QConfigurableWidget(Configurable* config, int nameIndex);
       virtual ~QConfigurableWidget();
-      QDomElement toXml(bool insertDefaultConfigurableValues);
-      int fromXml(const QDomElement &qde_configurableState);
+      QDomElement toXml(bool insertDefaultConfigurableValues, bool inAutoSaveMode);
+      int fromXml(const QDomElement &qde_configurableState, bool inAutoSaveMode);
       int getNameIndex() {return nameIndex; }
       Configurable* getConfigurable() const { return config; }
       QString getName() { return configName; }
@@ -191,6 +194,7 @@ namespace lpzrobots {
 
 
       QMenu contextMenuShowHideDialog;
+      QAction* actionToggleAutoSave;
       QGridLayout layout;
       QPalette defaultPalette;
       Configurable* config;
