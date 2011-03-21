@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2011-02-04 13:00:50  wrabe
+ *   Revision 1.18  2011-03-21 17:32:19  guettler
+ *   - adapted to enhanced configurable interface
+ *   - support for configurable childs of a configurable
+ *
+ *   Revision 1.17  2011/02/04 13:00:50  wrabe
  *   - bugfix: Configurables are restored now when event "CommunicationStateWillChange" occurs
  *
  *   Revision 1.16  2011/01/28 12:15:37  guettler
@@ -160,6 +164,17 @@ namespace lpzrobots {
       void readSettings();
       void writeSettings();
       void sleep(ulong msecs);
+
+      /**
+       * recursive method to add a list of configurables to the given grid.
+       * @param configList the list of configurables to add
+       * @param grid the grid to add the configurables
+       * @param configurableIndexMap the map where all configurables are indexed
+       * @param configurableWidgetIndex optional, must be set at recursive calls
+       * @return the number of widgets added
+       */
+      int addConfigurablesToGrid(ConfigList configList, QGridLayout* grid, QHash<QString, int>& configurableIndexMap, int configurableWidgetIndex = 0);
+
       QWidget* createConfigurableWidget();
       void updateConfigurableWidget();
       void restoreOriginalConfigurables();

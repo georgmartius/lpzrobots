@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2011-02-11 12:12:01  guettler
+ *   Revision 1.26  2011-03-21 17:32:19  guettler
+ *   - adapted to enhanced configurable interface
+ *   - support for configurable childs of a configurable
+ *
+ *   Revision 1.25  2011/02/11 12:12:01  guettler
  *   - UI: some seperators added
  *
  *   Revision 1.24  2011/02/04 13:00:50  wrabe
@@ -467,16 +471,8 @@ namespace lpzrobots {
     tabWidget->setCurrentIndex(index);
   }
 
-  QWidget* QECBRobotsWindow::createConfigurableWidget() {
-    if (configWidget != 0)
-      delete configWidget;
-    configWidget = new QWidget(); // containing some QGroupBoxes (QConfigurableWidget´s)
-    QGridLayout* grid = new QGridLayout();
-    grid->setSizeConstraint(QLayout::SetFixedSize);
-    configWidget->setLayout(grid);
-    int configurableWidgetIndex = 0;
-    QHash<QString, int> configurableIndexMap;
-    FOREACH(ConfigList, globalData->configs, config) {
+  int QECBRobotsWindow::addConfigurablesToGrid(ConfigList configList, QGridLayout* grid, QHash<QString, int>& configurableIndexMap, int configurableWidgetIndex /*= 0*/) {
+    FOREACH(ConfigList, configList, config) {
       QString name = QString((*config)->getName().c_str());
       int index = 0;
       if (configurableIndexMap.contains(name)) {
@@ -486,13 +482,26 @@ namespace lpzrobots {
       QConfigurableWidget* confWidget = new QConfigurableWidget(*config, configurableIndexMap[name]);
       grid->addWidget(confWidget, configurableWidgetIndex++, 0, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
       configurableWidgetMap.insert(confWidget->getName(), confWidget);
+      configurableWidgetIndex= addConfigurablesToGrid((*config)->getConfigurables(), grid, configurableIndexMap, configurableWidgetIndex);
     }
+    return configurableWidgetIndex;
+  }
+
+  QWidget* QECBRobotsWindow::createConfigurableWidget() {
+    if (configWidget != 0)
+      delete configWidget;
+    configWidget = new QWidget(); // containing some QGroupBoxes (QConfigurableWidget´s)
+    QGridLayout* grid = new QGridLayout();
+    grid->setSizeConstraint(QLayout::SetFixedSize);
+    configWidget->setLayout(grid);
+    QHash<QString, int> configurableIndexMap;
+    int numberWidgetsAdded = addConfigurablesToGrid(globalData->configs, grid, configurableIndexMap);
     recallConfigurableStates(); // autoload function
-    grid->setRowStretch(configurableWidgetIndex, 100);
+    grid->setRowStretch(numberWidgetsAdded, 100);
     scrollArea = new QScrollArea();
     //scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(configWidget);
-    scrollArea->setToolTip(QString::number(configurableWidgetIndex) + " Configurables");
+    scrollArea->setToolTip(QString::number(numberWidgetsAdded) + " Configurables");
     return scrollArea;
   }
 
@@ -564,7 +573,7 @@ namespace lpzrobots {
           configName = QString(confWidget->getConfigurable()->getName().c_str()) + "_0";
         }
         if (nodeConfigurableStateMap.contains(configName)) {
-          confWidget->fromXml(nodeConfigurableStateMap.value(configName));
+          confWidget->fromXml(nodeConfigurableStateMap.value(configName), true);
         }
       }
   }
@@ -572,7 +581,7 @@ namespace lpzrobots {
   void QECBRobotsWindow::bookmarkConfigurableStates() {
     // if some older ones exist, just overwrite them
     foreach(QConfigurableWidget* confWidget, configurableWidgetMap)
-        nodeConfigurableStateMap.insert(confWidget->getName(), confWidget->toXml(false));
+        nodeConfigurableStateMap.insert(confWidget->getName(), confWidget->toXml(false, true));
   }
 
   void QECBRobotsWindow::sl_loadCurrentConfigurableStatesFromFile() {
