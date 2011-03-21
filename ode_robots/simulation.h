@@ -28,7 +28,10 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.51  2010-12-17 17:00:26  martius
+ *   Revision 1.52  2011-03-21 17:38:29  guettler
+ *   - adapted to enhanced configurable interface: console can now handle configurable childs of configurables
+ *
+ *   Revision 1.51  2010/12/17 17:00:26  martius
  *   odeagent has new constructor (old is marked as deprecated) -> log files have again
  *    important information about simulation
  *   addsensorstorobotadapater copies configurables
@@ -537,7 +540,7 @@ namespace lpzrobots {
 
   // Commandline interface stuff
   /// shows all parameters of all given configurable objects
-  void showParams(const ConfigList& configs);
+  void showParams(const ConfigList& configs, int prefixLength = 0);
 
   /// creates a new directory with the stem base, which is not yet there (using subsequent numbers)
   void createNewDir(const char* base, char *newdir);

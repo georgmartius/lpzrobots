@@ -26,7 +26,10 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-11-11 08:58:45  martius
+ *   Revision 1.11  2011-03-21 17:41:10  guettler
+ *   - adapted to enhanced configurable interface: console can now handle configurable childs of configurables
+ *
+ *   Revision 1.10  2010/11/11 08:58:45  martius
  *   comments and testing
  *
  *   Revision 1.9  2010/09/27 14:55:56  martius
@@ -128,10 +131,17 @@ bool execute_line (GlobalData& globalData, char *line);
 int valid_argument ( const char *caller, const char *arg); 
 
 
-void showParams(const ConfigList& configs)
+void showParams(const ConfigList& configs, int prefixLength = 0)
 {
+  string prefix = "";
+  while (prefixLength-->0) prefix.append(" ");
   for(vector<Configurable*>::const_iterator i=configs.begin(); i != configs.end(); i++){
-    (*i)->print(stdout, 0);
+    (*i)->print(stdout, prefix.c_str());
+    const ConfigList& childConfigs = (*i)->getConfigurables();
+    if (childConfigs.size()>0) {
+      printf("Childs of %s:\n", (*i)->getName().c_str());
+      showParams((*i)->getConfigurables(), prefixLength+6);
+    }
   }
 }
 
