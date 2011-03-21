@@ -22,7 +22,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2011-01-11 13:17:27  guettler
+ *   Revision 1.11  2011-03-21 17:46:12  guettler
+ *   enhanced inspectable interface:
+ *   - support for inspectable childs of a inspectable
+ *   - some new helper functions
+ *
+ *   Revision 1.10  2011/01/11 13:17:27  guettler
  *   - added typedef for infoLinesList (necessary for FOREACH)
  *
  *   Revision 1.9  2010/10/18 15:08:28  martius
@@ -162,12 +167,14 @@ public:
     bool operator()(ILayer l) { return l.vectorname == name; }
   };
 
+  typedef std::list<const Inspectable*> inspectableList;
+
 
 
   /// TYPEDEFS END
 
 
-  Inspectable();
+  Inspectable(const iparamkey& name);
 
 
   virtual ~Inspectable();
@@ -283,11 +290,48 @@ public:
    */
   virtual const infoLinesList& getInfoLines() const;
 
+  /**
+   * Adds an inspectable as a child object.
+   * @param insp the instance to add
+   */
+  virtual void addInspectable(Inspectable* insp);
+
+  /**
+   * Removes an inspectable as a child object.
+   * @param insp the instance to remove
+   */
+  virtual void removeInspectable(Inspectable* insp);
+
+
+  /// set the name of the inspectable
+  virtual void setNameOfInspectable(const iparamkey& name);
+
+  /// return the name of the inspectable, getName() would conflict with Configurable::getName() too often
+  virtual const iparamkey getNameOfInspectable() const;
+
+  /**
+   * Returns the list containing all inspectable childs.
+   */
+  virtual const inspectableList& getInspectables() const;
+
+  /* added when needed
+  virtual void removeInspectable(const Inspectable* insp);
+
+  virtual void removeAllInspectables();
+  */
+
 protected:
+  iparamkey name;
+
   iparampairlist mapOfValues;
   imatrixpairlist mapOfMatrices;
 
   infoLinesList infoLineStringList;
+
+private:
+  inspectableList listOfInspectableChilds;
+  bool printParentName;
+  Inspectable* parent;
 
 
 };

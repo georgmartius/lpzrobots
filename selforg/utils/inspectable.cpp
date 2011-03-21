@@ -22,7 +22,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-10-18 15:08:35  martius
+ *   Revision 1.15  2011-03-21 17:46:12  guettler
+ *   enhanced inspectable interface:
+ *   - support for inspectable childs of a inspectable
+ *   - some new helper functions
+ *
+ *   Revision 1.14  2010/10/18 15:08:35  martius
  *   matrices are now explicitly const (as it should be)
  *
  *   Revision 1.13  2010/04/28 07:57:41  guettler
@@ -80,7 +85,7 @@
 
 Inspectable::~Inspectable(){}
 
-Inspectable::Inspectable() {}
+Inspectable::Inspectable(const iparamkey& name) : name(name), parent(0) {}
 
 
 Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
@@ -178,4 +183,30 @@ void Inspectable::removeInfoLines() {
 }
 
 
+void Inspectable::addInspectable(Inspectable* insp) {
+  listOfInspectableChilds.push_back(insp);
+  insp->parent=this;
+}
+
+void Inspectable::removeInspectable(Inspectable* insp) {
+  inspectableList::iterator pos = std::posInColl<inspectableList, const Inspectable*>(listOfInspectableChilds, insp);
+  if (pos!=listOfInspectableChilds.end()) {
+    insp->parent=0;
+    listOfInspectableChilds.remove(insp);
+  }
+}
+
+void Inspectable::setNameOfInspectable(const iparamkey& _name) {
+    name = _name;
+}
+
+
+const Inspectable::iparamkey Inspectable::getNameOfInspectable() const {
+    return name;
+}
+
+
+const Inspectable::inspectableList& Inspectable::getInspectables() const {
+  return listOfInspectableChilds;
+}
 
