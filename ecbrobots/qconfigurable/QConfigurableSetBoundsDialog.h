@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-12-06 17:49:34  wrabe
+ *   Revision 1.2  2011-03-21 17:35:44  guettler
+ *   - adapted to enhanced configurable interface
+ *
+ *   Revision 1.1  2010/12/06 17:49:34  wrabe
  *   - new QConfigurableSetBoundsDialog to change the
  *     boundaries of the Configurables (reacheble now by
  *     context menu of the ConfigurableTile (only paramval/
@@ -53,7 +56,12 @@ namespace lpzrobots {
     Q_OBJECT
 
     public:
-      QConfigurableSetBoundsDialog(Configurable* config, Configurable::paramkey& key);
+
+      enum dialogMode {
+        MODE_PARAMVAL, MODE_PARAMINT, MODE_ERROR
+      };
+
+      QConfigurableSetBoundsDialog(Configurable* config, Configurable::paramkey& key, dialogMode mode);
       virtual ~QConfigurableSetBoundsDialog();
 
     private slots:
@@ -61,13 +69,10 @@ namespace lpzrobots {
       void sl_dialogReject();
       void sl_dialogSetDefaults();
 
-
     private:
       void createDialogContentForValBounds();
       void createDialogContentForIntBounds();
       void createDialogContentError();
-
-
 
       QIntValidator* intValidator;
       QDoubleValidator* doubleValidator;
@@ -83,9 +88,7 @@ namespace lpzrobots {
       Configurable::paramkey key;
 
       enum internal_content_t {
-        content_double,
-        content_int,
-        content_none
+        content_double, content_int, content_none
       } internal_content;
 
   };

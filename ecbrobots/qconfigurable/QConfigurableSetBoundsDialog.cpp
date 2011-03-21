@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-12-16 18:37:39  wrabe
+ *   Revision 1.4  2011-03-21 17:35:44  guettler
+ *   - adapted to enhanced configurable interface
+ *
+ *   Revision 1.3  2010/12/16 18:37:39  wrabe
  *   -added several tooltips
  *   -corrected sentences, notation, syntax for improved informational value
  *   -bugfix: if in collapsed mode, all tiles were stored as invisible
@@ -53,7 +56,7 @@
 
 namespace lpzrobots {
   
-  QConfigurableSetBoundsDialog::QConfigurableSetBoundsDialog(Configurable* config, Configurable::paramkey& key) :
+  QConfigurableSetBoundsDialog::QConfigurableSetBoundsDialog(Configurable* config, Configurable::paramkey& key, dialogMode mode) :
     config(config), key(key) {
     dialogGridLayout = new QGridLayout();
     setLayout(dialogGridLayout);
@@ -62,16 +65,13 @@ namespace lpzrobots {
     setMinimumWidth(335);
    // layout()->setSizeConstraint( QLayout::SetFixedSize );
 
-    Configurable::parammap valMap = config->getParamValMap();
-    Configurable::paramintmap intMap = config->getParamIntMap();
-    if (valMap.find(key) != valMap.end()) {
-      createDialogContentForValBounds();
-    } else if (intMap.find(key) != intMap.end()) {
-      createDialogContentForIntBounds();
-    } else {
-      createDialogContentError();
-    }
-  }
+     if (mode==MODE_PARAMVAL)
+       createDialogContentForValBounds();
+     else if (mode==MODE_PARAMINT)
+       createDialogContentForIntBounds();
+     else
+       createDialogContentError();
+   }
   
   QConfigurableSetBoundsDialog::~QConfigurableSetBoundsDialog() {
     delete (dialogGridLayout);

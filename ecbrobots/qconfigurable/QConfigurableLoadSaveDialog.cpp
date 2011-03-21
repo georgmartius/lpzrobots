@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2011-01-24 18:40:48  guettler
+ *   Revision 1.4  2011-03-21 17:35:52  guettler
+ *   - adapted to enhanced configurable interface
+ *
+ *   Revision 1.3  2011/01/24 18:40:48  guettler
  *   - autosave functionality now stores only values, bounds and descriptions of
  *   parameters if they differ from their original values
  *
@@ -227,7 +230,7 @@ namespace lpzrobots {
     foreach(QCheckBox* cbConfig, checkBoxConfiguableWidgetList)
       {
         if (cbConfig->isChecked() && cbConfig->isEnabled()) {
-          configurableWidgetMap.value(cbConfig->text())->fromXml(qde_configurableStateMap.value(cbConfig->text()));
+          configurableWidgetMap.value(cbConfig->text())->fromXml(qde_configurableStateMap.value(cbConfig->text()), false);
         }
       }
   }
@@ -236,7 +239,7 @@ namespace lpzrobots {
     foreach(QRadioButton* rbConfig, radioButtonConfiguableWidgetList)
       {
         if (rbConfig->isChecked()) {
-          configurableWidgetMap.values().at(0)->fromXml(qde_configurableStateMap.value(rbConfig->text()));
+          configurableWidgetMap.values().at(0)->fromXml(qde_configurableStateMap.value(rbConfig->text()), false);
         }
       }
   }
@@ -258,7 +261,7 @@ namespace lpzrobots {
       foreach(QCheckBox* cbConfig, checkBoxConfiguableWidgetList)
         {
           if (cbConfig->isChecked()) {
-            nodeConfigurableStates.appendChild(configurableWidgetMap.value(cbConfig->text())->toXml(true));
+            nodeConfigurableStates.appendChild(configurableWidgetMap.value(cbConfig->text())->toXml(true, false));
           }
         }
       QFile file(fileName);
