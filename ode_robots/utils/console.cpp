@@ -26,7 +26,11 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2011-03-21 17:41:10  guettler
+ *   Revision 1.12  2011-03-22 16:44:10  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *   - better formatted output in showParams()
+ *
+ *   Revision 1.11  2011/03/21 17:41:10  guettler
  *   - adapted to enhanced configurable interface: console can now handle configurable childs of configurables
  *
  *   Revision 1.10  2010/11/11 08:58:45  martius
@@ -131,23 +135,23 @@ bool execute_line (GlobalData& globalData, char *line);
 int valid_argument ( const char *caller, const char *arg); 
 
 
-void showParams(const ConfigList& configs, int prefixLength = 0)
+void showParams(const ConfigList& configs, int prefixLength)
 {
   string prefix = "";
-  while (prefixLength-->0) prefix.append(" ");
+  for (int l=prefixLength; l>0; l-=2) prefix.append("- ");
   for(vector<Configurable*>::const_iterator i=configs.begin(); i != configs.end(); i++){
-    (*i)->print(stdout, prefix.c_str());
+    (*i)->print(stdout, prefix.c_str(), 90-prefixLength, false);
     const ConfigList& childConfigs = (*i)->getConfigurables();
     if (childConfigs.size()>0) {
-      printf("Childs of %s:\n", (*i)->getName().c_str());
-      showParams((*i)->getConfigurables(), prefixLength+6);
+      printf("%sChilds of %s:\n", prefix.c_str(), (*i)->getName().c_str());
+      showParams((*i)->getConfigurables(), prefixLength+2);
     }
   }
 }
 
 void showParam(const Configurable* config)
 {
-  if(config) config->print(stdout, 0);
+  if(config) config->print(stdout, 0, 90, false);
 }
 
 
@@ -460,7 +464,7 @@ bool com_show (GlobalData& globalData, char* line, char* arg) {
       return true;
     }
   }
-  showParams(globalData.configs);  
+  showParams(globalData.configs, 0);
  
   return true;
 }
