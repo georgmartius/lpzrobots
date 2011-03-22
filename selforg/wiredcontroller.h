@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2011-03-21 17:42:19  guettler
+ *   Revision 1.18  2011-03-22 16:46:15  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *   - WiredController is now configurable (solves some inconsistencies)
+ *
+ *   Revision 1.17  2011/03/21 17:42:19  guettler
  *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
  *
  *   Revision 1.16  2011/02/24 20:43:39  martius
@@ -104,6 +108,7 @@
 #include "backcaller.h"
 #include "types.h"
 #include "inspectable.h"
+#include "configurable.h"
 #include "randomgenerator.h"
 
 #include <stdio.h>
@@ -114,7 +119,6 @@
 
 class AbstractController;
 class AbstractWiring;
-class Configurable;
 class Callbackable;
 class WiredController;
 
@@ -127,16 +131,16 @@ class WiredController;
      however you can write the data into a file or send it to
      visualisation tools like guilogger or neuronviz.
  */
-class WiredController : public Inspectable, public BackCaller {
+class WiredController : public Inspectable, public Configurable {
 public:
   /** constructor. PlotOption as output setting.
       noisefactor is used to set the relative noise strength of this agent
    */
-  WiredController(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1, const iparamkey& name = "WiredController");
+  WiredController(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1, const iparamkey& name = "WiredController", const paramkey& revision = "$ID");
   /** constructor. A list of PlotOption can given.
       noisefactor is used to set the relative noise strength of this agent
    */
-  WiredController(const std::list<PlotOption>& plotOptions, double noisefactor = 1, const iparamkey& name = "WiredController");
+  WiredController(const std::list<PlotOption>& plotOptions, double noisefactor = 1, const iparamkey& name = "WiredController", const paramkey& revision = "$ID");
 
   /** destructor
    */
@@ -196,13 +200,6 @@ public:
    */
   virtual bool removePlotOption(PlotMode mode);
 
-  /** adds an inspectable object for logging. Must be called before init!
-   */
-  virtual void addInspectable(const Inspectable* inspectable);
-
-  /** adds an configureable object for logging. Must be called before init!
-   */
-  virtual void addConfigurable(const Configurable* c);
   /**
      write comment to output streams (PlotOptions). For instance changes in parameters.
   */

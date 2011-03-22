@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2011-03-21 17:42:19  guettler
+ *   Revision 1.23  2011-03-22 16:46:15  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *   - WiredController is now configurable (solves some inconsistencies)
+ *
+ *   Revision 1.22  2011/03/21 17:42:19  guettler
  *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
  *
  *   Revision 1.21  2011/02/24 20:43:39  martius
@@ -125,14 +129,14 @@
 
 using namespace std;
 
-WiredController::WiredController(const PlotOption& plotOption, double noisefactor, const iparamkey& name)
-  : Inspectable(name), noisefactor(noisefactor), plotEngine(plotOption) {
+WiredController::WiredController(const PlotOption& plotOption, double noisefactor, const iparamkey& name, const paramkey& revision)
+  : Inspectable(name), Configurable(name, revision), noisefactor(noisefactor), plotEngine(plotOption) {
   internInit();  
 }
 
 
-WiredController::WiredController(const std::list<PlotOption>& plotOptions, double noisefactor, const iparamkey& name)
-  : Inspectable(name), noisefactor(noisefactor), plotEngine(plotOptions) {
+WiredController::WiredController(const std::list<PlotOption>& plotOptions, double noisefactor, const iparamkey& name, const paramkey& revision)
+  : Inspectable(name), Configurable(name, revision), noisefactor(noisefactor), plotEngine(plotOptions) {
   internInit();
 }
 
@@ -177,12 +181,13 @@ bool WiredController::init(AbstractController* controller, AbstractWiring* wirin
 
 
   plotEngine.addInspectable(this, true);
-  plotEngine.addInspectable(wiring,true);
-  plotEngine.addInspectable(controller); 
+  plotEngine.addConfigurable(this);
+  addInspectable(wiring);
+  addInspectable(controller);
+  addConfigurable(controller);
 
-  plotEngine.addConfigurable(controller);
   Configurable* c_wiring = dynamic_cast<Configurable*>(wiring);
-  if(c_wiring) plotEngine.addConfigurable(c_wiring);
+  if(c_wiring) addConfigurable(c_wiring);
   
   plotEngine.init(controller);
 
@@ -215,14 +220,6 @@ bool WiredController::addAndInitPlotOption(PlotOption& plotOption) {
 
 bool WiredController::removePlotOption(PlotMode mode){
   return plotEngine.removePlotOption(mode); 
-}
-
-void WiredController::addInspectable(const Inspectable* inspectable){  
-  plotEngine.addInspectable(inspectable);
-}
-
-void WiredController::addConfigurable(const Configurable* c){
-  plotEngine.addConfigurable(c);
 }
 
 void WiredController::writePlotComment(const char* cmt){
