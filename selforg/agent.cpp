@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.27  2011-03-21 17:42:19  guettler
+ *   Revision 1.28  2011-03-22 16:45:00  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *   - name of Agent is now Robot
+ *   - minor cleanups
+ *
+ *   Revision 1.27  2011/03/21 17:42:19  guettler
  *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
  *
  *   Revision 1.26  2011/02/02 10:37:36  martius
@@ -208,15 +213,15 @@
 
 using namespace std;
 
-Agent::Agent(const PlotOption& plotOption, double noisefactor, const iparamkey& name)
-  : WiredController(plotOption, noisefactor, name) {
+Agent::Agent(const PlotOption& plotOption, double noisefactor, const iparamkey& name, const paramkey& revision)
+  : WiredController(plotOption, noisefactor, name, revision) {
   robot      = 0;
   rsensors=0; rmotors=0;
 }
 
 
-Agent::Agent(const std::list<PlotOption>& plotOptions, double noisefactor, const iparamkey& name)
-  : WiredController(plotOptions, noisefactor, name) {
+Agent::Agent(const std::list<PlotOption>& plotOptions, double noisefactor, const iparamkey& name, const paramkey& revision)
+  : WiredController(plotOptions, noisefactor, name, revision){
   robot      = 0;
   rsensors=0; rmotors=0;
 }
@@ -233,8 +238,6 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot,
 		 AbstractWiring* wiring, long int seed){
   this->robot   = robot;
   assert(robot);  
-  // take the name of the robot for it's own inspectable name
-  setNameOfInspectable(robot->getName());
 
   if(!seed) seed=rand();
   randGen.init(seed);
@@ -247,9 +250,11 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot,
   // add robot to inspectables  
   Inspectable* in = dynamic_cast<Inspectable*>(robot);
   if(in) addInspectable(in); 
-  plotEngine.addConfigurable(robot);
+  addConfigurable(robot);
   plotEngine.setName(robot->getName());
-  
+  setName(robot->getName() + "'s Agent");
+  setNameOfInspectable(getName());
+
   return WiredController::init(controller,wiring, rsensornumber, rmotornumber, &randGen);
 }
 
