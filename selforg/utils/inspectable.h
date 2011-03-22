@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2011-03-21 17:46:12  guettler
+ *   Revision 1.12  2011-03-22 11:01:53  guettler
+ *   - added todo comments
+ *
+ *   Revision 1.11  2011/03/21 17:46:12  guettler
  *   enhanced inspectable interface:
  *   - support for inspectable childs of a inspectable
  *   - some new helper functions
@@ -117,6 +120,9 @@ namespace matrix {
 /**
  * Interface for inspectable objects.
  * That means that one can read out some internal parameters indentified by string keys
+ *
+ * TODO: support for lead through of params (e.g. getInternalParams()) for all child inspectables
+ * for this use a instance-wide switch (useChilds) as a member variable to enable this feature when desired.
 */
 class Inspectable {
 public:
