@@ -67,7 +67,7 @@ class CheatedECB : public ECB {
 class MyController : public AbstractControllerAdapter {
   public:
     MyController(AbstractController* controller) :
-      AbstractControllerAdapter(controller) {
+      AbstractControllerAdapter(controller, "MyController", "$ID") {
 
     }
 
@@ -141,7 +141,6 @@ class MyECBManager : public QECBManager {
 
         // create new wiring
           myCon->setName("mySos");
-         global.addConfigurable(myCon);
 
         AbstractWiring* myWiring = new One2OneWiring(new WhiteNormalNoise());
         // create new robot
@@ -177,14 +176,14 @@ class MyECBManager : public QECBManager {
         ECBAgent* myAgent = new ECBAgent(plotList);
 
         StatisticTools* stats = new StatisticTools;
-        OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(myCon,"main");
+        OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(myCon,"main", "$ID");
 //          mic = new MutualInformationController(1, -1, 1, true, true);
         MutualInformationController* mic = new MutualInformationController(30, -1, 1, true, true);
         stats->addMeasure(mic->getH_yx(0), "MI(x,y)[0]", ID, 0);
 //        stats->addMeasure(mic->getH_yx(0), "H(x,y)[0]", ID, 0);
 //        stats->addMeasure(mic->getH_yx(1), "H(x,y)[1]", ID, 0);
         MeasureAdapter* ma = new MeasureAdapter(mic);
-        onamupaco->addPassiveController(ma,"mi30");
+        onamupaco->addPassiveController(ma);
         myAgent->addInspectable((Inspectable*)stats);
         myAgent->addCallbackable((Callbackable*)stats);
         // init agent with controller, robot and wiring
@@ -193,6 +192,7 @@ class MyECBManager : public QECBManager {
 
         // register agents
         global.agents.push_back(myAgent);
+        global.configs.push_back(myAgent);
 
         delete DNSName;
 

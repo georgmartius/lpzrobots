@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2011-02-24 20:45:21  martius
+ *   Revision 1.15  2011-03-22 16:42:48  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *
+ *   Revision 1.14  2011/02/24 20:45:21  martius
  *   added fixRobot parameter to motorbabbling
  *
  *   Revision 1.13  2010/12/17 17:00:26  martius
@@ -89,30 +92,30 @@
 namespace lpzrobots {
 
 
-  OdeAgent::OdeAgent(const PlotOption& plotOption, double noisefactor)
-    : Agent(plotOption, noisefactor) { 
+  OdeAgent::OdeAgent(const PlotOption& plotOption, double noisefactor, const std::string& name, const std::string& revision)
+    : Agent(plotOption, noisefactor, name, revision) {
     constructor_helper(0);
   }
-  OdeAgent::OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor)
-    : Agent(plotOptions, noisefactor) {
+  OdeAgent::OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor, const std::string& name, const std::string& revision)
+    : Agent(plotOptions, noisefactor, name, revision) {
     constructor_helper(0);
   }
     
-  OdeAgent::OdeAgent(const GlobalData& globalData, double noisefactor)
-    : Agent(globalData.plotoptions, noisefactor){
+  OdeAgent::OdeAgent(const GlobalData& globalData, double noisefactor, const std::string& name, const std::string& revision)
+    : Agent(globalData.plotoptions, noisefactor, name, revision){
     constructor_helper(&globalData);
   }
 
   OdeAgent::OdeAgent(const GlobalData& globalData, const PlotOption& plotOption, 
-                     double noisefactor)
-    : Agent(plotOption, noisefactor){
+                     double noisefactor, const std::string& name, const std::string& revision)
+    : Agent(plotOption, noisefactor, name, revision){
     constructor_helper(&globalData);
   }
 
 
   OdeAgent::OdeAgent(const GlobalData& globalData, const PlotOptionList& plotOptions, 
-                     double noisefactor)
-    : Agent(plotOptions, noisefactor){
+                     double noisefactor, const std::string& name, const std::string& revision)
+    : Agent(plotOptions, noisefactor, name, revision){
     constructor_helper(&globalData);
   }
   

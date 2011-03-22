@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-02-11 12:13:31  guettler
+ *   Revision 1.8  2011-03-22 16:37:05  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *
+ *   Revision 1.7  2011/02/11 12:13:31  guettler
  *   - renamed init to preInit function
  *   - ECB are added as configurables to PlotOptionEngine automatically
  *
@@ -66,7 +69,7 @@
 namespace lpzrobots {
 
 
-  class ECBAgent : public Agent , public Configurable {
+  class ECBAgent : public Agent {
 
     public:
 
@@ -76,7 +79,7 @@ namespace lpzrobots {
        * @param noisefactor is used to set the relative noise strength of this agent
        * @return
        */
-      ECBAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1);
+      ECBAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1, const std::string& name = "ECBAgent", const std::string& revision = "$ID$");
 
       /**
        * Constructor.
@@ -84,7 +87,7 @@ namespace lpzrobots {
        * @param noisefactor is used to set the relative noise strength of this agent.
        * @return
        */
-      ECBAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1);
+      ECBAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1, const std::string& name = "ECBAgent", const std::string& revision = "$ID$");
 
       virtual ~ECBAgent();
 

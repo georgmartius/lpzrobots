@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2010-03-09 11:53:41  martius
+ *   Revision 1.25  2011-03-22 16:43:22  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *
+ *   Revision 1.24  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.23  2009/08/05 23:25:57  martius
@@ -217,7 +220,7 @@ public:
     // push controller in global list of configurables
     //  AbstractController *controller = new InvertNChannelController(10);
     AbstractController *controller = new InvertMotorSpace(10);
-    global.configs.push_back(controller);
+    //global.configs.push_back(controller);
 
     // create pointer to one2onewiring
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -229,7 +232,6 @@ public:
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
 
-    showParams(global.configs);
   }
 
   // add own key handling stuff here, just insert some case values

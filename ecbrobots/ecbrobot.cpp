@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2011-03-21 17:31:30  guettler
+ *   Revision 1.12  2011-03-22 16:37:18  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *
+ *   Revision 1.11  2011/03/21 17:31:30  guettler
  *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
  *
  *   Revision 1.10  2010/11/11 15:34:59  wrabe
@@ -108,7 +111,10 @@ namespace lpzrobots {
   /// method for registering new ECBs
 
   void ECBRobot::addECB(QString dnsName, ECBConfig& ecbConfig) {
-    this->ECBlist.push_back(new ECB(dnsName, globalData, ecbConfig));
+    ECB* ecb = new ECB(dnsName, globalData, ecbConfig);
+    this->ECBlist.push_back(ecb);
+    addConfigurable(ecb);
+    addInspectable(ecb);
     globalData.textLog("New ECB with DNSName \"" +dnsName + "\" added.");
   }
 
@@ -116,6 +122,8 @@ namespace lpzrobots {
 
   void ECBRobot::addECB(ECB* ecb) {
     this->ECBlist.push_back(ecb);
+    addConfigurable(ecb);
+    addInspectable(ecb);
     globalData.textLog("New ECB with DNSName " + ecb->getDNSName() + " added.");
   }
 

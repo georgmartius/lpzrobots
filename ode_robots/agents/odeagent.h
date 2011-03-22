@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2011-02-24 20:45:21  martius
+ *   Revision 1.14  2011-03-22 16:42:48  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *
+ *   Revision 1.13  2011/02/24 20:45:21  martius
  *   added fixRobot parameter to motorbabbling
  *
  *   Revision 1.12  2010/12/17 17:00:26  martius
@@ -105,17 +108,17 @@ namespace lpzrobots {
   class OdeAgent : public Agent {
   public:
     /// obsolete provide globaldata, see below
-    OdeAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1) __attribute__ ((deprecated));
+    OdeAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$") __attribute__ ((deprecated));
     /// obsolete provide globaldata, see below
-    OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1) __attribute__ ((deprecated));
+    OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$") __attribute__ ((deprecated));
     /// Constructor: The plotoptions are taken from globaldata
-    OdeAgent(const GlobalData& globalData, double noisefactor = 1);    
+    OdeAgent(const GlobalData& globalData, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$");
     /** Constructor: A single plotoption is used as given by plotOption */
-    OdeAgent(const GlobalData& globalData, const PlotOption& plotOption, double noisefactor = 1);
+    OdeAgent(const GlobalData& globalData, const PlotOption& plotOption, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$");
     /** Constructor: The plotoptions are taken from the given plotOptions 
         (if you wish to overwrite them)
     */
-    OdeAgent(const GlobalData& globalData, const PlotOptionList& plotOptions, double noisefactor = 1);
+    OdeAgent(const GlobalData& globalData, const PlotOptionList& plotOptions, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$");
     /** destructor
      */
     virtual ~OdeAgent() {}

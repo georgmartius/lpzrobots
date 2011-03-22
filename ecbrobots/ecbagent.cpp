@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-03-21 17:30:35  guettler
+ *   Revision 1.10  2011-03-22 16:37:05  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *
+ *   Revision 1.9  2011/03/21 17:30:35  guettler
  *   - adapted to enhanced configurable interface
  *
  *   Revision 1.8  2011/02/11 12:13:31  guettler
@@ -77,15 +80,13 @@ using namespace std;
 
 namespace lpzrobots {
 
-  ECBAgent::ECBAgent(const PlotOption& plotOption /* = PlotOption(NoPlot)*/, double noisefactor /*= 1*/) :
-    Agent(plotOption, noisefactor), internalInitialised(false) {
-    WiredController::addConfigurable(this);
+  ECBAgent::ECBAgent(const PlotOption& plotOption /* = PlotOption(NoPlot)*/, double noisefactor /*= 1*/, const string& name, const string& revision) :
+    Agent(plotOption, noisefactor, name, revision), internalInitialised(false) {
     addParameterDef("restartPlotEngine", &restartPlotEngine, true);
   }
 
-  ECBAgent::ECBAgent(const std::list<PlotOption>& plotOptions, double noisefactor /*= 1*/) :
-    Agent(plotOptions, noisefactor), internalInitialised(false) {
-    WiredController::addConfigurable(this);
+  ECBAgent::ECBAgent(const std::list<PlotOption>& plotOptions, double noisefactor /*= 1*/, const string& name, const string& revision) :
+    Agent(plotOptions, noisefactor, name, revision), internalInitialised(false) {
     addParameterDef("restartPlotEngine", &restartPlotEngine, true);
   }
 
@@ -106,9 +107,6 @@ namespace lpzrobots {
     this->controller = controller;
     this->robot = robot;
     this->wiring = wiring;
-    FOREACHC(list<ECB*>, robot->getECBlist(), ecbIt) {
-      Configurable::addConfigurable(*ecbIt);
-    }
     return true;
   }
 
@@ -132,8 +130,10 @@ namespace lpzrobots {
 
   bool ECBAgent::init() {
     internalInitialised = Agent::init(controller, robot, wiring);
-    if (internalInitialised)
+    if (internalInitialised) {
+      callBack(CALLBACK_CONFIGURABLE_CHANGED);
       restartPlotEngine = false; // (re-)start is done by Agent::step(...)
+    }
     return internalInitialised;
   }
 
