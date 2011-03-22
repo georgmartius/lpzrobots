@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.14  2011-03-21 17:48:13  guettler
+ *  Revision 1.15  2011-03-22 16:49:29  guettler
+ *  - adpaptions to enhanced configurable and inspectable interface
+ *
+ *  Revision 1.14  2011/03/21 17:48:13  guettler
  *  adapted to enhanced Inspectable interface:
  *  - has now a name shown also in GuiLogger
  *  - supports plotting of inspectable childs of an inspectable
@@ -161,6 +164,7 @@ bool PlotOptionEngine::initPlotOption(PlotOption& po){
     // print head line with all parameter names
     fprintf(po.pipe,"#C t");
     printInspectableNames(po.pipe, inspectables);
+    fprintf(po.pipe,"\n"); // terminate line
     return true;
   } else {
     fprintf(stderr,"Opening of pipe for PlotOption failed!\n");
@@ -255,6 +259,7 @@ void PlotOptionEngine::plot(double time)
     {
       fprintf((*i).pipe, "%f", time);
       printInspectables((*i).pipe, inspectables);
+      fprintf((*i).pipe,"\n"); // terminate line
       (*i).flush(t);
     }
   }

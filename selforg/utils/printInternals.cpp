@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2011-03-21 17:48:13  guettler
+ *   Revision 1.16  2011-03-22 16:49:29  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *
+ *   Revision 1.15  2011/03/21 17:48:13  guettler
  *   adapted to enhanced Inspectable interface:
  *   - has now a name shown also in GuiLogger
  *   - supports plotting of inspectable childs of an inspectable
@@ -101,9 +104,9 @@ void printInspectableNames(FILE* f, const list<const Inspectable*>& inspectables
       for(list<Inspectable::iparamkey>::iterator i = l.begin(); i != l.end(); i++){
 	fprintf(f, " %s", (*i).c_str());
       }
+      printInspectableNames(f, (*insp)->getInspectables());
     }
   }
-  fprintf(f,"\n"); // terminate line
 }
 
 void printInspectableInfoLines(FILE* f, const list<const Inspectable*>& inspectables) {
@@ -147,9 +150,9 @@ void printInspectables(FILE* f, const std::list<const Inspectable*>& inspectable
       {
           fprintf(f, " %f", (*i));
       }
+      printInspectables(f, (*insp)->getInspectables());
     }
   }
-  fprintf(f,"\n"); // terminate line
 }
 
 void printInternalParameters(FILE* f, double time,
@@ -168,5 +171,6 @@ void printInternalParameters(FILE* f, double time,
     fprintf(f, " %f", y[i]);
   }
   printInspectables(f,inspectables);
+  fprintf(f,"\n"); // terminate line
 }
 
