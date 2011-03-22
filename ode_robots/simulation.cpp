@@ -21,7 +21,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.140  2010-12-17 17:00:26  martius
+ *   Revision 1.141  2011-03-22 16:42:25  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *   - agents are always in globalData.configs
+ *   - showParams now done by simulations base code instead manually called
+ *     in method start()
+ *   - showParams(ConfigList&) is marked as deprecated
+ *   - Configurable inheritance of Simulation moved to Base, Base is no longer derived
+ *     from BackCaller (because Configurable is derived from BackCaller)
+ *   - removed some old deprecated member lists in base
+ *
+ *   Revision 1.140  2010/12/17 17:00:26  martius
  *   odeagent has new constructor (old is marked as deprecated) -> log files have again
  *    important information about simulation
  *   addsensorstorobotadapater copies configurables
@@ -750,8 +760,7 @@ namespace lpzrobots {
   int Simulation::ctrl_C = 0;
 
   Simulation::Simulation()
-    : Configurable("lpzrobots-ode_robots", "0.4"),
-      plotoptions(globalData.plotoptions)
+    : plotoptions(globalData.plotoptions)
   {
     // default values are set in Base::Base()
     addParameter("ShadowTextureSize",&shadowTexSize);
@@ -1034,6 +1043,15 @@ namespace lpzrobots {
 //  	(*a)->addConfigurable(*c);
 //       }
 //     }
+    // using enhanced configurable interface: add all agents to globalData.configs if they are not already in there
+    // is a litte bit slow, but who cares at initialization time
+    // agents are already initialized, but not the Configurator GUI. The console has no problems with new configurables
+     FOREACHC(OdeAgentList, globalData.agents, a) {
+       if (*a && posInColl<ConfigList, Configurable*>(globalData.configs, *a)!=globalData.configs.end())
+         globalData.configs.push_back(*a);
+     }
+     showParams(globalData.configs, 0);
+
 
     if(!noGraphics) {
       // optimize the scene graph, remove redundant nodes and state etc.
@@ -2011,6 +2029,7 @@ namespace lpzrobots {
   }
 
 
+   void showParams(const ConfigList& configs) {}
 }
 
 

@@ -28,7 +28,17 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.52  2011-03-21 17:38:29  guettler
+ *   Revision 1.53  2011-03-22 16:42:25  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *   - agents are always in globalData.configs
+ *   - showParams now done by simulations base code instead manually called
+ *     in method start()
+ *   - showParams(ConfigList&) is marked as deprecated
+ *   - Configurable inheritance of Simulation moved to Base, Base is no longer derived
+ *     from BackCaller (because Configurable is derived from BackCaller)
+ *   - removed some old deprecated member lists in base
+ *
+ *   Revision 1.52  2011/03/21 17:38:29  guettler
  *   - adapted to enhanced configurable interface: console can now handle configurable childs of configurables
  *
  *   Revision 1.51  2010/12/17 17:00:26  martius
@@ -334,7 +344,7 @@ namespace lpzrobots {
 
 namespace lpzrobots {
 
-  class Simulation : public Base, public osgGA::GUIEventHandler, public Configurable
+  class Simulation : public Base, public osgGA::GUIEventHandler
   {
   public:
 
@@ -539,8 +549,14 @@ namespace lpzrobots {
 
 
   // Commandline interface stuff
-  /// shows all parameters of all given configurable objects
-  void showParams(const ConfigList& configs, int prefixLength = 0);
+  /**
+   *  shows all parameters of all given configurable objects
+   *  @deprecated this is handled by simulation itself, do not call this function anymore
+   */
+  __attribute__ ((deprecated)) void showParams(const ConfigList& configs);
+
+
+  void showParams(const ConfigList& configs, int prefixLength);
 
   /// creates a new directory with the stem base, which is not yet there (using subsequent numbers)
   void createNewDir(const char* base, char *newdir);

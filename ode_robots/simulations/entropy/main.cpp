@@ -20,7 +20,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2011-01-31 11:31:10  martius
+ *   Revision 1.22  2011-03-22 16:43:12  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *   - agents are always in globalData.configs
+ *   - showParams now done by simulations base code instead manually called
+ *     in method start()
+ *   - showParams(ConfigList&) is marked as deprecated
+ *   - Configurable inheritance of Simulation moved to Base, Base is no longer derived
+ *     from BackCaller (because Configurable is derived from BackCaller)
+ *   - removed some old deprecated member lists in base
+ *
+ *   Revision 1.21  2011/01/31 11:31:10  martius
  *   renamed sox to soml
  *
  *   Revision 1.20  2011/01/31 10:46:11  martius
@@ -189,7 +199,7 @@ public:
 
   ThisSim(double cInit=.1, double binit=0.0) : cInit(cInit), bInit(binit)
   {
-    setCaption("LpzRobots Simulator          Martius, Güttler, Der");
+    setCaption("LpzRobots Simulator          Martius, GÃ¼ttler, Der");
   }
 
   ~ThisSim()
@@ -212,7 +222,7 @@ public:
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
 
-    int number_x=3;
+    int number_x=1;
     int number_y=1;
     connectRobots = true;
     double distance = 1.1;
@@ -292,7 +302,7 @@ public:
         controller = new InvertMotorNStep(invertnconf);
         //if (j==2)
         //  nimm2conf.irFront = true;
-        if ((i==0) && (j==1))
+        if ((i==0) && (j==0))
         {
           //nimm2conf.irBack = true;
           agent = new OdeAgent(global);
@@ -301,10 +311,12 @@ public:
           trackableList.push_back(nimm2);
           global.configs.push_back(controller);
 
-          OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller,"main");
-          mic = new MutualInformationController(30);
+          OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller);
+//          mic = new MutualInformationController(1, -1, 1, true, true);
+          mic = new MutualInformationController(30, -1, 1, true, true);
+
           MeasureAdapter* ma = new MeasureAdapter(mic);
-          onamupaco->addPassiveController(ma,"mi30");
+          onamupaco->addPassiveController(ma);
           agent->addInspectable((Inspectable*)stats);
           agent->addCallbackable((Callbackable*)stats);
           agent->init(onamupaco, nimm2, wiring);
@@ -342,7 +354,7 @@ public:
           joints.push_back(joint);
         }
     }
-  //  this->getHUDSM()->addMeasure(mic->getMI(0),"MI"/* 0*/,ID,1);
+    //this->getHUDSM()->addMeasure(mic->getMI(0),"MI"/* 0*/,ID,1);
     //double& stepdiff = stats->addMeasure(mic->getMI(1),"MI NSTEPDIFF",NORMSTEPDIFF,1);
     //this->getHUDSM()->addMeasure(stepdiff,"MI DIFFAVG",MOVAVG,1000);
 

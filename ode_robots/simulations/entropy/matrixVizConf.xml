@@ -1,0 +1,6 @@
+<!DOCTYPE MatrixVizConfigFile>
+<MatrixVizConfiguration>
+ <MatrixVizWindow X="849" Y="384"/>
+ <VisualisationWindow width="300" mode="vector" X="2816" Y="148" visMode="3" height="300" source="x" colorPaletteFile=""/>
+ <VisualisationWindow width="327" mode="matrix" X="2174" Y="127" visMode="0" height="336" source="(mi30)P0" colorPaletteFile="/u/guettler/workspace/lpzRobots/ode_robots/simulations/entropy/probs.xml"/>
+</MatrixVizConfiguration>

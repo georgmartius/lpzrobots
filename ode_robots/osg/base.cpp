@@ -24,7 +24,17 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.51  2011-02-07 14:54:18  martius
+ *   Revision 1.52  2011-03-22 16:42:25  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *   - agents are always in globalData.configs
+ *   - showParams now done by simulations base code instead manually called
+ *     in method start()
+ *   - showParams(ConfigList&) is marked as deprecated
+ *   - Configurable inheritance of Simulation moved to Base, Base is no longer derived
+ *     from BackCaller (because Configurable is derived from BackCaller)
+ *   - removed some old deprecated member lists in base
+ *
+ *   Revision 1.51  2011/02/07 14:54:18  martius
  *   horizon bright
  *
  *   Revision 1.50  2010/09/24 09:00:04  martius
@@ -336,7 +346,7 @@ namespace lpzrobots {
   "}\n";
 
      Base::Base(const std::string& caption)
-       : ground(0), caption(caption), groundTexture("Images/greenground.rgb"), 
+       : Configurable("lpzrobots-ode_robots", "0.4"), ground(0), caption(caption), groundTexture("Images/greenground.rgb"),
          dummy(0), hud(0), timestats(0), captionline(0), statisticLine(0), 
          plane(0), hUDStatisticsManager(0), ReceivesShadowTraversalMask(0x1),
          CastsShadowTraversalMask(0x2), shadowTexSize(2048), useNVidia(1)

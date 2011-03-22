@@ -24,7 +24,17 @@
  *  base.h provides osg stuff for basic environment with sky and so on.    *
  *                                                                         *
  *   $Log$
- *   Revision 1.30  2010-09-23 08:35:22  martius
+ *   Revision 1.31  2011-03-22 16:42:25  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface
+ *   - agents are always in globalData.configs
+ *   - showParams now done by simulations base code instead manually called
+ *     in method start()
+ *   - showParams(ConfigList&) is marked as deprecated
+ *   - Configurable inheritance of Simulation moved to Base, Base is no longer derived
+ *     from BackCaller (because Configurable is derived from BackCaller)
+ *   - removed some old deprecated member lists in base
+ *
+ *   Revision 1.30  2010/09/23 08:35:22  martius
  *   light generation improved
  *
  *   Revision 1.29  2010/03/17 09:33:16  martius
@@ -186,7 +196,7 @@
 #include "odehandle.h"
 
 #include "hudstatistics.h"
-#include <selforg/backcaller.h>
+#include <selforg/configurable.h>
 
 namespace osgShadow
 {
@@ -206,7 +216,7 @@ namespace lpzrobots
       virtual bool computeWorldToLocalMatrix(osg::Matrix& matrix, osg::NodeVisitor* nv) const;
   };
 
-  class Base : public BackCaller
+  class Base : public Configurable
   {
   public:
     Base(const std::string& caption="lpzrobots Simulator          Martius, Der, Guettler");
@@ -291,9 +301,6 @@ namespace lpzrobots
 
     /// this manager provides methods for displaying statistics on the graphical window!
     HUDStatisticsManager* hUDStatisticsManager;
-
-    std::list<Callbackable*> graphicsCallbackables;
-    std::vector<Callbackable*> physicsCallbackables; // vector because we need to parallelise it
 
     int ReceivesShadowTraversalMask;
     int CastsShadowTraversalMask;
