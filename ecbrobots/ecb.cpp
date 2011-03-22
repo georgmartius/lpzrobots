@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2011-02-04 12:59:05  wrabe
+ *   Revision 1.18  2011-03-22 16:36:29  guettler
+ *   - ECB is now inspectable
+ *
+ *   Revision 1.17  2011/02/04 12:59:05  wrabe
  *   - convert function for short values added
  *
  *   Revision 1.16  2011/01/24 14:16:25  guettler
@@ -109,7 +112,7 @@ using namespace std;
 
 namespace lpzrobots {
   ECB::ECB(QString dnsName, QGlobalData& globalData, ECBConfig& ecbConfig) :
-    Configurable("ECB", "$ID$"), MediatorCollegue(globalData.comm), globalData(&globalData), ecbConfig(ecbConfig), dnsName(dnsName) {
+    Configurable(dnsName.toStdString(), "$ID$"), Inspectable(dnsName.toStdString()), MediatorCollegue(globalData.comm), globalData(&globalData), ecbConfig(ecbConfig), dnsName(dnsName) {
     failureCounter = 0;
     initialised = false;
   }

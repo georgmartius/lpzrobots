@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2011-02-04 12:59:05  wrabe
+ *   Revision 1.14  2011-03-22 16:36:29  guettler
+ *   - ECB is now inspectable
+ *
+ *   Revision 1.13  2011/02/04 12:59:05  wrabe
  *   - convert function for short values added
  *
  *   Revision 1.12  2010/11/11 15:34:59  wrabe
@@ -81,6 +84,7 @@
 #define __ECB_H
 
 #include <selforg/configurable.h>
+#include <selforg/inspectable.h>
 #include <selforg/storeable.h>
 #include <selforg/types.h>
 #include <selforg/mediatorcollegue.h>
@@ -122,7 +126,7 @@ namespace lpzrobots
 
   } ECBConfig;
 
-  class ECB : public Configurable, public Storeable, public MediatorCollegue
+  class ECB : public Configurable, public Inspectable, public Storeable, public MediatorCollegue
   {
     public:
 
