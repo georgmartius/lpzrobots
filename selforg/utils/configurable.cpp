@@ -24,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2011-03-21 23:08:58  guettler
+ *   Revision 1.14  2011-03-22 16:48:57  guettler
+ *   - Configurable derives from BackCaller to support method configurableChanged()
+ *     for future work with the Configurator GUI (works already in ecb_robots)
+ *   - print() now considers the configurable childs
+ *
+ *   Revision 1.13  2011/03/21 23:08:58  guettler
  *   - setParam etc. now sets all params in child configurables even if set already
  *
  *   Revision 1.12  2011/03/21 17:45:36  guettler
@@ -398,7 +403,7 @@ void Configurable::setParamDescr(const paramkey& key, const paramdescr& descr, b
 
 
 
-void Configurable::print(FILE* f, const char* prefix, int columns) const {
+void Configurable::print(FILE* f, const char* prefix, int columns, bool useChilds /* = true */) const {
   const char* pre = prefix==0 ? "": prefix;    
   const unsigned short spacelength=20;
   char spacer[spacelength+1];
@@ -437,6 +442,12 @@ void Configurable::print(FILE* f, const char* prefix, int columns) const {
   }
   // write termination line
   fprintf(f, "######\n");
+  // print also all registered configurable childs
+  if (useChilds) {
+    FOREACHC(configurableList, ListOfConfigurableChilds, conf) {
+      (*conf)->print(f, prefix, columns);
+    }
+  }
 }
 
 void Configurable::printdescr(FILE* f, const char* prefix, 
@@ -492,5 +503,10 @@ void Configurable::removeConfigurable(Configurable* conf) {
 const Configurable::configurableList& Configurable::getConfigurables() const {
   return ListOfConfigurableChilds;
 }
+
+void Configurable::configurableChanged() {
+  callBack(CALLBACK_CONFIGURABLE_CHANGED);
+}
+
 
 #endif

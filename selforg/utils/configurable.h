@@ -24,7 +24,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2011-03-21 17:45:36  guettler
+ *   Revision 1.19  2011-03-22 16:48:57  guettler
+ *   - Configurable derives from BackCaller to support method configurableChanged()
+ *     for future work with the Configurator GUI (works already in ecb_robots)
+ *   - print() now considers the configurable childs
+ *
+ *   Revision 1.18  2011/03/21 17:45:36  guettler
  *   enhanced configurable interface:
  *   - support for configurable childs of a configurable
  *   - some new helper functions
@@ -134,6 +139,7 @@
 #include <string>
 #include <map>
 #include "stl_adds.h"
+#include "backcaller.h"
 
 /**
  Abstact class for configurable objects. Sort of Hashmap interface. Parameters are double, int or boolean values
@@ -178,7 +184,7 @@
  \endcode
  */
 
-class Configurable
+class Configurable : public BackCaller
 {
   public:
   
@@ -446,8 +452,9 @@ class Configurable
     /** restores the key values paires from the file : filenamestem.cfg */
     virtual bool restoreCfg(const char* filenamestem);
     /// prints the keys, values and descriptions to the file. Each line is prefixed
-    void print(FILE* f, const char* prefix, int columns=90) const;
+    void print(FILE* f, const char* prefix, int columns=90, bool useChilds = true) const;
 
+    // TODO: support parsing for configurable childs
     void parse(FILE* f);
 
     /**
@@ -466,6 +473,18 @@ class Configurable
      * Returns the list containing all configurable childs.
      */
     virtual const configurableList& getConfigurables() const;
+
+    /**
+     * Indicates that the configurable itself or the configurable childs
+     * attached to this configurable have changed.
+     * This method must be called manually so that the Configurator GUI can react
+     * at the changes.
+     * This is done through the callbackable interface
+     * (using CallbackableType CALLBACK_CONFIGURABLE_CHANGED).
+     */
+    virtual void configurableChanged();
+
+    static const CallbackableType CALLBACK_CONFIGURABLE_CHANGED = 1;
 
   protected:
     /// copies the internal params of the given configurable
