@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.26  2011-03-21 17:32:19  guettler
+ *   Revision 1.27  2011-03-22 16:38:01  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface:
+ *   - qconfigurable is now restarted if initialization of agents is finished
+ *
+ *   Revision 1.26  2011/03/21 17:32:19  guettler
  *   - adapted to enhanced configurable interface
  *   - support for configurable childs of a configurable
  *
@@ -482,6 +486,7 @@ namespace lpzrobots {
       QConfigurableWidget* confWidget = new QConfigurableWidget(*config, configurableIndexMap[name]);
       grid->addWidget(confWidget, configurableWidgetIndex++, 0, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
       configurableWidgetMap.insert(confWidget->getName(), confWidget);
+      connect(confWidget, SIGNAL(sig_configurableChanged(QConfigurableWidget*)), this, SLOT(sl_configurableChanged(QConfigurableWidget*)));
       configurableWidgetIndex= addConfigurablesToGrid((*config)->getConfigurables(), grid, configurableIndexMap, configurableWidgetIndex);
     }
     return configurableWidgetIndex;
@@ -503,6 +508,13 @@ namespace lpzrobots {
     scrollArea->setWidget(configWidget);
     scrollArea->setToolTip(QString::number(numberWidgetsAdded) + " Configurables");
     return scrollArea;
+  }
+
+  // is called when a configurable or one of their childs has been changed
+  void QECBRobotsWindow::sl_configurableChanged(QConfigurableWidget* sourceWidget) {
+    // simplest way: just recreate entire scrollarea
+    sl_textLog("confChanged!");
+    updateConfigurableWidget();
   }
 
   void QECBRobotsWindow::autostoreConfigurableStates() {

@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2011-03-21 17:35:26  guettler
+ *   Revision 1.20  2011-03-22 16:38:13  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface:
+ *   - qconfigurable is now restarted if initialization of agents is finished
+ *
+ *   Revision 1.19  2011/03/21 17:35:26  guettler
  *   - new autosave checkbox in context menu implemented and used
  *
  *   Revision 1.18  2011/02/04 13:03:16  wrabe
@@ -123,6 +127,7 @@
 #define __QCONFIGURABLEWIDGET_H_
 
 #include "selforg/configurable.h"
+#include "selforg/callbackable.h"
 #include "QAbstractConfigurableTileWidget.h"
 #include <QGroupBox>
 #include <QFrame>
@@ -139,7 +144,7 @@ namespace lpzrobots {
 
 
 
-  class QConfigurableWidget : public QGroupBox {
+  class QConfigurableWidget : public QGroupBox, public Callbackable {
 
     Q_OBJECT
 
@@ -151,6 +156,9 @@ namespace lpzrobots {
       int getNameIndex() {return nameIndex; }
       Configurable* getConfigurable() const { return config; }
       QString getName() { return configName; }
+
+      virtual void doOnCallBack(BackCaller* source, BackCaller::CallbackableType type = BackCaller::DEFAULT_CALLBACKABLE_TYPE);
+
       void lampyris_noctiluca();
 
     public slots:
@@ -159,8 +167,10 @@ namespace lpzrobots {
 
 
 
+
     signals:
       void sig_tileWidgetResize(QSize newSize);
+      void sig_configurableChanged(QConfigurableWidget* sourceWidget);
 
 
     protected:

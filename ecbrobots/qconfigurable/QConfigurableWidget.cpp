@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2011-03-21 17:35:26  guettler
+ *   Revision 1.22  2011-03-22 16:38:13  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface:
+ *   - qconfigurable is now restarted if initialization of agents is finished
+ *
+ *   Revision 1.21  2011/03/21 17:35:26  guettler
  *   - new autosave checkbox in context menu implemented and used
  *
  *   Revision 1.20  2011/02/11 12:12:11  guettler
@@ -150,6 +154,7 @@ namespace lpzrobots {
     createConfigurableLines();
     setAcceptDrops(true);
     setToolTip();
+    config->addCallbackable(this, Configurable::CALLBACK_CONFIGURABLE_CHANGED);
   }
 
   QConfigurableWidget::~QConfigurableWidget() {
@@ -862,5 +867,16 @@ namespace lpzrobots {
     msgBox.exec();
     return;
   }
+
+
+  void QConfigurableWidget::doOnCallBack(BackCaller* source, BackCaller::CallbackableType type) {
+    Configurable* conf = dynamic_cast<Configurable*>(source);
+    if (conf && type==Configurable::CALLBACK_CONFIGURABLE_CHANGED) {
+      // destroy QConfigurableWidget for this configurable and their configurable childs,
+      // then recreate QConfigurableWidgets
+    }
+    emit sig_configurableChanged(this);
+  }
+
 
 } // namespace lpzrobots

@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2011-03-21 17:32:19  guettler
+ *   Revision 1.19  2011-03-22 16:38:01  guettler
+ *   - adpaptions to enhanced configurable and inspectable interface:
+ *   - qconfigurable is now restarted if initialization of agents is finished
+ *
+ *   Revision 1.18  2011/03/21 17:32:19  guettler
  *   - adapted to enhanced configurable interface
  *   - support for configurable childs of a configurable
  *
@@ -139,6 +143,7 @@ namespace lpzrobots {
     public slots:
       void sl_textLog(QString s);
       void sl_GUIEventHandler(int eventCode);
+      void sl_configurableChanged(QConfigurableWidget* sourceWidget);
 
     private slots:
       void sl_Close();
