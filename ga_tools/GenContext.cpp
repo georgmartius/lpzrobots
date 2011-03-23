@@ -31,7 +31,10 @@
  *   The Gen Context is inside the gen. alg. only saved in the             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-10-23 10:47:45  robot12
+ *   Revision 1.8  2011-03-23 15:22:32  robot14
+ *   - adapted to enhanced inspectable interface
+ *
+ *   Revision 1.7  2009/10/23 10:47:45  robot12
  *   bugfix in store and restore
  *
  *   Revision 1.6  2009/10/21 14:08:06  robot12
@@ -74,57 +77,58 @@
 #include "Generation.h"
 #include "Individual.h"
 
-GenContext::GenContext() {
-	// nothing
+GenContext::GenContext() :
+  Inspectable("GenContext") {
+  // nothing
 }
 
-GenContext::GenContext(GenPrototype* prototype) {
-	m_prototype = prototype;
+GenContext::GenContext(GenPrototype* prototype) :
+  Inspectable(prototype->getName()) {
+  m_prototype = prototype;
 
-	std::string name = prototype->getName();
+  std::string name = prototype->getName();
 
-	//add some variable to the inspectables
-	addInspectableValue(name+"MIN",&m_min);
-	addInspectableValue(name+"W1",&m_w1);
-	addInspectableValue(name+"Q1",&m_q1);
-	addInspectableValue(name+"MED",&m_med);
-	addInspectableValue(name+"AVG",&m_avg);
-	addInspectableValue(name+"Q3",&m_q3);
-	addInspectableValue(name+"W3",&m_w3);
-	addInspectableValue(name+"MAX",&m_max);
+  //add some variable to the inspectables
+  addInspectableValue(name + "MIN", &m_min);
+  addInspectableValue(name + "W1", &m_w1);
+  addInspectableValue(name + "Q1", &m_q1);
+  addInspectableValue(name + "MED", &m_med);
+  addInspectableValue(name + "AVG", &m_avg);
+  addInspectableValue(name + "Q3", &m_q3);
+  addInspectableValue(name + "W3", &m_w3);
+  addInspectableValue(name + "MAX", &m_max);
 }
 
 GenContext::~GenContext() {
-	m_storage.clear();
+  m_storage.clear();
 }
 
 void GenContext::update(double factor) {
-	std::vector<double> list;
-	TemplateValue<double>* tValue;
+  std::vector<double> list;
+  TemplateValue<double>* tValue;
 
-	for(std::vector<Gen*>::const_iterator iter=m_storage.begin();iter!=m_storage.end();iter++) {
-		tValue = dynamic_cast<TemplateValue<double>*>((*iter)->getValue());
-		if(tValue!=0)
-			list.push_back(tValue->getValue());
-	}
+  for (std::vector<Gen*>::const_iterator iter = m_storage.begin(); iter != m_storage.end(); iter++) {
+    tValue = dynamic_cast<TemplateValue<double>*> ((*iter)->getValue());
+    if (tValue != 0)
+      list.push_back(tValue->getValue());
+  }
+  DOUBLE_ANALYSATION_CONTEXT* context = new DOUBLE_ANALYSATION_CONTEXT(list);
 
-	DOUBLE_ANALYSATION_CONTEXT* context = new DOUBLE_ANALYSATION_CONTEXT(list);
+  m_q1 = context->getQuartil1();
+  m_q3 = context->getQuartil3();
+  m_med = context->getMedian();
+  m_avg = context->getAvg();
+  m_w1 = context->getWhisker1(factor);
+  m_w3 = context->getWhisker3(factor);
+  m_min = context->getMin();
+  m_max = context->getMax();
 
-	m_q1 = context->getQuartil1();
-	m_q3 = context->getQuartil3();
-	m_med = context->getMedian();
-	m_avg = context->getAvg();
-	m_w1 = context->getWhisker1(factor);
-	m_w3 = context->getWhisker3(factor);
-	m_min = context->getMin();
-	m_max = context->getMax();
-
-	delete context;
+  delete context;
 }
 
 bool GenContext::restore() {
   int numGeneration = SingletonGenEngine::getInstance()->getActualGenerationNumber();
-  int x,y,z,v;
+  int x, y, z, v;
   const std::vector<GenPrototype*>& prototypeSet = SingletonGenEngine::getInstance()->getSetOfGenPrototyps();
   int numPrototypes = prototypeSet.size();
   int numIndividuals;
@@ -136,39 +140,39 @@ bool GenContext::restore() {
 
   generation = SingletonGenEngine::getInstance()->getGeneration(0);
   numIndividuals = generation->getCurrentSize();
-  for(y=0;y<numPrototypes;y++) {
+  for (y = 0; y < numPrototypes; y++) {
     prototype = prototypeSet[y];
     context = new GenContext(prototype);
-    for(z=0;z<numIndividuals;z++) {
+    for (z = 0; z < numIndividuals; z++) {
       individual = generation->getIndividual(z);
-      for(v=0;v<numPrototypes;v++) {
+      for (v = 0; v < numPrototypes; v++) {
         gen = individual->getGen(v);
-        if(gen->getPrototype()==prototype)
+        if (gen->getPrototype() == prototype)
           break;
       }
       context->addGen(gen);
     }
     context->update();
-    prototype->insertContext(generation,context);
+    prototype->insertContext(generation, context);
   }
 
-  for(x=0;x<numGeneration;x++) {
-    generation = SingletonGenEngine::getInstance()->getGeneration(x+1);
+  for (x = 0; x < numGeneration; x++) {
+    generation = SingletonGenEngine::getInstance()->getGeneration(x + 1);
     numIndividuals = generation->getCurrentSize();
-    for(y=0;y<numPrototypes;y++) {
+    for (y = 0; y < numPrototypes; y++) {
       prototype = prototypeSet[y];
       context = new GenContext(prototype);
-      for(z=0;z<numIndividuals;z++) {
+      for (z = 0; z < numIndividuals; z++) {
         individual = generation->getIndividual(z);
-        for(v=0;v<numPrototypes;v++) {
+        for (v = 0; v < numPrototypes; v++) {
           gen = individual->getGen(v);
-          if(gen->getPrototype()==prototype)
+          if (gen->getPrototype() == prototype)
             break;
         }
         context->addGen(gen);
       }
       context->update();
-      prototype->insertContext(generation,context);
+      prototype->insertContext(generation, context);
     }
   }
 

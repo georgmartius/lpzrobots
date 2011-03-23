@@ -32,7 +32,10 @@
  *   GenPrototype.                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-10-21 14:08:07  robot12
+ *   Revision 1.6  2011-03-23 15:22:32  robot14
+ *   - adapted to enhanced inspectable interface
+ *
+ *   Revision 1.5  2009/10/21 14:08:07  robot12
  *   add restore and store functions to the ga package
  *
  *   Revision 1.4  2009/07/21 08:37:59  robot12
@@ -193,6 +196,7 @@ protected:
 	double m_w3;
 
 	/**
+	 * 
 	 * the max value of the gens
 	 */
 	double m_max;

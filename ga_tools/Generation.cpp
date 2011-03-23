@@ -31,7 +31,10 @@
  *   All Generations inside the gen.alg. are only saved in the GenEngine.  *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2009-11-05 14:07:41  robot12
+ *   Revision 1.17  2011-03-23 15:22:32  robot14
+ *   - adapted to enhanced inspectable interface
+ *
+ *   Revision 1.16  2009/11/05 14:07:41  robot12
  *   bugfix for restore and store
  *
  *   Revision 1.15  2009/10/23 10:47:45  robot12
@@ -99,11 +102,11 @@
 #include "Individual.h"
 #include <selforg/statistictools.h>
 
-Generation::Generation() {
+Generation::Generation() : Inspectable("Generation") {
   // nothing
 }
 
-Generation::Generation(int generationNumber, int size, int numChildren) {
+Generation::Generation(int generationNumber, int size, int numChildren)  : Inspectable("Generation") {
   m_generationNumber = generationNumber;
   m_size=size;
   m_numChildren = numChildren;
