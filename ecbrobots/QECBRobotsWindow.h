@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2011-03-22 16:38:01  guettler
+ *   Revision 1.20  2011-03-23 12:37:11  guettler
+ *   - configurable childs are now intended
+ *   - cleanup
+ *
+ *   Revision 1.19  2011/03/22 16:38:01  guettler
  *   - adpaptions to enhanced configurable and inspectable interface:
  *   - qconfigurable is now restarted if initialization of agents is finished
  *
@@ -176,9 +180,11 @@ namespace lpzrobots {
        * @param grid the grid to add the configurables
        * @param configurableIndexMap the map where all configurables are indexed
        * @param configurableWidgetIndex optional, must be set at recursive calls
+       * @param embeddingDepth optional, determines the embedding depth used for the
+       *        widgets to add (configurable childs)
        * @return the number of widgets added
        */
-      int addConfigurablesToGrid(ConfigList configList, QGridLayout* grid, QHash<QString, int>& configurableIndexMap, int configurableWidgetIndex = 0);
+      int addConfigurablesToGrid(ConfigList configList, QGridLayout* grid, QHash<QString, int>& configurableIndexMap, int configurableWidgetIndex = 0, int embeddingDepth = 0);
 
       QWidget* createConfigurableWidget();
       void updateConfigurableWidget();

@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.27  2011-03-22 16:38:01  guettler
+ *   Revision 1.28  2011-03-23 12:37:11  guettler
+ *   - configurable childs are now intended
+ *   - cleanup
+ *
+ *   Revision 1.27  2011/03/22 16:38:01  guettler
  *   - adpaptions to enhanced configurable and inspectable interface:
  *   - qconfigurable is now restarted if initialization of agents is finished
  *
@@ -475,8 +479,9 @@ namespace lpzrobots {
     tabWidget->setCurrentIndex(index);
   }
 
-  int QECBRobotsWindow::addConfigurablesToGrid(ConfigList configList, QGridLayout* grid, QHash<QString, int>& configurableIndexMap, int configurableWidgetIndex /*= 0*/) {
+  int QECBRobotsWindow::addConfigurablesToGrid(ConfigList configList, QGridLayout* grid, QHash<QString, int>& configurableIndexMap, int configurableWidgetIndex /*= 0*/, int embeddingDepth) {
     FOREACH(ConfigList, configList, config) {
+      int maxColumns = 20;
       QString name = QString((*config)->getName().c_str());
       int index = 0;
       if (configurableIndexMap.contains(name)) {
@@ -484,10 +489,23 @@ namespace lpzrobots {
       }
       configurableIndexMap[name] = index;
       QConfigurableWidget* confWidget = new QConfigurableWidget(*config, configurableIndexMap[name]);
-      grid->addWidget(confWidget, configurableWidgetIndex++, 0, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
+      for (int col=0; col < embeddingDepth*2; col++) {
+        QFrame* placeHolder = new QFrame;
+        if (col%2)
+          placeHolder->setFixedSize(10,10);
+        else
+          placeHolder->setFixedSize(8,20);
+        placeHolder->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+        placeHolder->setAttribute(Qt::WA_DeleteOnClose);
+        grid->addWidget(placeHolder, configurableWidgetIndex, col, Qt::AlignVCenter);//, i++, 0, Qt::AlignJustify);
+      }
+      if (embeddingDepth>0)
+        grid->addWidget(confWidget, configurableWidgetIndex++, embeddingDepth*2, 1, maxColumns-embeddingDepth*2, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
+      else
+        grid->addWidget(confWidget, configurableWidgetIndex++, 0, 1, maxColumns, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
       configurableWidgetMap.insert(confWidget->getName(), confWidget);
       connect(confWidget, SIGNAL(sig_configurableChanged(QConfigurableWidget*)), this, SLOT(sl_configurableChanged(QConfigurableWidget*)));
-      configurableWidgetIndex= addConfigurablesToGrid((*config)->getConfigurables(), grid, configurableIndexMap, configurableWidgetIndex);
+      configurableWidgetIndex= addConfigurablesToGrid((*config)->getConfigurables(), grid, configurableIndexMap, configurableWidgetIndex, embeddingDepth+1);
     }
     return configurableWidgetIndex;
   }
@@ -513,7 +531,6 @@ namespace lpzrobots {
   // is called when a configurable or one of their childs has been changed
   void QECBRobotsWindow::sl_configurableChanged(QConfigurableWidget* sourceWidget) {
     // simplest way: just recreate entire scrollarea
-    sl_textLog("confChanged!");
     updateConfigurableWidget();
   }
 
