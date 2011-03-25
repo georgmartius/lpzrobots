@@ -26,7 +26,16 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2011-02-11 12:16:28  guettler
+ *   Revision 1.7  2011-03-25 22:53:07  guettler
+ *   - autoload function did not allow changing the configurable values during the
+ *     initialization phase of the loop, this is now supported, so
+ *   - if you like to add configurable parameters which are used in
+ *     QECBManager::start(..), just add them to globaldata, then the parameters can
+ *     be changed before starting the control loop.
+ *   - All other parameters of the ECBAgent and it's configurable childs (Robot, ECB,
+ *     Controller, ...) are only configurable while the control loop is running (or paused).
+ *
+ *   Revision 1.6  2011/02/11 12:16:28  guettler
  *   - new signal/slots initlializationOfAgentDone(ECBAgent*) and stepDone() implemented, forwarded to QECBManager
  *   - QECBManager now supports addCallback() function again, divided into addCallbackAgentInitialized(...) and addCallbackStep(...)
  *
@@ -112,7 +121,7 @@ namespace lpzrobots {
     signals:
 
       void sig_communicationStateChanged(QECBCommunicator::ECBCommunicationState);
-      void sig_communicationStateWillChange(QECBCommunicator::ECBCommunicationState);
+      void sig_communicationStateWillChange(QECBCommunicator::ECBCommunicationState fromState, QECBCommunicator::ECBCommunicationState toState);
       void sig_textLog(QString log);
 
     protected:

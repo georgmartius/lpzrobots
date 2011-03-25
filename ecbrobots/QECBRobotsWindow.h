@@ -26,7 +26,16 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2011-03-23 12:37:11  guettler
+ *   Revision 1.21  2011-03-25 22:53:07  guettler
+ *   - autoload function did not allow changing the configurable values during the
+ *     initialization phase of the loop, this is now supported, so
+ *   - if you like to add configurable parameters which are used in
+ *     QECBManager::start(..), just add them to globaldata, then the parameters can
+ *     be changed before starting the control loop.
+ *   - All other parameters of the ECBAgent and it's configurable childs (Robot, ECB,
+ *     Controller, ...) are only configurable while the control loop is running (or paused).
+ *
+ *   Revision 1.20  2011/03/23 12:37:11  guettler
  *   - configurable childs are now intended
  *   - cleanup
  *
@@ -154,7 +163,7 @@ namespace lpzrobots {
       void sl_ClearLogView();
       void sl_About();
 
-      void sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState commState);
+      void sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState fromState, QECBCommunicator::ECBCommunicationState toState);
       void sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState commState);
       void sl_saveCurrentConfigurableStatesToFile();
       void sl_loadCurrentConfigurableStatesFromFile();

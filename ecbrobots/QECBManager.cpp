@@ -26,7 +26,16 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-03-25 21:27:37  guettler
+ *   Revision 1.10  2011-03-25 22:53:07  guettler
+ *   - autoload function did not allow changing the configurable values during the
+ *     initialization phase of the loop, this is now supported, so
+ *   - if you like to add configurable parameters which are used in
+ *     QECBManager::start(..), just add them to globaldata, then the parameters can
+ *     be changed before starting the control loop.
+ *   - All other parameters of the ECBAgent and it's configurable childs (Robot, ECB,
+ *     Controller, ...) are only configurable while the control loop is running (or paused).
+ *
+ *   Revision 1.9  2011/03/25 21:27:37  guettler
  *   - cleanup of agentList and communicator now handled, fixes the problem that
  *     PlotOptionEngine does not close all open pipes (e.g. GUILogger received no
  *     #QUIT)
@@ -164,7 +173,7 @@ namespace lpzrobots {
   }
 
   void QECBManager::startLoop() {
-    emit sig_communicationStateWillChange(QECBCommunicator::STATE_RUNNING);
+    emit sig_communicationStateWillChange(QECBCommunicator::STATE_STOPPED, QECBCommunicator::STATE_RUNNING);
     globalData.textLog("QECBManager: calling start function...");
     globalData.comm->initialize();
     commInitialized = true;
@@ -175,7 +184,7 @@ namespace lpzrobots {
   }
 
   void QECBManager::stopLoop() {
-    emit sig_communicationStateWillChange(QECBCommunicator::STATE_STOPPED);
+    emit sig_communicationStateWillChange(QECBCommunicator::STATE_RUNNING, QECBCommunicator::STATE_STOPPED);
     globalData.textLog("QECBManager: stopping communication...");
     globalData.comm->shutdown();
     cleanup();
@@ -193,11 +202,11 @@ namespace lpzrobots {
         break;
       case EVENT_PAUSE_LOOP: // paused
         if (globalData.paused) { // paused, so continue now
-          emit sig_communicationStateWillChange(QECBCommunicator::STATE_RUNNING);
+          emit sig_communicationStateWillChange(QECBCommunicator::STATE_PAUSED, QECBCommunicator::STATE_RUNNING);
           globalData.paused = false;
           emit sig_communicationStateChanged(QECBCommunicator::STATE_RUNNING);
         } else { // not paused yet
-          emit sig_communicationStateWillChange(QECBCommunicator::STATE_PAUSED);
+          emit sig_communicationStateWillChange(QECBCommunicator::STATE_PAUSED, QECBCommunicator::STATE_RUNNING);
           globalData.paused = true;
           emit sig_communicationStateChanged(QECBCommunicator::STATE_PAUSED);
         }

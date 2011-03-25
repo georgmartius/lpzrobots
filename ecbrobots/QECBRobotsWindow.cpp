@@ -26,7 +26,16 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.29  2011-03-25 20:59:19  guettler
+ *   Revision 1.30  2011-03-25 22:53:07  guettler
+ *   - autoload function did not allow changing the configurable values during the
+ *     initialization phase of the loop, this is now supported, so
+ *   - if you like to add configurable parameters which are used in
+ *     QECBManager::start(..), just add them to globaldata, then the parameters can
+ *     be changed before starting the control loop.
+ *   - All other parameters of the ECBAgent and it's configurable childs (Robot, ECB,
+ *     Controller, ...) are only configurable while the control loop is running (or paused).
+ *
+ *   Revision 1.29  2011/03/25 20:59:19  guettler
  *   - fixed the problem that when a has configurable changed and the widgets were
  *     rebuild the autosave function did not funtion properly anymore
  *
@@ -189,8 +198,8 @@ namespace lpzrobots {
     this->ecbManager = manager;
     this->globalData = &(manager->getGlobalData());
     connect(globalData, SIGNAL(sig_textLog(QString)), this, SLOT(sl_textLog(QString)));
-    connect(ecbManager, SIGNAL(sig_communicationStateWillChange(QECBCommunicator::ECBCommunicationState)), this,
-        SLOT(sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState)));
+    connect(ecbManager, SIGNAL(sig_communicationStateWillChange(QECBCommunicator::ECBCommunicationState, QECBCommunicator::ECBCommunicationState)), this,
+        SLOT(sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState, QECBCommunicator::ECBCommunicationState)));
     connect(ecbManager, SIGNAL(sig_communicationStateChanged(QECBCommunicator::ECBCommunicationState)), this,
         SLOT(sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState)));
     connect(globalData->comm, SIGNAL(sig_quitServer()), this, SLOT(sl_Close()));
@@ -402,11 +411,14 @@ namespace lpzrobots {
         "ECB_Robot-Application V2.0, a tool to connect real robots (containing an ECB) onto a neuro-controller located on a standard desktop PC."));
   }
 
-  void QECBRobotsWindow::sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState commState) {
-    switch (commState) {
+  void QECBRobotsWindow::sl_CommunicationStateWillChange(QECBCommunicator::ECBCommunicationState fromState, QECBCommunicator::ECBCommunicationState toState) {
+    switch (toState) {
       case QECBCommunicator::STATE_PAUSED: //!< state which indicates that all actions are paused
         break;
       case QECBCommunicator::STATE_RUNNING: //!< state which indicates that the loop is running
+        if (fromState == QECBCommunicator::STATE_STOPPED)
+          bookmarkConfigurableStates();
+          break; // do not restore configurables now because globalData would not be right configured in initializing phase
       case QECBCommunicator::STATE_STOPPED: //!< state which indicates that all actions are stopped, quitted and leaved. Bye bye.
       default:
         // bookmark now their state, because the Configurable instances in global->configs maybe deleted after them.
@@ -424,6 +436,7 @@ namespace lpzrobots {
         action_PauseLoop->setEnabled(true);
         action_StopLoop->setEnabled(true);
         globalData->textLog("STATE: Running");
+        restoreOriginalConfigurables();
         updateConfigurableWidget();
         loopStateLabel->setText("RUNNING");
 
