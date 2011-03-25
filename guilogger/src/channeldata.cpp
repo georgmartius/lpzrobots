@@ -362,11 +362,19 @@ void ChannelData::receiveRawData(QString data){
     {
       parsedString.erase(parsedString.begin());
       QString type = *(parsedString.begin());
-      if(!type.isEmpty() && (type == "D" || (type.startsWith("[") && type.endsWith("]")))){ // description
+      if(!type.isEmpty() && (type == "D" || (type.startsWith("[")))){ // description
         // now we expect: [channelObjectName] D channelname description
-        if (type.startsWith("[") && type.endsWith("]")) {
+        if (type.startsWith("[")) {
           // new style
-          QString objectName = type.mid(1,type.size()-2); // eliminate [ and ]
+          // 2 possibilities: [NameOfObject] [Name of Object] (with spaces)
+          QString objectName = "";
+          type = type.right(type.size()-1); // eliminate [
+          while (!type.endsWith("]")) {
+            objectName.append(type).append(" ");
+            parsedString.erase(parsedString.begin());
+            type = *(parsedString.begin());
+          }
+          objectName.append(type.left(type.size()-1)); // eliminate ]
           parsedString.erase(parsedString.begin());
           parsedString.erase(parsedString.begin());
           QString key = *(parsedString.begin());
