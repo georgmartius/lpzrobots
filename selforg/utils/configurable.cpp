@@ -24,7 +24,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2011-03-22 16:48:57  guettler
+ *   Revision 1.15  2011-03-25 20:38:46  guettler
+ *   - setName() also calls setNameOfInspectable if the instance is inspectable, this
+ *     can be avoided manually with an additional param (the autoset should normally
+ *     do what the end-user intends because he cannot know that the derived classes
+ *     are not overloading this function.)
+ *
+ *   Revision 1.14  2011/03/22 16:48:57  guettler
  *   - Configurable derives from BackCaller to support method configurableChanged()
  *     for future work with the Configurator GUI (works already in ecb_robots)
  *   - print() now considers the configurable childs
@@ -114,6 +120,7 @@
  ***************************************************************************/
 
 #include "configurable.h"
+#include "inspectable.h"
 #include <cstring>
 #include <assert.h>
 #include <stdio.h>
@@ -507,6 +514,14 @@ const Configurable::configurableList& Configurable::getConfigurables() const {
 void Configurable::configurableChanged() {
   callBack(CALLBACK_CONFIGURABLE_CHANGED);
 }
+
+void Configurable::setName(const paramkey& name, bool callSetNameOfInspectable) {
+  this->name = name;
+  Inspectable* insp = dynamic_cast<Inspectable*>(this);
+  if (insp)
+    insp->setNameOfInspectable(name);
+}
+
 
 
 #endif

@@ -24,7 +24,13 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2011-03-22 16:48:57  guettler
+ *   Revision 1.20  2011-03-25 20:38:46  guettler
+ *   - setName() also calls setNameOfInspectable if the instance is inspectable, this
+ *     can be avoided manually with an additional param (the autoset should normally
+ *     do what the end-user intends because he cannot know that the derived classes
+ *     are not overloading this function.)
+ *
+ *   Revision 1.19  2011/03/22 16:48:57  guettler
  *   - Configurable derives from BackCaller to support method configurableChanged()
  *     for future work with the Configurator GUI (works already in ecb_robots)
  *   - print() now considers the configurable childs
@@ -275,10 +281,14 @@ class Configurable : public BackCaller
       return revision;
     }
 
-    /// stes the name of the object
-    virtual void setName(const paramkey& name){
-      this->name = name;
-    }
+    /**
+     *  Sets the name of the configurable.
+     * @param name the name to set
+     * @param callSetNameOfInspectable if true and if this instance is also inspectable,
+     * call automatically setNameOfInspectable(name).
+     */
+    virtual void setName(const paramkey& name, bool callSetNameOfInspectable = true);
+
     /// sets the revision Hint: {  return "$ID$"; }
     virtual void setRevision(const paramkey& revision) {
       this->revision = revision;
