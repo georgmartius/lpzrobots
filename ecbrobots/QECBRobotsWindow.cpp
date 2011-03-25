@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2011-03-23 12:37:11  guettler
+ *   Revision 1.29  2011-03-25 20:59:19  guettler
+ *   - fixed the problem that when a has configurable changed and the widgets were
+ *     rebuild the autosave function did not funtion properly anymore
+ *
+ *   Revision 1.28  2011/03/23 12:37:11  guettler
  *   - configurable childs are now intended
  *   - cleanup
  *
@@ -531,6 +535,8 @@ namespace lpzrobots {
   // is called when a configurable or one of their childs has been changed
   void QECBRobotsWindow::sl_configurableChanged(QConfigurableWidget* sourceWidget) {
     // simplest way: just recreate entire scrollarea
+    bookmarkConfigurableStates();
+    restoreOriginalConfigurables();
     updateConfigurableWidget();
   }
 
