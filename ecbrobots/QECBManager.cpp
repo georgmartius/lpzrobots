@@ -26,7 +26,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2011-02-11 12:16:28  guettler
+ *   Revision 1.9  2011-03-25 21:27:37  guettler
+ *   - cleanup of agentList and communicator now handled, fixes the problem that
+ *     PlotOptionEngine does not close all open pipes (e.g. GUILogger received no
+ *     #QUIT)
+ *
+ *   Revision 1.8  2011/02/11 12:16:28  guettler
  *   - new signal/slots initlializationOfAgentDone(ECBAgent*) and stepDone() implemented, forwarded to QECBManager
  *   - QECBManager now supports addCallback() function again, divided into addCallbackAgentInitialized(...) and addCallbackStep(...)
  *
@@ -78,6 +83,10 @@ namespace lpzrobots {
   }
 
   QECBManager::~QECBManager() {
+    FOREACH(AgentList, globalData.agents, a) {
+      if (*a)
+        delete (*a);
+    }
   }
 
   QGlobalData& QECBManager::getGlobalData() {

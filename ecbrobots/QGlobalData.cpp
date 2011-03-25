@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-02-11 12:16:56  guettler
+ *   Revision 1.8  2011-03-25 21:27:37  guettler
+ *   - cleanup of agentList and communicator now handled, fixes the problem that
+ *     PlotOptionEngine does not close all open pipes (e.g. GUILogger received no
+ *     #QUIT)
+ *
+ *   Revision 1.7  2011/02/11 12:16:56  guettler
  *   - removed obsolete configurable parameters
  *
  *   Revision 1.6  2010/12/08 17:54:00  wrabe
@@ -106,6 +111,14 @@ namespace lpzrobots {
   }
 
   QGlobalData::~QGlobalData() {
+    if (comm) {
+      if (comm->isRunning()) {
+        comm->shutdown();
+        comm->quit();
+      }
+      while (comm->isRunning());
+      delete comm;
+    }
   }
 
   void QGlobalData::textLog(QString log, LOG_TYPE logType) {
