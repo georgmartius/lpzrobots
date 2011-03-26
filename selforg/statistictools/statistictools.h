@@ -25,7 +25,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2011-03-21 17:42:55  guettler
+ *   Revision 1.9  2011-03-26 09:11:10  guettler
+ *   - added default description to values being inspected
+ *
+ *   Revision 1.8  2011/03/21 17:42:55  guettler
  *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
  *
  *   Revision 1.7  2009/08/10 07:39:54  guettler
@@ -117,6 +120,7 @@ class ComplexMeasure;
 #define GET_TYPE_ANALYSATION(type) getAnalysation<type,defaultZero,defaultLower<type>,defaultHigher<type>,defaultDoubleDiv<type>,defaultDoubleMul<type>,defaultAdd<type>,defaultSub<type>,defaultMul<type>,defaultDiv<type> >
 #define GET_DOUBLE_ANALYSATION GET_TYPE_ANALYSATION(double)
 
+/// TODO: add possibility to pass description of a measure
 class StatisticTools : public Inspectable, public Callbackable {
 
 public:
