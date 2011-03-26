@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2011-03-25 22:53:07  guettler
+ *   Revision 1.11  2011-03-26 08:58:38  guettler
+ *   - code adapted to:
+ *     PlotOptionEngine initializes PlotOptions only if PlotOption itself is initialized
+ *
+ *   Revision 1.10  2011/03/25 22:53:07  guettler
  *   - autoload function did not allow changing the configurable values during the
  *     initialization phase of the loop, this is now supported, so
  *   - if you like to add configurable parameters which are used in
@@ -164,6 +168,7 @@ namespace lpzrobots {
     globalData.configs.clear();
     globalData.configs.push_back(&globalData);
     globalData.plotOptions.clear();
+    globalData.simStep = 0;
   }
 
   /// CONFIGURABLE INTERFACE
@@ -215,8 +220,7 @@ namespace lpzrobots {
         for (ECBAgentList::iterator i = globalData.agents.begin(); i != globalData.agents.end(); i++) {
           if (!(*i)->removePlotOption(GuiLogger)) {
             PlotOption po(GuiLogger, 5);
-            (*i)->addPlotOption(po);
-            (*i)->setParam("restartPlotEngine", 1);
+            (*i)->addAndInitPlotOption(po);
           }
         }
         globalData.textLog("All Guiloggers startet/stopped.");
@@ -225,8 +229,7 @@ namespace lpzrobots {
         for (ECBAgentList::iterator i = globalData.agents.begin(); i != globalData.agents.end(); i++) {
           if (!(*i)->removePlotOption(MatrixViz)) {
             PlotOption po(MatrixViz, 5);
-            (*i)->addPlotOption(po);
-            (*i)->setParam("restartPlotEngine", 1);
+            (*i)->addAndInitPlotOption(po);
           }
         }
         globalData.textLog("All MatrixVizs startet/stopped.");
