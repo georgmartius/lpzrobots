@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.8  2011-03-21 17:48:13  guettler
+ *  Revision 1.9  2011-03-26 09:10:34  guettler
+ *  - PlotOptionEngine initializes PlotOptions only if PlotOption itself is initialized
+ *
+ *  Revision 1.8  2011/03/21 17:48:13  guettler
  *  adapted to enhanced Inspectable interface:
  *  - has now a name shown also in GuiLogger
  *  - supports plotting of inspectable childs of an inspectable
@@ -118,11 +121,17 @@ public:
    */
   virtual PlotOption& addPlotOption(PlotOption& plotoption);
 
-  /** adds the PlotOptions to the list of plotoptions
-      If a plotoption with the same Mode exists, then the old one is deleted first
-      The plotting is also initialized
+  /**
+   * Adds the PlotOptions to the list of plotoptions
+   * If a plotoption with the same Mode exists, then the old one is deleted first
+   * The plotting is also initialized but only if the PlotOptionEngine is already intialized,
+   * This can be forced by additional param.
+   * @param plotoption The PlotOption to add
+   * @param forceInit force initialization of PlotOption even if PlotOptionEngine is not initalized.
+   *        This may cause problems. Use this at your own risk.
+   * @return
    */
-  virtual bool addAndInitPlotOption(PlotOption& plotoption);
+  virtual bool addAndInitPlotOption(PlotOption& plotoption, bool forceInit = false);
 
   /** removes the PlotOptions with the given type
       @return true if sucessful, false otherwise

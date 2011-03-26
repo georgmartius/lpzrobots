@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.15  2011-03-22 16:49:29  guettler
+ *  Revision 1.16  2011-03-26 09:10:34  guettler
+ *  - PlotOptionEngine initializes PlotOptions only if PlotOption itself is initialized
+ *
+ *  Revision 1.15  2011/03/22 16:49:29  guettler
  *  - adpaptions to enhanced configurable and inspectable interface
  *
  *  Revision 1.14  2011/03/21 17:48:13  guettler
@@ -207,8 +210,12 @@ PlotOption& PlotOptionEngine::addPlotOption(PlotOption& plotOption) {
   return plotOptions.back();
 }
 
-bool PlotOptionEngine::addAndInitPlotOption(PlotOption& plotOption) {  
-  return initPlotOption(addPlotOption(plotOption));  
+bool PlotOptionEngine::addAndInitPlotOption(PlotOption& plotOption, bool forceInit) {
+  PlotOption& po = addPlotOption(plotOption);
+  if (initialised || forceInit)
+    return initPlotOption(addPlotOption(po));
+  else
+    return true;
 }
 
 bool PlotOptionEngine::removePlotOption(PlotMode mode) {
