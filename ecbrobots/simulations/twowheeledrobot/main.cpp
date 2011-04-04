@@ -83,10 +83,15 @@ class MyECBManager : public QECBManager {
   public:
 
     Sos* myCon;
+    ECBAgent* myAgent;
     Configurable::paramval c00;
     Configurable::paramval c01;
     Configurable::paramval c10;
     Configurable::paramval c11;
+    Configurable::parambool showP;
+    Configurable::parambool showF;
+    Configurable::parambool showXsiF;
+
 
     MyECBManager(int argc, char** argv) :
       QECBManager(argc, argv) {
@@ -97,6 +102,10 @@ class MyECBManager : public QECBManager {
       global.addParameterDef("C[0,1]",&c01, 0, -5, 5, "feedback strength of Matrix C");
       global.addParameterDef("C[1,0]",&c10, 0, -5, 5, "feedback strength of Matrix C");
       global.addParameterDef("C[1,1]",&c11, 1.1, -5, 5, "feedback strength of Matrix C");
+      global.addParameterDef("showF", &showF, true, "display the frequency matrix (inspectable interface");
+      global.addParameterDef("showP", &showP, false, "display the probability matrix (inspectable interface");
+      global.addParameterDef("showXsiF", &showXsiF, false, "display the frequency matrix of H_xsi (inspectable interface");
+
     }
 
     virtual ~MyECBManager() {
@@ -140,7 +149,7 @@ class MyECBManager : public QECBManager {
         //myCon->setParam("epsC", 0);
 
         // create new wiring
-          myCon->setName("mySos");
+          myCon->setName("my cute Sos");
 
         AbstractWiring* myWiring = new One2OneWiring(new WhiteNormalNoise());
         // create new robot
@@ -173,19 +182,19 @@ class MyECBManager : public QECBManager {
         plotList.push_back(PlotOption(GuiLogger, 5));
 //        plotList.push_back(PlotOption(MatrixViz, 5));
         plotList.push_back(PlotOption(File, 5));
-        ECBAgent* myAgent = new ECBAgent(plotList);
+        myAgent = new ECBAgent(plotList);
 
-        StatisticTools* stats = new StatisticTools;
-        OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(myCon,"main", "$ID");
+        OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(myCon);
 //          mic = new MutualInformationController(1, -1, 1, true, true);
-        MutualInformationController* mic = new MutualInformationController(30, -1, 1, true, true);
-        stats->addMeasure(mic->getH_yx(0), "MI(x,y)[0]", ID, 0);
+        MutualInformationController* mic = new MutualInformationController(30, -1, 1, showF, showP, showXsiF);
 //        stats->addMeasure(mic->getH_yx(0), "H(x,y)[0]", ID, 0);
 //        stats->addMeasure(mic->getH_yx(1), "H(x,y)[1]", ID, 0);
         MeasureAdapter* ma = new MeasureAdapter(mic);
+        ma->getStatisticTools()->addMeasure(mic->getH_x(0), "H(x)[0]", ID, 0);
+        ma->getStatisticTools()->addMeasure(mic->getH_x(1), "H(x)[1]", ID, 0);
+        ma->getStatisticTools()->addMeasure(mic->getH_yx(0), "H(x,y)[0]", ID, 0);
+        ma->getStatisticTools()->addMeasure(mic->getH_yx(1), "H(x,y)[1]", ID, 0);
         onamupaco->addPassiveController(ma);
-        myAgent->addInspectable((Inspectable*)stats);
-        myAgent->addCallbackable((Callbackable*)stats);
         // init agent with controller, robot and wiring
 
         myAgent->preInit(onamupaco, myRobot, myWiring);
@@ -210,12 +219,6 @@ class MyECBManager : public QECBManager {
      * @agentInitialized the ECBAgent which is intialized
      */
     virtual void addCallbackAgentInitialized(QGlobalData& globalData, ECBAgent* agent) {
-      matrix::Matrix initialC(2,2);
-      initialC.val(0,0) = c00;
-      initialC.val(0,1) = c01;
-      initialC.val(1,0) = c10;
-      initialC.val(1,1) = c11;
-      myCon->setC(initialC);
     }
 
 
@@ -228,6 +231,16 @@ class MyECBManager : public QECBManager {
      * @param control indicates that robots have been controlled this timestep (default: true)
      */
     virtual void addCallbackStep(QGlobalData& globalData, bool pause, bool control) {
+      if (myAgent->isInitialized()) {
+        matrix::Matrix initialC(2,2);
+        initialC.val(0,0) = c00;
+        initialC.val(0,1) = c01;
+        initialC.val(1,0) = c10;
+        initialC.val(1,1) = c11;
+        myCon->setC(initialC);
+      }
+      if (globalData.controlStep == 20 * 60 * 10 +1)
+        stopLoop();
     }
 
 
