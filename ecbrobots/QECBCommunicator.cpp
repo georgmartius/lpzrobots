@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-02-11 12:16:28  guettler
+ *   Revision 1.8  2011-04-04 09:26:36  guettler
+ *   - renamed simStep to controlStep
+ *   - loopStateLabel now updates each control step
+ *
+ *   Revision 1.7  2011/02/11 12:16:28  guettler
  *   - new signal/slots initlializationOfAgentDone(ECBAgent*) and stepDone() implemented, forwarded to QECBManager
  *   - QECBManager now supports addCallback() function again, divided into addCallbackAgentInitialized(...) and addCallbackStep(...)
  *
@@ -134,8 +138,8 @@ namespace lpzrobots {
       switch (currentCommState) {
         case STATE_READY_FOR_STEP_OVER_AGENTS:
           if (!globalData.paused) {
-            globalData.simStep++;
-            globalData.textLog("ECBCommunicator: loop! simStep=" + QString::number(globalData.simStep));
+            globalData.controlStep++;
+            globalData.textLog("ECBCommunicator: loop! simStep=" + QString::number(globalData.controlStep));
             /// With this for loop all agents perform a controller step
             if (!globalData.testMode) {
               // sorgt dafür, dass der Zeittakt eingehalten wird:
@@ -149,7 +153,7 @@ namespace lpzrobots {
                   emit sig_initializationOfAgentDone(agent);
                 }
                 if (agent->isInitialized())
-                  agent->step(globalData.noise, globalData.simStep);
+                  agent->step(globalData.noise, globalData.controlStep);
               }
               emit sig_stepDone();
             } else {
@@ -206,7 +210,7 @@ namespace lpzrobots {
       long elapsed = currentTime - realtimeoffset;
       if (globalData.benchmarkMode) {
         globalData.textLog("Elapsed time: " + QString::number(elapsed) + "ms");
-        if (globalData.benchmarkMode && (globalData.simStep % benchmarkSteps == 0)) {
+        if (globalData.benchmarkMode && (globalData.controlStep % benchmarkSteps == 0)) {
           globalData.textLog("Benchmark: " + QString::number(((double) benchmarkSteps) / ((double) (currentTime
               - lastBenchmarkTime)) * 1000.0) + " cycles/s");
           lastBenchmarkTime = currentTime;

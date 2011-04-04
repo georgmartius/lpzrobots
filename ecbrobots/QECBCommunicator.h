@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2011-02-11 12:16:28  guettler
+ *   Revision 1.6  2011-04-04 09:26:36  guettler
+ *   - renamed simStep to controlStep
+ *   - loopStateLabel now updates each control step
+ *
+ *   Revision 1.5  2011/02/11 12:16:28  guettler
  *   - new signal/slots initlializationOfAgentDone(ECBAgent*) and stepDone() implemented, forwarded to QECBManager
  *   - QECBManager now supports addCallback() function again, divided into addCallbackAgentInitialized(...) and addCallbackStep(...)
  *
@@ -104,6 +108,8 @@ namespace lpzrobots {
         return false;
       }
       ;
+
+      virtual ECBCommunicationState getCurrentCommState() { return currentCommState; }
 
     public slots:
 
