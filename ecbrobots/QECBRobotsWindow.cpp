@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.30  2011-03-25 22:53:07  guettler
+ *   Revision 1.31  2011-04-04 09:25:03  guettler
+ *   - loopStateLabel now updates each control step, displaying current status and control step
+ *
+ *   Revision 1.30  2011/03/25 22:53:07  guettler
  *   - autoload function did not allow changing the configurable values during the
  *     initialization phase of the loop, this is now supported, so
  *   - if you like to add configurable parameters which are used in
@@ -167,7 +170,7 @@ namespace lpzrobots {
   QECBRobotsWindow::QECBRobotsWindow(QString applicationPath, QECBManager* manager) :
     configWidget(0), isClosed(false) {
     this->applicationPath = applicationPath;
-    this->setWindowTitle("ECB_Robot-Application V2.0");
+    this->setWindowTitle("ECB_Robot-Application V2.1");
     loopStateLabel = new QLabel(statusBar());
     statusLabel = new QLabel(statusBar());
 
@@ -204,6 +207,8 @@ namespace lpzrobots {
         SLOT(sl_CommunicationStateChanged(QECBCommunicator::ECBCommunicationState)));
     connect(globalData->comm, SIGNAL(sig_quitServer()), this, SLOT(sl_Close()));
     connect(this, SIGNAL(sig_quitClient()), globalData->comm, SLOT(sl_quitClient()));
+    connect(globalData->comm, SIGNAL(sig_stepDone()), this, SLOT(sl_updateLoopStateLabel()));
+
 
     createActions();
     createMenus();
@@ -213,6 +218,7 @@ namespace lpzrobots {
     // start the QECBManager (1st stage loop, 2nd stage loop is started by QECBCommunicator)
     this->ecbManager->initialize();
 
+    sl_updateLoopStateLabel();
     //updateConfigurableWidget();
   }
 
@@ -438,7 +444,6 @@ namespace lpzrobots {
         globalData->textLog("STATE: Running");
         restoreOriginalConfigurables();
         updateConfigurableWidget();
-        loopStateLabel->setText("RUNNING");
 
         break;
       case QECBCommunicator::STATE_PAUSED: //!< state which indicates that all actions are paused
@@ -447,7 +452,6 @@ namespace lpzrobots {
         action_PauseLoop->setEnabled(true);
         action_StopLoop->setEnabled(true);
         globalData->textLog("STATE: Paused");
-        loopStateLabel->setText("PAUSED");
         break;
       case QECBCommunicator::STATE_STOPPED: //!< state which indicates that all actions are stopped, quitted and leaved. Bye bye.
       default:
@@ -456,10 +460,10 @@ namespace lpzrobots {
         action_PauseLoop->setEnabled(false);
         action_StopLoop->setEnabled(false);
         globalData->textLog("STATE: Stopped");
-        loopStateLabel->setText("STOPPED");
         updateConfigurableWidget();
         break;
     }
+    sl_updateLoopStateLabel();
   }
 
   void QECBRobotsWindow::sl_GUIEventHandler(int eventCode) {
@@ -678,5 +682,34 @@ namespace lpzrobots {
     nodeConfigurableStateMap.clear();
     bookmarkConfigurableStates();
   }
+
+
+  void QECBRobotsWindow::sl_updateLoopStateLabel() {
+    QString labelString;
+    switch (globalData->comm->getCurrentCommState()) {
+      case QECBCommunicator::STATE_NOT_INITIALISED:
+        labelString.append("NOT INITIALIZED");
+        break;
+      case QECBCommunicator::STATE_INITIALIZED:
+        labelString.append("INITIALIZED");
+        break;
+      case QECBCommunicator::STATE_PAUSED:
+        labelString.append("PAUSED");
+        break;
+      case QECBCommunicator::STATE_READY_FOR_SENDING_PACKAGE_MOTORS:
+      case QECBCommunicator::STATE_READY_FOR_STEP_OVER_AGENTS:
+      case QECBCommunicator::STATE_WAIT_FOR_RECEIVE_PACKAGE_SENSORS:
+      case QECBCommunicator::STATE_RUNNING:
+        labelString.append("RUNNING");
+        break;
+      case QECBCommunicator::STATE_STOPPED:
+        labelString.append("STOPPED");
+        break;
+    }
+    //QLocale().toString(globalData->controlStep, 'f', 2);
+    labelString.append(" (ControlStep ").append(QLocale().toString((float)globalData->controlStep, 'f', 0)).append(")");
+    loopStateLabel->setText(labelString);
+  }
+
 
 } // namespace lpzrobots

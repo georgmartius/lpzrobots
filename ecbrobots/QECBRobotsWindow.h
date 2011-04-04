@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2011-03-25 22:53:07  guettler
+ *   Revision 1.22  2011-04-04 09:25:03  guettler
+ *   - loopStateLabel now updates each control step, displaying current status and control step
+ *
+ *   Revision 1.21  2011/03/25 22:53:07  guettler
  *   - autoload function did not allow changing the configurable values during the
  *     initialization phase of the loop, this is now supported, so
  *   - if you like to add configurable parameters which are used in
@@ -170,6 +173,7 @@ namespace lpzrobots {
       void sl_clearAutoSaveFile();
       void sl_restoreAutoSaveFile();
       void sl_statusLabelTimerExpired();
+      void sl_updateLoopStateLabel();
 
     signals:
       void sig_quitClient();
