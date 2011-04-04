@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2011-03-25 21:27:37  guettler
+ *   Revision 1.9  2011-04-04 09:24:18  guettler
+ *   renamed simStep to controlStep
+ *
+ *   Revision 1.8  2011/03/25 21:27:37  guettler
  *   - cleanup of agentList and communicator now handled, fixes the problem that
  *     PlotOptionEngine does not close all open pipes (e.g. GUILogger received no
  *     #QUIT)
@@ -99,7 +102,7 @@ namespace lpzrobots {
     addParameterDef("serialreadtimeout", &serialReadTimeout, 80, 1, 600);
     addParameterDef("cycletime", &cycleTime, 50, 0, 300);
     addParameterDef("noiseFactor", &noise, 0.05, 0, 1, "global noise factor used for all controllers added by their used wiring to motor and/or sensor values");
-    simStep = 0;
+    controlStep = 0;
     addParameterDef("benchmarkmode", &benchmarkMode, false);
     addParameterDef("testmode", &testMode, false);
     paused = false;

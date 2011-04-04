@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2011-03-21 17:30:21  guettler
+ *   Revision 1.6  2011-04-04 09:24:18  guettler
+ *   renamed simStep to controlStep
+ *
+ *   Revision 1.5  2011/03/21 17:30:21  guettler
  *   - adapted to enhanced configurable interface
  *
  *   Revision 1.4  2010/12/06 14:08:02  guettler
@@ -120,7 +123,7 @@ namespace lpzrobots {
       PlotOptionList plotOptions;
 
       paramval noise;
-      long simStep;
+      long controlStep;
       parambool benchmarkMode;
       parambool paused;
       parambool testMode;
