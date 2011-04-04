@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2011-03-26 08:58:38  guettler
+ *   Revision 1.12  2011-04-04 09:25:59  guettler
+ *   - loopStateLabel now updates each control step, displaying current status and control step
+ *   - addCallbackStep(..) can now call stopLoop() to stop control loop
+ *
+ *   Revision 1.11  2011/03/26 08:58:38  guettler
  *   - code adapted to:
  *     PlotOptionEngine initializes PlotOptions only if PlotOption itself is initialized
  *
@@ -168,7 +172,7 @@ namespace lpzrobots {
     globalData.configs.clear();
     globalData.configs.push_back(&globalData);
     globalData.plotOptions.clear();
-    globalData.simStep = 0;
+    globalData.controlStep = 0;
   }
 
   /// CONFIGURABLE INTERFACE

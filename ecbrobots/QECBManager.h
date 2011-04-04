@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-03-25 22:53:07  guettler
+ *   Revision 1.8  2011-04-04 09:25:59  guettler
+ *   - loopStateLabel now updates each control step, displaying current status and control step
+ *   - addCallbackStep(..) can now call stopLoop() to stop control loop
+ *
+ *   Revision 1.7  2011/03/25 22:53:07  guettler
  *   - autoload function did not allow changing the configurable values during the
  *     initialization phase of the loop, this is now supported, so
  *   - if you like to add configurable parameters which are used in
@@ -174,6 +178,11 @@ namespace lpzrobots {
       }
       ;
 
+      /**
+       * Stops the control loop which can be called from addCallbackStep.
+       */
+      virtual void stopLoop();
+
       // Helper
       int contains(char **list, int len, const char *str) {
         for (int i = 0; i < len; i++) {
@@ -202,7 +211,6 @@ namespace lpzrobots {
       virtual void handleStartParameters();
 
       virtual void startLoop();
-      virtual void stopLoop();
 
   };
 
