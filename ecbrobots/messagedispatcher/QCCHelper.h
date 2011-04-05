@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-11-26 12:22:36  guettler
+ *   Revision 1.6  2011-04-05 12:16:04  guettler
+ *   - new tabWidget
+ *   - all found DNS devices are shown in tabWidget with a QDNSDeviceWidget each
+ *   - QDNSDeviceWidget shows DNS device name, USB adapter name and type,
+ *     response time and incoming/outgoing status (if messages are currently sent
+ *     or received)
+ *
+ *   Revision 1.5  2010/11/26 12:22:36  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - bugfixes
@@ -118,6 +125,7 @@ namespace lpzrobots {
       struct DNSDevice_t {
         public:
           QString dns_name;
+          QCommunicationChannel* channel;
       };
 
       struct XBeeRemoteNode_t : public DNSDevice_t {
@@ -198,6 +206,8 @@ namespace lpzrobots {
       enum XBEE_PARAMS_t {
         XBEE_NODE_DISCOVER_TIME = 0 //2500
       };
+
+      static const unsigned int RESPONSE_TIME_DEFAULT = 2000;
 
     private:
       static uchar checksum;

@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-18 16:58:18  wrabe
+ *   Revision 1.2  2011-04-05 12:16:04  guettler
+ *   - new tabWidget
+ *   - all found DNS devices are shown in tabWidget with a QDNSDeviceWidget each
+ *   - QDNSDeviceWidget shows DNS device name, USB adapter name and type,
+ *     response time and incoming/outgoing status (if messages are currently sent
+ *     or received)
+ *
+ *   Revision 1.1  2010/11/18 16:58:18  wrabe
  *   - current state of work
  *
  *                                                                         *
@@ -37,8 +44,11 @@
 namespace lpzrobots {
   
   QExtTimer::QExtTimer() :
-    QTimer() {
+    QTimer(), eventId(0), timeRan(0) {
     connect(this, SIGNAL(timeout()), this, SLOT(sl_timeout()));
+    connect(&tickTimer, SIGNAL(timeout()), this, SLOT(sl_tickTimeout()));
+    tickTimer.setInterval(1);
+    tickTimer.setSingleShot(false);
   }
 
   QExtTimer::~QExtTimer() {}
@@ -46,16 +56,35 @@ namespace lpzrobots {
 
   void QExtTimer::start(int msec, uint eventId) {
     this->eventId = eventId;
+    timeRan = 0;
     QTimer::start(msec);
+    tickTimer.start();
   }
   
   void QExtTimer::start(uint eventId) {
     this->eventId = eventId;
+    timeRan = 0;
     QTimer::start();
+    tickTimer.start();
+  }
+
+  unsigned int QExtTimer::stop() {
+    QTimer::stop();
+    tickTimer.stop();
+    return timeRan;
   }
 
 
   void QExtTimer::sl_timeout() {
     emit timeout(eventId);
   }
+
+  void QExtTimer::sl_tickTimeout() {
+    timeRan++;
+  }
+
+  unsigned int QExtTimer::getTimeRan() {
+    return timeRan;
+  }
+
 }

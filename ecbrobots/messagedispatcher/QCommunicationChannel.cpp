@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-02-08 11:30:29  guettler
+ *   Revision 1.10  2011-04-05 12:16:03  guettler
+ *   - new tabWidget
+ *   - all found DNS devices are shown in tabWidget with a QDNSDeviceWidget each
+ *   - QDNSDeviceWidget shows DNS device name, USB adapter name and type,
+ *     response time and incoming/outgoing status (if messages are currently sent
+ *     or received)
+ *
+ *   Revision 1.9  2011/02/08 11:30:29  guettler
  *   - cosmetic changes
  *
  *   Revision 1.8  2011/02/04 13:02:10  wrabe
@@ -75,7 +82,7 @@ namespace lpzrobots {
   
   QCommunicationChannel::QCommunicationChannel(QString usbDeviceName) :
     initialisedState(QCCHelper::STATE_NOT_INITIALISED) {
-    responseTimer.setInterval(2000);
+    responseTimer.setInterval(QCCHelper::RESPONSE_TIME_DEFAULT);
     connect(&responseTimer, SIGNAL(timeout(uint)), this, SLOT(sl_ResponseTimerExpired(uint)));
     connect(&usbDeviceManager, SIGNAL(sig_newData(QByteArray)), this, SLOT(sl_messageReceived(QByteArray)));
     usbDeviceType = QCCHelper::getUsbDeviceTypeByName(usbDeviceName);
@@ -416,6 +423,7 @@ namespace lpzrobots {
               dnsName.append(received_msg.mid(0x08, dns_name_length));
               QCCHelper::DNSDevice_t* dnsDeviceStruct = new QCCHelper::DNSDevice_t();
               dnsDeviceStruct->dns_name = dnsName;
+              dnsDeviceStruct->channel = this;
               dnsDeviceList.append(dnsDeviceStruct);
               QString line;
               line.append("[" + usbDeviceManager.getDeviceName() + "]");
@@ -555,6 +563,7 @@ namespace lpzrobots {
                   QString dnsName;
                   dnsName.append(received_msg.mid(indexData + 2, dns_name_length));
                   xbeeRemoteNode->dns_name = dnsName;
+                  xbeeRemoteNode->channel = this;
                   QCCHelper::printXbeeRemoteNodeInfo(usbDeviceManager.getDeviceName(), xbeeRemoteNode);
                 }
                 break;
@@ -736,7 +745,7 @@ namespace lpzrobots {
     return false;
   }
 
-  QStringList QCommunicationChannel::getDNSDeviceList() {
+  QStringList QCommunicationChannel::getDNSDeviceStringList() {
     QStringList list;
     QLogDebug("[" + usbDeviceManager.getDeviceName() + "]: getDNSDeviceList(), number of devices: "
         + QString::number(dnsDeviceList.size()));
@@ -761,16 +770,7 @@ namespace lpzrobots {
   }
 
   uint QCommunicationChannel::getResponseTime() {
-    switch (usbDeviceType) {
-      case QCCHelper::USBDevice_USART_ADAPTER:
-      case QCCHelper::USBDevice_ISP_ADAPTER:
-        return 0;
-        break;
-      case QCCHelper::USBDevice_XBEE_ADAPTER:
-      default:
-        return 20;
-        break;
-    }
+    return responseTimer.getTimeRan();
   }
 
   void QCommunicationChannel::sendMessage(struct _communicationMessage& msg) {

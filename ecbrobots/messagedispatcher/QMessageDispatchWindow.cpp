@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2011-02-09 14:46:02  wrabe
+ *   Revision 1.9  2011-04-05 12:16:04  guettler
+ *   - new tabWidget
+ *   - all found DNS devices are shown in tabWidget with a QDNSDeviceWidget each
+ *   - QDNSDeviceWidget shows DNS device name, USB adapter name and type,
+ *     response time and incoming/outgoing status (if messages are currently sent
+ *     or received)
+ *
+ *   Revision 1.8  2011/02/09 14:46:02  wrabe
  *   - no fixed size of the resulting window
  *
  *   Revision 1.7  2011/01/24 16:58:25  guettler
@@ -62,6 +69,7 @@
  ***************************************************************************/
 
 #include "QMessageDispatchWindow.h"
+#include "QDNSDeviceWidget.h"
 
 namespace lpzrobots {
 
@@ -92,6 +100,8 @@ namespace lpzrobots {
     tabWidget->addTab(logView, tr("Report"));
     grid->addWidget(tabWidget, 0, 0);
 
+    sl_updateDNSDeviceWidgets();
+
     setMinimumSize(400, 500);
 
 
@@ -102,6 +112,7 @@ namespace lpzrobots {
 
     connect(this, SIGNAL(sig_quitServer()), &messageDispatcher, SIGNAL(sig_quitServer()));
     connect(&messageDispatcher, SIGNAL(sig_quitClient()), this, SLOT(sl_Close()));
+    connect(&messageDispatcher, SIGNAL(sig_DNSDeviceListChanged()), this, SLOT(sl_updateDNSDeviceWidgets()));
 
   }
 
@@ -134,7 +145,7 @@ namespace lpzrobots {
     action_PrintDNSTable->setStatusTip(tr("Prints out the DNS-Table ([dnsName]->[usbDeviceName])."));
     action_PrintDNSTable->setShortcut(Qt::Key_P | Qt::CTRL);
     action_PrintDNSTable->setEnabled(true);
-    connect(action_PrintDNSTable, SIGNAL(triggered()), &messageDispatcher, SLOT(sl_printDNSDeviceToQCCMap()));
+    connect(action_PrintDNSTable, SIGNAL(triggered()), &messageDispatcher, SLOT(sl_printDNSDeviceMap()));
 
     action_Exit = new QExtAction(EVENT_APPLICATION_CLOSE, tr("&Quit"), this);
     action_Exit->setShortcut(tr("Ctrl+Q"));
@@ -179,6 +190,7 @@ namespace lpzrobots {
     QSettings settings(applicationPath + QString("messagedispatcher.settings"), QSettings::IniFormat);
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
+    tabWidget->setCurrentIndex(settings.value("activeTabIndex", 1).toInt());
     resize(size);
     move(pos);
   }
@@ -187,6 +199,7 @@ namespace lpzrobots {
     QSettings settings(applicationPath + QString("messagedispatcher.settings"), QSettings::IniFormat);
     settings.setValue("pos", pos());
     settings.setValue("size", size());
+    settings.setValue("activeTabIndex", tabWidget->currentIndex());
   }
 
   void QMessageDispatchWindow::sl_eventHandler(int eventCode) {
@@ -244,4 +257,35 @@ namespace lpzrobots {
   void QMessageDispatchWindow::sl_Close() {
       close();
     }
+
+  void QMessageDispatchWindow::sl_updateDNSDeviceWidgets() {
+    dnsDeviceContainerWidget = new QWidget(); // containing some QGroupBoxes (QDNSDeviceWidget´s)
+    QGridLayout* grid = new QGridLayout();
+    grid->setSizeConstraint(QLayout::SetFixedSize);
+    dnsDeviceContainerWidget->setLayout(grid);
+
+    int numberWidgetsAdded = addDNSDeviceWidgetsToGrid(messageDispatcher.getDNSDeviceList() , grid);
+    QScrollArea* scrollArea = new QScrollArea();
+    //scrollArea->setBackgroundRole(QPalette::Dark);
+    scrollArea->setWidget(dnsDeviceContainerWidget);
+    scrollArea->setToolTip(QString::number(numberWidgetsAdded) + " DNS Devices");
+    int index = tabWidget->currentIndex();
+    tabWidget->removeTab(1);
+    tabWidget->insertTab(1, scrollArea, "DNS Devices");
+    tabWidget->setCurrentIndex(index);
+  }
+
+  int QMessageDispatchWindow::addDNSDeviceWidgetsToGrid(QList<QCCHelper::DNSDevice_t*> deviceList, QGridLayout* grid) {
+    int numberAdded =0;
+    QLogDebug("Adding " + QString::number(deviceList.size()) + " QDNSDeviceWidgets...");
+    foreach(QCCHelper::DNSDevice_t* device, deviceList) {
+      QLogDebug("add QWidget for device" + device->dns_name);
+      QDNSDeviceWidget* devWidget = new QDNSDeviceWidget(device);
+      grid->addWidget(devWidget, numberAdded++, 0, 1, Qt::AlignTop);//, i++, 0, Qt::AlignJustify);
+      connect(&messageDispatcher, SIGNAL(sig_dataIncoming(QCCHelper::DNSDevice_t*)),devWidget, SLOT(sl_dataIncoming(QCCHelper::DNSDevice_t*)));
+      connect(&messageDispatcher, SIGNAL(sig_dataOutgoing(QCCHelper::DNSDevice_t*)),devWidget, SLOT(sl_dataOutgoing(QCCHelper::DNSDevice_t*)));
+    }
+    return numberAdded;
+  }
+
 } // namespace lpzrobots

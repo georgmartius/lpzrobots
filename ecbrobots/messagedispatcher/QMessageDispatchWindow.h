@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2011-01-24 16:58:25  guettler
+ *   Revision 1.7  2011-04-05 12:16:04  guettler
+ *   - new tabWidget
+ *   - all found DNS devices are shown in tabWidget with a QDNSDeviceWidget each
+ *   - QDNSDeviceWidget shows DNS device name, USB adapter name and type,
+ *     response time and incoming/outgoing status (if messages are currently sent
+ *     or received)
+ *
+ *   Revision 1.6  2011/01/24 16:58:25  guettler
  *   - QMessageDispatchServer is now informed when client app closes itself
  *   - QMessageDispatchWindow actually closes if client app closes itself
  *   - hint: this should late be
@@ -71,6 +78,7 @@
 #include "QExtAction.h"
 #include "QLog.h"
 #include "constants.h"
+#include "QCCHelper.h"
 
 namespace lpzrobots {
 
@@ -101,6 +109,7 @@ namespace lpzrobots {
       void sl_eventHandler(int eventCode);
       void sl_statusLabelTimerExpired();
       void sl_Close();
+      void sl_updateDNSDeviceWidgets();
 
     private:
 
@@ -109,6 +118,7 @@ namespace lpzrobots {
       void readSettings();
       void writeSettings();
       void sleep(ulong msecs);
+      int addDNSDeviceWidgetsToGrid(QList<QCCHelper::DNSDevice_t*> deviceList, QGridLayout* grid);
 
       // TODO:
       // the future is to combine the two methods ...
@@ -124,6 +134,7 @@ namespace lpzrobots {
       QTimer statusLabelTimer;
       QECBMessageDispatchServer messageDispatcher;
       QLog* qlog;
+      QWidget* dnsDeviceContainerWidget;
 
       QExtAction *action_Exit;
       QExtAction *action_About;

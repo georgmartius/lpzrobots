@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-23 11:08:06  guettler
+ *   Revision 1.2  2011-04-05 12:16:04  guettler
+ *   - new tabWidget
+ *   - all found DNS devices are shown in tabWidget with a QDNSDeviceWidget each
+ *   - QDNSDeviceWidget shows DNS device name, USB adapter name and type,
+ *     response time and incoming/outgoing status (if messages are currently sent
+ *     or received)
+ *
+ *   Revision 1.1  2010/11/23 11:08:06  guettler
  *   - some helper functions
  *   - bugfixes
  *   - better event handling
@@ -37,19 +44,20 @@
 #ifndef __QMDSHELPER_H_
 #define __QMDSHELPER_H_
 
+#include "QCCHelper.h"
+
 template<class Key, class T> class QHash;
 class QString;
 
 namespace lpzrobots {
   
-  class QCommunicationChannel;
 
   class QMDSHelper {
     public:
       QMDSHelper();
       virtual ~QMDSHelper();
 
-      static void printDNSDeviceToQCCMap(QHash<QString,QCommunicationChannel*>* map);
+      static void printDNSDeviceMap(QHash<QString, QCCHelper::DNSDevice_t*>* map);
   };
 
 }

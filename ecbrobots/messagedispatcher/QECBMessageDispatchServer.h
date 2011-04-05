@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2011-01-24 16:58:25  guettler
+ *   Revision 1.7  2011-04-05 12:16:04  guettler
+ *   - new tabWidget
+ *   - all found DNS devices are shown in tabWidget with a QDNSDeviceWidget each
+ *   - QDNSDeviceWidget shows DNS device name, USB adapter name and type,
+ *     response time and incoming/outgoing status (if messages are currently sent
+ *     or received)
+ *
+ *   Revision 1.6  2011/01/24 16:58:25  guettler
  *   - QMessageDispatchServer is now informed when client app closes itself
  *   - QMessageDispatchWindow actually closes if client app closes itself
  *   - hint: this should late be
@@ -81,12 +88,16 @@ namespace lpzrobots {
       virtual ~QECBMessageDispatchServer();
 
       void scanUsbDevices();
+      QList<QCCHelper::DNSDevice_t*> getDNSDeviceList() { return dnsDeviceList; }
 
 
     signals:
       void sig_messageReceived(struct _communicationMessage msg);
       void sig_quitServer();
       void sig_quitClient();
+      void sig_DNSDeviceListChanged();
+      void sig_dataIncoming(QCCHelper::DNSDevice_t* fromDevice);
+      void sig_dataOutgoing(QCCHelper::DNSDevice_t* toDevice);
 
 
     public slots:
@@ -96,7 +107,8 @@ namespace lpzrobots {
       virtual void sl_Initialize();
       virtual void sl_CCIsInitialised(QCommunicationChannel* cc);
       virtual void sl_scanDNSDevicesComplete(QCommunicationChannel* cc);
-      virtual void sl_printDNSDeviceToQCCMap();
+      virtual void sl_printDNSDeviceMap();
+      virtual void sl_messageFromQCCReceived(struct _communicationMessage msg);
 
     private:
       void clear_usbDeviceManagerList();
@@ -104,15 +116,16 @@ namespace lpzrobots {
       QList<QCommunicationChannel*> commChannelList;
       QFT232DeviceManager static_usbDeviceManager;
 
-      QStringList dnsDeviceList;
+      QStringList dnsDeviceStringList;
+      QList<QCCHelper::DNSDevice_t*> dnsDeviceList;
       int notYetInitialisedCCs;
       int notYetDNSScannedCCs;
 
       /**
        * key = dnsDeviceName
-       * value = pointer to corresponding QCC
+       * value = pointer to corresponding dnsDevice_t&
        */
-      QHash<QString, QCommunicationChannel*> dnsDeviceToQCCMap;
+      QHash<QString, QCCHelper::DNSDevice_t*> dnsDeviceMap;
 
   };
 

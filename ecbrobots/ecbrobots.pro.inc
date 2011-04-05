@@ -41,6 +41,7 @@ HEADERS   += messagedispatcher/QExtByteArray.h
 HEADERS   += messagedispatcher/QExtTimer.h
 HEADERS   += messagedispatcher/QLog.h
 HEADERS   += messagedispatcher/QMDSHelper.h
+HEADERS   += messagedispatcher/QDNSDeviceWidget.h
 
 # Input - Sources
 SOURCES   += messagedispatcher/QECBMessageDispatchServer.cpp
@@ -52,6 +53,7 @@ SOURCES   += messagedispatcher/QExtByteArray.cpp
 SOURCES   += messagedispatcher/QExtTimer.cpp
 SOURCES   += messagedispatcher/QLog.cpp
 SOURCES   += messagedispatcher/QMDSHelper.cpp
+SOURCES   += messagedispatcher/QDNSDeviceWidget.cpp
 
 #qconfigurable
 HEADERS   +=qconfigurable/QConfigurableWidget.h

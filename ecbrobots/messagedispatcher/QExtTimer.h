@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-11-18 16:58:18  wrabe
+ *   Revision 1.2  2011-04-05 12:16:04  guettler
+ *   - new tabWidget
+ *   - all found DNS devices are shown in tabWidget with a QDNSDeviceWidget each
+ *   - QDNSDeviceWidget shows DNS device name, USB adapter name and type,
+ *     response time and incoming/outgoing status (if messages are currently sent
+ *     or received)
+ *
+ *   Revision 1.1  2010/11/18 16:58:18  wrabe
  *   - current state of work
  *
  *                                                                         *
@@ -51,14 +58,21 @@ namespace lpzrobots {
        virtual void start(int msec, uint eventId);
        virtual void start(uint eventId);
 
-     public slots:
-       virtual void sl_timeout();
+       virtual unsigned int stop();
+
+       virtual unsigned int getTimeRan();
 
      signals:
        void timeout(uint eventId);
 
+     private slots:
+       virtual void sl_timeout();
+       virtual void sl_tickTimeout();
+
      private:
-       uint eventId;
+       unsigned int eventId;
+       QTimer tickTimer;
+       unsigned int timeRan;
 
    };
 

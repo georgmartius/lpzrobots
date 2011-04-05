@@ -3,9 +3,6 @@
  *   Research Network for Self-Organization of Robot Behavior              *
  *    guettler@informatik.uni-leipzig.de                                   *
  *    wrabe@informatik.uni-leipzig.de                                      *
- *    Georg.Martius@mis.mpg.de                                             *
- *    ralfder@mis.mpg.de                                                   *
- *    frank@nld.ds.mpg.de                                                  *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,43 +23,97 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2011-04-05 12:16:04  guettler
+ *   Revision 1.1  2011-04-05 12:16:04  guettler
  *   - new tabWidget
  *   - all found DNS devices are shown in tabWidget with a QDNSDeviceWidget each
  *   - QDNSDeviceWidget shows DNS device name, USB adapter name and type,
  *     response time and incoming/outgoing status (if messages are currently sent
  *     or received)
  *
- *   Revision 1.2  2011/01/24 16:26:50  guettler
- *   -use new QLog feature
- *
- *   Revision 1.1  2010/11/23 11:08:06  guettler
- *   - some helper functions
- *   - bugfixes
- *   - better event handling
  *
  *                                                                         *
  ***************************************************************************/
 
-#include "QMDSHelper.h"
+#ifndef __QDNSDEVICEWIDGET_H_
+#define __QDNSDEVICEWIDGET_H_
 
-#include <QHash>
-#include <QString>
-
-#include "QLog.h"
-#include "QCommunicationChannel.h"
-
+#include <QGroupBox>
+#include <QFrame>
+#include <QScrollBar>
+#include <QMap>
+#include <QMenu>
+#include <QPalette>
+#include "QCCHelper.h"
 
 namespace lpzrobots {
-  
-  void QMDSHelper::printDNSDeviceMap(QHash<QString,QCCHelper::DNSDevice_t*>* map) {
-     if (map->isEmpty())
-       QLogWarning("No DNS devices found!");
-     foreach(QString dnsDeviceName, map->keys())
-       {
-         // emit sig_TextLog("DNSDevice = " + dnsName + ", USBDevice = " + dnsDeviceToQCCMap[dnsDevice]->getUSBDeviceName());
-         QLogVerbose("[" + dnsDeviceName + "]->[" + (*map)[dnsDeviceName]->channel->getUSBDeviceName() + "]");
-       }
-   }
 
-} // namespace lpzrobots
+  class QDNSDeviceWidget : public QGroupBox {
+
+    Q_OBJECT
+
+    public:
+      QDNSDeviceWidget(QCCHelper::DNSDevice_t* dnsDevice);
+      virtual ~QDNSDeviceWidget();
+
+//      QCCHelper::DNSDevice_t* getDNSDevice() {
+//        return device;
+//      }
+
+    public slots:
+      void sl_dataIncoming(QCCHelper::DNSDevice_t* fromDevice);
+      void sl_dataOutgoing(QCCHelper::DNSDevice_t* toDevice);
+
+    protected:
+      virtual void enterEvent(QEvent * event);
+      virtual void leaveEvent(QEvent * event);
+
+    private slots:
+      void sl_execContextMenu(const QPoint &pos);
+      void sl_outgoingStateTimeout();
+      void sl_incomingStateTimeout();
+
+    private:
+      void initBody();
+      void setToolTip();
+
+      QMenu contextMenuShowHideDialog;
+      QGridLayout layout;
+      QPalette defaultPalette;
+      QCCHelper::DNSDevice_t* device;
+      QLabel* responseTimeLabel;
+      QLabel* outgoingStateLabel;
+      QLabel* incomingStateLabel;
+      QTimer* incomingStateTimer;
+      QTimer* outgoingStateTimer;
+
+      class QInfoBox : public QGroupBox {
+
+        public:
+          QInfoBox(const QString& windowTitle, QWidget* parent) :
+            QGroupBox(windowTitle, parent), _layout(new QBoxLayout(QBoxLayout::TopToBottom, this)) {
+            setLayout(_layout);
+            setAlignment(Qt::AlignCenter);
+            setAttribute(Qt::WA_DeleteOnClose);
+            setFont(QFont("Arial", 9, QFont::Bold));
+          }
+
+          virtual void addWidget(QWidget* widgetToAdd, Qt::Alignment alignment = Qt::AlignCenter) {
+            _layout->addWidget(widgetToAdd, 0, alignment);
+            widgetToAdd->setFont(QFont("Arial", 9, QFont::Normal));
+          }
+
+          virtual QLabel* addLabel(const QString& labelText, Qt::Alignment alignment = Qt::AlignCenter) {
+            QLabel* label = new QLabel(labelText);
+            addWidget(label, alignment);
+            return label;
+          }
+
+        private:
+          QBoxLayout* _layout;
+      };
+
+  };
+
+}
+
+#endif /* __QDNSDEVICEWIDGET_H_ */

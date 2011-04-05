@@ -26,7 +26,14 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-01-24 16:25:16  guettler
+ *   Revision 1.8  2011-04-05 12:16:04  guettler
+ *   - new tabWidget
+ *   - all found DNS devices are shown in tabWidget with a QDNSDeviceWidget each
+ *   - QDNSDeviceWidget shows DNS device name, USB adapter name and type,
+ *     response time and incoming/outgoing status (if messages are currently sent
+ *     or received)
+ *
+ *   Revision 1.7  2011/01/24 16:25:16  guettler
  *   -use new QLog feature
  *
  *   Revision 1.6  2010/11/26 12:22:36  guettler
@@ -84,8 +91,11 @@ namespace lpzrobots {
 
   void QECBMessageDispatchServer::sl_sendMessage(struct _communicationMessage msg) {
     QLogVerbose("Client demands a message to be sent to " + msg.ecb_dns_name);
-    if (this->dnsDeviceToQCCMap.contains(msg.ecb_dns_name))
-        dnsDeviceToQCCMap[msg.ecb_dns_name]->sendMessage(msg);
+    if (this->dnsDeviceMap.contains(msg.ecb_dns_name)) {
+      dnsDeviceMap[msg.ecb_dns_name]->channel->sendMessage(msg);
+        //dnsDeviceToQCCMap[msg.ecb_dns_name]->get
+      emit sig_dataOutgoing(dnsDeviceMap[msg.ecb_dns_name]);
+    }
     else
       QLogWarning("Unknown DNS device " + msg.ecb_dns_name + ".");
   }
@@ -100,7 +110,9 @@ namespace lpzrobots {
         disconnect(commChannel, SIGNAL(sig_messageReceived(struct _communicationMessage)));
         delete (commChannel);
       }
+    dnsDeviceStringList.clear();
     dnsDeviceList.clear();
+    dnsDeviceMap.clear();
   }
 
   void QECBMessageDispatchServer::scanUsbDevices() {
@@ -119,7 +131,7 @@ namespace lpzrobots {
         connect(commChannel, SIGNAL(sig_cc_dns_name_resolved(QCommunicationChannel*)), this,
             SLOT(sl_scanDNSDevicesComplete(QCommunicationChannel*)));
         connect(commChannel, SIGNAL(sig_messageReceived(struct _communicationMessage)), this,
-            SIGNAL(sig_messageReceived(struct _communicationMessage)));
+            SLOT(sl_messageFromQCCReceived(struct _communicationMessage)));
       }
   }
 
@@ -153,31 +165,41 @@ namespace lpzrobots {
     QLogDebug("[" + cc->getUSBDeviceName() + "] has completed the device scan, still pending: "
         + QString::number(notYetDNSScannedCCs - 1));
 
-    QStringList DNSdeviceList = cc->getDNSDeviceList();
-    dnsDeviceList.append(DNSdeviceList); // for log purposes
-    foreach(QString dnsDevice, DNSdeviceList)
+
+    QList<QCCHelper::DNSDevice_t*> DNSdeviceList = cc->getDNSDeviceList();
+    foreach(QCCHelper::DNSDevice_t* dnsDevice, DNSdeviceList)
       {
-        QLogDebug("Found: " + dnsDevice);
+        dnsDeviceStringList.append(dnsDevice->dns_name);  // for log purposes
+        QLogDebug("Found: " + dnsDevice->dns_name);
         // take the fastest one, USART or XBee?
-        if (dnsDeviceToQCCMap.contains(dnsDevice)) {
-          if (cc->getResponseTime() < dnsDeviceToQCCMap[dnsDevice]->getResponseTime()) { // replace!
-            dnsDeviceToQCCMap.remove(dnsDevice);
-            dnsDeviceToQCCMap[dnsDevice] = cc;
+        if (dnsDeviceMap.contains(dnsDevice->dns_name)) {
+          if (cc->getResponseTime() < dnsDeviceMap[dnsDevice->dns_name]->channel->getResponseTime()) { // replace!
+            dnsDeviceMap.remove(dnsDevice->dns_name);
+            dnsDeviceMap[dnsDevice->dns_name] = dnsDevice;
           }
           // else do not replace, skip!
         } else { // not in list yet, insert
-          dnsDeviceToQCCMap[dnsDevice] = cc;
+          dnsDeviceMap[dnsDevice->dns_name] = dnsDevice;
         }
       }
     if (--notYetDNSScannedCCs == 0) {
       QLogVerbose("<font color=#008800>Scan of DNS devices complete.</font>");
-      QMDSHelper::printDNSDeviceToQCCMap(&dnsDeviceToQCCMap);
+      QMDSHelper::printDNSDeviceMap(&dnsDeviceMap);
     }
+    dnsDeviceList = cc->getDNSDeviceList();
+    emit sig_DNSDeviceListChanged();
     // in Liste eintragen cc->getDNSDevices():
   }
 
-  void QECBMessageDispatchServer::sl_printDNSDeviceToQCCMap() {
-    QMDSHelper::printDNSDeviceToQCCMap(&dnsDeviceToQCCMap);
+  void QECBMessageDispatchServer::sl_printDNSDeviceMap() {
+    QMDSHelper::printDNSDeviceMap(&dnsDeviceMap);
+  }
+
+  void QECBMessageDispatchServer::sl_messageFromQCCReceived(struct _communicationMessage msg) {
+    if (dnsDeviceMap.contains(msg.ecb_dns_name)) {
+      emit sig_dataIncoming(dnsDeviceMap[msg.ecb_dns_name]);
+    }
+    emit sig_messageReceived(msg);
   }
 
 
