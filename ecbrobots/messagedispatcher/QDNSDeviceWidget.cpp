@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2011-04-05 12:16:04  guettler
+ *   Revision 1.2  2011-04-05 13:06:00  guettler
+ *   - typo
+ *
+ *   Revision 1.1  2011/04/05 12:16:04  guettler
  *   - new tabWidget
  *   - all found DNS devices are shown in tabWidget with a QDNSDeviceWidget each
  *   - QDNSDeviceWidget shows DNS device name, USB adapter name and type,
@@ -217,13 +220,13 @@ namespace lpzrobots {
     incomingStateLabel->setScaledContents(false);
     incomingStateLabel->setEnabled(false);
     incomingStateLabel->setPixmap(QPixmap::fromImage(QImage(":/images/200px-Button_Icon_GreenForest.svg.png").scaledToWidth(20, Qt::SmoothTransformation)));
-    incomingStateLabel->setToolTip("Goes red if package is received from DNS device.");
+    incomingStateLabel->setToolTip("Goes red if a package is received from DNS device.");
     outgoingStateLabel = new QLabel();
     outgoingStateLabel->setBackgroundRole(QPalette::Base);
     outgoingStateLabel->setEnabled(false);
     outgoingStateLabel->setScaledContents(false);
     outgoingStateLabel->setPixmap(QPixmap::fromImage(QImage(":/images/200px-Button_Icon_Red.svg.png").scaledToWidth(20, Qt::SmoothTransformation)));
-    outgoingStateLabel->setToolTip("Goes green if package is sent to DNS device.");
+    outgoingStateLabel->setToolTip("Goes green if a package is sent to DNS device.");
 
     stateBox->addWidget(outgoingStateLabel);
     stateBox->addWidget(incomingStateLabel);
