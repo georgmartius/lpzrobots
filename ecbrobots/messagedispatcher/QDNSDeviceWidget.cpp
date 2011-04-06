@@ -26,7 +26,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2011-04-05 13:06:00  guettler
+ *   Revision 1.3  2011-04-06 06:58:30  guettler
+ *   - generated scales 20px buttons from 200px png files in order to reduce
+ *     needed processing by Qt. Original 200px files are still kept in repository.
+ *
+ *   Revision 1.2  2011/04/05 13:06:00  guettler
  *   - typo
  *
  *   Revision 1.1  2011/04/05 12:16:04  guettler
@@ -219,13 +223,13 @@ namespace lpzrobots {
     incomingStateLabel->setEnabled(false);
     incomingStateLabel->setScaledContents(false);
     incomingStateLabel->setEnabled(false);
-    incomingStateLabel->setPixmap(QPixmap::fromImage(QImage(":/images/200px-Button_Icon_GreenForest.svg.png").scaledToWidth(20, Qt::SmoothTransformation)));
+    incomingStateLabel->setPixmap(QPixmap::fromImage(QImage(":/images/20px-Button_Icon_GreenForest.svg.png")));
     incomingStateLabel->setToolTip("Goes red if a package is received from DNS device.");
     outgoingStateLabel = new QLabel();
     outgoingStateLabel->setBackgroundRole(QPalette::Base);
     outgoingStateLabel->setEnabled(false);
     outgoingStateLabel->setScaledContents(false);
-    outgoingStateLabel->setPixmap(QPixmap::fromImage(QImage(":/images/200px-Button_Icon_Red.svg.png").scaledToWidth(20, Qt::SmoothTransformation)));
+    outgoingStateLabel->setPixmap(QPixmap::fromImage(QImage(":/images/20px-Button_Icon_Red.svg.png")));
     outgoingStateLabel->setToolTip("Goes green if a package is sent to DNS device.");
 
     stateBox->addWidget(outgoingStateLabel);

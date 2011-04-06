@@ -11,5 +11,7 @@
         <file>images/USB_XBEE_Adapter.png</file>
         <file>images/200px-Button_Icon_GreenForest.svg.png</file>
         <file>images/200px-Button_Icon_Red.svg.png</file>
+        <file>images/20px-Button_Icon_GreenForest.svg.png</file>
+        <file>images/20px-Button_Icon_Red.svg.png</file>
     </qresource>
 </RCC>
