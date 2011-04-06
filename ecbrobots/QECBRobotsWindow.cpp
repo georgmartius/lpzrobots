@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.31  2011-04-04 09:25:03  guettler
+ *   Revision 1.32  2011-04-06 06:48:59  guettler
+ *   - main window activates when hovering with mouse, enabling keyboard shortcuts without click onto the window
+ *
+ *   Revision 1.31  2011/04/04 09:25:03  guettler
  *   - loopStateLabel now updates each control step, displaying current status and control step
  *
  *   Revision 1.30  2011/03/25 22:53:07  guettler
@@ -711,5 +714,10 @@ namespace lpzrobots {
     loopStateLabel->setText(labelString);
   }
 
+
+  void QECBRobotsWindow::enterEvent(QEvent* event) {
+    event->accept();
+    activateWindow();
+  }
 
 } // namespace lpzrobots

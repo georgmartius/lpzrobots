@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-04-05 12:16:04  guettler
+ *   Revision 1.10  2011-04-06 06:49:09  guettler
+ *   - main window activates when hovering with mouse, enabling keyboard shortcuts without click onto the window
+ *
+ *   Revision 1.9  2011/04/05 12:16:04  guettler
  *   - new tabWidget
  *   - all found DNS devices are shown in tabWidget with a QDNSDeviceWidget each
  *   - QDNSDeviceWidget shows DNS device name, USB adapter name and type,
@@ -114,6 +117,11 @@ namespace lpzrobots {
     connect(&messageDispatcher, SIGNAL(sig_quitClient()), this, SLOT(sl_Close()));
     connect(&messageDispatcher, SIGNAL(sig_DNSDeviceListChanged()), this, SLOT(sl_updateDNSDeviceWidgets()));
 
+  }
+
+  void QMessageDispatchWindow::enterEvent(QEvent* event) {
+    event->accept();
+    activateWindow();
   }
 
   QMessageDispatchWindow::~QMessageDispatchWindow() {
