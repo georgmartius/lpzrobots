@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2011-04-06 06:58:30  guettler
+ *   Revision 1.4  2011-04-06 16:10:24  wrabe
+ *   - swapped tooltips of status icons
+ *
+ *   Revision 1.3  2011/04/06 06:58:30  guettler
  *   - generated scales 20px buttons from 200px png files in order to reduce
  *     needed processing by Qt. Original 200px files are still kept in repository.
  *
@@ -224,13 +227,13 @@ namespace lpzrobots {
     incomingStateLabel->setScaledContents(false);
     incomingStateLabel->setEnabled(false);
     incomingStateLabel->setPixmap(QPixmap::fromImage(QImage(":/images/20px-Button_Icon_GreenForest.svg.png")));
-    incomingStateLabel->setToolTip("Goes red if a package is received from DNS device.");
+    incomingStateLabel->setToolTip("Goes green if a package is sent to DNS device.");
     outgoingStateLabel = new QLabel();
     outgoingStateLabel->setBackgroundRole(QPalette::Base);
     outgoingStateLabel->setEnabled(false);
     outgoingStateLabel->setScaledContents(false);
     outgoingStateLabel->setPixmap(QPixmap::fromImage(QImage(":/images/20px-Button_Icon_Red.svg.png")));
-    outgoingStateLabel->setToolTip("Goes green if a package is sent to DNS device.");
+    outgoingStateLabel->setToolTip("Goes red if a package is received from DNS device.");
 
     stateBox->addWidget(outgoingStateLabel);
     stateBox->addWidget(incomingStateLabel);
