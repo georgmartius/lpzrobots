@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2011-03-21 17:34:28  guettler
+ *   Revision 1.14  2011-04-06 06:50:03  guettler
+ *   - minimal increment of spinbox is now correctly calculated, dependent of the used decimals
+ *
+ *   Revision 1.13  2011/03/21 17:34:28  guettler
  *   - color changes now if parameter value or bounds is changed
  *   - adapted to enhanced configurable interface
  *
@@ -120,6 +123,7 @@
 #include <QSlider>
 #include <QDoubleSpinBox>
 #include "QConfigurableSetBoundsDialog.h"
+#include <math.h>
 
 namespace lpzrobots {
   
@@ -153,13 +157,13 @@ namespace lpzrobots {
     dsBox.setToolTip(toolTipVals);
     dsBox.setDecimals(calcNumberDecimals());
     dsBox.setValue(value);
-    dsBox.setSingleStep((maxBound - minBound) / 1000);
+    dsBox.setSingleStep(1 / pow10(dsBox.decimals()));
     dsBox.setFont(QFont("Courier", 11, QFont::Normal));
 
     slider.setOrientation(Qt::Horizontal);
-    slider.setMinimum(minBound * 10000);
-    slider.setMaximum(maxBound * 10000);
-    slider.setValue(10000 * value);
+    slider.setMinimum(minBound * SCALE_FACTOR_SLIDER);
+    slider.setMaximum(maxBound * SCALE_FACTOR_SLIDER);
+    slider.setValue(SCALE_FACTOR_SLIDER * value);
     slider.setToolTip(toolTipVals);
 
     gridLayoutConfigurableTile.addWidget(&lName, 0, 0, 1, 2, Qt::AlignLeft);
@@ -182,17 +186,21 @@ namespace lpzrobots {
 
   void QValConfigurableTileWidget::sl_spinBoxValueChanged(double value) {
     if (!stopSignaling) {
-      slider.setValue(10000 * value);
+      stopSignaling = true;
+      slider.setValue(SCALE_FACTOR_SLIDER * value);
       config->setParam(key, value);
+      stopSignaling = false;
     }
     updatePaletteChanged();
   }
 
   void QValConfigurableTileWidget::sl_sliderValueChanged(int int_value) {
     if (!stopSignaling) {
-      double value = int_value / 10000.0;
+      stopSignaling = true;
+      double value = int_value / (double)SCALE_FACTOR_SLIDER;
       dsBox.setValue(value);
       config->setParam(key, value);
+      stopSignaling = false;
     }
     updatePaletteChanged();
   }
@@ -272,10 +280,11 @@ namespace lpzrobots {
     dsBox.setDecimals(calcNumberDecimals());
     dsBox.setMinimum(minBound);
     dsBox.setMaximum(maxBound);
-    dsBox.setSingleStep((maxBound - minBound) / 1000);
+    dsBox.setSingleStep(1 / pow10(dsBox.decimals()));
+//    dsBox.setSingleStep((maxBound - minBound) / SCALE_FACTOR_SPINBOX);
     dsBox.setToolTip(toolTipVals);
-    slider.setMinimum(minBound * 10000);
-    slider.setMaximum(maxBound * 10000);
+    slider.setMinimum(minBound * SCALE_FACTOR_SLIDER);
+    slider.setMaximum(maxBound * SCALE_FACTOR_SLIDER);
     slider.setToolTip(toolTipVals);
     updatePaletteChanged();
   }
@@ -285,7 +294,7 @@ namespace lpzrobots {
     setBounds(config->getParamvalBounds(key));
     double value = config->getParam(key);
     dsBox.setValue(value);
-    slider.setValue(10000 * value);
+    slider.setValue(SCALE_FACTOR_SLIDER * value);
     stopSignaling = false;
     updatePaletteChanged();
   }

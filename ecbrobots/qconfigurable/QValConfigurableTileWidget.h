@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-03-21 17:34:28  guettler
+ *   Revision 1.10  2011-04-06 06:50:03  guettler
+ *   - minimal increment of spinbox is now correctly calculated, dependent of the used decimals
+ *
+ *   Revision 1.9  2011/03/21 17:34:28  guettler
  *   - color changes now if parameter value or bounds is changed
  *   - adapted to enhanced configurable interface
  *
@@ -138,6 +141,9 @@ namespace lpzrobots {
 
     protected:
       int calcNumberDecimals();
+
+      static const int SCALE_FACTOR_SLIDER = 100000;
+      static const double SCALE_FACTOR_SPINBOX = 1500;
 
     private slots:
       void sl_spinBoxValueChanged(double);
