@@ -114,7 +114,7 @@ class BarrelRobotECB : public ECB {
 class MyController : public AbstractControllerAdapter {
   public:
     MyController(AbstractController* controller) :
-      AbstractControllerAdapter(controller) {
+      AbstractControllerAdapter(controller, "MyController", "$ID$") {
 
     }
 
