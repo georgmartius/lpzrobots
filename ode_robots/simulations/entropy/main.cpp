@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2011-03-22 16:43:12  guettler
+ *   Revision 1.23  2011-04-28 09:46:27  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.22  2011/03/22 16:43:12  guettler
  *   - adpaptions to enhanced configurable and inspectable interface
  *   - agents are always in globalData.configs
  *   - showParams now done by simulations base code instead manually called
@@ -222,7 +225,7 @@ public:
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
 
-    int number_x=1;
+    int number_x=5;
     int number_y=1;
     connectRobots = true;
     double distance = 1.1;
@@ -346,10 +349,14 @@ public:
       if(connectRobots)
         for(int j=0; j<number_x-1; j++)
         {
-          Joint* joint = new BallJoint(robots[j]->getMainPrimitive(),
-                                       robots[j+1]->getMainPrimitive(),
-                                       Pos((j+0.5)*(1.5+distance)-1.0,i*1.26,1.48)
-                                      );
+          Primitive* p1 = robots[j]->getMainPrimitive();
+          Primitive* p2 = robots[j+1]->getMainPrimitive();
+          Joint* joint = new BallJoint(p1,p2,(p1->getPosition()+p2->getPosition())/2.0);
+
+          // Joint* joint = new BallJoint(robots[j]->getMainPrimitive(),
+          //                              robots[j+1]->getMainPrimitive(),
+          //                              Pos((j+0.5)*(1.5+distance)-1.0,i*1.26,1.48)
+          //                             );
           joint->init(odeHandle,osgHandle,true,distance/6);
           joints.push_back(joint);
         }
