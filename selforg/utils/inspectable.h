@@ -22,7 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2011-03-22 11:01:53  guettler
+ *   Revision 1.13  2011-04-28 14:07:28  martius
+ *   default name is empty
+ *
+ *   Revision 1.12  2011/03/22 11:01:53  guettler
  *   - added todo comments
  *
  *   Revision 1.11  2011/03/21 17:46:12  guettler
@@ -180,7 +183,7 @@ public:
   /// TYPEDEFS END
 
 
-  Inspectable(const iparamkey& name);
+  Inspectable(const iparamkey& name = "");
 
 
   virtual ~Inspectable();
