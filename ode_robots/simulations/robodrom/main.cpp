@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2011-02-13 20:30:44  martius
+ *   Revision 1.22  2011-04-28 09:46:49  martius
+ *   cleanup
+ *
+ *   Revision 1.21  2011/02/13 20:30:44  martius
  *   parameters and eliptic version
  *
  *   Revision 1.20  2011/02/11 18:16:41  martius
@@ -312,19 +315,6 @@ public:
     }
   
     showParams(global.configs);
-  }
-
-  // add own key handling stuff here, just insert some case values
-  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
-  {
-    if (down) { // only when key is pressed, not when released
-      switch ( (char) key )
-		default:
-	  return false;
-	  break;
-	}
-    }
-    return false;
   }
 
 
