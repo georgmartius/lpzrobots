@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-05-11 17:03:07  martius
+ *   Revision 1.11  2011-04-28 09:44:34  martius
+ *   documentation
+ *
+ *   Revision 1.10  2009/05/11 17:03:07  martius
  *   minor substance change
  *
  *   Revision 1.9  2008/05/07 16:45:52  martius
@@ -108,6 +111,8 @@ namespace lpzrobots {
 
   /** Robot that looks like a Nimm 2 Bonbon :-)
       4 wheels and a capsule like body   
+      Wheelorder: front left, front right, rear left, rear right
+
   */
   class Nimm4 : public OdeRobot{
   public:

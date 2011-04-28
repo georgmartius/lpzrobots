@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2010-03-29 07:11:53  martius
+ *   Revision 1.19  2011-04-28 09:44:25  martius
+ *   documentation
+ *
+ *   Revision 1.18  2010/03/29 07:11:53  martius
  *   changed rotation of main body, such that forward driving is positive
  *
  *   Revision 1.17  2010/03/09 11:53:41  martius
@@ -276,6 +279,14 @@ namespace lpzrobots {
     object[0]=cap;
     
     // create wheels
+    /*   front
+         -----
+      1 |     | 2
+        |     |
+        |     |
+      3 |     | 4
+         -----
+     */
     for (int i=1; i<5; i++) {
       // create sphere with radius
       // and initialize it with odehandle, osghandle and mass
