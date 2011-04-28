@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2007-08-24 11:58:14  martius
+ *   Revision 1.9  2011-04-28 09:46:16  martius
+ *   isInitialized
+ *
+ *   Revision 1.8  2007/08/24 11:58:14  martius
  *   size()
  *
  *   Revision 1.7  2007/08/23 15:39:05  martius
@@ -133,6 +136,9 @@ public:
   
   // delete all registered sensors.
   virtual void clear();
+
+  // returns true if initialized
+  virtual bool isInitialized() { return initialized;}
 
 protected:
   std::vector<RaySensor*> bank;
