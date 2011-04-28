@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.44  2010-03-10 08:37:35  guettler
+ *   Revision 1.45  2011-04-28 09:43:35  martius
+ *   cigarmode placements changed (still a mess, but now consistent)
+ *
+ *   Revision 1.44  2010/03/10 08:37:35  guettler
  *   fixed unusual material for wheels in boxed mode
  *
  *   Revision 1.43  2010/03/09 11:53:41  martius
@@ -224,8 +227,9 @@ namespace lpzrobots {
     }
 
     if (conf.cigarMode){
-      length=conf.size*2.0;    // long body
-      wheeloffset= -length/4;  // wheels at the end of the cylinder, and the opposite endas the bumper
+      length=conf.size*conf.cigarLength;    // long body
+      wheeloffset= -length/4.0+radius+.1;  // wheels at the end of the cylinder, and the opposite endas the bumper
+      // was wheeloffset= -length/4
       number_bumpers=2;        // if wheels not at center only one bumper
       cmass=4*conf.size;
       max_force   = 2*conf.force*conf.size*conf.size;
@@ -452,10 +456,10 @@ namespace lpzrobots {
       double dheight = 0.0;
       double height = width/4*3 + dheight;
       // height, width and length
-      Box* box = new Box(height,width/3, length/4*3);
+      Box* box = new Box(height,conf.boxWidth*width/3, length/4*3);
       box->getOSGPrimitive()->setTexture("Images/wood.rgb");
       box->init(odeHandle, cmass*5, osgHandle);
-      box->setPose(Matrix::translate(0, 0, -1) * Matrix::rotate(M_PI/2, 0, 1, 0) * pose * Matrix::translate(0, 0, dheight/2));      
+      box->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose * Matrix::translate(0, 0, dheight/2));      
       box->substance.toMetal(0);
       object[0]=box;
     } else {
@@ -496,7 +500,7 @@ namespace lpzrobots {
     for (int i=1; i<3; i++) {
       if(conf.sphereWheels) { // for spherical wheels
 	Sphere* wheel = new Sphere(radius);      // create spheres
-	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
+	wheel->getOSGPrimitive()->setTexture(conf.wheelTexture); // set texture for wheels
 	wheel->init(wheelHandle, wmass, osgHandleWheels); // init with odehandle, mass, and osghandle
 
 	wheel->setPose(Matrix::rotate(M_PI/2.0, 1, 0, 0) *
@@ -547,12 +551,18 @@ namespace lpzrobots {
      * left front
     */
     irSensorBank.init(odeHandle, osgHandle);
+    double irpos;
+    if(conf.boxMode){
+      irpos = length*3.0/8.0 + width/60;
+    } else {
+      irpos = length/2 + width/2 - width/60;
+    }
     if (conf.irFront){ // add front left and front right infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor();
 	irSensorBank.registerSensor(sensor, object[0],
 				    Matrix::rotate(i*M_PI/10, Vec3(1,0,0)) *
-				    Matrix::translate(0,-i*width/10,length/2 + width/2 - width/60 ),
+				    Matrix::translate(0,-i*width/10,irpos ),
 				    conf.irRange, RaySensor::drawAll);
       }
     }
@@ -581,7 +591,7 @@ namespace lpzrobots {
 	irSensorBank.registerSensor(sensor, object[0],
 				    Matrix::rotate(-i*M_PI/10, Vec3(1,0,0)) *
 				    Matrix::rotate(i*M_PI, Vec3(0,1,0)) *
-				    Matrix::translate(0,i*width/10,-(length/2 + width/2 - width/60) ),
+				    Matrix::translate(0,i*width/10,-irpos ),
 				    conf.irRange, RaySensor::drawAll);
       }
     }
@@ -595,7 +605,7 @@ namespace lpzrobots {
 				      Matrix::translate(0,width,i*(length/2) ),
 				      conf.irRange, RaySensor::drawAll);
 
-	} else { // else place onb body
+	} else { // else place at body
 	  irSensorBank.registerSensor(sensor, object[0],
 				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
 				      Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
