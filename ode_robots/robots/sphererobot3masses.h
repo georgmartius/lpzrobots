@@ -24,7 +24,10 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2010-07-08 13:51:01  der
+ *   Revision 1.22  2011-04-28 09:45:56  martius
+ *   pendular range changeable at runtime
+ *
+ *   Revision 1.21  2010/07/08 13:51:01  der
  *   *** empty log message ***
  *
  *   Revision 1.20  2010/07/08 13:48:18  der
@@ -250,6 +253,9 @@ public:
   virtual int getSensorNumber();
 	
   virtual Primitive* getMainPrimitive() const { return object[Base]; }
+  
+  virtual bool setParam(const paramkey& key, paramval val);
+
 
 protected:
 

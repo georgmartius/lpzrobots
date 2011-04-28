@@ -19,7 +19,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2010-03-22 14:33:19  martius
+ *   Revision 1.25  2011-04-28 09:45:47  martius
+ *   pendular range changeable at runtime
+ *
+ *   Revision 1.24  2010/03/22 14:33:19  martius
  *   osghandle changeColor() with single rgba values
  *   camerasensors windowfunction bug
  *
@@ -178,6 +181,9 @@ namespace lpzrobots {
   {
     numberaxis=3;
     init();
+
+    addParameter("pendularrange",&this->conf.pendularrange,0,0.4,
+                 "range of the masses along the sliders");
   }
 
   /**
@@ -357,11 +363,14 @@ namespace lpzrobots {
 				 p, Axis((n==0), (n==1), (n==2))*pose);
       joint[n]->init(odeHandle, osgHandle, false);
       // the Stop parameters are messured from the initial position!
-      joint[n]->setParam ( dParamLoStop, -1.1*conf.diameter*conf.pendularrange );
-      joint[n]->setParam ( dParamHiStop, 1.1*conf.diameter*conf.pendularrange );
+      // the stops are set by the servo
+      //joint[n]->setParam ( dParamLoStop, -1.1*conf.diameter*conf.pendularrange );
+      //      joint[n]->setParam ( dParamHiStop, 1.1*conf.diameter*conf.pendularrange );
+      
       joint[n]->setParam ( dParamStopCFM, 0.1);
       joint[n]->setParam ( dParamStopERP, 0.9);
       joint[n]->setParam ( dParamCFM, 0.001);
+      // see also setParam() for the stops
       servo[n] = new SliderServo(joint[n], 
 				 -conf.diameter*conf.pendularrange, 
 				 conf.diameter*conf.pendularrange, 
@@ -453,5 +462,16 @@ namespace lpzrobots {
     }
     created=false;
   }
+
+  bool Sphererobot3Masses::setParam(const paramkey& key, paramval val){
+    bool rv = OdeRobot::setParam(key,val);
+
+    for (int i=0; i<servono; i++){
+      if(servo[i]) servo[i]->setMinMax(-conf.diameter*conf.pendularrange,
+                                       conf.diameter*conf.pendularrange);        
+    }  
+    return rv;
+  }
+
 
 }
