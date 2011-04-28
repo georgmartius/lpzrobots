@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2010-08-03 12:50:39  martius
+ *   Revision 1.23  2011-04-28 09:44:52  martius
+ *   damping added
+ *
+ *   Revision 1.22  2010/08/03 12:50:39  martius
  *   Servo interface changes: damping() is now get/setDamping
  *
  *   Revision 1.21  2010/01/27 10:19:11  martius
@@ -255,7 +258,7 @@ namespace lpzrobots {
 	SliderServo* servo = new SliderServo(j, 
 					     -conf.segmLength*conf.sliderLength/2, 
 					     conf.segmLength*conf.sliderLength/2, 
-					     conf.motorPower*conf.powerRatio);
+					     conf.motorPower*conf.powerRatio, conf.motorDamp);
 	sliderServos.push_back(servo);	
       }else{ // normal segment
 	Primitive* p1 = new Box(conf.segmDia/2, 
@@ -401,6 +404,9 @@ namespace lpzrobots {
       conf.motorDamp = val; 
 
       FOREACH(vector<HingeServo*>, hingeServos, i) {
+	if(*i) (*i)->setDamping(conf.motorDamp);
+      }
+      FOREACH(vector<SliderServo*>, sliderServos, i) {
 	if(*i) (*i)->setDamping(conf.motorDamp);
       }
     }
