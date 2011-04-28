@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2010-11-10 17:09:36  martius
+ *   Revision 1.12  2011-04-28 09:42:03  martius
+ *   ir sensor handling improved
+ *
+ *   Revision 1.11  2010/11/10 17:09:36  martius
  *   torque sensors added, but not yet tested
  *
  *   Revision 1.10  2010/03/26 14:18:07  martius
@@ -96,6 +99,11 @@ namespace lpzrobots {
   }
 
   int FourWheeled::getSensorNumber(){ 
+    if(!irSensorBank.isInitialized()){
+      fprintf(stderr, "FourWheeled:: place the robot before calling agent->init()!\n");
+      assert(irSensorBank.isInitialized());
+    }
+      
     if(conf.twoWheelMode){
       assert(Nimm4::getSensorNumber() == 4);
       return 2 + irSensorBank.size();
@@ -110,8 +118,9 @@ namespace lpzrobots {
       Nimm4::getSensors(nimm4s,4);
       sensors[len++] = (nimm4s[0]+nimm4s[2])/2;
       sensors[len++] = (nimm4s[1]+nimm4s[3])/2;
-    } else 
+    } else {
       len = Nimm4::getSensors(sensors,sensornumber);
+    }
     
     // ask sensorbank for sensor values (from infrared sensors)
     //  sensor+len is the starting point in the sensors array
@@ -218,6 +227,7 @@ namespace lpzrobots {
 				    Matrix::translate(0,width/2, 0),
 				    conf.irRangeSide, RaySensor::drawAll);      
     }
+
   };
 
 
