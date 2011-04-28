@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2010-12-17 17:00:26  martius
+ *   Revision 1.24  2011-04-28 09:42:27  martius
+ *   texture changed
+ *
+ *   Revision 1.23  2010/12/17 17:00:26  martius
  *   odeagent has new constructor (old is marked as deprecated) -> log files have again
  *    important information about simulation
  *   addsensorstorobotadapater copies configurables
@@ -292,7 +295,8 @@ namespace lpzrobots {
     odeHandle.substance.roughness=frictionGround;
     for (int i=0; i<NUM; i++) {
       object[i] = new Sphere(RADIUS);      
-      object[i]->setTexture("Images/wood.rgb");	      
+      object[i]->setTexture("Images/cross_stripes.rgb");	      
+      //object[i]->setTexture("Images/wood.rgb");	      
       if (i==NUM-1){
 	OsgHandle osgHandle_head = osgHandle;
 	osgHandle_head.color = Color(1, 0, 0);
