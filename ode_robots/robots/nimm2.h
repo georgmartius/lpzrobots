@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2007-11-07 13:21:16  martius
+ *   Revision 1.29  2011-04-28 09:43:58  martius
+ *   added configuration possiblity
+ *
+ *   Revision 1.28  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.27  2007/09/27 16:01:28  der
@@ -168,8 +171,10 @@ typedef struct {
   double speed;
   bool sphereWheels;
   double wheelSize; ///< size of the wheels in body diameters
+  std::string wheelTexture;
   bool bumper;
   bool cigarMode;
+  double cigarLength;
   bool irFront;
   bool irBack;
   bool irSide;
@@ -177,6 +182,7 @@ typedef struct {
   bool singleMotor;
   bool visForce;
   bool boxMode;
+  double  boxWidth;
 } Nimm2Conf;
 
 /** Robot that looks like a Nimm 2 Bonbon :-)
@@ -197,6 +203,7 @@ public:
     conf.wheelSize=1;
     conf.bumper=false;
     conf.cigarMode=false;
+    conf.cigarLength=2.0;
     conf.irFront=false;
     conf.irBack=false;
     conf.irSide=false;
@@ -204,6 +211,8 @@ public:
     conf.singleMotor=false;
 	  conf.visForce=false;
     conf.boxMode=false;
+    conf.boxWidth=1.0;
+    conf.wheelTexture="Images/tire.rgb";
     return conf;
   }
 
