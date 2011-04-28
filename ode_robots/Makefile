@@ -126,7 +126,7 @@ ifneq ($(TYPE),DEVEL)
 endif
 	install --mode 755 utils/feedfile.pl $(PREFIX)/bin/
 	install --mode 755 utils/encodevideo.sh $(PREFIX)/bin/
-	install --mode 755 utils/transcode2allformats.sh $(PREFIX)/bin/
+	install --mode 755 utils/writeTextToFrames.sh $(PREFIX)/bin/
 	install --mode 755 utils/selectcolumns.pl $(PREFIX)/bin/
 	cp -R osg/data $(PREFIX)/share/lpzrobots/
 ifeq ($(TYPE),DEVEL)
