@@ -23,7 +23,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2006-12-21 11:42:10  martius
+ *   Revision 1.3  2011-05-04 10:59:23  fhesse
+ *   constructor has additional bool to transform output of getSensors to local
+ *   coordinates; default=false to be compatible
+ *
+ *   Revision 1.2  2006/12/21 11:42:10  martius
  *   sensors have dimension to sense
  *   axissensors have finer settings
  *
@@ -50,7 +54,7 @@ namespace lpzrobots {
        @param dimensions bit mask for the dimensions to sense. Default: X | Y | Z (all dimensions)
        @see Dimensions
      */
-    RelativePositionSensor(double maxDistance, double exponent, short dimensions = X | Y | Z );
+    RelativePositionSensor(double maxDistance, double exponent, short dimensions = X | Y | Z , bool local_coordinates = false);
     virtual ~RelativePositionSensor() {}
   
     virtual void init(Primitive* own);  
@@ -73,6 +77,7 @@ namespace lpzrobots {
     short dimensions;
     Primitive* own;
     Primitive* ref;    
+    bool local_coords;
   };
 
 

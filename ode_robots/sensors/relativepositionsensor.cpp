@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-07-03 13:13:57  martius
+ *   Revision 1.4  2011-05-04 10:59:23  fhesse
+ *   constructor has additional bool to transform output of getSensors to local
+ *   coordinates; default=false to be compatible
+ *
+ *   Revision 1.3  2007/07/03 13:13:57  martius
  *   *** empty log message ***
  *
  *   Revision 1.2  2006/08/11 15:45:38  martius
@@ -41,12 +45,13 @@
 
 #include "primitive.h"
 #include "relativepositionsensor.h"
+#include "mathutils.h"
 
 namespace lpzrobots {
 
   RelativePositionSensor::RelativePositionSensor(double maxDistance, double exponent, 
-						 short dimensions /* = X | Y | Z */ )
-    : maxDistance(maxDistance), exponent(exponent), dimensions (dimensions) {
+						 short dimensions /* = X | Y | Z */ , bool local_coordinates /*= false*/)
+    : maxDistance(maxDistance), exponent(exponent), dimensions (dimensions), local_coords(local_coordinates){
     own=0;
     ref=0;
   }
@@ -68,6 +73,23 @@ namespace lpzrobots {
     assert(ref);    assert(own);
     std::list<sensor> s;
     osg::Vec3 v = ref->getPosition() - own->getPosition();
+
+    if (local_coords){
+    	// start local coordinates -----------------------------------
+    	matrix::Matrix local = osgMatrix2Matrixlib(own->getPose());
+    	matrix::Matrix m;
+    	m.set(4,1, 0);
+    	for (int i=0; i<3; i++){
+    		m.val(i,0)=v[i];
+    	}
+    	m.val(3,0)=0; // we have a vector and not a point (homogeneous coordinates)
+    	m=local*m;
+    	for (int i=0; i<3; i++){
+    		v[i]=m.val(i,0);
+    	}
+        // end local coordinates   -----------------------------------
+    }
+
     double scale = pow(v.length() / maxDistance, exponent);
     v *= (1/maxDistance)*scale;
 
@@ -82,6 +104,22 @@ namespace lpzrobots {
     int i = 0;
     assert ( length >= getSensorNumber() );
     osg::Vec3 v = ref->getPosition() - own->getPosition();
+    if (local_coords){
+    	// start local coordinates -----------------------------------
+    	matrix::Matrix local = osgMatrix2Matrixlib(own->getPose());
+    	matrix::Matrix m;
+    	m.set(4,1, 0);
+    	for (int i=0; i<3; i++){
+    		m.val(i,0)=v[i];
+    	}
+    	m.val(3,0)=0; // we have a vector and not a point (homogeneous coordinates)
+    	m=local*m;
+    	for (int i=0; i<3; i++){
+    		v[i]=m.val(i,0);
+    	}
+        // end local coordinates   -----------------------------------
+    }
+
     double scale = pow(v.length() / maxDistance, exponent);
     v *= (1/maxDistance)*scale;
     if (dimensions & X) sensors[i++] = v.x();
