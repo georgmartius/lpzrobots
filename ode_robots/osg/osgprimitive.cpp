@@ -27,7 +27,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.27  2011-01-28 11:31:19  martius
+ *   Revision 1.28  2011-05-25 12:13:48  martius
+ *   osgBoxTex: transparency bug fixed, lighting bug fixed
+ *   osgBase: added ambient light
+ *
+ *   Revision 1.27  2011/01/28 11:31:19  martius
  *   changed texture order on osgBox, CreateRectable normal inverted (right handed now)
  *
  *   Revision 1.26  2011/01/02 23:09:52  martius
@@ -456,9 +460,9 @@ namespace lpzrobots {
     Vec3 dy(0.0f,dim.y(),0.0f);
     Vec3 dz(0.0f,0.0f,dim.z());
 
-    // create faces (we keep the quader and have: front side counter clockwise and then backside
+    // create faces (we keep the quader and have: front side counter clockwise and then backside)
     Vec3 vs[8];
-    vs[0] = half;
+    vs[0] = half; 
     vs[1] = half + dx;
     vs[2] = half + dx + dy;
     vs[3] = half + dy;
@@ -744,16 +748,16 @@ namespace lpzrobots {
     // vertices from our vertex list that make up this QUAD:
     osg::DrawElementsUInt* base = 
       new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
-    base->push_back(3);
-    base->push_back(2);
-    base->push_back(1);
     base->push_back(0);
+    base->push_back(1);
+    base->push_back(2);
+    base->push_back(3);
 
     geometry->addPrimitiveSet(base);
     // one normal for the all corners
     osg::Vec3Array* normals = new osg::Vec3Array;
-    Vec3 normal = (v1-v2) ^ (v3-v2) * -1;
-    normal.normalize();
+    Vec3 normal = (v2-v1) ^ (v3-v2);
+    normal.normalize(); 
     normals->push_back(normal);
     geometry->setNormalArray(normals);
     geometry->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE);

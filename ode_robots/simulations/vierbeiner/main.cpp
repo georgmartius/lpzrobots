@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-07-07 14:10:55  robot6
+ *   Revision 1.15  2011-05-25 12:13:48  martius
+ *   osgBoxTex: transparency bug fixed, lighting bug fixed
+ *   osgBase: added ambient light
+ *
+ *   Revision 1.14  2010/07/07 14:10:55  robot6
  *   now with optional face
  *
  *   Revision 1.13  2010/03/09 11:53:41  martius
@@ -151,12 +155,12 @@ public:
 
     // use Playground as boundary:
     s.toPlastic(0.9); 
-    //    double scale = 20; 
-    //    double height = 0;
-    //    int anzgrounds=1;
-    double scale = 1; 
-    double height = 1;
-    int anzgrounds=4;
+    double scale = 20; 
+    double height = 0;
+    int anzgrounds=1;
+    // double scale = 1; 
+    // double height = 1;
+    // int anzgrounds=4;
     for (int i=0; i< anzgrounds; i++){
       playground = new Playground(odeHandle, osgHandle, 
 	     osg::Vec3((4+4*i)*scale, .2, (.15+0.15*i)*height), 1, i==(anzgrounds-1));

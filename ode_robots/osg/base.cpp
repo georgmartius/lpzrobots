@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.52  2011-03-22 16:42:25  guettler
+ *   Revision 1.53  2011-05-25 12:13:48  martius
+ *   osgBoxTex: transparency bug fixed, lighting bug fixed
+ *   osgBase: added ambient light
+ *
+ *   Revision 1.52  2011/03/22 16:42:25  guettler
  *   - adpaptions to enhanced configurable and inspectable interface
  *   - agents are always in globalData.configs
  *   - showParams now done by simulations base code instead manually called
@@ -941,6 +945,7 @@ namespace lpzrobots {
     // // create a default light
     osg::Light* myLight0 = new osg::Light();
     myLight0->setLightNum(1);
+    myLight0->setAmbient(osg::Vec4(1.5f,1.5f,1.5f,1.0f));
     osg::LightSource* lightS0 = new osg::LightSource();
     node->addChild(lightS0);
     lightS0->setLight(myLight0);
@@ -973,8 +978,8 @@ namespace lpzrobots {
     myLight1->setPosition(osg::Vec4(1.0,1.0,1.0,0.0f));
     myLight1->setDirection(osg::Vec3(-1.0, -1.0, -1.0));
     myLight1->setAmbient(osg::Vec4(0.5f,0.5f,0.5f,1.0f));
-    myLight1->setDiffuse(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
-    //    myLight1->setSpecular(osg::Vec4(.0f,.0f,.0f,.0f));
+    //    myLight1->setDiffuse(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
+   //    myLight1->setSpecular(osg::Vec4(.0f,.0f,.0f,.0f));
     myLight1->setConstantAttenuation(1.0f);
 
 
