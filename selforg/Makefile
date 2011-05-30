@@ -112,8 +112,26 @@ depend:
 	make Makefile.depend
 
 tags:
-	etags `find -type f -regex ".*\.[hc]p?p?"` 
+	etags ${CPPFILES} ${HFILES}
+	etags -a -o ../TAGS ${CPPFILES} ${HFILES} 
 
+
+
+.PHONY: search
+##!'search'           		ask for a search string and scans all tex files
+search:
+	echo -n "search rexp: "; read F && grep -in "$$F" ${CPPFILES} ${HFILES}
+
+##!'find'           		scans all tex files for the pattern stored in the file "tofind"
+.PHONY: find
+find:
+	@[ -e "tofind" ] &&  grep -f tofind -n  ${CPPFILES} ${HFILES}
+
+
+##!'findi'           		case insensitive version of target `find'
+.PHONY: findi
+findi:
+	@[ -e "tofind" ] &&  grep -f tofind -in  ${CPPFILES} ${HFILES}
 
 distclean: clean-all
 clean-all: clean
@@ -127,9 +145,5 @@ clean:
 todo:
 	@grep -ni "Todo"  $(CPPFILES) $(HFILES)
 	@grep -ni "Fixme"  $(CPPFILES) $(HFILES)
-
-FIND=`cat tofind`
-find:
-	@[ -n "$(FIND)" ] &&  grep -ni "$(FIND)"  $(CPPFILES) $(HFILES)
 
 include Makefile.depend

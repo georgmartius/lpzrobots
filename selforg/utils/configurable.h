@@ -24,7 +24,15 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2011-03-25 20:38:46  guettler
+ *   Revision 1.21  2011-05-30 13:52:54  martius
+ *   configurable interface changed
+ *    notifyOnChange is now used to inform the childclass on changes
+ *    setParam, getParam, getParamList should not be overloaded anymore
+ *    use addParameter and friends
+ *   store and restore of configurables with children works
+ *   started with tests
+ *
+ *   Revision 1.20  2011/03/25 20:38:46  guettler
  *   - setName() also calls setNameOfInspectable if the instance is inspectable, this
  *     can be avoided manually with an additional param (the autoset should normally
  *     do what the end-user intends because he cannot know that the derived classes
@@ -266,6 +274,107 @@ class Configurable : public BackCaller
     {
     }
 
+    /**
+       Is called when a parameter was changes via setParam(). Note that
+       it is not called of parameters of childs are changed, then there notifyOnChange() method
+       is called. The key and of the changed parameter 
+       (use getParam() to retrieve its actual value).
+       Overload this function when special actions have to be taken on parameter changes.
+    */
+    virtual void notifyOnChange(const paramkey& key){}
+
+    /**
+     This is the new style for adding configurable parameters. Just call this function
+     for each parameter and you are done.
+     If you need to do some special treatment for setting (or getting) of the parameter
+     you can handle this by overloading getParam and setParam
+     */
+    virtual void addParameter(const paramkey& key, paramval* val, 
+			      paramval minBound, paramval maxBound,
+                              const paramdescr& descr = paramdescr() ) {
+      mapOfValues[key] = val;
+      if (minBound>*val) minBound = (*val)>0 ? 0 : (*val)*2;
+      if (maxBound<*val) maxBound = (*val)>0 ? (*val)*2 : 0;
+      if(!descr.empty()) mapOfDescr[key] = descr;
+      mapOfValBounds[key]=paramvalBounds(minBound,maxBound);
+    }
+
+    ///  See addParameter(const paramkey& key, paramval* val, paramval minBound, paramval maxBound, const paramdescr& descr)
+    virtual void addParameter(const paramkey& key, paramval* val, 
+			      const paramdescr& descr = paramdescr()){
+      addParameter(key,val,valDefMinBound, valDefMaxBound, descr);
+    }
+
+
+    /**
+     See addParameter(const paramkey& key, paramval* val) but for bool values
+     */
+    virtual void addParameter(const paramkey& key, parambool* val, 
+                            const paramdescr& descr = paramdescr()) {
+      mapOfBoolean[key] = val;
+      if(!descr.empty()) mapOfDescr[key] = descr;
+    }
+
+    /**
+     See addParameter(const paramkey& key, paramval* val) but for int values
+     */
+    virtual void addParameter(const paramkey& key, paramint* val, 
+			      paramint minBound, paramint maxBound,
+                              const paramdescr& descr = paramdescr()) {
+      mapOfInteger[key] = val;
+      if (minBound>*val) minBound = (*val)>0 ? 0 : (*val)*2;
+      if (maxBound<*val) maxBound = (*val)>0 ? (*val)*2 : 0;
+      if(!descr.empty()) mapOfDescr[key] = descr;
+      mapOfIntBounds[key]=paramintBounds(minBound,maxBound);
+    }
+
+    virtual void addParameter(const paramkey& key, paramint* val, 
+			      const paramdescr& descr = paramdescr()){
+      addParameter(key,val,intDefMinBound, intDefMaxBound, descr);
+    }
+
+    /**
+     This function is only provided for convenience. It does the same as addParameter but set the
+     variable to the default value
+     */
+    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def, 
+				 paramval minBound, paramval maxBound,
+                                 const paramdescr& descr = paramdescr()){
+      *val = def;
+      addParameter(key,val, minBound, maxBound, descr);
+    }
+
+    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def, 
+				 const paramdescr& descr = paramdescr()){
+      addParameterDef(key,val,def,valDefMinBound, valDefMaxBound, descr);
+    }
+
+
+    /// See addParameterDef(const paramkey&, paramval*, paramval)
+    virtual void addParameterDef(const paramkey& key, parambool* val, parambool def,
+                                 const paramdescr& descr = paramdescr()) {
+      *val = def;
+      addParameter(key,val,descr);
+    }
+
+    /// See addParameterDef(const paramkey&, paramval*, paramval)
+    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def, 
+				 paramint minBound, paramint maxBound,
+                                 const paramdescr& descr = paramdescr()) {
+      *val = def;
+      addParameter(key,val, minBound, maxBound, descr);
+    }
+
+    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def, 
+				 const paramdescr& descr = paramdescr()) {
+      addParameterDef(key,val,def,intDefMinBound, intDefMaxBound, descr);
+    }
+
+    /// sets a description for the given parameter
+    virtual void setParamDescr(const paramkey& key, const paramdescr& descr, 
+			       bool traverseChildren = true);
+
+
     /// return the id of the configurable objects, which is created by random on initialisation
     int getId() const {
       return id;
@@ -297,32 +406,32 @@ class Configurable : public BackCaller
     /** returns the value of the requested parameter
      or 0 (+ error message to stderr) if unknown.
      */
-    virtual paramval getParam(const paramkey& key, bool useChilds = true) const;
+    virtual paramval getParam(const paramkey& key, bool traverseChildren = true) const;
 
     /**
-     * Returns if the requested parameter is part of the configurable or their childs
+     * Returns if the requested parameter is part of the configurable or their children
      * @param key to search for
      * @return true if key found, otherwise false
      */
-    virtual bool hasParam(const paramkey& key, bool useChilds = true) const;
+    virtual bool hasParam(const paramkey& key, bool traverseChildren = true) const;
 
     /** sets the value of the given parameter
      or does nothing if unknown.
      */
-    virtual bool setParam(const paramkey& key, paramval val, bool useChilds = true);
+    virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren = true);
 
     /**
      * Sets the bounds (minBound and maxBound) of the given parameter.
      * Not useful for parambool.
      * If minBound=maxBound, it is threated as that no bound is given.
      */
-    virtual void setParamBounds(const paramkey& key, paramval minBound, paramval maxBound, bool useChilds = true);
+    virtual void setParamBounds(const paramkey& key, paramval minBound, paramval maxBound, bool traverseChildren = true);
 
-    virtual void setParamBounds(const paramkey& key, paramint minBound, paramint maxBound, bool useChilds = true);
+    virtual void setParamBounds(const paramkey& key, paramint minBound, paramint maxBound, bool traverseChildren = true);
 
-    virtual void setParamBounds(const paramkey& key, paramvalBounds bounds, bool useChilds = true);
+    virtual void setParamBounds(const paramkey& key, paramvalBounds bounds, bool traverseChildren = true);
 
-    virtual void setParamBounds(const paramkey& key, paramintBounds bounds, bool useChilds = true);
+    virtual void setParamBounds(const paramkey& key, paramintBounds bounds, bool traverseChildren = true);
 
     /** The list of all parameters with there value as allocated lists.
 	Note that these are only parameters that are managed manually (with setParam, getParam)
@@ -334,7 +443,7 @@ class Configurable : public BackCaller
     }
 
     /// returns all names that are configureable
-    virtual std::list<paramkey> getAllParamNames(bool useChilds = true);
+    virtual std::list<paramkey> getAllParamNames(bool traverseChildren = true);
 
     virtual parammap getParamValMap() const {
       return mapOfValues;
@@ -349,100 +458,19 @@ class Configurable : public BackCaller
     }
 
     /// returns the description for the given parameter
-    virtual paramdescr getParamDescr(const paramkey& key, bool useChilds = true) const;
+    virtual paramdescr getParamDescr(const paramkey& key, bool traverseChildren = true) const;
 
-    virtual paramvalBounds getParamvalBounds(const paramkey& key, bool useChilds = true) const;
+    virtual paramvalBounds getParamvalBounds(const paramkey& key, bool traverseChildren = true) const;
 
-    virtual paramintBounds getParamintBounds(const paramkey& key, bool useChilds = true) const;
+    virtual paramintBounds getParamintBounds(const paramkey& key, bool traverseChildren = true) const;
 
-    virtual bool hasParamDescr(const paramkey& key, bool useChilds = true) const;
+    virtual bool hasParamDescr(const paramkey& key, bool traverseChildren = true) const;
 
-    virtual bool hasParamvalBounds(const paramkey& key, bool useChilds = true) const;
+    virtual bool hasParamvalBounds(const paramkey& key, bool traverseChildren = true) const;
 
-    virtual bool hasParamintBounds(const paramkey& key, bool useChilds = true) const;
-
-
-        /// sets a description for the given parameter
-    virtual void setParamDescr(const paramkey& key, const paramdescr& descr, bool useChilds = true);
-
-    /**
-     This is the new style for adding configurable parameters. Just call this function
-     for each parameter and you are done.
-     If you need to do some special treatment for setting (or getting) of the parameter
-     you can handle this by overloading getParam and setParam
-     */
-    virtual void addParameter(const paramkey& key, paramval* val, paramval minBound, paramval maxBound,
-                              const paramdescr& descr = paramdescr() ) {
-      mapOfValues[key] = val;
-      if (minBound>*val) minBound = (*val)>0 ? 0 : (*val)*2;
-      if (maxBound<*val) maxBound = (*val)>0 ? (*val)*2 : 0;
-      if(!descr.empty()) mapOfDescr[key] = descr;
-      mapOfValBounds[key]=paramvalBounds(minBound,maxBound);
-    }
-
-    ///  See addParameter(const paramkey& key, paramval* val, paramval minBound, paramval maxBound, const paramdescr& descr)
-    virtual void addParameter(const paramkey& key, paramval* val, const paramdescr& descr = paramdescr()){
-      addParameter(key,val,valDefMinBound, valDefMaxBound, descr);
-    }
+    virtual bool hasParamintBounds(const paramkey& key, bool traverseChildren = true) const;
 
 
-    /**
-     See addParameter(const paramkey& key, paramval* val) but for bool values
-     */
-    virtual void addParameter(const paramkey& key, parambool* val, 
-                            const paramdescr& descr = paramdescr()) {
-      mapOfBoolean[key] = val;
-      if(!descr.empty()) mapOfDescr[key] = descr;
-    }
-
-    /**
-     See addParameter(const paramkey& key, paramval* val) but for int values
-     */
-    virtual void addParameter(const paramkey& key, paramint* val, paramint minBound, paramint maxBound,
-                              const paramdescr& descr = paramdescr()) {
-      mapOfInteger[key] = val;
-      if (minBound>*val) minBound = (*val)>0 ? 0 : (*val)*2;
-      if (maxBound<*val) maxBound = (*val)>0 ? (*val)*2 : 0;
-      if(!descr.empty()) mapOfDescr[key] = descr;
-      mapOfIntBounds[key]=paramintBounds(minBound,maxBound);
-    }
-
-    virtual void addParameter(const paramkey& key, paramint* val, const paramdescr& descr = paramdescr()){
-      addParameter(key,val,intDefMinBound, intDefMaxBound, descr);
-    }
-
-    /**
-     This function is only provided for convenience. It does the same as addParameter but set the
-     variable to the default value
-     */
-    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def, paramval minBound, paramval maxBound,
-                                 const paramdescr& descr = paramdescr()){
-      *val = def;
-      addParameter(key,val, minBound, maxBound, descr);
-    }
-
-    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def, const paramdescr& descr = paramdescr()){
-      addParameterDef(key,val,def,valDefMinBound, valDefMaxBound, descr);
-    }
-
-
-    /// See addParameterDef(const paramkey&, paramval*, paramval)
-    virtual void addParameterDef(const paramkey& key, parambool* val, parambool def,
-                                 const paramdescr& descr = paramdescr()) {
-      *val = def;
-      addParameter(key,val,descr);
-    }
-
-    /// See addParameterDef(const paramkey&, paramval*, paramval)
-    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def, paramint minBound, paramint maxBound,
-                                 const paramdescr& descr = paramdescr()) {
-      *val = def;
-      addParameter(key,val, minBound, maxBound, descr);
-    }
-
-    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def, const paramdescr& descr = paramdescr()) {
-      addParameterDef(key,val,def,intDefMinBound, intDefMaxBound, descr);
-    }
 
 
 
@@ -462,10 +490,10 @@ class Configurable : public BackCaller
     /** restores the key values paires from the file : filenamestem.cfg */
     virtual bool restoreCfg(const char* filenamestem);
     /// prints the keys, values and descriptions to the file. Each line is prefixed
-    void print(FILE* f, const char* prefix, int columns=90, bool useChilds = true) const;
+    void print(FILE* f, const char* prefix, int columns=90, bool traverseChildren = true) const;
 
-    // TODO: support parsing for configurable childs
-    void parse(FILE* f);
+    /// parses the configuration from the given file
+    bool parse(FILE* f, const char* prefix = 0, bool traverseChildren = true);
 
     /**
       * Adds a configurable as a child object.
@@ -480,12 +508,12 @@ class Configurable : public BackCaller
     virtual void removeConfigurable(Configurable* conf);
 
     /**
-     * Returns the list containing all configurable childs.
+     * Returns the list containing all configurable children.
      */
     virtual const configurableList& getConfigurables() const;
 
     /**
-     * Indicates that the configurable itself or the configurable childs
+     * Indicates that the configurable itself or the configurable children
      * attached to this configurable have changed.
      * This method must be called manually so that the Configurator GUI can react
      * at the changes.
@@ -498,7 +526,7 @@ class Configurable : public BackCaller
 
   protected:
     /// copies the internal params of the given configurable
-    void copyParameters(const Configurable&, bool useChilds = true);
+    void copyParameters(const Configurable&, bool traverseChildren = true);
 
     // internal function to print only description in multiline fasion
     void printdescr(FILE* f, const char* prefix, const paramkey& key, 
@@ -520,7 +548,7 @@ class Configurable : public BackCaller
 
     void initParamBounds(const paramkey& key);
 
-    configurableList ListOfConfigurableChilds;
+    configurableList ListOfConfigurableChildren;
     Configurable* parent;
 };
 

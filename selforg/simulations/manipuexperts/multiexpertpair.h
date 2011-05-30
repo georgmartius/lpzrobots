@@ -28,7 +28,15 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-06-26 12:58:41  martius
+ *   Revision 1.3  2011-05-30 13:52:54  martius
+ *   configurable interface changed
+ *    notifyOnChange is now used to inform the childclass on changes
+ *    setParam, getParam, getParamList should not be overloaded anymore
+ *    use addParameter and friends
+ *   store and restore of configurables with children works
+ *   started with tests
+ *
+ *   Revision 1.2  2008/06/26 12:58:41  martius
  *   with adaptive agent number
  *
  *   Revision 1.1  2008/04/24 08:42:34  martius
@@ -103,8 +111,8 @@ public:
   void restoreSats(const std::list<std::string>& filenames);
 
   /************** CONFIGURABLE ********************************/
-  virtual paramval getParam(const paramkey& key) const;
-  virtual bool setParam(const paramkey& key, paramval val);
+  virtual paramval getParam(const paramkey& key, bool traverseChildren=true) const;
+  virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
   virtual paramlist getParamList() const;
 
 

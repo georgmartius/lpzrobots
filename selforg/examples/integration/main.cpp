@@ -94,12 +94,12 @@ public:
     return m; 
   };
 
-  virtual paramval getParam(const paramkey& key) const{
+  virtual paramval getParam(const paramkey& key, bool traverseChildren) const{
     if(key == "myparam") return myparam; 
     else return Configurable::getParam(key);
   }
 
-  virtual bool setParam(const paramkey& key, paramval val){
+  virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren){
     cerr << "huhu";
     if(key == "myparam") myparam = val; 
     else return Configurable::setParam(key, val); 

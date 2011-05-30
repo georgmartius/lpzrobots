@@ -382,14 +382,14 @@ public:
     return m; 
   };
 
-  virtual paramval getParam(const paramkey& key) const{
+  virtual paramval getParam(const paramkey& key, bool traverseChildren) const{
     if(key == "noise") return noise; 
     else if(key == "cycletime") return cycletime; 
     else if(key == "reset") return 0; 
     else  return Configurable::getParam(key);
   }
 
-  virtual bool setParam(const paramkey& key, paramval val){
+  virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren){
     if(key == "noise") noise = val; 
     else if(key == "cycletime"){
       cycletime=(long)val;

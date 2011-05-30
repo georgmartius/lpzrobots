@@ -17,7 +17,15 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-06-26 12:58:41  martius
+ *   Revision 1.4  2011-05-30 13:52:54  martius
+ *   configurable interface changed
+ *    notifyOnChange is now used to inform the childclass on changes
+ *    setParam, getParam, getParamList should not be overloaded anymore
+ *    use addParameter and friends
+ *   store and restore of configurables with children works
+ *   started with tests
+ *
+ *   Revision 1.3  2008/06/26 12:58:41  martius
  *   with adaptive agent number
  *
  *   Revision 1.2  2008/05/02 17:20:04  martius
@@ -273,12 +281,12 @@ void MultiExpertPair::management(){
 }
 
 
-Configurable::paramval MultiExpertPair::getParam(const paramkey& key) const{
+Configurable::paramval MultiExpertPair::getParam(const paramkey& key, bool traverseChildren) const{
   if (key=="epsSat") return sats[0].eps;
   else return AbstractModel::getParam(key);
 }
 
-bool MultiExpertPair::setParam(const paramkey& key, paramval val){
+bool MultiExpertPair::setParam(const paramkey& key, paramval val, bool traverseChildren){
   if(key=="epsSat") {
     FOREACH(vector<Sat>, sats, s){
       s->eps=val;
