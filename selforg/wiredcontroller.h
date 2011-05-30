@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2011-03-22 16:46:15  guettler
+ *   Revision 1.19  2011-05-30 21:56:30  martius
+ *   configurable print out works better
+ *
+ *   Revision 1.18  2011/03/22 16:46:15  guettler
  *   - adpaptions to enhanced configurable and inspectable interface
  *   - WiredController is now configurable (solves some inconsistencies)
  *
@@ -208,6 +211,7 @@ public:
   /** Returns a pointer to the controller.
    */
   virtual AbstractController* getController() { return controller;}
+  virtual const AbstractController* getController() const { return controller;}
 
   /** Returns a pointer to the wiring.
    */

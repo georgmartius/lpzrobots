@@ -12,20 +12,23 @@ LIBS   = -lm $(shell gsl-config --libs) -lselforg -L../ -lpthread
 CXX = g++ $(shell gsl-config --cflags)
 AR = ar
 
-# ATMEL STUFF
-#AVRCXX     = avr-gcc
-#ATmega     = 32
-#MCU_TARGET = -mmcu=atmega${ATmega}
-#AVRUTILS   = ../avr/utils
-
 .PHONY: all
 #all: unittests_debug unittests unittests_sse sparsematrix_debug
-all: $(TESTS)
-#    libmatrix_avr_debug.a libmatrix_avr.a
+all: 
+	for T in $(TESTS); do $(MAKE) TEST=$$T $$T; done
+	$(MAKE) run
 
-configurabletest: configurabletest.cpp ../libselforg.a
-	$(CXX) $(TEST_DEBUG_CFLAGS) configurabletest.cpp $(LIBS) -o configurabletest
-	./configurabletest
+run:
+	for T in $(TESTS); do ./$$T; done
+
+
+$(TEST): $(TEST).cpp ../libselforg.a
+	$(CXX) $(TEST_DEBUG_CFLAGS) $(TEST).cpp $(LIBS) -o $(TEST)
+
+
+# configurabletest: configurabletest.cpp ../libselforg.a
+# 	$(CXX) $(TEST_DEBUG_CFLAGS) configurabletest.cpp $(LIBS) -o configurabletest
+# 	./configurabletest
 
 
 .PHONY: tags

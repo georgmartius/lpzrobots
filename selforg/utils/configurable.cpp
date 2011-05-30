@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2011-05-30 13:52:54  martius
+ *   Revision 1.17  2011-05-30 21:56:30  martius
+ *   configurable print out works better
+ *
+ *   Revision 1.16  2011/05/30 13:52:54  martius
  *   configurable interface changed
  *    notifyOnChange is now used to inform the childclass on changes
  *    setParam, getParam, getParamList should not be overloaded anymore
@@ -132,6 +135,7 @@
 #include <cstring>
 #include <assert.h>
 #include <stdio.h>
+#include <cmath>
 
 using namespace std;
 
@@ -421,6 +425,7 @@ void Configurable::setParamDescr(const paramkey& key, const paramdescr& descr, b
 
 void Configurable::print(FILE* f, const char* prefix, int columns, bool traverseChildren /* = true */) const {
   const char* pre = prefix==0 ? "": prefix;    
+  columns-= strlen(pre);
   const unsigned short spacelength=20;
   char spacer[spacelength+1];
   memset(spacer, ' ', spacelength);  spacer[spacelength]=0;
@@ -429,32 +434,38 @@ void Configurable::print(FILE* f, const char* prefix, int columns, bool traverse
   // use map of values
   FOREACHC(parammap, mapOfValues, i) {
     const string& k = (*i).first;
-    fprintf(f, "%s %s=%s%11.6f  ", pre, k.c_str(), 
-	    spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
-    printdescr(f, pre, k, columns,spacelength+14);
+    double val = * (*i).second;
+    if(val>1000 && floor(val) == val){ // without point and digits afterwards
+      fprintf(f, "%s %s=%s%11.0f ", pre, k.c_str(), 
+	      spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
+    }else{ // normal
+      fprintf(f, "%s %s=%s%11.6f ", pre, k.c_str(), 
+	      spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
+    }
+    printdescr(f, pre, k, columns,spacelength+13);
   }
   // use map of int
   FOREACHC(paramintmap, mapOfInteger, i) {
     const string& k = (*i).first;
-    fprintf(f, "%s %s=%s%4i         ", pre, k.c_str(),
+    fprintf(f, "%s %s=%s%4i        ", pre, k.c_str(),
             spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
-    printdescr(f, pre, k, columns,spacelength+14);
+    printdescr(f, pre, k, columns,spacelength+13);
 
   }
   // use map of boolean
   FOREACHC(paramboolmap, mapOfBoolean, i) {
     const string& k = (*i).first;
-    fprintf(f, "%s %s=%s%4i         ", pre, k.c_str(),
+    fprintf(f, "%s %s=%s%4i        ", pre, k.c_str(),
       spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
-    printdescr(f, pre, k, columns,spacelength+14);
+    printdescr(f, pre, k, columns,spacelength+13);
   }
   // add custom parameters stuff (which is marked by a * at the end of the line)
   paramlist list = getParamList(); 
   FOREACHC(paramlist, list, i) {
     const string& k = (*i).first;
-    fprintf(f, "%s %s=%s%11.6f *", pre, k.c_str(), 
+    fprintf(f, "%s %s=%s%11.6f*", pre, k.c_str(), 
 	    spacer+(k.length() > spacelength  ? spacelength : k.length()), (*i).second);
-    printdescr(f, pre, k, columns,spacelength+14);
+    printdescr(f, pre, k, columns,spacelength+13);
   }
   // write termination line
   fprintf(f, "%s######\n",pre);

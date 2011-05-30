@@ -22,7 +22,10 @@ struct Dat {
   double d;
   int i;
   bool b;
-  double pla;
+  double pla;  
+  bool operator == (const Dat& dat){
+    return d==dat.d && i==dat.i && b == dat.b && pla==dat.pla; //memcmp(this, &dat, sizeof(Dat))==0;
+  }
 };
 
 
@@ -70,23 +73,22 @@ DEFINE_TEST( store_restore ) {
   c.addConfigurable(&c3);
   setValues(c);
   setValues(c2);
-  c.print(stdout,0,80);
+  //  c.print(stdout,0,80);
   unit_assert("store   ", c.storeCfg("configurablestore"));
-  {
-    Dat d,d1,d2,d3;
-    Configurable c = setupConfigable(d,"c");
-    Configurable c1 = setupConfigable(d1,"c1");
-    Configurable c2 = setupConfigable(d2,"c2");
-    Configurable c3 = setupConfigable(d3,"c3");    
-    c1.addConfigurable(&c2);
-    c.addConfigurable(&c1);
-    c.addConfigurable(&c3);
-    unit_assert("restore ", c.restoreCfg("configurablestore"));
-    // validate:
-    c.print(stdout,0,80); 
-  }
   
-
+  Dat bd,bd1,bd2,bd3;
+  Configurable bc = setupConfigable(bd,"c");
+  Configurable bc1 = setupConfigable(bd1,"c1");
+  Configurable bc2 = setupConfigable(bd2,"c2");
+  Configurable bc3 = setupConfigable(bd3,"c3");    
+  bc1.addConfigurable(&bc2);
+  bc.addConfigurable(&bc1);
+  bc.addConfigurable(&bc3);
+  unit_assert("restore ", bc.restoreCfg("configurablestore"));
+  // validate:
+  unit_assert("validate ", d==bd && d1==bd1 && d2==bd2 && d3==bd3 );
+  bc.print(stdout,0,80); 
+  
   unit_pass();  
 }
 
