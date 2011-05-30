@@ -27,7 +27,12 @@
  *    (NOT YET) sat networks have equal structure to selforg               *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2008-11-14 11:23:05  martius
+ *   Revision 1.13  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.12  2008/11/14 11:23:05  martius
  *   added centered Servos! This is useful for highly nonequal min max values
  *   skeleton has now also a joint in the back
  *
@@ -136,8 +141,8 @@ public:
 
 
   /************** CONFIGURABLE ********************************/
-  virtual paramval getParam(const paramkey& key) const;
-  virtual bool setParam(const paramkey& key, paramval val);
+  virtual paramval getParam(const paramkey& key, bool traverseChildren=true) const;
+  virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
   virtual paramlist getParamList() const;
 
 

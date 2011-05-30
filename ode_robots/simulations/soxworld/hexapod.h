@@ -210,8 +210,8 @@ namespace lpzrobots {
     	return position;
     }
 
-    // Configurable Interface
-    virtual bool setParam(const paramkey& key, paramval val);
+    /******** CONFIGURABLE ***********/
+    virtual void notifyOnChange(const paramkey& key);
 
     virtual void resetMotorPower(double power);
 

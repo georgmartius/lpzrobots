@@ -66,13 +66,13 @@ MultiController::getInternalParams() const
 
 
 AbstractController::paramval
-MultiController::getParam(const paramkey& key) const
+MultiController::getParam(const paramkey& key, bool traverseChildren) const
 {
   return (*it_active_controller)->getParam(key);
 }
 
 
-bool MultiController::setParam(const paramkey& key, paramval val)
+bool MultiController::setParam(const paramkey& key, paramval val, bool traverseChildren)
 {
   return (*it_active_controller)->setParam(key, val);
 }

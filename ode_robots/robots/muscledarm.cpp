@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2008-05-07 16:45:51  martius
+ *   Revision 1.9  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.8  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.7  2007/11/07 13:21:16  martius
@@ -102,8 +107,13 @@ namespace lpzrobots{
  
     parentspace=odeHandle.space;
     factorMotors=0.1;
-    factorSensors=8.0;//20.0;
-    damping=1;
+    damping=1; // seems to be wrong! (too high)
+
+    addParameter("factorMotors", &factorMotors, 0,50);
+    addParameterDef("factorSensors", &factorSensors, 8.0,0,50);
+    addParameter("damping", &damping, 0,1 );
+    addParameterDef("print", &print, 3, 0,10 );
+
 
     sensorno=0;
     if (conf.jointAngleSensors)
@@ -747,30 +757,5 @@ namespace lpzrobots{
     return object[hand];  
   };
 
-  Configurable::paramlist MuscledArm::getParamList() const{
-    paramlist list;
-    list.push_back(pair<paramkey, paramval> (string("factorMotors"), factorMotors));
-    list.push_back(pair<paramkey, paramval> (string("factorSensors"), factorSensors));
-    list.push_back(pair<paramkey, paramval> (string("damping"), damping));
-    list.push_back(pair<paramkey, paramval> (string("print"), print));
-    return list;
-  };
-
-  Configurable::paramval MuscledArm::getParam(const paramkey& key) const{
-    if(key == "factorMotors") return factorMotors; 
-    else if(key == "factorSensors") return factorSensors; 
-    else if(key == "damping") return damping; 
-    else if(key == "print") return print; 
-    else  return Configurable::getParam(key) ;
-  };
-
-  bool MuscledArm::setParam(const paramkey& key, paramval val){
-    if(key == "factorMotors") factorMotors=val;
-    else if(key == "factorSensors") factorSensors = val; 
-    else if(key == "damping") damping = val; 
-    else if(key == "print") print = val; 
-    else return Configurable::setParam(key, val);
-    return true;
-  };
 
 }

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.33  2010-09-30 17:12:29  martius
+ *   Revision 1.34  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.33  2010/09/30 17:12:29  martius
  *   added anisotrop friction to schlange
  *
  *   Revision 1.32  2010/01/26 09:55:26  martius
@@ -109,7 +114,11 @@ namespace lpzrobots {
   Schlange::Schlange ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		       const SchlangeConf& conf, const std::string& name, const std::string& revision)
     : OdeRobot( odeHandle, osgHandle, name, revision), conf(conf) {
-
+    
+    addParameter("frictionground",&this->conf.frictionGround,0,2);
+    addParameter("motorpower", &this->conf.motorPower,0,20);
+    addParameter("sensorfactor", &this->conf.sensorFactor,0,5);
+    addParameter("frictionjoint",&this->conf.frictionJoint,0,5);   
     created=false;
   }
 	
@@ -139,40 +148,6 @@ namespace lpzrobots {
   void Schlange::doInternalStuff(GlobalData& global){
   }
 
-  /** The list of all parameters with there value as allocated lists.
-      @return length of the lists
-  */
-  Configurable::paramlist Schlange::getParamList() const{
-    paramlist list;
-    list += pair<paramkey, paramval> (string("frictionground"), conf.frictionGround);
-    list += pair<paramkey, paramval> (string("frictionjoint"), conf.frictionJoint);
-    list += pair<paramkey, paramval> (string("motorpower"),   conf.motorPower);
-    list += pair<paramkey, paramval> (string("sensorfactor"), conf.sensorFactor);
-    return list;
-  }
-  
-  
-  Configurable::paramval Schlange::getParam(const paramkey& key) const{    
-    if(key == "frictionground") return conf.frictionGround; 
-    else if(key == "frictionjoint") return conf.frictionJoint; 
-    else if(key == "motorpower") return conf.motorPower; 
-    else if(key == "sensorfactor") return conf.sensorFactor; 
-    else  return Configurable::getParam(key) ;
-  }
-  
-  bool Schlange::setParam(const paramkey& key, paramval val){    
-    if(key == "frictionground") conf.frictionGround = val; 
-    else if(key == "motorpower") conf.motorPower = val; 
-    else if(key == "sensorfactor") conf.sensorFactor = val; 
-    else if(key == "frictionjoint") { 
-      conf.frictionJoint = val; 
-      for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
-	if (*i) (*i)->setPower(conf.frictionJoint);	
-      }         
-    } else 
-      return Configurable::setParam(key, val);    
-    return true;
-  }
   
   
   int Schlange::getSegmentsPosition(std::vector<Position> &poslist){
@@ -184,6 +159,13 @@ namespace lpzrobots {
     return conf.segmNumber;    
   }
 
+  void Schlange::notifyOnChange(const paramkey& key){    
+    if(key == "frictionjoint") {       
+      for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
+	if (*i) (*i)->setPower(conf.frictionJoint);	
+      }         
+    }
+  }
 
 
   /** creates vehicle at desired position 

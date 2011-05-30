@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-10-21 14:25:16  martius
+ *   Revision 1.3  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.2  2010/10/21 14:25:16  martius
  *   add description of channels
  *
  *   Revision 1.1  2010/10/20 15:47:04  martius
@@ -344,9 +349,8 @@ namespace lpzrobots {
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
-    
-    
-    virtual bool setParam(const paramkey& key, paramval val);
+    /******** CONFIGURABLE ***********/
+    virtual void notifyOnChange(const paramkey& key);
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }

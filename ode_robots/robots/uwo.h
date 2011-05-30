@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-11-07 13:21:16  martius
+ *   Revision 1.6  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.5  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.4  2007/02/13 19:32:13  martius
@@ -149,15 +154,8 @@ namespace lpzrobots {
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
-    
-    /** The list of all parameters with there value as allocated lists.
-     */
-    virtual paramlist getParamList() const;
-    
-    virtual paramval getParam(const paramkey& key) const;;
-    
-    virtual bool setParam(const paramkey& key, paramval val);
-
+    /******** CONFIGURABLE ***********/
+    virtual void notifyOnChange(const paramkey& key);
 
   protected:
     /** the main object of the robot, which is used for position and speed tracking */

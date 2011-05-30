@@ -55,6 +55,11 @@ namespace lpzrobots{
     parentspace=odeHandle.space;
     
     factorSensors=1/2.7; // normalization of position w.r.t. arm length (only for endeffector position)
+    addParameter("motorPower", &this->conf.motorPower, 0,50);
+    addParameterDef("factorSensors", &factorSensors, 1.0/2.7,0,10);
+    addParameter("damping", &this->conf.damping, 0,1 );
+    addParameterDef("print", &print, 3, 0,10 );
+  
 
     int s=0;
     FOREACHC(list<Sensor*>, conf.sensors, i){
@@ -68,7 +73,6 @@ namespace lpzrobots{
 				
     motorno=4; // dito
 
-    print=3; //0;
 
     // standard objects color: white 
     // color definition: rgb
@@ -505,29 +509,10 @@ namespace lpzrobots{
     created=false;
   };
 
-  Configurable::paramlist Arm::getParamList() const
-  {
-    paramlist list;
-    list.push_back(pair<paramkey, paramval> (string("motorPower"), conf.motorPower));
-    list.push_back(pair<paramkey, paramval> (string("factorSensors"), factorSensors));
-    list.push_back(pair<paramkey, paramval> (string("damping"), conf.damping));
-    list.push_back(pair<paramkey, paramval> (string("print"), print));
-    return list;
-  };
-
-  Configurable::paramval Arm::getParam(const paramkey& key) const
-  {
-    if(key == "motorPower") return conf.motorPower; 
-    else if(key == "factorSensors") return factorSensors; 
-    else if(key == "damping") return conf.damping; 
-    else if(key == "print") return print; 
-    else  return Configurable::getParam(key) ;
-  };
-
-  bool Arm::setParam(const paramkey& key, paramval val)
+  void Arm::notifyOnChange(const paramkey& key)
   {
     if(key == "motorPower") {
-      conf.motorPower=val;
+      double val = conf.motorPower;
       hingeServos[0]->setPower(val);   // elevation
       hingeServos[1]->setPower(val/2); // azimutal
       hingeServos[2]->setPower(val/4); // humeral
@@ -535,16 +520,11 @@ namespace lpzrobots{
       //       FOREACH (vector<HingeServo*>, hingeServos, i) {
       // 	(*i)->setPower(val);
       //       }
-    } else if(key == "factorSensors") factorSensors = val; 
-    else if(key == "damping") {
-      conf.damping = val; 
+    } else if(key == "damping") {
       FOREACH (vector<HingeServo*>, hingeServos, i) {
-	(*i)->setDamping(val);
+	(*i)->setDamping(conf.damping);
       }
     }
-    else if(key == "print") print = val; 
-    else return Configurable::setParam(key, val);
-    return true;
   };
 
 //  list<Inspectable::iparamkey> Arm::getInternalParamNames() const

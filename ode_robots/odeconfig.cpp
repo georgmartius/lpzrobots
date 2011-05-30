@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-11-26 12:21:13  guettler
+ *   Revision 1.15  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.14  2010/11/26 12:21:13  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - minor bugfixes
@@ -107,72 +112,52 @@ namespace lpzrobots {
   OdeConfig::OdeConfig() :
     Configurable ("Simulation Environment", "$Id$")
   {
-    realTimeFactor=1.0;
-    gravity=-9.81;
-    simStepSize = 0.01;
-    fps=25;
-    randomSeed=0;
-    addParameterDef("noise",            &noise,0.1);
-    addParameterDef("cameraspeed",      &cameraSpeed,100);
-    addParameterDef("motionpersistence",&motionPersistence,0.0);
+    addParameterDef("noise",            &noise,0.1, 0, 1, "global noise strength");
+    addParameterDef("cameraspeed",      &cameraSpeed,100, 1,1000, "camera speed");
+    addParameterDef("motionpersistence",&motionPersistence,0.0,0,10,"motion blur strength");
     addParameterDef("controlinterval"  ,&controlInterval,1, 1, 100,
                     "interval in steps between subsequent controller calls");
-    setParamDescr("realtimefactor", "speed of simulation wrt. real time (0: full speed)");
-    setParamDescr("simstepsize", "stepsize of the physical simulation (in seconds)");
-    setParamDescr("fps", "frames per second");
-    setParamDescr("gravity", "strengh of gravity (-9.81 is earth gravity)");
-    setParamDescr("randomseed", "random number seed (cmdline -r) (readonly)");
 
+    addParameterDef("realtimefactor"   ,&realTimeFactor, 1, 0, 100,
+		    "speed of simulation wrt. real time (0: full speed)");
+    addParameterDef("simstepsize"      ,&simStepSize,    0.01,0.000001,.1, 
+		    "stepsize of the physical simulation (in seconds)");
+    addParameterDef("gravity"          ,&gravity,        -9.81,-20,20, 
+		    "strengh of gravity (-9.81 is earth gravity)");
+    addParameterDef("randomseed"          ,&randomSeedCopy,   0,
+		    "random number seed (cmdline -r) (readonly)");
+    addParameterDef("fps"              ,&fps,            25,0.0001,200, "frames per second");
+    
     drawInterval = calcDrawInterval(fps,realTimeFactor);
     // prepare name;
     videoRecordingMode=false;
   }
         
-  Configurable::paramlist OdeConfig::getParamList() const{
-    paramlist list = Configurable::getParamList();
-    list.push_back(std::pair<paramkey, paramval> (std::string("simstepsize"), simStepSize));
-    list.push_back(std::pair<paramkey, paramval> (std::string("gravity"), gravity));
-    list.push_back(std::pair<paramkey, paramval> (std::string("realtimefactor"), realTimeFactor));
-    list.push_back(std::pair<paramkey, paramval> (std::string("fps"), fps));
-    list.push_back(std::pair<paramkey, paramval> (std::string("randomseed"), randomSeed));
-    return list;
-  } 
 
-  Configurable::paramval OdeConfig::getParam(const paramkey& key) const {
-    if(key == "realtimefactor") return realTimeFactor; 
-    else if(key == "gravity") return gravity; 
-    else if(key == "simstepsize") return simStepSize;
-    else if(key == "fps") return fps;
-    else if(key == "randomseed") return randomSeed;
-    else return Configurable::getParam(key);
-  }
-
-  bool OdeConfig::setParam(const paramkey& key, paramval val){
+  void OdeConfig::notifyOnChange(const paramkey& key){
     if(key == "simstepsize") {
-      simStepSize=std::max(0.0000001,val); 
+      simStepSize=std::max(0.000001,simStepSize); 
       drawInterval=calcDrawInterval(fps,realTimeFactor);
     }else if(key == "realtimefactor"){
-      realTimeFactor=std::max(0.0,val);      
+      realTimeFactor=std::max(0.0,realTimeFactor);      
       if (videoRecordingMode)
 	drawInterval=calcDrawInterval(25,realTimeFactor);
       else
       	drawInterval=calcDrawInterval(fps,realTimeFactor);
     }else if(key == "fps"){
-      fps=std::max(0.0001,val);      
+      fps=std::max(0.0001,fps);      
       if (videoRecordingMode)
 	drawInterval=calcDrawInterval(25,realTimeFactor);
       else
       	drawInterval=calcDrawInterval(fps,realTimeFactor);
     } else if(key == "gravity") {
-      gravity=val; 
       dWorldSetGravity ( odeHandle.world , 0 , 0 , gravity );
     } else if(key == "controlinterval") {
-      controlInterval = std::max(1,int(val)); 
+      controlInterval = std::max(1,controlInterval); 
     } else if(key == "randomseed") { // this is readonly!
-    } else {
-      return Configurable::setParam(key,val);      
-    }
-    return true;
+      std::cerr << "randomseed is readonly" << std::endl;
+      randomSeedCopy = randomSeed; // reset changes
+    } 
   }
   
   void OdeConfig::setOdeHandle(const OdeHandle& odeHandle){

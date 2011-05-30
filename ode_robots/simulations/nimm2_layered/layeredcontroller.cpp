@@ -16,7 +16,12 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-08-05 23:25:57  martius
+ *   Revision 1.3  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.2  2009/08/05 23:25:57  martius
  *   adapted small things to compile with changed Plotoptions
  *
  *   Revision 1.1  2009/04/22 14:39:02  guettler
@@ -273,7 +278,7 @@ list<Inspectable::IConnection> LayeredController::getStructuralConnections() con
 
 
 
-Configurable::paramval LayeredController::getParam(const paramkey& key) const{
+Configurable::paramval LayeredController::getParam(const paramkey& key, bool traverseChildren) const{
   // remove prefixes "l1_" or "l2_" and call getParam() in the respective layer
   int n1 = key.find("l1_");
   int n2 = key.find("l2_");
@@ -291,7 +296,7 @@ Configurable::paramval LayeredController::getParam(const paramkey& key) const{
   
 }
 
-bool LayeredController::setParam(const paramkey& key, paramval val){
+bool LayeredController::setParam(const paramkey& key, paramval val, bool traverseChildren){
   // remove prefixes "l1_" or "l2_" and call setParam() in the respective layer
   int n1 = key.find("l1_");
   int n2 = key.find("l2_");

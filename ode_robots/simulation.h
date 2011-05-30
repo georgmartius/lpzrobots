@@ -28,7 +28,12 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.53  2011-03-22 16:42:25  guettler
+ *   Revision 1.54  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.53  2011/03/22 16:42:25  guettler
  *   - adpaptions to enhanced configurable and inspectable interface
  *   - agents are always in globalData.configs
  *   - showParams now done by simulations base code instead manually called
@@ -363,7 +368,7 @@ namespace lpzrobots {
     // the following function have to be overloaded.
 
     /// start() is called at the first start of the cycles and should create all the object (obstacles, agents...).
-    virtual void start(const OdeHandle&, const OsgHandle&, GlobalData& globalData) = 0;
+    virtual void start(const OdeHandle&, const OsgHandle&, GlobalData& globalData) = 0;    
 
     // the following functions have dummy default implementations
 
@@ -416,7 +421,7 @@ namespace lpzrobots {
 
     virtual void osgStep();
 
-  protected:
+  protected:    
     // GUIEventHandler
     virtual bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&);
     virtual void getUsage (osg::ApplicationUsage & au) const;
@@ -452,6 +457,12 @@ namespace lpzrobots {
     // The list is modified with commandline options, see run() in simulation.cpp
     std::list<PlotOption>& plotoptions; // points now to globaldata.plotoptions
 
+
+    /**
+     *  shows all parameters of all given configurable objects
+     *  @deprecated this is handled by simulation itself, do not call this function anymore
+     */
+    __attribute__ ((deprecated)) void showParams(const ConfigList& configs) {}
 
   private:
     void insertCmdLineOption(int& argc,char**& argv);
@@ -547,16 +558,6 @@ namespace lpzrobots {
   // /// call this after the @simulation_start()@ has returned to tidy up.
   // void simulation_close();
 
-
-  // Commandline interface stuff
-  /**
-   *  shows all parameters of all given configurable objects
-   *  @deprecated this is handled by simulation itself, do not call this function anymore
-   */
-  __attribute__ ((deprecated)) void showParams(const ConfigList& configs);
-
-
-  void showParams(const ConfigList& configs, int prefixLength);
 
   /// creates a new directory with the stem base, which is not yet there (using subsequent numbers)
   void createNewDir(const char* base, char *newdir);

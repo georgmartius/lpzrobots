@@ -26,7 +26,12 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2011-03-22 16:44:10  guettler
+ *   Revision 1.13  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.12  2011/03/22 16:44:10  guettler
  *   - adpaptions to enhanced configurable and inspectable interface
  *   - better formatted output in showParams()
  *
@@ -135,23 +140,17 @@ bool execute_line (GlobalData& globalData, char *line);
 int valid_argument ( const char *caller, const char *arg); 
 
 
-void showParams(const ConfigList& configs, int prefixLength)
+void printConfigs(const ConfigList& configs)
 {
-  string prefix = "";
-  for (int l=prefixLength; l>0; l-=2) prefix.append("- ");
-  for(vector<Configurable*>::const_iterator i=configs.begin(); i != configs.end(); i++){
-    (*i)->print(stdout, prefix.c_str(), 90-prefixLength, false);
-    const ConfigList& childConfigs = (*i)->getConfigurables();
-    if (childConfigs.size()>0) {
-      printf("%sChilds of %s:\n", prefix.c_str(), (*i)->getName().c_str());
-      showParams((*i)->getConfigurables(), prefixLength+2);
-    }
+  FOREACHC(ConfigList, configs, c){
+    (*c)->print(stdout, 0, 90, true);
   }
+  return;
 }
 
-void showParam(const Configurable* config)
+void printConfig(const Configurable* config)
 {
-  if(config) config->print(stdout, 0, 90, false);
+  if(config) config->print(stdout, 0, 90, true);
 }
 
 
@@ -460,11 +459,11 @@ bool com_show (GlobalData& globalData, char* line, char* arg) {
   if (arg && *arg){
     int id = atoi(arg);
     if(id>=0 && id < (signed)globalData.configs.size()){
-      showParam(globalData.configs[id]);
+      printConfig(globalData.configs[id]);
       return true;
     }
   }
-  showParams(globalData.configs, 0);
+  printConfigs(globalData.configs);
  
   return true;
 }

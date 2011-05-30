@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2011-04-28 09:44:52  martius
+ *   Revision 1.24  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.23  2011/04/28 09:44:52  martius
  *   damping added
  *
  *   Revision 1.22  2010/08/03 12:50:39  martius
@@ -118,11 +123,16 @@ namespace lpzrobots {
 			       const SliderWheelieConf& conf, 
 			       const std::string& name, const std::string& revision) 
     : OdeRobot(odeHandle, osgHandle, name, (revision.empty()? "$Id$" : revision))
-	  , conf(conf)
+    , conf(conf)
   {
-        created=false;
-	center=0;
-	dummycenter=0;
+    created=false;
+    center=0;
+    dummycenter=0;
+    addParameter("frictionground", &this->conf.frictionGround,0,2);
+    addParameter("powerratio"    , &this->conf.powerRatio,0,20); 
+    addParameter("motorpower"    , &this->conf.motorPower,0,100); 
+    addParameter("motordamp"     , &this->conf.motorDamp,0,1); 
+    addParameter("sensorfactor"  , &this->conf.sensorFactor,0,10);     
   }
 	
   SliderWheelie::~SliderWheelie() {
@@ -362,38 +372,12 @@ namespace lpzrobots {
    }
   }
 
-  /** The list of all parameters with there value as allocated lists.
-      @return list of parameters
-  */
-  Configurable::paramlist SliderWheelie::getParamList() const{
-    paramlist list;
-    list += pair<paramkey, paramval> (string("frictionground"), conf.frictionGround);
-    list += pair<paramkey, paramval> (string("powerratio"), conf.powerRatio);
-    list += pair<paramkey, paramval> (string("motorpower"),   conf.motorPower);
-    list += pair<paramkey, paramval> (string("motordamp"),   conf.motorDamp);
-    list += pair<paramkey, paramval> (string("sensorfactor"), conf.sensorFactor);
-    return list;
-  }
-  
-  
-  Configurable::paramval SliderWheelie::getParam(const paramkey& key) const{    
-    if(key == "frictionground") return conf.frictionGround; 
-    else if(key == "powerratio") return conf.powerRatio; 
-    else if(key == "motorpower") return conf.motorPower; 
-    else if(key == "motordamp") return conf.motorDamp; 
-    else if(key == "sensorfactor") return conf.sensorFactor; 
-    else  return Configurable::getParam(key) ;
-  }
-  
-  bool SliderWheelie::setParam(const paramkey& key, paramval val){    
+  void SliderWheelie::notifyOnChange(const paramkey& key){    
     if(key == "frictionground") {
-      conf.frictionGround = val; 
       for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) {
-	if(*i) (*i)->substance.roughness=val;
+	if(*i) (*i)->substance.roughness=conf.frictionGround;
       }      
     } else if(key == "motorpower") { 
-      conf.motorPower = val; 
-
       FOREACH(vector<HingeServo*>, hingeServos, i) {
 	if(*i) (*i)->setPower(conf.motorPower);
       }      
@@ -401,24 +385,17 @@ namespace lpzrobots {
 	if(*i) (*i)->setPower(conf.motorPower);
       }      
     } else if(key == "motordamp") { 
-      conf.motorDamp = val; 
-
       FOREACH(vector<HingeServo*>, hingeServos, i) {
 	if(*i) (*i)->setDamping(conf.motorDamp);
       }
       FOREACH(vector<SliderServo*>, sliderServos, i) {
 	if(*i) (*i)->setDamping(conf.motorDamp);
       }
-    }
-    else if(key == "sensorfactor") conf.sensorFactor = val; 
-    else if(key == "powerratio") { 
-      conf.powerRatio = val; 
+    } else if(key == "powerratio") { 
       for(vector<SliderServo*>::iterator i=sliderServos.begin(); i!=sliderServos.end(); i++) {
 	if(*i) (*i)->setPower(conf.motorPower * conf.powerRatio);
       }      
-    } else 
-      return Configurable::setParam(key, val);    
-    return true;
+    } 
   }
 
 

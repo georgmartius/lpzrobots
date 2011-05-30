@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-12-17 17:00:26  martius
+ *   Revision 1.15  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.14  2010/12/17 17:00:26  martius
  *   odeagent has new constructor (old is marked as deprecated) -> log files have again
  *    important information about simulation
  *   addsensorstorobotadapater copies configurables
@@ -164,7 +169,8 @@ namespace lpzrobots {
     */
     virtual int getSegmentsPosition(std::vector<Position> &poslist);
   
-    virtual bool setParam(const paramkey& key, paramval val);
+    /******** CONFIGURABLE ***********/
+    virtual void notifyOnChange(const paramkey& key);
 
   protected:
     /** the main object of the robot, which is used for position and speed tracking */

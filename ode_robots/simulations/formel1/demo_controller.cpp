@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-12-21 00:16:59  robot7
+ *   Revision 1.2  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.1  2005/12/21 00:16:59  robot7
  *   this is a pretty bad controller - but at least it works pretty well with
  *   the nimm4-robot - so its good enough for demo reasons (thus the name).
  *
@@ -272,14 +277,14 @@ void DemoController::stepNoLearning(const sensor* pa_sensor,
 };
   
 
-Configurable::paramval DemoController::getParam(const paramkey& key) const{
+Configurable::paramval DemoController::getParam(const paramkey& key, bool traverseChildren) const{
   if(key == "velocity") return velocity; 
   else if(key == "leftRightShift") return leftRightShift; 
   else  return AbstractController::getParam(key) ;
 }
 
 
-bool DemoController::setParam(const paramkey& key, paramval val){
+bool DemoController::setParam(const paramkey& key, paramval val, bool traverseChildren){
   if(key == "velocity") velocity=val;
   else if(key == "leftRightShift") leftRightShift=val; 
   else return AbstractController::setParam(key, val);

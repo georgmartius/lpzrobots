@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-11-26 12:21:13  guettler
+ *   Revision 1.3  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.2  2010/11/26 12:21:13  guettler
  *   - Configurable interface now allows to set bounds of paramval and paramint
  *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
  *   - minor bugfixes
@@ -182,9 +187,9 @@ namespace lpzrobots {
      */
     virtual paramlist getParamList() const;
     
-    virtual paramval getParam(const paramkey& key) const;;
+    virtual paramval getParam(const paramkey& key, bool traverseChildren=true) const;;
     
-    virtual bool setParam(const paramkey& key, paramval val);
+    virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }

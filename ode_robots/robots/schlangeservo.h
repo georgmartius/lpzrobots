@@ -26,7 +26,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2009-05-11 15:44:30  martius
+ *   Revision 1.11  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.10  2009/05/11 15:44:30  martius
  *   new velocity servos used
  *
  *   Revision 1.9  2007/01/26 12:05:04  martius
@@ -121,7 +126,8 @@ namespace lpzrobots {
      */
     virtual int getMotorNumber(){ assert(created); return servos.size(); }
 
-    virtual bool setParam(const paramkey& key, paramval val);
+    /******** CONFIGURABLE ***********/
+    virtual void notifyOnChange(const paramkey& key);
 
   private:
     virtual void create(const osg::Matrix& pose);

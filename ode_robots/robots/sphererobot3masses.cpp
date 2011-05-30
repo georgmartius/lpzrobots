@@ -19,7 +19,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2011-04-28 09:45:47  martius
+ *   Revision 1.26  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.25  2011/04/28 09:45:47  martius
  *   pendular range changeable at runtime
  *
  *   Revision 1.24  2010/03/22 14:33:19  martius
@@ -463,15 +468,11 @@ namespace lpzrobots {
     created=false;
   }
 
-  bool Sphererobot3Masses::setParam(const paramkey& key, paramval val){
-    bool rv = OdeRobot::setParam(key,val);
-
+  void Sphererobot3Masses::notifyOnChange(const paramkey& key){
     for (int i=0; i<servono; i++){
       if(servo[i]) servo[i]->setMinMax(-conf.diameter*conf.pendularrange,
                                        conf.diameter*conf.pendularrange);        
     }  
-    return rv;
   }
-
 
 }

@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2009-03-13 09:19:53  martius
+ *   Revision 1.8  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.7  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -97,6 +102,10 @@ namespace lpzrobots {
 					   const CaterPillarConf& conf, 
 					   const std::string& name, const std::string& revision)
     : OdeRobot( odeHandle, osgHandle, name, revision), conf(conf) {
+    addParameter("frictionground",&this->conf.frictionGround,0,2);
+    addParameter("motorpower", &this->conf.motorPower,0,20);
+    addParameter("sensorfactor", &this->conf.sensorFactor,0,5);
+    addParameter("frictionjoint",&this->conf.frictionJoint,0,5);   
 
     created=false;
   }
@@ -124,115 +133,13 @@ namespace lpzrobots {
     }
   }
 
-  void DefaultCaterPillar::doInternalStuff(GlobalData& global){
-    if(created){
-      // mycallback is called for internal collisions! Only once per step
-      dSpaceCollide(odeHandle.space, this, mycallback);
-    }
-  }
 
-  void DefaultCaterPillar::mycallback(void *data, dGeomID o1, dGeomID o2)
-  {
-    DefaultCaterPillar* me = (DefaultCaterPillar*) data;
-    int i=0;
-    int o1_index= -1;
-    int o2_index= -1;
-    for (vector<Primitive*>::iterator n = me->objects.begin(); n!= me->objects.end(); n++, i++){      
-      if( (*n)->getGeom() == o1)
-	o1_index=i;
-      if( (*n)->getGeom() == o2)
-	o2_index=i;
-    }
-
-    if(o1_index >= 0 && o2_index >= 0 && abs(o1_index - o2_index) > 1){
-      // internal collisions
-      int i,n;  
-      const int N = 10;
-      dContact contact[N];  
-      n = dCollide (o1, o2, N, &contact[0].geom, sizeof(dContact));	  
-      for (i=0; i<n; i++) {
-	contact[i].surface.mode = 0;
-	contact[i].surface.mu = 0;
-	contact[i].surface.mu2 = 0;
-	dJointID c = dJointCreateContact( me->odeHandle.world, me->odeHandle.jointGroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;     
-      }
-    }
-  } 
-  
-
-  /**
-   *This is the collision handling function for snake robots.
-   *This overwrides the function collisionCallback of the class robot.
-   *@param data
-   *@param o1 first geometrical object, which has taken part in the collision
-   *@param o2 second geometrical object, which has taken part in the collision
-   *@return true if the collision was threated  by the robot, false if not
-   **/
-  bool DefaultCaterPillar::collisionCallback(void *data, dGeomID o1, dGeomID o2)
-  {
-    //checks if one of the collision objects is part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
-      int i,n;  
-      const int N = 20;
-      dContact contact[N];
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i<n; i++){
-	//      contact[i].surface.mode = dContactMu2 | dContactSlip1 | dContactSlip2 |
-	//	dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |	
-	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.slip1 = 0.001;
-	contact[i].surface.slip2 = 0.001;
-	contact[i].surface.mu = conf.frictionGround; //*10;
-	//      contact[i].surface.mu2 = conf.frictionGround;
-	contact[i].surface.soft_erp = 0.9;
-	contact[i].surface.soft_cfm = 0.001;
-	
-	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-      }
-      return true;
-    }
-    return false;
-  }
-
-
-
-  /** The list of all parameters with there value as allocated lists.
-      @param keylist,vallist will be allocated with malloc (free it after use!)
-      @return length of the lists
-  */
-  Configurable::paramlist DefaultCaterPillar::getParamList() const{
-    paramlist list;
-    list += pair<paramkey, paramval> (string("frictionground"), conf.frictionGround);
-    list += pair<paramkey, paramval> (string("frictionjoint"), conf.frictionJoint);
-    list += pair<paramkey, paramval> (string("motorpower"),   conf.motorPower);
-    list += pair<paramkey, paramval> (string("sensorfactor"), conf.sensorFactor);
-    return list;
-  }
-  
-  
-  Configurable::paramval DefaultCaterPillar::getParam(const paramkey& key) const{    
-    if(key == "frictionground") return conf.frictionGround; 
-    else if(key == "frictionjoint") return conf.frictionJoint; 
-    else if(key == "motorpower") return conf.motorPower; 
-    else if(key == "sensorfactor") return conf.sensorFactor; 
-    else  return Configurable::getParam(key) ;
-  }
-  
-  bool DefaultCaterPillar::setParam(const paramkey& key, paramval val){    
-    if(key == "frictionground") conf.frictionGround = val; 
-    else if(key == "motorpower") conf.motorPower = val; 
-    else if(key == "sensorfactor") conf.sensorFactor = val; 
-    else if(key == "frictionjoint") { 
-      conf.frictionJoint = val; 
+  void DefaultCaterPillar::notifyOnChange(const paramkey& key){    
+    if(key == "frictionjoint") {       
       for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
 	if (*i) (*i)->setPower(conf.frictionJoint);	
       }         
-    } else 
-      return Configurable::setParam(key, val);    
-    return true;
+    }
   }
   
   

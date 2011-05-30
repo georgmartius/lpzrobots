@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2010-03-09 11:53:41  martius
+ *   Revision 1.1  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.15  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.14  2008/09/16 14:53:40  martius

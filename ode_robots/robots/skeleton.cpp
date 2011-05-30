@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2011-03-21 17:38:48  guettler
+ *   Revision 1.5  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.4  2011/03/21 17:38:48  guettler
  *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
  *
  *   Revision 1.3  2010/10/21 14:26:45  martius
@@ -1031,7 +1036,7 @@ GUIDE adding new sensors
    // odeHandle.addIgnoredPair(objects[Left_Foot],objects[Right_Foot]);
 
     // we call setParam in order to set all the dampings and default values
-    setParam("thisparamdoesnotexist",0);
+    notifyOnChange("thisparamdoesnotexist");
 
     created=true;    
   }; 
@@ -1091,9 +1096,7 @@ GUIDE adding new sensors
   }
 
   
-  bool Skeleton::setParam(const paramkey& key, paramval val){    
-    bool rv = Configurable::setParam(key, val);    
-
+  void Skeleton::notifyOnChange(const paramkey& key){
     // we just set all parameters independend of what was actually changed
     FOREACH(vector<TwoAxisServo*>, hipservos, i){
       if(*i) { 
@@ -1167,7 +1170,6 @@ GUIDE adding new sensors
 	fst = false;
       } 
     }
-    return rv;
   }
 
   Position Skeleton::getHeadPosition() {

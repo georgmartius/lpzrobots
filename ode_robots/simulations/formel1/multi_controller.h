@@ -61,8 +61,8 @@ public:
    */
   virtual list<iparamval> getInternalParams() const;
   
-  virtual paramval getParam(const paramkey& key) const;
-  virtual bool setParam(const paramkey& key, paramval val);
+  virtual paramval getParam(const paramkey& key, bool traverseChildren=true) const;
+  virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
   virtual paramlist getParamList() const;
 
   /** Initialises the registers the given callback functions.

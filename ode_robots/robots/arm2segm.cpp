@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2009-03-13 09:19:53  martius
+ *   Revision 1.15  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.14  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -94,6 +99,9 @@ namespace lpzrobots{
     sensorno=conf.segmentsno; 
     motorno=conf.segmentsno;
     this->osgHandle.color = Color(1, 0, 0, 1.0f);
+   
+    addParameterDef("speed", &speed, 1.0, 0,10);
+    addParameterDef("factorSensors", &factorSensors, 2, 0,10);
 
     created=false;
   };
@@ -332,28 +340,6 @@ namespace lpzrobots{
       odeHandle.deleteSpace();
     }
     created=false;
-  };
-
-
-
-  Configurable::paramlist Arm2Segm::getParamList() const{
-    paramlist list;
-    list.push_back(pair<paramkey, paramval> (string("speed"), speed));
-    list.push_back(pair<paramkey, paramval> (string("factorSensors"), factorSensors));
-    return list;
-  }
-
-  Configurable::paramval Arm2Segm::getParam(const paramkey& key) const{
-    if(key == "speed") return speed; 
-    else if(key == "factorSensors") return factorSensors; 
-    else  return Configurable::getParam(key) ;
-  };
-
-  bool Arm2Segm::setParam(const paramkey& key, paramval val){
-    if(key == "speed") speed=val;
-    else if(key == "factorSensors") factorSensors = val; 
-    else return Configurable::setParam(key, val);
-    return true;
   };
 
 }

@@ -294,11 +294,11 @@ namespace lpzrobots {
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
     */
-    virtual void doInternalStuff(GlobalData& globalData);
+    virtual void doInternalStuff(GlobalData& globalData);    
+    
+    /******** CONFIGURABLE ***********/
+    virtual void notifyOnChange(const paramkey& key);
 
-    
-    
-    virtual bool setParam(const paramkey& key, paramval val);
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }

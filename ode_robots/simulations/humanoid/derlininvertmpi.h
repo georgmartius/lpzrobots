@@ -17,7 +17,12 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-10 14:59:19  der
+ *   Revision 1.2  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.1  2009/08/10 14:59:19  der
  *   copy of local controller version.
  *   new skeleton from bambi
  *
@@ -129,9 +134,6 @@ public:
   virtual iparamvallist getInternalParams() const;
   virtual ilayerlist getStructuralLayers() const;
   virtual iconnectionlist getStructuralConnections() const;
-
-  /************** CONFIGURABLE ********************************/
-  virtual bool setParam(const paramkey& key, paramval val);
 
   /**** TEACHING ****/
   /** The given motor teaching signal is used for this timestep.

@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.141  2011-03-22 16:42:25  guettler
+ *   Revision 1.142  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.141  2011/03/22 16:42:25  guettler
  *   - adpaptions to enhanced configurable and inspectable interface
  *   - agents are always in globalData.configs
  *   - showParams now done by simulations base code instead manually called
@@ -696,6 +701,7 @@
 #include <selforg/callbackable.h>
 
 #include "simulation.h"
+#include "oderobot.h"
 #include "odeagent.h"
 #include "console.h"
 
@@ -975,7 +981,7 @@ namespace lpzrobots {
 +----------------------------------------------------------------+" );
     printf ( "Press Ctrl-C here on the terminal window for a commandline interface.\n" );
     printf ( "Press h      on the graphics window for help.\n\n" );
-    printf ( "Random number seed: %li\n", globalData.odeConfig.randomSeed);
+    printf ( "Random number seed: %li\n", globalData.odeConfig.getRandomSeed());
 
     makePhysicsScene();
     if (!noGraphics) {
@@ -1036,21 +1042,8 @@ namespace lpzrobots {
     setCameraHomePos (Pos(0, -20, 3),  Pos(0, 0, 0));
 
     start(odeHandle, osgHandle, globalData);
-//   Does not work anymore, because we cannot add configurables after initialization
-//   // register global configurables with plotEngines
-//     FOREACH (OdeAgentList, globalData.agents, a) {
-//       FOREACH (std::list<const Configurable*>, global.globalconfigurables, c){
-//  	(*a)->addConfigurable(*c);
-//       }
-//     }
-    // using enhanced configurable interface: add all agents to globalData.configs if they are not already in there
-    // is a litte bit slow, but who cares at initialization time
-    // agents are already initialized, but not the Configurator GUI. The console has no problems with new configurables
-     FOREACHC(OdeAgentList, globalData.agents, a) {
-       if (*a && posInColl<ConfigList, Configurable*>(globalData.configs, *a)!=globalData.configs.end())
-         globalData.configs.push_back(*a);
-     }
-     showParams(globalData.configs, 0);
+
+    printConfigs(globalData.configs);
 
 
     if(!noGraphics) {
@@ -1359,7 +1352,6 @@ namespace lpzrobots {
     }
   }
 
-
   bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&) {
     bool handled = false;
     switch(ea.getEventType()) {
@@ -1641,7 +1633,7 @@ namespace lpzrobots {
     }
 
     srand(seed);
-    globalData.odeConfig.randomSeed=seed;
+    globalData.odeConfig.setRandomSeed(seed);
 
     int resolindex = contains(argv, argc, "-x");
     if(resolindex && argc > resolindex) {
@@ -2029,7 +2021,6 @@ namespace lpzrobots {
   }
 
 
-   void showParams(const ConfigList& configs) {}
 }
 
 

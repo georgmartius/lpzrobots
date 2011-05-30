@@ -17,7 +17,12 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2008-11-14 11:23:05  martius
+ *   Revision 1.14  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.13  2008/11/14 11:23:05  martius
  *   added centered Servos! This is useful for highly nonequal min max values
  *   skeleton has now also a joint in the back
  *
@@ -420,12 +425,12 @@ void MultiSat::management(){
 }
 
 
-Configurable::paramval MultiSat::getParam(const paramkey& key) const{
+Configurable::paramval MultiSat::getParam(const paramkey& key, bool traverseChildren) const{
   if (key=="epsSat") return sats[0].eps;
   else return AbstractController::getParam(key);
 }
 
-bool MultiSat::setParam(const paramkey& key, paramval val){
+bool MultiSat::setParam(const paramkey& key, paramval val, bool traverseChildren){
   if(key=="epsSat") {
     FOREACH(vector<Sat>, sats, s){
       s->eps=val;

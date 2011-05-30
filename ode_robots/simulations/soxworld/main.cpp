@@ -29,7 +29,7 @@
 
 // controller
 //#include <selforg/sox.h>
-#include "sox.h"
+#include "soml.h"
 
 #include <selforg/motorbabbler.h>
 #include <selforg/derlininvert.h>
@@ -187,7 +187,6 @@ public:
      human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
 		  //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
 		  *osg::Matrix::translate(.2*i,2*i,.841/*7*/ +2*i));
-     global.configs.push_back(human0);
       
       
      if( fixedInAir){
@@ -208,7 +207,6 @@ public:
       
       
      
-
      SoMLConf sc = SoML::getDefaultConf();
    
      sc.useHiddenContr=true;
@@ -227,22 +225,21 @@ public:
      controller = new SineController(/*,SineController::Impulse*/);
      controller->setParam("phaseshift",0);
      controller->setParam("period",100);
-     controller->setParam("amplitude",.7);
-      
-     global.configs.push_back(controller);
+     controller->setParam("amplitude",.7);      
       
      // create pointer to one2onewiring
      One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
      // DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
      // c.useId = true;
      // c.useFirstD = false;
-     // DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(.2) );            
+     // DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(.2) ); 
 
-     OdeAgent* agent = new OdeAgent(i==0 ? plotoptions : list<PlotOption>());
+     OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, human, wiring);
      // agent->startMotorBabblingMode(5000);
      //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
-     global.agents.push_back(agent);      
+     global.agents.push_back(agent);
+     global.configs.push_back(agent);
    }// Several humans end
     
 
@@ -332,12 +329,10 @@ public:
      //       c.useFirstD = false;
      //       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
       
-     OdeAgent* agent = new OdeAgent(plotoptions);
+     OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, schlange1, wiring);
      global.agents.push_back(agent);
-     global.configs.push_back(controller);
-     global.configs.push_back(schlange1);
-  
+     global.configs.push_back(agent);
  
      controller->setParam("steps",1);
      controller->setParam("noise",0.03);
@@ -437,12 +432,10 @@ public:
      //       c.useFirstD = false;
      //       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
       
-     OdeAgent* agent = new OdeAgent(plotoptions);
+     OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, schlange1, wiring);
      global.agents.push_back(agent);
-     global.configs.push_back(controller);
-     global.configs.push_back(schlange1);
-  
+     global.configs.push_back(agent);
  
      controller->setParam("steps",1);
      controller->setParam("epsC",0.001);
@@ -507,17 +500,12 @@ public:
      c.useFirstD = false;
      AbstractWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
      //     sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
-     OdeAgent* agent = new OdeAgent(plotoptions);
+     OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, robot, wiring);
      global.agents.push_back(agent);
-     global.configs.push_back(controller);
-     global.configs.push_back(robot);        
+     global.configs.push_back(agent);
    }//Creation of wheelies end
 
-
-
-
-   showParams(global.configs);
   }
   //*************HAND*************
 

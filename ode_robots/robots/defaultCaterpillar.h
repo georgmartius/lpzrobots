@@ -32,7 +32,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-11-07 13:21:15  martius
+ *   Revision 1.5  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.4  2007/11/07 13:21:15  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.3  2006/12/21 11:43:05  martius
@@ -186,13 +191,8 @@ public:
   */
   virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
-  /** The list of all parameters with there value as allocated lists.
-  */
-  virtual paramlist getParamList() const;
-
-  virtual paramval getParam(const paramkey& key) const;;
-
-  virtual bool setParam(const paramkey& key, paramval val);
+    /******** CONFIGURABLE ***********/
+    virtual void notifyOnChange(const paramkey& key);
 
   /** the main object of the robot, which is used for position and speed tracking */
   virtual Primitive* getMainPrimitive() const {

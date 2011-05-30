@@ -31,7 +31,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-07-01 08:02:03  martius
+ *   Revision 1.5  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.4  2008/07/01 08:02:03  martius
  *   added randGen
  *
  *   Revision 1.3  2007/11/07 13:24:39  martius
@@ -131,8 +136,8 @@ public:
 
 
   /************** CONFIGURABLE ********************************/
-  virtual paramval getParam(const paramkey& key) const;
-  virtual bool setParam(const paramkey& key, paramval val);
+  virtual paramval getParam(const paramkey& key, bool traverseChildren=true) const;
+  virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
   virtual paramlist getParamList() const;
 
 

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-05-01 22:03:56  martius
+ *   Revision 1.4  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.3  2008/05/01 22:03:56  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -181,9 +186,9 @@ namespace lpzrobots {
      */
     virtual paramlist getParamList() const;
     
-    virtual paramval getParam(const paramkey& key) const;;
+    virtual paramval getParam(const paramkey& key, bool traverseChildren=true) const;;
     
-    virtual bool setParam(const paramkey& key, paramval val);
+    virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2007-11-07 13:21:16  martius
+ *   Revision 1.10  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.9  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.8  2007/09/21 17:05:05  fhesse
@@ -273,23 +278,8 @@ namespace lpzrobots {
     */
     //  virtual int getSegmentsPosition(vector<Position> &poslist);
   
-    /** 
-     * The list of all parameters with their value as allocated lists.       
-     */
-    virtual paramlist getParamList() const;
-  
-    /** 
-     * Returns the value of the given parameter.       
-     * @param key name of the parameter
-     */
-    virtual paramval getParam(const paramkey& key) const;
-
-    /** 
-     * Sets the values of the given parameter.       
-     * @param key name of the parameter
-     * @param val value to which the parameter will be set
-     */
-    virtual bool setParam(const paramkey& key, paramval val);
+    /******** CONFIGURABLE ***********/
+    virtual void notifyOnChange(const paramkey& key);
 
 
   protected:

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2010-09-24 09:25:00  martius
+ *   Revision 1.2  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.1  2010/09/24 09:25:00  martius
  *   collissions tests changed
  *
  *   Revision 1.1  2010/09/23 08:40:25  martius
@@ -1022,7 +1027,7 @@ GUIDE adding new sensors
   }
 
   
-  bool Skeleton::setParam(const paramkey& key, paramval val){    
+  bool Skeleton::setParam(const paramkey& key, paramval val, bool traverseChildren){    
     bool rv = Configurable::setParam(key, val);    
 
     // we just set all parameters independend of what was actually changed

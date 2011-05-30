@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-08-03 12:50:39  martius
+ *   Revision 1.15  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.14  2010/08/03 12:50:39  martius
  *   Servo interface changes: damping() is now get/setDamping
  *
  *   Revision 1.13  2010/07/07 14:12:40  robot6
@@ -112,6 +117,15 @@ namespace lpzrobots {
     //    addParameter("elast", &conf.elasticity);
     
     legmass=conf.mass * conf.relLegmass / conf.legNumber;    // mass of each legs
+
+    addParameter("hippower",       &conf.hipPower,0,100); 
+    addParameter("hipdamping",     &conf.hipDamping,0,1); 
+    addParameter("kneepower",      &conf.kneePower,0,100); 
+    addParameter("kneedamping",    &conf.kneeDamping,0,1); 
+    addParameter("anklepower",     &conf.anklePower,0,100); 
+    addParameter("ankledamping",   &conf.ankleDamping,0,1); 
+    addParameter("hipjointlimit",  &conf.hipJointLimit,-M_PI,M_PI);
+    addParameter("kneejointlimit", &conf.kneeJointLimit,-M_PI,M_PI); 
   };
 
 
@@ -482,7 +496,7 @@ namespace lpzrobots {
       }
 
     }      
-    
+    notifyOnChange("dummy"); // set all parameters
     created=true;
   }; 
 
@@ -541,79 +555,32 @@ namespace lpzrobots {
     created=false;
   }
 
-
-
-  /** The list of all parameters with there value as allocated lists.
-  */
-  Configurable::paramlist VierBeiner::getParamList() const{
-    paramlist list;
-    list += pair<paramkey, paramval> (string("hippower"),   conf.hipPower);
-    list += pair<paramkey, paramval> (string("hipdamping"),   conf.hipDamping);
-    list += pair<paramkey, paramval> (string("hipjointlimit"),   conf.hipJointLimit);
-    list += pair<paramkey, paramval> (string("kneepower"),   conf.kneePower);
-    list += pair<paramkey, paramval> (string("kneedamping"),   conf.kneeDamping);
-    list += pair<paramkey, paramval> (string("kneejointlimit"),   conf.kneeJointLimit);
-    list += pair<paramkey, paramval> (string("anklepower"),   conf.anklePower);
-    list += pair<paramkey, paramval> (string("ankledamping"),   conf.ankleDamping);
-    return list;
-  }
-  
-  
-  Configurable::paramval VierBeiner::getParam(const paramkey& key) const{    
-    if(key == "hippower") return conf.hipPower; 
-    else if(key == "hipdamping") return conf.hipDamping; 
-    else if(key == "kneepower") return conf.kneePower; 
-    else if(key == "kneedamping") return conf.kneeDamping; 
-    else if(key == "anklepower") return conf.anklePower; 
-    else if(key == "ankledamping") return conf.ankleDamping; 
-    else if(key == "hipjointlimit") return conf.hipJointLimit; 
-    else if(key == "kneejointlimit") return conf.kneeJointLimit; 
-    else  return Configurable::getParam(key) ;
-  }
-  
-  bool VierBeiner::setParam(const paramkey& key, paramval val){    
-    if(key == "hippower") {
-      conf.hipPower = val; 
-      FOREACH(vector<HingeServo*>, hipservos, i){
-	if(*i) (*i)->setPower(conf.hipPower);
-      }
-    } else if(key == "hipdamping") {
-      conf.hipDamping = val; 
-      FOREACH(vector<HingeServo*>, hipservos, i){
-	if(*i) { (*i)->setDamping(conf.hipDamping); }
-      }
-    } else if(key == "kneepower") {
-      conf.kneePower = val; 
-      FOREACH(vector<HingeServo*>, kneeservos, i){
-	if(*i) (*i)->setPower(conf.kneePower);
-      }
-    } else if(key == "kneedamping") {
-      conf.kneeDamping = val; 
-      FOREACH(vector<HingeServo*>, kneeservos, i){
-	if(*i) {(*i)->setDamping(conf.kneeDamping);} 
-      }
-    } else if(key == "anklepower") {
-      conf.anklePower = val; 
-      FOREACH(vector<HingeServo*>, ankleservos, i){
-	if(*i) (*i)->setPower(conf.anklePower);
-      }
-    } else if(key == "ankledamping") {
-      conf.ankleDamping = val; 
-      FOREACH(vector<HingeServo*>, ankleservos, i){
-	if(*i) {(*i)->setDamping(conf.ankleDamping); } 
-      }
-    } else if(key == "hipjointlimit") {
-      conf.hipJointLimit = val; 
-      FOREACH(vector<HingeServo*>, hipservos, i){
-	if(*i) (*i)->setMinMax(-val,+val);
-      }
-    } else if(key == "kneejointlimit") {
-      conf.kneeJointLimit = val; 
-      FOREACH(vector<HingeServo*>, kneeservos, i){
-	if(*i) (*i)->setMinMax(-val,+val);
-      }
-    } else return Configurable::setParam(key, val);    
-    return true;
+  void VierBeiner::notifyOnChange(const paramkey& key){    
+    // simply set all parameters
+    FOREACH(vector<HingeServo*>, hipservos, i){
+      if(*i) (*i)->setPower(conf.hipPower);
+    }
+    FOREACH(vector<HingeServo*>, hipservos, i){
+      if(*i) { (*i)->setDamping(conf.hipDamping); }
+    }
+    FOREACH(vector<HingeServo*>, kneeservos, i){
+      if(*i) (*i)->setPower(conf.kneePower);
+    }
+    FOREACH(vector<HingeServo*>, kneeservos, i){
+      if(*i) {(*i)->setDamping(conf.kneeDamping);} 
+    }
+    FOREACH(vector<HingeServo*>, ankleservos, i){
+      if(*i) (*i)->setPower(conf.anklePower);
+    }
+    FOREACH(vector<HingeServo*>, ankleservos, i){
+      if(*i) {(*i)->setDamping(conf.ankleDamping); } 
+    }
+    FOREACH(vector<HingeServo*>, hipservos, i){
+      if(*i) (*i)->setMinMax(-conf.hipJointLimit,+conf.hipJointLimit);
+    }
+    FOREACH(vector<HingeServo*>, kneeservos, i){
+      if(*i) (*i)->setMinMax(-conf.kneeJointLimit,+conf.kneeJointLimit);
+    }
   }
 
 }

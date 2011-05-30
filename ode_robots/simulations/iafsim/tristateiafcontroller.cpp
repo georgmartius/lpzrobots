@@ -17,7 +17,12 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-05-05 06:26:47  guettler
+ *   Revision 1.2  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.1  2008/05/05 06:26:47  guettler
  *   tristateiafcontroller moved to ode_robots/simulations/iafsim
  *   for test purposes
  *
@@ -90,7 +95,7 @@ TristateIAFController::TristateIAFController(const TristateIAFControllerConf& co
   }
 
   /// CONFIGURABLE INTERFACE
-  bool TristateIAFController::setParam(const paramkey& key, paramval val){
+  bool TristateIAFController::setParam(const paramkey& key, paramval val, bool traverseChildren){
     if(key=="thresholdI") {
       (*conf.thresholdI)=val;
       tI.toZero().toSum(val*sqrt((double)conf.numberIAFNeuronsPerInput));

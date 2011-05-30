@@ -24,7 +24,12 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-22 15:22:55  martius
+ *   Revision 1.3  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.2  2008/04/22 15:22:55  martius
  *   removed test lib and inc paths from makefiles
  *
  *   Revision 1.1  2007/08/29 15:32:52  martius
@@ -112,8 +117,8 @@ public:
 
 
   /************** CONFIGURABLE ********************************/
-  virtual paramval getParam(const paramkey& key) const;
-  virtual bool setParam(const paramkey& key, paramval val);
+  virtual paramval getParam(const paramkey& key, bool traverseChildren=true) const;
+  virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
   virtual paramlist getParamList() const;
 
 

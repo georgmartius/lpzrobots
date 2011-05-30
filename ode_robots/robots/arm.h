@@ -214,14 +214,8 @@ namespace lpzrobots{
      */
     virtual void doInternalStuff(GlobalData& globalData);
 
-    /** 
-     * The list of all parameters with there value as allocated lists.
-     */
-    paramlist getParamList() const;
-
-    virtual paramval getParam(const paramkey& key) const;
-
-    virtual bool setParam(const paramkey& key, paramval val);
+    /******** CONFIGURABLE ***********/
+    virtual void notifyOnChange(const paramkey& key);
 
     virtual Primitive* getMainObject() const{
       return objects[base]; 

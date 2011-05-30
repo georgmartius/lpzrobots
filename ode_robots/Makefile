@@ -49,7 +49,7 @@ CXX = g++
 # used for lib-packing 
 AR = ar -rcs
 
-.PHONY: lib opt clean clean-all distclean todo depend tags
+.PHONY: lib opt clean clean-all distclean todo depend tags search find findi
 
 libs: lib opt dbg
 
@@ -99,12 +99,24 @@ depend:
 	rm Makefile.depend
 	make Makefile.depend
 
-tags: 
-	etags `find -type f -regex ".*\.[hc]p?p?"` 
+
+tags:
+	etags ${CPPFILES} ${HFILES}
+	etags -a -o ../TAGS ${CPPFILES} ${HFILES} 
 
 ##!'search'           		ask for a search string and scans all tex files
 search:
 	echo -n "search rexp: "; read F && grep -in "$$F" ${CPPFILES} ${HFILES}
+
+
+##!'find'           		scans all tex files for the pattern stored in the file "tofind"
+find:
+	@[ -e "tofind" ] &&  grep -f tofind -n  ${CPPFILES} ${HFILES}
+
+
+##!'findi'           		case insensitive version of target `find'
+findi:
+	@[ -e "tofind" ] &&  grep -f tofind -in  ${CPPFILES} ${HFILES}
 
 
 distclean: clean-all
@@ -157,10 +169,6 @@ install_prefix.conf:
 todo:
 	@grep -ni "Todo" $(CPPFILES) $(HFILES)
 	@grep -ni "Fixme" $(CPPFILES) $(HFILES)
-
-FIND=`cat tofind`
-find:
-	@[ -n "$(FIND)" ] &&  grep -ni "$(FIND)"  $(CPPFILES) $(HFILES)
 
 
 -include Makefile.depend

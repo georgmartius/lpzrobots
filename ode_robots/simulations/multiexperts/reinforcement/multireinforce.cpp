@@ -16,7 +16,12 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2008-04-22 15:22:55  martius
+ *   Revision 1.3  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.2  2008/04/22 15:22:55  martius
  *   removed test lib and inc paths from makefiles
  *
  *   Revision 1.1  2007/08/29 15:32:52  martius
@@ -329,7 +334,7 @@ void MultiReinforce::management(){
 }
 
 
-Configurable::paramval MultiReinforce::getParam(const paramkey& key) const{
+Configurable::paramval MultiReinforce::getParam(const paramkey& key, bool traverseChildren) const{
   if (key=="mancontrol") return (double)manualControl;
   else if (key=="action") return (double)action;
   else if (key=="interval") return (double)conf.reinforce_interval;
@@ -337,7 +342,7 @@ Configurable::paramval MultiReinforce::getParam(const paramkey& key) const{
 }
 
 
-bool MultiReinforce::setParam(const paramkey& key, paramval val){  
+bool MultiReinforce::setParam(const paramkey& key, paramval val, bool traverseChildren){  
   if(key=="mancontrol") {
     setManualControl(val!=0);
     return true;

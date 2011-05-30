@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2008-05-07 16:45:51  martius
+ *   Revision 1.1  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.14  2008/05/07 16:45:51  martius
  *   code cosmetics and documentation
  *
  *   Revision 1.13  2008/05/06 17:14:17  martius

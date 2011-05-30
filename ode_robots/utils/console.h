@@ -23,7 +23,12 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2007-03-26 13:06:02  martius
+ *   Revision 1.2  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.1  2007/03/26 13:06:02  martius
  *   new commandline interface
  *
  *
@@ -49,6 +54,8 @@ namespace lpzrobots {
   */
   bool handleConsole(GlobalData& globalData);
 
+  /* prints all parameters of the configurables on the console*/
+  void printConfigs(const ConfigList& configs);
 }
 
 #endif

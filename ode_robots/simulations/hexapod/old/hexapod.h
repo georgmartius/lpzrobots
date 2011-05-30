@@ -199,7 +199,7 @@ namespace lpzrobots {
     virtual double getMassOfRobot();
 
     // Configurable Interface
-    virtual bool setParam(const paramkey& key, paramval val);
+    virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[0]; }

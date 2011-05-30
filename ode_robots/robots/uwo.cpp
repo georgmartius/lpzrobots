@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-03-09 11:53:41  martius
+ *   Revision 1.10  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.9  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.8  2008/05/07 16:45:52  martius
@@ -85,10 +90,10 @@ namespace lpzrobots {
 
     // choose color here a pastel white is used
     this->osgHandle.color = Color(1.0, 156/255.0, 156/255.0, 1.0f);
-    
     conf.motorPower *= conf.mass;
     conf.legLength *= conf.size;
     legmass=conf.mass * conf.relLegmass / conf.legNumber;    // mass of each legs
+    addParameter("motorpower",&conf.motorPower,0,100);
   };
 
 
@@ -155,40 +160,6 @@ namespace lpzrobots {
       @param global structure that contains global data from the simulation environment
   */
   void Uwo::doInternalStuff(GlobalData& global){}
-
-  /** checks for internal collisions and treats them. 
-   *  In case of a treatment return true (collision will be ignored by other objects 
-   *  and the default routine)  else false (collision is passed to other objects and 
-   *  (if not treated) to the default routine).
-   */
-  bool Uwo::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-    assert(created); // robot must exist
-    
-    //checks if one of the collision objects is part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
-      int i,n;  
-      const int N = 100;
-      dContact contact[N];
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i<n; i++){
-	//      contact[i].surface.mode = dContactMu2 | dContactSlip1 | dContactSlip2 |
-	//	dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |	
-	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.slip1 = 0.005;
-	contact[i].surface.slip2 = 0.005;
-	contact[i].surface.mu = conf.frictionGround;
-	contact[i].surface.soft_erp = 0.9;
-	contact[i].surface.soft_cfm = 0.5;
-	
-	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)); 
-      }
-      return true;
-    }
-    return false;
-  }
-
 
   /** creates vehicle at desired position 
       @param pos struct Position with desired position
@@ -273,34 +244,10 @@ namespace lpzrobots {
 
 
 
-  /** The list of all parameters with there value as allocated lists.
-      @param keylist,vallist will be allocated with malloc (free it after use!)
-      @return length of the lists
-  */
-  Configurable::paramlist Uwo::getParamList() const{
-    paramlist list;
-    list += pair<paramkey, paramval> (string("frictionground"), conf.frictionGround);
-    list += pair<paramkey, paramval> (string("motorpower"),   conf.motorPower);
-    return list;
-  }
-  
-  
-  Configurable::paramval Uwo::getParam(const paramkey& key) const{    
-    if(key == "frictionground") return conf.frictionGround; 
-    else if(key == "motorpower") return conf.motorPower; 
-    else  return Configurable::getParam(key) ;
-  }
-  
-  bool Uwo::setParam(const paramkey& key, paramval val){    
-    if(key == "frictionground") conf.frictionGround = val; 
-    else if(key == "motorpower") {
-      conf.motorPower = val; 
-      for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
-	if(*i) (*i)->setPower(conf.motorPower, conf.motorPower);
-      }
-    } else 
-      return Configurable::setParam(key, val);    
-    return true;
+  void  Uwo::notifyOnChange(const paramkey& key){    
+    for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
+      if(*i) (*i)->setPower(conf.motorPower, conf.motorPower);
+    }
   }
 
 

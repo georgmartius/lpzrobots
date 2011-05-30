@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-12-04 18:51:59  fhesse
+ *   Revision 1.5  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.4  2009/12/04 18:51:59  fhesse
  *   invertnchannelcontroller has bias (changeable in constructor) now
  *   neuronworld has linear neuron now (changeable in conf)
  *
@@ -63,15 +68,18 @@ namespace lpzrobots {
     theta_const.set(sensornumber, 1);
     gamma.set(sensornumber, 1);
 
-/*
-  Initialisierung
-  testhalber erstmal nur für ein Neuron!
-*/
-assert(sensornumber == 1);
-gamma.val(0,0)=0;   // Dissipation
-W.val(0,0)=1.2;   // Wheight Matrix
-theta_const.val(0,0)=-1.0;//0.0;  // constant part of bias theta
-
+    addParameter("theta_const", &conf.theta_const);
+    addParameter("gamma", &conf.gamma); 
+    addParameter("w", &conf.w); 
+    
+    /*
+      Initialisierung
+      testhalber erstmal nur für ein Neuron!
+    */
+    assert(sensornumber == 1);
+    gamma.val(0,0)=0;   // Dissipation
+    W.val(0,0)=1.2;   // Wheight Matrix
+    theta_const.val(0,0)=-1.0;//0.0;  // constant part of bias theta
   }
 
 
@@ -129,36 +137,6 @@ theta_const.val(0,0)=-1.0;//0.0;  // constant part of bias theta
 
     return sensorno;
   };
-
-
-  /** The list of all parameters with there value as allocated lists.
-      @param keylist,vallist will be allocated with malloc (free it after use!)
-      @return length of the lists
-  */
-  Configurable::paramlist NeuronWorld::getParamList() const{
-    paramlist list;
-    list += pair<paramkey, paramval> (string("theta_const"), conf.theta_const);
-    list += pair<paramkey, paramval> (string("gamma"), conf.gamma);
-    list += pair<paramkey, paramval> (string("w"),   conf.w);
-    return list;
-  }
-  
-  
-  Configurable::paramval NeuronWorld::getParam(const paramkey& key) const{    
-    if(key == "theta_const") return conf.theta_const; 
-    else if(key == "gamma") return conf.gamma; 
-    else if(key == "w") return conf.w; 
-    else  return Configurable::getParam(key) ;
-  }
-  
-  bool NeuronWorld::setParam(const paramkey& key, paramval val){    
-    if(key == "theta_const") conf.theta_const = val; 
-    else if(key == "gamma") conf.gamma = val; 
-    else if(key == "w") conf.w = val; 
-    else 
-      return Configurable::setParam(key, val);    
-    return true;
-  }
 
 
 }

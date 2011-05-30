@@ -22,7 +22,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2006-11-30 08:51:39  robot8
+ *   Revision 1.1  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.16  2006/11/30 08:51:39  robot8
  *   -update of the evolution projekt
  *   -fitness changed
  *   -replication changed

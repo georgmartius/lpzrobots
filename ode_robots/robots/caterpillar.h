@@ -27,7 +27,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2007-02-12 13:28:38  martius
+ *   Revision 1.6  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.5  2007/02/12 13:28:38  martius
  *   twoaxiservos
  *
  *   Revision 1.4  2007/01/26 12:05:04  martius
@@ -101,7 +106,8 @@ namespace lpzrobots {
      */
     virtual int getMotorNumber(){ assert(created); return 2*universalServos.size()+sliderServos.size(); }
 
-    virtual bool setParam(const paramkey& key, paramval val);
+    /******** CONFIGURABLE ***********/
+    virtual void notifyOnChange(const paramkey& key);
 
   private:
     virtual void create(const osg::Matrix& pose);

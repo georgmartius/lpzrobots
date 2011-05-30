@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2010-03-09 11:53:41  martius
+ *   Revision 1.5  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.4  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.3  2008/05/01 22:03:54  martius
@@ -575,7 +580,7 @@ namespace lpzrobots {
   }
   
   
-  Configurable::paramval Skeleton::getParam(const paramkey& key) const{    
+  Configurable::paramval Skeleton::getParam(const paramkey& key, bool traverseChildren) const{    
     if(key == "hippower") return conf.hipPower; 
     else if(key == "hipdamping") return conf.hipDamping; 
     else if(key == "hipjointlimit") return conf.hipJointLimit; 
@@ -598,7 +603,7 @@ namespace lpzrobots {
     else  return Configurable::getParam(key) ;
   }
   
-  bool Skeleton::setParam(const paramkey& key, paramval val){    
+  bool Skeleton::setParam(const paramkey& key, paramval val, bool traverseChildren){    
     if(key == "hippower") {
       conf.hipPower = val; 
       FOREACH(vector<TwoAxisServo*>, hipservos, i){

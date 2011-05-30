@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2010-10-20 13:18:55  martius
+ *   Revision 1.21  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.20  2010/10/20 13:18:55  martius
  *   damping changed
  *
  *   Revision 1.19  2010/03/09 11:53:41  martius
@@ -961,7 +966,7 @@ GUIDE adding new sensors
    // odeHandle.addIgnoredPair(objects[Left_Foot],objects[Right_Foot]);
 
     // we call setParam in order to set all the dampings and default values
-    setParam("thisparamdoesnotexist",0);
+    notifyOnChange("thisparamdoesnotexist");
 
     created=true;    
   }; 
@@ -1019,9 +1024,7 @@ GUIDE adding new sensors
   }
 
   
-  bool Skeleton::setParam(const paramkey& key, paramval val){    
-    bool rv = Configurable::setParam(key, val);    
-
+  void Skeleton::notifyOnChange(const paramkey& key){    
     // we just set all parameters independend of what was actually changed
     FOREACH(vector<TwoAxisServo*>, hipservos, i){
       if(*i) { 
@@ -1090,8 +1093,6 @@ GUIDE adding new sensors
     backservo->setDamping(conf.backDamping);
     backservo->setMaxVel(conf.backVelocity);
     backservo->setMinMax(-conf.backJointLimit/2,+conf.backJointLimit);
-
-    return rv;
   }
 
 

@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2005-12-21 00:19:24  robot7
+ *   Revision 1.9  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.8  2005/12/21 00:19:24  robot7
  *   made the pointer to the camera handling function extern
  *   its now defined in multi_controller.cpp (i think)
  *
@@ -170,13 +175,13 @@ void SimpleController::stepNoLearning(const sensor* sensors, int number_sensors,
 };
   
 
-Configurable::paramval SimpleController::getParam(const paramkey& key) const{
+Configurable::paramval SimpleController::getParam(const paramkey& key, bool traverseChildren) const{
   if(key == "velocity") return velocity; 
   else if(key == "leftRightShift") return leftRightShift; 
   else  return AbstractController::getParam(key) ;
 }
 
-bool SimpleController::setParam(const paramkey& key, paramval val){
+bool SimpleController::setParam(const paramkey& key, paramval val, bool traverseChildren){
   if(key == "velocity") {
     velocity=val;
     if(velocity == 0) leftRightShift = 0;

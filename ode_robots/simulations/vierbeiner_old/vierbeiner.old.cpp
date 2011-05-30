@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-03-09 11:53:41  martius
+ *   Revision 1.4  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.3  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.2  2008/05/01 22:03:56  martius
@@ -371,7 +376,7 @@ namespace lpzrobots {
   }
   
   
-  Configurable::paramval VierBeinerOld::getParam(const paramkey& key) const{    
+  Configurable::paramval VierBeinerOld::getParam(const paramkey& key, bool traverseChildren) const{    
     if(key == "frictionground") return conf.frictionGround; 
     else if(key == "motorpower") return conf.motorPower; 
     else if(key == "kneepower") return conf.kneePower; 
@@ -379,7 +384,7 @@ namespace lpzrobots {
     else  return Configurable::getParam(key) ;
   }
   
-  bool VierBeinerOld::setParam(const paramkey& key, paramval val){    
+  bool VierBeinerOld::setParam(const paramkey& key, paramval val, bool traverseChildren){    
     if(key == "frictionground") conf.frictionGround = val; 
     else if(key == "motorpower") {
       conf.motorPower = val; 

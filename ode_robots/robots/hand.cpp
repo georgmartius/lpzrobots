@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2009-03-13 09:19:53  martius
+ *   Revision 1.13  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.12  2009/03/13 09:19:53  martius
  *   changed texture handling in osgprimitive
  *   new OsgBoxTex that supports custom texture repeats and so on
  *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
@@ -153,6 +158,9 @@ namespace lpzrobots {
     this->osgHandle.color=Color(0,1,1);
 
 
+    addParameter("servo_motor_Power", &this->conf.servo_motor_Power, 0,100);
+    addParameter("factorSensor", &this->conf.factorSensor,0,01);
+    addParameter("irRange",&this->conf.irRange,0,10);
 
     if (conf.one_finger_as_one_motor){  // one finger as one motor
       sensorno=6;
@@ -1477,38 +1485,16 @@ namespace lpzrobots {
 
 
 
-  Configurable::paramlist Hand::getParamList() const{
-    paramlist list;
-    //    list += std::pair<paramkey, paramval> (std::string("jointLimit1"), conf.jointLimit1);
-    list += std::pair<paramkey, paramval> (std::string("servo_motor_Power"),   conf.servo_motor_Power);
-    list += std::pair<paramkey, paramval> (std::string("factorSensor"), conf.factorSensor);
-    list += std::pair<paramkey, paramval> (std::string("irRange"), conf.irRange);
-    return list;
-  }
-
-
-  Configurable::paramval Hand::getParam(const paramkey& key) const{
-    //    if(key == "jointLimit") return conf.jointLimit1; 
-    //else 
-    if(key == "servo_motor_Power") return conf.servo_motor_Power;
-    else if(key == "factorSensor") return conf.factorSensor; 
-    else if(key == "irRange") return conf.irRange;
-    else  return Configurable::getParam(key) ;
-  }
-
-
-  bool Hand::setParam(const paramkey& key, paramval val){
+  
+  void Hand::notifyOnChange(const paramkey& key){
     //if(key == "jointLimit") conf.jointLimit1=val; 
     //else 
     if(key == "servo_motor_Power") {
-      conf.servo_motor_Power=val;
       for (std::vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
 	if(*i) (*i)->setPower(conf.servo_motor_Power);
       }
     }
-    else if(key == "factorSensor") conf.factorSensor=val; 
     else if(key == "irRange") {
-      conf.irRange=val; 
       for (unsigned int i=2; i< objects.size(); i++){
 	//     for (std::vector<Primitive*>::iterator i = objects.begin()+2; i!= objects.end(); i++){
 	irSensorBank.registerSensor(ir_sensors[i-2], objects[i], 
@@ -1519,8 +1505,6 @@ namespace lpzrobots {
       }
       irSensorBank.update();
     }  
-    else return Configurable::setParam(key, val);
-    return true;
   }
   
 } 

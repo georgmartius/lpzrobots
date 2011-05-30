@@ -661,7 +661,7 @@ namespace lpzrobots {
     created=false;
   }
       
-  bool Hexapod::setParam(const paramkey& key, paramval val){    
+  bool Hexapod::setParam(const paramkey& key, paramval val, bool traverseChildren){    
     // the parameters are assigned here
     bool rv = Configurable::setParam(key, val); 
     // we simply set all parameters here

@@ -198,8 +198,8 @@ namespace lpzrobots {
 
     virtual double getMassOfRobot();
 
-    // Configurable Interface
-    virtual bool setParam(const paramkey& key, paramval val);
+    /******** CONFIGURABLE ***********/
+    virtual void notifyOnChange(const paramkey& key);
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[0]; }

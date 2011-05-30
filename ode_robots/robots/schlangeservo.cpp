@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2010-09-30 17:12:29  martius
+ *   Revision 1.15  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.14  2010/09/30 17:12:29  martius
  *   added anisotrop friction to schlange
  *
  *   Revision 1.13  2010/08/03 12:50:39  martius
@@ -161,13 +166,13 @@ void SchlangeServo::create(const osg::Matrix& pose){
 			      conf.motorPower,conf.frictionJoint,0,100);
     }
     servos.push_back(servo);
-
+    notifyOnChange("dummy");
     //    frictionmotors.push_back(new AngularMotor1Axis(odeHandle, j, conf.frictionJoint) );
   }	  
 }
 
-bool SchlangeServo::setParam(const paramkey& key, paramval val){
-  bool rv = Schlange::setParam(key, val);
+void SchlangeServo::notifyOnChange(const paramkey& key){
+ 
   for (vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
     if(*i) (*i)->setDamping(conf.frictionJoint);
   }
@@ -177,7 +182,6 @@ bool SchlangeServo::setParam(const paramkey& key, paramval val){
   for (vector<HingeServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
     if(*i) (*i)->setMaxVel(conf.velocity);
   }
-  return rv;    
 }
 
 

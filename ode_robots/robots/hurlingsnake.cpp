@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2011-04-28 09:42:27  martius
+ *   Revision 1.25  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.24  2011/04/28 09:42:27  martius
  *   texture changed
  *
  *   Revision 1.23  2010/12/17 17:00:26  martius
@@ -334,9 +339,8 @@ namespace lpzrobots {
   }
 
 
-  bool HurlingSnake::setParam(const paramkey& key, paramval val){
+  void HurlingSnake::notifyOnChange(const paramkey& key){
     if(key == "frictionGround") {
-      frictionGround=val;
       // change substances      
       for (int i=0; i<NUM; i++) {        
         object[i]->substance.roughness=frictionGround;        
@@ -345,7 +349,6 @@ namespace lpzrobots {
     else if(key == "place") {
       OdeRobot::place(Pos(0,0,3)) ; 
     }
-    return Configurable::setParam(key, val);
   }
 
   std::list<Primitive*> HurlingSnake::getAllPrimitives(){

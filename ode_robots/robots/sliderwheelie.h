@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2010-01-29 13:38:12  martius
+ *   Revision 1.17  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.16  2010/01/29 13:38:12  martius
  *   resolved conflict with show- and drawCenter
  *
  *   Revision 1.15  2010/01/27 10:19:14  martius
@@ -191,11 +196,8 @@ namespace lpzrobots {
       }else return 0;
     } 
     
-    virtual paramlist getParamList() const;
-    
-    virtual paramval getParam(const paramkey& key) const;
-    
-    virtual bool setParam(const paramkey& key, paramval val);
+    /******** CONFIGURABLE ***********/
+    virtual void notifyOnChange(const paramkey& key);
 
   private:
     static void mycallback(void *data, dGeomID o1, dGeomID o2);

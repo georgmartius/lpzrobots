@@ -617,7 +617,7 @@ namespace lpzrobots {
     }
         
 
-    setParam("dummy",0); // apply all parameters.
+    notifyOnChange("dummy"); // apply all parameters.
     
     created=true;
   }; 
@@ -661,9 +661,7 @@ namespace lpzrobots {
     created=false;
   }
       
-  bool Hexapod::setParam(const paramkey& key, paramval val){    
-    // the parameters are assigned here
-    bool rv = Configurable::setParam(key, val); 
+  void Hexapod::notifyOnChange(const paramkey& key){    
     // we simply set all parameters here
     FOREACH(vector<TwoAxisServo*>, hipservos, i){
       if(*i){
@@ -682,8 +680,6 @@ namespace lpzrobots {
         (*i)->setMinMax(-conf.tebiaJointLimit,+conf.tebiaJointLimit);
       }
     }    
-    return rv;
-
 
   }
 

@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2008-01-29 10:01:37  der
+ *   Revision 1.2  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.1  2008/01/29 10:01:37  der
  *   first version
  *
  *   Revision 1.7  2007/12/11 14:41:54  martius
@@ -176,9 +181,9 @@ namespace lpzrobots {
      */
     virtual paramlist getParamList() const;
     
-    virtual paramval getParam(const paramkey& key) const;;
+    virtual paramval getParam(const paramkey& key, bool traverseChildren=true) const;;
     
-    virtual bool setParam(const paramkey& key, paramval val);
+    virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[0]; }

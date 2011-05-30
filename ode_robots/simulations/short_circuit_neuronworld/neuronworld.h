@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-12-04 18:51:59  fhesse
+ *   Revision 1.4  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.3  2009/12/04 18:51:59  fhesse
  *   invertnchannelcontroller has bias (changeable in constructor) now
  *   neuronworld has linear neuron now (changeable in conf)
  *
@@ -116,16 +121,6 @@ public:
     virtual void doInternalStuff(GlobalData& globalData) {}
 
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) { return false;}
-
-
-  /** The list of all parameters with there value as allocated lists.
-  */
-  virtual paramlist getParamList() const;
-
-  virtual paramval getParam(const paramkey& key) const;;
-
-  virtual bool setParam(const paramkey& key, paramval val);
-
 
 
   protected:

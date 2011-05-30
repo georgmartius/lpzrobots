@@ -24,7 +24,12 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2011-04-28 09:45:56  martius
+ *   Revision 1.23  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.22  2011/04/28 09:45:56  martius
  *   pendular range changeable at runtime
  *
  *   Revision 1.21  2010/07/08 13:51:01  der
@@ -254,7 +259,8 @@ public:
 	
   virtual Primitive* getMainPrimitive() const { return object[Base]; }
   
-  virtual bool setParam(const paramkey& key, paramval val);
+  /******** CONFIGURABLE ***********/
+  virtual void notifyOnChange(const paramkey& key);
 
 
 protected:

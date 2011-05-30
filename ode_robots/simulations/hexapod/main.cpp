@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2011-01-31 11:31:10  martius
+ *   Revision 1.7  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.6  2011/01/31 11:31:10  martius
  *   renamed sox to soml
  *
  *   Revision 1.5  2010/11/05 13:54:05  martius
@@ -143,7 +148,6 @@ public:
     vehicle->place(osg::Matrix::rotate(M_PI*0,1,0,0)*osg::Matrix::translate(0,0,1));
     // normal position
     //    vehicle->place(osg::Matrix::translate(0,0,0));
-    global.configs.push_back(vehicle);
 
 //     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
 //     cc.cInit=1.0;
@@ -204,15 +208,14 @@ public:
     agent->init(controller, vehicle, wiring);
     if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, ""));
     global.agents.push_back(agent);
-    global.configs.push_back(controller);
+    global.configs.push_back(agent);
 
     //agent->startMotorBabblingMode(5000);
 
     this->getHUDSM()->setColor(Color(1.0,1.0,0));
     this->getHUDSM()->setFontsize(18);    
     this->getHUDSM()->addMeasure(teacher,"gamma_s",ID,1);
-
-    showParams(global.configs);
+    
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
@@ -231,7 +234,7 @@ public:
   }
 
   // overloaded from configurable
-  virtual bool setParam(const paramkey& key, paramval val){
+  virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren){
     bool rv = Configurable::setParam(key,val);
     if(key=="gamma_s"){
       controller->setParam("gamma_teach", teacher); 

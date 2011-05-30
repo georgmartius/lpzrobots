@@ -21,7 +21,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2005-12-21 00:16:59  robot7
+ *   Revision 1.2  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.1  2005/12/21 00:16:59  robot7
  *   this is a pretty bad controller - but at least it works pretty well with
  *   the nimm4-robot - so its good enough for demo reasons (thus the name).
  *
@@ -105,8 +110,8 @@ public:
    */
   virtual list<iparamval> getInternalParams() const {return list<iparamval>();}
   
-  virtual paramval getParam(const paramkey& key) const;
-  virtual bool setParam(const paramkey& key, paramval val);
+  virtual paramval getParam(const paramkey& key, bool traverseChildren=true) const;
+  virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
   virtual paramlist getParamList() const ;
 
   /** Initialises the registers the given callback functions.

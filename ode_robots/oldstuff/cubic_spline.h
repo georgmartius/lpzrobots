@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2006-08-04 14:49:15  martius
+ *   Revision 1.1  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.1  2006/08/04 14:49:15  martius
  *   matrices and vectors moved to compoments, which are depreciated
  *
  *   Revision 1.4  2006/07/14 12:23:56  martius

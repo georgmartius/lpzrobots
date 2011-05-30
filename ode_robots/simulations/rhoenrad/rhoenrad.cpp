@@ -1013,7 +1013,7 @@ GUIDE adding new sensors
    // odeHandle.addIgnoredPair(objects[Left_Foot],objects[Right_Foot]);
 
     // we call setParam in order to set all the dampings and default values
-    setParam("thisparamdoesnotexist",0);
+    notifyOnChange("thisparamdoesnotexist");
 
     created=true;    
   }; 
@@ -1072,10 +1072,8 @@ GUIDE adding new sensors
     created=false;
   }
 
-  
-  bool Rhoenrad::setParam(const paramkey& key, paramval val){    
-    bool rv = Configurable::setParam(key, val);    
 
+  void Rhoenrad::notifyOnChange(const paramkey& key){    
     // we just set all parameters independend of what was actually changed
     FOREACH(vector<TwoAxisServo*>, hipservos, i){
       if(*i) { 
@@ -1150,7 +1148,6 @@ GUIDE adding new sensors
 	fst = false;
       } 
     }
-    return rv;
   }
 
   Position Rhoenrad::getHeadPosition() {

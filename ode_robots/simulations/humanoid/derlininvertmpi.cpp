@@ -17,7 +17,12 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2009-08-10 14:59:19  der
+ *   Revision 1.2  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.1  2009/08/10 14:59:19  der
  *   copy of local controller version.
  *   new skeleton from bambi
  *
@@ -84,7 +89,7 @@ DerLinInvertMPI::DerLinInvertMPI( const DerLinInvertMPIConf& conf)
   : InvertMotorController(conf.buffersize, "DerLinInvertMPI", "$Id$"), conf(conf) {
  
   assert(conf.model != NULL);
-
+  addConfigurable(conf.model);
 //   fantControl = 50;
 //   fantControlLen = 0;
 //   fantReset = 5;
@@ -636,15 +641,6 @@ bool DerLinInvertMPI::restore(FILE* f){
   Configurable::parse(f);
   t=0; // set time to zero to ensure proper filling of buffers
   return true;
-}
-
-
-bool DerLinInvertMPI::setParam(const paramkey& key, paramval val){
-  if(key == "epsA") {
-    cout << "MODEL: " << conf.model->getParam("eps") << endl;
-    conf.model->setParam("eps",val);
-  }
-  return InvertMotorController::setParam(key, val);
 }
 
 

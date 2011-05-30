@@ -18,7 +18,12 @@
  *                                            * 
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-08-05 23:25:57  martius
+ *   Revision 1.3  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.2  2009/08/05 23:25:57  martius
  *   adapted small things to compile with changed Plotoptions
  *
  *   Revision 1.1  2009/04/22 14:39:02  guettler
@@ -104,8 +109,8 @@ public:
   virtual std::list<IConnection> getStructuralConnections() const;
   
 
-  virtual paramval getParam(const paramkey& key) const;
-  virtual bool setParam(const paramkey& key, paramval val);
+  virtual paramval getParam(const paramkey& key, bool raverseChildren=true) const;
+  virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
   virtual paramlist getParamList() const;
 
 protected:

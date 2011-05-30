@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-07-05 16:47:34  martius
+ *   Revision 1.7  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.6  2010/07/05 16:47:34  martius
  *   hashset transition to tr1
  *   new pid function for velocity servos, which work now fine
  *
@@ -302,7 +307,7 @@ public:
   }
 
   // overloaded from configurable
-  virtual bool setParam(const paramkey& key, paramval val){
+  virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren){
     bool rv = Configurable::setParam(key,val);
     if(key=="k"){
       if(change>0){

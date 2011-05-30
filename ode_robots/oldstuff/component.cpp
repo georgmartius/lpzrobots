@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2005-11-14 12:48:31  martius
+ *   Revision 1.1  2011-05-30 13:56:42  martius
+ *   clean up: moved old code to oldstuff
+ *   configable changed: notifyOnChanges is now used
+ *    getParam,setParam, getParamList is not to be overloaded anymore
+ *
+ *   Revision 1.7  2005/11/14 12:48:31  martius
  *   *** empty log message ***
  *
  *   Revision 1.6  2005/11/09 13:27:32  fhesse
@@ -96,13 +101,13 @@ Configurable::paramlist AbstractComponent::getParamList() const
 
 
 Configurable::paramval AbstractComponent::
-getParam(const paramkey& key) const
+getParam(const paramkey& key, bool traverseChildren) const
 {
   return Configurable::getParam(key) ;
 }
 
 
-bool AbstractComponent::setParam(const paramkey& key, paramval val){
+bool AbstractComponent::setParam(const paramkey& key, paramval val, bool traverseChildren){
   return Configurable::setParam(key, val);
 }
 
@@ -200,7 +205,7 @@ Configurable::paramlist AbstractCompoundComponent::getParamList() const
 
 
 Configurable::paramval AbstractCompoundComponent::
-getParam(const paramkey& key) const
+getParam(const paramkey& key, bool traverseChildren) const
 {
   paramval val = 0.0;
   ComponentContainer::const_iterator it = component_container.begin();
@@ -214,7 +219,7 @@ getParam(const paramkey& key) const
 }
 
 
-bool AbstractCompoundComponent::setParam(const paramkey& key, paramval val)
+bool AbstractCompoundComponent::setParam(const paramkey& key, paramval val, bool traverseChildren)
 {
   for(ComponentContainer::iterator it = component_container.begin();
       it != component_container.end();
@@ -268,7 +273,7 @@ IComponent::paramlist UniversalMotorComponent::getParamList() const
 
 
 Configurable::paramval UniversalMotorComponent::
-getParam(const paramkey& key) const
+getParam(const paramkey& key, bool traverseChildren) const
 {
   if(key == "show_axis")
     return param_show_axis; 
@@ -277,7 +282,7 @@ getParam(const paramkey& key) const
 }
 
 
-bool UniversalMotorComponent::setParam(const paramkey& key, paramval val){
+bool UniversalMotorComponent::setParam(const paramkey& key, paramval val, bool traverseChildren){
   if(key == "show_axis")
     param_show_axis = val;
   else
