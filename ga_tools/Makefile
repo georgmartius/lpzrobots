@@ -81,8 +81,11 @@ depend:
 	rm Makefile.depend
 	make Makefile.depend
 
-tags: 
-	etags `find -type f -regex ".*\.[hc]p?p?"` 
+tags:
+	etags ${CPPFILES} ${HFILES}
+	etags -a -o ../TAGS ${CPPFILES} ${HFILES} 
+
+#	etags `find -type f -regex ".*\.[hc]p?p?"` 
 
 ##!'search'           		ask for a search string and scans all tex files
 search:

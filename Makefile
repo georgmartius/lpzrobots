@@ -191,12 +191,14 @@ endif
 Makefile.conf:	
 	@bash createMakefile.conf.sh
 
+
 .PHONY: tags
 ##!tags		create TAGS file for emacs
 tags: 
-	etags `find selforg -type f -regex ".*\.[h]p?p?"`
-	etags -a `find ode_robots -type f -regex ".*\.[h]p?p?"`
-	etags -a `find ga_tools -type f -regex ".*\.[h]p?p?"`
+	rm TAGS
+	cd selforg && $(MAKE) tags
+	cd ode_robots && $(MAKE) tags
+	cd ga_tools && $(MAKE) tags
 
 .PHONY: doc
 ##!doc 		generate doxygen documentation in html folder
