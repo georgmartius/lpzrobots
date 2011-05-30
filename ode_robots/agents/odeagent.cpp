@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2011-03-22 16:42:48  guettler
+ *   Revision 1.16  2011-05-30 21:57:16  martius
+ *   store and restore from console improved
+ *   console width automatically adapted
+ *
+ *   Revision 1.15  2011/03/22 16:42:48  guettler
  *   - adpaptions to enhanced configurable and inspectable interface
  *
  *   Revision 1.14  2011/02/24 20:45:21  martius
@@ -237,6 +241,15 @@ namespace lpzrobots {
     }
     
   }
+
+  bool OdeAgent::store(FILE* f) const {
+    return getRobot()->store(f) && getController()->store(f);    
+  }
+
+  bool OdeAgent::restore(FILE* f){
+    return getRobot()->restore(f) && getController()->restore(f);        
+  }
+
 
 }
 

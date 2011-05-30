@@ -26,7 +26,11 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2011-05-30 13:56:42  martius
+ *   Revision 1.14  2011-05-30 21:57:16  martius
+ *   store and restore from console improved
+ *   console width automatically adapted
+ *
+ *   Revision 1.13  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -77,6 +81,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -100,6 +105,8 @@ bool com_list (GlobalData& globalData, char *, char *);
 bool com_show (GlobalData& globalData, char *, char *);
 bool com_store (GlobalData& globalData, char *, char *);
 bool com_load (GlobalData& globalData, char *, char *);
+bool com_storecfg (GlobalData& globalData, char *, char *);
+bool com_loadcfg (GlobalData& globalData, char *, char *);
 bool com_contrs (GlobalData& globalData, char *, char *);
 bool com_set (GlobalData& globalData, char *, char *);
 bool com_help (GlobalData& globalData, char *, char *);
@@ -118,11 +125,13 @@ COMMAND commands[] = {
   { "param=val",  com_set, "sets PARAM of all objects to VAL" },
   { "help", com_help, "Display this text" },
   { "?",     com_help, "Synonym for `help'" },
-  { "list", com_list, "Lists all objects and agents" },
+  { "list", com_list, "Lists all configurables and agents" },
   { "ls",   com_list, "Synonym for `list'" },
   { "set",  com_set, "syntax: set [OBJECTID] PARAM=VAL; sets parameter of OBJECTID (or of all objects) to value" },
-  { "store", com_store, "Stores controller of AGENTID to FILE" },
-  { "load", com_load, "Loads controller of AGENTID from FILE" },
+  { "store", com_store, "stores object. Syntax: store AGENTID FILE, see list" },
+  { "load", com_load, "loads object. Syntax: load AGENTID FILE, see list" },
+  { "storecfg", com_storecfg, "Store key-values pairs. Syntax: storecfg CONFIGID FILE" },
+  { "loadcfg", com_loadcfg, "Load key-values pairs. Syntax: CONFIGID FILE" },
   { "contrs", com_contrs, "Stores the contours of all playgrounds to FILE" },
   { "show", com_show, "[OBJECTID]: Lists parameters of OBJECTID or of all objects (if no id given)" },
   { "view", com_show, "Synonym for `show'" },
@@ -142,15 +151,19 @@ int valid_argument ( const char *caller, const char *arg);
 
 void printConfigs(const ConfigList& configs)
 {
+
+  struct winsize w;
+  ioctl(0, TIOCGWINSZ, &w);
   FOREACHC(ConfigList, configs, c){
-    (*c)->print(stdout, 0, 90, true);
+    (*c)->print(stdout, 0, w.ws_col-2, true);
   }
-  return;
 }
 
 void printConfig(const Configurable* config)
 {
-  if(config) config->print(stdout, 0, 90, true);
+  struct winsize w;
+  ioctl(0, TIOCGWINSZ, &w);
+  if(config) config->print(stdout, 0, w.ws_col-2, true);
 }
 
 
@@ -438,16 +451,18 @@ char * params_generator (const char *text, int state) {
 
 
 bool com_list (GlobalData& globalData, char* line, char* arg) {
-  int i=0;
-  printf("Agents ---------------(for store and load)\nID: Name\n");
+  int i=1;
+  printf("Agents -------------(for store and load)\nID: Name\n");
   
   FOREACHC(OdeAgentList, globalData.agents,a){    
     if((*a)->getRobot())
-    printf(" %2i: %s\n", i, (*a)->getRobot()->getName().c_str());
+    printf(" %3i: %s (Controller and Robot)\n", i, (*a)->getRobot()->getName().c_str());
+    printf(" %3i:  |- only Controller\n", i*100+1);
+    printf(" %3i:  |- only Robot\n", i*100+2);    
     i++;
   }
-  printf("Objects --------------(for set and show)\nID: Name\n");
-  i=0;
+  printf("Configurables ------(for set, show, storecfg and loadcfg )\nID: Name\n");
+  i=1;
   FOREACHC(ConfigList, globalData.configs,c){    
     printf(" %2i: %s\n", i, (*c)->getName().c_str());
     i++;
@@ -572,17 +587,36 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
 bool com_store (GlobalData& globalData, char* line, char* arg) {
   if (valid_argument("store", arg)){
     char* filename;        
+    short sub=0;
     filename = strchr(arg,' ');
     if(filename) { // we have 2 arguments
       *filename='\0';
       filename++;
       int id = atoi(arg);
-      if(id>=0 && id < (signed)globalData.agents.size()){
+      if(id>=100) {
+	sub=id%100;
+	id=id/100;
+      }
+      if(id>=1 && id <= (signed)globalData.agents.size()){
 	FILE* f = fopen(filename,"wb");
 	if(f){
-	  if(globalData.agents[id]->getController()->store(f))
-	    printf("Controller stored\n");
-	  else printf("Error occured while storing contoller\n");
+	  switch(sub){
+	  case 0: // store agent
+	    if(globalData.agents[id-1]->getController()->store(f))
+	      printf("Agent stored\n");
+	    else printf("Error occured while storing contoller\n");
+	    break;	    
+	  case 1: // store controller
+	    if(globalData.agents[id-1]->getController()->store(f))
+	      printf("Controller stored\n");
+	    else printf("Error occured while storing contoller\n");
+	    break;
+	  case 2: // store robot
+	    if(globalData.agents[id-1]->getRobot()->store(f))
+	      printf("Robot stored\n");
+	    else printf("Error occured while storing robot\n");
+	    break;
+	  }
 	  fclose(f);
 	}else printf("Cannot open file %s for writing\n", filename);
       } else printf("Agent with ID: %i not found\n", id);            
@@ -594,21 +628,78 @@ bool com_store (GlobalData& globalData, char* line, char* arg) {
 bool com_load (GlobalData& globalData, char* line, char* arg) {
   if (valid_argument("load", arg)){
     char* filename;        
+    short sub=0;
     filename = strchr(arg,' ');
     if(filename) { // we have 2 arguments
       *filename='\0';
       filename++;
       int id = atoi(arg);
-      if(id>=0 && id < (signed)globalData.agents.size()){
+      if(id>=100) {
+	sub=id%100;
+	id=id/100;
+      }
+      if(id>=1 && id <= (signed)globalData.agents.size()){
 	FILE* f = fopen(filename,"rb");
 	if(f){
-	  if(globalData.agents[id]->getController()->restore(f))
-	    printf("Controller restored\n");
-	  else printf("Error occured while restoring contoller\n");
+	  switch(sub){
+	  case 0: // store agent
+	    if(globalData.agents[id-1]->getController()->restore(f))
+	      printf("Agent restored\n");
+	    else printf("Error occured while restoring contoller\n");
+	    break;	    
+	  case 1: // store controller
+	    if(globalData.agents[id-1]->getController()->restore(f))
+	      printf("Controller restored\n");
+	    else printf("Error occured while restoring contoller\n");
+	    break;
+	  case 2: // store robot
+	    if(globalData.agents[id-1]->getRobot()->restore(f))
+	      printf("Robot restored\n");
+	    else printf("Error occured while restoring robot\n");
+	    break;
+	  }	 
 	  fclose(f);
 	}else printf("Cannot open file %s for reading\n", filename);
       } else printf("Agent with ID: %i not found\n", id);            
     }else printf("syntax error , see >help load\n");        
+  }
+  return true;
+}
+
+bool com_storecfg (GlobalData& globalData, char* line, char* arg) {
+  if (valid_argument("storecfg", arg)){
+    char* filename;        
+    filename = strchr(arg,' ');
+    if(filename) { // we have 2 arguments
+      *filename='\0';
+      filename++;
+      int id = atoi(arg);
+      if(id>=1 && id <= (signed)globalData.configs.size()){
+	if(globalData.configs[id-1]->storeCfg(filename))
+	  printf("Configuration stored\n");
+	else 
+	  printf("Error occured while storing configuration\n");	
+      } else printf("Configurable with ID: %i not found\n", id);            
+    }else printf("syntax error , see >help storecfg\n");        
+  }
+  return true;
+}
+
+bool com_loadcfg (GlobalData& globalData, char* line, char* arg) {
+  if (valid_argument("loadcfg", arg)){
+    char* filename;        
+    filename = strchr(arg,' ');
+    if(filename) { // we have 2 arguments
+      *filename='\0';
+      filename++;
+      int id = atoi(arg);
+      if(id>=1 && id <= (signed)globalData.configs.size()){
+	if(globalData.configs[id-1]->restoreCfg(filename))
+	  printf("Configuration restored\n");
+	else 
+	  printf("Error occured while restoring configuration\n");
+      } else printf("Configurable with ID: %i not found\n", id);            
+    }else printf("syntax error , see >help loadcfg\n");        
   }
   return true;
 }

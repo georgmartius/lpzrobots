@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2011-03-22 16:42:48  guettler
+ *   Revision 1.15  2011-05-30 21:57:16  martius
+ *   store and restore from console improved
+ *   console width automatically adapted
+ *
+ *   Revision 1.14  2011/03/22 16:42:48  guettler
  *   - adpaptions to enhanced configurable and inspectable interface
  *
  *   Revision 1.13  2011/02/24 20:45:21  martius
@@ -94,6 +98,7 @@
 #define __ODEAGENT_H
 
 #include <selforg/agent.h>
+#include <selforg/storeable.h>
 #include "oderobot.h"
 #include "osgprimitive.h"
 #include "primitive.h"
@@ -105,7 +110,7 @@ namespace lpzrobots {
   
   /** Specialised agent for ode robots
    */
-  class OdeAgent : public Agent {
+  class OdeAgent : public Agent, public Storeable {
   public:
     /// obsolete provide globaldata, see below
     OdeAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$") __attribute__ ((deprecated));
@@ -165,10 +170,19 @@ namespace lpzrobots {
      * Returns a pointer to the robot.
      */
     virtual OdeRobot* getRobot() { return (OdeRobot*)robot;}
+    /**
+     * Returns a const pointer to the robot.
+     */
+    virtual const OdeRobot* getRobot() const { return (OdeRobot*)robot;}
 
     /// gives the number of past robot positions shown as trace in osg
     virtual int getTraceLength(){return trace_length;}
 
+
+    /****** STOREABLE **********/
+    virtual bool store(FILE* f) const;
+    virtual bool restore(FILE* f);  
+    
 
   protected:
     void internInit(){

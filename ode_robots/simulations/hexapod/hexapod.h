@@ -203,6 +203,10 @@ namespace lpzrobots {
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[0]; }
+
+    /** all parts of the robot */
+    virtual std::vector<Primitive*>& getPrimitives() { return objects; }   
+
   protected:
 
     /** creates vehicle at desired pose
