@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2010-11-11 08:58:45  martius
+ *   Revision 1.8  2011-05-31 10:21:48  martius
+ *   make xml stuff work again
+ *   moved obsolete stuff
+ *
+ *   Revision 1.7  2010/11/11 08:58:45  martius
  *   comments and testing
  *
  *   Revision 1.6  2010/03/21 21:48:59  martius
@@ -99,7 +103,7 @@ namespace lpzrobots {
     virtual void update() {};
 
     /** writes the sensor values (usually in the range [0,1] ) 
-	into the giben sensor array and returns the number of sensors written.
+	into the given sensor array and returns the number of sensors written.
 	A default implementation based on get() is provided. Only of performance
 	matters overwrite this function.
 	@param sensors call by refernce array which received the values

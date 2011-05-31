@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.5  2010-06-15 15:02:19  guettler
+ *  Revision 1.6  2011-05-31 10:21:48  martius
+ *  make xml stuff work again
+ *  moved obsolete stuff
+ *
+ *  Revision 1.5  2010/06/15 15:02:19  guettler
  *  using now "XercescForwardDecl.h" to avoid namespace problems (3_0, 3_1)
  *
  *  Revision 1.4  2010/03/11 15:18:06  guettler
@@ -300,7 +304,7 @@ void XMLParserEngine::parseGlobalVariables(XERCESC::DOMNode* node) {
   globalData.odeConfig.realTimeFactor = XMLHelper::getNodeAtt(node, XMLDefinitions::realTimeFactorAtt);
   globalData.odeConfig.controlInterval = XMLHelper::getNodeAtt(node, XMLDefinitions::controlintervalAtt);
   globalData.odeConfig.simStepSize = XMLHelper::getNodeAtt(node, XMLDefinitions::simStepSizeAtt);
-  globalData.odeConfig.randomSeed = XMLHelper::getNodeAtt(node, XMLDefinitions::randomSeedAtt);
+  globalData.odeConfig.setRandomSeed(XMLHelper::getNodeAtt(node, XMLDefinitions::randomSeedAtt));
   globalData.odeConfig.fps = XMLHelper::getNodeAtt(node, XMLDefinitions::fpsAtt);
   globalData.odeConfig.motionPersistence = XMLHelper::getNodeAtt(node, XMLDefinitions::motionPersistenceAtt);
   globalData.odeConfig.cameraSpeed = XMLHelper::getNodeAtt(node, XMLDefinitions::cameraSpeedAtt);

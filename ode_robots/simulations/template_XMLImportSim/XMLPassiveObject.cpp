@@ -8,6 +8,7 @@
 #include "XMLPassiveObject.h"
 #include <xercesc/dom/DOMNode.hpp>
 #include <ode_robots/playground.h>
+#include <ode_robots/osgprimitive.h>
 
 #include "XMLHelper.h"
 

@@ -26,7 +26,11 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.5  2010-06-15 15:02:19  guettler
+ *  Revision 1.6  2011-05-31 10:21:48  martius
+ *  make xml stuff work again
+ *  moved obsolete stuff
+ *
+ *  Revision 1.5  2010/06/15 15:02:19  guettler
  *  using now "XercescForwardDecl.h" to avoid namespace problems (3_0, 3_1)
  *
  *  Revision 1.4  2010/05/20 10:38:20  guettler
@@ -61,6 +65,7 @@
 #include <ode_robots/odehandle.h>
 #include <ode_robots/osghandle.h>
 #include <ode_robots/passivemesh.h>
+#include <ode_robots/osgprimitive.h>
 
 using namespace lpzrobots;
 using namespace XERCESC;
@@ -347,7 +352,7 @@ void XMLPrimitiveFactory::setTextureIfPresent(DOMNode* node, Primitive* primitiv
     cout << "   Filename " << fileName << endl;
     cout << "   RepeatOnR " << repeatOnR << endl;
     cout << "   RepeatOnS " << repeatOnS << endl;
-    primitive->setTexture((int) surface, fileName, repeatOnR, repeatOnS);
+    primitive->setTexture((int) surface, TextureDescr(fileName, repeatOnR, repeatOnS));
   }
   // else do nothing
 }
