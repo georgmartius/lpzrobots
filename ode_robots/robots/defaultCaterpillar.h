@@ -32,7 +32,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2011-05-30 13:56:42  martius
+ *   Revision 1.6  2011-05-31 16:40:43  martius
+ *   added optional shared linking
+ *   moves some old files and code cleanup
+ *
+ *   Revision 1.5  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -146,20 +150,6 @@ public:
   /// update all primitives and joints
   virtual void update();
 
-  /**
-   *This is the collision handling function for snake robots.
-   *This overwrides the function collisionCallback of the class robot.
-   *@param data
-   *@param o1 first geometrical object, which has taken part in the collision
-   *@param o2 second geometrical object, which has taken part in the collision
-   *@return true if the collision was threated  by the robot, false if not
-   **/
-  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);	
-
-  static void mycallback(void *data, dGeomID o1, dGeomID o2);
-
-  virtual void doInternalStuff(GlobalData& global);
-	
   /**
    *Reads the actual motor commands from an array, 
    *an sets all motors of the snake to this values.

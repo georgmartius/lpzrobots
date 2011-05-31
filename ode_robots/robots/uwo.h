@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2011-05-30 13:56:42  martius
+ *   Revision 1.7  2011-05-31 16:40:43  martius
+ *   added optional shared linking
+ *   moves some old files and code cleanup
+ *
+ *   Revision 1.6  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -140,13 +144,6 @@ namespace lpzrobots {
     virtual int getMotorNumber(){
       return conf.legNumber*2;
     };
-
-    /** checks for internal collisions and treats them. 
-     *  In case of a treatment return true (collision will be ignored by other objects 
-     *  and the default routine)  else false (collision is passed to other objects and 
-     *  (if not treated) to the default routine).
-     */
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.

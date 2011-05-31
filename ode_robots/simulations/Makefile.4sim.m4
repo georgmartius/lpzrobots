@@ -47,10 +47,13 @@ DEV(LIBSELFORG      = $(SELFORG)/lib$(SELFORGLIB).a)
 
 ODELIBS = $(shell ode-dbl-config --libs)
 GSLLIBS = $(shell gsl-config --libs)
+STATICSTART=-Wl,-Bstatic
+STATICEND=-Wl,-Bdynamic
 
 LIBS  += -lm \
-	DEV(-L$(ODEROBOTS)) -l$(ODEROBOTSLIB) \
-	DEV(-L$(SELFORG))   -l$(SELFORGLIB) \
+	DEV(-L$(ODEROBOTS) -L$(SELFORG)) \
+	 $(STATICSTART) -l$(ODEROBOTSLIB) -l$(SELFORGLIB) $(STATICEND) \
+	-Wl,-Bstatic -l$(ODEROBOTSLIB) -l$(SELFORGLIB) -Wl,-Bdynamic \
 	 $(ODELIBS) $(GSLLIBS) \
 	-losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
 	-lreadline -lncurses -lpthread $(ADDITIONAL_LIBS)
@@ -74,6 +77,9 @@ opt:    DEV(libode_robots_opt)
 	$(MAKE) ODEROBOTSLIB="$(ODEROBOTSLIB_OPT)" SELFORGLIB="$(SELFORGLIB_OPT)" CPPFLAGS="$(CPPFLAGS_OPT)" $(EXEC_OPT)
 dbg:    DEV(libode_robots_dbg) 
 	$(MAKE) ODEROBOTSLIB="$(ODEROBOTSLIB_DBG)" SELFORGLIB="$(SELFORGLIB_DBG)" CPPFLAGS="$(CPPFLAGS_DBG)" $(EXEC_DBG)
+shared:  DEV(libode_robots_shared) 
+	$(MAKE) STATICSTART="" STATICEND="" $(EXEC)
+
 
 $(EXEC): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS) $(LIBSELFORG))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
@@ -94,6 +100,9 @@ libode_robots_dbg:
 
 libode_robots_opt:	
 	cd $(ODEROBOTS) && $(MAKE) opt
+
+libode_robots_shared:	
+	cd $(ODEROBOTS) && $(MAKE) shared
 
 )
 

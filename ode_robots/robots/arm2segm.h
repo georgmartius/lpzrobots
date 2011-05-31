@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-05-30 13:56:42  martius
+ *   Revision 1.10  2011-05-31 16:40:43  martius
+ *   added optional shared linking
+ *   moves some old files and code cleanup
+ *
+ *   Revision 1.9  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -173,16 +177,8 @@ namespace lpzrobots{
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const;
-
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
-    */
+    
     virtual void doInternalStuff(GlobalData& globalData);
-
-    /******** CONFIGURABLE ***********/
-    virtual void notifyOnChange(const paramkey& key);
 
   protected:
 
@@ -194,8 +190,6 @@ namespace lpzrobots{
     /** destroys vehicle and space
      */
     virtual void destroy();
-
-    static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
     dSpaceID parentspace;
 

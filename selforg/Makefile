@@ -11,6 +11,7 @@ LIBBASE=lib$(PACKAGE_NAME)
 LIB=$(LIBBASE).a
 LIB_OPT=$(LIBBASE)_opt.a
 LIB_DBG=$(LIBBASE)_dbg.a
+SHAREDLIB=$(LIBBASE).so
 STRIP=no
 TYPE=DEVEL
 GSL=yes
@@ -46,7 +47,7 @@ INC += -DNO_GSL
 endif
 
 # use -pg for profiling
-CBASEFLAGS = -Wall -pipe
+CBASEFLAGS = -Wall -fpic -pipe
 CPPFLAGS = $(CBASEFLAGS) -g -O $(INC)
 # Optimisation see at opt target
 # DEBUG  see at dbg target
@@ -72,6 +73,9 @@ dbg:
 	$(MAKE) BUILD_DIR=build_dbg LIB=$(LIB_DBG) \
  CPPFLAGS="$(CBASEFLAGS) -g  $(INC)" lib
 
+shared:
+	$(MAKE) $(SHAREDLIB)
+
 
 $(LIB): Makefile.depend $(OFILES)
 	$(AR) $(LIB) $(OFILES)
@@ -82,6 +86,8 @@ ${BUILD_DIR}/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) -c $(CPPFLAGS) $(CFLAGS) -o "$@" "$<"
 
+$(SHAREDLIB): Makefile.depend $(OFILES)
+	$(CXX) -shared -Wl,-soname,$(SHAREDLIB) -o $(SHAREDLIB) $(OFILES) 
 
 install: Makefile.depend lib opt dbg
 ifneq ($(TYPE),DEVEL)
@@ -135,7 +141,7 @@ findi:
 
 distclean: clean-all
 clean-all: clean
-	rm -f $(LIB) $(LIB_OPT) $(LIB_DBG)
+	rm -f $(LIB) $(LIB_OPT) $(LIB_DBG) $(SHAREDLIB)
 
 clean:
 	rm -f Makefile.depend

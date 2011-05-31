@@ -12,6 +12,7 @@ LIBBASE=lib$(PACKAGE_NAME)
 LIB=$(LIBBASE).a
 LIB_DBG= $(LIBBASE)_dbg.a
 LIB_OPT= $(LIBBASE)_opt.a
+SHAREDLIB=$(LIBBASE).so
 TYPE=DEVEL
 STRIP=no
 # this can is overwritten from commandline
@@ -71,12 +72,20 @@ ifeq ($(TYPE),DEVEL)
 endif
 	$(MAKE) BUILD_DIR=build_opt LIB=$(LIB_OPT) CPPFLAGS="$(CPPBASEFLAGS) -O3 -DNDEBUG" STRIP="yes" library
 
+shared:
+ifeq ($(TYPE),DEVEL)
+	cd $(SELFORG) && $(MAKE) shared
+endif
+	$(MAKE) $(SHAREDLIB)
+
 library: $(LIB)
 
 
 $(LIB): $(UTILS) Makefile.depend $(OFILES)	
 	$(AR) $(LIB) $(OFILES)
 
+$(SHAREDLIB): Makefile.depend $(OFILES)
+	$(CXX) -shared -Wl,-soname,$(SHAREDLIB) -o $(SHAREDLIB) $(OFILES) 
 
 ${BUILD_DIR}/%.o: %.cpp
 	@mkdir -p $(dir $@)

@@ -127,6 +127,16 @@ cd $SIM && ./start $@
 EOF
 ) > $DIRNAME/simulationtemplate
 
+# add also template for call from browser
+(
+cat <<'EOF'
+#!/bin/bash
+SIM=mysim
+DIR=`dirname $0`
+cd $DIR;
+xterm -geom 100x50 -e ./$SIM
+EOF
+) > $DIRNAME/simulationbrowsertemplate
 
 
 mkdir $DIRNAME/simulations

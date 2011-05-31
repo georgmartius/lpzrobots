@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2011-05-30 13:56:42  martius
+ *   Revision 1.16  2011-05-31 16:40:43  martius
+ *   added optional shared linking
+ *   moves some old files and code cleanup
+ *
+ *   Revision 1.15  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -206,36 +210,6 @@ namespace lpzrobots{
 
 
   void Arm2Segm::doInternalStuff(GlobalData& globalData){
-  };
-
-  void Arm2Segm::mycallback(void *data, dGeomID o1, dGeomID o2){
-    // no internal collisions in this robot
-  };
-
-  bool Arm2Segm::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-    //checks if one of the collision objects is part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space){
-      
-      // the rest is for collisions of some elements of the robot with the rest of the world
-      int i,n;  
-      const int N = 10;
-      dContact contact[N];
-
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i<n; i++){
-	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	contact[i].surface.slip1 = 0.005;
-	contact[i].surface.slip2 = 0.005;
-	contact[i].surface.mu = 0.5;
-	contact[i].surface.soft_erp = 0.9;
-	contact[i].surface.soft_cfm = 0.001;
-	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)) ;	
-      }
-      return true;
-    }
-    return false;
   };
   
 

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-05-30 13:56:42  martius
+ *   Revision 1.8  2011-05-31 16:40:43  martius
+ *   added optional shared linking
+ *   moves some old files and code cleanup
+ *
+ *   Revision 1.7  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -230,8 +234,6 @@ namespace lpzrobots{
     */
     virtual void doInternalStuff(GlobalData& globalData);
   
-    /******** CONFIGURABLE ***********/
-    virtual void notifyOnChange(const paramkey& key);
 
     virtual Primitive* getMainObject() const;
 

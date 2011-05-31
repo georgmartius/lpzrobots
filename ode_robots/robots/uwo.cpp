@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2011-05-30 13:56:42  martius
+ *   Revision 1.11  2011-05-31 16:40:43  martius
+ *   added optional shared linking
+ *   moves some old files and code cleanup
+ *
+ *   Revision 1.10  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -139,9 +143,6 @@ namespace lpzrobots {
   };
 
 
-  /**
-   * updates the osg notes
-   */
   void Uwo::update(){
     assert(created); // robot must exist
   
@@ -155,15 +156,8 @@ namespace lpzrobots {
   };
 
 
-  /** this function is called in each timestep. It should perform robot-internal checks, 
-      like space-internal collision detection, sensor resets/update etc.
-      @param global structure that contains global data from the simulation environment
-  */
   void Uwo::doInternalStuff(GlobalData& global){}
 
-  /** creates vehicle at desired position 
-      @param pos struct Position with desired position
-  */
   void Uwo::create( const osg::Matrix& pose ){
     if (created) {
       destroy();

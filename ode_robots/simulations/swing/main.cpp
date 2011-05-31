@@ -162,7 +162,7 @@ public:
      controller->setParam("epsC",0.05);
      controller->setParam("epsA",0.05555555);
      controller->setParam("harmony",0.0);
-     controller->setParam("s4avg",5.0);
+     controller->setParam("s4avg",5.0); 
 
      //     AbstractController* controller = new BasicController(cc);
      //   AbstractController* controller = new SineController(1<<14); // only motor 14
