@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2011-05-25 12:13:48  martius
+ *   Revision 1.29  2011-05-31 15:44:47  martius
+ *   lighting and shadow changed again
+ *
+ *   Revision 1.28  2011/05/25 12:13:48  martius
  *   osgBoxTex: transparency bug fixed, lighting bug fixed
  *   osgBase: added ambient light
  *
@@ -217,7 +220,8 @@ namespace lpzrobots {
 
 
   // returns a material with the given color
-  ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode = Material::DIFFUSE );
+  //  ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode = Material::DIFFUSE );
+  ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode = Material::AMBIENT_AND_DIFFUSE );
 
   osg::Geode* createRectangle(const OsgHandle&,
 			      const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3,
@@ -712,11 +716,11 @@ namespace lpzrobots {
   ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode) {
     ref_ptr<Material> m = new Material ();
     m->setColorMode(mode);
-    Color amb (c*0.3);
+    Color amb (c*0.3);    
     amb.alpha()=c.alpha();
     Color dif(c*0.7);
     dif.alpha()=c.alpha();
-    Color spec(c*0.05);
+    Color spec(c*0.15);
     spec.alpha()=c.alpha();
     m->setAmbient(Material::FRONT_AND_BACK, amb);
     m->setDiffuse(Material::FRONT_AND_BACK, dif);

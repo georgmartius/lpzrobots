@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.53  2011-05-25 12:13:48  martius
+ *   Revision 1.54  2011-05-31 15:44:47  martius
+ *   lighting and shadow changed again
+ *
+ *   Revision 1.53  2011/05/25 12:13:48  martius
  *   osgBoxTex: transparency bug fixed, lighting bug fixed
  *   osgBase: added ambient light
  *
@@ -446,6 +449,8 @@ namespace lpzrobots {
   case 3: /// ParallelSplitShadowMap
     {
         osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,mapCount);
+        //        std::cout << pssm->getAmbientBias().x  << " " << pssm->getAmbientBias().y << std::endl
+        pssm->setAmbientBias(Vec2(0,.3));
 
         pssm->setTextureResolution(shadowTexSize);
 
@@ -500,6 +505,7 @@ namespace lpzrobots {
       sm->setSoftnessWidth(softnessWidth);
       sm->setTextureSize(osg::Vec2s((int)shadowTexSize,(int)shadowTexSize));
       shadowedScene->setShadowTechnique(sm.get());
+      sm->setAmbientBias(Vec2(0.8,.2));
     }
     break;
   case 5: /// ShadowMap
@@ -508,6 +514,8 @@ namespace lpzrobots {
       osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
       shadowedScene->setShadowTechnique(sm.get());
       sm->setTextureSize(osg::Vec2s((int)shadowTexSize,(int)shadowTexSize));
+      sm->setAmbientBias(Vec2(0.8,.2));
+
     }
     break;
   }
@@ -942,54 +950,58 @@ namespace lpzrobots {
   void Base::makeLights(osg::Group* node)
   {
 
-    // // create a default light
+    // create a default light that is used independently of the shadow. Only ambient and specular
     osg::Light* myLight0 = new osg::Light();
     myLight0->setLightNum(1);
-    myLight0->setAmbient(osg::Vec4(1.5f,1.5f,1.5f,1.0f));
+    myLight0->setDiffuse(osg::Vec4(0.0f,0.0f,0.0f,0.0f));
+    myLight0->setSpecular(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
+    //myLight0->setAmbient(osg::Vec4(.0f,.0f,.0f,0.f));
+    myLight0->setAmbient(osg::Vec4(.3f,.3f,.3f,1.0f));
+    //myLight0->setAmbient(osg::Vec4(1.0,1.0,1.0,1.0f));
+    myLight0->setPosition(osg::Vec4(1.0,1.0,1.0,0.0f));
+    myLight0->setDirection(osg::Vec3(-1.0, -1.0, -1.0));
     osg::LightSource* lightS0 = new osg::LightSource();
     node->addChild(lightS0);
     lightS0->setLight(myLight0);
     lightS0->setStateSetModes(*(node->getOrCreateStateSet()),osg::StateAttribute::ON);
 
-    //       /*
-    // // create a spot light.
-    // Light* light_0 = new Light;
-    // light_0->setLightNum(0);
-    // //    light_0->setPosition(Vec4(0.0f, 0.0f, 50.0f, 1.0f));
-    // light_0->setPosition(Vec4(40.0f, 40.0f, 50.0f, 1.0f));
-    // //    light_0->setAmbient(Vec4(0.25f, 0.25f, 0.25f, 1.0f));
-    // light_0->setAmbient(Vec4(0.7f, 0.7f, 0.7f, 1.0f));  // Georg 21.07.2007 changed from 0.5 to 0.7
-    // //light_0->setAmbient(Vec4(0.9f, 0.9f, 0.9f, 1.0f));  // Georg 05.01.2008 changed from 0.7 to 0.9
-    // light_0->setDiffuse(Vec4(0.8f, 0.8f, 0.8f, 1.0f));
-    // //    light_0->setDirection(Vec3(-1.0f, -1.0f, -1.2f));
-    // light_0->setSpecular(Vec4(1.0f, 0.9f, 0.8f, 1.0f));
 
-    // LightSource* light_source_0 = new LightSource;
-    // light_source_0->setLight(light_0);
-    // light_source_0->setLocalStateSetModes(StateAttribute::ON);
-    // light_source_0->setStateSetModes(*stateset, StateAttribute::ON);
-
-    // return light_source_0;
-    // */
-
-    // create a directional light (infinite distance place at 45 degrees)
+    // create a directional diffuse light for shadowing (infinite distance place at 45 degrees)
     osg::Light* myLight1 = new osg::Light();
     myLight1->setLightNum(0); 
     myLight1->setPosition(osg::Vec4(1.0,1.0,1.0,0.0f));
     myLight1->setDirection(osg::Vec3(-1.0, -1.0, -1.0));
-    myLight1->setAmbient(osg::Vec4(0.5f,0.5f,0.5f,1.0f));
-    //    myLight1->setDiffuse(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
-   //    myLight1->setSpecular(osg::Vec4(.0f,.0f,.0f,.0f));
-    myLight1->setConstantAttenuation(1.0f);
-
-
-
+    myLight1->setAmbient(osg::Vec4(0.f,0.f,0.f,0.f));
+    myLight1->setSpecular(osg::Vec4(0.f,0.f,0.f,0.f));
+    myLight1->setDiffuse(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
+  
     osg::LightSource* lightS1 = new osg::LightSource();
     lightS1->setLight(myLight1);
     // lightS->setLocalStateSetModes(osg::StateAttribute::ON);
-
-    node->addChild(lightS1);
+    node->addChild(lightS1); 
     lightS1->setStateSetModes(*(node->getOrCreateStateSet()),osg::StateAttribute::ON);
+
+   //  //       /*
+   //  // // create a spot light.
+   //  // Light* light_0 = new Light;
+   //  // light_0->setLightNum(0);
+   //  // //    light_0->setPosition(Vec4(0.0f, 0.0f, 50.0f, 1.0f));
+   //  // light_0->setPosition(Vec4(40.0f, 40.0f, 50.0f, 1.0f));
+   //  // //    light_0->setAmbient(Vec4(0.25f, 0.25f, 0.25f, 1.0f));
+   //  // light_0->setAmbient(Vec4(0.7f, 0.7f, 0.7f, 1.0f));  // Georg 21.07.2007 changed from 0.5 to 0.7
+   //  // //light_0->setAmbient(Vec4(0.9f, 0.9f, 0.9f, 1.0f));  // Georg 05.01.2008 changed from 0.7 to 0.9
+   //  // light_0->setDiffuse(Vec4(0.8f, 0.8f, 0.8f, 1.0f));
+   //  // //    light_0->setDirection(Vec3(-1.0f, -1.0f, -1.2f));
+   //  // light_0->setSpecular(Vec4(1.0f, 0.9f, 0.8f, 1.0f));
+
+   //  // LightSource* light_source_0 = new LightSource;
+   //  // light_source_0->setLight(light_0);
+   //  // light_source_0->setLocalStateSetModes(StateAttribute::ON);
+   //  // light_source_0->setStateSetModes(*stateset, StateAttribute::ON);
+
+   //  // return light_source_0;
+   //  // */
+
 
 }
 
