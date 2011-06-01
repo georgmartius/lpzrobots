@@ -302,16 +302,15 @@ namespace lpzrobots {
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }
 
-    /** all parts of the robot */
-    virtual std::vector<Primitive*>& getPrimitives() { return objects; }
-
+ 
     /** returns the position of the head */
     virtual Position getHeadPosition();
 
     /** returns the position of the trunk */
     virtual Position getTrunkPosition();
     
-    virtual std::list<Primitive*> getAllPrimitives();
+    /** all parts of the robot */
+    virtual std::vector<Primitive*> getAllPrimitives() { return objects; }
 
   protected:
 

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2011-05-30 13:56:42  martius
+ *   Revision 1.6  2011-06-01 22:02:56  martius
+ *   getAllPrimitives changed to vector return type
+ *   inspectables infolines are printed without name again (for guilogger)
+ *
+ *   Revision 1.5  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -1207,10 +1211,5 @@ GUIDE adding new sensors
     else return Position(0,0,0);
   }
 
-
-  std::list<Primitive*> Skeleton::getAllPrimitives() {    
-    list<Primitive*> ps(&objects[0],&objects[LastPart]);
-    return ps;
-  }
 
 }

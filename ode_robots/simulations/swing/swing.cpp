@@ -1195,10 +1195,5 @@ GUIDE adding new sensors
     else return Position(0,0,0);
   }
 
-  std::list<Primitive*> Swing::getAllPrimitives() {    
-    list<Primitive*> ps(&objects[0],&objects[LastPart]);
-    return ps;
-  }
-
 
 }

@@ -304,7 +304,7 @@ namespace lpzrobots {
     virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }
 
     /** all parts of the robot */
-    virtual std::vector<Primitive*>& getPrimitives() { return objects; }
+    virtual std::vector<Primitive*> getAllPrimitives() { return objects; }
 
     /** returns the position of the head */
     virtual Position getHeadPosition();
@@ -312,7 +312,6 @@ namespace lpzrobots {
     /** returns the position of the trunk */
     virtual Position getTrunkPosition();
     
-    virtual std::list<Primitive*> getAllPrimitives();
 
   protected:
 

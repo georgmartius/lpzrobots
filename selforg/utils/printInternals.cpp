@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2011-03-22 16:49:29  guettler
+ *   Revision 1.17  2011-06-01 22:02:56  martius
+ *   getAllPrimitives changed to vector return type
+ *   inspectables infolines are printed without name again (for guilogger)
+ *
+ *   Revision 1.16  2011/03/22 16:49:29  guettler
  *   - adpaptions to enhanced configurable and inspectable interface
  *
  *   Revision 1.15  2011/03/21 17:48:13  guettler
@@ -115,7 +119,8 @@ void printInspectableInfoLines(FILE* f, const list<const Inspectable*>& inspecta
   FOREACHC(list<const Inspectable*>, inspectables, insp) {
     const list<string>& infoLines = (*insp)->getInfoLines();
     FOREACHC(list<string>, infoLines, infoLine) {
-      fprintf(f,"%s", string("#I [").append((*insp)->getNameOfInspectable()).append("] ").append(*infoLine).append("\n").c_str());
+      //      fprintf(f,"%s", string("#I [").append((*insp)->getNameOfInspectable()).append("] ").append(*infoLine).append("\n").c_str());
+      fprintf(f,"#I %s\n", (*infoLine).c_str());
     }
     printInspectableInfoLines(f, (*insp)->getInspectables());
   }

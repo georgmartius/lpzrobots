@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2010-11-05 13:54:05  martius
+ *   Revision 1.13  2011-06-01 22:02:56  martius
+ *   getAllPrimitives changed to vector return type
+ *   inspectables infolines are printed without name again (for guilogger)
+ *
+ *   Revision 1.12  2010/11/05 13:54:05  martius
  *   store and restore for robots implemented
  *
  *   Revision 1.11  2010/03/21 21:48:59  martius
@@ -256,7 +260,7 @@ namespace lpzrobots {
     virtual Primitive* getMainPrimitive() const  = 0;
 
     /// returns a list of all primitives of the robot (used to store and restore the robot)
-    virtual std::list<Primitive*> getAllPrimitives() { return std::list<Primitive*>();}    
+    virtual std::vector<Primitive*> getAllPrimitives() { return std::vector<Primitive*>();}    
     /// returns a list of all primitives of the robot (const version) (used to store and restore the robot)
     /* **************** Storable interface ********** */
     virtual bool store(FILE* f) const;

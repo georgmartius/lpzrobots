@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2011-05-30 21:57:16  martius
+ *   Revision 1.18  2011-06-01 22:02:56  martius
+ *   getAllPrimitives changed to vector return type
+ *   inspectables infolines are printed without name again (for guilogger)
+ *
+ *   Revision 1.17  2011/05/30 21:57:16  martius
  *   store and restore from console improved
  *   console width automatically adapted
  *
@@ -346,7 +350,7 @@ namespace lpzrobots {
     virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }
 
     /** all parts of the robot */
-    virtual std::vector<Primitive*>& getAllPrimitives() { return objects; }
+    virtual std::vector<Primitive*> getAllPrimitives() { return objects; }
 
     /** returns the position of the head */
     virtual Position getHeadPosition();

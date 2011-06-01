@@ -21,7 +21,11 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-11-05 13:54:05  martius
+ *   Revision 1.11  2011-06-01 22:02:56  martius
+ *   getAllPrimitives changed to vector return type
+ *   inspectables infolines are printed without name again (for guilogger)
+ *
+ *   Revision 1.10  2010/11/05 13:54:05  martius
  *   store and restore for robots implemented
  *
  *   Revision 1.9  2010/01/26 09:54:56  martius
@@ -170,8 +174,8 @@ matrix::Matrix OdeRobot::getOrientation() const {
        but the primitives are not changed anyway, so it is okay */
     if(!f) return false;
     fwrite("ROBOT", sizeof(char), 5, f); // maybe also print name
-    const list<Primitive*>& ps = ((OdeRobot*)this)->getAllPrimitives();
-    FOREACHC(list<Primitive*>,ps,p){
+    const vector<Primitive*>& ps = ((OdeRobot*)this)->getAllPrimitives();
+    FOREACHC(vector<Primitive*>,ps,p){
       if(*p)
         if(!(*p)->store(f)) return false;      
     }
@@ -185,8 +189,8 @@ matrix::Matrix OdeRobot::getOrientation() const {
       fprintf(stderr,"OdeRobot::restore: the file is not a robot save file\n");
       return false;
     }
-    const list<Primitive*>& ps = getAllPrimitives();
-    FOREACHC(list<Primitive*>,ps,p){
+    const vector<Primitive*>& ps = getAllPrimitives();
+    FOREACHC(vector<Primitive*>,ps,p){
       if(*p)
         if(!(*p)->restore(f)) return false;      
     }

@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2010-11-05 13:54:05  martius
+ *   Revision 1.24  2011-06-01 22:02:56  martius
+ *   getAllPrimitives changed to vector return type
+ *   inspectables infolines are printed without name again (for guilogger)
+ *
+ *   Revision 1.23  2010/11/05 13:54:05  martius
  *   store and restore for robots implemented
  *
  *   Revision 1.22  2010/03/09 11:53:41  martius
@@ -170,7 +174,6 @@
 #include <selforg/invertmotornstep.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/derpseudosensor.h>
-#include <selforg/basiccontroller.h>
 #include "derlininvertmpi.h"
 #include <selforg/derlinunivers.h>
 /************/
@@ -468,8 +471,8 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
        //       // fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) , 		   Axis(0,0,1), Axis(0,1,0));
        fixator->init(odeHandle, osgHandle);
      }else if(reckturner){
-       Primitive* leftHand = human0->getPrimitives()[Skeleton::Left_Hand];
-       Primitive* rightHand = human0->getPrimitives()[Skeleton::Right_Hand];
+       Primitive* leftHand = human0->getAllPrimitives()[Skeleton::Left_Hand];
+       Primitive* rightHand = human0->getAllPrimitives()[Skeleton::Right_Hand];
       
        reckLeft = new SliderJoint(leftHand, global.environment, leftHand->getPosition(), Axis(1,0,0));	
        reckLeft->init(odeHandle, osgHandle,false);
@@ -612,7 +615,7 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
      // create pointer to agent
      // initialize pointer with controller, robot and wiring
      // push agent in globel list of agents
-     OdeAgent* agent = new OdeAgent(i==0 ? plotoptions : list<PlotOption>());
+     OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, human, wiring);
      //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
      global.agents.push_back(agent);
@@ -773,7 +776,7 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
      //       c.useFirstD = false;
      //       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
       
-     OdeAgent* agent = new OdeAgent(plotoptions);
+     OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, schlange1, wiring);
      global.agents.push_back(agent);
      global.configs.push_back(controller);
@@ -885,7 +888,7 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
      //       c.useFirstD = false;
      //       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
       
-     OdeAgent* agent = new OdeAgent(plotoptions);
+     OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, schlange1, wiring);
      global.agents.push_back(agent);
      global.configs.push_back(controller);
@@ -955,7 +958,7 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
      c.useFirstD = false;
      AbstractWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
      //     sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
-     OdeAgent* agent = new OdeAgent(plotoptions);
+     OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, robot, wiring);
      global.agents.push_back(agent);
      global.configs.push_back(controller);

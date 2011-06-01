@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2011-05-30 13:56:42  martius
+ *   Revision 1.26  2011-06-01 22:02:56  martius
+ *   getAllPrimitives changed to vector return type
+ *   inspectables infolines are printed without name again (for guilogger)
+ *
+ *   Revision 1.25  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -351,8 +355,8 @@ namespace lpzrobots {
     }
   }
 
-  std::list<Primitive*> HurlingSnake::getAllPrimitives(){
-    list<Primitive*> ps(&object[0],&object[NUM-1]);
+  std::vector<Primitive*> HurlingSnake::getAllPrimitives(){
+    vector<Primitive*> ps(&object[0],&object[NUM-1]);
     return ps;
   }
 

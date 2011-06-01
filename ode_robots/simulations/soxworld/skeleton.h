@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2011-05-30 13:56:42  martius
+ *   Revision 1.6  2011-06-01 22:02:56  martius
+ *   getAllPrimitives changed to vector return type
+ *   inspectables infolines are printed without name again (for guilogger)
+ *
+ *   Revision 1.5  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -365,16 +369,14 @@ namespace lpzrobots {
     virtual Primitive* getMainPrimitive() const { return objects[Belly]; }
 
     /** all parts of the robot */
-    virtual std::vector<Primitive*>& getPrimitives() { return objects; }
+    virtual std::vector<Primitive*> getAllPrimitives() { return objects; }
 
     /** returns the position of the head */
     virtual Position getHeadPosition();
 
     /** returns the position of the trunk */
     virtual Position getTrunkPosition();
-    
-    virtual std::list<Primitive*> getAllPrimitives();
-   
+       
 
   protected:
 
