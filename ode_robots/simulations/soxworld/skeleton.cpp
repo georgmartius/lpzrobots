@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2011-06-01 22:02:56  martius
+ *   Revision 1.7  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.6  2011/06/01 22:02:56  martius
  *   getAllPrimitives changed to vector return type
  *   inspectables infolines are printed without name again (for guilogger)
  *
@@ -607,6 +611,7 @@ GUIDE adding new sensors
 				 osg::Matrix::translate(0, 0, -(.05)));
     t->init(odeHandle, 1,osgHandle);
     objects[Head_trans] = t;
+
     irSensorBank.init(odeHandle, osgHandle);
     if(conf.irSensors){
       // add Eyes ;-)
@@ -1095,18 +1100,9 @@ GUIDE adding new sensors
 	if(*i) delete *i;
       }
 
-      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-	if(*i) delete *i;
-      }
-      joints.clear();      
-
-      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-	if(*i) delete *i;
-      }
-      objects.clear();
+      cleanup();
       irSensorBank.clear();
-      odeHandle.removeSpace(odeHandle.space);
-      dSpaceDestroy(odeHandle.space);
+      odeHandle.deleteSpace();
     }
 
     created=false;

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-01-26 09:57:18  martius
+ *   Revision 1.6  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.5  2010/01/26 09:57:18  martius
  *   *** empty log message ***
  *
  *   Revision 1.4  2008/05/01 22:03:56  martius
@@ -220,7 +224,7 @@ public:
       controller->setParam("s4avg", 5);
       
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      OdeAgent* agent = new OdeAgent(plotoptions);
+      OdeAgent* agent = new OdeAgent(global);
       agent->init(controller, robot1, wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
@@ -339,7 +343,7 @@ public:
       global.configs.push_back ( controller );
     }
       
-    showParams(global.configs);
+    
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {

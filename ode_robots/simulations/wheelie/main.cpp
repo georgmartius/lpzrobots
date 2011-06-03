@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2010-03-17 09:33:16  martius
+ *   Revision 1.17  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.16  2010/03/17 09:33:16  martius
  *   removed memory leaks and some small bugs
  *   valgrind suppression file is updated
  *
@@ -91,7 +95,6 @@
 #include <selforg/one2onewiring.h>
 #include <selforg/derivativewiring.h>
 
-#include <ode_robots/wheelie.h>
 #include <ode_robots/sliderwheelie.h>
 
 // fetch all the stuff of lpzrobots into scope
@@ -114,7 +117,6 @@ public:
 
     useReinforcement      = 1;
     totalReinforcement    = 0;
-    bool useWheelie       = false;
     bool useSliderWheelie = true;
 
     setCameraHomePos(Pos(-3.90752, 9.63146, 3.31768),  Pos(172.39, -10.7938, 0));
@@ -143,29 +145,6 @@ public:
         
     OdeAgent *agent;
     AbstractWiring *wiring;
-
-    if(useWheelie){      
-      WheelieConf myWheelieConf = DefaultWheelie::getDefaultConf();
-      /******* w H E E L I E *********/
-      myWheelieConf.jointLimit=M_PI/3;
-      myWheelieConf.motorPower=0.2;
-      myWheelieConf.frictionGround=0.04;
-      //    myWheelieConf.segmNumber = 8;
-      //    myWheelieConf.segmLength = 0.2;
-      //    myWheelieConf.segmDia = 0.1;
-      myWheelieConf.motorPower = 1;
-      robot = new Wheelie(odeHandle, osgHandle, myWheelieConf, "Wheelie1");
-      ((OdeRobot*) robot)->place(Pos(-5,-6,0.2)); 
-      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-      controller = new InvertMotorNStep(invertnconf);    
-      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent(plotoptions);
-      agent->init(controller, robot, wiring);
-      global.agents.push_back(agent);
-      global.configs.push_back(controller);
-      global.configs.push_back(robot);   
-      robot->setParam("gamma", 0.0);
-    }
 
     if(useSliderWheelie){
       SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
@@ -198,14 +177,14 @@ public:
       c.useFirstD = true;
       //wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
       wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent(plotoptions);
+      agent = new OdeAgent(global);
       agent->init(controller, robot, wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
       global.configs.push_back(robot);   
     }
 
-    showParams(global.configs);
+    
 
   }
 
@@ -235,7 +214,7 @@ public:
     //    fprintf(f,"#C power powerRatio eps velScale seed reinf_ps\n"); 
     fprintf(f,"%f %f %f %f %li %f\n",
 	    powerValue, powerRatio, eps, velScale, 
-	    globalData.odeConfig.randomSeed, 
+	    globalData.odeConfig.getRandomSeed(), 
 	    totalReinforcement/globalData.time); 
     fclose(f);    
   }

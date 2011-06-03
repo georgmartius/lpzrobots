@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2011-06-01 22:02:56  martius
+ *   Revision 1.14  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.13  2011/06/01 22:02:56  martius
  *   getAllPrimitives changed to vector return type
  *   inspectables infolines are printed without name again (for guilogger)
  *
@@ -172,6 +176,7 @@
 namespace lpzrobots {
   
   class Primitive;
+  class Joint;
 
   /**
    * Abstract class  for ODE robots
@@ -189,6 +194,7 @@ namespace lpzrobots {
     OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 	     const std::string& name, const std::string& revision);
 
+    /// calls cleanup()
     virtual ~OdeRobot();
 
 
@@ -257,11 +263,14 @@ namespace lpzrobots {
     /*********** END TRACKABLE INTERFACE ****************/
     
     /// return the primitive of the robot that is used for tracking and camera following
-    virtual Primitive* getMainPrimitive() const  = 0;
+    virtual Primitive* getMainPrimitive() const  { 
+      if (!objects.empty()) return objects[0]; else return 0;
+    };
 
     /// returns a list of all primitives of the robot (used to store and restore the robot)
-    virtual std::vector<Primitive*> getAllPrimitives() { return std::vector<Primitive*>();}    
+    virtual std::vector<Primitive*> getAllPrimitives() const { return objects; };
     /// returns a list of all primitives of the robot (const version) (used to store and restore the robot)
+    
     /* **************** Storable interface ********** */
     virtual bool store(FILE* f) const;
     
@@ -273,8 +282,16 @@ namespace lpzrobots {
     static bool isGeomInPrimitiveList(Primitive** ps, int len, dGeomID geom);
     static bool isGeomInPrimitiveList(std::list<Primitive*> ps, dGeomID geom);
 
+    /// deletes all objects (primitives) and joints (is called automatically in destructor)
+    virtual void cleanup();
 
   protected:
+    /// list of objects (should be populated by subclasses)
+    std::vector <Primitive*> objects;
+    /// list of joints (should be populated by subclasses)
+    std::vector <Joint*> joints;
+
+
     OdeHandle odeHandle;
     OsgHandle osgHandle;
     dSpaceID parentspace;

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2010-03-09 11:53:41  martius
+ *   Revision 1.11  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.10  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.9  2008/05/01 22:03:56  martius
@@ -94,7 +98,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   AbstractController *controller = new InvertNChannelController(10);  
   configs.push_back(controller);
 
-  One2OneOdeAgent* agent = new One2OneOdeAgent(NoPlot); 
+  One2OneOdeAgent* agent = new One2OneOdeAgent(global,NoPlot); 
   agent->init(controller, vehicle);
   global.agents.push_back(agent);
   */

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2011-05-30 13:56:42  martius
+ *   Revision 1.4  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.3  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -204,7 +208,7 @@ namespace lpzrobots {
     Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, SkeletonConf& conf, 
 	       const std::string& name);
 
-    virtual ~Skeleton(){};
+    virtual ~Skeleton(){ destroy(); };
 
     static SkeletonConf getDefaultConf(){
       SkeletonConf c;

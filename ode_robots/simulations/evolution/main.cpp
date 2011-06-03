@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2008-05-06 17:14:17  martius
+ *   Revision 1.19  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.18  2008/05/06 17:14:17  martius
  *   buildsystem further tuned,
  *   help in Makefile
  *   osg/data directory is also installed and registered at osg_robots
@@ -251,7 +255,7 @@ public:
 	    components.back ()->place ( Pos( x , y , 2*aConf.shell_radius ) ); 
 	}
 
-    showParams(global.configs);
+    
     replicationSlider.empty ();
 
 

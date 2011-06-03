@@ -141,7 +141,7 @@ namespace lpzrobots {
     Rhoenrad(const OdeHandle& odeHandle, const OsgHandle& osgHandle, RhoenradConf& conf, 
 	       const std::string& name);
 
-    virtual ~Rhoenrad(){};
+    virtual ~Rhoenrad(){ destroy(); };
 
     static RhoenradConf getDefaultConf(){
       RhoenradConf c;

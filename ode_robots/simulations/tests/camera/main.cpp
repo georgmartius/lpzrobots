@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-03-23 18:43:54  martius
+ *   Revision 1.3  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.2  2010/03/23 18:43:54  martius
  *   lpzviewer: added checking function
  *   camerasensor new initialization
  *   twowheeled allows full customization of camera
@@ -125,7 +129,7 @@ public:
     vehicle->place(Pos(-3,2,0.3));
     AbstractController *controller = new InvertMotorSpace(10);
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
 
@@ -171,7 +175,7 @@ public:
     b->init(osgHandle.changeColor(Color(1,1,0)));
     b->setMatrix(osg::Matrix::translate(0,-2,2));
     
-    showParams(global.configs);
+    
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {

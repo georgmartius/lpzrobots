@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2011-04-28 09:44:34  martius
+ *   Revision 1.12  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.11  2011/04/28 09:44:34  martius
  *   documentation
  *
  *   Revision 1.10  2009/05/11 17:03:07  martius
@@ -176,10 +180,7 @@ namespace lpzrobots {
     virtual void doInternalStuff(GlobalData& globalData);
 
 
-  protected:
-    /** the main object of the robot, which is used for position and speed tracking */
-    virtual Primitive* getMainPrimitive() const { return object[0]; }
-
+  protected:    
     /** creates vehicle at desired pose
 	@param pose 4x4 pose matrix
     */
@@ -211,9 +212,6 @@ namespace lpzrobots {
     bool created;      // true if robot was created
 
     Substance wheelsubstance; // material of wheel
-
-    Primitive* object[5];  // 1 capsule, 4 wheels
-    Hinge2Joint* joint[4]; // joints between cylinder and each wheel
 
   };
 

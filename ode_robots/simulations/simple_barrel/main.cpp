@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-03-09 11:53:41  martius
+ *   Revision 1.7  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.6  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.5  2008/05/01 22:03:56  martius
@@ -134,7 +138,7 @@ public:
 	use_java_controller* jcontroller1;
     jcontroller1 = new use_java_controller("4811","4812","robot2");
 
-    OdeAgent* agent_1 = new OdeAgent( plotoptions );
+    OdeAgent* agent_1 = new OdeAgent( global, plotoptions );
     agent_1->init ( jcontroller1 , myBarrel_1 , wiring1 );
     global.agents.push_back ( agent_1 );
     global.configs.push_back ( jcontroller1 );
@@ -155,14 +159,14 @@ public:
    Jcontroller = new use_java_controller("4711","4712","robot1");
    //Jcontroller = new SineController();
 
-    OdeAgent* agent_2 = new OdeAgent( plotoptions);
+    OdeAgent* agent_2 = new OdeAgent( global, plotoptions);
     agent_2->init ( Jcontroller , myBarrel_2 , wiring2);
     global.agents.push_back ( agent_2 );
     global.configs.push_back ( Jcontroller );
     // ENDE****************************************************
     
 
-		showParams(global.configs);
+		
   }
 
   // add own key handling stuff here, just insert some case values

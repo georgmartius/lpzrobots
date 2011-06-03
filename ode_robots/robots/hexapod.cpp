@@ -793,15 +793,7 @@ namespace lpzrobots {
       }
       whiskersprings.clear();
 
-
-      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-	if(*i) delete *i;
-      }
-      joints.clear();      
-      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-	if(*i) delete *i;
-      }
-      objects.clear();
+      cleanup();
 
       odeHandle.deleteSpace();
     }

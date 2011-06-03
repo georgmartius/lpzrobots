@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-09-30 15:22:38  martius
+ *   Revision 1.10  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.9  2010/09/30 15:22:38  martius
  *   changed maximal velocity of servos to 50 (from 10)
  *
  *   Revision 1.8  2010/07/08 13:50:14  der
@@ -86,7 +90,7 @@ namespace lpzrobots {
   int Barrel2Masses::getSensors ( sensor* sensors, int sensornumber )
   {  
     int len=0;
-    matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( object[Base]->getBody() ) );
+    matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( objects[Base]->getBody() ) );
     if(conf.motorsensor){
       for ( unsigned int n = 0; n < numberaxis; n++ ) {
 	sensors[len] = servo[n]->get()*0.5; // we half them to decrease their influence to the control
@@ -128,9 +132,9 @@ namespace lpzrobots {
     osgHandleX[0] = osgHandle.changeColor(Color(1.0, 0.0, 0.0));
     osgHandleX[1] = osgHandle.changeColor(Color(0.0, 1.0, 0.0));
 
-    object[Base] = new Cylinder(conf.diameter/2, conf.diameter);
-    object[Base]->init(odeHandle, conf.spheremass, osgHandle_Base);
-    object[Base]->setPose(pose);    
+    objects[Base] = new Cylinder(conf.diameter/2, conf.diameter);
+    objects[Base]->init(odeHandle, conf.spheremass, osgHandle_Base);
+    objects[Base]->setPose(pose);    
 
     Pos p(pose.getTrans());
     Primitive* pendular[servono];
@@ -143,26 +147,27 @@ namespace lpzrobots {
 
       pendular[n]->setPose(Matrix::translate(0,0,(n==0?-1:1)*conf.axesShift)*pose);
 
-      joint[n] = new SliderJoint(object[Base], pendular[n],
+      OneAxisJoint* j = new SliderJoint(objects[Base], pendular[n],
 				 p, Axis((n==0), (n==1), (n==2))*pose );
-      joint[n]->init(odeHandle, osgHandle, false);
+      j->init(odeHandle, osgHandle, false);
       // the Stop parameters are messured from the initial position!
-//       joint[n]->setParam ( dParamLoStop, -1.2*conf.diameter*conf.pendularrange );
-//       joint[n]->setParam ( dParamHiStop, 1.2*conf.diameter*conf.pendularrange );
-      joint[n]->setParam ( dParamStopCFM, 0.1);
-      joint[n]->setParam ( dParamStopERP, 0.9);
-      joint[n]->setParam ( dParamCFM, 0.001);
-      servo[n] = new SliderServo(joint[n], 
+//       j->setParam ( dParamLoStop, -1.2*conf.diameter*conf.pendularrange );
+//       j->setParam ( dParamHiStop, 1.2*conf.diameter*conf.pendularrange );
+      j->setParam ( dParamStopCFM, 0.1);
+      j->setParam ( dParamStopERP, 0.9);
+      j->setParam ( dParamCFM, 0.001);
+      servo[n] = new SliderServo(j, 
 				 -conf.diameter*conf.pendularrange, 
 				 conf.diameter*conf.pendularrange, 
 				 //				 conf.pendularmass*100,10,1); 
       				 conf.pendularmass*conf.motorpowerfactor,0.1,0.5,
                                  50 /*maximal velocity*/); 
-      
+      joints[n]=j;
+
       axis[n] = new OSGCylinder(conf.diameter/100, conf.diameter - conf.diameter/100);
       axis[n]->init(osgHandleX[n], OSGPrimitive::Low);
       axis[n]->setMatrix(Matrix::translate(0,0,(n==0?-1:1)*conf.axesShift)*pose);
-      object[Pendular1+n] = pendular[n]; 
+      objects[Pendular1+n] = pendular[n]; 
     }
 
     double sensorrange = conf.irsensorscale * conf.diameter;
@@ -173,19 +178,19 @@ namespace lpzrobots {
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor(1.5);
 	Matrix R = Matrix::rotate(i*M_PI/2, 1, 0, 0) * Matrix::translate(0,-i*conf.diameter/2,0 );
-	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
+	irSensorBank.registerSensor(sensor, objects[Base], R, sensorrange, drawMode);
       }
     }
     if (conf.irAxis2){
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor(1.5);
 	Matrix R = Matrix::rotate(i*M_PI/2, 0, 1, 0) * Matrix::translate(i*conf.diameter/2,0,0 );
-	irSensorBank.registerSensor(sensor, object[Base], R, sensorrange, drawMode);
+	irSensorBank.registerSensor(sensor, objects[Base], R, sensorrange, drawMode);
       }
     }
 
     FOREACH(list<Sensor*>, conf.sensors, i){
-      (*i)->init(object[Base]);
+      (*i)->init(objects[Base]);
     }
 
   }

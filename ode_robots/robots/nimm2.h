@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.29  2011-04-28 09:43:58  martius
+ *   Revision 1.30  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.29  2011/04/28 09:43:58  martius
  *   added configuration possiblity
  *
  *   Revision 1.28  2007/11/07 13:21:16  martius
@@ -273,10 +277,8 @@ public:
 
 protected:
 
-	double contactPoints;
+  double contactPoints;
 
-/** the main object of the robot, which is used for position and speed tracking */
-  virtual Primitive* getMainPrimitive() const { return object[0]; }
 
   /** creates vehicle at desired pose
       @param pose 4x4 pose matrix
@@ -318,11 +320,9 @@ protected:
   bool created;      // true if robot was created
   double max_force;
 
-  Primitive* object[3];  // 1 cylinder, 2 wheels
   double  wheeloffset; // offset from center when in cigarMode
   int number_bumpers;  // number of bumpers (1 -> bumpers at one side, 2 -> bumpers at 2 sides)
   Bumper bumper[2];
-  Hinge2Joint* joint[2]; // joints between cylinder and each wheel
 
   RaySensorBank irSensorBank; // a collection of ir sensors
 

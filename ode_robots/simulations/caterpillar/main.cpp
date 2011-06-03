@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2008-05-01 22:03:54  martius
+ *   Revision 1.4  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.3  2008/05/01 22:03:54  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -115,7 +119,7 @@ public:
     invertnconf.cInit=2.0;
     controller = new InvertMotorNStep(invertnconf);    
     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    agent = new OdeAgent( plotoptions );
+    agent = new OdeAgent( global, plotoptions );
     agent->init(controller, myCaterPillar, wiring);
     global.agents.push_back(agent);
     global.configs.push_back(controller);

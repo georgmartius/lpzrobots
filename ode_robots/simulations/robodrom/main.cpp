@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2011-04-28 09:46:49  martius
+ *   Revision 1.23  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.22  2011/04/28 09:46:49  martius
  *   cleanup
  *
  *   Revision 1.21  2011/02/13 20:30:44  martius
@@ -314,7 +318,7 @@ public:
       global.obstacles.push_back(s1);
     }
   
-    showParams(global.configs);
+    
   }
 
 

@@ -268,8 +268,8 @@ namespace lpzrobots{
     paramval factorSensors;
     paramval print;
 		
-    std::vector <Primitive*> objects; // Primitive* object[NUMParts]; 
-    std::vector <Joint*> joints; // Joint* joint[NUMJoints]; 
+    
+    
     std::vector <HingeServo*> hingeServos;
 	
     int sensorno;      // number of sensors

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-05-01 22:03:55  martius
+ *   Revision 1.6  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.5  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -202,7 +206,7 @@ public:
     conf.spheremass  = 0.3;  
     conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
     
-    showParams(global.configs);
+    
   }
 
   virtual void end(GlobalData& globalData){

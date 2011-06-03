@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.45  2011-04-28 09:43:35  martius
+ *   Revision 1.46  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.45  2011/04/28 09:43:35  martius
  *   cigarmode placements changed (still a mess, but now consistent)
  *
  *   Revision 1.44  2010/03/10 08:37:35  guettler
@@ -267,14 +271,14 @@ namespace lpzrobots {
     assert(created);
     assert(motornumber == motorno);
     if(conf.singleMotor){ // set the same motorcommand to both wheels
-      joint[0]->setParam(dParamVel2, motors[0]*conf.speed); // set velocity
-      joint[0]->setParam(dParamFMax2,max_force);            // set maximal force
-      joint[1]->setParam(dParamVel2, motors[0]*conf.speed);
-      joint[1]->setParam(dParamFMax2,max_force);
+      joints[0]->setParam(dParamVel2, motors[0]*conf.speed); // set velocity
+      joints[0]->setParam(dParamFMax2,max_force);            // set maximal force
+      joints[1]->setParam(dParamVel2, motors[0]*conf.speed);
+      joints[1]->setParam(dParamFMax2,max_force);
     } else {
       for (int i=0; i<2; i++){ // set different motorcommands to the wheels
-	joint[i]->setParam(dParamVel2, motors[i]*conf.speed);
-	joint[i]->setParam(dParamFMax2,max_force);
+	joints[i]->setParam(dParamVel2, motors[i]*conf.speed);
+	joints[i]->setParam(dParamFMax2,max_force);
       }
     }
   };
@@ -295,7 +299,7 @@ namespace lpzrobots {
     // - motors indepently controlled -> two sensorvalues
     int len = conf.singleMotor ? 1 : 2;
     for (int i=0; i<len; i++){
-      sensors[i]=joint[i]->getPosition2Rate();  // readout wheel velocity
+      sensors[i]=dynamic_cast<Hinge2Joint*>(joints[i])->getPosition2Rate();  // readout wheel velocity
       sensors[i]/=conf.speed;  //scaling
     }
     // ask sensorbank for sensor values (from infrared sensors)
@@ -329,7 +333,7 @@ namespace lpzrobots {
   int Nimm2::getSegmentsPosition(std::vector<Position> &poslist){
     assert(created);
     for (int i=0; i<3; i++){
-      poslist.push_back(Position(dBodyGetPosition(object[i]->getBody())));
+      poslist.push_back(Position(dBodyGetPosition(objects[i]->getBody())));
     }
     return 3;
   };
@@ -341,10 +345,10 @@ namespace lpzrobots {
     assert(created); // robot must exist
 
     for (int i=0; i<3; i++) { // update objects
-      object[i]->update();
+      objects[i]->update();
     }
     for (int i=0; i < 2; i++) { // update joints
-      joint[i]->update();
+      joints[i]->update();
     }
     if (conf.bumper){ // if bumper used update transform objects
       for (int i=0; i<number_bumpers; i++){
@@ -382,7 +386,7 @@ namespace lpzrobots {
 //       for (i=0; i<n; i++){
 // 		colwithme = true; // there is at least one collision with some part of the robot (not sensors)
 // 		colwithbody = false;
-// 		if( contact[i].geom.g1 == object[0]->getGeom() || contact[i].geom.g2 == object[0]->getGeom() ||
+// 		if( contact[i].geom.g1 == objects[0]->getGeom() || contact[i].geom.g2 == objects[0]->getGeom() ||
 // 	    	( bumper[0].trans && bumper[1].trans) && (
 // 	    	contact[i].geom.g1 == bumper[0].trans->getGeom() ||
 // 	    	contact[i].geom.g2 == bumper[0].trans->getGeom() ||
@@ -441,6 +445,9 @@ namespace lpzrobots {
     // create vehicle space and add it to the top level space
     // robot will be inserted in the vehicle space
     odeHandle.createNewSimpleSpace(parentspace,true);
+    objects.resize(3);
+    joints.resize(2);
+
 
     OdeHandle wheelHandle(odeHandle);
     wheelHandle.substance.toRubber(40);
@@ -450,7 +457,7 @@ namespace lpzrobots {
     // - init cylinder with odehandle, mass and osghandle
     // - rotate and place body (here by 90 around the y-axis)
     // - set texture for cylinder
-    // - put it into object[0]
+    // - put it into objects[0]
 
     if (conf.boxMode) {
       double dheight = 0.0;
@@ -461,13 +468,13 @@ namespace lpzrobots {
       box->init(odeHandle, cmass*5, osgHandle);
       box->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose * Matrix::translate(0, 0, dheight/2));      
       box->substance.toMetal(0);
-      object[0]=box;
+      objects[0]=box;
     } else {
       Capsule* cap = new Capsule(width/2, length);
       cap->getOSGPrimitive()->setTexture("Images/wood.rgb");
       cap->init(odeHandle, cmass, osgHandle);
       cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);      
-      object[0]=cap;
+      objects[0]=cap;
     }
 
     // create bumper if required
@@ -478,7 +485,7 @@ namespace lpzrobots {
     if (conf.bumper && !conf.boxMode){
       for (int i=0; i<number_bumpers; i++){
 	bumper[i].bump = new Capsule(width/4, 2*radius+width/2);
-	bumper[i].trans = new Transform(object[0], bumper[i].bump,
+	bumper[i].trans = new Transform(objects[0], bumper[i].bump,
 					Matrix::rotate(M_PI/2.0, Vec3(1, 0, 0)) *
 					Matrix::translate(0, 0, i==0 ? -(length/2) : (length/2)));
 	bumper[i].trans->init(odeHandle, 0, osgHandle);
@@ -486,7 +493,7 @@ namespace lpzrobots {
     } else if (conf.bumper && conf.boxMode){
       for (int i=0; i<number_bumpers; i++){
         bumper[i].bump = new Box(height/3,width/4, 2*radius+width/2);
-        bumper[i].trans = new Transform(object[0], bumper[i].bump,
+        bumper[i].trans = new Transform(objects[0], bumper[i].bump,
                                         Matrix::rotate(M_PI/2.0, Vec3(1, 0, 0)) *
                                         Matrix::translate(0, 0, i==0 ? -(length/4) : (length/4)));
         bumper[i].trans->init(odeHandle, 0, osgHandle);
@@ -507,7 +514,7 @@ namespace lpzrobots {
 		       Matrix::translate(wheeloffset,
 					 (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0) *
 		       pose); // place wheels	
-	object[i] = wheel;
+	objects[i] = wheel;
 	if (conf.boxMode) {
   	//	  wheel->substance.toRubber( 40.0);
   	 // wheel->substance.toSnow(0.0);
@@ -519,7 +526,7 @@ namespace lpzrobots {
 	wheel->setPose(Matrix::rotate(M_PI/2.0, Vec3(1,0,0)) *
 		       Matrix::translate(wheeloffset,
 					 (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0)* pose);	
-	object[i] = wheel;
+	objects[i] = wheel;
       }
     }
 
@@ -529,12 +536,12 @@ namespace lpzrobots {
     // - init joint
     // - set stop parameters
     for (int i=0; i<2; i++) {
-      joint[i] = new Hinge2Joint(object[0], object[i+1], object[i+1]->getPosition(),
+      joints[i] = new Hinge2Joint(objects[0], objects[i+1], objects[i+1]->getPosition(),
 				 Axis(0, 0, 1)*pose, Axis(0, -1, 0)*pose);
-      joint[i]->init(odeHandle, osgHandleWheels, true, conf.sphereWheels ? 2.01 * radius : wheelthickness*1.05 );
+      joints[i]->init(odeHandle, osgHandleWheels, true, conf.sphereWheels ? 2.01 * radius : wheelthickness*1.05 );
       // set stops to make sure wheels always stay in alignment
-      joint[i]->setParam(dParamLoStop,0);
-      joint[i]->setParam(dParamHiStop,0);
+      joints[i]->setParam(dParamLoStop,0);
+      joints[i]->setParam(dParamHiStop,0);
     }
 
 
@@ -560,7 +567,7 @@ namespace lpzrobots {
     if (conf.irFront){ // add front left and front right infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, object[0],
+	irSensorBank.registerSensor(sensor, objects[0],
 				    Matrix::rotate(i*M_PI/10, Vec3(1,0,0)) *
 				    Matrix::translate(0,-i*width/10,irpos ),
 				    conf.irRange, RaySensor::drawAll);
@@ -570,14 +577,14 @@ namespace lpzrobots {
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor();
 	if (conf.bumper){ // if bumpers used place on bumper
-	  irSensorBank.registerSensor(sensor, object[0],
+	  irSensorBank.registerSensor(sensor, objects[0],
 				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
 				      Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
 				      Matrix::translate(0,-width,-i*(length/2) ),
 				      conf.irRange, RaySensor::drawAll);
 
 	}else{ // place on body
-	  irSensorBank.registerSensor(sensor, object[0],
+	  irSensorBank.registerSensor(sensor, objects[0],
 				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
 				      Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
 				      Matrix::translate(0,-width/2,i*(length/2) ),
@@ -588,7 +595,7 @@ namespace lpzrobots {
     if (conf.irBack){ // add rear right and rear left infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, object[0],
+	irSensorBank.registerSensor(sensor, objects[0],
 				    Matrix::rotate(-i*M_PI/10, Vec3(1,0,0)) *
 				    Matrix::rotate(i*M_PI, Vec3(0,1,0)) *
 				    Matrix::translate(0,i*width/10,-irpos ),
@@ -599,14 +606,14 @@ namespace lpzrobots {
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor();
 	if (conf.bumper){ // if bumpers used place on bumper
-	  irSensorBank.registerSensor(sensor, object[0],
+	  irSensorBank.registerSensor(sensor, objects[0],
 				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
 				      Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
 				      Matrix::translate(0,width,i*(length/2) ),
 				      conf.irRange, RaySensor::drawAll);
 
 	} else { // else place at body
-	  irSensorBank.registerSensor(sensor, object[0],
+	  irSensorBank.registerSensor(sensor, objects[0],
 				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
 				      Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
 				      Matrix::translate(0,width/2,i*(length/2) ),
@@ -624,15 +631,10 @@ namespace lpzrobots {
     if (created){
       irSensorBank.clear();
       for (int i=0; i<2; i++){
-	if(joint[i]) delete joint[i];
-      }
-      for (int i=0; i<2; i++){
 	//	if(bumper[i].bump) delete bumper[i].bump; is done by transform primitive
 	if(bumper[i].trans) delete bumper[i].trans;
       }
-      for (int i=0; i<3; i++){ 
-	if(object[i]) delete object[i];
-      }
+      cleanup();
       odeHandle.deleteSpace();
     }
     created=false;

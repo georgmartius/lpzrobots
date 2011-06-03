@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2011-05-31 16:40:43  martius
+ *   Revision 1.11  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.10  2011/05/31 16:40:43  martius
  *   added optional shared linking
  *   moves some old files and code cleanup
  *
@@ -195,8 +199,8 @@ namespace lpzrobots{
 
     Arm2SegmConf conf;
 
-    std::vector <Primitive*> objects;
-    std::vector <Joint*> joints;
+    
+    
     std::vector <AngularMotor1Axis*> amotors;
 
     std::string name;    

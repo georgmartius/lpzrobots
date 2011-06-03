@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2011-06-01 22:02:56  martius
+ *   Revision 1.25  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.24  2011/06/01 22:02:56  martius
  *   getAllPrimitives changed to vector return type
  *   inspectables infolines are printed without name again (for guilogger)
  *
@@ -620,7 +624,7 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
      //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
      global.agents.push_back(agent);
       
-     //  showParams(global.configs);
+     //  
    }// Several humans end
     
 
@@ -966,9 +970,6 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
    }//Creationn of wheelies end
 
 
-
-
-   showParams(global.configs);
   }
   //*************HAND*************
 

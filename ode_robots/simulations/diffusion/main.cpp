@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-10-23 13:07:47  martius
+ *   Revision 1.4  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.3  2009/10/23 13:07:47  martius
  *   *** empty log message ***
  *
  *   Revision 1.2  2008/05/01 22:03:54  martius
@@ -110,7 +114,7 @@ public:
 	contrl = new InvertNChannelController(10);
 	
 	// 	if ((i==0) && (j==0)) {
-	// 	  agent = new OdeAgent(plotoptions);
+	// 	  agent = new OdeAgent(global);
 	
 	// 	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2Yellow");
 	// 	  nimm2->setColor(Color(1.0,1.0,0));
@@ -119,7 +123,7 @@ public:
 	// 	  //    controller->setParam("nomupdate", 0.0005);
 	// 	} else {
 
-	agent = new OdeAgent(NoPlot);	  
+	agent = new OdeAgent(global,NoPlot);	  
 	nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
 	agent->init(contrl, nimm2, wiring);
 		
@@ -129,9 +133,8 @@ public:
       }
     }
       
-    showParams(global.configs);
+    
   }
-
   
 };
 

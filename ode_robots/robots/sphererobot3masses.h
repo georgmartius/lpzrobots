@@ -24,7 +24,11 @@
  * Spherical Robot inspired by Julius Popp.                                *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2011-05-30 13:56:42  martius
+ *   Revision 1.24  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.23  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -181,15 +185,13 @@ class Sphererobot3Masses : public OdeRobot
 {
 public:
   /// enum for the objects of the robot
-  /* typedef */ enum objects { Base, Pendular1, Pendular2, Pendular3, Last } ;
+  enum parts { Base, Pendular1, Pendular2, Pendular3, Last } ;
 
 protected:
   static const int servono=3;
   unsigned int numberaxis;
 
-  Primitive* object[Last]; 
   SliderServo* servo[servono];
-  SliderJoint* joint[servono];
   OSGPrimitive* axis[servono];
 
   Sphererobot3MassesConf conf;
@@ -256,9 +258,7 @@ public:
   virtual int getMotorNumber();
   
   virtual int getSensorNumber();
-	
-  virtual Primitive* getMainPrimitive() const { return object[Base]; }
-  
+	  
   /******** CONFIGURABLE ***********/
   virtual void notifyOnChange(const paramkey& key);
 

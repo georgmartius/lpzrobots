@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-11-05 13:54:05  martius
+ *   Revision 1.7  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.6  2010/11/05 13:54:05  martius
  *   store and restore for robots implemented
  *
  *   Revision 1.5  2010/10/20 15:23:54  der
@@ -521,7 +525,7 @@ public:
      //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
      global.agents.push_back(agent);
       
-     //  showParams(global.configs);
+     //  
    }// Several humans end
     
 
@@ -618,7 +622,7 @@ public:
      //       c.useFirstD = false;
      //       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
       
-     OdeAgent* agent = new OdeAgent(plotoptions);
+     OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, schlange1, wiring);
      global.agents.push_back(agent);
      global.configs.push_back(controller);
@@ -723,7 +727,7 @@ public:
      //       c.useFirstD = false;
      //       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
       
-     OdeAgent* agent = new OdeAgent(plotoptions);
+     OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, schlange1, wiring);
      global.agents.push_back(agent);
      global.configs.push_back(controller);
@@ -793,7 +797,7 @@ public:
      c.useFirstD = false;
      AbstractWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
      //     sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
-     OdeAgent* agent = new OdeAgent(plotoptions);
+     OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, robot, wiring);
      global.agents.push_back(agent);
      global.configs.push_back(controller);
@@ -803,7 +807,7 @@ public:
 
 
 
-   showParams(global.configs);
+   
   }
   //*************HAND*************
 

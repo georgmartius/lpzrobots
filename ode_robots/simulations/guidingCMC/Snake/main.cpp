@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-09-30 17:07:08  martius
+ *   Revision 1.6  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.5  2010/09/30 17:07:08  martius
  *   tests and vision experiments improved
  *
  *   Revision 1.4  2010/01/26 09:58:55  martius
@@ -147,7 +151,7 @@ public:
     //    AbstractWiring* wiring = new FeedbackWiring(new ColorUniformNoise(0.1),
     //  						FeedbackWiring::Motor, 0.75);
 
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
 
     if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, 
@@ -166,7 +170,7 @@ public:
       controller->setCMC(cmc);
     }
       
-    showParams(global.configs);
+    
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {

@@ -184,7 +184,7 @@ public:
     // create pointer to agent
     // initialize pointer with controller, robot and wiring
     // push agent in globel list of agents
-    OdeAgent*  agent = new OdeAgent(plotoptions);
+    OdeAgent*  agent = new OdeAgent(global);
     agent->init(controller, arm, wiring);
 
     //  agent->setTrackOptions(TrackRobot(true, false, false,50));
@@ -196,7 +196,7 @@ public:
     //     global.odeConfig.setParam("realtimefactor",0);
 
     // show (print to console) params of all objects in configurable list 
-    showParams(global.configs);
+    
     //printf("===== started. =====\n");
 		
     dteaching=false;

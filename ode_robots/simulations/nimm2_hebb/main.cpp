@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-03-09 11:53:41  martius
+ *   Revision 1.6  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.5  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.4  2009/08/05 22:24:32  martius
@@ -257,12 +261,12 @@ public:
     // create pointer to agent
     // initialize pointer with controller, robot and wiring
     // push agent in globel list of agents
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     agent->setTrackOptions(TrackRobot(true, false, false, false, "hebbh" ,1));
     global.agents.push_back(agent);
      
-    showParams(global.configs);
+    
   }
   
   // add own key handling stuff here, just insert some case values

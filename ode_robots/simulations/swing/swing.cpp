@@ -1075,15 +1075,7 @@ GUIDE adding new sensors
 	if(*i) delete *i;
       }
 
-      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-	if(*i) delete *i;
-      }
-      joints.clear();      
-
-      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-	if(*i) delete *i;
-      }
-      objects.clear();
+      cleanup();
       irSensorBank.clear();
       
       odeHandle.deleteSpace();

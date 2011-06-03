@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-03-25 16:39:51  martius
+ *   Revision 1.9  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.8  2010/03/25 16:39:51  martius
  *   primitive has addForce/addTorque function
  *
  *   Revision 1.7  2010/03/24 16:51:38  martius
@@ -229,7 +233,7 @@ public:
       global.agents.push_back(agent);
     }
 
-    showParams(global.configs);
+    
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {

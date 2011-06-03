@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2010-03-17 09:33:16  martius
+ *   Revision 1.23  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.22  2010/03/17 09:33:16  martius
  *   removed memory leaks and some small bugs
  *   valgrind suppression file is updated
  *
@@ -168,14 +172,14 @@ public:
     // create pointer to agent (plotoptions is provided by Simulation (generated from cmdline options)
     // initialize pointer with controller, robot and wiring
     // push agent in globel list of agents    
-    OdeAgent* agent = new OdeAgent ( plotoptions );
+    OdeAgent* agent = new OdeAgent ( global );
     agent->init ( controller , sphere1 , wiring );
     // the following line will enable a position tracking of the robot, which is written into a file
     //agent->setTrackOptions(TrackRobot(true, true, true, false, "Sphere_zaxis", 20)); 
     global.agents.push_back ( agent );
       
     // display all parameters of all configurable objects on the console
-    showParams(global.configs);
+    
   }
 
   /** is called if a key was pressed. 

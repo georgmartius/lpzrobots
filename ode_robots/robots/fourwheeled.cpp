@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2011-04-28 09:42:03  martius
+ *   Revision 1.13  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.12  2011/04/28 09:42:03  martius
  *   ir sensor handling improved
  *
  *   Revision 1.11  2010/11/10 17:09:36  martius
@@ -174,9 +178,10 @@ namespace lpzrobots {
     if(conf.useBumper){
       bumper = new Box(0.1 , width+2*wheelthickness+radius, length+0.7*width);
       bumper->setTexture("Images/wood.rgb");
-      bumpertrans = new Transform(object[0], bumper,				
+      bumpertrans = new Transform(objects[0], bumper,				
                                   Matrix::translate(width*0.6-radius, 0, 0));
-      bumpertrans->init(odeHandle, 0, osgHandle);        
+      bumpertrans->init(odeHandle, 0, osgHandle);      
+      
     }
 
     
@@ -195,7 +200,7 @@ namespace lpzrobots {
     if (conf.irFront){ // add front left and front right infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, object[0],
+	irSensorBank.registerSensor(sensor, objects[0],
 				    Matrix::rotate(i*M_PI/10, Vec3(1,0,0)) *
 				    Matrix::translate(0,-i*width/10,length/2 + width/2 - width/60 ),
 				    conf.irRangeFront, RaySensor::drawAll);
@@ -203,7 +208,7 @@ namespace lpzrobots {
     }
     if (conf.irSide){ // add right infrared sensor to sensorbank if required
       IRSensor* sensor = new IRSensor();
-      irSensorBank.registerSensor(sensor, object[0],
+      irSensorBank.registerSensor(sensor, objects[0],
 				  //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
 				  Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
 				  Matrix::translate(0,-width/2, 0 ),
@@ -212,7 +217,7 @@ namespace lpzrobots {
     if (conf.irBack){ // add rear right and rear left infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
 	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, object[0],
+	irSensorBank.registerSensor(sensor, objects[0],
 				    Matrix::rotate(-i*M_PI/10, Vec3(1,0,0)) *
 				    Matrix::rotate(i*M_PI, Vec3(0,1,0)) *
 				    Matrix::translate(0,i*width/10,-(length/2 + width/2 - width/60) ),
@@ -221,7 +226,7 @@ namespace lpzrobots {
     }
     if (conf.irSide){ // add left infrared sensor to sensorbank if required
 	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, object[0],
+	irSensorBank.registerSensor(sensor, objects[0],
 				    //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
 				    Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
 				    Matrix::translate(0,width/2, 0),
@@ -235,7 +240,7 @@ namespace lpzrobots {
   Joint* FourWheeled::getJoint(int i){
     if(i>3)i=3;
     if(i<0)i=0;
-    return joint[i];
+    return joints[i];
   }
 
 

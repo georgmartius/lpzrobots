@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2010-03-09 11:53:41  martius
+ *   Revision 1.16  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.15  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.14  2008/05/01 22:03:54  martius
@@ -130,7 +134,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 	
       AbstractController *controller = new InvertMotorSpace ( 10 );
       One2OneWiring* wiring = new One2OneWiring( new ColorUniformNoise () );
-      OdeAgent* agent = new OdeAgent( NoPlot/*GuiLogger*/ );
+      OdeAgent* agent = new OdeAgent( global, PlotOption(NoPlot)/*GuiLogger*/ );
       agent->init(controller, robotersammlung.back (), wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
@@ -159,7 +163,7 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
 
   //************
   
-  showParams(global.configs);
+  
 }
 
 void end(GlobalData& global){
@@ -212,7 +216,7 @@ void command (const OdeHandle& odeHandle, GlobalData& global, int cmd)
       One2OneWiring* wiring;
       wiring = new One2OneWiring( new ColorUniformNoise () );
       OdeAgent* agent;
-      agent = new OdeAgent( NoPlot/*GuiLogger*/ );
+      agent = new OdeAgent( global, PlotOption(NoPlot)/*GuiLogger*/ );
 			   
       agent->init(controller, robotersammlung.back (), wiring );
   
@@ -238,7 +242,7 @@ void command (const OdeHandle& odeHandle, GlobalData& global, int cmd)
       One2OneWiring* wiring3;
       wiring3 = new One2OneWiring ( new ColorUniformNoise () );
       OdeAgent* agent3;
-      agent3 = new OdeAgent( NoPlot/*GuiLogger*/ );	   
+      agent3 = new OdeAgent( global, PlotOption(NoPlot)/*GuiLogger*/ );	   
       agent3->init(controller3, robotersammlung.back (), wiring3 );
   
       global.agents.push_back(agent3);
@@ -252,7 +256,7 @@ void command (const OdeHandle& odeHandle, GlobalData& global, int cmd)
       One2OneWiring* wiring4;
       wiring4 = new One2OneWiring( new ColorUniformNoise () );
       OdeAgent* agent4;
-      agent4 = new OdeAgent( NoPlot/*GuiLogger*/);
+      agent4 = new OdeAgent( global, PlotOption(NoPlot)/*GuiLogger*/);
       agent4->init(controller4, robotersammlung.back (), wiring4 );
   
       global.agents.push_back(agent4);
@@ -493,7 +497,7 @@ void additionalLoopfunction ( GlobalData& global, bool draw, bool pause )
 		      One2OneWiring* wiring;
 		      wiring = new One2OneWiring ( new ColorUniformNoise () );
 		      OdeAgent* agent;
-		      agent = new OdeAgent( NoPlot/*GuiLogger*/ );
+		      agent = new OdeAgent( global, PlotOption(NoPlot)/*GuiLogger*/ );
 					
 		      agent->init(controller, robotersammlung[n], wiring );
 		      global.agents.push_back(agent);

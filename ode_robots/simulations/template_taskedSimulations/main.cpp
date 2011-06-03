@@ -43,7 +43,11 @@
  *   the parallelism stuff.                                                *
  *
  *   $Log$
- *   Revision 1.3  2010-03-09 11:53:41  martius
+ *   Revision 1.4  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.3  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.2  2009/08/21 09:49:08  robot12
@@ -145,12 +149,12 @@ public:
 
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
-    agent = new OdeAgent(plotoptions);
+    agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
 
     // disable print of params, because there are much simulations to run
-    //showParams(global.configs);
+    //
   }
 
   /**

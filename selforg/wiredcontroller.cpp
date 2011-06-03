@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2011-03-22 16:46:15  guettler
+ *   Revision 1.24  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.23  2011/03/22 16:46:15  guettler
  *   - adpaptions to enhanced configurable and inspectable interface
  *   - WiredController is now configurable (solves some inconsistencies)
  *
@@ -155,6 +159,9 @@ void WiredController::internInit(){
 }
 
 WiredController::~WiredController(){
+  if(controller) delete controller;
+  if(wiring) delete wiring;
+
   if(csensors) free(csensors);
   if(cmotors)  free(cmotors);
   if(motorBabbler) delete motorBabbler;

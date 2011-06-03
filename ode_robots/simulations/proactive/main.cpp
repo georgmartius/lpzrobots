@@ -69,12 +69,12 @@ public:
     wconf.derivativeScale=1;
     wconf.eps = 0.4;
     AbstractWiring* wiring = new DerivativeWiring(wconf, new ColorUniformNoise(0.1));
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
 
     global.configs.push_back(controller);
-    showParams(global.configs);
+    
   }
 
   virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)

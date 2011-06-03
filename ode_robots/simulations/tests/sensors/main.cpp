@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-11-11 08:58:45  martius
+ *   Revision 1.4  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.3  2010/11/11 08:58:45  martius
  *   comments and testing
  *
  *   Revision 1.2  2010/11/10 17:09:36  martius
@@ -107,7 +111,7 @@ public:
 
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
 
@@ -121,7 +125,7 @@ public:
     speaker->set(&value,1);
     
 
-    showParams(global.configs);
+    
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {    

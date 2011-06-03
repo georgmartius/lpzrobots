@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2008-05-01 22:03:55  martius
+ *   Revision 1.6  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.5  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -154,7 +158,7 @@ public:
     // create pointer to agent
     // initialize pointer with controller, robot and wiring
     // push agent in globel list of agents
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, arm, wiring);
     agent->setTrackOptions(TrackRobot(false, false, false, true, "55" ,50));
     agent->init_tracing(10000, 0.003);
@@ -180,7 +184,7 @@ public:
     //     // create pointer to agent
     //     // initialize pointer with controller, robot and wiring
     //     // push agent in globel list of agents
-    //     agent = new OdeAgent(plotoptions);
+    //     agent = new OdeAgent(global);
     //     agent->init(controller, arm, wiring);
     //     //  agent->setTrackOptions(TrackRobot(true, false, false,50));
     //     global.agents.push_back(agent);
@@ -191,7 +195,7 @@ public:
     //     global.odeConfig.setParam("realtimefactor",0);
 
     // show (print to console) params of all objects in configurable list 
-    showParams(global.configs);
+    
   }
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet

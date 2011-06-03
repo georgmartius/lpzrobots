@@ -21,7 +21,11 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2011-06-01 22:02:56  martius
+ *   Revision 1.12  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.11  2011/06/01 22:02:56  martius
  *   getAllPrimitives changed to vector return type
  *   inspectables infolines are printed without name again (for guilogger)
  *
@@ -94,7 +98,21 @@ namespace lpzrobots {
     parentspace = odeHandle.space;
   };
 
-  OdeRobot::~OdeRobot(){}
+  OdeRobot::~OdeRobot(){
+    cleanup();
+  }
+
+  void OdeRobot::cleanup(){
+    FOREACH(std::vector<Primitive*>, objects, o){
+      if(*o) delete *o;
+    }
+    objects.clear();
+    FOREACH(std::vector<Joint*>, joints, j){
+      if(*j) delete *j;
+    }
+    joints.clear();
+  }
+
 
   /** sets color of the robot
       @param col Color struct with desired Color
@@ -174,7 +192,8 @@ matrix::Matrix OdeRobot::getOrientation() const {
        but the primitives are not changed anyway, so it is okay */
     if(!f) return false;
     fwrite("ROBOT", sizeof(char), 5, f); // maybe also print name
-    const vector<Primitive*>& ps = ((OdeRobot*)this)->getAllPrimitives();
+    const vector<Primitive*>& ps = this->getAllPrimitives();
+    cout << ps.size() << endl;
     FOREACHC(vector<Primitive*>,ps,p){
       if(*p)
         if(!(*p)->store(f)) return false;      

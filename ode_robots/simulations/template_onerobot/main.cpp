@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2011-03-22 16:43:22  guettler
+ *   Revision 1.26  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.25  2011/03/22 16:43:22  guettler
  *   - adpaptions to enhanced configurable and inspectable interface
  *
  *   Revision 1.24  2010/03/09 11:53:41  martius
@@ -228,7 +232,7 @@ public:
     // create pointer to agent
     // initialize pointer with controller, robot and wiring
     // push agent in globel list of agents
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
 

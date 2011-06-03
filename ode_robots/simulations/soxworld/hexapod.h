@@ -100,7 +100,7 @@ namespace lpzrobots {
     Hexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const HexapodConf& conf, 
 	       const std::string& name);
 
-    virtual ~Hexapod(){};
+    virtual ~Hexapod(){ destroy(); };
 
     static HexapodConf getDefaultConf(){
       HexapodConf c;

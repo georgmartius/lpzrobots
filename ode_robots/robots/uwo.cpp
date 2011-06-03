@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2011-05-31 16:40:43  martius
+ *   Revision 1.12  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.11  2011/05/31 16:40:43  martius
  *   added optional shared linking
  *   moves some old files and code cleanup
  *
@@ -223,14 +227,7 @@ namespace lpzrobots {
 	if(*i) delete *i;
       }
       servos.clear();
-      for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-	if(*i) delete *i;
-      }
-      joints.clear();
-      for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-	if(*i) delete *i;
-      }
-      objects.clear();
+      cleanup();
       odeHandle.deleteSpace();
     }
     created=false;

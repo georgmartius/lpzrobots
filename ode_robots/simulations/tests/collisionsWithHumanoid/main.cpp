@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2010-09-30 17:07:08  martius
+ *   Revision 1.3  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.2  2010/09/30 17:07:08  martius
  *   tests and vision experiments improved
  *
  *   Revision 1.1  2010/09/24 09:25:00  martius
@@ -92,7 +96,7 @@ public:
       
     height=0;
   
-    showParams(global.configs);
+    
   }
 
 
@@ -160,7 +164,7 @@ public:
     SeMoX* controller = new SeMoX(cc);
     
     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1)); 
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, human, wiring);
     globalData.configs.push_back(controller);
     globalData.agents.push_back(agent);

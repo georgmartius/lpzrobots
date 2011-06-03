@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-05-30 13:56:42  martius
+ *   Revision 1.10  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.9  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -205,8 +209,8 @@ namespace lpzrobots {
     Primitive *trunk, *headtrans, *bigboxtransform, *neck, *tail; 
     // these ones are only need if a face is to be drawn 
     Primitive *eye_r_trans, *eye_l_trans, *ear_l_trans,*ear_r_trans, *mouth_trans; 
-    std::vector<Primitive*> objects;  // all the objects
-    std::vector<Joint*> joints; // joints legs
+    
+    
     std::vector <OneAxisServo*> hipservos; // motors
     std::vector <OneAxisServo*> kneeservos; // motors
     std::vector <OneAxisServo*> ankleservos; // motors

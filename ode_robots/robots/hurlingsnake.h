@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2011-06-01 22:02:56  martius
+ *   Revision 1.17  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.16  2011/06/01 22:02:56  martius
  *   getAllPrimitives changed to vector return type
  *   inspectables infolines are printed without name again (for guilogger)
  *
@@ -178,10 +182,8 @@ namespace lpzrobots {
 
   protected:
     /** the main object of the robot, which is used for position and speed tracking */
-    virtual Primitive* getMainPrimitive() const { return object[(NUM-1)/2] /*(center)*/; }
+    virtual Primitive* getMainPrimitive() const { return objects[(NUM-1)/2] /*(center)*/; }
     //virtual Primitive* getMainPrimitive() const { return object[NUM-1] /*(head element)*/; }
-
-    virtual std::vector<Primitive*> getAllPrimitives();    
 
 
   private:
@@ -204,8 +206,6 @@ namespace lpzrobots {
     double MASS;	   /* mass of a beats */
     double RADIUS;   /* sphere radius */
 
-    Joint** joint;
-    Primitive** object;
     //    std::list<AngularMotor*> frictionMotors;
 
     Pos oldp;

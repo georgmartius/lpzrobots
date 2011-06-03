@@ -182,7 +182,7 @@ public:
      global.agents.push_back(agent);      
    }// Several humans end
     
-   showParams(global.configs);
+   
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {

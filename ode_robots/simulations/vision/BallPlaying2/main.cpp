@@ -376,7 +376,7 @@ public:
       global.agents.push_back(agent);
     }
 
-    showParams(global.configs);
+    
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {

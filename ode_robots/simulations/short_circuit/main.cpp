@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2009-02-02 16:08:13  martius
+ *   Revision 1.25  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.24  2009/02/02 16:08:13  martius
  *   minor changes
  *
  *   Revision 1.23  2008/05/01 22:03:56  martius
@@ -145,7 +149,7 @@ public:
     //  AbstractController *controller = new InvertNChannelController(10);  
     //AbstractController *controller = new SineController();
     
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(global);
     
     // sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
     // One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
@@ -164,7 +168,7 @@ public:
     
     global.configs.push_back(controller);
     
-    showParams(global.configs);
+    
   }
 
 

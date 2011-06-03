@@ -27,7 +27,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2007-11-07 13:21:16  martius
+ *   Revision 1.5  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.4  2007/11/07 13:21:16  martius
  *   doInternal stuff changed signature
  *
  *   Revision 1.3  2007/07/31 08:19:26  martius
@@ -137,7 +141,7 @@ namespace lpzrobots {
 	      double size=1, double force=3, double speed=15, double mass=1);
 
 
-   virtual ~TruckMesh(){};
+    virtual ~TruckMesh(){ destroy(); };
 
     /**
      * updates the OSG nodes of the vehicle
@@ -189,10 +193,7 @@ namespace lpzrobots {
     virtual void doInternalStuff(GlobalData& globalData);
 
 
-  protected:
-    /** the main object of the robot, which is used for position and speed tracking */
-    virtual Primitive* getMainPrimitive() const { return object[0]; }
-
+  protected:    
     /** creates vehicle at desired pose
 	@param pose 4x4 pose matrix
     */
@@ -224,9 +225,6 @@ namespace lpzrobots {
     double max_force;  // maximal force for motors
 
     bool created;      // true if robot was created
-
-    Primitive* object[7];  // 1 mesh, 6 wheels
-    Hinge2Joint* joint[6]; // joints between mesh and each wheel
 
   };
 

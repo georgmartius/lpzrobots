@@ -172,7 +172,7 @@ public:
 //     std::list<PlotOption> l;
 //     l.push_back(PlotOption(GuiLogger,Robot,5));
 //    OdeAgent*  agent = new OdeAgent(l);	
-    OdeAgent*  agent = new OdeAgent(plotoptions);	
+    OdeAgent*  agent = new OdeAgent(global);	
       
     MultiSatConf msc = MultiSat::getDefaultConf();
     msc.controller = controller;
@@ -200,7 +200,7 @@ public:
     //     global.odeConfig.setParam("realtimefactor",0);
 
     // show (print to console) params of all objects in configurable list 
-    showParams(global.configs);
+    
     //printf("===== started. =====\n");
 			
     // transform target into shoulder centered coordinates

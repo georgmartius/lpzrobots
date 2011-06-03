@@ -26,7 +26,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2011-05-30 13:56:42  martius
+ *   Revision 1.29  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.28  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -138,9 +142,7 @@ class Schlange: public OdeRobot
 protected:
   
   bool created;
-
-  std::vector <Primitive*> objects;
-  std::vector <Joint*> joints;
+  
   std::vector <AngularMotor*> frictionmotors;
   SchlangeConf conf;
 
@@ -221,6 +223,8 @@ public:
       return (objects[0]);
     }else return 0;
   }
+
+  virtual std::vector<Primitive*> getAllPrimitives() const { return objects;}    
 
   /** sets a texture to the body of the snake
    * note: the head texture of the snake is set by

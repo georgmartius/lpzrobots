@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2008-05-01 22:03:56  martius
+ *   Revision 1.19  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.18  2008/05/01 22:03:56  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -100,7 +104,7 @@ public:
     controller1->setParam("steps",2);
     //    AbstractController *controller1 = new SineController();  
     AbstractWiring* wiring1 = new One2OneWiring(new ColorUniformNoise(0.1));
-    OdeAgent* agent1 = new OdeAgent(plotoptions);
+    OdeAgent* agent1 = new OdeAgent(global);
     agent1->init(controller1, schlange1, wiring1);
     global.agents.push_back(agent1);
     global.configs.push_back(controller1);
@@ -121,7 +125,7 @@ public:
 //      AbstractController *controller2 = new InvertMotorNStep(cc2);
 //      //     AbstractController *controller2 = new SineController();
 //      AbstractWiring* wiring2 = new One2OneWiring(new ColorUniformNoise(0.1));
-//      OdeAgent* agent2 = new OdeAgent(plotoptions);
+//      OdeAgent* agent2 = new OdeAgent(global);
 //      agent2->init(controller2, schlange2, wiring2);
 //      global.agents.push_back(agent2);
 //      global.configs.push_back(controller2);
@@ -146,7 +150,7 @@ public:
 //      ((OdeRobot*)schlange3)->place(Pos(2,2,0)); 
 //      AbstractController *controller3 = new SineController();  
 //      AbstractWiring* wiring3 = new One2OneWiring(new ColorUniformNoise(0.1));
-//      OdeAgent* agent3 = new OdeAgent(plotoptions);
+//      OdeAgent* agent3 = new OdeAgent(global);
 //      agent3->init(controller3, schlange3, wiring3);
 //      global.agents.push_back(agent3);
 //      global.configs.push_back(controller3);
@@ -158,7 +162,7 @@ public:
      global.odeConfig.setParam("gravity", 0); 
      global.odeConfig.setParam("noise", 0.05); 
 
-    showParams(global.configs);
+    
   }
 
   // add own key handling stuff here, just insert some case values

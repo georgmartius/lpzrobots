@@ -100,7 +100,7 @@ namespace lpzrobots {
     Hexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const HexapodConf& conf, 
 	       const std::string& name);
 
-    virtual ~Hexapod(){};
+    virtual ~Hexapod(){ destroy(); };
 
     static HexapodConf getDefaultConf(){
       HexapodConf c;
@@ -268,8 +268,8 @@ public:
     std::vector<Primitive*> legs;
     std::vector<Primitive*> thorax;
     std::vector<Pos> thoraxPos;
-    std::vector<Primitive*> objects;  // all the objects
-    std::vector<Joint*> joints; // joints legs
+    
+    
     std::vector <TwoAxisServo*> hipservos; // motor
     std::vector <OneAxisServo*> tebiasprings;
     std::vector <OneAxisServo*> tarsussprings;

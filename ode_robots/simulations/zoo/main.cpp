@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2009-04-02 12:07:44  fhesse
+ *   Revision 1.21  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.20  2009/04/02 12:07:44  fhesse
  *   box.setTexture() before setPosition() (due to OsgBoxTex)
  *
  *   Revision 1.19  2008/09/16 19:38:14  martius
@@ -225,7 +229,7 @@ public:
       invertnconf.cInit=2.0;
       controller = new InvertMotorSpace(15);
       wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( plotoptions );
+      agent = new OdeAgent( global, plotoptions );
       agent->init(controller, myCaterPillar, wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
@@ -247,7 +251,7 @@ public:
       invertnconf.cInit=2.0;
       controller = new InvertMotorNStep(invertnconf);     
       wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( std::list<PlotOption>() );
+      agent = new OdeAgent( global, PlotOption(NoPlot) );
       agent->init(controller, snake, wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
@@ -265,7 +269,7 @@ public:
       controller->setParam("s4avg",10);
       //    controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
       wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( std::list<PlotOption>() );
+      agent = new OdeAgent( global, PlotOption(NoPlot) );
       agent->init(controller, robot, wiring);
       global.configs.push_back(controller);
       global.agents.push_back(agent);        
@@ -279,7 +283,7 @@ public:
       controller->setParam("s4avg",10); 
       controller->setParam("factorB",0); // not needed here and it does some harm on the behaviour
       wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( std::list<PlotOption>() );
+      agent = new OdeAgent( global, PlotOption(NoPlot) );
       agent->init(controller, robot, wiring);
       global.agents.push_back(agent);        
     }
@@ -307,7 +311,7 @@ public:
       //     deriveconf.derivativeScale = 50;
       //     wiring = new DerivativeWiring(deriveconf, new ColorUniformNoise(0.1));
       wiring = new One2OneWiring(new ColorUniformNoise(0.05));
-      agent = new OdeAgent( std::list<PlotOption>() );
+      agent = new OdeAgent( global, PlotOption(NoPlot) );
       agent->init(controller, snake, wiring);
 			       global.configs.push_back(controller);
 			       global.agents.push_back(agent);     
@@ -325,7 +329,7 @@ public:
       controller->setParam("sinerate", 40);  
       controller->setParam("phaseshift", 0.0);
       One2OneWiring* wiring2 = new One2OneWiring ( new ColorUniformNoise() );
-      agent = new OdeAgent ( plotoptions );
+      agent = new OdeAgent ( global );
       agent->init ( controller , sphere1 , wiring2 );
       global.agents.push_back ( agent );
       global.configs.push_back ( controller );
@@ -354,7 +358,7 @@ public:
       c.useId = false;
       c.useFirstD = true;
       DerivativeWiring* wiring3 = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
-      agent = new OdeAgent(plotoptions);
+      agent = new OdeAgent(global);
       agent->init(controller, mySliderWheelie, wiring3);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
@@ -362,7 +366,7 @@ public:
     }
 
     
-    showParams(global.configs);
+    
   }
   
   // add own key handling stuff here, just insert some case values

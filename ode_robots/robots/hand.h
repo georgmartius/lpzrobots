@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2011-05-30 13:56:42  martius
+ *   Revision 1.11  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.10  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -318,8 +322,6 @@ namespace lpzrobots {
     /** configuration of hand */
     HandConf conf;
 
-    /** vector containing Primitives */
-    std::vector <Primitive*> objects;
     /** vector containing OSGPrimitives */
     std::vector <OSGPrimitive*> osg_objects;
     /** vector containing Primitivesinfrared sensors */
@@ -332,7 +334,7 @@ namespace lpzrobots {
     //objects.reserve(number_beams);
 
     /** vector of the joints used in hand */
-    std::vector <Joint*> joints;
+    
 
     /** vector of the angular motors */
     std::vector <AngularMotor*> frictionmotors;

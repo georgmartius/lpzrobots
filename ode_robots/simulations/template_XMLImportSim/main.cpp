@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-03-15 10:48:27  guettler
+ *   Revision 1.6  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.5  2010/03/15 10:48:27  guettler
  *   better stem texture
  *
  *   Revision 1.4  2010/03/15 09:01:34  guettler
@@ -281,17 +285,17 @@ public:
         // create pointer to agent
         // initialize pointer with controller, robot and wiring
         // push agent in globel list of agents
-        OdeAgent* agent = new OdeAgent(plotoptions);
+        OdeAgent* agent = new OdeAgent(global);
         agent->init(controller, vehicle, wiring);
         global.agents.push_back(agent);
 
-        showParams(global.configs);
+        
 */
       OdeRobot* robot = new Nimm2(odeHandle,osgHandle, Nimm2::getDefaultConf(), "Nimm2");
       robot->place(Pos(-2,0,0.1));
       AbstractController* controller = new InvertMotorSpace(15);
       global.configs.push_back(controller);
-      OdeAgent* agent = new OdeAgent(plotoptions);
+      OdeAgent* agent = new OdeAgent(global);
       agent->init(controller, robot, new One2OneWiring(new ColorUniformNoise(0.1)));
       global.agents.push_back(agent);
       XMLParserEngine* xmlEngine = new XMLParserEngine(global,odeHandle,osgHandle,this);

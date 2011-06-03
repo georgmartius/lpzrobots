@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2011-01-31 11:31:10  martius
+ *   Revision 1.16  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.15  2011/01/31 11:31:10  martius
  *   renamed sox to soml
  *
  *   Revision 1.14  2010/11/05 13:54:05  martius
@@ -190,7 +194,7 @@ public:
     //   // c.useSecondD=true;
     //   c.derivativeScale=10;
     //   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, schlange1, wiring);
     global.agents.push_back(agent);
     global.configs.push_back(controller);
@@ -223,7 +227,7 @@ public:
     fixator->init(odeHandle, osgHandle);
 
     global.configs.push_back(this);
-    showParams(global.configs);
+    
     
     teaching=false;
     dteaching=false;

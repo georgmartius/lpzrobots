@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2008-05-01 22:03:55  martius
+ *   Revision 1.14  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.13  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -370,7 +374,7 @@ public:
       c.useId = false;
       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
       
-      OdeAgent* agent = new OdeAgent(plotoptions);
+      OdeAgent* agent = new OdeAgent(global);
       agent->init(controller, schlange1, wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
@@ -452,7 +456,7 @@ public:
       c.useFirstD = false;
       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
       
-      OdeAgent* agent = new OdeAgent(plotoptions);
+      OdeAgent* agent = new OdeAgent(global);
       agent->init(controller, schlange1, wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
@@ -531,7 +535,7 @@ public:
       c.useFirstD = false;
       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
       
-      OdeAgent* agent = new OdeAgent(plotoptions);
+      OdeAgent* agent = new OdeAgent(global);
       agent->init(controller, schlange1, wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
@@ -596,7 +600,7 @@ public:
       c.useFirstD = false;
       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
       
-       OdeAgent* agent5 = new OdeAgent(plotoptions);
+       OdeAgent* agent5 = new OdeAgent(global);
        agent5->init(controller, schla, wiring);
       global.agents.push_back(agent5);
        global.configs.push_back(controller);
@@ -669,7 +673,7 @@ public:
 //       c.useFirstD = true;
 //       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
       
-//       OdeAgent* agent = new OdeAgent(plotoptions);
+//       OdeAgent* agent = new OdeAgent(global);
 //       agent->init(controller, schlange1, wiring);
 //       global.agents.push_back(agent);
 //       global.configs.push_back(controller);
@@ -720,7 +724,7 @@ public:
       controller->setParam("factorB", 0);
 	
       AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05));
-      OdeAgent* agent = new OdeAgent( NoPlot );
+      OdeAgent* agent = new OdeAgent( global, PlotOption(NoPlot) );
       agent->init(controller, snake, wiring);
       global.configs.push_back(snake);
       global.configs.push_back(controller);
@@ -807,7 +811,7 @@ public:
       c.useFirstD = false;
       AbstractWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
       //     sliderwiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      OdeAgent* agent = new OdeAgent(plotoptions);
+      OdeAgent* agent = new OdeAgent(global);
       agent->init(controller, robot, wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
@@ -815,7 +819,7 @@ public:
     }
 
     
-    showParams(global.configs);
+    
   }
 
   // add own key handling stuff here, just insert some case values

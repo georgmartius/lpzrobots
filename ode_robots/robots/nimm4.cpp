@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.19  2011-04-28 09:44:25  martius
+ *   Revision 1.20  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.19  2011/04/28 09:44:25  martius
  *   documentation
  *
  *   Revision 1.18  2010/03/29 07:11:53  martius
@@ -178,6 +182,7 @@ namespace lpzrobots {
     segmentsno=5;  // number of segments of the robot
 
     wheelsubstance.toRubber(50);
+
   };
 
 
@@ -195,8 +200,8 @@ namespace lpzrobots {
     // for each motor the motorcommand (between -1 and 1) multiplied with speed
     // is set and the maximal force to realize this command are set
     for (int i=0; i<len; i++){ 
-      joint[i]->setParam(dParamVel2, motors[i]*speed);       
-      joint[i]->setParam(dParamFMax2, max_force);
+      joints[i]->setParam(dParamVel2, motors[i]*speed);       
+      joints[i]->setParam(dParamFMax2, max_force);
     }
   };
 
@@ -215,7 +220,7 @@ namespace lpzrobots {
 
     // for each sensor the anglerate of the joint is red and scaled with 1/speed 
     for (int i=0; i<len; i++){
-      sensors[i]=joint[i]->getPosition2Rate();
+      sensors[i]=dynamic_cast<Hinge2Joint*>(joints[i])->getPosition2Rate();
       sensors[i]/=speed;  //scaling
     }
     // the number of red sensors is returned 
@@ -240,10 +245,10 @@ namespace lpzrobots {
     assert(created); // robot must exist
   
     for (int i=0; i<segmentsno; i++) { // update objects
-      object[i]->update();
+      objects[i]->update();
     }
     for (int i=0; i < 4; i++) { // update joints
-      joint[i]->update();
+      joints[i]->update();
     }
 
   };
@@ -263,6 +268,8 @@ namespace lpzrobots {
     }
     // create car space
     odeHandle.createNewSimpleSpace(parentspace, true);
+    objects.resize(5);  // 1 capsule, 4 wheels
+    joints.resize(4); // joints between cylinder and each wheel
  
     OdeHandle wheelHandle(odeHandle);
     // make the material of the wheels a hard rubber
@@ -271,12 +278,12 @@ namespace lpzrobots {
     // initialize it with ode-, osghandle and mass
     // rotate and place body (here by -90° around the y-axis)
     // use texture 'wood' for capsule 
-    // put it into object[0]
+    // put it into objects[0]
     Capsule* cap = new Capsule(width/2, length);
     cap->setTexture("Images/wood.rgb");
     cap->init(odeHandle, cmass, osgHandle);    
     cap->setPose(Matrix::rotate(-M_PI/2, 0, 1, 0) * pose);    
-    object[0]=cap;
+    objects[0]=cap;
     
     // create wheels
     /*   front
@@ -300,19 +307,19 @@ namespace lpzrobots {
 			((i-1)%2==0?-1:1)*(width*0.5+wheelthickness), 
 			-width*0.6+radius );
       sph->setPose(Matrix::rotate(M_PI/2, 0, 0, 1) * Matrix::translate(wpos) * pose);      
-      object[i]=sph;
+      objects[i]=sph;
     }
 
     // generate 4 joints to connect the wheels to the body
     for (int i=0; i<4; i++) {
-      Pos anchor(dBodyGetPosition (object[i+1]->getBody()));
-      joint[i] = new Hinge2Joint(object[0], object[i+1], anchor, Axis(0,0,1)*pose, Axis(0,1,0)*pose);
-      joint[i]->init(odeHandle, osgHandle, true, 2.01 * radius);
+      Pos anchor(dBodyGetPosition (objects[i+1]->getBody()));
+      joints[i] = new Hinge2Joint(objects[0], objects[i+1], anchor, Axis(0,0,1)*pose, Axis(0,1,0)*pose);
+      joints[i]->init(odeHandle, osgHandle, true, 2.01 * radius);
     } 
     for (int i=0; i<4; i++) {
       // set stops to make sure wheels always stay in alignment
-      joint[i]->setParam(dParamLoStop, 0);
-      joint[i]->setParam(dParamHiStop, 0);
+      joints[i]->setParam(dParamLoStop, 0);
+      joints[i]->setParam(dParamHiStop, 0);
     }
 
     created=true; // robot is created
@@ -323,12 +330,7 @@ namespace lpzrobots {
    */
   void Nimm4::destroy(){
     if (created){
-      for (int i=0; i<4; i++){
-	if(joint[i]) delete joint[i]; // destroy bodies and geoms
-      }
-      for (int i=0; i<segmentsno; i++){
-	if(object[i]) delete object[i]; // destroy bodies and geoms
-      }
+      cleanup();
       odeHandle.deleteSpace(); // destroy space
     }
     created=false; // robot does not exist (anymore)

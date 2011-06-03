@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2009-05-05 07:59:51  martius
+ *   Revision 1.6  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.5  2009/05/05 07:59:51  martius
  *   moved octopus made from components here
  *
  *   Revision 1.5  2008/05/01 22:03:55  martius
@@ -265,7 +269,7 @@ public:
     global.configs.push_back ( controller );
 
 
-    showParams(global.configs);
+    
 
 	cout<<"Number of Sensors: "<<components.front()->getSensorNumber ()<<"\n";
 	cout<<"Number of Motors: "<<components.front()->getMotorNumber ()<<"\n";

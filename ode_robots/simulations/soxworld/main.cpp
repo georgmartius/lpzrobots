@@ -196,8 +196,8 @@ public:
        //       // fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) , 		   Axis(0,0,1), Axis(0,1,0));
        fixator->init(odeHandle, osgHandle);
      }else if(reckturner){
-       Primitive* leftHand = human0->getPrimitives()[Skeleton::Left_Hand];
-       Primitive* rightHand = human0->getPrimitives()[Skeleton::Right_Hand];
+       Primitive* leftHand = human0->getAllPrimitives()[Skeleton::Left_Hand];
+       Primitive* rightHand = human0->getAllPrimitives()[Skeleton::Right_Hand];
       
        reckLeft = new SliderJoint(leftHand, global.environment, leftHand->getPosition(), Axis(1,0,0));	
        reckLeft->init(odeHandle, osgHandle,false);

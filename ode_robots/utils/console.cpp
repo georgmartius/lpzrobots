@@ -26,7 +26,11 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2011-05-30 21:57:16  martius
+ *   Revision 1.15  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.14  2011/05/30 21:57:16  martius
  *   store and restore from console improved
  *   console width automatically adapted
  *
@@ -602,9 +606,9 @@ bool com_store (GlobalData& globalData, char* line, char* arg) {
 	if(f){
 	  switch(sub){
 	  case 0: // store agent
-	    if(globalData.agents[id-1]->getController()->store(f))
+	    if(globalData.agents[id-1]->store(f))
 	      printf("Agent stored\n");
-	    else printf("Error occured while storing contoller\n");
+	    else printf("Error occured while storing agent\n");
 	    break;	    
 	  case 1: // store controller
 	    if(globalData.agents[id-1]->getController()->store(f))
@@ -643,9 +647,9 @@ bool com_load (GlobalData& globalData, char* line, char* arg) {
 	if(f){
 	  switch(sub){
 	  case 0: // store agent
-	    if(globalData.agents[id-1]->getController()->restore(f))
+	    if(globalData.agents[id-1]->restore(f))
 	      printf("Agent restored\n");
-	    else printf("Error occured while restoring contoller\n");
+	    else printf("Error occured while restoring agent\n");
 	    break;	    
 	  case 1: // store controller
 	    if(globalData.agents[id-1]->getController()->restore(f))

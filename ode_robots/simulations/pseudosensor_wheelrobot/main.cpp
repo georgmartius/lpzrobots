@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2010-03-09 11:53:41  martius
+ *   Revision 1.17  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.16  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.15  2008/05/01 22:03:55  martius
@@ -109,12 +113,12 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   // c.blindMotorSets=1;
   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
   //AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-  OdeAgent* agent = new OdeAgent(plotoptions);
+  OdeAgent* agent = new OdeAgent(global);
   agent->init(controller, vehicle, wiring);
   global.agents.push_back(agent);
   
   global.configs.push_back(controller);
-  showParams(global.configs);
+  
 
 }
 

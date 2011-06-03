@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2009-09-08 16:36:53  fhesse
+ *   Revision 1.24  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.23  2009/09/08 16:36:53  fhesse
  *   location of controller in #include adapted
  *   (now in local directory)
  *
@@ -273,7 +277,7 @@ public:
 
     // adding agent
     OdeAgent *agent;
-    agent = new OdeAgent(plotoptions);
+    agent = new OdeAgent(global);
     agent->init(controller, hand, wiring);
     global.agents.push_back(agent);
 
@@ -315,7 +319,7 @@ public:
     box->setPosition(Pos(0,0,6.7)); 
     global.obstacles.push_back(box); 
     
-    showParams(global.configs);
+    
   }
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet

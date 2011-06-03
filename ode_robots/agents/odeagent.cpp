@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2011-05-30 21:57:16  martius
+ *   Revision 1.17  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.16  2011/05/30 21:57:16  martius
  *   store and restore from console improved
  *   console width automatically adapted
  *
@@ -243,11 +247,13 @@ namespace lpzrobots {
   }
 
   bool OdeAgent::store(FILE* f) const {
-    return getRobot()->store(f) && getController()->store(f);    
+    const OdeRobot* r = getRobot();
+    return r->store(f) && getController()->store(f);    
   }
 
   bool OdeAgent::restore(FILE* f){
-    return getRobot()->restore(f) && getController()->restore(f);        
+    OdeRobot* r = getRobot();
+    return r->restore(f) && getController()->restore(f);        
   }
 
 

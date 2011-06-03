@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2009-09-10 12:12:38  fhesse
+ *   Revision 1.3  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.2  2009/09/10 12:12:38  fhesse
  *   cleaned up
  *
  *   Revision 1.1  2009/09/10 10:25:01  fhesse
@@ -153,7 +157,7 @@ public:
     global.agents.push_back ( agent );
       
     // display all parameters of all configurable objects on the console
-    showParams(global.configs);
+    
   }
 
   /** is called if a key was pressed. 

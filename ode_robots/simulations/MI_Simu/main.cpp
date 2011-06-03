@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.20  2009-08-11 12:30:39  robot12
+ *   Revision 1.21  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.20  2009/08/11 12:30:39  robot12
  *   update the simstep variable from "this" to globalData! (guettler)
  *
  *   Revision 1.19  2009/08/03 08:03:09  guettler
@@ -296,7 +300,7 @@ public:
 
     }
 
-    showParams(global.configs);
+    
     std::cout << "running with cInit = " << this->cInit << "." << std::endl;
 
   }

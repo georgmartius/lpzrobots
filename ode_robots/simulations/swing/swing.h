@@ -140,7 +140,7 @@ namespace lpzrobots {
     Swing(const OdeHandle& odeHandle, const OsgHandle& osgHandle, SwingConf& conf, 
 	       const std::string& name);
 
-    virtual ~Swing(){};
+    virtual ~Swing(){ destroy(); };
 
     static SwingConf getDefaultConf(){
       SwingConf c;

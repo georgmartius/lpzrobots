@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2009-01-20 17:29:52  martius
+ *   Revision 1.7  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.6  2009/01/20 17:29:52  martius
  *   cvs commit
  *
  *   Revision 1.5  2008/11/14 11:23:05  martius
@@ -522,7 +526,7 @@ public:
     
     global.configs.push_back(qlearning);
     global.configs.push_back(controller);
-    showParams(global.configs);
+    
     
     log = fopen("qlearning.log","w");
     fprintf(log,"#C time eps discount expl interval sarsa avg col_rew\n");

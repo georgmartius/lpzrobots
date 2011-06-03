@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.24  2011-05-30 13:56:42  martius
+ *   Revision 1.25  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.24  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -358,16 +362,10 @@ namespace lpzrobots {
       }
       sliderServos.clear();
 
-      FOREACH(vector<Joint*>, joints, i){
-	if(*i) delete *i;
-      }
-      joints.clear();
-      FOREACH(vector<Primitive*>, objects, i){
-	if(*i) delete *i;
-      }
+      cleanup();
+
       if(center) delete center;
       if(dummycenter) delete dummycenter;
-      objects.clear();
       odeHandle.deleteSpace();
    }
   }

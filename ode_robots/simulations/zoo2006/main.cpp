@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-03-19 08:47:55  guettler
+ *   Revision 1.8  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.7  2011/03/19 08:47:55  guettler
  *   - unique names are generated even for e.g. spheres, snakes
  *
  *   Revision 1.6  2010/01/26 09:58:15  martius
@@ -179,7 +183,7 @@ public:
 //      invertnconf.cInit=2.0;
 //      controller = new InvertMotorSpace(15);
 //     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-//     agent = new OdeAgent( plotoptions );
+//     agent = new OdeAgent( global, plotoptions );
 //     agent->init(controller, myCaterPillar, wiring);
 //     global.agents.push_back(agent);
 //     global.configs.push_back(controller);
@@ -233,7 +237,7 @@ public:
       controller->setParam("s4avg",3);
       controller->setParam("factorB",0.1); // not needed here and it does some harm on the behaviour
       wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent(plotoptions); //  std::list<PlotOption>() 
+      agent = new OdeAgent(global); //  std::list<PlotOption>() 
       agent->init(controller, robot, wiring);
       global.agents.push_back(agent);
     }
@@ -263,7 +267,7 @@ public:
       //     deriveconf.derivativeScale = 50;
       //     wiring = new DerivativeWiring(deriveconf, new ColorUniformNoise(0.1));
       wiring = new One2OneWiring(new ColorUniformNoise(0.05));
-      agent = new OdeAgent( plotoptions );
+      agent = new OdeAgent( global, plotoptions );
       agent->init(controller, snake, wiring);
 			       global.configs.push_back(controller);
 			       global.agents.push_back(agent);
@@ -436,7 +440,7 @@ public:
 
 
 
-    showParams(global.configs);
+    
   }
 
   // add own key handling stuff here, just insert some case values

@@ -23,7 +23,11 @@
  *    without modifiing them.                                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-11-10 17:09:36  martius
+ *   Revision 1.9  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.8  2010/11/10 17:09:36  martius
  *   torque sensors added, but not yet tested
  *
  *   Revision 1.7  2010/06/03 09:55:37  martius
@@ -115,6 +119,7 @@ namespace lpzrobots {
     void doInternalStuff(GlobalData& globalData);
 
     virtual Primitive* getMainPrimitive() const { return robot->getMainPrimitive();}
+    virtual std::vector<Primitive*> getAllPrimitives() const { return robot->getAllPrimitives();}    
       
   protected:
     OdeRobot* robot;

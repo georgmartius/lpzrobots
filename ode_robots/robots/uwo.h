@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-05-31 16:40:43  martius
+ *   Revision 1.8  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.7  2011/05/31 16:40:43  martius
  *   added optional shared linking
  *   moves some old files and code cleanup
  *
@@ -93,7 +97,7 @@ namespace lpzrobots {
     Uwo(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const UwoConf& conf, 
 	const std::string& name);
 
-    virtual ~Uwo(){};
+    virtual ~Uwo(){ destroy(); };
 
     static UwoConf getDefaultConf(){
       UwoConf c;
@@ -171,9 +175,8 @@ namespace lpzrobots {
     double legmass;    // leg mass
 
     bool created;      // true if robot was created
-
-    std::vector<Primitive*> objects;  // 1 body, legs
-    std::vector<Joint*> joints; // joints between cylinder and each legs
+    
+    
     std::vector <UniversalServo*> servos; // motors
 
   };

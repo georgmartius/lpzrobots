@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2008-11-14 11:23:05  martius
+ *   Revision 1.5  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.4  2008/11/14 11:23:05  martius
  *   added centered Servos! This is useful for highly nonequal min max values
  *   skeleton has now also a joint in the back
  *
@@ -171,14 +175,14 @@ public:
 
     // One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
     global.configs.push_back(controller);
     controller->setExternalControlMode(true);
 
       
-    showParams(global.configs);
+    
   }
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet

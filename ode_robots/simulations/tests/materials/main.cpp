@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-09-30 17:07:08  martius
+ *   Revision 1.4  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.3  2010/09/30 17:07:08  martius
  *   tests and vision experiments improved
  *
  *   Revision 1.2  2010/09/24 13:34:56  martius
@@ -360,7 +364,7 @@ public:
       OdeRobot* r  = new SchlangeServo(odeHandle, osgHandle, sc, "Schlange");
       r->place(osg::Matrix::rotate(M_PI/2,0,1,0)* osg::Matrix::translate(5,0,8));
       AbstractController* controller = new SineController(~0, SineController::SawTooth);
-      OdeAgent* agent = new OdeAgent(plotoptions);
+      OdeAgent* agent = new OdeAgent(global);
       agent->init ( controller , r , new One2OneWiring(new NoNoise()));
       global.agents.push_back(agent);
       global.configs.push_back(controller);      
@@ -381,7 +385,7 @@ public:
     }
     
   
-    showParams(global.configs);
+    
   }
 
 

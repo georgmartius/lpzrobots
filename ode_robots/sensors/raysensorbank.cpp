@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2010-03-09 11:53:41  martius
+ *   Revision 1.10  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.9  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.8  2009/07/29 14:19:49  jhoffmann
@@ -82,7 +86,7 @@ namespace lpzrobots {
     clear();
 
     if (initialized)
-      this->odeHandle.deleteSpace();
+      //      this->odeHandle.deleteSpace(); this is automatically done if the parent space is deleted
 
     initialized = false;
   };
@@ -92,7 +96,7 @@ namespace lpzrobots {
     this->odeHandle = odeHandle;
     this->osgHandle = osgHandle;
 
-    this->odeHandle.space = dSimpleSpaceCreate ( this->odeHandle.space );
+    this->odeHandle.createNewSimpleSpace(odeHandle.space, true);
     initialized=true; 
   }; 
 
@@ -159,7 +163,7 @@ namespace lpzrobots {
     for (unsigned int i=0; i<bank.size(); i++)
     {
       if(bank[i])
-        delete bank[i];
+        delete bank[i];      
     }
     bank.clear();
   }

@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2009-08-05 23:25:57  martius
+ *   Revision 1.4  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.3  2009/08/05 23:25:57  martius
  *   adapted small things to compile with changed Plotoptions
  *
  *   Revision 1.2  2008/05/01 22:03:55  martius
@@ -97,7 +101,7 @@ public:
     //controller = new InvertMotorNStep();
     controller = new InvertNChannelController(10);    
     //	  controller = new InvertMotorSpace(10);  
-    agent = new OdeAgent(plotoptions);
+    agent = new OdeAgent(global);
     nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2Yellow");
     nimm2->setColor(Color(1.0,1.0,0));
     global.configs.push_back(controller);
@@ -121,7 +125,7 @@ public:
 
 
       
-    showParams(global.configs);
+    
   }
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet

@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2010-03-16 17:12:08  martius
+ *   Revision 1.4  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.3  2010/03/16 17:12:08  martius
  *   includes of ode/ changed to ode-dbl/
  *   more testing code added
  *
@@ -234,7 +238,6 @@ public:
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
 
-    showParams(global.configs);
   }
 
   // add own key handling stuff here, just insert some case values

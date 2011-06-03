@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2011-04-28 09:46:27  martius
+ *   Revision 1.24  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.23  2011/04/28 09:46:27  martius
  *   *** empty log message ***
  *
  *   Revision 1.22  2011/03/22 16:43:12  guettler
@@ -386,7 +390,7 @@ public:
     //TrackableMeasure* trackableEntropy = new TrackableMeasure(trackableList,"E upd Nimm2",ENT,playground->getCornerPointsXY(),X | Y, 50);
     //this->getHUDSM()->addMeasure(trackableEntropy);
 
-    showParams(global.configs);
+    
     std::cout << "running with cDiag = " << this->cInit << "." << std::endl;
     std::cout << "running with bNonDiag = " << this->bInit << "." << std::endl;
 

@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-01-02 23:09:52  martius
+ *   Revision 1.10  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.9  2011/01/02 23:09:52  martius
  *   texture handling of boxes changed
  *   playground walls changed
  *
@@ -371,7 +375,7 @@ public:
       //  controller->setParam("rootE",3);
       
       AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
-      OdeAgent* agent = i==0 ? new OdeAgent(global,0.1) : new OdeAgent(global,NoPlot,0.1);
+      OdeAgent* agent = i==0 ? new OdeAgent(global,0.1) : new OdeAgent(global,PlotOption(NoPlot),0.1);
       agent->init(controller, vehicle, wiring);
       global.configs.push_back(controller);
       global.agents.push_back(agent);
@@ -435,7 +439,7 @@ public:
                                                         mkVector(noise,2));
       
       //    AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
-      OdeAgent* agent = i==0 ? new OdeAgent(global) : new OdeAgent(global,NoPlot);
+      OdeAgent* agent = i==0 ? new OdeAgent(global) : new OdeAgent(global,PlotOption(NoPlot));
       agent->addInspectable(this);
       agent->init(controller, vehicle, wiring);
       global.configs.push_back(controller);
@@ -464,12 +468,12 @@ public:
       controller->setParam("gamma_teach",0.003);
 
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      OdeAgent* agent = new OdeAgent(global,NoPlot);
+      OdeAgent* agent = new OdeAgent(global,PlotOption(NoPlot));
       agent->init(controller, vehicle, wiring);
       global.agents.push_back(agent);
     }
 
-    showParams(global.configs);
+    
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {

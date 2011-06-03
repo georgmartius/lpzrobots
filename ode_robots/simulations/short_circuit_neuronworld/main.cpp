@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-12-04 18:51:59  fhesse
+ *   Revision 1.5  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.4  2009/12/04 18:51:59  fhesse
  *   invertnchannelcontroller has bias (changeable in constructor) now
  *   neuronworld has linear neuron now (changeable in conf)
  *
@@ -119,7 +123,7 @@ public:
     controller->setParam("factor_a",0.1);
     controller->setParam("s4avg",1);
 
-    OdeAgent* agent = new OdeAgent(plotoptions);
+    OdeAgent* agent = new OdeAgent(global);
     // sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
     // One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
     One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
@@ -133,7 +137,7 @@ public:
 //     AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.05)); 
     agent->init(controller, robot, wiring);
     global.agents.push_back(agent);
-    showParams(global.configs);
+    
   }
 
 

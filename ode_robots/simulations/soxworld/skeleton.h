@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2011-06-01 22:02:56  martius
+ *   Revision 1.7  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.6  2011/06/01 22:02:56  martius
  *   getAllPrimitives changed to vector return type
  *   inspectables infolines are printed without name again (for guilogger)
  *
@@ -217,7 +221,7 @@ namespace lpzrobots {
     Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, SkeletonConf& conf, 
 	       const std::string& name);
 
-    virtual ~Skeleton(){};
+    virtual ~Skeleton(){ destroy(); };
 
     static SkeletonConf getDefaultConf(){
       SkeletonConf c;
@@ -369,7 +373,7 @@ namespace lpzrobots {
     virtual Primitive* getMainPrimitive() const { return objects[Belly]; }
 
     /** all parts of the robot */
-    virtual std::vector<Primitive*> getAllPrimitives() { return objects; }
+    virtual std::vector<Primitive*> getAllPrimitives() const { printf("HUHU");return objects; }
 
     /** returns the position of the head */
     virtual Position getHeadPosition();

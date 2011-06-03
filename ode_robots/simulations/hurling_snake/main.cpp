@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2008-05-01 22:03:55  martius
+ *   Revision 1.12  2011-06-03 13:42:48  martius
+ *   oderobot has objects and joints, store and restore works automatically
+ *   removed showConfigs and changed deprecated odeagent calls
+ *
+ *   Revision 1.11  2008/05/01 22:03:55  martius
  *   build system expanded to allow system wide installation
  *   that implies  <ode_robots/> for headers in simulations
  *
@@ -153,8 +157,8 @@ public:
       //    c.useFirstD = true;
       c.derivativeScale = 20;
       wiring = new DerivativeWiring(c, new ColorUniformNoise(0.05));
-      if (i==0) agent = new OdeAgent(plotoptions);
-      else  agent = new OdeAgent(NoPlot);
+      if (i==0) agent = new OdeAgent(global);
+      else  agent = new OdeAgent(global,NoPlot);
       agent->init(controller, hs, wiring);
       // enable tracing of head element
       //agent->setTrackOptions(TrackRobot(false, false, false, true, "0", 1));
@@ -182,7 +186,7 @@ public:
     //   controller2 = new InvertMotorSpace(10);  
   
     //   wiring2 = new One2OneWiring(new ColorUniformNoise(0.1));
-    //   agent2 = new OdeAgent(plotoptions);
+    //   agent2 = new OdeAgent(global);
     //   agent2->init(controller2, hs, wiring2);
     //   global.agents.push_back(agent2);
 
@@ -192,7 +196,7 @@ public:
 
 
 
-    showParams(global.configs);
+    
   }
 
   // add own key handling stuff here, just insert some case values
