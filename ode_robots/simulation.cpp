@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.143  2011-06-03 13:42:48  martius
+ *   Revision 1.144  2011-06-08 15:08:47  martius
+ *   changed default window size to 800x600
+ *
+ *   Revision 1.143  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -775,8 +778,8 @@ namespace lpzrobots {
     // default values are set in Base::Base()
     addParameter("ShadowTextureSize",&shadowTexSize);
     addParameter("UseNVidia",&useNVidia);
-    addParameterDef("WindowWidth",&windowWidth,640);
-    addParameterDef("WindowHeight",&windowHeight,480);
+    addParameterDef("WindowWidth",&windowWidth,800);
+    addParameterDef("WindowHeight",&windowHeight,600);
     addParameterDef("UseOdeThread",&useOdeThread,false);
     addParameterDef("UseOsgThread",&useOsgThread,false);
     addParameterDef("UseQMPThread",&useQMPThreads,true);
@@ -1900,7 +1903,7 @@ namespace lpzrobots {
     printf("\t-m interval\tuse matrixviz (default interval 10)\n");
     printf("\t-s \"-disc|ampl|freq val\"\tuse soundMan \n");
     printf("\t-r seed\t\trandom number seed\n");
-    printf("\t-x WxH\t\t* window size of width(W) x height(H) is used (default 640x480)\n");
+    printf("\t-x WxH\t\t* window size of width(W) x height(H) is used (default 800x600)\n");
     printf("\t-fs\t\tfullscreen mode\n");
     printf("\t-pause \t\tstart in pause mode\n");
     printf("\t-rtf factor\t\treal time factor: ratio between simulation speed and real time\n\
