@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2010-09-30 17:09:33  martius
+ *   Revision 1.6  2011-06-08 16:13:27  martius
+ *   ColorNormalNoise get/setTau added
+ *
+ *   Revision 1.5  2010/09/30 17:09:33  martius
  *   improved makefile again
  *   examples made them compile
  *   motornoisewiring improved (was not working anymore)
@@ -58,37 +61,46 @@ public:
   MotorNoiseWiring(NoiseGenerator* noise, double noiseStrength)
     : One2OneWiring(0, Controller),    // no noise at sensors, show Controller x,y and noise
       Configurable("MotorNoiseWiring", "$Id$"),
-      mNoiseGen(noise), noiseStrength(noiseStrength) {
-    addParameter("strength",&noiseStrength);
-
+      motNoiseGen(noise), motNoiseStrength(noiseStrength) {
   }
   virtual ~MotorNoiseWiring(){}
 
-  double getNoiseStrength(){ return noiseStrength; }
-  void setNoiseStrength(double _noiseStrength) { 
-    if(_noiseStrength>=0) noiseStrength=_noiseStrength;
+  double getNoiseStrength(){ return motNoiseStrength; }
+  void setNoiseStrength(double _motNoiseStrength) { 
+    if(_motNoiseStrength>=0) motNoiseStrength=_motNoiseStrength;
   }
 
 
   virtual bool initIntern(){
     One2OneWiring::initIntern();
-    if(mNoiseGen)
-      mNoiseGen->init(rmotornumber, randGen);
+    mMotNoise.set(rmotornumber,1);
+    addParameter("strength", &this->motNoiseStrength,0, 2, "strength of motor value noise (additive)");
+
+    addInspectableMatrix("n", &mMotNoise, false, "motor noise");
+    if(motNoiseGen)
+      motNoiseGen->init(rmotornumber, randGen);
     return true;
   }
   
   virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
                                 const motor* cmotors, int cmotornumber){
     One2OneWiring::wireMotorsIntern(rmotors, rmotornumber, cmotors, cmotornumber);
-    if(mNoiseGen)
-      mNoiseGen->add(rmotors, noiseStrength);  
+    if(motNoiseGen){
+      double* nv = (double*) mMotNoise.unsafeGetData();
+      memset(nv, 0 , sizeof(double) * rmotornumber);    
+      motNoiseGen->add(nv, motNoiseStrength);
+      for(int i=0; i<rmotornumber; i++){
+        rmotors[i]+=nv[i];
+      }
+    }
     return true; 
   }
+  
 
 protected:
-  NoiseGenerator* mNoiseGen;
-  double noiseStrength;
-
+  NoiseGenerator* motNoiseGen;
+  double motNoiseStrength;
+  matrix::Matrix mMotNoise;
 };
 
 #endif

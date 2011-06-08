@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2009-07-30 06:17:46  jhoffmann
+ *   Revision 1.10  2011-06-08 16:13:27  martius
+ *   ColorNormalNoise get/setTau added
+ *
+ *   Revision 1.9  2009/07/30 06:17:46  jhoffmann
  *   Bugfix: remove memory leak when internal random generator is used
  *
  *   Revision 1.8  2009/03/31 15:46:40  martius
@@ -266,8 +269,8 @@ public:
     }    
   }   
   
-  double getTau(){ return tau;}
-  void setTau(double newTau){ 
+  virtual double getTau(){ return tau;}
+  virtual void setTau(double newTau){ 
     if(newTau >=0 && newTau <= 1){
       tau=newTau;
       sqrttau = sqrt(tau);
@@ -312,6 +315,14 @@ public:
       value[i]+=mean[i];
     }    
   }   
+
+  virtual double getTau(){ return tau;}
+  virtual void setTau(double newTau){ 
+    if(newTau >=0 && newTau <= 1){
+      tau=newTau;
+      sqrttau = sqrt(tau);
+    }
+  }
 
 protected:
   double tau; // smoothing paramter
