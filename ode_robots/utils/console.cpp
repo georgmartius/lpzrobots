@@ -26,7 +26,10 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2011-06-03 13:42:48  martius
+ *   Revision 1.16  2011-06-09 13:26:26  martius
+ *   added RandomObstacle and keys: o and O to add and remove them on the fly
+ *
+ *   Revision 1.15  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -507,7 +510,8 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
         if(id>=0 && id < (signed)globalData.configs.size()){
           const char* key = params[1].c_str();        
           if (globalData.configs[id]->setParam(key,atof(params[2].c_str()))){
-            printf(" %s=\t%f \n", key, globalData.configs[id]->getParam(key));
+            printf(" %s=\t%f\t%s\n", key, globalData.configs[id]->getParam(key),
+                   globalData.configs[id]->getName().c_str());
             changed = true;              
           }          
         }else printf("Object with ID: %i not found\n", id);      
@@ -519,7 +523,7 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
         const char* key = params[0].c_str();
  	FOREACH(ConfigList, globalData.configs, i){
  	  if ((*i)->setParam(key,v)){
- 	    printf(" %s=\t%f \n", key, (*i)->getParam(key));
+ 	    printf(" %s=\t%f\t%s\n", key, (*i)->getParam(key), (*i)->getName().c_str());
  	    changed = true;	    
  	  }
  	}

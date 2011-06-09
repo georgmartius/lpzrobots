@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-01-02 23:09:52  martius
+ *   Revision 1.10  2011-06-09 13:26:26  martius
+ *   added RandomObstacle and keys: o and O to add and remove them on the fly
+ *
+ *   Revision 1.9  2011/01/02 23:09:52  martius
  *   texture handling of boxes changed
  *   playground walls changed
  *
@@ -151,9 +154,9 @@ namespace lpzrobots {
   /*
    * sets position of the obstacle and creates/recreates obstacle if necessary
    */
-void AbstractObstacle::setPosition(const osg::Vec3& pos) {
-  setPos(pos);
-};
+  void AbstractObstacle::setPosition(const osg::Vec3& pos) {
+    setPos(pos);
+  };
 
   /*
    * gives actual position of the obstacle

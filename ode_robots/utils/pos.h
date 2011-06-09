@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2010-03-09 11:53:41  martius
+ *   Revision 1.7  2011-06-09 13:26:26  martius
+ *   added RandomObstacle and keys: o and O to add and remove them on the fly
+ *
+ *   Revision 1.6  2010/03/09 11:53:41  martius
  *   renamed globally ode to ode-dbl
  *
  *   Revision 1.5  2010/03/05 14:32:55  martius
@@ -77,6 +80,8 @@ namespace lpzrobots{
     Pos operator*(double f) const { return Pos(x()*f,y()*f,z()*f);}
     /// scalar product
     double operator*(const Pos& p) const { return p.x()*x() + p.y()*y() + p.z()*z();}
+    /// componentwise  product
+    Pos operator&(const Pos& p) const { return Pos(p.x()*x(), p.y()*y(), p.z()*z());}
 
     Position toPosition(){
       return Position(x(), y(), z());

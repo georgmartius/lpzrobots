@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.144  2011-06-08 15:08:47  martius
+ *   Revision 1.145  2011-06-09 13:26:26  martius
+ *   added RandomObstacle and keys: o and O to add and remove them on the fly
+ *
+ *   Revision 1.144  2011/06/08 15:08:47  martius
  *   changed default window size to 800x600
  *
  *   Revision 1.143  2011/06/03 13:42:48  martius
@@ -737,6 +740,8 @@
 #include "cameramanipulatorFollow.h"
 #include "cameramanipulatorRace.h"
 #include "motionblurcallback.h"
+
+#include "randomobstacles.h"
 
 // simple multithread api
 #include <selforg/quickmp.h> // moved to selforg/utils
@@ -1466,19 +1471,39 @@ namespace lpzrobots {
     	  Base::changeShadowTechnique();
     	  handled=true;
       }
-    break;
-	//     case 15: // Ctrl - o // TEST
-	//       {
-	// 	SceneView* sv = viewer->getSceneHandlerList().front()->getSceneView();
-	// 	Vec3 p(400,400,0);
-	// 	Pos o;
-	// 	if(!sv->projectWindowIntoObject(p,o)){
-	// 	  printf("SHIT happens always\n");
-	// 	}
-	// 	o.print();
-	// 	handled = true;
-	//       }
-	//       break;
+      break;
+      case 'o': //  add random object
+        {
+          FOREACH(ObstacleList, globalData.obstacles, o){
+            RandomObstacles* ro = dynamic_cast<RandomObstacles*>(*o);
+            if(ro){
+              ro->spawn();
+              handled=true;            
+            }
+          }
+          if(!handled){
+            std::cout <<  "No RandomObstacles object found in the list of obstacles."<<std::endl;
+            std::cout <<  " i create a default one. Ccustomizeable by adding RandomObstacles in start()." << std::endl;
+            // search ground
+            AbstractGround* ag=0;
+            FOREACH(ObstacleList, globalData.obstacles, o){
+              ag = dynamic_cast<AbstractGround*>(*o);
+              break;
+            }
+            RandomObstacles* ro = new RandomObstacles(odeHandle, osgHandle, 
+                                                      RandomObstacles::getDefaultConf(ag));
+            globalData.obstacles.push_back(ro);
+            ro->spawn();
+          }
+        }
+        break;
+      case 'O': //  remove random object
+        FOREACH(ObstacleList, globalData.obstacles, o){
+          RandomObstacles* ro = dynamic_cast<RandomObstacles*>(*o);
+          if(ro){
+            ro->remove();
+          }
+        }
       default:
 	// std::cout << ea.getKey() << std::endl;
 	return false;

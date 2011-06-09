@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2011-01-02 23:09:52  martius
+ *   Revision 1.14  2011-06-09 13:26:26  martius
+ *   added RandomObstacle and keys: o and O to add and remove them on the fly
+ *
+ *   Revision 1.13  2011/01/02 23:09:52  martius
  *   texture handling of boxes changed
  *   playground walls changed
  *
@@ -161,7 +164,10 @@ public:
      */
     virtual std::list<Position> getCornerPointsXY();
 
-
+    /// size in x dimension
+    virtual double getGroundLength(){ return groundLength; }
+    /// size in y dimension
+    virtual double getGroundWidth(){ return groundWidth; }
 
   protected:
 
