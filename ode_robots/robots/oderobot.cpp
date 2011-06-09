@@ -21,7 +21,11 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2011-06-03 13:42:48  martius
+ *   Revision 1.13  2011-06-09 16:01:05  martius
+ *   add help for o/O
+ *   soxexpand: getter and setter
+ *
+ *   Revision 1.12  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -81,6 +85,7 @@
  ***************************************************************************/
 
 #include "oderobot.h"
+#include "joint.h"
 #include "primitive.h"
 #include "mathutils.h"
 

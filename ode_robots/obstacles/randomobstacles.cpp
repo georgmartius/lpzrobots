@@ -37,6 +37,7 @@ namespace lpzrobots {
     : AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), conf(conf) {       
     index=0;
     obstacle_exists = true;
+    pose = conf.pose;
   };
 
   void RandomObstacles::setPose(const osg::Matrix& pose){
@@ -125,7 +126,7 @@ namespace lpzrobots {
     }
 
     Pos pos(random_minusone_to_one(0), random_minusone_to_one(0), 1);
-    pos = (pos*0.5) & conf.area;
+    pos = (pos) & conf.area;
     pos.z() += (index%3) * conf.area.z()/2;
     index++;
     o->setPosition(pos * pose);

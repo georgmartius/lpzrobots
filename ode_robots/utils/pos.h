@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-06-09 13:26:26  martius
+ *   Revision 1.8  2011-06-09 16:01:05  martius
+ *   add help for o/O
+ *   soxexpand: getter and setter
+ *
+ *   Revision 1.7  2011/06/09 13:26:26  martius
  *   added RandomObstacle and keys: o and O to add and remove them on the fly
  *
  *   Revision 1.6  2010/03/09 11:53:41  martius
@@ -87,7 +91,7 @@ namespace lpzrobots{
       return Position(x(), y(), z());
     }
 
-    void print(){
+    void print() const {
       std::cout << '(' << x() << ',' << y() << ',' << z() << ')' << std::endl;
     }
   };

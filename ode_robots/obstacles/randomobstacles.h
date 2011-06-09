@@ -42,7 +42,10 @@ namespace lpzrobots {
   };
 
   /**
-   *  Passive random obstacles
+   * Passive random obstacles:
+   * with spawn and remove obstacles can be created and removed.
+   * Add an instance to global.obstacles to customize the creation
+   *  otherwise a default version is used (though dependend on the playground)
    */
   class RandomObstacles : public AbstractObstacle {
     
@@ -56,8 +59,7 @@ namespace lpzrobots {
     static RandomObstaclesConf getDefaultConf(AbstractGround* ground = 0){
       RandomObstaclesConf c;
       if(ground){
-        c.area  = Pos(ground->getGroundLength()/2, ground->getGroundWidth()/2, 5);
-        c.area.print();
+        c.area  = Pos(ground->getGroundLength()/2, ground->getGroundWidth()/2, 5)*0.95;
         c.pose =  ground->getPose();
       }else{
         c.area    = Pos(10,10,4);

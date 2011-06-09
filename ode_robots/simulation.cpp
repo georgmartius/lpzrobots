@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.145  2011-06-09 13:26:26  martius
+ *   Revision 1.146  2011-06-09 16:01:05  martius
+ *   add help for o/O
+ *   soxexpand: getter and setter
+ *
+ *   Revision 1.145  2011/06/09 13:26:26  martius
  *   added RandomObstacle and keys: o and O to add and remove them on the fly
  *
  *   Revision 1.144  2011/06/08 15:08:47  martius
@@ -1483,7 +1487,7 @@ namespace lpzrobots {
           }
           if(!handled){
             std::cout <<  "No RandomObstacles object found in the list of obstacles."<<std::endl;
-            std::cout <<  " i create a default one. Ccustomizeable by adding RandomObstacles in start()." << std::endl;
+            std::cout <<  " I create a default one, customize it by adding RandomObstacles in start()." << std::endl;
             // search ground
             AbstractGround* ag=0;
             FOREACH(ObstacleList, globalData.obstacles, o){
@@ -1532,6 +1536,7 @@ namespace lpzrobots {
     au.addKeyboardMouseBinding("Simulation: /","set normal simulation speed (realtimefactor=1)");
     au.addKeyboardMouseBinding("Simulation: *","set maximum simulation speed (realtimefactor=0)");
     au.addKeyboardMouseBinding("Simulation: Ctrl-s","change shadow technique");
+    au.addKeyboardMouseBinding("Simulation: o / O","add/remove random obstacle");
     bindingDescription(au);
   }
 
