@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.29  2011-06-03 13:42:48  martius
+ *   Revision 1.30  2011-06-22 09:17:51  fhesse
+ *   initialization of rsensors and rmotors added
+ *
+ *   Revision 1.29  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -251,6 +254,9 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot,
   rmotornumber  = robot->getMotorNumber();
   rsensors      = (sensor*) malloc(sizeof(sensor) * rsensornumber);
   rmotors       = (motor*)  malloc(sizeof(motor)  * rmotornumber);
+  memset(rsensors,0, sizeof(motor)*rsensornumber);
+  memset(rmotors,0, sizeof(motor)*rmotornumber);
+
   
   // add robot to inspectables  
   Inspectable* in = dynamic_cast<Inspectable*>(robot);
