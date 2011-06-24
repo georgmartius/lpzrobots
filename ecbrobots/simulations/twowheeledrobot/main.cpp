@@ -179,7 +179,7 @@ class MyECBManager : public QECBManager {
 
         // create new agent
         list<PlotOption> plotList;
-        plotList.push_back(PlotOption(GuiLogger, 5));
+        //plotList.push_back(PlotOption(GuiLogger, 5));
 //        plotList.push_back(PlotOption(MatrixViz, 5));
         plotList.push_back(PlotOption(File, 5));
         myAgent = new ECBAgent(plotList);

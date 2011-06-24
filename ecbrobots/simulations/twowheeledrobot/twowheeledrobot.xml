@@ -1,0 +1,139 @@
+<!DOCTYPE ConfigurableStateTypeDefinition>
+<ConfigurableStates>
+ <ConfigurableState name="1ActXPassController_0">
+  <ConfigurableWidget isCollapsed="true" numberOfTilesPerRow="3">
+   <ConfigurableTileWidgets/>
+  </ConfigurableWidget>
+  <Configurable revision="$ID$" id="491705403" name="1ActXPassController" autosaveFunction="1">
+   <paramvals/>
+   <paramints/>
+   <parambools/>
+  </Configurable>
+ </ConfigurableState>
+ <ConfigurableState name="ECBRobot's Agent_0">
+  <ConfigurableWidget tileWidgetWidth="300" isCollapsed="true" numberOfTilesPerRow="3">
+   <ConfigurableTileWidgets>
+    <ConfigurableTileWidget gridRow="0" gridColumn="0" name="restartPlotEngine" isVisible="true"/>
+   </ConfigurableTileWidgets>
+  </ConfigurableWidget>
+  <Configurable revision="$ID$" id="1780695788" name="ECBRobot's Agent" autosaveFunction="1">
+   <paramvals/>
+   <paramints/>
+   <parambools>
+    <parambool description="" value="0" name="restartPlotEngine"/>
+   </parambools>
+  </Configurable>
+ </ConfigurableState>
+ <ConfigurableState name="ECBRobot_0">
+  <ConfigurableWidget tileWidgetWidth="300" isCollapsed="true" numberOfTilesPerRow="3">
+   <ConfigurableTileWidgets>
+    <ConfigurableTileWidget gridRow="0" gridColumn="0" name="reset" isVisible="true"/>
+   </ConfigurableTileWidgets>
+  </ConfigurableWidget>
+  <Configurable revision="$ID$" id="945117276" name="ECBRobot" autosaveFunction="1">
+   <paramvals/>
+   <paramints/>
+   <parambools>
+    <parambool description="" value="0" name="reset"/>
+   </parambools>
+  </Configurable>
+ </ConfigurableState>
+ <ConfigurableState name="ECBRobots Control Parameters_0">
+  <ConfigurableWidget tileWidgetWidth="300" isCollapsed="false" numberOfTilesPerRow="3">
+   <ConfigurableTileWidgets>
+    <ConfigurableTileWidget gridRow="0" gridColumn="1" name="C[0,0]" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="0" gridColumn="2" name="C[0,1]" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="1" gridColumn="1" name="C[1,0]" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="1" gridColumn="2" name="C[1,1]" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="3" gridColumn="1" name="benchmarkmode" isVisible="false"/>
+    <ConfigurableTileWidget gridRow="1" gridColumn="0" name="cycletime" isVisible="false"/>
+    <ConfigurableTileWidget gridRow="2" gridColumn="1" name="maxfailures" isVisible="false"/>
+    <ConfigurableTileWidget gridRow="0" gridColumn="0" name="noiseFactor" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="2" gridColumn="2" name="serialreadtimeout" isVisible="false"/>
+    <ConfigurableTileWidget gridRow="3" gridColumn="0" name="testmode" isVisible="false"/>
+   </ConfigurableTileWidgets>
+  </ConfigurableWidget>
+  <Configurable revision="$Id$" id="1804289383" name="ECBRobots Control Parameters" autosaveFunction="1">
+   <paramvals>
+    <paramval description="feedback strength of Matrix C" maxBound="5" value="1.1" name="C[0,0]" minBound="-5"/>
+    <paramval description="feedback strength of Matrix C" maxBound="5" value="0" name="C[0,1]" minBound="-5"/>
+    <paramval description="feedback strength of Matrix C" maxBound="5" value="0" name="C[1,0]" minBound="-5"/>
+    <paramval description="feedback strength of Matrix C" maxBound="5" value="1.1" name="C[1,1]" minBound="-5"/>
+    <paramval description="global noise factor used for all controllers added by their used wiring to motor and/or sensor values" maxBound="1" value="0.05" name="noiseFactor" minBound="0"/>
+   </paramvals>
+   <paramints>
+    <paramint description="" maxBound="300" value="50" name="cycletime" minBound="0"/>
+    <paramint description="number of allowed discarded messages before reset(ting) the device" maxBound="100" value="4" name="maxfailures" minBound="0"/>
+    <paramint description="" maxBound="600" value="100" name="serialreadtimeout" minBound="1"/>
+   </paramints>
+   <parambools>
+    <parambool description="" value="0" name="benchmarkmode"/>
+    <parambool description="" value="0" name="testmode"/>
+   </parambools>
+  </Configurable>
+ </ConfigurableState>
+ <ConfigurableState name="ECB_NIMM2_SECUNDUS_0">
+  <ConfigurableWidget isCollapsed="false" numberOfTilesPerRow="3">
+   <ConfigurableTileWidgets/>
+  </ConfigurableWidget>
+  <Configurable revision="$ID$" id="1889947178" name="ECB_NIMM2_SECUNDUS" autosaveFunction="1">
+   <paramvals/>
+   <paramints/>
+   <parambools/>
+  </Configurable>
+ </ConfigurableState>
+ <ConfigurableState name="MeasureAdapter_0">
+  <ConfigurableWidget isCollapsed="true" numberOfTilesPerRow="3">
+   <ConfigurableTileWidgets/>
+  </ConfigurableWidget>
+  <Configurable revision="$ID$" id="752392754" name="MeasureAdapter" autosaveFunction="1">
+   <paramvals/>
+   <paramints/>
+   <parambools/>
+  </Configurable>
+ </ConfigurableState>
+ <ConfigurableState name="MutualInformation_0">
+  <ConfigurableWidget tileWidgetWidth="300" isCollapsed="true" numberOfTilesPerRow="3">
+   <ConfigurableTileWidgets>
+    <ConfigurableTileWidget gridRow="0" gridColumn="0" name="showF" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="0" gridColumn="1" name="showP" isVisible="true"/>
+   </ConfigurableTileWidgets>
+  </ConfigurableWidget>
+  <Configurable revision="$Id$" id="1918502651" name="MutualInformation" autosaveFunction="1">
+   <paramvals/>
+   <paramints/>
+   <parambools>
+    <parambool description="display the frequency matrix (inspectable interface" value="1" name="showF"/>
+    <parambool description="display the probability matrix (inspectable interface" value="1" name="showP"/>
+   </parambools>
+  </Configurable>
+ </ConfigurableState>
+ <ConfigurableState name="mySos_0">
+  <ConfigurableWidget tileWidgetWidth="206" isCollapsed="false" numberOfTilesPerRow="4">
+   <ConfigurableTileWidgets>
+    <ConfigurableTileWidget gridRow="1" gridColumn="0" name="Logarithmic" isVisible="false"/>
+    <ConfigurableTileWidget gridRow="0" gridColumn="2" name="TLE" isVisible="false"/>
+    <ConfigurableTileWidget gridRow="0" gridColumn="1" name="creativity" isVisible="false"/>
+    <ConfigurableTileWidget gridRow="0" gridColumn="0" name="epsA" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="0" gridColumn="3" name="epsC" isVisible="true"/>
+    <ConfigurableTileWidget gridRow="1" gridColumn="1" name="s4avg" isVisible="false"/>
+    <ConfigurableTileWidget gridRow="1" gridColumn="2" name="s4delay" isVisible="false"/>
+   </ConfigurableTileWidgets>
+  </ConfigurableWidget>
+  <Configurable revision="0.6" id="356426808" name="mySos" autosaveFunction="1">
+   <paramvals>
+    <paramval description="creativity term (0: disabled) " maxBound="1" value="0" name="creativity" minBound="0"/>
+    <paramval description="learning rate of the model" maxBound="2" value="0" name="epsA" minBound="0"/>
+    <paramval description="learning rate of the controller" maxBound="2" value="0" name="epsC" minBound="0"/>
+   </paramvals>
+   <paramints>
+    <paramint description="smoothing (number of steps)" maxBound="10" value="1" name="s4avg" minBound="1"/>
+    <paramint description="delay  (number of steps)" maxBound="10" value="1" name="s4delay" minBound="1"/>
+   </paramints>
+   <parambools>
+    <parambool description="whether to use logarithmic error" value="0" name="Logarithmic"/>
+    <parambool description="whether to use the time loop error" value="1" name="TLE"/>
+   </parambools>
+  </Configurable>
+ </ConfigurableState>
+</ConfigurableStates>
