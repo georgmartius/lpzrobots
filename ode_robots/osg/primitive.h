@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.28  2011-01-02 23:09:52  martius
+ *   Revision 1.29  2011-06-27 08:51:31  martius
+ *   added counter for velocity violations
+ *
+ *   Revision 1.28  2011/01/02 23:09:52  martius
  *   texture handling of boxes changed
  *   playground walls changed
  *
@@ -233,6 +236,11 @@ osg::Matrix osgPose( const double * position , const double * rotation );
 /// converts the rotation component of pose into an ode rotation matrix
 void odeRotation( const osg::Matrix& pose , dMatrix3& odematrix);
 
+/** counts number of max velocity violations at joints 
+ * (Attention, this is a global variable, initialized to 0 at start)   
+ */ 
+extern int globalNumVelocityViolations;
+
 /**
    Interface class for primitives represented in the physical and graphical world.
    This is intended to bring OSG and ODE together and hide most implementation details.
@@ -362,6 +370,8 @@ public:
     destroyGeom = _destroyGeom;
   }
 
+  int getNumVelocityViolations(){ return numVelocityViolations; }
+
   void setSubstance(Substance substance);
 
   /* **** storable interface *******/
@@ -383,6 +393,7 @@ protected:
   dBodyID body;
   char mode;
   bool substanceManuallySet;
+  int numVelocityViolations; ///< number of times the maximal velocity was exceeded
 
   // 20091023; guettler:
   // hack for tasked simulations; there are some problems if running in parallel mode,

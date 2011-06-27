@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.35  2011-01-02 23:09:52  martius
+ *   Revision 1.36  2011-06-27 08:51:31  martius
+ *   added counter for velocity violations
+ *
+ *   Revision 1.35  2011/01/02 23:09:52  martius
  *   texture handling of boxes changed
  *   playground walls changed
  *
@@ -247,6 +250,12 @@ namespace lpzrobots{
   // if you do not destroy the geom, everything is fine (should be no problem because world is destroying geoms too)
   bool Primitive::destroyGeom = true; // this is the default case, is set to false in SimulationTaskSupervisor
 
+  /** counts number of max velocity violations at joints 
+   * (Attention, this is a global variable, initialized to 0 at start)   
+   */ 
+  int globalNumVelocityViolations = 0;
+
+
   // returns the osg (4x4) pose matrix of the ode geom
   osg::Matrix osgPose( dGeomID geom ){
     return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));
@@ -279,7 +288,7 @@ namespace lpzrobots{
   /******************************************************************************/
 
   Primitive::Primitive() 
-    : geom(0), body(0), substanceManuallySet(false) {
+    : geom(0), body(0), substanceManuallySet(false), numVelocityViolations(0) {
   }
 
   Primitive::~Primitive () {
@@ -449,6 +458,8 @@ namespace lpzrobots{
     double vellen = vel[0]*vel[0]+vel[1]*vel[1]+vel[2]*vel[2];
     if(vellen > maxVel*maxVel){
       fprintf(stderr, ".");
+      numVelocityViolations++;
+      globalNumVelocityViolations++;
       double scaling = sqrt(vellen)/maxVel;
       dBodySetLinearVel(body, vel[0]/scaling, vel[1]/scaling, vel[2]/scaling);
       return true;
