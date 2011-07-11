@@ -1,9 +1,9 @@
 TEMPLATE = lib
-TARGET = libconfigurator
-DEPENDPATH += . ./qconfigurable
-INCLUDEPATH += . /$(HOME)/include ./qconfigurable ../selforg/include
+TARGET = configurator
+DEPENDPATH += . ./src/qconfigurable ./include/configurator
+INCLUDEPATH += . /$(HOME)/include ./src/qconfigurable ../selforg/include ./include/configurator
 LIBS += -L$(HOME)/lib -lselforg_dbg -L../selforg
-CONFIG += debug 
+CONFIG += debug staticlib
 QMAKE_CXXFLAGS += -Wno-deprecated -Wno-unused-parameter
 
 OBJECTS_DIR = obj
@@ -14,42 +14,44 @@ QT = core gui xml
 
 #ecbrobots
 # Input - Header
-HEADERS   += QExtAction.h
-HEADERS   += QConfigurator.h
-HEADERS   += QLogViewWidget.h
+HEADERS   += src/QExtAction.h
+HEADERS   += src/QConfigurator.h
+HEADERS   += src/QLogViewWidget.h
+HEADERS   += include/configurator/ConfiguratorProxy.h
 
 
 # Input - Sources
-SOURCES   += QExtAction.cpp
-SOURCES   += QConfigurator.cpp
-SOURCES   += QLogViewWidget.cpp
+SOURCES   += src/QExtAction.cpp
+SOURCES   += src/QConfigurator.cpp
+SOURCES   += src/QLogViewWidget.cpp
+SOURCES   += src/ConfiguratorProxy.cpp
 
 
 #-----------------------------------------------------------
 #qconfigurable
 # Input - Header
-HEADERS   +=qconfigurable/QConfigurableWidget.h
-HEADERS   +=qconfigurable/QAbstractConfigurableTileWidget.h
-HEADERS   +=qconfigurable/QBoolConfigurableTileWidget.h
-HEADERS   +=qconfigurable/QValConfigurableTileWidget.h
-HEADERS   +=qconfigurable/QIntConfigurableTileWidget.h
-HEADERS   +=qconfigurable/QDummyConfigurableTileWidget.h
-HEADERS   +=qconfigurable/QConfigurableTileShowHideDialog.h
-HEADERS   +=qconfigurable/QConfigurableSetBoundsDialog.h
-HEADERS   +=qconfigurable/QConfigurableLoadSaveDialog.h
-HEADERS   +=qconfigurable/QChangeNumberTileColumnsDialog.h
-HEADERS   +=qconfigurable/QGridPos.h
+HEADERS   +=src/qconfigurable/QConfigurableWidget.h
+HEADERS   +=src/qconfigurable/QAbstractConfigurableTileWidget.h
+HEADERS   +=src/qconfigurable/QBoolConfigurableTileWidget.h
+HEADERS   +=src/qconfigurable/QValConfigurableTileWidget.h
+HEADERS   +=src/qconfigurable/QIntConfigurableTileWidget.h
+HEADERS   +=src/qconfigurable/QDummyConfigurableTileWidget.h
+HEADERS   +=src/qconfigurable/QConfigurableTileShowHideDialog.h
+HEADERS   +=src/qconfigurable/QConfigurableSetBoundsDialog.h
+HEADERS   +=src/qconfigurable/QConfigurableLoadSaveDialog.h
+HEADERS   +=src/qconfigurable/QChangeNumberTileColumnsDialog.h
+HEADERS   +=src/qconfigurable/QGridPos.h
 
-# Input - Header
-SOURCES   +=qconfigurable/QConfigurableWidget.cpp
-SOURCES   +=qconfigurable/QAbstractConfigurableTileWidget.cpp
-SOURCES   +=qconfigurable/QBoolConfigurableTileWidget.cpp
-SOURCES   +=qconfigurable/QValConfigurableTileWidget.cpp
-SOURCES   +=qconfigurable/QIntConfigurableTileWidget.cpp
-SOURCES   +=qconfigurable/QDummyConfigurableTileWidget.cpp
-SOURCES   +=qconfigurable/QConfigurableTileShowHideDialog.cpp
-SOURCES   +=qconfigurable/QConfigurableSetBoundsDialog.cpp
-SOURCES   +=qconfigurable/QConfigurableLoadSaveDialog.cpp
-SOURCES   +=qconfigurable/QChangeNumberTileColumnsDialog.cpp
+# Input - Sources
+SOURCES   +=src/qconfigurable/QConfigurableWidget.cpp
+SOURCES   +=src/qconfigurable/QAbstractConfigurableTileWidget.cpp
+SOURCES   +=src/qconfigurable/QBoolConfigurableTileWidget.cpp
+SOURCES   +=src/qconfigurable/QValConfigurableTileWidget.cpp
+SOURCES   +=src/qconfigurable/QIntConfigurableTileWidget.cpp
+SOURCES   +=src/qconfigurable/QDummyConfigurableTileWidget.cpp
+SOURCES   +=src/qconfigurable/QConfigurableTileShowHideDialog.cpp
+SOURCES   +=src/qconfigurable/QConfigurableSetBoundsDialog.cpp
+SOURCES   +=src/qconfigurable/QConfigurableLoadSaveDialog.cpp
+SOURCES   +=src/qconfigurable/QChangeNumberTileColumnsDialog.cpp
 
 
