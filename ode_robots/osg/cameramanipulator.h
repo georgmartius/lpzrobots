@@ -24,7 +24,11 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2010-06-03 13:40:59  guettler
+ *   Revision 1.9  2011-08-04 16:43:53  martius
+ *   guilogger is positioned beside simulation window (can still be improved)
+ *   ctrl-h can be used to move observed agent to 0,0,0 position
+ *
+ *   Revision 1.8  2010/06/03 13:40:59  guettler
  *   - added method setCameraMode(modenumber): 1 - static, 2 - follow, 3 - TV, 4 - race
  *   - added method setWatchingAgent(agent)
  *
@@ -186,7 +190,10 @@ namespace lpzrobots {
        * Sets the agent to be watched with the camera.
        * @param agent to set
        */
-      virtual void setWatchingAgent(OdeAgent* agent);
+      virtual void setWatchedAgent(OdeAgent* agent);
+
+      /// returns watched agent
+      virtual OdeAgent* getWatchedAgent();
 
     protected:
 

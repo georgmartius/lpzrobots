@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.30  2011-06-03 13:42:48  martius
+ *   Revision 1.31  2011-08-04 16:43:53  martius
+ *   guilogger is positioned beside simulation window (can still be improved)
+ *   ctrl-h can be used to move observed agent to 0,0,0 position
+ *
+ *   Revision 1.30  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -213,7 +217,7 @@ public:
     conf.irSide=false;
     conf.irRange=3;
     conf.singleMotor=false;
-	  conf.visForce=false;
+    conf.visForce=false;
     conf.boxMode=false;
     conf.boxWidth=1.0;
     conf.wheelTexture="Images/tire.rgb";

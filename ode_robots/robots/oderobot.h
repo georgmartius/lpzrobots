@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.14  2011-06-03 13:42:48  martius
+ *   Revision 1.15  2011-08-04 16:43:53  martius
+ *   guilogger is positioned beside simulation window (can still be improved)
+ *   ctrl-h can be used to move observed agent to 0,0,0 position
+ *
+ *   Revision 1.14  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -270,12 +274,18 @@ namespace lpzrobots {
     /// returns a list of all primitives of the robot (used to store and restore the robot)
     virtual std::vector<Primitive*> getAllPrimitives() const { return objects; };
     /// returns a list of all primitives of the robot (const version) (used to store and restore the robot)
-    
-    /* **************** Storable interface ********** */
+
+    /* ********** STORABLE INTERFACE **************** */
     virtual bool store(FILE* f) const;
     
     virtual bool restore(FILE* f);  
+    /* ********** END STORABLE INTERFACE ************ */
 
+    /** relocates robot to new postion (keep current pose)
+        such that lowest body part is at the given position 
+        (the center of it, so the bounding box is not checked)
+     */
+    virtual void moveToPosition(Pos pos = Pos(0,0,0.5));
 
   protected:
     

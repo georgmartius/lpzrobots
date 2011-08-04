@@ -28,7 +28,11 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.54  2011-05-30 13:56:42  martius
+ *   Revision 1.55  2011-08-04 16:43:53  martius
+ *   guilogger is positioned beside simulation window (can still be improved)
+ *   ctrl-h can be used to move observed agent to 0,0,0 position
+ *
+ *   Revision 1.54  2011/05/30 13:56:42  martius
  *   clean up: moved old code to oldstuff
  *   configable changed: notifyOnChanges is now used
  *    getParam,setParam, getParamList is not to be overloaded anymore
@@ -69,7 +73,7 @@
  *
  *   Revision 1.46  2010/06/03 13:40:59  guettler
  *   - added method setCameraMode(modenumber): 1 - static, 2 - follow, 3 - TV, 4 - race
- *   - added method setWatchingAgent(agent)
+ *   - added method setWatchedAgent(agent)
  *
  *   Revision 1.45  2010/03/23 13:37:48  martius
  *   added graphics update function since we need to call it also for offscreen rendering
@@ -446,7 +450,7 @@ namespace lpzrobots {
      * Sets the agent to be watched with the camera.
      * @param agent to set
      */
-    void setWatchingAgent(OdeAgent* agent);
+    void setWatchedAgent(OdeAgent* agent);
 
     static void nearCallback_TopLevel(void *data, dGeomID o1, dGeomID o2);
     static void nearCallback(void *data, dGeomID o1, dGeomID o2);

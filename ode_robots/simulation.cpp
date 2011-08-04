@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.146  2011-06-09 16:01:05  martius
+ *   Revision 1.147  2011-08-04 16:43:53  martius
+ *   guilogger is positioned beside simulation window (can still be improved)
+ *   ctrl-h can be used to move observed agent to 0,0,0 position
+ *
+ *   Revision 1.146  2011/06/09 16:01:05  martius
  *   add help for o/O
  *   soxexpand: getter and setter
  *
@@ -1390,7 +1394,8 @@ namespace lpzrobots {
       case 7 : // Ctrl - g
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
 	  if(!(*i)->removePlotOption(GuiLogger)) {
-	    PlotOption po(GuiLogger, guiloggerinterval);
+	    PlotOption po(GuiLogger, guiloggerinterval, 
+                          "-geometry +" + std::itos(windowWidth+12) + "+0");
 	    (*i)->addAndInitPlotOption(po);
 	  }
 	}
@@ -1405,14 +1410,30 @@ namespace lpzrobots {
 	}
 	handled=true;
 	break;
+      case 8 : // Ctrl - h
+        {
+          osgGA::MatrixManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
+          if(!mm) break;
+          CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
+          if(!cameramanipulator) break;
+          OdeAgent* agent = cameramanipulator->getWatchedAgent();
+          if(agent && agent->getRobot()){
+            agent->getRobot()->moveToPosition(Pos(0,0,.5));
+          }
+        }
+	handled=true;
+	break;
+
       case 65450: // keypad *  // normal * is allready used by LOD
 	globalData.odeConfig.setParam("realtimefactor", 0);
-	std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor") << std::endl;
+	//std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor") 
+        //  << std::endl; // shown in the  hud anyway
 	handled=true;
 	break;
       case 65455: // keypad /
         globalData.odeConfig.setParam("realtimefactor", 1);
-        std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor") << std::endl;
+        //std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor")
+        //  << std::endl; // shown in the  hud anyway
         handled=true;
         break;
       case 65451: // keypad +
@@ -1529,6 +1550,7 @@ namespace lpzrobots {
     au.addKeyboardMouseBinding("Simulation: Ctrl-f","File-Logging on/off");
     au.addKeyboardMouseBinding("Simulation: Ctrl-g","Restart the Gui-Logger");
     au.addKeyboardMouseBinding("Simulation: Ctrl-m","Restart the MatrixViz");
+    au.addKeyboardMouseBinding("Simulation: Ctrl-h","Move watched agent to (0,0,0) position");
     au.addKeyboardMouseBinding("Simulation: Ctrl-r","Start/Stop video recording");
     au.addKeyboardMouseBinding("Simulation: Ctrl-p","Pause on/off");
     au.addKeyboardMouseBinding("Simulation: +","increase simulation speed (realtimefactor)");
@@ -1620,7 +1642,8 @@ namespace lpzrobots {
 	guiloggerinterval=atoi(argv[index]);
       if (guiloggerinterval<1) // avoids a bug
         guiloggerinterval=5; // default value
-      plotoptions.push_back(PlotOption(GuiLogger, guiloggerinterval));
+      plotoptions.push_back(PlotOption(GuiLogger, guiloggerinterval, 
+                                       "-geometry +" + std::itos(windowWidth+12) + "+0"));
     }
 
 // logging to file
@@ -1974,13 +1997,13 @@ namespace lpzrobots {
     }
   }
 
-  void Simulation::setWatchingAgent(OdeAgent* agent) {
+  void Simulation::setWatchedAgent(OdeAgent* agent) {
     if (agent && !noGraphics) {
       osgGA::MatrixManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
       if(mm) {
         CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
         if(cameramanipulator)
-          cameramanipulator->setWatchingAgent(agent);
+          cameramanipulator->setWatchedAgent(agent);
       }
 
     }

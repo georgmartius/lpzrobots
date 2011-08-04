@@ -21,7 +21,11 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2011-06-09 16:01:05  martius
+ *   Revision 1.14  2011-08-04 16:43:53  martius
+ *   guilogger is positioned beside simulation window (can still be improved)
+ *   ctrl-h can be used to move observed agent to 0,0,0 position
+ *
+ *   Revision 1.13  2011/06/09 16:01:05  martius
  *   add help for o/O
  *   soxexpand: getter and setter
  *
@@ -148,6 +152,26 @@ namespace lpzrobots {
     return false;
   }
 
+  void OdeRobot::moveToPosition(Pos pos){
+    const vector<Primitive*>& ps = this->getAllPrimitives();
+    double min=10e8;
+    Pos robpos; // reference position of robot (we use the lowest body part)
+    // find lowest body part and its position
+    FOREACHC(vector<Primitive*>, ps, p){
+      double z = (*p)->getPosition().z();
+      if(z<min){
+        z=min;
+        robpos=(*p)->getPosition();
+      }
+    }
+    // move robot
+    FOREACHC(vector<Primitive*>, ps, p){
+      Pos local = (*p)->getPosition() - robpos; // relative local position of that primitive
+      (*p)->setPosition(pos+local);
+    }
+  }
+
+
   /*********** BEGIN TRACKABLE INTERFACE ****************/
   
   /** returns position of the object
@@ -189,6 +213,8 @@ matrix::Matrix OdeRobot::getOrientation() const {
   }
 }
   
+
+
   /*********** END TRACKABLE INTERFACE ****************/
 
 

@@ -23,7 +23,11 @@
  *                                                                         *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2010-09-24 13:37:51  martius
+ *   Revision 1.26  2011-08-04 16:43:53  martius
+ *   guilogger is positioned beside simulation window (can still be improved)
+ *   ctrl-h can be used to move observed agent to 0,0,0 position
+ *
+ *   Revision 1.25  2010/09/24 13:37:51  martius
  *   balls for interaction with the mouse are again colored
  *   damping increased
  *
@@ -533,7 +537,7 @@ namespace lpzrobots {
     assert(fkey>0);
     camHandle.watchingAgentDefined=false;
     if(globalData.agents.size() >= (unsigned) fkey){
-      setWatchingAgent(globalData.agents[fkey-1]);
+      setWatchedAgent(globalData.agents[fkey-1]);
     }
   }
 
@@ -699,7 +703,7 @@ namespace lpzrobots {
     }
   }
 
-  void CameraManipulator::setWatchingAgent(OdeAgent* agent) {
+  void CameraManipulator::setWatchedAgent(OdeAgent* agent) {
     if (agent) {
       camHandle.watchingAgent = agent;
       camHandle.watchingAgentDefined = true;
@@ -709,6 +713,11 @@ namespace lpzrobots {
       // maybe highlight agent here
       camHandle.oldPositionOfAgentDefined=false;
     }
+  }
+
+  OdeAgent* CameraManipulator::getWatchedAgent() {   
+    if (!this->isWatchingAgentDefined()) return 0;
+    return camHandle.watchingAgent;
   }
 
 }
