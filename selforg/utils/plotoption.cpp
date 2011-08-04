@@ -27,7 +27,10 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.9  2010-10-18 15:16:06  martius
+ *  Revision 1.10  2011-08-04 16:44:57  martius
+ *  guilogger gets parameters string
+ *
+ *  Revision 1.9  2010/10/18 15:16:06  martius
  *  MatrixVis to MatrixViz
  *
  *  Revision 1.8  2010/07/11 22:04:13  martius
@@ -97,7 +100,8 @@ bool PlotOption::open(){
     pipe=popen("guilogger -m pipe -l","w");
     break;
   case GuiLogger:
-    pipe=popen("guilogger -m pipe","w");
+    sprintf(cmd, "guilogger -m pipe %s", parameter.c_str());
+    pipe=popen(cmd,"w");
     break;
   case MatrixViz:
     pipe=popen("matrixviz","w");
