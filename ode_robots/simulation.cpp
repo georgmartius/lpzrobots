@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.147  2011-08-04 16:43:53  martius
+ *   Revision 1.148  2011-08-31 07:57:59  martius
+ *   removed realtimefactor prints on console
+ *
+ *   Revision 1.147  2011/08/04 16:43:53  martius
  *   guilogger is positioned beside simulation window (can still be improved)
  *   ctrl-h can be used to move observed agent to 0,0,0 position
  *
@@ -1448,7 +1451,7 @@ namespace lpzrobots {
 	    globalData.odeConfig.setParam("realtimefactor", rf+0.1);
 	  else
 	    globalData.odeConfig.setParam("realtimefactor", 0.1);
-	  std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
+          //	  std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
 	  handled=true;
 	}
 	break;
