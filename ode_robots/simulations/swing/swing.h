@@ -48,6 +48,8 @@ namespace lpzrobots {
 
     bool   useVelocityServos; ///< if true the more stable velocity controlling servos are used
     bool   useOrientationSensor; ///< if true the orienation of the swing is available as sensor value
+    bool   useSpeedSensor      ; ///< if true the rotational speed of the swing is available as sensor value
+    bool   useModifiedSensors  ; ///< if true all sensors are multiplied with the speed of the swing
     bool fixArms; 
 
     double relLegmass; ///< relative overall leg mass
@@ -89,8 +91,8 @@ namespace lpzrobots {
     double backVelocity; ///< velocity of back joint servo
     double backJointLimit; ///< angle range of back joint
 
-    double powerfactor; ///< scale factor for maximal forces of the servos
-    double dampingfactor; ///< scale factor for damping of the servos
+    double powerFactor; ///< scale factor for maximal forces of the servos
+    double dampingFactor; ///< scale factor for damping of the servos
     
     double jointLimitFactor; ///< factor between servo range (XXXJointLimit, see above) and physical joint limit
 
@@ -155,12 +157,14 @@ namespace lpzrobots {
       c.swingWidth   = 1.2; 
 	
       c.useOrientationSensor = false; 
+      c.useSpeedSensor = false; 
+      c.useModifiedSensors = false; 
       c.fixArms=true;
 
 
       c.useVelocityServos = false;
-      c.powerfactor=1.0;
-      c.dampingfactor=1.0;
+      c.powerFactor=1.0;
+      c.dampingFactor=1.0;
       c.jointLimitFactor=1.0;
 
       c.hipPower=100;
@@ -236,7 +240,7 @@ namespace lpzrobots {
       SwingConf c = getDefaultConf();
 
       c.useVelocityServos = true;
-      c.dampingfactor=0.1; // softness 
+      c.dampingFactor=0.1; // softness 
       
 /*       c.hipDamping= 0.01; */
 /*       c.hip2Damping=0.01; */
@@ -297,7 +301,7 @@ namespace lpzrobots {
 
     
     
-    virtual bool setParam(const paramkey& key, paramval val);
+    virtual bool setParam(const paramkey& key, paramval val, bool useChilds = true);
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }
@@ -346,6 +350,7 @@ namespace lpzrobots {
 
     RaySensorBank irSensorBank;
     Sensor* orientation;
+    Sensor* speedsensor;
 
     BallJoint*  hand_swing[2];
     PID hand_pid[2];
