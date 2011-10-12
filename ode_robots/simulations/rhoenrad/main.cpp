@@ -150,11 +150,12 @@ public:
        fixator->init(odeHandle, osgHandle);
      }
 
+     // attention: This sox here is now called SoML in selforg/controller
      SoXConf sc = SoX::getDefaultConf();
-     sc.useHiddenContr=false;
-     sc.useHiddenModel=false;
+     sc.useHiddenContr=true;
+     sc.useHiddenModel=true;
      sc.someInternalParams=true;
-     sc.useS=false;
+     sc.useS=true;
      AbstractController* controller = new SoX(sc);
      controller->setParam("epsC",0.05);
      controller->setParam("epsA",0.05555555);

@@ -404,6 +404,7 @@ namespace lpzrobots {
     double twidth = conf.size * conf.width ;// 1/1.5;
     double theight = conf.size * conf.height; // 1/4;
     trunk = new Box(conf.size, twidth, theight);
+    // trunk = new Capsule(twidth,conf.size);
     trunk->setTexture("Images/toy_fur3.jpg");
     trunk->init(odeHandle, conf.mass*conf.percentageBodyMass, osgHandle);
     osg::Matrix trunkPos = TRANSM(0,0,conf.legLength)*pose;
