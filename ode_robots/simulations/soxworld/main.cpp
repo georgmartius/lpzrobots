@@ -222,10 +222,11 @@ public:
      //     AbstractController* controller = new BasicController(cc);
      //   AbstractController* controller = new SineController(1<<14); // only motor 14
      //controller = new MotorBabbler();
-     controller = new SineController(/*,SineController::Impulse*/);
-     controller->setParam("phaseshift",0);
-     controller->setParam("period",100);
-     controller->setParam("amplitude",.7);      
+     // controller = new SineController(/*,SineController::Impulse*/);
+     // controller->setParam("phaseshift",0);
+     // controller->setParam("period",100);
+     // controller->setParam("amplitude",.7);
+      
       
      // create pointer to one2onewiring
      One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
