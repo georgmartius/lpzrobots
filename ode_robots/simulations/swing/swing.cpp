@@ -35,6 +35,7 @@
 #include <ode_robots/irsensor.h>
 
 #include <ode_robots/axisorientationsensor.h>
+#include <ode_robots/speedsensor.h>
 
 // include header file
 #include "swing.h"
@@ -59,29 +60,11 @@ namespace lpzrobots {
     hand_swing[i]=0;
     }
     orientation=0;
+    speedsensor=0;
 
     //    this->osgHandle.color = Color(1.0, 1,1,1);
     // choose color here a pastel white is used
     //    this->osgHandle.color = Color(217/255.0, 209/255.0, 109/255.0, 1.0f);
-    conf.hipPower*= conf.powerfactor;   
-    conf.hip2Power*= conf.powerfactor;  
-    conf.pelvisPower*= conf.powerfactor;
-    conf.backPower*= conf.powerfactor;
-    conf.kneePower*= conf.powerfactor;
-    conf.anklePower*= conf.powerfactor;
-    conf.armPower*= conf.powerfactor;
-    conf.elbowPower*= conf.powerfactor;
-    conf.neckPower*= conf.powerfactor;
-
-    conf.hipDamping*= conf.dampingfactor;   
-    conf.hip2Damping*= conf.dampingfactor;  
-    conf.pelvisDamping*= conf.dampingfactor;
-    conf.backDamping*= conf.dampingfactor;
-    conf.kneeDamping*= conf.dampingfactor;
-    conf.ankleDamping*= conf.dampingfactor;
-    conf.armDamping*= conf.dampingfactor;
-    conf.elbowDamping*= conf.dampingfactor;
-    conf.neckDamping*= conf.dampingfactor;
  
     addParameter("hippower",   &conf.hipPower);
     addParameter("hipdamping",   &conf.hipDamping);
@@ -119,6 +102,9 @@ namespace lpzrobots {
     addParameter("backvelocity",   &conf.backVelocity);
     addParameter("backjointlimit",   &conf.backJointLimit);
 
+    addParameter("powerfactor",   &conf.powerFactor,0,10,"motor power factor");
+    addParameter("dampingfactor",   &conf.dampingFactor,0,10,"motor damping factor");
+
     if(conf.onlyPrimaryFunctions){            
       addInspectableDescription("x[0]","hip left sagital");
       addInspectableDescription("x[1]","hip right sagital");
@@ -134,8 +120,8 @@ namespace lpzrobots {
       addInspectableDescription("x[8]","elbow left");
       addInspectableDescription("x[9]","elbow right");      
       if(conf.useBackJoint){
-        addInspectableDescription("x[16]","back (bend)");      
-        addInspectableDescription("x[17]","back (torsion)");      
+        addInspectableDescription("x[10]","back (bend)");      
+        addInspectableDescription("x[11]","back (torsion)");      
       }
     }else{
       addInspectableDescription("x[0]","hip left sagital");
@@ -169,7 +155,7 @@ namespace lpzrobots {
 
   int Swing::getMotorNumber(){
     if(conf.onlyPrimaryFunctions)
-      return hipservos.size() + kneeservos.size() + armservos.size() + arm1servos.size() + 1/*pelvis*/ ;
+      return hipservos.size() + kneeservos.size() + arm1servos.size() + 1/*pelvis*/ ;
     else
       return hipservos.size()*2 + kneeservos.size() + ankleservos.size() + armservos.size()*2 + arm1servos.size() + 
 	1/*pelvis*/+ backservos.size() +2*headservos.size();
@@ -207,12 +193,11 @@ namespace lpzrobots {
     }
     FOREACH(vector <TwoAxisServo*>, armservos, s){
       if(conf.onlyPrimaryFunctions){
-	(*s)->set(motors[n],.5); //0
+	(*s)->set(0 ,0); //0 	n++;
       } else {
 	(*s)->set(motors[n],motors[n+1]);
-	n++;
+	n+=2;
       }
-      n++;
     }
     FOREACH(vector <OneAxisServo*>, arm1servos, s){
       (*s)->set(motors[n]);
@@ -276,6 +261,8 @@ namespace lpzrobots {
 
     if(orientation)
       numberSensors += orientation->getSensorNumber();
+    if(conf.useSpeedSensor)
+      numberSensors += speedsensor->getSensorNumber();
 
     return numberSensors;     
   }
@@ -352,8 +339,18 @@ GUIDE adding new sensors
 
    n += irSensorBank.get(sensors+n, sensornumber-n);
 
+   if(conf.useModifiedSensors){
+     double factor=1;
+     speedsensor->get(&factor, 1);
+     for(int i=0; i<n; i++){
+       sensors[i]*=factor;
+     }
+   }
+
    if(orientation)
      n += orientation->get(sensors+n, sensornumber-n);
+   if(conf.useSpeedSensor)
+     n += speedsensor->get(sensors+n, sensornumber-n);
    
    //   // add z-headPosition as sensor and increment n!
       //   sensors[n++]=getHeadPosition().z;
@@ -999,8 +996,12 @@ GUIDE adding new sensors
         
     //
     if(conf.useOrientationSensor){
-      orientation = new AxisOrientationSensor(AxisOrientationSensor::ZProjection);
+      orientation = new AxisOrientationSensor(AxisOrientationSensor::ZProjection, AxisOrientationSensor::X | AxisOrientationSensor::Y);
       orientation->init(objects[SwingBar]);
+    }
+    if(conf.useSpeedSensor || conf.useModifiedSensors){
+      speedsensor = new SpeedSensor(2,SpeedSensor::RotationalRel, Sensor::Z);
+      speedsensor->init(objects[SwingBar]);
     }
 
             
@@ -1085,15 +1086,16 @@ GUIDE adding new sensors
   }
 
   
-  bool Swing::setParam(const paramkey& key, paramval val){    
+  bool Swing::setParam(const paramkey& key, paramval val, bool useChilds){    
     bool rv = Configurable::setParam(key, val);    
-
+    cout << "set " << conf.powerFactor << endl;
+    double pf= conf.onlyPrimaryFunctions ? 0.0 : 1.0;
     // we just set all parameters independend of what was actually changed
     FOREACH(vector<TwoAxisServo*>, hipservos, i){
       if(*i) { 
-	(*i)->setPower( conf.hipPower, conf.hip2Power);
-	(*i)->setDamping1(conf.hipDamping);
-	(*i)->setDamping2(conf.hip2Damping);
+	(*i)->setPower( conf.hipPower*conf.powerFactor, conf.hip2Power*conf.powerFactor * pf);
+	(*i)->setDamping1(conf.hipDamping*conf.dampingFactor);
+	(*i)->setDamping2(conf.hip2Damping*conf.dampingFactor);
 	(*i)->setMaxVel(conf.hipVelocity); 
 	(*i)->setMinMax1(-conf.hipJointLimit*.2, +conf.hipJointLimit);
 	(*i)->setMinMax2(-conf.hip2JointLimit*.4,+conf.hip2JointLimit);
@@ -1102,9 +1104,9 @@ GUIDE adding new sensors
     }      
     FOREACH(vector<TwoAxisServo*>, headservos, i){
       if(*i){
-	(*i)->setPower(conf.neckPower, conf.neckPower);
-	(*i)->setDamping1(conf.neckDamping);
-	(*i)->setDamping2(conf.neckDamping);
+	(*i)->setPower(conf.neckPower*conf.powerFactor, conf.neckPower*conf.powerFactor);
+	(*i)->setDamping1(conf.neckDamping*conf.dampingFactor);
+	(*i)->setDamping2(conf.neckDamping*conf.dampingFactor);
 	(*i)->setMaxVel(conf.neckVelocity); 
 	(*i)->setMinMax1(-conf.neckJointLimit, conf.neckJointLimit);
 	(*i)->setMinMax2(-conf.neckJointLimit, conf.neckJointLimit);
@@ -1112,25 +1114,25 @@ GUIDE adding new sensors
     }
     FOREACH(vector<OneAxisServo*>, kneeservos, i){
       if(*i){
-	(*i)->setPower(conf.kneePower);
-	(*i)->setDamping(conf.kneeDamping);
+	(*i)->setPower(conf.kneePower*conf.powerFactor);
+	(*i)->setDamping(conf.kneeDamping*conf.dampingFactor);
 	(*i)->setMaxVel(conf.kneeVelocity); 
 	(*i)->setMinMax(-conf.kneeJointLimit, conf.kneeJointLimit*0.1);
       } 
     }
     FOREACH(vector<OneAxisServo*>, ankleservos, i){
       if(*i){
-	(*i)->setPower(conf.anklePower);
-	(*i)->setDamping(conf.ankleDamping);
+	(*i)->setPower(conf.anklePower*conf.powerFactor*pf);
+	(*i)->setDamping(conf.ankleDamping*conf.dampingFactor);
 	(*i)->setMaxVel(conf.ankleVelocity); 
 	(*i)->setMinMax(-conf.ankleJointLimit, conf.ankleJointLimit*0.5);
       } 
     }
     FOREACH(vector<TwoAxisServo*>, armservos, i){
       if(*i){
-	(*i)->setPower(conf.armPower, conf.armPower);
-	(*i)->setDamping1(conf.armDamping);
-	(*i)->setDamping2(conf.armDamping);
+	(*i)->setPower(conf.armPower*conf.powerFactor*pf, conf.armPower*conf.powerFactor*pf);
+	(*i)->setDamping1(conf.armDamping*conf.dampingFactor);
+	(*i)->setDamping2(conf.armDamping*conf.dampingFactor);
 	(*i)->setMaxVel(conf.armVelocity); 
         //	(*i)->setMinMax1(.5, 1.8*conf.armJointLimit);
 	(*i)->setMinMax1(-conf.armJointLimit, conf.armJointLimit);
@@ -1139,23 +1141,23 @@ GUIDE adding new sensors
     }
     FOREACH(vector<OneAxisServo*>, arm1servos, i){
       if(*i){
-	(*i)->setPower(conf.elbowPower);
-	(*i)->setDamping(conf.elbowDamping);
+	(*i)->setPower(conf.elbowPower*conf.powerFactor);
+	(*i)->setDamping(conf.elbowDamping*conf.dampingFactor);
 	(*i)->setMaxVel(conf.elbowVelocity); 
 	(*i)->setMinMax(0, conf.elbowJointLimit);
       } 
     }
 
-    pelvisservo->setPower(conf.pelvisPower); 
-    pelvisservo->setDamping(conf.pelvisDamping);
+    pelvisservo->setPower(conf.pelvisPower*conf.powerFactor); 
+    pelvisservo->setDamping(conf.pelvisDamping*conf.dampingFactor);
     pelvisservo->setMaxVel(conf.pelvisVelocity);
     pelvisservo->setMinMax(-conf.pelvisJointLimit,+conf.pelvisJointLimit);
     
     int fst = true;
     FOREACH(vector<OneAxisServo*>, backservos, i){
       if(*i){
-	(*i)->setPower(conf.backPower);
-	(*i)->setDamping(conf.backDamping);
+	(*i)->setPower(conf.backPower*conf.powerFactor);
+	(*i)->setDamping(conf.backDamping*conf.dampingFactor);
 	(*i)->setMaxVel(conf.backVelocity); 
 	(*i)->setMinMax(fst? -conf.backJointLimit : -conf.backJointLimit,
 			conf.backJointLimit);
