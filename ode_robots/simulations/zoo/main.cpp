@@ -19,102 +19,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.21  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.20  2009/04/02 12:07:44  fhesse
- *   box.setTexture() before setPosition() (due to OsgBoxTex)
- *
- *   Revision 1.19  2008/09/16 19:38:14  martius
- *   sliderwheelie has different config now
- *
- *   Revision 1.18  2008/05/01 22:03:56  martius
- *   build system expanded to allow system wide installation
- *   that implies  <ode_robots/> for headers in simulations
- *
- *   Revision 1.17  2008/04/17 15:59:02  martius
- *   OSG2 port finished
- *
- *   Revision 1.16.2.1  2008/04/15 16:20:37  martius
- *   Profiling
- *   Makefiles got .conf file
- *
- *   Revision 1.16  2007/01/15 15:17:33  robot3
- *   fixed compile bug
- *
- *   Revision 1.15  2007/01/15 09:38:06  martius
- *   number of agents per type as variables on top of start function
- *   sphere gets axisorientationsensor
- *
- *   Revision 1.14  2006/09/22 06:18:56  robot8
- *   - added SliderWheelie - robot
- *
- *   Revision 1.13  2006/07/23 10:24:09  fhesse
- *   a few std:: added
- *
- *   Revision 1.12  2006/07/14 12:23:55  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.11.4.13  2006/06/25 21:57:47  martius
- *   robot names with numbers
- *
- *   Revision 1.11.4.12  2006/06/25 17:01:57  martius
- *   remove old simulations
- *   robots get names
- *
- *   Revision 1.11.4.11  2006/05/24 09:17:10  robot3
- *   snake is now colored (not blue)
- *
- *   Revision 1.11.4.10  2006/05/18 14:16:03  robot3
- *   -inserted SphereRobot3Masses
- *   -inserted CaterPillar
- *   -inserted SchlangeServo2
- *   -removed multiple same robots (performance issues)
- *   -inserted new passiveCapsules
- *   -passiveBoxes look more interesting now
- *   -wall of playground is now transparent (0.2)
- *
- *   Revision 1.11.4.9  2006/05/18 10:26:50  robot3
- *   -made the playground smaller (for shadowing issues)
- *   -changed camera homepos
- *
- *   Revision 1.11.4.8  2006/05/15 13:09:33  robot3
- *   -handling of starting guilogger moved to simulation.cpp
- *    (is in internal simulation routine now)
- *   -CTRL-F now toggles logging to the file (controller stuff) on/off
- *   -CTRL-G now restarts the GuiLogger
- *
- *   Revision 1.11.4.7  2006/05/11 12:51:25  robot3
- *   the zoo contains now passive boxes
- *
- *   Revision 1.11.4.6  2006/04/25 09:05:23  robot3
- *   caterpillar is now represented by a box
- *
- *   Revision 1.11.4.5  2006/04/11 13:28:18  robot3
- *   caterpillar is now in the zoo too
- *
- *   Revision 1.11.4.4  2006/03/28 09:55:12  robot3
- *   -main: fixed snake explosion bug
- *   -odeconfig.h: inserted cameraspeed
- *   -camermanipulator.cpp: fixed setbyMatrix,
- *    updateFactor
- *
- *   Revision 1.11.4.3  2006/01/12 15:17:30  martius
- *   *** empty log message ***
- *
- *   Revision 1.11.4.2  2005/11/16 11:27:38  martius
- *   invertmotornstep has configuration
- *
- *   Revision 1.11.4.1  2005/11/15 12:30:22  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.11  2005/11/14 13:02:39  martius
- *   new paramters
- *
- *   Revision 1.10  2005/11/09 13:41:25  martius
- *   GPL'ised
  *
  ***************************************************************************/
 #include <ode_robots/simulation.h>
@@ -126,13 +30,15 @@
 #include <ode_robots/passivebox.h>
 #include <ode_robots/passivecapsule.h>
 
-#include <selforg/invertnchannelcontroller.h>
+#include <selforg/one2onewiring.h>
+#include <selforg/selectiveone2onewiring.h>
+#include <selforg/derivativewiring.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
-#include <selforg/sinecontroller.h>
-#include <selforg/noisegenerator.h>
-#include <selforg/one2onewiring.h>
-#include <selforg/derivativewiring.h>
+
+#include <selforg/sos.h>
+#include <selforg/sox.h>
+#include <selforg/soml.h>
 
 #include <ode_robots/axisorientationsensor.h>
 
@@ -147,8 +53,93 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
+class EnvType {
+
+public:
+
+  EnvType(){
+    labyrint=false;      
+    squarecorridor=false;
+    normalplayground=false;  
+    playground=0;
+  }
+  
+  bool labyrint;
+  bool squarecorridor;
+  bool normalplayground;
+  
+  // other params
+
+
+  Playground* playground;
+
+  /** creates the Environment   
+   */
+  void create(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+              GlobalData& global, bool recreate=false){
+    if(recreate && playground){
+      // search for playground
+      ObstacleList::iterator i = find(global.obstacles.begin(), global.obstacles.end(), 
+                                      playground);
+      if(i != global.obstacles.end()){
+        global.obstacles.erase(i);
+      }
+      delete playground;
+      playground=0;
+    }
+    if(normalplayground){
+      playground = new Playground(odeHandle, osgHandle,osg::Vec3(20, 0.2, 1), 1);
+      playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
+      playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
+      global.obstacles.push_back(playground);
+    }
+
+
+    if(squarecorridor){
+      playground = new Playground(odeHandle, osgHandle,osg::Vec3(15, 0.2, 1.2 ), 1);
+      playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
+      playground->setGroundTexture("Images/really_white.rgb");    
+      playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
+      playground->setPosition(osg::Vec3(0,0,0.1));
+      playground->setTexture("");
+      global.obstacles.push_back(playground);
+      //     // inner playground
+      playground = new Playground(odeHandle, osgHandle,osg::Vec3(10, 0.2, 1.2), 1, false);
+      playground->setColor(Color(255/255.0,200/255.0,0/255.0, 0.1));
+      playground->setPosition(osg::Vec3(0,0,0.1));
+      playground->setTexture("");
+      global.obstacles.push_back(playground);
+    }
+
+    if(labyrint){
+      double radius=7.5;
+      playground = new Playground(odeHandle, osgHandle,osg::Vec3(radius*2+1, 0.2, 5 ), 1);
+      playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
+      playground->setGroundTexture("Images/really_white.rgb");    
+      playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
+      playground->setPosition(osg::Vec3(0,0,0.1));
+      playground->setTexture("");
+      global.obstacles.push_back(playground);
+      int obstanz=30;
+      OsgHandle rotOsgHandle = osgHandle.changeColor(Color(255/255.0, 47/255.0,0/255.0));
+      OsgHandle gruenOsgHandle = osgHandle.changeColor(Color(0,1,0));
+      for(int i=0; i<obstanz; i++){
+        PassiveBox* s = new PassiveBox(odeHandle, (i%2)==0 ? rotOsgHandle : gruenOsgHandle, 
+                                       osg::Vec3(random_minusone_to_one(0)+1.2, 
+                                                 random_minusone_to_one(0)+1.2 ,1),5);
+        s->setPose(osg::Matrix::translate(radius/(obstanz+10)*(i+10),0,i) 
+                   * osg::Matrix::rotate(2*M_PI/obstanz*i,0,0,1)); 
+        global.obstacles.push_back(s);    
+      }
+    }
+  }
+};
+
+
 class ThisSim : public Simulation {
 public:
+
+  EnvType env;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
@@ -168,16 +159,13 @@ public:
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
 
     global.odeConfig.setParam("noise",0.05);
-    global.odeConfig.setParam("controlinterval",2);
+    global.odeConfig.setParam("controlinterval",4);
     global.odeConfig.setParam("realtimefactor",1);
-    // initialization
-    
-    Playground* playground = 
-      new Playground(odeHandle, osgHandle,osg::Vec3(18, 0.2, 1.0));
-    playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-    global.obstacles.push_back(playground);
-    
+
+    // environemnt type
+    env.normalplayground=true;
+    env.create(odeHandle, osgHandle, global);
+       
     for(int i=0; i<5; i++){
       PassiveSphere* s = 
 	new PassiveSphere(odeHandle, 
@@ -363,10 +351,7 @@ public:
       global.agents.push_back(agent);
       global.configs.push_back(controller);
       global.configs.push_back(mySliderWheelie);   
-    }
-
-    
-    
+    }    
   }
   
   // add own key handling stuff here, just insert some case values
