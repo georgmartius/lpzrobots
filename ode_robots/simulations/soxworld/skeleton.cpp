@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-06-03 13:42:48  martius
+ *   Revision 1.8  2011-10-12 13:34:51  der
+ *   constructor
+ *
+ *   Revision 1.7  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -157,7 +160,7 @@ namespace lpzrobots {
   // - give handle for ODE and OSG stuff
   Skeleton::Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 	   SkeletonConf& c, const std::string& name)
-    : OdeRobot(odeHandle, osgHandle, name, "$Id$"), conf(c)
+    : OdeRobot(odeHandle, osgHandle, name, "$Id$"), Inspectable("Skeleton"), conf(c) 
   { 
     // robot is not created till now
     created=false;
