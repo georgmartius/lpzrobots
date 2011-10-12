@@ -59,7 +59,7 @@ namespace lpzrobots {
   // - give handle for ODE and OSG stuff
   Hexapod::Hexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
 		   const HexapodConf& c, const std::string& name)
-    : OdeRobot(odeHandle, osgHandle, name, "HexaPod 0.9"), conf(c)
+    : OdeRobot(odeHandle, osgHandle, name, "HexaPod 0.9"), Inspectable("Hexapod"), conf(c)
   { 
     // robot is not created till now
     t = 0;

@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2011-05-30 21:57:16  martius
+ *   Revision 1.9  2011-10-12 13:41:04  der
+ *   *** empty log message ***
+ *
+ *   Revision 1.8  2011/05/30 21:57:16  martius
  *   store and restore from console improved
  *   console width automatically adapted
  *
@@ -68,6 +71,7 @@
 
 #include <ode_robots/odeagent.h>
 #include <ode_robots/playground.h>
+#include <ode_robots/octaplayground.h>
 #include <ode_robots/complexplayground.h>
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
@@ -80,7 +84,10 @@
 #include <selforg/feedbackwiring.h>
 #include <selforg/stl_adds.h>
 #include <selforg/soml.h>
+#include <selforg/derinf.h>
 
+
+#include "sox.h"
 #include <ode_robots/hexapod.h>
 //#include "hexapod.h"
 
@@ -109,19 +116,26 @@ public:
   {
     setCameraHomePos(Pos(-0.0114359, 6.66848, 0.922832),  Pos(178.866, -7.43884, 0));
 
-    global.odeConfig.setParam("noise", 0.05);
-    global.odeConfig.setParam("controlinterval", 1);
+    global.odeConfig.setParam("noise", 0.0005);
+    global.odeConfig.setParam("controlinterval", 2);
     global.odeConfig.setParam("cameraspeed", 250);
-
+    global.odeConfig.setParam("gravity", -4);
+    //setupPlaygrounds(odeHandle, osgHandle, global,  Normal);
     // use Playground as boundary:
 //    playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
 //     // playground->setColor(Color(0,0,0,0.8)); 
 //     playground->setGroundColor(Color(2,2,2,1)); 
 //     playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
-//     global.obstacles.push_back(playground);    
+//     global.obstacles.push_back(playground); 
+    int diam = 80;
+    OctaPlayground* playground3 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/4*diam, 5*diam,/*Height*/ .2), 12,false);
+    //  playground3->setColor(Color(.0,0.2,1.0,1));
+    playground3->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    global.obstacles.push_back(playground3);
+   
     controller=0;
 
-    addParameter("gamma_s",&teacher);
+    //    addParameter("gamma_s",&teacher);
     global.configs.push_back(this);
 
     for(int i=0; i< bars; i++){
@@ -132,15 +146,21 @@ public:
     }
       
     /*******  H E X A P O D  *********/
+    int numhexapods = 1; 
+    for ( int ii = 0; ii< numhexapods; ii++){
+
     HexapodConf myHexapodConf = Hexapod::getDefaultConf();
-    myHexapodConf.coxaPower=2.0;
-    myHexapodConf.tebiaPower=1.6;
+    myHexapodConf.coxaPower= .8;//1.0;//1.3;//2.0;
+    myHexapodConf.tebiaPower= .5;//1.2;//1.6;
+    myHexapodConf.coxaJointLimitV =.6;// M_PI/8;  ///< angle range for vertical direction of legs
+    myHexapodConf.coxaJointLimitH = 1;//M_PI/4;
+    myHexapodConf.tebiaJointLimit = 1.5;// M_PI/4; // +- 45 degree
     myHexapodConf.percentageBodyMass=.5;
+    // if ( ii =0 )
     myHexapodConf.useBigBox=true;
     myHexapodConf.tarsus=true;
     myHexapodConf.numTarsusSections = 1;
     myHexapodConf.useTarsusJoints = true;
-
 
     OdeHandle rodeHandle = odeHandle;
     rodeHandle.substance.toRubber(20);
@@ -150,27 +170,32 @@ public:
 			  myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
 
     // on the top
-    vehicle->place(osg::Matrix::rotate(M_PI*0,1,0,0)*osg::Matrix::translate(0,0,1));
+    vehicle->place(osg::Matrix::rotate(M_PI*0,1,0,0)*osg::Matrix::translate(0,0,1+ 2*ii));
     // normal position
     //    vehicle->place(osg::Matrix::translate(0,0,0));
 
 //     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
 //     cc.cInit=1.0;
 //     cc.useS=false;
-//     cc.someInternalParams=true;
+    //    cc.someInternalParams=true;
 //     InvertMotorNStep *semox = new InvertMotorNStep(cc);  
 //     semox->setParam("steps", 1);
 //     semox->setParam("continuity", 0.005);
 //     semox->setParam("teacher", teacher);
 
-    SoMLConf sc = SoML::getDefaultConf();
-    sc.useHiddenContr=true;
-    sc.useHiddenModel=false;
-    sc.someInternalParams=false;
-    sc.useS=false;
-    SoML* sox = new SoML(sc);
-    sox->setParam("epsC",0.05);
+    // SoMLConf sc = SoML::getDefaultConf();
+    // sc.useHiddenContr=true;
+    // sc.useHiddenModel=true;
+    // sc.someInternalParams=false;
+    // sc.useS=false;
+    // SoML* sox = new SoML(sc);
+    // sox->setParam("epsC",0.105);
+    // sox->setParam("epsA",0.05);
+
+    Sox* sox = new Sox(1.2, false);
+    sox->setParam("epsC",0.105);
     sox->setParam("epsA",0.05);
+
 
     SeMoXConf cc = SeMoX::getDefaultConf();    
     //cc.cInit=.95;
@@ -178,6 +203,13 @@ public:
     cc.modelExt=false;
     cc.someInternalParams=true;
     SeMoX* semox = new SeMoX(cc);  
+
+    DerInfConf dc = DerInf::getDefaultConf();    
+    dc.cInit=.599;
+    dc.someInternalParams=false;
+    AbstractController* derinf = new DerInf(dc);  
+    derinf->setParam("epsC",0.1);
+    derinf->setParam("epsA",0.05);
 
     AbstractController* sine = 0;
     if(useSineController){
@@ -201,7 +233,8 @@ public:
       controller = sine;
     }else{
       //      controller = semox;
-      controller = sox;
+     controller = sox;
+      // controller = derinf; 
     }
 
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -217,12 +250,12 @@ public:
 
     //agent->startMotorBabblingMode(5000);
 
-    this->getHUDSM()->setColor(Color(1.0,1.0,0));
-    this->getHUDSM()->setFontsize(18);    
-    this->getHUDSM()->addMeasure(teacher,"gamma_s",ID,1);
+    // this->getHUDSM()->setColor(Color(1.0,1.0,0));
+    // this->getHUDSM()->setFontsize(18);    
+    // this->getHUDSM()->addMeasure(teacher,"gamma_s",ID,1);
     
   }
-
+  }
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(control && controller){
       if(teacher){	
@@ -238,14 +271,14 @@ public:
    
   }
 
-  // overloaded from configurable
-  virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren){
-    bool rv = Configurable::setParam(key,val);
-    if(key=="gamma_s"){
-      controller->setParam("gamma_teach", teacher); 
-    }
-    return rv;
-  }
+  // // overloaded from configurable
+  // virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren){
+  //   bool rv = Configurable::setParam(key,val);
+  //   if(key=="gamma_s"){
+  //     controller->setParam("gamma_teach", teacher); 
+  //   }
+  //   return rv;
+  // }
 
 };
 
@@ -264,7 +297,7 @@ int main (int argc, char **argv)
 
   ThisSim sim;
   sim.setGroundTexture("Images/green_velour_wb.rgb");
-  sim.setCaption("lpzrobots Simulator               de Chambrier, Martius 2010");
+  sim.setCaption("lpzrobots Simulator Homeokinesis -  Multilayer NN");
   return sim.run(argc, argv) ? 0 :  1;
 }
 
