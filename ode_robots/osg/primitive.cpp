@@ -23,7 +23,10 @@
  ***************************************************************************
  *                                                                         *
  *   $Log$
- *   Revision 1.36  2011-06-27 08:51:31  martius
+ *   Revision 1.37  2011-10-12 12:16:00  martius
+ *   trail
+ *
+ *   Revision 1.36  2011/06/27 08:51:31  martius
  *   added counter for velocity violations
  *
  *   Revision 1.35  2011/01/02 23:09:52  martius
@@ -469,10 +472,15 @@ namespace lpzrobots{
 
   void Primitive::decellerate(double factorLin, double factorAng){    
     if(!body) return;
-    Pos vel = getVel();    
-    applyForce(vel*(-factorLin));
-    vel = getAngularVel();
-    applyTorque(vel*(-factorAng));    
+    Pos vel;
+    if(factorLin!=0){
+      vel = getVel();    
+      applyForce(vel*(-factorLin));
+    }
+    if(factorAng!=0){
+      vel = getAngularVel();
+      applyTorque(vel*(-factorAng));    
+    }
   }
 
 
