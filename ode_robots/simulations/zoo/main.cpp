@@ -24,11 +24,7 @@
 #include <ode_robots/simulation.h>
 
 #include <ode_robots/odeagent.h>
-#include <ode_robots/playground.h>
 
-#include <ode_robots/passivesphere.h>
-#include <ode_robots/passivebox.h>
-#include <ode_robots/passivecapsule.h>
 
 #include <selforg/one2onewiring.h>
 #include <selforg/selectiveone2onewiring.h>
@@ -50,96 +46,24 @@
 #include <ode_robots/sphererobot3masses.h>
 #include <ode_robots/sliderwheelie.h>
 
+#include "environment.h"
+
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
-class EnvType {
-
-public:
-
-  EnvType(){
-    labyrint=false;      
-    squarecorridor=false;
-    normalplayground=false;  
-    playground=0;
-  }
-  
-  bool labyrint;
-  bool squarecorridor;
-  bool normalplayground;
-  
-  // other params
-
-
-  Playground* playground;
-
-  /** creates the Environment   
-   */
-  void create(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-              GlobalData& global, bool recreate=false){
-    if(recreate && playground){
-      // search for playground
-      ObstacleList::iterator i = find(global.obstacles.begin(), global.obstacles.end(), 
-                                      playground);
-      if(i != global.obstacles.end()){
-        global.obstacles.erase(i);
-      }
-      delete playground;
-      playground=0;
-    }
-    if(normalplayground){
-      playground = new Playground(odeHandle, osgHandle,osg::Vec3(20, 0.2, 1), 1);
-      playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
-      playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
-      global.obstacles.push_back(playground);
-    }
-
-
-    if(squarecorridor){
-      playground = new Playground(odeHandle, osgHandle,osg::Vec3(15, 0.2, 1.2 ), 1);
-      playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
-      playground->setGroundTexture("Images/really_white.rgb");    
-      playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
-      playground->setPosition(osg::Vec3(0,0,0.1));
-      playground->setTexture("");
-      global.obstacles.push_back(playground);
-      //     // inner playground
-      playground = new Playground(odeHandle, osgHandle,osg::Vec3(10, 0.2, 1.2), 1, false);
-      playground->setColor(Color(255/255.0,200/255.0,0/255.0, 0.1));
-      playground->setPosition(osg::Vec3(0,0,0.1));
-      playground->setTexture("");
-      global.obstacles.push_back(playground);
-    }
-
-    if(labyrint){
-      double radius=7.5;
-      playground = new Playground(odeHandle, osgHandle,osg::Vec3(radius*2+1, 0.2, 5 ), 1);
-      playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
-      playground->setGroundTexture("Images/really_white.rgb");    
-      playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
-      playground->setPosition(osg::Vec3(0,0,0.1));
-      playground->setTexture("");
-      global.obstacles.push_back(playground);
-      int obstanz=30;
-      OsgHandle rotOsgHandle = osgHandle.changeColor(Color(255/255.0, 47/255.0,0/255.0));
-      OsgHandle gruenOsgHandle = osgHandle.changeColor(Color(0,1,0));
-      for(int i=0; i<obstanz; i++){
-        PassiveBox* s = new PassiveBox(odeHandle, (i%2)==0 ? rotOsgHandle : gruenOsgHandle, 
-                                       osg::Vec3(random_minusone_to_one(0)+1.2, 
-                                                 random_minusone_to_one(0)+1.2 ,1),5);
-        s->setPose(osg::Matrix::translate(radius/(obstanz+10)*(i+10),0,i) 
-                   * osg::Matrix::rotate(2*M_PI/obstanz*i,0,0,1)); 
-        global.obstacles.push_back(s);    
-      }
-    }
-  }
-};
+// template <class T>
+// bool removeFromList(T t, )
+//       ObstacleList::iterator i = find(global.obstacles.begin(), global.obstacles.end(), 
+//                                       playground);
+//       if(i != global.obstacles.end()){
+//         global.obstacles.erase(i);
+//       }
 
 
 class ThisSim : public Simulation {
 public:
 
-  EnvType env;
+  Env env;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
@@ -163,9 +87,9 @@ public:
     global.odeConfig.setParam("realtimefactor",1);
 
     // environemnt type
-    env.normalplayground=true;
+    env.type=Env::Normal;
     env.create(odeHandle, osgHandle, global);
-       
+
     for(int i=0; i<5; i++){
       PassiveSphere* s = 
 	new PassiveSphere(odeHandle, 
@@ -355,11 +279,14 @@ public:
   }
   
   // add own key handling stuff here, just insert some case values
-  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
+  virtual bool command(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global, int key, bool down)
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
 	{
+        case 'k':
+          env.widthground=5;
+          env.create(odeHandle, osgHandle, global,true);
 	default:
 	  return false;
 	  break;
@@ -369,6 +296,8 @@ public:
   }
   
 };
+
+
 
 int main (int argc, char **argv)
 { 
