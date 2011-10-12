@@ -82,9 +82,9 @@ public:
         //playground->setGroundColor(Color(1.,1.,1.,1.));
         playground->setPosition(osg::Vec3(0,0,.1));
         // CHECK:
-        Substance substance;
-        substance.toRubber(5);
-        playground->setGroundSubstance(substance);
+        /* Substance substance; */
+        /* substance.toRubber(5); */
+        /* playground->setGroundSubstance(substance); */
         global.obstacles.push_back(playground);
         break;
       }

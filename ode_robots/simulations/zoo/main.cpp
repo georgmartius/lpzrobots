@@ -45,6 +45,7 @@
 #include <ode_robots/nimm4.h>
 #include <ode_robots/sphererobot3masses.h>
 #include <ode_robots/sliderwheelie.h>
+#include <ode_robots/hexapod.h>
 
 #include "environment.h"
 
@@ -68,21 +69,21 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    int numCater=0;
+    int numCater=1;
     int numSchlangeL=4;
     int numNimm2=2;
     int numNimm4=0;
     int numHurling=1;
     int numSphere=1;
     int numSliderWheele=0;
-
+    bool hexapod=true;
 
     setCameraHomePos(Pos(-19.15, 13.9, 6.9),  Pos(-126.1, -17.6, 0));
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
 
-    global.odeConfig.setParam("noise",0.05);
+    global.odeConfig.setParam("noise",0.01);
     global.odeConfig.setParam("controlinterval",4);
     global.odeConfig.setParam("realtimefactor",1);
 
@@ -123,6 +124,39 @@ public:
     OdeRobot* robot;
     AbstractController *controller;
     
+    if(hexapod){
+      HexapodConf myHexapodConf = Hexapod::getDefaultConf();
+      myHexapodConf.coxaPower= .8;
+      myHexapodConf.tebiaPower= .5;
+      myHexapodConf.coxaJointLimitV =.9;// M_PI/8;  ///< angle range for vertical direction of legs
+      myHexapodConf.coxaJointLimitH = 1.3;//M_PI/4;
+      myHexapodConf.tebiaJointLimit = 1.8;// M_PI/4; // +- 45 degree
+      myHexapodConf.percentageBodyMass=.5;
+      myHexapodConf.useBigBox=true;
+      myHexapodConf.tarsus=true;
+      myHexapodConf.numTarsusSections = 1;
+      myHexapodConf.useTarsusJoints = true;
+      
+      OdeHandle rodeHandle = odeHandle;
+      rodeHandle.substance.toRubber(20);    
+      robot = new Hexapod(rodeHandle, osgHandle.changeColor(Color(1,1,1)), 
+			  myHexapodConf, "Hexapod");
+      robot->place(osg::Matrix::rotate(M_PI*0,1,0,0)*osg::Matrix::translate(0,0,1+ 2));
+
+      controller = new Sox(1.2, false);
+      controller->setParam("epsC",0.3);
+      controller->setParam("epsA",0.05);
+      controller->setParam("Logarithmic",1);
+      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+      agent = new OdeAgent( global);
+      agent->init(controller, robot, wiring);
+      global.agents.push_back(agent);
+      global.configs.push_back(controller);
+      global.configs.push_back(robot);   
+    }
+
+    
+
     //******* R A U P E  *********/
     for(int r=0; r < numCater ; r++) { 
       CaterPillar* myCaterPillar;
