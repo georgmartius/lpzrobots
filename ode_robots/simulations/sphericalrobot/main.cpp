@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.31  2011-06-03 13:42:48  martius
+ *   Revision 1.32  2011-10-12 12:15:47  martius
+ *   new ground and trail
+ *
+ *   Revision 1.31  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -182,6 +185,21 @@ using namespace std;
 
 bool calm=false;      
 
+
+class MySphere : public Sphererobot3Masses {
+public:
+  MySphere( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+            const Sphererobot3MassesConf& conf, const std::string& name, double transparency=0.5)
+    : Sphererobot3Masses(odeHandle, osgHandle, conf, name,transparency) {};
+            
+  virtual Position getPosition() const {
+    Position p = Sphererobot3Masses::getPosition();
+    p.z = -0.03;
+    return p;
+  }
+
+};
+
 class ThisSim : public Simulation {
 public:
   AbstractController *controller;
@@ -212,11 +230,12 @@ public:
 
     if(normalplayground){
       Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(20, 0.01, 0.01 ), 1);
-      playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
+      //      playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
+      playground->setGroundColor(Color(255/255.0,255/255.0,255/255.0));
       playground->setGroundTexture("Images/really_white.rgb");    
       playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
-      playground->setPosition(osg::Vec3(0,0,0.05));
       playground->setTexture("");
+      playground->setPosition(osg::Vec3(0,0,0.05));
       global.obstacles.push_back(playground);
     }
 
@@ -278,8 +297,9 @@ public:
       conf.irAxis2=false;
       conf.irAxis3=false;
       conf.spheremass   = 1;
-      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,5.0)), 
-				    conf, "Barrel1", 0.5); 
+      //      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,5.0)),
+      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(2,0.0,0.0)), 
+				    conf, "Barrel1", 0.2); 
       sphere1->place (osg::Matrix::rotate(M_PI/2, 1,0,0)*osg::Matrix::translate(0,0,0.2));
 
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
@@ -377,9 +397,11 @@ public:
       // conf.irRing=true;
       // conf.irSide=true;
       //       conf.drawIRs=false;
-      sphere1 = new Sphererobot3Masses ( sphereOdeHandle, 
-					 osgHandle.changeColor(Color(2,0.0,0.0)), 
-					 conf, "Sphere", 0.2);       
+      //      sphere1 = new Sphererobot3Masses ( sphereOdeHandle, 
+      sphere1 = new MySphere ( sphereOdeHandle, 
+                                         //					 osgHandle.changeColor(Color(2,0.0,0.0)), 
+					 osgHandle.changeColor(Color(0,0.0,0x72/255.0)), 
+					 conf, "Sphere", 0.5);       
       sphere1->place ( osg::Matrix::translate(0,0,0.01));
 
 
@@ -437,7 +459,7 @@ public:
 
       //       OdeAgent* agent = new OdeAgent ( plotoptions);
       agent->init ( controller , sphere1 , wiring );
-      //agent->setTrackOptions(TrackRobot(true, true, false, true, "ZSens", 50));
+      agent->setTrackOptions(TrackRobot(true, true, false, true, "ZSens", 50));
       global.agents.push_back ( agent );
       global.configs.push_back ( controller );
     }
@@ -571,7 +593,7 @@ int main (int argc, char **argv)
   }
 
   sim.setCaption("Spherical Robot (lpzrobots Simulator)   Martius,Der 2007");
-  sim.setGroundTexture("Images/yellowground.rgb");
+  sim.setGroundTexture("Images/yellow_velour_light.rgb");
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
