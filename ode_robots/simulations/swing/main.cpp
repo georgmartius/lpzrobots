@@ -21,6 +21,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *
+
  ***************************************************************************/
 #include <stdio.h>
 #include <selforg/noisegenerator.h>
@@ -28,7 +29,9 @@
 #include <ode_robots/odeagent.h>
 
 // controller
-//#include <selforg/sox.h>
+#include <selforg/sos.h>
+#include <selforg/sinecontroller.h>
+#include <selforg/derinf.h>
 #include "sox.h"
 
 #include <selforg/motorbabbler.h>
@@ -77,6 +80,7 @@ public:
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     setCameraHomePos (Pos(3.46321, 10.6081, 2.74255),  Pos(161.796, -3.69849, 0));
+    setCameraMode(Static);
 
     int humanoids = 1;
 
@@ -96,11 +100,11 @@ public:
     // initialization
     // - set noise to 0.0
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
-    global.odeConfig.setParam("controlinterval",10);//4);
+    global.odeConfig.setParam("controlinterval",4);//4);
     global.odeConfig.setParam("noise",0.0); 
     global.odeConfig.setParam("realtimefactor",1);
     global.odeConfig.setParam("simstepsize",0.01);//0.004);
-    global.odeConfig.setParam("gravity", -6);
+    global.odeConfig.setParam("gravity", -9.8);
     //    global.odeConfig.setParam("cameraspeed", 250);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
@@ -117,18 +121,22 @@ public:
      //SwingConf conf = Swing::getDefaultConf();
      // velocity servos
      SwingConf conf = Swing::getDefaultConfVelServos();
-     conf.relSwingmass=1;
-     conf.swingSize=2.5; //3;
-     conf.fixArms=true;
+     conf.relSwingmass=1;//4
+     conf.swingSize= 2.3; //3;
+     conf.swingWidth   = 1.2; 
+
+     conf.fixArms=false;
      
-     conf.powerfactor = .15;// .95;//.65;//5;
-     conf.onlyPrimaryFunctions = false;
+     conf.powerFactor = .02; //.02;//.04;// .95;//.65;//5;
+     conf.onlyPrimaryFunctions = true;
      if (i==0)
        conf.trunkColor=Color(0.1, 0.3, 0.8);
      else	
        conf.trunkColor=Color(0.75, 0.1, 0.1);
 
-     conf.useOrientationSensor=false;
+     conf.useOrientationSensor=false; //false
+     conf.useSpeedSensor=false; //false
+     conf.useModifiedSensors=false; //false
 
      conf.jointLimitFactor = 1.1;
     
@@ -141,7 +149,7 @@ public:
      robot=human;
      human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
                   //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
-		  *osg::Matrix::translate(.2*i,2*i,.8/*7*/ +2*i));
+		  *osg::Matrix::translate(.2*i,2*i,1.9/*7*/ +2*i));
      global.configs.push_back(human);
       
       
@@ -158,17 +166,35 @@ public:
      sc.useHiddenModel=false;
      sc.someInternalParams=true;
      sc.useS=false;
-     AbstractController* controller = new SoX(sc);
-     controller->setParam("epsC",0.05);
-     controller->setParam("epsA",0.05555555);
-     controller->setParam("harmony",0.0);
-     controller->setParam("s4avg",5.0); 
+     AbstractController* sox = new SoX(sc);
+     sox->setParam("epsC",0.05);
+     sox->setParam("epsA",0.05555555);
+     sox->setParam("harmony",0.0);
+     sox->setParam("s4avg",5.0);
+
+     AbstractController* sos = new Sos(1.0);
+     sos->setParam("epsC",0.01);
+     sos->setParam("epsA",0.02);
+     sos->setParam("harmony",0.0);
+     sos->setParam("s4avg",2.0);
+
+     DerInfConf dc = DerInf::getDefaultConf();
+     AbstractController* derinf = new DerInf(dc);
+     derinf->setParam("epsC",0.1);
+     derinf->setParam("epsA",0.03);
 
      //     AbstractController* controller = new BasicController(cc);
      //   AbstractController* controller = new SineController(1<<14); // only motor 14
+     //     AbstractController* controller = new SineController(); 
      // controller = new MotorBabbler();
      //AbstractController* controller = new SineController(0,SineController::Impulse);
       
+     
+     //   AbstractController* controller = derinf;
+     controller = sos;
+     //    controller = sox;
+
+
      global.configs.push_back(controller);
       
      // create pointer to one2onewiring
