@@ -22,7 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2011-04-28 14:07:28  martius
+ *   Revision 1.14  2011-10-13 14:36:29  martius
+ *   stl_adds removeElement
+ *   zoo: adding and removing robots
+ *
+ *   Revision 1.13  2011/04/28 14:07:28  martius
  *   default name is empty
  *
  *   Revision 1.12  2011/03/22 11:01:53  guettler
@@ -30,7 +34,7 @@
  *
  *   Revision 1.11  2011/03/21 17:46:12  guettler
  *   enhanced inspectable interface:
- *   - support for inspectable childs of a inspectable
+ *   - support for inspectable children of a inspectable
  *   - some new helper functions
  *
  *   Revision 1.10  2011/01/11 13:17:27  guettler
@@ -124,8 +128,9 @@ namespace matrix {
  * Interface for inspectable objects.
  * That means that one can read out some internal parameters indentified by string keys
  *
- * TODO: support for lead through of params (e.g. getInternalParams()) for all child inspectables
- * for this use a instance-wide switch (useChilds) as a member variable to enable this feature when desired.
+ * TODO: support for lead through of params (e.g. getInternalParams()) 
+ * for all children inspectables. For this use a instance-wide switch (useChildren) 
+ * as a member variable to enable this feature when desired.
 */
 class Inspectable {
 public:
@@ -319,7 +324,7 @@ public:
   virtual const iparamkey getNameOfInspectable() const;
 
   /**
-   * Returns the list containing all inspectable childs.
+   * Returns the list containing all inspectable children.
    */
   virtual const inspectableList& getInspectables() const;
 
@@ -338,7 +343,7 @@ protected:
   infoLinesList infoLineStringList;
 
 private:
-  inspectableList listOfInspectableChilds;
+  inspectableList listOfInspectableChildren;
   bool printParentName;
   Inspectable* parent;
 

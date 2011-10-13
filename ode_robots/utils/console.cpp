@@ -26,7 +26,11 @@
  *    implements a cmd line interface using readline lib                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.16  2011-06-09 13:26:26  martius
+ *   Revision 1.17  2011-10-13 14:36:29  martius
+ *   stl_adds removeElement
+ *   zoo: adding and removing robots
+ *
+ *   Revision 1.16  2011/06/09 13:26:26  martius
  *   added RandomObstacle and keys: o and O to add and remove them on the fly
  *
  *   Revision 1.15  2011/06/03 13:42:48  martius
@@ -480,8 +484,8 @@ bool com_list (GlobalData& globalData, char* line, char* arg) {
 bool com_show (GlobalData& globalData, char* line, char* arg) {
   if (arg && *arg){
     int id = atoi(arg);
-    if(id>=0 && id < (signed)globalData.configs.size()){
-      printConfig(globalData.configs[id]);
+    if(id>=1 && id <= (signed)globalData.configs.size()){
+      printConfig(globalData.configs[id-1]);
       return true;
     }
   }
@@ -507,11 +511,11 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
     case 3:// ObjectID param=val      
       {
         int id = atoi(params[0].c_str());
-        if(id>=0 && id < (signed)globalData.configs.size()){
+        if(id>=1 && id <= (signed)globalData.configs.size()){
           const char* key = params[1].c_str();        
-          if (globalData.configs[id]->setParam(key,atof(params[2].c_str()))){
-            printf(" %s=\t%f\t%s\n", key, globalData.configs[id]->getParam(key),
-                   globalData.configs[id]->getName().c_str());
+          if (globalData.configs[id-1]->setParam(key,atof(params[2].c_str()))){
+            printf(" %s=\t%f\t%s\n", key, globalData.configs[id-1]->getParam(key),
+                   globalData.configs[id-1]->getName().c_str());
             changed = true;              
           }          
         }else printf("Object with ID: %i not found\n", id);      
@@ -541,53 +545,7 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
       FOREACH(OdeAgentList, globalData.agents, i){	
 	(*i)->writePlotComment(arg);
       }      
-    }
-    
-      
-    // }elseif(params.size(==2) )
-    // s_param = strchr(arg,' ');
-    // if(s_param) *s_param='\0'; // terminate first arg
-    // if(s_param && strchr(arg,'=')==NULL){ // looks like two args (and no = in the first)
-    //   s_param++;
-    //   int id = atoi(arg);
-    //   if(id>=0 && id < (signed)globalData.configs.size()){
-    //     char* val;
-    //     i=0;
-    //     val = strchr(s_param,'=');
-    //     if(val){ // found =
-    //       *val='\0';
-    //       double v=strtod(val+1,0);
-    //       if (globalData.configs[id]->setParam(s_param,v)){
-    //         printf(" %s=\t%f \n", s_param, globalData.configs[id]->getParam(s_param));
-    //         changed = true;
-    //         *val='='; // remove termination again (for agent notification)
-    //       }
-    //     } else printf("Syntax error! no '=' found\n");      
-    //   }else printf("Object with ID: %i not found\n", id);      
-    // }else{
-    //   if(s_param) *s_param=' '; // unterminate arg
-    //   s_param=arg;
-	
-    //   char* val;
-    //   i=0;
-    //   val = strchr(s_param,'=');
-    //   if(val){ // found =
-    //     *val='\0';
-    //     double v=strtod(val+1,0);
-    //     FOREACH(ConfigList, globalData.configs, i){
-    //       if ((*i)->setParam(s_param,v)){
-    //         printf(" %s=\t%f \n", s_param, (*i)->getParam(s_param));
-    //         changed = true;	    
-    //       }
-    //     }
-    //     *val='='; // remove termination again (for agent notification)
-    //   } else printf("Syntax error! no '=' found\n");      
-    // }
-    // if(changed){
-    //   FOREACH(OdeAgentList, globalData.agents, i){	
-    //     (*i)->writePlotComment(s_param );
-    //   }      
-    // }
+    }      
   }
   return true;
 }

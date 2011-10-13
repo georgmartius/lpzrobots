@@ -24,7 +24,11 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.17  2011-05-30 21:56:30  martius
+ *   Revision 1.18  2011-10-13 14:36:29  martius
+ *   stl_adds removeElement
+ *   zoo: adding and removing robots
+ *
+ *   Revision 1.17  2011/05/30 21:56:30  martius
  *   configurable print out works better
  *
  *   Revision 1.16  2011/05/30 13:52:54  martius
@@ -548,11 +552,8 @@ void Configurable::addConfigurable(Configurable* conf) {
 }
 
 void Configurable::removeConfigurable(Configurable* conf) {
-  configurableList::iterator pos = std::posInColl<configurableList, const Configurable*>(ListOfConfigurableChildren, conf);
-  if (pos != ListOfConfigurableChildren.end()) {
-    conf->parent=0;
-    ListOfConfigurableChildren.erase(pos);
-  }
+  removeElement(ListOfConfigurableChildren, conf);
+  conf->parent=0;
 }
 
 const Configurable::configurableList& Configurable::getConfigurables() const {

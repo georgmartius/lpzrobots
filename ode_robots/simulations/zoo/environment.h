@@ -32,6 +32,9 @@
 #include <ode_robots/passivecapsule.h>
 
 using namespace lpzrobots;
+using namespace std;
+
+
 
 class Env {
 public:
@@ -56,18 +59,13 @@ public:
   double pitsize;
   double pitheight;
   double uterussize;
-
+  
   /** creates the Environment   
    */
   void create(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
               GlobalData& global, bool recreate=false){
     if(recreate && playground){
-      // search for playground
-      ObstacleList::iterator i = find(global.obstacles.begin(), global.obstacles.end(), 
-                                      playground);
-      if(i != global.obstacles.end()){
-        global.obstacles.erase(i);
-      }
+      removeElement(global.obstacles, playground);
       delete playground;
       playground=0;
     }
@@ -76,11 +74,11 @@ public:
     case Normal:
       {
         playground = new Playground(odeHandle, osgHandle,osg::Vec3(widthground, 0.208, heightground)); 
-        playground->setColor(Color(1.,1.,1.,.99)); 
+        playground->setColor(Color(1.,1.,1.)); 
         //     playground->setTexture("Images/really_white.rgb");
         playground->setGroundTexture("Images/yellow_velour.rgb");
         //playground->setGroundColor(Color(1.,1.,1.,1.));
-        playground->setPosition(osg::Vec3(0,0,.1));
+        playground->setPosition(osg::Vec3(0,0,.03));
         // CHECK:
         /* Substance substance; */
         /* substance.toRubber(5); */

@@ -3,11 +3,11 @@
 
 #include<list>
 #include<string>
-#include <vector>
+#include<algorithm>
+#include<vector>
 
 #define FOREACH(colltype, coll, it) for( colltype::iterator it = (coll).begin(); it!= (coll).end(); it++)
 #define FOREACHC(colltype, coll, it) for( colltype::const_iterator it = (coll).begin(); it!= (coll).end() ; it++ )
-
 
 /// contains some additions to the standard template library
 namespace std {
@@ -39,22 +39,20 @@ namespace std {
     return rv;
   }
 
-  string itos(int i);
+  string itos(int i);  
 
-  /**
-   * Determines if a collection contains an element and at which position
-   * it was found. -- O(n)
-   * @param coll the collection to search through
-   * @param elem the element to find
-   * @return the iterator pointing to the element if found, otherwise coll.end()
-   */
-  template<typename collT, typename elemT> typename collT::iterator posInColl(collT coll, elemT elem) {
-      FOREACH(typename collT, coll, it)
-        if (*it==elem)
-          return it;
-      return coll.end();
+  template<typename Col, typename T> 
+  bool removeElement(Col& col, const T& elem){
+    // search for element
+    typename Col::iterator i = find(col.begin(), col.end(), elem); 
+    if(i != col.end()){
+      col.erase(i);
+      return true;
+    }else{
+      return false;
+    }
   }
-
+  
 }
 
 #endif

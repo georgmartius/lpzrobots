@@ -22,9 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.15  2011-03-21 17:46:12  guettler
+ *   Revision 1.16  2011-10-13 14:36:29  martius
+ *   stl_adds removeElement
+ *   zoo: adding and removing robots
+ *
+ *   Revision 1.15  2011/03/21 17:46:12  guettler
  *   enhanced inspectable interface:
- *   - support for inspectable childs of a inspectable
+ *   - support for inspectable children of a inspectable
  *   - some new helper functions
  *
  *   Revision 1.14  2010/10/18 15:08:35  martius
@@ -82,6 +86,7 @@
  ***************************************************************************/
 #include "inspectable.h"
 #include "controller_misc.h"
+#include "stl_adds.h"
 
 Inspectable::~Inspectable(){}
 
@@ -184,16 +189,13 @@ void Inspectable::removeInfoLines() {
 
 
 void Inspectable::addInspectable(Inspectable* insp) {
-  listOfInspectableChilds.push_back(insp);
+  listOfInspectableChildren.push_back(insp);
   insp->parent=this;
 }
 
 void Inspectable::removeInspectable(Inspectable* insp) {
-  inspectableList::iterator pos = std::posInColl<inspectableList, const Inspectable*>(listOfInspectableChilds, insp);
-  if (pos!=listOfInspectableChilds.end()) {
-    insp->parent=0;
-    listOfInspectableChilds.remove(insp);
-  }
+  removeElement(listOfInspectableChildren, insp);
+  insp->parent=0;
 }
 
 void Inspectable::setNameOfInspectable(const iparamkey& _name) {
@@ -207,6 +209,6 @@ const Inspectable::iparamkey Inspectable::getNameOfInspectable() const {
 
 
 const Inspectable::inspectableList& Inspectable::getInspectables() const {
-  return listOfInspectableChilds;
+  return listOfInspectableChildren;
 }
 

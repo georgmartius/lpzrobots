@@ -52,14 +52,20 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
-// template <class T>
-// bool removeFromList(T t, )
-//       ObstacleList::iterator i = find(global.obstacles.begin(), global.obstacles.end(), 
-//                                       playground);
-//       if(i != global.obstacles.end()){
-//         global.obstacles.erase(i);
-//       }
+// predicate that matches agents that have the same name prefix
+struct agent_match_prefix : public unary_function<const OdeAgent*, bool> {
+    agent_match_prefix(string nameprefix)
+      : nameprefix(nameprefix) {
+      len=nameprefix.length();
+    }
+    bool operator()(const OdeAgent* a) {
+      if(!a || !a->getRobot()) return false;
+      return nameprefix.compare(0,len, a->getRobot()->getName(),0,len) == 0;
+    }
 
+    string nameprefix;
+    int len;
+  };
 
 class ThisSim : public Simulation {
 public:
@@ -70,13 +76,13 @@ public:
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
     int numCater=1;
-    int numSchlangeL=4;
-    int numNimm2=2;
+    int numSchlangeL=0;
+    int numNimm2=0;
     int numNimm4=0;
-    int numHurling=1;
+    int numHurling=0;
     int numSphere=1;
     int numSliderWheele=0;
-    bool hexapod=true;
+    int numHexapod=2;
 
     setCameraHomePos(Pos(-19.15, 13.9, 6.9),  Pos(-126.1, -17.6, 0));
     // initialization
@@ -124,38 +130,14 @@ public:
     OdeRobot* robot;
     AbstractController *controller;
     
-    if(hexapod){
-      HexapodConf myHexapodConf = Hexapod::getDefaultConf();
-      myHexapodConf.coxaPower= .8;
-      myHexapodConf.tebiaPower= .5;
-      myHexapodConf.coxaJointLimitV =.9;// M_PI/8;  ///< angle range for vertical direction of legs
-      myHexapodConf.coxaJointLimitH = 1.3;//M_PI/4;
-      myHexapodConf.tebiaJointLimit = 1.8;// M_PI/4; // +- 45 degree
-      myHexapodConf.percentageBodyMass=.5;
-      myHexapodConf.useBigBox=true;
-      myHexapodConf.tarsus=true;
-      myHexapodConf.numTarsusSections = 1;
-      myHexapodConf.useTarsusJoints = true;
-      
-      OdeHandle rodeHandle = odeHandle;
-      rodeHandle.substance.toRubber(20);    
-      robot = new Hexapod(rodeHandle, osgHandle.changeColor(Color(1,1,1)), 
-			  myHexapodConf, "Hexapod");
-      robot->place(osg::Matrix::rotate(M_PI*0,1,0,0)*osg::Matrix::translate(0,0,1+ 2));
-
-      controller = new Sox(1.2, false);
-      controller->setParam("epsC",0.3);
-      controller->setParam("epsA",0.05);
-      controller->setParam("Logarithmic",1);
-      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( global);
-      agent->init(controller, robot, wiring);
-      global.agents.push_back(agent);
-      global.configs.push_back(controller);
-      global.configs.push_back(robot);   
+    // So wird das mit allen Robotern aussehen, createXXX, siehe unten
+    for(int i=0; i < numHexapod ; i++) { 
+      agent=createHexapod(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,1+1*i));
+    }    
+    for(int r=0; r < numSphere; r++) {
+      agent=createSpherical(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,0+1*r));
     }
 
-    
 
     //******* R A U P E  *********/
     for(int r=0; r < numCater ; r++) { 
@@ -263,23 +245,6 @@ public:
 			       global.agents.push_back(agent);     
     }
 
-    //****** S P H E R E **********/
-    for(int r=0; r < numSphere; r++) {
-      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
-      Sphererobot3Masses* sphere1 = 
-	new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
-				 conf, "Sphere" + std::itos(r), 0.2); 
-      ((OdeRobot*)sphere1)->place ( Pos( 0 , 0 , 0.1 ));
-      controller = new InvertMotorSpace(15);
-      controller->setParam("sinerate", 40);  
-      controller->setParam("phaseshift", 0.0);
-      One2OneWiring* wiring2 = new One2OneWiring ( new ColorUniformNoise() );
-      agent = new OdeAgent ( global );
-      agent->init ( controller , sphere1 , wiring2 );
-      global.agents.push_back ( agent );
-      global.configs.push_back ( controller );
-    }
 
     /******* S L I D E R - w H E E L I E *********/
     SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
@@ -311,7 +276,82 @@ public:
       global.configs.push_back(mySliderWheelie);   
     }    
   }
+
+  bool removeRobot(GlobalData& global, const string& nameprefix){
+    OdeAgentList::reverse_iterator i = 
+      find_if(global.agents.rbegin(), global.agents.rend(), agent_match_prefix(nameprefix));
+    if(i!=global.agents.rend()){
+      printf("Removed robot %s\n", (*i)->getRobot()->getName().c_str());
+      OdeAgent* a = *i;
+      global.agents.erase(i.base()-1);
+      removeElement(global.configs, a);
+      delete a;
+      return true; 
+    }
+    return false;
+  }
   
+  OdeAgent* createHexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+                          GlobalData& global, osg::Matrix pose){
+    // find robot and do naming
+    string name("Hexapod");
+    int num = count_if(global.agents.begin(), global.agents.end(), agent_match_prefix(name));
+    name += "_" + itos(num+1);
+
+    HexapodConf myHexapodConf = Hexapod::getDefaultConf();
+    myHexapodConf.coxaPower= .8;
+    myHexapodConf.tebiaPower= .5;
+    myHexapodConf.coxaJointLimitV =.9;// M_PI/8;  ///< angle range for vertical direction of legs
+    myHexapodConf.coxaJointLimitH = 1.3;//M_PI/4;
+    myHexapodConf.tebiaJointLimit = 1.8;// M_PI/4; // +- 45 degree
+    myHexapodConf.percentageBodyMass=.5;
+    myHexapodConf.useBigBox=true;
+    myHexapodConf.tarsus=true;
+    myHexapodConf.numTarsusSections = 1;
+    myHexapodConf.useTarsusJoints = true;
+    
+
+    OdeHandle rodeHandle = odeHandle;
+    rodeHandle.substance.toRubber(20);    
+    OdeRobot* robot = new Hexapod(rodeHandle, osgHandle.changeColor(Color(1,1,1)), 
+                                  myHexapodConf, name);
+    robot->place(osg::Matrix::rotate(M_PI*0,1,0,0)*pose);
+    
+    AbstractController* controller = new Sox(1.2, false);
+    controller->setParam("epsC",0.3);
+    controller->setParam("epsA",0.05);
+    controller->setParam("Logarithmic",1);
+    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    OdeAgent* agent = new OdeAgent( global);
+    agent->init(controller, robot, wiring);
+    global.agents.push_back(agent);
+    global.configs.push_back(agent);      
+    return agent;
+  }
+
+  OdeAgent* createSpherical(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+                            GlobalData& global, osg::Matrix pose){
+
+    // find robot and do naming
+    string name("Spherical");
+    int num = count_if(global.agents.begin(), global.agents.end(), agent_match_prefix(name));
+    name += "_" + itos(num+1);
+
+    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+    conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+    OdeRobot* sphere = 
+      new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
+                               conf, name, 0.2); 
+    sphere->place(pose);
+    AbstractController* controller = new Sos();
+    One2OneWiring* wiring = new One2OneWiring ( new WhiteUniformNoise() );
+    OdeAgent* agent = new OdeAgent ( global );
+    agent->init ( controller, sphere, wiring);
+    global.agents.push_back(agent);
+    global.configs.push_back(agent);      
+    return agent;
+  }
+
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global, int key, bool down)
   {
@@ -319,8 +359,16 @@ public:
       switch ( (char) key )
 	{
         case 'k':
-          env.widthground=5;
+          env.widthground=10;
           env.create(odeHandle, osgHandle, global,true);
+        case 'b':
+          createSpherical(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,2)); break;
+        case 'B':
+          removeRobot(global, "Spherical"); break;          
+        case 'x':
+          createHexapod(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,2)); break;
+        case 'X':
+          removeRobot(global, "Hexapod"); break;          
 	default:
 	  return false;
 	  break;
@@ -335,6 +383,7 @@ public:
 
 int main (int argc, char **argv)
 { 
+
   ThisSim sim;
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
