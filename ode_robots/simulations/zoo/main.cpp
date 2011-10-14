@@ -71,18 +71,20 @@ class ThisSim : public Simulation {
 public:
 
   Env env;
+  double lastRobotCreation;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
+    int numHexapods   = 0;
+    int numSphericals = 1;
+    int numSnakes     = 2;
+
     int numCater=1;
-    int numSchlangeL=0;
     int numNimm2=0;
     int numNimm4=0;
     int numHurling=0;
-    int numSphere=1;
     int numSliderWheele=0;
-    int numHexapod=2;
 
     setCameraHomePos(Pos(-19.15, 13.9, 6.9),  Pos(-126.1, -17.6, 0));
     // initialization
@@ -97,46 +99,28 @@ public:
     env.type=Env::Normal;
     env.create(odeHandle, osgHandle, global);
 
-    for(int i=0; i<5; i++){
-      PassiveSphere* s = 
-	new PassiveSphere(odeHandle, 
-			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
-      s->setPosition(Pos(i*0.5-2, i*0.5, 1.0)); 
-      s->setTexture("Images/dusty.rgb");
-      global.obstacles.push_back(s);    
-    }
-
-    for(int i=0; i<5; i++){
-      PassiveBox* b = 
-	new PassiveBox(odeHandle, 
-			  osgHandle, osg::Vec3(0.2+i*0.1,0.2+i*0.1,0.2+i*0.1));
-      b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
-      b->setTexture("Images/light_chess.rgb");
-      b->setPosition(Pos(i*0.5-5, i*0.5, 1.0)); 
-      global.obstacles.push_back(b);    
-    }
-
-    for(int i=0; i<5; i++){
-      PassiveCapsule* c = 
-	new PassiveCapsule(odeHandle, osgHandle, 0.2f, 0.3f, 0.3f);
-      c->setPosition(Pos(i-1, -i, 1.0)); 
-      c->setColor(Color(0.2f,0.2f,1.0f,0.5f));
-      c->setTexture("Images/light_chess.rgb");
-      global.obstacles.push_back(c);    
-    }
-        
+    env.numSpheres  = 0; 
+    env.numBoxes    = 0;   
+    env.numCapsules = 0;
+    env.placeObstacles(odeHandle, osgHandle, global);
+            
     OdeAgent* agent;
     AbstractWiring* wiring;
     OdeRobot* robot;
     AbstractController *controller;
     
     // So wird das mit allen Robotern aussehen, createXXX, siehe unten
-    for(int i=0; i < numHexapod ; i++) { 
+    for(int i=0; i < numHexapods ; i++) { 
       agent=createHexapod(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,1+1*i));
     }    
-    for(int r=0; r < numSphere; r++) {
+    for(int r=0; r < numSphericals; r++) {
       agent=createSpherical(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,0+1*r));
     }
+    for(int r=0; r < numSnakes; r++) {
+      agent=createSnake(odeHandle, osgHandle, global, osg::Matrix::translate(4,4-r,0.2));
+    }
+    
+    
 
 
     //******* R A U P E  *********/
@@ -146,7 +130,6 @@ public:
       myCaterPillarConf.segmNumber=3+r;
       myCaterPillarConf.jointLimit=M_PI/3;
       myCaterPillarConf.motorPower=0.2;
-      myCaterPillarConf.frictionGround=0.01;
       myCaterPillarConf.frictionJoint=0.01;
       myCaterPillar =
 	new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)), 
@@ -166,26 +149,7 @@ public:
 					global.obstacles.push_back(s)0.0000*/ 0.0);
     }
     
-    
-    //******* S C H L A N G E  (Long)  *********/
-    for(int r=0; r < numSchlangeL ; r++) { 
-      SchlangeServo2* snake;
-      SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
-      snakeConf.segmNumber=6+r;
-      snakeConf.frictionGround=0.01;
-      snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" + std::itos(r));
-      ((OdeRobot*) snake)->place(Pos(4,4-r,r)); 
-      InvertMotorNStepConf invertnconf = InvertMotorNStep::getDefaultConf();
-      invertnconf.cInit=2.0;
-      controller = new InvertMotorNStep(invertnconf);     
-      wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent( global, PlotOption(NoPlot) );
-      agent->init(controller, snake, wiring);
-      global.agents.push_back(agent);
-      global.configs.push_back(controller);
-      global.configs.push_back(snake);   
-    }
-
+   
     //******* N I M M  2 *********/
     Nimm2Conf nimm2conf = Nimm2::getDefaultConf();
     nimm2conf.size = 1.6;
@@ -274,7 +238,9 @@ public:
       global.agents.push_back(agent);
       global.configs.push_back(controller);
       global.configs.push_back(mySliderWheelie);   
-    }    
+    }
+
+    lastRobotCreation=0;    
   }
 
   bool removeRobot(GlobalData& global, const string& nameprefix){
@@ -298,17 +264,17 @@ public:
     int num = count_if(global.agents.begin(), global.agents.end(), agent_match_prefix(name));
     name += "_" + itos(num+1);
 
-    HexapodConf myHexapodConf = Hexapod::getDefaultConf();
-    myHexapodConf.coxaPower= .8;
-    myHexapodConf.tebiaPower= .5;
-    myHexapodConf.coxaJointLimitV =.9;// M_PI/8;  ///< angle range for vertical direction of legs
-    myHexapodConf.coxaJointLimitH = 1.3;//M_PI/4;
-    myHexapodConf.tebiaJointLimit = 1.8;// M_PI/4; // +- 45 degree
-    myHexapodConf.percentageBodyMass=.5;
-    myHexapodConf.useBigBox=true;
-    myHexapodConf.tarsus=true;
-    myHexapodConf.numTarsusSections = 1;
-    myHexapodConf.useTarsusJoints = true;
+    HexapodConf myHexapodConf        = Hexapod::getDefaultConf();
+    myHexapodConf.coxaPower          = .8;
+    myHexapodConf.tebiaPower         = .5;
+    myHexapodConf.coxaJointLimitV    = .9; // M_PI/8;  // angle range for vertical dir. of legs
+    myHexapodConf.coxaJointLimitH    = 1.3; //M_PI/4;
+    myHexapodConf.tebiaJointLimit    = 1.8; // M_PI/4; // +- 45 degree
+    myHexapodConf.percentageBodyMass = .5;
+    myHexapodConf.useBigBox          = true;
+    myHexapodConf.tarsus             = true;
+    myHexapodConf.numTarsusSections  = 1;
+    myHexapodConf.useTarsusJoints    = true;
     
 
     OdeHandle rodeHandle = odeHandle;
@@ -322,7 +288,7 @@ public:
     controller->setParam("epsA",0.05);
     controller->setParam("Logarithmic",1);
     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    OdeAgent* agent = new OdeAgent( global);
+    OdeAgent*       agent  = new OdeAgent( global);
     agent->init(controller, robot, wiring);
     global.agents.push_back(agent);
     global.configs.push_back(agent);      
@@ -344,22 +310,58 @@ public:
                                conf, name, 0.2); 
     sphere->place(pose);
     AbstractController* controller = new Sos();
-    One2OneWiring* wiring = new One2OneWiring ( new WhiteUniformNoise() );
-    OdeAgent* agent = new OdeAgent ( global );
+    One2OneWiring*      wiring     = new One2OneWiring ( new WhiteUniformNoise() );
+    OdeAgent*           agent      = new OdeAgent ( global );
     agent->init ( controller, sphere, wiring);
     global.agents.push_back(agent);
     global.configs.push_back(agent);      
     return agent;
   }
 
+  OdeAgent* createSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+                        GlobalData& global, osg::Matrix pose, string name = "Snake"){
+    // find robot and do naming
+    int num = count_if(global.agents.begin(), global.agents.end(), agent_match_prefix(name));
+    name += "_" + itos(num+1);        
+    SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
+    snakeConf.segmNumber   = 6+2*num;
+    OdeRobot*    robot     = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, name);
+    robot->place(pose); 
+
+    AbstractController* controller = new Sox(1.0);     
+    AbstractWiring*     wiring     = new One2OneWiring(new ColorUniformNoise(0.1));
+    OdeAgent*           agent      = new OdeAgent( global );
+    agent->init(controller, robot, wiring);
+    global.agents.push_back(agent);
+    global.configs.push_back(agent);
+    return agent;
+  }
+
+  OdeAgent* createHumanoid(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+                           GlobalData& global, osg::Matrix pose){
+
+    // find robot and do naming
+    string name("Humanoid");
+    int num = count_if(global.agents.begin(), global.agents.end(), agent_match_prefix(name));
+    name += "_" + itos(num+1);
+    
+    return 0;
+  }
+
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global, int key, bool down)
   {
     if (down) { // only when key is pressed, not when released
+      // lower case (create robot) but last creation less than a second ago
+      if(key >= 'a' && key <='z' && lastRobotCreation > (global.time-1)) { 
+        printf("You have to wait one second between robot creations.\n");
+        return false;
+      }
+
       switch ( (char) key )
 	{
-        case 'k':
-          env.widthground=10;
+        case 'k': // test
+          env.widthground=15;
           env.create(odeHandle, osgHandle, global,true);
         case 'b':
           createSpherical(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,2)); break;
@@ -369,13 +371,43 @@ public:
           createHexapod(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,2)); break;
         case 'X':
           removeRobot(global, "Hexapod"); break;          
+        case 's':
+          createSnake(odeHandle, osgHandle, global, osg::Matrix::translate(4,4,2)); break;
+        case 'S':
+          removeRobot(global, "Snake"); break;          
+        case 'i': // put Snake in center (useful in pit-mode
+          createSnake(odeHandle, osgHandle, global, 
+                      osg::Matrix::translate(0,0,2),"PitSnake"); break;
+        case 'I':
+          removeRobot(global, "PitSnake"); break;          
+        case 'u':
+          createHumanoid(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,2)); break;
+        case 'U':
+          removeRobot(global, "Humanoid"); break;          
 	default:
 	  return false;
 	  break;
 	}
+      if(key >= 'a' && key <='z') { // lower case -> created robot 
+        lastRobotCreation = global.time;        
+      }
+      return true;
     }
     return false;
   }
+
+  virtual void bindingDescription(osg::ApplicationUsage & au) const {
+    au.addKeyboardMouseBinding("Simulation: b/B","add/remove Spherical");
+    au.addKeyboardMouseBinding("Simulation: x/X","add/remove Hexapod");
+    au.addKeyboardMouseBinding("Simulation: s/S","add/remove Snake");
+    au.addKeyboardMouseBinding("Simulation: i/I","add/remove Snake in Pit");
+    au.addKeyboardMouseBinding("Simulation: u/U","add/remove Humanoid");
+    au.addKeyboardMouseBinding("Simulation: a/A","add/remove SliderArmband");
+    au.addKeyboardMouseBinding("Simulation: d/D","add/remove Dog");
+    au.addKeyboardMouseBinding("Simulation: l/L","add/remove LongVehicle");
+  }
+
+
   
 };
 

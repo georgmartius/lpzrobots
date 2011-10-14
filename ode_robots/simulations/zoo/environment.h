@@ -41,12 +41,16 @@ public:
   enum EnvType { None, Normal, Octa, Pit, Uterus, Stacked };
 
   Env(){
-    type=None;
-    playground=0;
-    widthground = 25.85;
+    type         = None;
+    playground   = 0;
+    widthground  = 25.85;
     heightground = .8;
-    diamOcta = 2;
-    uterussize = 1;
+    diamOcta     = 2;
+    uterussize   = 1;
+    
+    numSpheres  = 0; 
+    numBoxes    = 0;   
+    numCapsules = 0;
   }
 
   AbstractGround* playground;
@@ -59,6 +63,11 @@ public:
   double pitsize;
   double pitheight;
   double uterussize;
+
+  // obstacles
+  int numSpheres; 
+  int numBoxes;   
+  int numCapsules;
   
   /** creates the Environment   
    */
@@ -100,9 +109,9 @@ public:
         //TODO: change playground refs....
         // we stack two playgrounds in each other. 
         // The outer one is hard and the inner one is softer
-        int anzgrounds=2;
-        Substance soft = Substance::getRubber(5);
-        double thicknessSoft = 0.1;
+        int       anzgrounds    = 2;
+        Substance soft          = Substance::getRubber(5);
+        double    thicknessSoft = 0.1;
         for (int i=0; i< anzgrounds; i++){
           OdeHandle myHandle = odeHandle;
           if(i==0){
@@ -174,6 +183,39 @@ public:
       break;
     }
   }    
+
+  void placeObstacles(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+                      GlobalData& global){
+
+    for(int i=0; i<numSpheres; i++){
+      PassiveSphere* s = 
+	new PassiveSphere(odeHandle, 
+			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
+      s->setPosition(Pos(i*0.5-2, i*0.5, 1.0)); 
+      s->setTexture("Images/dusty.rgb");
+      global.obstacles.push_back(s);    
+    }
+
+    for(int i=0; i<numBoxes; i++){
+      PassiveBox* b = 
+	new PassiveBox(odeHandle, 
+			  osgHandle, osg::Vec3(0.2+i*0.1,0.2+i*0.1,0.2+i*0.1));
+      b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
+      b->setTexture("Images/light_chess.rgb");
+      b->setPosition(Pos(i*0.5-5, i*0.5, 1.0)); 
+      global.obstacles.push_back(b);    
+    }
+
+    for(int i=0; i<numCapsules; i++){
+      PassiveCapsule* c = 
+	new PassiveCapsule(odeHandle, osgHandle, 0.2f, 0.3f, 0.3f);
+      c->setPosition(Pos(i-1, -i, 1.0)); 
+      c->setColor(Color(0.2f,0.2f,1.0f,0.5f));
+      c->setTexture("Images/light_chess.rgb");
+      global.obstacles.push_back(c);    
+    }
+  }
+
 };
 
 
