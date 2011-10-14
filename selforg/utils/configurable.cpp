@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.18  2011-10-13 14:36:29  martius
+ *   Revision 1.19  2011-10-14 09:38:37  martius
+ *   storeCfg and restoreCfg do not append .cfg anymore
+ *
+ *   Revision 1.18  2011/10/13 14:36:29  martius
  *   stl_adds removeElement
  *   zoo: adding and removing robots
  *
@@ -165,7 +168,7 @@ bool Configurable::storeCfg(const char* filenamestem,
 		const std::list< std::string>& comments){
   char name[256];
   FILE* f;
-  sprintf(name, "%s.cfg",filenamestem);
+  sprintf(name, "%s",filenamestem);
   if(!(f = fopen(name, "w"))) return false;
   FOREACHC(std::list< std::string>,comments,c){
     fprintf(f, "# %s\n", c->c_str());
@@ -178,7 +181,7 @@ bool Configurable::storeCfg(const char* filenamestem,
 bool Configurable::restoreCfg(const char* filenamestem){
   char name[256];
   FILE* f;
-  sprintf(name, "%s.cfg",filenamestem);
+  sprintf(name, "%s",filenamestem);
   if(!(f=fopen(name, "r")))
     return false;
   bool rv = parse(f);
