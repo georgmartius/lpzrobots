@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2011-06-03 13:42:48  martius
+ *   Revision 1.26  2011-10-14 09:36:18  martius
+ *   snakes have no frictionGround parameter anymore, since it was not used,
+ *    use the substances now
+ *
+ *   Revision 1.25  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -703,7 +707,6 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
      conf.segmNumber = 14-4*i;//-i/2; 
      // conf.jointLimit=conf.jointLimit*3;
      conf.jointLimit=conf.jointLimit* 1.6;
-     conf.frictionGround=0.03;// +((double)i)/100;
      conf.frictionJoint=0.001;
      //PlattfussSchlange* schlange1; 
      SchlangeServo2* schlange1;
@@ -838,7 +841,6 @@ new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter.8*/.9*diam, .2,/*H
      conf.segmNumber = 5+12*i;//-i/2; 
      // conf.jointLimit=conf.jointLimit*3;
      conf.jointLimit=conf.jointLimit*2.0;
-     conf.frictionGround=0.04;// +((double)i)/100;
      conf.frictionJoint=0.01;
      PlattfussSchlange* schlange1; 
      //  SchlangeServo* schlange1; 

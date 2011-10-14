@@ -261,7 +261,6 @@ public:
      conf.segmNumber = 12+1*i;//-i/2; 
      // conf.jointLimit=conf.jointLimit*3;
      conf.jointLimit=conf.jointLimit* 1.6;
-     conf.frictionGround=0.03;// +((double)i)/100;
      conf.frictionJoint=0.001;
      //PlattfussSchlange* schlange1; 
      SchlangeServo2* schlange1;
@@ -379,7 +378,6 @@ public:
      conf.segmNumber = 5+12*i;//-i/2; 
      // conf.jointLimit=conf.jointLimit*3;
      conf.jointLimit=conf.jointLimit*2.0;
-     conf.frictionGround=0.04;// +((double)i)/100;
      conf.frictionJoint=0.01;
      PlattfussSchlange* schlange1; 
      //  SchlangeServo* schlange1; 

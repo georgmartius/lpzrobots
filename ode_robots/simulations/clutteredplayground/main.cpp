@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.7  2011-06-03 13:42:48  martius
+ *   Revision 1.8  2011-10-14 09:36:18  martius
+ *   snakes have no frictionGround parameter anymore, since it was not used,
+ *    use the substances now
+ *
+ *   Revision 1.7  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -302,9 +306,7 @@ public:
 
       // conf.jointLimit=conf.jointLimit*3;
       conf.jointLimit=conf.jointLimit*2.0;
-      conf.frictionGround=0.08+((double)i)/100;
       conf.frictionJoint=0.002;
-            conf.frictionGround=0.1;
       SchlangeServo2* schlange1 = 
 	//new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
 	new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),

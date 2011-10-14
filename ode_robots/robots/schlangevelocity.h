@@ -25,7 +25,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2007-01-26 12:05:04  martius
+ *   Revision 1.4  2011-10-14 09:36:18  martius
+ *   snakes have no frictionGround parameter anymore, since it was not used,
+ *    use the substances now
+ *
+ *   Revision 1.3  2007/01/26 12:05:04  martius
  *   servos combinied into OneAxisServo
  *
  *   Revision 1.2  2006/07/14 12:23:42  martius
@@ -78,7 +82,6 @@ namespace lpzrobots {
 	conf.segmDia    = 0.2;     //  diameter of a snake element
 	conf.segmMass   = 0.4;     //  mass of one snake element
 	conf.motorPower = 0.3;     //  power of motors
-	conf.frictionGround = 0.1; // friction with ground
 	conf.jointLimit =  M_PI/4;	
 	return conf;
       }

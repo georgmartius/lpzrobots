@@ -26,7 +26,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.29  2011-06-03 13:42:48  martius
+ *   Revision 1.30  2011-10-14 09:36:18  martius
+ *   snakes have no frictionGround parameter anymore, since it was not used,
+ *    use the substances now
+ *
+ *   Revision 1.29  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -123,7 +127,6 @@ public:
   double segmMass;    ///<  mass of one snake element
   double motorPower;  ///<  power of the motors / servos
   double sensorFactor;    ///<  scale for sensors
-  double frictionGround;  ///< friction with ground
   double frictionJoint;   ///< friction within joint
   double frictionRatio;   ///< if != 1 then friction along the snake is the ratio fold 
   double jointLimit;      ///< maximal angle for the joints (M_PI/4 = 45 degree)
@@ -158,7 +161,6 @@ public:
     conf.segmMass   = 0.1;//0.4   //  mass of one snake element
     conf.motorPower = 1;    //  power of the servos
     conf.sensorFactor = 1;    //  scale for sensors
-    conf.frictionGround = 1.0; // friction with ground
     conf.frictionJoint = 0.02; // friction within joint
     conf.frictionRatio = 1; // friction ratio
     conf.jointLimit =  M_PI/4;

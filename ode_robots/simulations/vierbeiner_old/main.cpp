@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2011-06-03 13:42:48  martius
+ *   Revision 1.6  2011-10-14 09:36:18  martius
+ *   snakes have no frictionGround parameter anymore, since it was not used,
+ *    use the substances now
+ *
+ *   Revision 1.5  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -165,7 +169,6 @@ public:
     }
 
     VierBeinerOldConf conf = VierBeinerOld::getDefaultConf();
-    //    conf.frictionGround = 1;
     //    conf.hipJointLimit = M_PI/8; 
     conf.legNumber = 4;
     conf.motorPower = 5;

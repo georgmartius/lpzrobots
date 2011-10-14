@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.35  2011-06-03 13:42:48  martius
+ *   Revision 1.36  2011-10-14 09:36:18  martius
+ *   snakes have no frictionGround parameter anymore, since it was not used,
+ *    use the substances now
+ *
+ *   Revision 1.35  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -119,7 +123,6 @@ namespace lpzrobots {
 		       const SchlangeConf& conf, const std::string& name, const std::string& revision)
     : OdeRobot( odeHandle, osgHandle, name, revision), conf(conf) {
     
-    addParameter("frictionground",&this->conf.frictionGround,0,2);
     addParameter("motorpower", &this->conf.motorPower,0,20);
     addParameter("sensorfactor", &this->conf.sensorFactor,0,5);
     addParameter("frictionjoint",&this->conf.frictionJoint,0,5);   

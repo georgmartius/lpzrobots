@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2011-06-03 13:42:48  martius
+ *   Revision 1.9  2011-10-14 09:36:18  martius
+ *   snakes have no frictionGround parameter anymore, since it was not used,
+ *    use the substances now
+ *
+ *   Revision 1.8  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -197,7 +201,6 @@ public:
       SchlangeServo2* snake;
       SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
       snakeConf.segmNumber=4;
-      snakeConf.frictionGround=0.01;
       
       snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" );
       ((OdeRobot*) snake)->place(Pos(4,4+3*r,height));
@@ -302,7 +305,6 @@ public:
       conf.segmNumber = 5+2*i;//-i/2;
       // conf.jointLimit=conf.jointLimit*3;
       conf.jointLimit=conf.jointLimit*2.0;
-      conf.frictionGround=0.2;// +((double)i)/100;
       conf.frictionJoint=0.1;
       PlattfussSchlange* schlange1;
       if (i==0) {
@@ -372,7 +374,6 @@ public:
       conf.segmNumber = 5+2*i;//-i/2;
       // conf.jointLimit=conf.jointLimit*3;
       conf.jointLimit=conf.jointLimit*2.0;
-      conf.frictionGround=0.2;// +((double)i)/100;
       conf.frictionJoint=0.1;
       //PlattfussSchlange* schlange1;
       SchlangeServo2* schlange1;
