@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2011-07-11 16:05:12  guettler
+ *   Revision 1.2  2011-10-25 12:24:46  guettler
+ *   removed Q from ConfiguratorProxy; other changes
+ *
+ *   Revision 1.1  2011/07/11 16:05:12  guettler
  *   - access to Configurator is now provided by ConfiguratorProxy
  *   - creating static lib instead of dynamic variant
  *   - establish correct directory structure for including configurator into other non-qt projects
@@ -31,11 +34,12 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef __QCONFIGURATORPROXY_H_
-#define __QCONFIGURATORPROXY_H_
+#ifndef __CONFIGURATORPROXY_H_
+#define __CONFIGURATORPROXY_H_
 
 
-#include <selforg/configurable.h>
+#include <selforg/configurablelist.h>
+#include <selforg/callbackable.h>
 
 
 namespace lpzrobots {
@@ -45,15 +49,26 @@ namespace lpzrobots {
   /**
    * Proxy which controls the creation process of the QConfigurator
    */
-  class ConfiguratorProxy {
+  class ConfiguratorProxy : public Callbackable {
     public:
-      ConfiguratorProxy(int &argc, char **argv, Configurable::configurableList configList);
+      ConfiguratorProxy(int &argc, char **argv, ConfigurableList& configList);
       virtual ~ConfiguratorProxy();
 
+      virtual void doOnCallBack(BackCaller* source, BackCaller::CallbackableType type = BackCaller::DEFAULT_CALLBACKABLE_TYPE);
+
+      void createConfigurator();
+
     private:
+      int argc;
+      char **argv;
+      ConfigurableList& configList;
+      pthread_t configuratorThread;
       QConfigurator* configurator;
+
+      static void* createConfiguratorThread(void* thread);
+
   };
 
 }
 
-#endif /* __QCONFIGURATORPROXY_H_ */
+#endif /* __CONFIGURATORPROXY_H_ */
