@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.149  2011-10-25 12:26:45  guettler
+ *   Revision 1.150  2011-10-25 15:12:12  der
+ *   osg 3.0
+ *
+ *   Revision 1.149  2011/10/25 12:26:45  guettler
  *   added Configurator creation done by GlobalData/ConfiguratorProxy
  *
  *   Revision 1.148  2011/08/31 07:57:59  martius
@@ -1259,8 +1262,10 @@ namespace lpzrobots {
 	// manipulate agents (with mouse)
 	if(!noGraphics){
 	  videostream->pause = pause;
-	  osgGA::MatrixManipulator* mm =
+
+	  OSGCameraManipulator* mm =
 	    keyswitchManipulator->getCurrentMatrixManipulator();
+
 	  if(mm) {
 	    CameraManipulator* cm = dynamic_cast<CameraManipulator*>(mm);
 	    if(cm) cm->manipulateAgent(osgHandle);
@@ -1298,7 +1303,7 @@ namespace lpzrobots {
         updateGraphics();
 
 	// update the camera
-	osgGA::MatrixManipulator* mm = keyswitchManipulator->getCurrentMatrixManipulator();
+	OSGCameraManipulator* mm = keyswitchManipulator->getCurrentMatrixManipulator();
 	if(mm) {
 	  CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
 	  if(cameramanipulator)
@@ -1418,7 +1423,7 @@ namespace lpzrobots {
 	break;
       case 8 : // Ctrl - h
         {
-          osgGA::MatrixManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
+          OSGCameraManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
           if(!mm) break;
           CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
           if(!cameramanipulator) break;
@@ -1986,7 +1991,7 @@ namespace lpzrobots {
 
   void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view) {
     if(!noGraphics) {
-      osgGA::MatrixManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
+      OSGCameraManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
       if(mm) {
 	CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
 	if(cameramanipulator)
@@ -2005,7 +2010,7 @@ namespace lpzrobots {
 
   void Simulation::setWatchedAgent(OdeAgent* agent) {
     if (agent && !noGraphics) {
-      osgGA::MatrixManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
+      OSGCameraManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
       if(mm) {
         CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
         if(cameramanipulator)

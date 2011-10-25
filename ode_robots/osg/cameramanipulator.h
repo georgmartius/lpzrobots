@@ -24,7 +24,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-08-04 16:43:53  martius
+ *   Revision 1.10  2011-10-25 15:12:12  der
+ *   osg 3.0
+ *
+ *   Revision 1.9  2011/08/04 16:43:53  martius
  *   guilogger is positioned beside simulation window (can still be improved)
  *   ctrl-h can be used to move observed agent to 0,0,0 position
  *
@@ -102,7 +105,15 @@
 #define __CAMERAMANIPULATOR_H
 
 #include "osgforwarddecl.h"
+
+#include <osg/Version>
+#if OPENSCENEGRAPH_MAJOR_VERSION >= 3
+#include <osgGA/CameraManipulator>
+#define OSGCameraManipulator osgGA::CameraManipulator
+#else 
 #include <osgGA/MatrixManipulator>
+#define OSGCameraManipulator osgGA::CameraManipulator
+#endif
 #include "globaldata.h"
 #include <selforg/position.h>
 #include "camerahandle.h"
@@ -120,7 +131,7 @@ namespace lpzrobots {
 
      It also enables to manipulate agents with forces
   */
-  class CameraManipulator : public osgGA::MatrixManipulator
+  class CameraManipulator : public OSGCameraManipulator
     {
     public:
 
