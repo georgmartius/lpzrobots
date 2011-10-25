@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2011-10-25 12:24:46  guettler
+ *   Revision 1.3  2011-10-25 12:52:42  guettler
+ *   fix with static p_thread call function
+ *
+ *   Revision 1.2  2011/10/25 12:24:46  guettler
  *   removed Q from ConfiguratorProxy; other changes
  *
  *   Revision 1.1  2011/07/11 16:05:12  guettler
@@ -64,8 +67,6 @@ namespace lpzrobots {
       ConfigurableList& configList;
       pthread_t configuratorThread;
       QConfigurator* configurator;
-
-      static void* createConfiguratorThread(void* thread);
 
   };
 

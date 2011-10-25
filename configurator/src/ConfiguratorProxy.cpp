@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2011-10-25 12:25:32  guettler
+ *   Revision 1.3  2011-10-25 12:52:42  guettler
+ *   fix with static p_thread call function
+ *
+ *   Revision 1.2  2011/10/25 12:25:32  guettler
  *   instance is now created in a separate thread with p_threads
  *
  *   Revision 1.1  2011/07/11 16:06:01  guettler
@@ -42,6 +45,8 @@ using namespace std;
 
 namespace lpzrobots {
   
+  static void* createConfiguratorThread(void* thread);
+
   ConfiguratorProxy::ConfiguratorProxy(int &argc, char **argv, ConfigurableList& configList) :
     argc(argc), argv(argv), configList(configList) {
     pthread_create(&configuratorThread, NULL, createConfiguratorThread, this);
