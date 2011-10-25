@@ -27,7 +27,10 @@
  *  Callbackable       - observer                                          *
  *                                                                         *
  *  $Log$
- *  Revision 1.4  2010-07-05 15:23:17  martius
+ *  Revision 1.5  2011-10-25 13:05:27  der
+ *  gcc 4.4 compatible
+ *
+ *  Revision 1.4  2010/07/05 15:23:17  martius
  *  transition to tr1 -> no depricated warning
  *
  *  Revision 1.3  2010/01/07 14:15:16  der
@@ -49,6 +52,7 @@
 #define __BACKCALLER_H_
 
 #include <vector>
+#include <cstddef>
 #include "stl_map.h"
 
 class Callbackable;
