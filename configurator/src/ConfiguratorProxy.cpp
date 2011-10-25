@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2011-07-11 16:06:01  guettler
+ *   Revision 1.2  2011-10-25 12:25:32  guettler
+ *   instance is now created in a separate thread with p_threads
+ *
+ *   Revision 1.1  2011/07/11 16:06:01  guettler
  *   - access to Configurator is now provided by ConfiguratorProxy
  *   - creating static lib instead of dynamic variant
  *   - establish correct directory structure for including configurator into other non-qt projects
@@ -33,23 +36,50 @@
 
 #include "ConfiguratorProxy.h"
 #include "QConfigurator.h"
+#include <pthread.h>
+
+using namespace std;
 
 namespace lpzrobots {
   
-  ConfiguratorProxy::ConfiguratorProxy(int &argc, char **argv, Configurable::configurableList configList) {
-     QApplication app(argc, argv);
-
-     QString appPath = QString(argv[0]);
-     configurator = new QConfigurator(appPath.mid(0, appPath.lastIndexOf("/") + 1), configList);
-
-     configurator->show();
-
-     app.exec();
-
+  ConfiguratorProxy::ConfiguratorProxy(int &argc, char **argv, ConfigurableList& configList) :
+    argc(argc), argv(argv), configList(configList) {
+    pthread_create(&configuratorThread, NULL, createConfiguratorThread, this);
   }
-  
+
   ConfiguratorProxy::~ConfiguratorProxy() {
     // TODO Auto-generated destructor stub
+  }
+
+  void ConfiguratorProxy::doOnCallBack(BackCaller* source, BackCaller::CallbackableType type /*= BackCaller::DEFAULT_CALLBACKABLE_TYPE*/) {
+    if (type == ConfigurableList::CALLBACK_CONFIGURABLE_LIST_BEING_DELETED) {
+      // TODO: fix this
+      //      delete configurator;
+      //      delete this;
+    }
+  }
+
+  void ConfiguratorProxy::createConfigurator() {
+    QApplication app(argc, argv);
+
+    QString appPath = QString(argv[0]);
+    configurator = new QConfigurator(appPath.mid(0, appPath.lastIndexOf("/") + 1), configList);
+
+    configurator->show();
+
+    configList.addCallbackable(this, ConfigurableList::CALLBACK_CONFIGURABLE_LIST_BEING_DELETED);
+
+    app.exec();
+  }
+
+  static void* createConfiguratorThread(void* thread) {
+    ConfiguratorProxy* proxy = dynamic_cast<ConfiguratorProxy*> ((ConfiguratorProxy*) thread);
+    if (proxy)
+      proxy->createConfigurator();
+    else {
+      cerr << "createConfiguratorProcess()::Shit happens" << endl;
+    }
+    return NULL;
   }
 
 }
