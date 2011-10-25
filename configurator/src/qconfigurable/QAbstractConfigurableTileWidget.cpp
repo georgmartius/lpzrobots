@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2011-07-11 16:06:01  guettler
+ *   Revision 1.2  2011-10-25 14:31:06  guettler
+ *   smaller default tile widgets
+ *
+ *   Revision 1.1  2011/07/11 16:06:01  guettler
  *   - access to Configurator is now provided by ConfiguratorProxy
  *   - creating static lib instead of dynamic variant
  *   - establish correct directory structure for including configurator into other non-qt projects
@@ -130,7 +133,7 @@
 
 namespace lpzrobots {
   
-  QSize QAbstractConfigurableTileWidget::defaultWidgetSize = QSize(300, 80);
+  QSize QAbstractConfigurableTileWidget::defaultWidgetSize = QSize(210, 60);
 
   QAbstractConfigurableTileWidget::QAbstractConfigurableTileWidget(Configurable* config, Configurable::paramkey key, QMap<QGridPos, QAbstractConfigurableTileWidget*>& tileIndexConfigWidgetMap) :
     config(config), key(key), origDescription(config->getParamDescr(key)), gridPos(0,0), internalVisible(true), enableResizing(false), isResizing(false), tileIndexConfigWidgetMap(tileIndexConfigWidgetMap), entered(false) {
