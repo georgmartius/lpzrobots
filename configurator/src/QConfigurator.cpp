@@ -22,7 +22,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2011-07-11 16:06:01  guettler
+ *   Revision 1.2  2011-10-25 14:30:48  guettler
+ *   new default sizes
+ *
+ *   Revision 1.1  2011/07/11 16:06:01  guettler
  *   - access to Configurator is now provided by ConfiguratorProxy
  *   - creating static lib instead of dynamic variant
  *   - establish correct directory structure for including configurator into other non-qt projects
@@ -279,8 +282,8 @@ namespace lpzrobots {
 
   void QConfigurator::readSettings() {
     QSettings settings(applicationPath + QString("configurator.settings"), QSettings::IniFormat);
-    QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
-    QSize size = settings.value("size", QSize(400, 400)).toSize();
+    QPoint pos = settings.value("pos", QPoint(805, 405)).toPoint();
+    QSize size = settings.value("size", QSize(690, 500)).toSize();
     resize(size);
     move(pos);
     bool warning = settings.value("warningOutput").toBool();
