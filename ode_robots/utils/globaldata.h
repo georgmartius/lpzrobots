@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-03-21 18:22:32  guettler
+ *   Revision 1.10  2011-10-25 12:28:12  guettler
+ *   GlobalData is now derived from GlobalDataBase; support for creation of Configurator (via ConfiguratorProxy)
+ *
+ *   Revision 1.9  2011/03/21 18:22:32  guettler
  *   - adapted to enhanced configurable interface
  *
  *   Revision 1.8  2009/08/07 13:31:54  martius
@@ -60,52 +63,57 @@
 #ifndef __GLOBALDATA_H
 #define __GLOBALDATA_H
 
-
 #include <vector>
 #include "odehandle.h"
 #include "odeconfig.h"
 #include "sound.h"
 #include <selforg/plotoption.h>
+#include <selforg/globaldatabase.h>
 
 class Configurable;
 
 namespace lpzrobots {
 
-class OdeAgent;
-class AbstractObstacle;
-class Primitive;
+  class OdeAgent;
+  class AbstractObstacle;
+  class Primitive;
 
-typedef std::vector<AbstractObstacle*> ObstacleList;      
-typedef Configurable::configurableList ConfigList;
-typedef std::vector<OdeAgent*>     OdeAgentList; 
-typedef std::list<Sound>           SoundList; 
-typedef std::list<PlotOption>      PlotOptionList;
+  typedef std::vector<AbstractObstacle*> ObstacleList;
+  typedef Configurable::configurableList ConfigList;
+  typedef std::vector<OdeAgent*> OdeAgentList;
+  typedef std::list<Sound> SoundList;
+  typedef std::list<PlotOption> PlotOptionList;
 
-/**
-  Data structure holding all essential global information.
-*/
-struct GlobalData
-{
-  GlobalData() { 
-    time        = 0;
-    sim_step    = 0;
-    environment = 0;
-  }
+  /**
+   Data structure holding all essential global information.
+   */
+  class GlobalData : public GlobalDataBase {
+    public:
+      GlobalData() {
+        sim_step = 0;
+        environment = 0;
+      }
 
-  OdeConfig odeConfig;
-  ConfigList configs;
-  ObstacleList obstacles;
-  OdeAgentList agents;
-  Primitive* environment; /// < this is used to be able to attach objects to the static environment
+      virtual ~GlobalData() {}
 
-  SoundList sounds;  ///< sound space
+      OdeConfig odeConfig;
+      ObstacleList obstacles;
+      OdeAgentList agents;
+      Primitive* environment; /// < this is used to be able to attach objects to the static environment
 
-  PlotOptionList plotoptions;     ///< plotoptions used for new agents
-  std::list<Configurable*> globalconfigurables; ///< global configurables plotted by all agents
+      SoundList sounds; ///< sound space
 
-  double time;
-  long int sim_step; ///< time steps since start
-};
+      PlotOptionList plotoptions; ///< plotoptions used for new agents
+      std::list<Configurable*> globalconfigurables; ///< global configurables plotted by all agents
+
+      double time;
+      long int sim_step; ///< time steps since start
+
+      virtual AgentList& getAgents();
+
+    private:
+      AgentList baseAgents;
+  };
 
 }
 
