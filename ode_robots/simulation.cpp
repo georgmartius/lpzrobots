@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.148  2011-08-31 07:57:59  martius
+ *   Revision 1.149  2011-10-25 12:26:45  guettler
+ *   added Configurator creation done by GlobalData/ConfiguratorProxy
+ *
+ *   Revision 1.148  2011/08/31 07:57:59  martius
  *   removed realtimefactor prints on console
  *
  *   Revision 1.147  2011/08/04 16:43:53  martius
@@ -1068,7 +1071,6 @@ namespace lpzrobots {
 
     printConfigs(globalData.configs);
 
-
     if(!noGraphics) {
       // optimize the scene graph, remove redundant nodes and state etc.
       // osgUtil::Optimizer optimizer;
@@ -1097,6 +1099,7 @@ namespace lpzrobots {
 	(*itr)->setWindowName(windowName);
       }
     }
+    globalData.createConfigurator(argc, argv);
 
     while ( ( noGraphics || !viewer->done()) &&
 	    (!simulation_time_reached || restart(odeHandle,osgHandle,globalData)) ) {
@@ -1397,7 +1400,7 @@ namespace lpzrobots {
       case 7 : // Ctrl - g
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
 	  if(!(*i)->removePlotOption(GuiLogger)) {
-	    PlotOption po(GuiLogger, guiloggerinterval, 
+	    PlotOption po(GuiLogger, guiloggerinterval,
                           "-geometry +" + std::itos(windowWidth+12) + "+0");
 	    (*i)->addAndInitPlotOption(po);
 	  }
@@ -1429,7 +1432,7 @@ namespace lpzrobots {
 
       case 65450: // keypad *  // normal * is allready used by LOD
 	globalData.odeConfig.setParam("realtimefactor", 0);
-	//std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor") 
+	//std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor")
         //  << std::endl; // shown in the  hud anyway
 	handled=true;
 	break;
@@ -1645,7 +1648,7 @@ namespace lpzrobots {
 	guiloggerinterval=atoi(argv[index]);
       if (guiloggerinterval<1) // avoids a bug
         guiloggerinterval=5; // default value
-      plotoptions.push_back(PlotOption(GuiLogger, guiloggerinterval, 
+      plotoptions.push_back(PlotOption(GuiLogger, guiloggerinterval,
                                        "-geometry +" + std::itos(windowWidth+12) + "+0"));
     }
 
