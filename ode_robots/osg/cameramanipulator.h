@@ -24,7 +24,10 @@
  *  Camera Manipulation by mouse and keyboard                              *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2011-10-25 15:12:12  der
+ *   Revision 1.11  2011-10-26 11:24:32  martius
+ *   type in osg 3 fix
+ *
+ *   Revision 1.10  2011/10/25 15:12:12  der
  *   osg 3.0
  *
  *   Revision 1.9  2011/08/04 16:43:53  martius
@@ -112,7 +115,7 @@
 #define OSGCameraManipulator osgGA::CameraManipulator
 #else 
 #include <osgGA/MatrixManipulator>
-#define OSGCameraManipulator osgGA::CameraManipulator
+#define OSGCameraManipulator osgGA::MatrixManipulator
 #endif
 #include "globaldata.h"
 #include <selforg/position.h>
