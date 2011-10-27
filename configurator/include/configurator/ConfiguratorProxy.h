@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2011-10-25 12:52:42  guettler
+ *   Revision 1.4  2011-10-27 15:54:36  martius
+ *   new build system with -config shell script and configurator intragration
+ *
+ *   Revision 1.3  2011/10/25 12:52:42  guettler
  *   fix with static p_thread call function
  *
  *   Revision 1.2  2011/10/25 12:24:46  guettler
@@ -54,7 +57,7 @@ namespace lpzrobots {
    */
   class ConfiguratorProxy : public Callbackable {
     public:
-      ConfiguratorProxy(int &argc, char **argv, ConfigurableList& configList);
+      ConfiguratorProxy(ConfigurableList& configList);
       virtual ~ConfiguratorProxy();
 
       virtual void doOnCallBack(BackCaller* source, BackCaller::CallbackableType type = BackCaller::DEFAULT_CALLBACKABLE_TYPE);
@@ -62,8 +65,6 @@ namespace lpzrobots {
       void createConfigurator();
 
     private:
-      int argc;
-      char **argv;
       ConfigurableList& configList;
       pthread_t configuratorThread;
       QConfigurator* configurator;

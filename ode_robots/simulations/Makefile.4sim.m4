@@ -29,81 +29,54 @@ EXEC = start
 # add files to compile in the conf file
 include Makefile.conf
 
-EXEC_OPT  = $(EXEC)_opt
-EXEC_DBG  = $(EXEC)_dbg
-
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
-ODEROBOTSLIB := ode_robots
-ODEROBOTSLIB_DBG := ode_robots_dbg
-ODEROBOTSLIB_OPT := ode_robots_opt
-DEV(LIBODEROBOTS = $(ODEROBOTS)/lib$(ODEROBOTSLIB).a)
+# the CFGOPTS are set by the opt and dbg target
+CFGOPTS=
+INC    += -I.
+BASELIBS = $(shell ode_robots-config $(CFGOPTS) --static --libs) $(shell selforg-config $(CFGOPTS) --static --libs) 
+BASELIBSSHARED := $(shell ode_robots-config $(CFGOPTS) --libs) $(shell selforg-config $(CFGOPTS) --libs)
 
-SELFORGLIB = selforg
-SELFORGLIB_DBG = selforg_dbg
-SELFORGLIB_OPT = selforg_opt
-DEV(LIBSELFORG      = $(SELFORG)/lib$(SELFORGLIB).a)
 
-ODELIBS = $(shell ode-dbl-config --libs)
-GSLLIBS = $(shell gsl-config --libs)
-STATICSTART=-Wl,-Bstatic
-STATICEND=-Wl,-Bdynamic
+DEV(LIBSELFORG=$(shell selforg-config $(CFGOPTS) --libfile))
+DEV(SELFORGSRCPREFIX=$(shell selforg-config $(CFGOPTS) --srcprefix))
 
-LIBS  += -lm \
-	DEV(-L$(ODEROBOTS) -L$(SELFORG)) \
-	 $(STATICSTART) -l$(ODEROBOTSLIB) -l$(SELFORGLIB) $(STATICEND) \
-	-Wl,-Bstatic -l$(ODEROBOTSLIB) -l$(SELFORGLIB) -Wl,-Bdynamic \
-	 $(ODELIBS) $(GSLLIBS) \
-	-losgShadow -losgText -losgUtil -losgViewer -losgGA -lOpenThreads -losg -lGL -lGLU -lglut \
-	-lreadline -lncurses -lpthread $(ADDITIONAL_LIBS)
+DEV(LIBODEROBOTS=$(shell ode_robots-config $(CFGOPTS) --libfile))
+DEV(ODEROBOTSSRCPREFIX=$(shell ode_robots-config $(CFGOPTS) --srcprefix))
 
-INC   += -I. DEV(-I$(ODEROBOTS)/include -I$(SELFORG)/include) LINUXORMAC(,-I/opt/local/include
-)
+LIBS  += $(BASELIBS) $(ADDITIONAL_LIBS)
+
+INC   += -I.
 
 CXX = g++
-ODEFLAGS = $(shell ode-dbl-config --cflags)
-CPPBASEFLAGS = $(ODEFLAGS) -pthread $(INC) -Wno-deprecated -Wall
-# -pg for profiling
-CPPFLAGS = $(CPPBASEFLAGS) -g -O1
-## Optimisation
-CPPFLAGS_DBG = $(CPPBASEFLAGS) -g
-## Optimisation
-CPPFLAGS_OPT = $(CPPBASEFLAGS) -O3 -DNDEBUG
+CPPFLAGS = -Wall -pipe -Wno-deprecated $(INC) $(shell selforg-config $(CFGOPTS) --cflags) \
+  $(shell ode_robots-config $(CFGOPTS) --intern --cflags) 
 
 normal: DEV(libode_robots) 
 	$(MAKE) $(EXEC)
 opt:    DEV(libode_robots_opt) 
-	$(MAKE) ODEROBOTSLIB="$(ODEROBOTSLIB_OPT)" SELFORGLIB="$(SELFORGLIB_OPT)" CPPFLAGS="$(CPPFLAGS_OPT)" $(EXEC_OPT)
+	$(MAKE) CFGOPTS=--opt EXEC=$(EXEC)_opt $(EXEC)
 dbg:    DEV(libode_robots_dbg) 
-	$(MAKE) ODEROBOTSLIB="$(ODEROBOTSLIB_DBG)" SELFORGLIB="$(SELFORGLIB_DBG)" CPPFLAGS="$(CPPFLAGS_DBG)" $(EXEC_DBG)
+	$(MAKE) CFGOPTS=--dbg EXEC=$(EXEC)_dbg $(EXEC)
 shared:  DEV(libode_robots_shared) 
-	$(MAKE) STATICSTART="" STATICEND="" $(EXEC)
-
+	$(MAKE) BASELIBS="$(BASELIBSSHARED)" $(EXEC)
 
 $(EXEC): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS) $(LIBSELFORG))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)
 
-$(EXEC_OPT): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS) $(LIBSELFORG))
-	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_OPT)
-
-$(EXEC_DBG): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS) $(LIBSELFORG))
-	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC_DBG)
-
-
 DEV(
 libode_robots:	
-	cd $(ODEROBOTS) && $(MAKE) lib
+	cd $(ODEROBOTSSRCPREFIX) && $(MAKE) lib
 
 libode_robots_dbg:	
-	cd $(ODEROBOTS) && $(MAKE) dbg
+	cd $(ODEROBOTSSRCPREFIX) && $(MAKE) dbg
 
 libode_robots_opt:	
-	cd $(ODEROBOTS) && $(MAKE) opt
+	cd $(ODEROBOTSSRCPREFIX) && $(MAKE) opt
 
 libode_robots_shared:	
-	cd $(ODEROBOTS) && $(MAKE) shared
-
+	cd $(ODEROBOTSSRCPREFIX) && $(MAKE) shared
 )
 
 Makefile.depend: 
@@ -118,11 +91,11 @@ tags:
 DEV(
 cleandist: clean-all
 clean-all: clean
-	cd $(ODEROBOTS) && make clean-all
-	cd $(SELFORG) && make clean-all
+	cd $(ODEROBOTSSRCPREFIX) && make clean-all
+	cd $(SELFORGSRCPREFIX) && make clean-all
 )
 
 clean:
-	rm -f $(EXEC) $(EXEC_DBG) $(EXEC_OPT) *.o Makefile.depend
+	rm -f $(EXEC) $(EXEC)_dbg $(EXEC)_opt *.o Makefile.depend
 
 -include Makefile.depend

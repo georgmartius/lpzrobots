@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2011-10-25 12:31:16  guettler
+ *   Revision 1.2  2011-10-27 15:54:36  martius
+ *   new build system with -config shell script and configurator intragration
+ *
+ *   Revision 1.1  2011/10/25 12:31:16  guettler
  *   new base class for ode_robots/GlobalData;
  *   support for creation of Configurator (via ConfiguratorProxy)
  *
@@ -35,18 +38,33 @@
 
 #include "globaldatabase.h"
 
-#ifndef COMPILE_CONFIGURATOR
+#ifndef NOCONFIGURATOR
 #define COMPILE_CONFIGURATOR 1 // default
 #endif
 
-#if (COMPILE_CONFIGURATOR==1)
+#ifndef NOCONFIGURATOR
 #include <configurator/ConfiguratorProxy.h>
 
 using namespace lpzrobots;
 #endif
 
-void GlobalDataBase::createConfigurator(int &argc, char **argv) {
-#if (COMPILE_CONFIGURATOR==1)
-  new ConfiguratorProxy(argc, argv, configs);
+void GlobalDataBase::createConfigurator() {
+#ifndef NOCONFIGURATOR
+  if(configurator==0){
+    configurator = new ConfiguratorProxy(configs);
+  }
 #endif
+}
+
+bool GlobalDataBase::isConfiguratorOpen(){
+  return configurator!=0;
+}
+
+void GlobalDataBase::removeConfigurator() {
+#ifndef NOCONFIGURATOR
+  if(configurator!=0){
+    delete configurator;
+  }
+#endif
+  configurator = 0;  
 }

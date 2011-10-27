@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.1  2011-10-25 12:31:16  guettler
+ *   Revision 1.2  2011-10-27 15:54:36  martius
+ *   new build system with -config shell script and configurator intragration
+ *
+ *   Revision 1.1  2011/10/25 12:31:16  guettler
  *   new base class for ode_robots/GlobalData;
  *   support for creation of Configurator (via ConfiguratorProxy)
  *
@@ -39,14 +42,19 @@
 #include "agent.h"
 #include "configurablelist.h"
 
+#ifndef NOCONFIGURATOR
+#include <configurator/ConfiguratorProxy.h>
+#endif
 
 typedef std::vector<Agent*> AgentList;
 
 class GlobalDataBase {
   public:
-    GlobalDataBase() {}
+    GlobalDataBase() {
+      configurator = 0;
+    }
 
-    virtual ~GlobalDataBase() {}
+    virtual ~GlobalDataBase() {};
 
     virtual AgentList& getAgents() = 0;
 
@@ -54,9 +62,20 @@ class GlobalDataBase {
         Agent* operator()(Derived instance) { return dynamic_cast<Agent*>(instance); }
     };
 
-    void createConfigurator(int &argc, char **argv);
+    void createConfigurator();
+
+    void removeConfigurator();
+  
+    bool isConfiguratorOpen();
 
     ConfigurableList configs;
+    
+#ifndef NOCONFIGURATOR
+    lpzrobots::ConfiguratorProxy * configurator;
+#else
+    void* configurator;
+#endif
+  
 };
 
 #endif /* __GLOBALDATABASE_H_ */

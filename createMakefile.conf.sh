@@ -1,16 +1,23 @@
 #!/bin/bash
 
-
-
 echo "Generating Makefile.conf (configuration makefile)"
 echo " You can change your preference by editing Makefile.conf"
 echo " or just delete it and run make again"
 
+defprefix=${1:-/usr/local}
 echo  "Where do you want to install the simulator?";
 echo  "Please use either /usr, /usr/local  or you home directory unless you know what you are doing.";
-echo -n "e.g. (/home/yourlogin) (don' use ~): [/usr/local] ";
+echo -n "e.g. (/home/yourlogin) (don' use ~): [$defprefix] ";
 read prefix 
-[ -z "$prefix" ] && prefix='/usr/local'  # $(HOME)'
+[ -z "$prefix" ] && prefix=$defprefix  # $(HOME)'
+if ! echo $PATH | grep "$prefix/bin"; then
+    echo "Cannot find "$prefix/bin" in PATH variable!" 
+    echo "The installation will not work if you do not add it!" 
+    echo " use export PATH=\$PATH:$prefix/bin in your ~/.bashrc and reopen the shell!" 
+    cp -f Makefile.conf.bak Makefile.conf
+    exit 1;
+fi
+
 
 # system autodetection
 # some muggling for the achitecture
@@ -44,13 +51,14 @@ echo -n "All right? [y/N] "
 read okay 
 if [ ! "$okay" = "y" ]; then
     echo "Since you didn't say yes I better quit. Run \"make conf\" again!"
+    cp -f Makefile.conf.bak Makefile.conf
     exit 1;
 fi
 
 
 echo -e "# configuration file for lpzrobots (automatically generated!)\n\
 # Where to install the simulator and utils"  > Makefile.conf
-echo "PREFIX=$prefix/" >> Makefile.conf
+echo "PREFIX=$prefix" >> Makefile.conf
 echo -e "\n# user or developement installation\n\
 # Options:\n\
 #  DEVEL: only install the utility functions,\n\
@@ -61,6 +69,14 @@ echo "TYPE=$Type" >> Makefile.conf
 
 echo "// Automatically generated file! Use make conf in lpzrobots." > ode_robots/install_prefix.conf
 echo "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
+
+for Folder in selforg ode_robots configurator; do
+    echo "call $Folder/configure --prefix=\"$prefix\" --system=\"$System\" --type=\"$Type\"";  
+    if ! $Folder/configure --prefix="$prefix" --system="$System" --type="$Type"; then
+        exit 1;
+    fi
+done
+
 
 for Folder in ode_robots/simulations selforg/simulations selforg/examples ga_tools/simulations; do
   echo "call: m4 -D \"$System\" -D \"$Type\" $Folder/Makefile.4sim.m4";

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.25  2011-06-03 13:42:48  martius
+ *   Revision 1.26  2011-10-27 15:54:36  martius
+ *   new build system with -config shell script and configurator intragration
+ *
+ *   Revision 1.25  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -338,6 +341,8 @@ namespace lpzrobots {
     center->setPose(osg::Matrix::translate(0,0,0) * pose);
     dummycenter = new DummyPrimitive();
     dummycenter->setPosition(center->getPosition());
+
+    notifyOnChange("frictionground");
     
     created=true;
 

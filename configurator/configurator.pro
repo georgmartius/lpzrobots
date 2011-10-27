@@ -1,8 +1,8 @@
 TEMPLATE = lib
 TARGET = configurator
 DEPENDPATH += . ./src/qconfigurable ./include/configurator
-INCLUDEPATH += . /$(HOME)/include ./src/qconfigurable ../selforg/include ./include/configurator
-LIBS += -L$(HOME)/lib -lselforg_dbg -L../selforg
+INCLUDEPATH += . ./src/qconfigurable ../selforg/include ./include/configurator
+LIBS += -lselforg -L../selforg
 CONFIG += debug staticlib
 QMAKE_CXXFLAGS += -Wno-deprecated -Wno-unused-parameter
 

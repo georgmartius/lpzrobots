@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.8  2011-10-14 09:36:18  martius
+ *   Revision 1.9  2011-10-27 15:54:36  martius
+ *   new build system with -config shell script and configurator intragration
+ *
+ *   Revision 1.8  2011/10/14 09:36:18  martius
  *   snakes have no frictionGround parameter anymore, since it was not used,
  *    use the substances now
  *
@@ -190,7 +193,6 @@
 #include <selforg/invertmotornstep.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/derpseudosensor.h>
-#include <selforg/basiccontroller.h>
 #include <selforg/derlininvert.h>
 /************/
 

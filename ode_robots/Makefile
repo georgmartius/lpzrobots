@@ -2,26 +2,33 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     June 2005
 
-PACKAGE_NAME=ode_robots
-LPZROBOTS=..
-ODEROBOTS=.
-SELFORG=$(LPZROBOTS)/selforg
+
+SELFORGCFG=`if type selforg-config >/dev/null 2>&1; then echo "selforg-config"; elif [ -x ../selforg/selforg-config ]; then echo "../selforg/selforg-config"; else echo "Cannot find selforg-config" 1>&2; fi`
+
+
 INCLUDEDIR=include/ode_robots
+# this is the command to come from the include dir back to the base
 REVINCLUDEDIR=../..
-LIBBASE=lib$(PACKAGE_NAME)
-LIB=$(LIBBASE).a
-LIB_DBG= $(LIBBASE)_dbg.a
-LIB_OPT= $(LIBBASE)_opt.a
-SHAREDLIB=$(LIBBASE).so
-TYPE=DEVEL
+
+# the CFGOPTS are set by the opt and dbg target
+CFGOPTS=
+LIB := $(shell ./ode_robots-config $(CFGOPTS) --srcprefix="." --libfile)
+SHAREDLIB=$(shell ./ode_robots-config $(CFGOPTS) --srcprefix="." --solibfile)
+
 STRIP=no
+TYPE=DEVEL
 # this can is overwritten from commandline
-PREFIX=/usr/local
+PREFIX=$(shell ./ode_robots-config $(CFGOPTS) --prefix)
 # for debian auto-package installation
+# this may not work....?
 ifneq ($(DESTDIR),) 
 PREFIX=$(DESTDIR)
 endif
 MAKEDEPEND=makedepend
+
+ifeq ($(TYPE),DEVEL)
+SELFORG=$(shell $(SELFORGCFG) $(CFGOPTS) --srcprefix)
+endif
 
 include Makefile.conf
 
@@ -35,14 +42,12 @@ HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 
 UTILS = install_prefix.conf
 
-ODEFLAGS = $(shell ode-dbl-config --cflags)
-CPPBASEFLAGS = -Wall -pipe -fpic -I. $(ODEFLAGS) -pthread $(INC) 
+# additional inc paths
+INC +=  -I. -I./include/ode_robots
 
-# see debug and optimization versions below
-CPPFLAGS = -g -O1 $(CPPBASEFLAGS)
-
-## profiling
-#CPPFLAGS_PROF = $(CPPBASEFLAGS) -pg -O -DQPROF
+# use -pg for profiling
+CPPFLAGS = -Wall -pipe -fpic $(INC) $(shell $(SELFORGCFG) $(CFGOPTS) --cflags) \
+ $(shell ./ode_robots-config --srcprefix="." $(CFGOPTS) --intern --cflags)  
 
 # used for single file compilation
 CXX = g++
@@ -50,7 +55,7 @@ CXX = g++
 # used for lib-packing 
 AR = ar -rcs
 
-.PHONY: lib opt clean clean-all distclean todo depend tags search find findi
+.PHONY: lib opt clean clean-all distclean todo depend tags search find findi install install_scripts
 
 libs: lib opt dbg
 
@@ -64,13 +69,13 @@ dbg: $(UTILS)
 ifeq ($(TYPE),DEVEL)
 	cd $(SELFORG) && $(MAKE) dbg
 endif
-	$(MAKE) BUILD_DIR=build_dbg LIB=$(LIB_DBG) CPPFLAGS="$(CPPBASEFLAGS) -g" library
+	$(MAKE) BUILD_DIR=build_dbg CFGOPTS=--dbg library
 
 opt: $(UTILS)
 ifeq ($(TYPE),DEVEL)
 	cd $(SELFORG) && $(MAKE) opt
 endif
-	$(MAKE) BUILD_DIR=build_opt LIB=$(LIB_OPT) CPPFLAGS="$(CPPBASEFLAGS) -O3 -DNDEBUG" STRIP="yes" library
+	$(MAKE) BUILD_DIR=build_opt CFGOPTS=--opt STRIP="yes" library
 
 shared:
 ifeq ($(TYPE),DEVEL)
@@ -83,6 +88,7 @@ library: $(LIB)
 
 $(LIB): $(UTILS) Makefile.depend $(OFILES)	
 	$(AR) $(LIB) $(OFILES)
+	@if [ "$(STRIP)" = "yes" ]; then strip --strip-debug $(LIB); fi
 
 $(SHAREDLIB): Makefile.depend $(OFILES)
 	$(CXX) -shared -Wl,-soname,$(SHAREDLIB) -o $(SHAREDLIB) $(OFILES) 
@@ -137,18 +143,24 @@ clean:
 	rm -rf build build_dbg build_opt
 	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 
-install: Makefile.depend lib opt dbg
-	install -d  $(PREFIX)/bin $(PREFIX)/share/lpzrobots $(PREFIX)/share/lpzrobots/ode_robots
+install_scripts:
+	@echo "*************** Install binaries and scripts to $(PREFIX)/bin **********"
+	install -d $(PREFIX)/bin
+	install --mode 755 ode_robots-config $(PREFIX)/bin/
+	install --mode 755 utils/feedfile.pl $(PREFIX)/bin/
+	install --mode 755 utils/encodevideo.sh $(PREFIX)/bin/
+	install --mode 755 utils/writeTextToFrames.sh $(PREFIX)/bin/
+	install --mode 755 utils/selectcolumns.pl $(PREFIX)/bin/
+
+
+install: Makefile.depend install_scripts lib opt dbg
 ifneq ($(TYPE),DEVEL)
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
 	install -d  $(PREFIX)/lib $(PREFIX)/include/ode_robots 
 	install --mode 644 $(LIB) $(LIB_OPT) $(LIB_DBG) $(PREFIX)/lib/
 	install --mode 644 -t $(PREFIX)/include/ode_robots include/ode_robots/*.h
 endif
-	install --mode 755 utils/feedfile.pl $(PREFIX)/bin/
-	install --mode 755 utils/encodevideo.sh $(PREFIX)/bin/
-	install --mode 755 utils/writeTextToFrames.sh $(PREFIX)/bin/
-	install --mode 755 utils/selectcolumns.pl $(PREFIX)/bin/
+	install -d $(PREFIX)/share/lpzrobots $(PREFIX)/share/lpzrobots/ode_robots
 	cp -R osg/data $(PREFIX)/share/lpzrobots/
 ifeq ($(TYPE),DEVEL)
 	-find $(PREFIX)/share/lpzrobots/ -type d -name "CVS" | xargs rm -r
@@ -164,6 +176,7 @@ ifneq ($(TYPE),DEVEL)
 	-rm -rf $(PREFIX)/include/ode_robots
 endif
 	-rm -rf $(PREFIX)/share/lpzrobots/ode_robots/
+	-rm -f $(PREFIX)/bin/ode_robots-config
 	-rm -f $(PREFIX)/bin/feedfile.pl
 	-rm -f $(PREFIX)/bin/encodevideo.sh 
 	-rm -f $(PREFIX)/bin/selectcolumns.pl

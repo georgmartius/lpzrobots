@@ -29,57 +29,41 @@ EXEC = start
 ## add files to compile in the conf file
 include Makefile.conf
 
-EXEC_OPT = $(EXEC)_opt
-EXEC_DBG = $(EXEC)_dbg
-
 CFILES = $(addsuffix .cpp, $(FILES))
 OFILES = $(addsuffix .o, $(FILES))
 
-SELFORGLIB = selforg
-SELFORGLIB_OPT = selforg_opt
-SELFORGLIB_DBG = selforg_dbg
-DEV(LIBSELFORGLIB  = $(SELFORG)/lib$(SELFORGLIB).a)
+# the CFGOPTS are set by the opt and dbg target
+CFGOPTS=
+LIBS   += $(shell selforg-config $(CFGOPTS) --static --libs)
+INC    += -I.
 
-GSLLIBS = $(shell gsl-config --libs)
-
-LIBS   += -lm DEV(-L$(SELFORG)/) -l$(SELFORGLIB) -lpthread $(GSLLIBS)
-INC    +=  DEVORUSER(-I$(SELFORG)/include, ) LINUXORMAC( ,-I/opt/local/include)
+DEV(LIBSELFORGLIB=$(shell selforg-config $(CFGOPTS) --libfile))
+DEV(SRCPREFIX=$(shell selforg-config $(CFGOPTS) --srcprefix))
 
 ## use -pg for profiling
-CBASEFLAGS = -Wall -pipe -Wno-deprecated -pthread -I. $(INC)
-CPPFLAGS = $(CBASEFLAGS) -g -O
-## DEBUG
-CPPFLAGS_DBG = $(CBASEFLAGS) -g
-## Optimisation
-CPPFLAGS_OPT = $(CBASEFLAGS) -O3 -DUNITTEST -DNDEBUG
+CPPFLAGS = -Wall -pipe -Wno-deprecated $(INC) $(shell selforg-config $(CFGOPTS) --intern --cflags) 
 
 CXX = g++
 
 normal: DEV(libselforg) 
 	$(MAKE) $(EXEC)
 opt   : DEV(libselforg_opt)
-	$(MAKE) CPPFLAGS="$(CPPFLAGS_OPT)" SELFORGLIB="$(SELFORGLIB_OPT)" $(EXEC_OPT)
+	$(MAKE) CFGOPTS=--opt EXEC=$(EXEC)_opt $(EXEC)
 dbg   : DEV(libselforg_dbg)
-	$(MAKE) CPPFLAGS="$(CPPFLAGS_DBG)" SELFORGLIB="$(SELFORGLIB_DBG)" $(EXEC_DBG)
+	$(MAKE) CFGOPTS=--dbg EXEC=$(EXEC)_dbg $(EXEC)
 
 $(EXEC): Makefile.depend $(OFILES) DEV($(LIBSELFORGLIB))
-	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC)
-
-$(EXEC_DBG): Makefile.depend $(OFILES) DEV($(LIBSELFORGLIB))
-	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC_DBG)
-
-$(EXEC_OPT): Makefile.depend $(OFILES) DEV($(LIBSELFORGLIB))
-	$(CXX) $(OFILES) $(LIBS)  -o $(EXEC_OPT)
+	$(CXX) $(OFILES) $(LIBS) -o $(EXEC)
 
 DEV(
 libselforg: 
-	cd $(SELFORG) && $(MAKE) lib
+	cd $(SRCPREFIX) && $(MAKE) lib
 
 libselforg_dbg: 
-	cd $(SELFORG) && $(MAKE) dbg
+	cd $(SRCPREFIX) && $(MAKE) dbg
 
 libselforg_opt: 
-	cd $(SELFORG) && $(MAKE) opt
+	cd $(SRCPREFIX) && $(MAKE) opt
 )
 
 depend: 
@@ -95,6 +79,6 @@ tags:
 	etags $(find -name "*.[ch]")
 
 clean:
-	rm -f $(EXEC) $(EXEC_OPT) $(EXEC_DBG) *.o Makefile.depend
+	rm -f $(EXEC) $(EXEC)_opt $(EXEC)_dbg *.o Makefile.depend
 
 include Makefile.depend

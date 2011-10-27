@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.3  2011-10-25 12:52:42  guettler
+ *   Revision 1.4  2011-10-27 15:54:36  martius
+ *   new build system with -config shell script and configurator intragration
+ *
+ *   Revision 1.3  2011/10/25 12:52:42  guettler
  *   fix with static p_thread call function
  *
  *   Revision 1.2  2011/10/25 12:25:32  guettler
@@ -47,8 +50,8 @@ namespace lpzrobots {
   
   static void* createConfiguratorThread(void* thread);
 
-  ConfiguratorProxy::ConfiguratorProxy(int &argc, char **argv, ConfigurableList& configList) :
-    argc(argc), argv(argv), configList(configList) {
+  ConfiguratorProxy::ConfiguratorProxy(ConfigurableList& configList) :
+    configList(configList) {
     pthread_create(&configuratorThread, NULL, createConfiguratorThread, this);
   }
 
@@ -65,10 +68,14 @@ namespace lpzrobots {
   }
 
   void ConfiguratorProxy::createConfigurator() {
+    int argc=1;
+    char* argv0 = (char*)"configurator";
+    char** argv = &argv0;
     QApplication app(argc, argv);
 
     QString appPath = QString(argv[0]);
-    configurator = new QConfigurator(appPath.mid(0, appPath.lastIndexOf("/") + 1), configList);
+    //    configurator = new QConfigurator(appPath.mid(0, appPath.lastIndexOf("/") + 1), configList);
+    configurator = new QConfigurator(appPath, configList);
 
     configurator->show();
 

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.150  2011-10-25 15:12:12  der
+ *   Revision 1.151  2011-10-27 15:54:36  martius
+ *   new build system with -config shell script and configurator intragration
+ *
+ *   Revision 1.150  2011/10/25 15:12:12  der
  *   osg 3.0
  *
  *   Revision 1.149  2011/10/25 12:26:45  guettler
@@ -1102,7 +1105,7 @@ namespace lpzrobots {
 	(*itr)->setWindowName(windowName);
       }
     }
-    globalData.createConfigurator(argc, argv);
+    //globalData.createConfigurator();
 
     while ( ( noGraphics || !viewer->done()) &&
 	    (!simulation_time_reached || restart(odeHandle,osgHandle,globalData)) ) {
@@ -1393,6 +1396,13 @@ namespace lpzrobots {
       }
       	//printf("Key: %i\n", ea.getKey());
       switch(ea.getKey()) {
+      case 3 : // Ctrl - c
+	if (globalData.isConfiguratorOpen()){
+          globalData.removeConfigurator();
+        }else{
+          globalData.createConfigurator();
+        }
+	break;
       case 6 : // Ctrl - f
 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
 	  if(!(*i)->removePlotOption(File)) {
@@ -1610,6 +1620,8 @@ namespace lpzrobots {
     }
     
     global.agents.clear();
+    global.removeConfigurator();.
+    
     osgHandle.close();
     odeHandle.close();
     

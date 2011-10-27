@@ -2,22 +2,20 @@
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
 #Date:     November 2005
 
-PACKAGE_NAME=selforg
-SELFORG=.
 INCLUDEDIR=include/selforg
+# this is the command to come from the include dir back to the base
 REVINCLUDEDIR=../..
-# this is the command to come form the include dir back to the base
-LIBBASE=lib$(PACKAGE_NAME)
-LIB=$(LIBBASE).a
-LIB_OPT=$(LIBBASE)_opt.a
-LIB_DBG=$(LIBBASE)_dbg.a
-SHAREDLIB=$(LIBBASE).so
+
+# the CFGOPTS are set by the opt and dbg target
+CFGOPTS=
+LIB := $(shell ./selforg-config $(CFGOPTS) --srcprefix="." --libfile)
+SHAREDLIB=$(shell ./selforg-config $(CFGOPTS) --srcprefix="." --solibfile)
+
 STRIP=no
 TYPE=DEVEL
-GSL=yes
-ifeq ($(PREFIX),)
-PREFIX=/usr/local
-endif
+
+SELFORG=.
+PREFIX=$(shell ./selforg-config $(CFGOPTS) --prefix)
 # for debian auto-package installation
 ifneq ($(DESTDIR),) 
 PREFIX=$(DESTDIR)
@@ -25,7 +23,6 @@ endif
 include Makefile.conf
 
 ifeq ($(shell uname -o),Msys)
-GSL=no
 REVINCLUDEDIR=.
 endif
 
@@ -38,20 +35,10 @@ HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 OFILES     := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(CPPFILES))
 
 # additional inc paths
-INC +=  -I. -Iinclude
-# one can possibly disable gsl using GSL=no
-ifeq ($(GSL),yes)
-INC += $(shell gsl-config --cflags)
-else
-INC += -DNO_GSL
-endif
+INC +=  -I.
 
 # use -pg for profiling
-CBASEFLAGS = -Wall -fpic -pipe
-CPPFLAGS = $(CBASEFLAGS) -g -O $(INC)
-# Optimisation see at opt target
-# DEBUG  see at dbg target
-
+CPPFLAGS = -Wall -pipe -fpic $(INC) $(shell ./selforg-config --srcprefix="." $(CFGOPTS) --intern --cflags)
 
 # used for single file compilation
 CXX = g++
@@ -59,19 +46,17 @@ CXX = g++
 # used for lib-packing 
 AR = ar -rcs
 
-.PHONY: lib opt dbg clean clean-all distclean todo depend tags
+.PHONY: lib opt dbg clean clean-all distclean todo depend tags install install_scripts
 
 libs: lib opt dbg
 
 lib: $(LIB)
 
 opt: 
-	$(MAKE) BUILD_DIR=build_opt LIB=$(LIB_OPT) \
- CPPFLAGS="$(CBASEFLAGS) -O3 -DNDEBUG  $(INC)" STRIP="yes" lib
+	$(MAKE) BUILD_DIR=build_opt CFGOPTS=--opt STRIP="yes" lib
 
 dbg: 
-	$(MAKE) BUILD_DIR=build_dbg LIB=$(LIB_DBG) \
- CPPFLAGS="$(CBASEFLAGS) -g  $(INC)" lib
+	$(MAKE) BUILD_DIR=build_dbg CFGOPTS=--dbg lib
 
 shared:
 	$(MAKE) $(SHAREDLIB)
@@ -89,7 +74,13 @@ ${BUILD_DIR}/%.o: %.cpp
 $(SHAREDLIB): Makefile.depend $(OFILES)
 	$(CXX) -shared -Wl,-soname,$(SHAREDLIB) -o $(SHAREDLIB) $(OFILES) 
 
-install: Makefile.depend lib opt dbg
+
+install_scripts:
+	@echo "*************** Install config script $(PREFIX)/bin *********************"
+	install -d $(PREFIX)/bin
+	install --mode 755 selforg-config $(PREFIX)/bin/	
+
+install: Makefile.depend install_scripts lib opt dbg
 ifneq ($(TYPE),DEVEL)
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
 	install -d $(PREFIX)/lib/ $(PREFIX)/include/selforg $(PREFIX)/share/lpzrobots/selforg
@@ -100,6 +91,7 @@ ifneq ($(TYPE),DEVEL)
 endif
 
 uninstall:
+	-rm -f $(PREFIX)/bin/selforg-config
 ifneq ($(TYPE),DEVEL)
 	-rm -f $(PREFIX)/lib/$(LIB) $(PREFIX)/lib/$(LIB_OPT) $(PREFIX)/lib/$(LIB_DBG)
 	-rm -rf $(PREFIX)/include/selforg
@@ -141,7 +133,9 @@ findi:
 
 distclean: clean-all
 clean-all: clean
-	rm -f $(LIB) $(LIB_OPT) $(LIB_DBG) $(SHAREDLIB)
+	rm -f $(SHAREDLIB)
+	rm -f $(shell ./selforg-config --opt --srcprefix="." --libfile)
+	rm -f $(shell ./selforg-config --dbg --srcprefix="." --libfile)
 
 clean:
 	rm -f Makefile.depend

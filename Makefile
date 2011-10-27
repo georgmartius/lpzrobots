@@ -7,7 +7,7 @@ include Makefile.conf
 
 USAGE   = "Try 'make help' for more..."
 USAGE2  = "lpzrobots Makefile Targets:"
-USAGE3  = "Usually you do:\nmake prepare\nmake ode\t\t\# if not installed\nsudo make install_ode \t\# if not installed\nmake libs \t\t\# get a cup of tea\nsudo make install\n"
+USAGE3  = "Usually you do:\nmake prepare\nsudo make install_utils\nmake ode\t\t\# if not installed\nsudo make install_ode \t\# if not installed\nmake libs \t\t\# get a cup of tea\nsudo make install\n"
 
 ##!help		show this help text (default)
 help: 
@@ -23,6 +23,7 @@ prepare: usage
 	-$(MAKE) matrixviz
 	-$(MAKE) soundman
 	-$(MAKE) javacontroller
+	-$(MAKE) configurator
 	cd selforg && $(MAKE) depend
 	cd ode_robots && $(MAKE) depend
 	cd ga_tools && $(MAKE) depend
@@ -34,6 +35,30 @@ prepare: usage
 	@echo " and Openscenegraph now (e.g. openscenegraph-dev from your linux distribution)"
 	@echo " and then do \"make libs\" and \"(sudo) make install\""
 	@echo "Usually you can use make -j 2 on multicore machines but not for the installation target."
+
+.PHONY: preinstall
+##!preinstall   installs the utils and scripts. Do this before make libs!
+preinstall:
+	cd selforg && make install_scripts
+	cd ode_robots && make install_scripts
+	install -d $(PREFIX)/bin $(PREFIX)/lib/soundMan $(PREFIX)/share/lpzrobots $(PREFIX)/include 
+	-@if [ -d matrixviz/bin/matrixviz.app ]; then \
+          cp matrixviz/bin/matrixviz.app/Contents/MacOS/matrixviz $(PREFIX)/bin/ && echo "===> copied matrixviz.app to $(PREFIX)/bin/"; \
+         elif [ -e matrixviz/bin/matrixviz ]; then \
+	   cp matrixviz/bin/matrixviz $(PREFIX)/bin/ && echo "===> copied matrixviz to $(PREFIX)/bin/"; \
+	 fi
+	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX)/ install	
+	-@if [ -d guilogger/bin/guilogger.app ]; then \
+          cp guilogger/bin/guilogger.app/Contents/MacOS/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
+         elif [ -e guilogger/src/bin/guilogger ]; then \
+	   cp guilogger/src/bin/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
+	 else cp guilogger/bin/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
+	fi	
+	-@if [ -e configurator/libconfigurator.a ]; then install --mode 644 configurator/libconfigurator.a $(PREFIX)/lib/ && install --mode 755 configurator/configurator-config $(PREFIX)/bin/ && echo "===> copied libconfigurator.a  to $(PREFIX)/lib/"; fi
+	-@cp -r configurator/include/configurator $(PREFIX)/include/ && echo "===> copied configurator includes to $(PREFIX)/include/"
+	-cp soundman/class/*.class $(PREFIX)/lib/soundMan/
+	-cp soundman/bin/soundMan $(PREFIX)/bin/soundMan
+	sed -i -e "s|PREFIX=.*|PREFIX=$(PREFIX)|" $(PREFIX)/bin/soundMan
 
 .PHONY: ode
 ##!ode		compile open dynamics engine in double precession (custom version)
@@ -50,7 +75,7 @@ install_ode:
 .PHONY: libs
 ##!libs		compile our libaries in optimized and debug version
 libs: usage
-	@echo "*************** install selforg *****************"
+	@echo "*************** Compile selforg *****************"
 	cd selforg && $(MAKE) 
 	@echo "*************** Compile ode_robots **************"
 	cd ode_robots && $(MAKE)
@@ -58,8 +83,8 @@ libs: usage
 	cd ga_tools && $(MAKE)
 
 .PHONY: install
-##!install	install utils and libs
-install: usage install_utils install_libs
+##!install	install
+install: usage preinstall install_libs
 
 .PHONY: uninstall
 ##!uninstall	removes all the installed files again (except ode)
@@ -95,7 +120,7 @@ distclean :  clean-all
 conf: usage
 	-mv Makefile.conf Makefile.conf.bak
 # automatically creates Makefile.conf since it is included 
-	$(MAKE) Makefile.conf
+	$(MAKE) PREFIX=$(PREFIX) Makefile.conf
 
 
 .PHONY: guilogger
@@ -107,6 +132,11 @@ guilogger:
 ##!matrixviz	compile matrixviz
 matrixviz:
 	cd matrixviz && ./configure && $(MAKE)
+
+.PHONY: configurator
+##!configurator	compile configurator
+configurator:
+	cd configurator && $(MAKE)
 
 .PHONY: javactrl
 ##!javactrl	compile javacontroller (experimental)
@@ -126,45 +156,27 @@ uninstall_ode:
 	cd opende && make uninstall
 
 
-.PHONY: install_utils
-install_utils:
-	-mkdir -p $(PREFIX)bin $(PREFIX)/lib/soundMan $(PREFIX)share/lpzrobots
-	-@if [ -d matrixviz/bin/matrixviz.app ]; then \
-          cp matrixviz/bin/matrixviz.app/Contents/MacOS/matrixviz $(PREFIX)/bin/ && echo "===> copied matrixviz.app to $(PREFIX)/bin/"; \
-         elif [ -e matrixviz/bin/matrixviz ]; then \
-	   cp matrixviz/bin/matrixviz $(PREFIX)/bin/ && echo "===> copied matrixviz to $(PREFIX)/bin/"; \
-	 fi
-	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX) install	
-	-@if [ -d guilogger/bin/guilogger.app ]; then \
-          cp guilogger/bin/guilogger.app/Contents/MacOS/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
-         elif [ -e guilogger/src/bin/guilogger ]; then \
-	   cp guilogger/src/bin/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
-	 else cp guilogger/bin/guilogger $(PREFIX)/bin/  && echo "===> copied guilogger to $(PREFIX)/bin/"; \
-	fi	
-	-cp soundman/class/*.class $(PREFIX)/lib/soundMan/
-	-cp soundman/bin/soundMan $(PREFIX)/bin/soundMan
-	sed -i -e "s|PREFIX=.*|PREFIX=$(PREFIX)|" $(PREFIX)/bin/soundMan
 
 
 .PHONY: install_libs
 install_libs:
-ifeq ($(TYPE),user)
 	@echo "*************** Install selforg *********************"
 	cd selforg/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) install 
-#	     $(PREFIX)share/lpzrobots/ga_tools
+#	     $(PREFIX)/share/lpzrobots/ga_tools
 	@echo "*************** Install ode_robots ******************"
 	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) install 
+ifeq ($(TYPE),user)
 	@echo "*************** Install ga_tools ******************"
-	cp ga_tools/libga_tools.a $(PREFIX)lib
+	cp ga_tools/libga_tools.a $(PREFIX)/lib
 #	cp ga_tools/libga_tools_opt.a $(PREFIX)/lib
 	cp -RL ga_tools/include/ga_tools $(PREFIX)/include/	
 	@echo "*************** Install example simulations ******************"
 	cp -RL ga_tools/simulations $(PREFIX)/share/lpzrobots/ga_tools/
 	-chmod -R ugo+r $(PREFIX)/share/lpzrobots
 	@echo "*************** Finished ******************"
-	@echo "Make sure that the $(PREFIX)lib directory is in our lib search path"
-	@echo " and $(PREFIX)include is searched for includes."
-	@echo "You can find example simulations in $(PREFIX)share/lpzrobots/, but copy"
+	@echo "Make sure that the $(PREFIX)/lib directory is in our lib search path"
+	@echo " and $(PREFIX)/include is searched for includes."
+	@echo "You can find example simulations in $(PREFIX)/share/lpzrobots/, but copy"
 	@echo " them first to your home directory to work with them."
 endif
 
@@ -175,6 +187,8 @@ uninstall_intern:
 	@echo "*************** Uninstall ode_robots ******************"
 	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
 	-rm -f $(PREFIX)/bin/guilogger
+	-rm -f $(PREFIX)/lib/libconfigurator.a
+	-rm -fr $(PREFIX)/include/configurator
 	-rm -f $(PREFIX)/bin/matrixviz
 	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX) uninstall
 	-rm -f $(PREFIX)/lib/soundMan/SoundMan*.class
@@ -189,7 +203,7 @@ endif
 
 
 Makefile.conf:	
-	@bash createMakefile.conf.sh
+	@bash createMakefile.conf.sh $(PREFIX)
 
 
 .PHONY: tags

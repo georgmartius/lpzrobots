@@ -1,0 +1,77 @@
+#!/bin/sh
+## File:     configure of selforg
+## Author:   Georg Martius 
+## Date:     Oct 2011
+
+usage="\
+Usage: configure [--prefix=DIR] [--srcprefix=DIR] [--system=LINUX|MAC] [--type=DEVEL|USER] [--nogsl]"
+
+#get full qualified dirname
+DIRNAME=`dirname $0`;
+if [ -n "${DIRNAME%%/*}" ]; then
+    if [ $DIRNAME = '.' ]; then
+        DIRNAME=`pwd`
+    else
+        DIRNAME=`pwd`/$DIRNAME;
+    fi
+fi
+
+
+prefix="/usr/local"
+srcprefix=$DIRNAME
+system=LINUX
+type=USER
+version=`cat $DIRNAME/VERSION`;
+package=selforg
+
+if test $# -eq 0; then
+      echo "${usage}" 1>&2
+      exit 1
+fi
+
+while test $# -gt 0; do
+  case "$1" in
+  -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+  *) optarg= ;;
+  esac
+
+  case $1 in
+    --prefix=*)
+      prefix=$optarg
+      ;;
+    --srcprefix=*)
+      srcprefix=$optarg
+      ;;
+    --type=*)
+      type=$optarg
+      ;;
+    --system=*)
+      system=$optarg
+      ;;
+    --nogsl)
+      GSL=-DNOGSL
+      ;;
+    *)
+      echo "${usage}" 1>&2
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+# test for gsl
+if test -z "$GSL" && ! type gsl-config; then
+    GSL=-DNOGSL
+    echo "disabled GSL because \"gsl-config\" is no in PATH" 1>&2;
+fi
+
+if [ "$type"="DEVEL" -a -z "$srcprefix" ]; then
+    echo "${usage}" 1>&2
+    echo " --> provide srcprefix for type DEVEL!" 1>&2
+    exit 1
+fi
+
+if m4 -DPREFIX="$prefix" -DSRCPREFIX="$srcprefix" -D$system -D$type -DVERSION=$version $GSL $DIRNAME/$package-config.m4 > $DIRNAME/$package-config; then
+   chmod u+x $DIRNAME/$package-config;
+   echo "configuration done!"
+fi
