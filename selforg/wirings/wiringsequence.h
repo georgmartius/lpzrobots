@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-08-05 22:32:21  martius
+ *   Revision 1.5  2011-10-27 15:52:37  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2009/08/05 22:32:21  martius
  *   big change:
  *       abstractwiring is responsable for providing sensors and motors
  *        and noise to the inspectable interface.
@@ -70,7 +73,7 @@ public:
   virtual ~WiringSequence();
 
 protected:
-  virtual bool initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
+  virtual bool initIntern();
 
   virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
 				 sensor* csensors, int csensornumber,

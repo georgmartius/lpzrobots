@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2009-08-05 22:32:21  martius
+ *   Revision 1.5  2011-10-27 15:52:37  martius
+ *   *** empty log message ***
+ *
+ *   Revision 1.4  2009/08/05 22:32:21  martius
  *   big change:
  *       abstractwiring is responsable for providing sensors and motors
  *        and noise to the inspectable interface.
@@ -83,11 +86,7 @@ void WiringSequence::addWiring(AbstractWiring* wiring){
 
 // initializes the number of sensors and motors from robot, calculate
 //  number of sensors and motors on controller side
-bool WiringSequence::initIntern(int robotsensornumber, int robotmotornumber, RandGen* randGen){
-  rsensornumber = robotsensornumber;
-  rmotornumber  = robotmotornumber;    
-  csensornumber = rsensornumber;
-  cmotornumber = rmotornumber;
+bool WiringSequence::initIntern(){
   assert(wirings.size());
   FOREACH(vector<AbstractWiring*>, wirings, w){
     // initialize the wiring with the output of the last wiring
