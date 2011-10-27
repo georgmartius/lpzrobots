@@ -7,7 +7,7 @@ include Makefile.conf
 
 USAGE   = "Try 'make help' for more..."
 USAGE2  = "lpzrobots Makefile Targets:"
-USAGE3  = "Usually you do:\nmake prepare\nsudo make install_utils\nmake ode\t\t\# if not installed\nsudo make install_ode \t\# if not installed\nmake libs \t\t\# get a cup of tea\nsudo make install\n"
+USAGE3  = "Usually you do:\nmake prepare\nsudo make preinstall\nmake ode\t\t\# if not installed\nsudo make install_ode \t\# if not installed\nmake libs \t\t\# get a cup of tea\nsudo make install\n"
 
 ##!help		show this help text (default)
 help: 
@@ -23,10 +23,10 @@ prepare: usage
 	-$(MAKE) matrixviz
 	-$(MAKE) soundman
 	-$(MAKE) javacontroller
-	-$(MAKE) configurator
 	cd selforg && $(MAKE) depend
 	cd ode_robots && $(MAKE) depend
 	cd ga_tools && $(MAKE) depend
+	-$(MAKE) configurator
 	-$(MAKE) tags
 	@echo "********************************************************************************"
 	@echo "Don't worry if you have seen a lot of errors above."
@@ -93,6 +93,8 @@ uninstall: uninstall_intern
 ##!clean	removed the object files and libs
 clean: usage
 	cd guilogger && $(MAKE) clean
+	cd matrixviz && $(MAKE) clean
+	cd configurator && $(MAKE) clean
 	cd ode_robots && $(MAKE) clean
 	cd selforg && $(MAKE) clean
 	cd ga_tools && $(MAKE) clean
