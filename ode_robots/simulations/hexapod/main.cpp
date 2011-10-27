@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-10-12 13:41:04  der
+ *   Revision 1.10  2011-10-27 12:11:18  der
+ *   sox added
+ *   sox added
+ *
+ *   Revision 1.9  2011/10/12 13:41:04  der
  *   *** empty log message ***
  *
  *   Revision 1.8  2011/05/30 21:57:16  martius
@@ -116,7 +120,7 @@ public:
   {
     setCameraHomePos(Pos(-0.0114359, 6.66848, 0.922832),  Pos(178.866, -7.43884, 0));
 
-    global.odeConfig.setParam("noise", 0.0005);
+    global.odeConfig.setParam("noise", 0.05);
     global.odeConfig.setParam("controlinterval", 2);
     global.odeConfig.setParam("cameraspeed", 250);
     global.odeConfig.setParam("gravity", -4);
@@ -195,6 +199,8 @@ public:
     Sox* sox = new Sox(1.2, false);
     sox->setParam("epsC",0.105);
     sox->setParam("epsA",0.05);
+    sox->setParam("Logarithmic",1);
+    //  sox->setParam("osceps",10);
 
 
     SeMoXConf cc = SeMoX::getDefaultConf();    
