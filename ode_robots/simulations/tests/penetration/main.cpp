@@ -40,7 +40,9 @@
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
 #include <ode_robots/passivecapsule.h>
+#ifdef PASSIVECYLINDER
 #include <ode_robots/passivecylinder.h>
+#endif
 
 using namespace std;
 
@@ -109,6 +111,7 @@ public:
     o->setPose(osg::Matrix::rotate(M_PI/2.0, 0,1,0)*osg::Matrix::translate(3,12,6));
     global.obstacles.push_back(o);
 
+#ifdef PASSIVECYLINDER
     //// Cylinder
     o = new PassiveCylinder(odeHandle, osgHandle, .5, 2);      
     o->setPose(osg::Matrix::translate(-8,2,7.5));
@@ -129,7 +132,7 @@ public:
     o = new PassiveCylinder(odeHandle, osgHandle, .5, 2);      
     o->setPose(osg::Matrix::rotate(M_PI/2.0, 0,1,0)*osg::Matrix::translate(-3,12,6));
     global.obstacles.push_back(o);
-
+#endif
 
   }
 

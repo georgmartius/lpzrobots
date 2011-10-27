@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.151  2011-10-27 15:54:36  martius
+ *   Revision 1.152  2011-10-27 21:12:00  martius
+ *   typos
+ *   missing files
+ *
+ *   Revision 1.151  2011/10/27 15:54:36  martius
  *   new build system with -config shell script and configurator intragration
  *
  *   Revision 1.150  2011/10/25 15:12:12  der
@@ -1620,7 +1624,7 @@ namespace lpzrobots {
     }
     
     global.agents.clear();
-    global.removeConfigurator();.
+    global.removeConfigurator();
     
     osgHandle.close();
     odeHandle.close();
