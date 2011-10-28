@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2011-10-27 15:54:36  martius
+ *   Revision 1.3  2011-10-28 17:17:28  guettler
+ *   improved Configurator integration
+ *
+ *   Revision 1.2  2011/10/27 15:54:36  martius
  *   new build system with -config shell script and configurator intragration
  *
  *   Revision 1.1  2011/10/25 12:31:16  guettler
@@ -39,20 +42,20 @@
 #include "globaldatabase.h"
 
 #ifndef NOCONFIGURATOR
-#define COMPILE_CONFIGURATOR 1 // default
-#endif
-
-#ifndef NOCONFIGURATOR
 #include <configurator/ConfiguratorProxy.h>
 
 using namespace lpzrobots;
 #endif
 
+GlobalDataBase::GlobalDataBase() :
+  configurator(0) {
+}
+
+GlobalDataBase::~GlobalDataBase() {}
+
 void GlobalDataBase::createConfigurator() {
 #ifndef NOCONFIGURATOR
-  if(configurator==0){
-    configurator = new ConfiguratorProxy(configs);
-  }
+  configurator = new ConfiguratorProxy(configs);
 #endif
 }
 
@@ -65,6 +68,6 @@ void GlobalDataBase::removeConfigurator() {
   if(configurator!=0){
     delete configurator;
   }
+  configurator = 0;
 #endif
-  configurator = 0;  
 }

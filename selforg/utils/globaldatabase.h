@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2011-10-27 15:54:36  martius
+ *   Revision 1.3  2011-10-28 17:17:28  guettler
+ *   improved Configurator integration
+ *
+ *   Revision 1.2  2011/10/27 15:54:36  martius
  *   new build system with -config shell script and configurator intragration
  *
  *   Revision 1.1  2011/10/25 12:31:16  guettler
@@ -43,18 +46,18 @@
 #include "configurablelist.h"
 
 #ifndef NOCONFIGURATOR
-#include <configurator/ConfiguratorProxy.h>
+namespace lpzrobots {
+  class ConfiguratorProxy;
+}
 #endif
 
 typedef std::vector<Agent*> AgentList;
 
 class GlobalDataBase {
   public:
-    GlobalDataBase() {
-      configurator = 0;
-    }
+    GlobalDataBase();
 
-    virtual ~GlobalDataBase() {};
+    virtual ~GlobalDataBase();
 
     virtual AgentList& getAgents() = 0;
 
@@ -62,10 +65,19 @@ class GlobalDataBase {
         Agent* operator()(Derived instance) { return dynamic_cast<Agent*>(instance); }
     };
 
+    /**
+     * Creates the Configurator and, if already exists, destroys the old one.
+     */
     void createConfigurator();
 
+    /**
+     * Destroys the Configurator if it was created.
+     */
     void removeConfigurator();
   
+    /**
+     * @return true if the Configurator is open and alive
+     */
     bool isConfiguratorOpen();
 
     ConfigurableList configs;
