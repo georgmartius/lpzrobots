@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.4  2011-10-27 15:54:36  martius
+ *   Revision 1.5  2011-10-28 16:14:21  guettler
+ *   Configurator closes if ConfiguratorProxy is deleted
+ *
+ *   Revision 1.4  2011/10/27 15:54:36  martius
  *   new build system with -config shell script and configurator intragration
  *
  *   Revision 1.3  2011/10/25 12:52:42  guettler
@@ -56,7 +59,10 @@ namespace lpzrobots {
   }
 
   ConfiguratorProxy::~ConfiguratorProxy() {
-    // TODO Auto-generated destructor stub
+    if (configurator!=0) {
+      configurator->close();
+      configurator = 0;
+    }
   }
 
   void ConfiguratorProxy::doOnCallBack(BackCaller* source, BackCaller::CallbackableType type /*= BackCaller::DEFAULT_CALLBACKABLE_TYPE*/) {
