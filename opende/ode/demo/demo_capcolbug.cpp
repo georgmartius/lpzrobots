@@ -40,6 +40,7 @@
 #endif
 
 #define CAP // use capsules, otherwise use cylinders
+// #define CAP_CAP // check chapsule-capsule collisions  instead of with box
 // some constants
 #define SIDE   (5.0f)	// side length of a capsule/cyl
 #ifdef CAP
@@ -59,7 +60,7 @@ dReal z[5] = {5,   4,     4,     4,     5.5};
 // dynamics and collision objects
 static dSpaceID space;
 static dWorldID world;
-static dGeomID boxgeom;
+static dGeomID biggeom;
 static dBodyID body[NUMCAPS];
 static dGeomID geom[NUMCAPS];
 static dJointGroupID contactgroup;
@@ -125,7 +126,7 @@ static void simLoop (int pause)
   }  
   dsSetDrawMode(1);
   dsSetColor (0,1,1);
-  for(int i; i < NUMCAPS ; i++){
+  for(int i=0; i < NUMCAPS ; i++){
 #ifdef CAP
     dsDrawCapsule(dBodyGetPosition(body[i]),dBodyGetRotation(body[i]), HEIGHT, RADIUS);
 #else
@@ -136,8 +137,12 @@ static void simLoop (int pause)
   dsSetDrawMode(0);
   dsSetColor (1,1,0);
   dsSetColorAlpha (1,1,0,.3);
+#ifdef CAP_CAP  
+    dsDrawCapsule(dGeomGetPosition(biggeom),dGeomGetRotation(biggeom), SIDE, SIDE*.5);
+#else
   dReal sides1[3] = {SIDE,SIDE,SIDE};
-  dsDrawBox (dGeomGetPosition(boxgeom),dGeomGetRotation(boxgeom),sides1);
+  dsDrawBox (dGeomGetPosition(biggeom),dGeomGetRotation(biggeom),sides1);
+#endif
 
   usleep(100000);// make it very slow to see what happens
 }
@@ -161,8 +166,13 @@ int main (int argc, char **argv)
   contactgroup = dJointGroupCreate (0);
   dWorldSetGravity (world,0,0,0);
 
-  boxgeom = dCreateBox (space, SIDE, SIDE, SIDE);
-  dGeomSetPosition(boxgeom, 0,0,3);   
+   
+#ifdef CAP_CAP  
+  biggeom = dCreateCCylinder(space, SIDE*.5, SIDE);
+#else
+  biggeom = dCreateBox (space, SIDE, SIDE, SIDE);
+#endif
+  dGeomSetPosition(biggeom, 0,0,3);   
   
   dQuaternion q;
   dQFromAxisAndAngle (q,0,1,0,M_PI*0.5);
