@@ -5,3 +5,4 @@ install_prefix.confbak
 build_dbg
 build
 build_opt
+ode_robots-config
