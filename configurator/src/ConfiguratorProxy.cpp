@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.5  2011-10-28 16:14:21  guettler
+ *   Revision 1.6  2011-10-28 16:32:47  guettler
+ *   temporary fix with application path
+ *
+ *   Revision 1.5  2011/10/28 16:14:21  guettler
  *   Configurator closes if ConfiguratorProxy is deleted
  *
  *   Revision 1.4  2011/10/27 15:54:36  martius
@@ -67,18 +70,24 @@ namespace lpzrobots {
 
   void ConfiguratorProxy::doOnCallBack(BackCaller* source, BackCaller::CallbackableType type /*= BackCaller::DEFAULT_CALLBACKABLE_TYPE*/) {
     if (type == ConfigurableList::CALLBACK_CONFIGURABLE_LIST_BEING_DELETED) {
-      // TODO: fix this
-      //      delete configurator;
-      //      delete this;
+      // unregister
+      source->removeCallbackable(this, ConfigurableList::CALLBACK_CONFIGURABLE_LIST_BEING_DELETED);
+      source->removeCallbackable(this, ConfigurableList::CALLBACK_CONFIGURABLE_LIST_MODIFIED);
+      // delete configurator
+      if (configurator!=0) {
+        configurator->close();
+        configurator = 0;
+      }
     }
   }
 
   void ConfiguratorProxy::createConfigurator() {
     int argc=1;
-    char* argv0 = (char*)"configurator";
+    char* argv0 = (char*)"";
     char** argv = &argv0;
     QApplication app(argc, argv);
 
+    // TODO: the appPath variable is currently set to "", this works in most cases.
     QString appPath = QString(argv[0]);
     //    configurator = new QConfigurator(appPath.mid(0, appPath.lastIndexOf("/") + 1), configList);
     configurator = new QConfigurator(appPath, configList);
