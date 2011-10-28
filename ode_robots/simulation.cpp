@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.152  2011-10-27 21:12:00  martius
+ *   Revision 1.153  2011-10-28 16:16:38  guettler
+ *   added keybord binding for Configurator (CTRL + C);
+ *   changed Simulation to Sim in all keyboard mouse bindings for better readability
+ *
+ *   Revision 1.152  2011/10/27 21:12:00  martius
  *   typos
  *   missing files
  *
@@ -1572,18 +1576,19 @@ namespace lpzrobots {
   }
 
   void Simulation::getUsage (osg::ApplicationUsage& au) const {
-    au.addKeyboardMouseBinding("Simulation: Ctrl-f","File-Logging on/off");
-    au.addKeyboardMouseBinding("Simulation: Ctrl-g","Restart the Gui-Logger");
-    au.addKeyboardMouseBinding("Simulation: Ctrl-m","Restart the MatrixViz");
-    au.addKeyboardMouseBinding("Simulation: Ctrl-h","Move watched agent to (0,0,0) position");
-    au.addKeyboardMouseBinding("Simulation: Ctrl-r","Start/Stop video recording");
-    au.addKeyboardMouseBinding("Simulation: Ctrl-p","Pause on/off");
-    au.addKeyboardMouseBinding("Simulation: +","increase simulation speed (realtimefactor)");
-    au.addKeyboardMouseBinding("Simulation: -","decrease simulation speed (realtimefactor)");
-    au.addKeyboardMouseBinding("Simulation: /","set normal simulation speed (realtimefactor=1)");
-    au.addKeyboardMouseBinding("Simulation: *","set maximum simulation speed (realtimefactor=0)");
-    au.addKeyboardMouseBinding("Simulation: Ctrl-s","change shadow technique");
-    au.addKeyboardMouseBinding("Simulation: o / O","add/remove random obstacle");
+    au.addKeyboardMouseBinding("Sim: Ctrl-f","File-Logging on/off");
+    au.addKeyboardMouseBinding("Sim: Ctrl-g","Restart the Gui-Logger");
+    au.addKeyboardMouseBinding("Sim: Ctrl-m","Restart the MatrixViz");
+    au.addKeyboardMouseBinding("Sim: Ctrl-c","Restart the Configurator");
+    au.addKeyboardMouseBinding("Sim: Ctrl-h","Move watched agent to (0,0,0) position");
+    au.addKeyboardMouseBinding("Sim: Ctrl-r","Start/Stop video recording");
+    au.addKeyboardMouseBinding("Sim: Ctrl-p","Pause on/off");
+    au.addKeyboardMouseBinding("Sim: +","increase simulation speed (realtimefactor)");
+    au.addKeyboardMouseBinding("Sim: -","decrease simulation speed (realtimefactor)");
+    au.addKeyboardMouseBinding("Sim: /","set normal simulation speed (realtimefactor=1)");
+    au.addKeyboardMouseBinding("Sim: *","set maximum simulation speed (realtimefactor=0)");
+    au.addKeyboardMouseBinding("Sim: Ctrl-s","change shadow technique");
+    au.addKeyboardMouseBinding("Sim: o / O","add/remove random obstacle");
     bindingDescription(au);
   }
 
