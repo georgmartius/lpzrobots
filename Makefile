@@ -1,6 +1,7 @@
 #File:     Makefile for lpzrobot directory
 #Author:   Georg Martius  <martius@informatik.uni-leipzig.de>
-#Date:     June 2005
+#Date:     June 2005-2011
+#More information: see BUILDSYSTEM.txt
 SHELL=/bin/bash
 
 include Makefile.conf

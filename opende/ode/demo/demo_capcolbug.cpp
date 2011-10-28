@@ -2,6 +2,7 @@
  *                                                                       *
  * Open Dynamics Engine, Copyright (C) 2001,2002 Russell L. Smith.       *
  * All rights reserved.  Email: russ@q12.org   Web: www.q12.org          *
+ * Simulation by Georg Martius (C) 2011 georg dot martius at web dot de  *
  *                                                                       *
  * This library is free software; you can redistribute it and/or         *
  * modify it under the terms of EITHER:                                  *
@@ -38,18 +39,22 @@
 #define dsDrawLine dsDrawLineD
 #endif
 
+#define CAP // use capsules, otherwise use cylinders
 // some constants
-#define SIDE   (5.0f)	// side length of a capsule
+#define SIDE   (5.0f)	// side length of a capsule/cyl
+#ifdef CAP
 #define HEIGHT (1.0f)	// side length of a capsule
-#define RADIUS (0.5f)	// side length of a capsule
+#else
+#define HEIGHT (2.0f)	// side length of a cylinder
+#endif
+#define RADIUS (0.5f)	// side length of a capsule/cyl
 #define MASS (1.0)	// mass of a box
-#define NUMCAPS 4	// number of capsules
-#define CAP // comment to use cylinders
+#define NUMCAPS 5	// number of capsules/cylinders
 
-// positions of the capsules
-dReal x[4] = {0,   2.5,   -2.5,   -3.3};
-dReal y[4] = {0,   0,     0,      -2};
-dReal z[4] = {5,   4,     4,      4};
+// positions of the capsules/cylinders (columwise)
+dReal x[5] = {0,   2.5,   -2.5,  -3.3,  0};
+dReal y[5] = {0,   0,     0,     -2,    2};
+dReal z[5] = {5,   4,     4,     4,     5.5};
 
 // dynamics and collision objects
 static dSpaceID space;
@@ -77,10 +82,11 @@ static void nearCallback (void *data, dGeomID o1, dGeomID o2)
 
     for (int i=0; i<n; i++) 
     {
-      contact[i].surface.slip1 = 0.7;
-      contact[i].surface.slip2 = 0.7;
-      contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1 | dContactSlip1 | dContactSlip2;
-      contact[i].surface.mu = 2;
+      contact[i].surface.slip1    = 0.7;
+      contact[i].surface.slip2    = 0.7;
+      contact[i].surface.mode     = dContactSoftERP | dContactSoftCFM | 
+        dContactApprox1 | dContactSlip1 | dContactSlip2;
+      contact[i].surface.mu       = 2;
       contact[i].surface.soft_erp = 0.9 ;
       contact[i].surface.soft_cfm = 0.1 ;
       dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
@@ -92,7 +98,8 @@ static void nearCallback (void *data, dGeomID o1, dGeomID o2)
       dsDrawBox (contact[i].geom.pos,RI,ss);
       dVector3 n;
       dsSetColor (1,0,1);
-      for (int j=0; j<3; j++) n[j] = contact[i].geom.pos[j] + 0.3*contact[i].geom.normal[j];
+      for (int j=0; j<3; j++) 
+        n[j] = contact[i].geom.pos[j] + 0.3*contact[i].geom.normal[j];
       dsDrawLine (contact[i].geom.pos,n);
     }
   }
@@ -102,10 +109,8 @@ static void nearCallback (void *data, dGeomID o1, dGeomID o2)
 static void start()
 {
   dAllocateODEDataForThread(dAllocateMaskAll);
-
-  static float xyz[3] = {3.3416,-4.9462,6.9800};
-  static float hpr[3] = {103.5000,-31.0000,0.0000};
-
+  static float xyz[3] = {0.1638,-7.2281,6.2400};
+  static float hpr[3] = {90.0000,-25.0000,0.0000};
   dsSetViewpoint (xyz,hpr);
 }
 
@@ -118,8 +123,6 @@ static void simLoop (int pause)
     dWorldStep (world,0.0001);
     dJointGroupEmpty (contactgroup);
   }  
-  dReal sides1[3] = {SIDE,SIDE,SIDE};
-  dReal sides2[3] = {SIDE,SIDE,SIDE*0.8f};  
   dsSetDrawMode(1);
   dsSetColor (0,1,1);
   for(int i; i < NUMCAPS ; i++){
@@ -133,9 +136,10 @@ static void simLoop (int pause)
   dsSetDrawMode(0);
   dsSetColor (1,1,0);
   dsSetColorAlpha (1,1,0,.3);
+  dReal sides1[3] = {SIDE,SIDE,SIDE};
   dsDrawBox (dGeomGetPosition(boxgeom),dGeomGetRotation(boxgeom),sides1);
 
-  usleep(100000);
+  usleep(100000);// make it very slow to see what happens
 }
 
 
@@ -143,17 +147,17 @@ int main (int argc, char **argv)
 {
   // setup pointers to drawstuff callback functions
   dsFunctions fn;
-  fn.version = DS_VERSION;
-  fn.start = &start;
-  fn.step = &simLoop;
-  fn.command = 0;
-  fn.stop = 0;
+  fn.version          = DS_VERSION;
+  fn.start            = &start;
+  fn.step             = &simLoop;
+  fn.command          = 0;
+  fn.stop             = 0;
   fn.path_to_textures = DRAWSTUFF_TEXTURE_PATH;
 
   // create world
   dInitODE2(0);
-  world = dWorldCreate();
-  space = dHashSpaceCreate (0);
+  world        = dWorldCreate();
+  space        = dHashSpaceCreate (0);
   contactgroup = dJointGroupCreate (0);
   dWorldSetGravity (world,0,0,0);
 

@@ -1,0 +1,24 @@
+Some note on the build system. 
+
+There is the is the Makefile in lpzrobot root folder that ochestrates the installation process,
+ but all subcomponentens have there own independent build system.
+
+overall configuration is done via "make conf". It calls createMakefile.conf.sh which asks for prefix and stuff and 
+ - calls configure of the subcomponents
+ - creates the Makefiles for the simulations from Makefile.4sim.m4 in {selforg/simulations,ode_robots/simulations,ode_robots/examples ....}
+ 
+The configure scripts also create (using the m4 macro processor) the xx-config shell scripts
+ that provide the compiler flags and installation prefix. 
+These scripts have to be installed into the binary directory (in $PATH). 
+This is done by "make preinstall".
+
+So if you want to change a compiler flag or add a dependent lib, 
+ for instance to selforg then edit the selforg/selforg-config.m4 
+and call "make conf" and "make preinstall" again.
+
+These scripts are called from the simulation makefiles, such that only rarely changes to these Makefiles have to be made now. If nevertheless the case edit the Makefile.4sim.m4 (see above).
+
+
+ 
+
+
