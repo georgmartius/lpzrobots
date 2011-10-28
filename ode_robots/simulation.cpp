@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.153  2011-10-28 16:16:38  guettler
+ *   Revision 1.154  2011-10-28 17:20:56  guettler
+ *   start configurator with console argument -conf (-c doesn't work, enables fullscreen!);
+ *   usage (--help) printout reformatted
+ *
+ *   Revision 1.153  2011/10/28 16:16:38  guettler
  *   added keybord binding for Configurator (CTRL + C);
  *   changed Simulation to Sim in all keyboard mouse bindings for better readability
  *
@@ -830,6 +834,7 @@ namespace lpzrobots {
     simulation_time_reached=false;
     viewer   = 0;
     arguments= 0;
+    startConfigurator = false;
 
     // we have to count references by our selfes
     osg::Referenced::ref();
@@ -1113,7 +1118,8 @@ namespace lpzrobots {
 	(*itr)->setWindowName(windowName);
       }
     }
-    //globalData.createConfigurator();
+    if (startConfigurator)
+      globalData.createConfigurator();
 
     while ( ( noGraphics || !viewer->done()) &&
 	    (!simulation_time_reached || restart(odeHandle,osgHandle,globalData)) ) {
@@ -1692,6 +1698,9 @@ namespace lpzrobots {
       plotoptions.push_back(PlotOption(File, filelogginginterval, parameter));
     }
 
+    // start configurator
+    startConfigurator = contains(argv, argc, "-conf")!=0;
+
     // starting matrixviz
     matrixvizinterval=10;
     index = contains(argv, argc, "-m");
@@ -1979,35 +1988,36 @@ namespace lpzrobots {
 
   void Simulation::main_usage(const char* progname) {
     printf("Usage: %s [-g [interval]] [-f [interval] [ntst]] [-r seed] [-x WxH] [-fs] \n", progname);
-    printf("\t\t [-pause] [-shadow N] [-noshadow] [-drawboundings] [-simtime [min]] [-rtf X]\n");
-    printf("\t\t [-threads N] [-odethread] [-osgthread] [-savecfg] [-h|--help]\n");
-    printf("\t-g interval\tuse guilogger (default interval 1)\n");
-    printf("\t-f interval ntst\twrite logging file (default interval 5),\n\
-\t\tif ntst (no_time_stamp in log file name)\n");
-    printf("\t\t\tis given logfile names are generated without timestamp\n");
-    printf("\t-m interval\tuse matrixviz (default interval 10)\n");
-    printf("\t-s \"-disc|ampl|freq val\"\tuse soundMan \n");
-    printf("\t-r seed\t\trandom number seed\n");
-    printf("\t-x WxH\t\t* window size of width(W) x height(H) is used (default 800x600)\n");
-    printf("\t-fs\t\tfullscreen mode\n");
-    printf("\t-pause \t\tstart in pause mode\n");
-    printf("\t-rtf factor\t\treal time factor: ratio between simulation speed and real time\n\
-\t\t (special case 0: full speed) (default 1)\n");
-    printf("\t-allkeys\tall key strokes are available (useful for debugging  graphics)\n");
-    printf("\t-nographics \tstart without any graphics (implies -rtf 0)\n");
-    printf("\t-noshadow \tdisables shadows and shaders (same as -shadow 0)\n");
-    printf("\t-shadow [0..5]\t* sets the type of the shadow to be used\n");
-    printf("\t\t\t0: no shadow, 1: ShadowVolume, 2: ShadowTextue, 3: ParallelSplitShadowMap\n");
-    printf("\t\t\t4: SoftShadowMap, 5: ShadowMap (default)\n");
-    printf("\t-shadowsize N\t* sets the size of the shadow texture (default 2048)\n");
-    printf("\t-drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
-    printf("\t-simtime min\tlimited simulation time in minutes\n");
-    printf("\t-savecfg\tsafe the configuration file with the values given by the cmd line\n");
-    printf("\t-threads N\tnumber of threads to use (0: number of processors (default))\n");
-    printf("\t-odethread\t* if given the ODE runs in its own thread. -> Sensors are delayed by 1\n");
-    printf("\t-osgthread\t* if given the OSG runs in its own thread (recommended)\n");
-    printf("\t-h --help\tshow this help\n");
-    printf("\t* this parameter can be set in the configuration file ~/.lpzrobots/ode_robots.cfg\n");
+    printf("    \t [-pause] [-shadow N] [-noshadow] [-drawboundings] [-simtime [min]] [-rtf X]\n");
+    printf("    \t [-threads N] [-odethread] [-osgthread] [-savecfg] [-h|--help]\n");
+    printf("    -conf\t\tuse Configurator\n");
+    printf("    -g interval\t\tuse guilogger (default interval 1)\n");
+    printf("    -f interval ntst\twrite logging file (default interval 5),\n\
+    \t\t\tif ntst (no_time_stamp in log file name)\n");
+    printf("    \t\t\tis given logfile names are generated without timestamp\n");
+    printf("    -m interval\t\tuse matrixviz (default interval 10)\n");
+    printf("    -s \"-disc|ampl|freq val\"\n    \t\t\tuse soundMan \n");
+    printf("    -r seed\t\trandom number seed\n");
+    printf("    -x WxH\t\t* window size of width(W) x height(H) is used (default 800x600)\n");
+    printf("    -fs\t\t\tfullscreen mode\n");
+    printf("    -pause \t\tstart in pause mode\n");
+    printf("    -rtf factor\t\treal time factor: ratio between simulation speed and real time\n\
+    \t\t\t(special case 0: full speed) (default 1)\n");
+    printf("    -allkeys\t\tall key strokes are available (useful for debugging  graphics)\n");
+    printf("    -nographics\t\tstart without any graphics (implies -rtf 0)\n");
+    printf("    -noshadow\t\tdisables shadows and shaders (same as -shadow 0)\n");
+    printf("    -shadow [0..5]\t* sets the type of the shadow to be used\n");
+    printf("    \t\t\t0: no shadow, 1: ShadowVolume, 2: ShadowTextue, 3: ParallelSplitShadowMap\n");
+    printf("    \t\t\t4: SoftShadowMap, 5: ShadowMap (default)\n");
+    printf("    -shadowsize N\t* sets the size of the shadow texture (default 2048)\n");
+    printf("    -drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
+    printf("    -simtime min\tlimited simulation time in minutes\n");
+    printf("    -savecfg\t\tsafe the configuration file with the values given by the cmd line\n");
+    printf("    -threads N\t\tnumber of threads to use (0: number of processors (default))\n");
+    printf("    -odethread\t\t* if given the ODE runs in its own thread. -> Sensors are delayed by 1\n");
+    printf("    -osgthread\t\t* if given the OSG runs in its own thread (recommended)\n");
+    printf("    -h --help\t\tshow this help\n");
+    printf("    * this parameter can be set in the configuration file ~/.lpzrobots/ode_robots.cfg\n");
   }
 
   void Simulation::setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view) {

@@ -28,7 +28,11 @@
  *         see template_onerobot/main.cpp for an example                   *
  *                                                                         *
  *   $Log$
- *   Revision 1.55  2011-08-04 16:43:53  martius
+ *   Revision 1.56  2011-10-28 17:20:56  guettler
+ *   start configurator with console argument -conf (-c doesn't work, enables fullscreen!);
+ *   usage (--help) printout reformatted
+ *
+ *   Revision 1.55  2011/08/04 16:43:53  martius
  *   guilogger is positioned beside simulation window (can still be improved)
  *   ctrl-h can be used to move observed agent to 0,0,0 position
  *
@@ -545,6 +549,9 @@ namespace lpzrobots {
 
     static int ctrl_C;
     char** orig_argv;
+
+    // -conf detected in console arguments?
+    bool startConfigurator;
 
     // multiprocessoring stuff
     pthread_t odeThread;
