@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.22  2011-03-22 16:38:13  guettler
+ *   Revision 1.23  2011-10-28 16:12:57  guettler
+ *   smaller title font size
+ *
+ *   Revision 1.22  2011/03/22 16:38:13  guettler
  *   - adpaptions to enhanced configurable and inspectable interface:
  *   - qconfigurable is now restarted if initialization of agents is finished
  *
@@ -226,7 +229,7 @@ namespace lpzrobots {
     //    setTitle(QString(config->getName().c_str()) + "  -  " + QString(config->getRevision().c_str()) + "  [" + QString::number(config->getId()) + "]");
     setTitle(QString(config->getName().c_str()) + " (" + QString::number(nameIndex) + ")");
     configName = QString(config->getName().c_str()) + "_" + QString::number(nameIndex);
-    setFont(QFont("Courier", 11, QFont::Bold));
+    setFont(QFont("Courier", 10, QFont::Bold));
 
     QPalette pal = palette();
     pal.setColor(QPalette::AlternateBase, QColor(200, 210, 200));
