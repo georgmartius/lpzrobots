@@ -39,7 +39,8 @@
 #define dsDrawLine dsDrawLineD
 #endif
 
-#define CAP // use capsules, otherwise use cylinders
+#define CAP // use capsules, otherwise use cylinders or boxes (see CYL)
+#define CYL // use cylinders, otherwise boxes (if not CAP)
 // #define CAP_CAP // check chapsule-capsule collisions  instead of with box
 // some constants
 #define SIDE   (5.0f)	// side length of a capsule/cyl
@@ -50,12 +51,12 @@
 #endif
 #define RADIUS (0.5f)	// side length of a capsule/cyl
 #define MASS (1.0)	// mass of a box
-#define NUMCAPS 5	// number of capsules/cylinders
+#define NUMCAPS 2	// number of capsules/cylinders
 
 // positions of the capsules/cylinders (columwise)
-dReal x[5] = {0,   2.5,   -2.5,  -3.3,  0};
-dReal y[5] = {0,   0,     0,     -2,    2};
-dReal z[5] = {5,   4,     4,     4,     5.5};
+dReal x[6] = {0,   2.5,  -2.5,  -2.3,  0   ,  0};
+dReal y[6] = {0,   0,     0,    -2,    2   , -4};
+dReal z[6] = {5,   4,     4,     5.3,  5.5 ,  4};
 
 // dynamics and collision objects
 static dSpaceID space;
@@ -100,7 +101,7 @@ static void nearCallback (void *data, dGeomID o1, dGeomID o2)
       dVector3 n;
       dsSetColor (1,0,1);
       for (int j=0; j<3; j++) 
-        n[j] = contact[i].geom.pos[j] + 0.3*contact[i].geom.normal[j];
+        n[j] = contact[i].geom.pos[j] + contact[i].geom.depth*contact[i].geom.normal[j];
       dsDrawLine (contact[i].geom.pos,n);
     }
   }
@@ -128,9 +129,16 @@ static void simLoop (int pause)
   dsSetColor (0,1,1);
   for(int i=0; i < NUMCAPS ; i++){
 #ifdef CAP
-    dsDrawCapsule(dBodyGetPosition(body[i]),dBodyGetRotation(body[i]), HEIGHT, RADIUS);
+    dsDrawCapsule(dBodyGetPosition(body[i]),dBodyGetRotation(body[i]), 
+                  i < 5 ? HEIGHT : 6*HEIGHT, RADIUS);
 #else
-    dsDrawCylinder(dBodyGetPosition(body[i]),dBodyGetRotation(body[i]), HEIGHT, RADIUS); 
+#ifdef CYL
+    dsDrawCylinder(dBodyGetPosition(body[i]),dBodyGetRotation(body[i]), 
+                   i < 5 ? HEIGHT : 6*HEIGHT, RADIUS); 
+#else
+    dReal sides[3] = {RADIUS*2,RADIUS*2,i < 5 ? HEIGHT : 6*HEIGHT};
+    dsDrawBox(dBodyGetPosition(body[i]),dBodyGetRotation(body[i]),sides); 
+#endif
 #endif
   }
   dsSetTexture (DS_WOOD);
@@ -140,7 +148,7 @@ static void simLoop (int pause)
 #ifdef CAP_CAP  
     dsDrawCapsule(dGeomGetPosition(biggeom),dGeomGetRotation(biggeom), SIDE, SIDE*.5);
 #else
-  dReal sides1[3] = {SIDE,SIDE,SIDE};
+  dReal sides1[3] = {SIDE,SIDE*3,SIDE};
   dsDrawBox (dGeomGetPosition(biggeom),dGeomGetRotation(biggeom),sides1);
 #endif
 
@@ -166,19 +174,23 @@ int main (int argc, char **argv)
   contactgroup = dJointGroupCreate (0);
   dWorldSetGravity (world,0,0,0);
 
+  dQuaternion q;
+  dQFromAxisAndAngle (q,0,1,0,M_PI*0.5);
+ 
    
 #ifdef CAP_CAP  
   biggeom = dCreateCCylinder(space, SIDE*.5, SIDE);
 #else
-  biggeom = dCreateBox (space, SIDE, SIDE, SIDE);
+  biggeom = dCreateBox (space, SIDE, SIDE*3, SIDE);
 #endif
-  dGeomSetPosition(biggeom, 0,0,3);   
+  dGeomSetPosition(biggeom, 0,-5.5,3);   
+  dGeomSetQuaternion (biggeom,q);
   
-  dQuaternion q;
-  dQFromAxisAndAngle (q,0,1,0,M_PI*0.5);
   dMass m;
   dMassSetCapsule(&m, 1.0, 3 , RADIUS, HEIGHT); 
   dMassAdjust (&m, MASS); 
+  dQuaternion q2;
+  dQFromAxisAndAngle (q2,0,1,0,M_PI*0.25);
   
   for(int i=0; i<NUMCAPS; i++){
     body[i] = dBodyCreate (world);
@@ -186,10 +198,18 @@ int main (int argc, char **argv)
     dBodySetPosition (body[i],x[i],y[i],z[i]);
     if(i>0)
       dBodySetQuaternion (body[i],q);
+    if(i==3)
+      dBodySetQuaternion (body[i],q2);
+    
+
 #ifdef CAP
-    geom[i] = dCreateCCylinder (space, RADIUS, HEIGHT);
+    geom[i] = dCreateCCylinder (space, RADIUS, i < 5 ? HEIGHT : 6*HEIGHT);
 #else
-    geom[i] = dCreateCylinder (space, RADIUS, HEIGHT);
+#ifdef CYL   
+    geom[i] = dCreateCylinder (space, RADIUS, i < 5 ? HEIGHT : 6*HEIGHT);
+#else
+    geom[i] = dCreateBox (space, RADIUS*2,RADIUS*2,i < 5 ? HEIGHT : 6*HEIGHT);
+#endif
 #endif
     dGeomSetBody (geom[i], body[i]); 
   }  
