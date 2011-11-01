@@ -212,7 +212,7 @@ Makefile.conf:
 .PHONY: tags
 ##!tags		create TAGS file for emacs
 tags: 
-	rm TAGS
+	rm -f TAGS
 	cd selforg && $(MAKE) tags
 	cd ode_robots && $(MAKE) tags
 	cd ga_tools && $(MAKE) tags
