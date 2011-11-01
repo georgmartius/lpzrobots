@@ -51,7 +51,7 @@
 #endif
 #define RADIUS (0.5f)	// side length of a capsule/cyl
 #define MASS (1.0)	// mass of a box
-#define NUMCAPS 2	// number of capsules/cylinders
+#define NUMCAPS 6	// number of capsules/cylinders
 
 // positions of the capsules/cylinders (columwise)
 dReal x[6] = {0,   2.5,  -2.5,  -2.3,  0   ,  0};
@@ -77,34 +77,34 @@ static void nearCallback (void *data, dGeomID o1, dGeomID o2)
   dContact contact[N];
   int n = dCollide (o1,o2,N,&(contact[0].geom),sizeof(dContact));
   if (n > 0) 
-  {
-    dMatrix3 RI;
-    dRSetIdentity (RI);
-    const dReal ss[3] = {0.02,0.02,0.02};
-
-    for (int i=0; i<n; i++) 
     {
-      contact[i].surface.slip1    = 0.7;
-      contact[i].surface.slip2    = 0.7;
-      contact[i].surface.mode     = dContactSoftERP | dContactSoftCFM | 
-        dContactApprox1 | dContactSlip1 | dContactSlip2;
-      contact[i].surface.mu       = 2;
-      contact[i].surface.soft_erp = 0.9 ;
-      contact[i].surface.soft_cfm = 0.1 ;
-      dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
-      dJointAttach (c,
-		    dGeomGetBody(contact[i].geom.g1),
-		    dGeomGetBody(contact[i].geom.g2));
+      dMatrix3 RI;
+      dRSetIdentity (RI);
+      const dReal ss[3] = {0.02,0.02,0.02};
 
-      dsSetColor (1,0,0);
-      dsDrawBox (contact[i].geom.pos,RI,ss);
-      dVector3 n;
-      dsSetColor (1,0,1);
-      for (int j=0; j<3; j++) 
-        n[j] = contact[i].geom.pos[j] + contact[i].geom.depth*contact[i].geom.normal[j];
-      dsDrawLine (contact[i].geom.pos,n);
+      for (int i=0; i<n; i++) 
+        {
+          contact[i].surface.slip1    = 0.7;
+          contact[i].surface.slip2    = 0.7;
+          contact[i].surface.mode     = dContactSoftERP | dContactSoftCFM | 
+            dContactApprox1 | dContactSlip1 | dContactSlip2;
+          contact[i].surface.mu       = 2;
+          contact[i].surface.soft_erp = 0.9 ;
+          contact[i].surface.soft_cfm = 0.1 ;
+          dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
+          dJointAttach (c,
+                        dGeomGetBody(contact[i].geom.g1),
+                        dGeomGetBody(contact[i].geom.g2));
+
+          dsSetColor (1,0,0);
+          dsDrawBox (contact[i].geom.pos,RI,ss);
+          dVector3 n;
+          dsSetColor (1,0,1);
+          for (int j=0; j<3; j++) 
+            n[j] = contact[i].geom.pos[j] + contact[i].geom.depth*contact[i].geom.normal[j];
+          dsDrawLine (contact[i].geom.pos,n);
+        }
     }
-  }
 }
 
 // start simulation - set viewpoint
@@ -146,7 +146,7 @@ static void simLoop (int pause)
   dsSetColor (1,1,0);
   dsSetColorAlpha (1,1,0,.3);
 #ifdef CAP_CAP  
-    dsDrawCapsule(dGeomGetPosition(biggeom),dGeomGetRotation(biggeom), SIDE, SIDE*.5);
+  dsDrawCapsule(dGeomGetPosition(biggeom),dGeomGetRotation(biggeom), SIDE, SIDE*.5);
 #else
   dReal sides1[3] = {SIDE,SIDE*3,SIDE};
   dsDrawBox (dGeomGetPosition(biggeom),dGeomGetRotation(biggeom),sides1);
