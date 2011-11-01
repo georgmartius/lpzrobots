@@ -159,43 +159,6 @@ int dCollideCapsuleSphere (dxGeom *o1, dxGeom *o2, int flags,
   return dCollideSpheres (p,ccyl->radius,o2->final_posr->pos,sphere->radius,contact);
 }
 
-// finds the closest box face for a point t. The box is given by 
-// its position pos, rotation R, and halfsides.
-// The point t is considered in local coordinates of the box if local=1, otherwise it is
-//  transformed.
-// Returns the index of the surface. The depth and surface normals are set too.
-int dClosestBoxFace(dReal* depth, dVector3* normal, dVector3 halfsides, dVector3 pos, dReal *R, dVector3 t, int local){
-  if(!local){
-    dVector3 l;
-    int i;
-    for (i=0; i<3; i++) l[i] = t[i]-pos[i];    
-    // represent pl in terms of local box coordinates    
-    t[0] = dDOT14(l,R);
-    t[1] = dDOT14(l,R+1);
-    t[2] = dDOT14(l,R+2);
-  }
-  // sphere center inside box. find closest face to `t'
-  dReal min_distance = halfsides[0] - dFabs(t[0]);
-  int mini = 0;
-  for (int i=1; i<3; i++) {
-    dReal face_distance = halfsides[i] - dFabs(t[i]);
-    if (face_distance < min_distance) {
-      min_distance = face_distance;
-      mini = i;
-    }
-  }
-  // contact normal points to closest face
-  dVector3 tmp;
-  tmp[0] = 0;
-  tmp[1] = 0;
-  tmp[2] = 0;
-  tmp[mini] = (t[mini] > 0) ? REAL(1.0) : REAL(-1.0);
-  dMULTIPLY0_331 (*normal,R,tmp);
-  // contact depth = distance to wall along normal
-  *depth = min_distance;
-  return mini;
-}
-
 int dCollideCapsuleBox (dxGeom *o1, dxGeom *o2, int flags,
 			  dContactGeom *contact, int skip)
 {
@@ -233,24 +196,35 @@ int dCollideCapsuleBox (dxGeom *o1, dxGeom *o2, int flags,
   dClosestLineBoxPoints (p1,p2,c,R,side,pl,pb);
   // if the capsule is penetrated further than radius 
   //  then pl and pb are equal (up to eps) -> unknown normal
+  // we simply consider the capsule as box and use the box-box algorithm
 #ifdef dSINGLE
   dReal mindist = REAL(1e-6);
 #else
   dReal mindist = REAL(1e-15);
 #endif
   //  if (dCalcPointsDistance3(pl, pb) < mindist) {
-  dReal d = dDISTANCE(pl, pb);
-  if (d < mindist) {
-    dVector3 halfsides;
-    int i;
-    for (i=0; i<3; i++) halfsides[i] = side[i]*REAL(0.5);
-    dClosestBoxFace(&(contact->depth), &(contact->normal),
-                    halfsides, c, R, pl, 0);                    
-    contact->depth+= radius;
-    contact->pos[0] = pb[0];
-    contact->pos[1] = pb[1];
-    contact->pos[2] = pb[2];
-    return 1;
+  if (dDISTANCE(pl, pb) < mindist) {
+    dVector3 normal;
+    dReal depth;
+    int code;
+    // consider capsule as box
+    dReal rad2 = radius*REAL(2.0);
+    const dVector3 capboxside = {rad2, rad2, cyl->lz + rad2};
+    int num = dBoxBox (c, R, side, 
+                       o1->final_posr->pos, o1->final_posr->R, capboxside,
+                       normal, &depth, &code, flags, contact, skip);
+    
+    for (int i=0; i<num; i++) {
+      dContactGeom *currContact = CONTACT(contact,i*skip);
+      currContact->normal[0] = normal[0];
+      currContact->normal[1] = normal[1];
+      currContact->normal[2] = normal[2];
+      currContact->g1 = o1;
+      currContact->g2 = o2;
+      currContact->side1 = -1;
+      currContact->side2 = -1;
+    }
+    return num;
   }else{
     // generate contact point
     return dCollideSpheres (pl,radius,pb,0,contact);
