@@ -26,7 +26,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.23  2011-10-28 16:12:57  guettler
+ *   Revision 1.24  2011-11-02 19:04:57  guettler
+ *   crash fix: added removeCallback to destructor
+ *
+ *   Revision 1.23  2011/10/28 16:12:57  guettler
  *   smaller title font size
  *
  *   Revision 1.22  2011/03/22 16:38:13  guettler
@@ -168,6 +171,7 @@ namespace lpzrobots {
         disconnect(tileWidget, SIGNAL(sig_mousePressEvent(QMouseEvent*)));
         delete tileWidget;
       }
+    config->removeCallbackable(this, Configurable::CALLBACK_CONFIGURABLE_CHANGED);
   }
 
   void QConfigurableWidget::createConfigurableLines() {
@@ -875,6 +879,7 @@ namespace lpzrobots {
   void QConfigurableWidget::doOnCallBack(BackCaller* source, BackCaller::CallbackableType type) {
     Configurable* conf = dynamic_cast<Configurable*>(source);
     if (conf && type==Configurable::CALLBACK_CONFIGURABLE_CHANGED) {
+
       // destroy QConfigurableWidget for this configurable and their configurable childs,
       // then recreate QConfigurableWidgets
     }
