@@ -24,7 +24,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.21  2011-05-30 13:52:54  martius
+ *   Revision 1.22  2011-11-02 19:11:07  guettler
+ *   crash fix: changed const value of CALLBACKABLE_CONFIGURABLE_CHANGED to 11 in order to avoid conflicts with simulation defined constants
+ *
+ *   Revision 1.21  2011/05/30 13:52:54  martius
  *   configurable interface changed
  *    notifyOnChange is now used to inform the childclass on changes
  *    setParam, getParam, getParamList should not be overloaded anymore
@@ -522,7 +525,7 @@ class Configurable : public BackCaller
      */
     virtual void configurableChanged();
 
-    static const CallbackableType CALLBACK_CONFIGURABLE_CHANGED = 1;
+    static const CallbackableType CALLBACK_CONFIGURABLE_CHANGED = 11;
 
   protected:
     /// copies the internal params of the given configurable
