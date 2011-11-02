@@ -23,7 +23,10 @@
  *  DESCRIPTION                                                            *
  *                                                                         *
  *   $Log$
- *   Revision 1.6  2011-10-28 16:32:47  guettler
+ *   Revision 1.7  2011-11-02 08:22:21  martius
+ *   use qmake to detect lib prefix
+ *
+ *   Revision 1.6  2011/10/28 16:32:47  guettler
  *   temporary fix with application path
  *
  *   Revision 1.5  2011/10/28 16:14:21  guettler
@@ -73,9 +76,9 @@ namespace lpzrobots {
       // unregister
       source->removeCallbackable(this, ConfigurableList::CALLBACK_CONFIGURABLE_LIST_BEING_DELETED);
       source->removeCallbackable(this, ConfigurableList::CALLBACK_CONFIGURABLE_LIST_MODIFIED);
-      // delete configurator
       if (configurator!=0) {
-        configurator->close();
+        configurator->close();       
+      // delete configurator; ?
         configurator = 0;
       }
     }

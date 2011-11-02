@@ -31,7 +31,8 @@ LIBBASE=configurator
 ## use -pg for profiling
 CBASEFLAGS="" 
 CPPFLAGS="$CBASEFLAGS"
-LIBS="-lQtCore -lQtGui -lQtXml"
+QPREFIX=`qmake -query QT_INSTALL_LIBS`
+LIBS="-L$QPREFIX -lQtCore -lQtGui -lQtXml"
 
 usage="\
 Usage: configurator-config [--prefix[=DIR]] [--version] [--cflags] [--libs]"
