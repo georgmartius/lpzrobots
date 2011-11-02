@@ -32,10 +32,11 @@ prepare: usage
 	@echo "********************************************************************************"
 	@echo "Don't worry if you have seen a lot of errors above."
 	@echo "This is all optional stuff which is not stricly required."
-	@echo "Probably you want to install the ODE (\"make ode\" and \"make install_ode\")"
-	@echo " and Openscenegraph now (e.g. openscenegraph-dev from your linux distribution)"
-	@echo " and then do \"make libs\" and \"(sudo) make install\""
-	@echo "Usually you can use make -j 2 on multicore machines but not for the installation target."
+	@echo "Now do \"(sudo) make preinstall\". Then you"
+	@echo "probably you want to install the ODE (use our version with)"
+	@echo "	(\"make ode\" and \"make install_ode\")"
+	@echo " and Openscenegraph (e.g. openscenegraph-dev from your linux distribution)"
+	@echo "Type just \"make\" to get help how to proceed"
 
 .PHONY: preinstall
 ##!preinstall   installs the utils and scripts. Do this before make libs!
