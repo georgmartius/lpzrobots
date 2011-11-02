@@ -1,0 +1,2 @@
+call configure as
+CFLAGS="-g -O0" CXXFLAGS="-g -O0" ./configure --enable-double-precision

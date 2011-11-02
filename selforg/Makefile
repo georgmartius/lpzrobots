@@ -35,7 +35,7 @@ HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 OFILES     := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(CPPFILES))
 
 # additional inc paths
-INC +=  -I.
+INC +=  -I. -Iinclude -Iinclude/selforg
 
 # use -pg for profiling
 CPPFLAGS = -Wall -pipe -fpic $(INC) $(shell ./selforg-config --srcprefix="." $(CFGOPTS) --intern --cflags)

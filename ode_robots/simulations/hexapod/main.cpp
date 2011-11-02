@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.10  2011-10-27 12:11:18  der
+ *   Revision 1.11  2011-11-02 09:11:49  martius
+ *   capcolbug patch added
+ *   use proper include pathes for user installation and library compilation
+ *
+ *   Revision 1.10  2011/10/27 12:11:18  der
  *   sox added
  *   sox added
  *
@@ -124,6 +128,7 @@ public:
     global.odeConfig.setParam("controlinterval", 2);
     global.odeConfig.setParam("cameraspeed", 250);
     global.odeConfig.setParam("gravity", -4);
+    setParam("UseQMPThread", false);
     //setupPlaygrounds(odeHandle, osgHandle, global,  Normal);
     // use Playground as boundary:
 //    playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);

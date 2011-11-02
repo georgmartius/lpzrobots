@@ -43,7 +43,7 @@ HFILES   := $(foreach dir,$(dirs),$(find_h_files))
 UTILS = install_prefix.conf
 
 # additional inc paths
-INC +=  -I. -I./include/ode_robots
+INC +=  -I. -Iinclude -Iinclude/ode_robots -I$(shell $(SELFORGCFG) $(CFGOPTS) --srcprefix)/include
 
 # use -pg for profiling
 CPPFLAGS = -Wall -pipe -fpic $(INC) $(shell $(SELFORGCFG) $(CFGOPTS) --cflags) \

@@ -21,7 +21,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.154  2011-10-28 17:20:56  guettler
+ *   Revision 1.155  2011-11-02 09:11:49  martius
+ *   capcolbug patch added
+ *   use proper include pathes for user installation and library compilation
+ *
+ *   Revision 1.154  2011/10/28 17:20:56  guettler
  *   start configurator with console argument -conf (-c doesn't work, enables fullscreen!);
  *   usage (--help) printout reformatted
  *
@@ -1296,10 +1300,10 @@ namespace lpzrobots {
 
  	// call all registered physical callbackable classes
         QP(PROFILER.beginBlock("physicsCB                    "));
-        /*if (useQMPThreads!=0)*/
-        callBackQMP(Base::PHYSICS_CALLBACKABLE);
-        /*else*/
-        //  callBack(Base::PHYSICS_CALLBACKABLE);
+        if (useQMPThreads!=0)
+          callBackQMP(Base::PHYSICS_CALLBACKABLE);
+        else
+          callBack(Base::PHYSICS_CALLBACKABLE);
         QP(PROFILER.endBlock("physicsCB                    "));
         
 	// remove old signals from sound list
