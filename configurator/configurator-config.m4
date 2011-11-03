@@ -62,7 +62,7 @@ while test $# -gt 0; do
       echo $CPPFLAGS -I"$prefix/include"
       ;;
     --libs)
-      echo $LIBS -L"$prefix/lib" -l$LIBBASE
+      echo -L"$prefix/lib" -l$LIBBASE $LIBS 
       ;;
     *)
       echo "Syntax Error: $0 $@" 1>&2
