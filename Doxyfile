@@ -4,7 +4,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = "Robot Simulator of the Robotics Group for Self-Organization of Control"
-PROJECT_NUMBER         = 0.6.5
+PROJECT_NUMBER         = 0.7.0
 OUTPUT_DIRECTORY       = doc
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -99,7 +99,7 @@ FILE_PATTERNS          = *.c \
 RECURSIVE              = YES
 EXCLUDE                = ode_robots/textures/calcheightmaps \
                          ode_robots/include \
-                         ode_robots/components \
+                         ode_robots/oldstuff \
                          ode_robots/simulations/ \
                          selforg/include \
                          selforg/simulations \
