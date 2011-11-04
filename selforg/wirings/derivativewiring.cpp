@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,92 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.13  2011-03-21 17:49:39  guettler
- *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
- *
- *   Revision 1.12  2010/07/02 15:57:25  martius
- *   wirings have new initIntern signature -> less errors can be made
- *   abstractwiring generates the noise of given length
- *
- *   Revision 1.11  2009/08/05 22:32:21  martius
- *   big change:
- *       abstractwiring is responsable for providing sensors and motors
- *        and noise to the inspectable interface.
- *       external interface: unchanged except plotMode in constructor
- *       internal interface: all subclasses have to overload
- *         initIntern, wireSensorsIntern, wireMotorsIntern
- *       All existing implementation are changed
- *
- *   Revision 1.10  2009/03/27 06:16:56  guettler
- *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
- *
- *   Revision 1.9  2008/04/17 14:54:45  martius
- *   randomGen added, which is a random generator with long period and an
- *    internal state. Each Agent has an instance and passed it to the controller
- *    and the wiring. This is good for
- *   a) repeatability on agent basis,
- *   b) parallel execution as done in ode_robots
- *
- *   Revision 1.8  2007/12/07 10:56:33  der
- *   changed method signature of generate() and add() of NoiseGenerator
- *
- *   Revision 1.7  2006/12/11 18:23:21  martius
- *   changed order again: first all sensors, then all derivatives ...
- *   noise is only added to first sensor set
- *   now 2 functions for default configs
- *   blind motors not as sets, but as direct number given
- *
- *   Revision 1.6  2006/12/04 17:44:18  martius
- *   still completely unclear
- *
- *   Revision 1.5  2006/12/04 16:04:43  der
- *   fix
- *
- *   Revision 1.4  2006/08/10 11:56:15  martius
- *   noise is now applied to all sensors
- *
- *   Revision 1.3  2006/07/20 17:14:36  martius
- *   removed std namespace from matrix.h
- *   storable interface
- *   abstract model and invertablemodel as superclasses for networks
- *
- *   Revision 1.2  2006/07/14 12:24:02  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.3  2006/02/08 16:20:21  martius
- *   delay increased by 1
- *
- *   Revision 1.1.2.2  2006/01/30 14:13:56  martius
- *   order has changed from id_1,..,id_n, first_1,...first_n, ...
- *    to id_1,first_1, second_1, id_2, first2, .... id_n, first_n, second_n
- *
- *   Revision 1.1.2.1  2005/11/16 11:24:27  martius
- *   moved to selforg
- *
- *   Revision 1.7  2005/11/14 12:48:08  martius
- *   optimised
- *
- *   Revision 1.6  2005/10/28 12:05:27  martius
- *   adapted time horizont for derivative
- *    to quater of the time horizont of averaging
- *
- *   Revision 1.5  2005/10/24 11:06:33  fhesse
- *   comments adjusted and in doxygen style
- *
- *   Revision 1.4  2005/07/26 17:02:37  martius
- *   2.derivative scaled correctly
- *
- *   Revision 1.3  2005/07/21 15:09:13  martius
- *   blind motors
- *
- *   Revision 1.2  2005/07/21 11:30:59  fhesse
- *   started with blind motors
- *
- *   Revision 1.1  2005/07/18 14:44:55  martius
- *   wiring that supports derivatives
- *
  *                                                                         *
  ***************************************************************************/
 

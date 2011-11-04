@@ -1,11 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005-2009 by Robot Group Leipzig                        *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    jhoffmann@informatik.uni-leipzig.de                                  *
- *    joergweide84@aol.com (robot12)                                       *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,18 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *   This template class is for statistical calculations.                  *
- *                                                                         *
- *   $Log$
- *   Revision 1.3  2009-07-21 08:47:33  robot12
- *   add some comments
- *
- *   Revision 1.2  2009/06/29 12:38:16  robot12
- *   add the templatevalueanalysation for calculating some statistical values. Is a new part of the statistictools.
- *
- *
  ***************************************************************************/
 
 #include "templatevalueanalysation.h"

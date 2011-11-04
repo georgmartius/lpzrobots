@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,130 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *  DESCRIPTION                                                            *
- *                                                                         *
- *   $Log$
- *   Revision 1.22  2011-11-02 19:11:07  guettler
- *   crash fix: changed const value of CALLBACKABLE_CONFIGURABLE_CHANGED to 11 in order to avoid conflicts with simulation defined constants
- *
- *   Revision 1.21  2011/05/30 13:52:54  martius
- *   configurable interface changed
- *    notifyOnChange is now used to inform the childclass on changes
- *    setParam, getParam, getParamList should not be overloaded anymore
- *    use addParameter and friends
- *   store and restore of configurables with children works
- *   started with tests
- *
- *   Revision 1.20  2011/03/25 20:38:46  guettler
- *   - setName() also calls setNameOfInspectable if the instance is inspectable, this
- *     can be avoided manually with an additional param (the autoset should normally
- *     do what the end-user intends because he cannot know that the derived classes
- *     are not overloading this function.)
- *
- *   Revision 1.19  2011/03/22 16:48:57  guettler
- *   - Configurable derives from BackCaller to support method configurableChanged()
- *     for future work with the Configurator GUI (works already in ecb_robots)
- *   - print() now considers the configurable childs
- *
- *   Revision 1.18  2011/03/21 17:45:36  guettler
- *   enhanced configurable interface:
- *   - support for configurable childs of a configurable
- *   - some new helper functions
- *
- *   Revision 1.17  2011/02/02 10:36:42  martius
- *   comment removed
- *
- *   Revision 1.16  2011/01/28 11:25:06  guettler
- *   - delete paramdescr in map on set if description is empty
- *
- *   Revision 1.15  2010/12/16 15:26:09  martius
- *   added copyParameter
- *
- *   Revision 1.14  2010/12/16 14:58:22  der
- *   configurable: addparameter functions without range, but with description added
- *
- *   Revision 1.13  2010/12/08 17:55:44  wrabe
- *   - new typedefs for paramvalpair, paramintpair and paramboolpair
- *
- *   Revision 1.12  2010/12/08 09:36:07  wrabe
- *   - change bounds if value is outside of them
- *
- *   Revision 1.11  2010/12/06 14:09:53  guettler
- *   - use of valDefMinBounds, valDefMaxBounds, intDefMinBounds and intDefMaxBound instead of inf values
- *
- *   Revision 1.10  2010/11/26 12:15:05  guettler
- *   - Configurable interface now allows to set bounds of paramval and paramint
- *     * setting bounds for paramval and paramint is highly recommended (for QConfigurable (Qt GUI).
- *
- *   Revision 1.9  2010/03/03 14:56:30  martius
- *   improved printing of parameterdescription
- *
- *   Revision 1.8  2009/08/05 22:47:10  martius
- *   added support for integer variables and
- *    proper display for bool and int
- *
- *   Revision 1.7  2009/08/05 08:36:22  guettler
- *   added support for boolean variables
- *
- *   Revision 1.6  2009/03/27 06:16:57  guettler
- *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
- *
- *   Revision 1.5  2008/11/14 09:16:15  martius
- *   small things
- *
- *   Revision 1.4  2008/08/14 08:06:02  robot1
- *   fixed compile bug
- *
- *   Revision 1.3  2008/08/01 14:42:03  guettler
- *   we try the trip to hell! make selforg AVR compatible...good luck (first changes)
- *
- *   Revision 1.2  2008/04/29 07:41:40  guettler
- *   added GPL and revision tag
- *
- *   Revision 1.1  2008/04/29 07:39:54  guettler
- *   interfaces moved to selforg/utils directory
- *
- *   Revision 1.7  2008/04/11 14:12:30  martius
- *   comments paramter in storeCfg
- *
- *   Revision 1.6  2007/06/08 15:44:32  martius
- *   termination string -> more robust parsing
- *
- *   Revision 1.5  2007/03/26 13:13:47  martius
- *   store and restore with params
- *
- *   Revision 1.4  2007/01/24 14:38:35  martius
- *   new implementation with a map from key to reference.
- *   addParameter and addParameterDef are used for registration of a parameter
- *   the old style is still supported
- *
- *   Revision 1.3  2006/07/14 12:23:57  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.7  2006/06/25 21:56:07  martius
- *   configureable has name and revision
- *
- *   Revision 1.1.2.6  2006/02/08 16:17:40  martius
- *   no namespace using
- *
- *   Revision 1.1.2.5  2006/01/18 16:48:10  martius
- *   configurables can be stored and reloaded
- *
- *   Revision 1.1.2.4  2006/01/18 10:45:32  martius
- *   *** empty log message ***
- *
- *   Revision 1.1.2.3  2006/01/18 10:44:49  martius
- *   (re)storeCfg
- *
- *   Revision 1.1.2.2  2006/01/16 17:40:13  martius
- *   parsing works
- *
- *   Revision 1.1.2.1  2006/01/16 17:27:17  martius
- *   *** empty log message ***
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __CONFIGURABLE_H
 #define __CONFIGURABLE_H

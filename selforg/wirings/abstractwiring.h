@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,89 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.14  2011-03-21 17:49:39  guettler
- *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
- *
- *   Revision 1.13  2010/09/27 14:53:21  martius
- *   store randGen for further use
- *
- *   Revision 1.12  2010/07/02 15:57:25  martius
- *   wirings have new initIntern signature -> less errors can be made
- *   abstractwiring generates the noise of given length
- *
- *   Revision 1.11  2010/05/28 14:18:26  martius
- *   plotmode are now powers of 2 and Robot has value 1 (was unaccessable before)
- *   added plotmode Nothing
- *
- *   Revision 1.10  2009/10/23 12:38:30  martius
- *   noise is stored in a matrix internally such that it can be inspected easily
- *
- *   Revision 1.9  2009/08/05 22:32:21  martius
- *   big change:
- *       abstractwiring is responsable for providing sensors and motors
- *        and noise to the inspectable interface.
- *       external interface: unchanged except plotMode in constructor
- *       internal interface: all subclasses have to overload
- *         initIntern, wireSensorsIntern, wireMotorsIntern
- *       All existing implementation are changed
- *
- *   Revision 1.8  2008/09/16 15:37:29  martius
- *   added randomgen
- *
- *   Revision 1.7  2008/04/28 11:14:54  guettler
- *   removed include "abstractrobot.h" (not needed)
- *
- *   Revision 1.6  2008/04/17 14:54:45  martius
- *   randomGen added, which is a random generator with long period and an
- *    internal state. Each Agent has an instance and passed it to the controller
- *    and the wiring. This is good for
- *   a) repeatability on agent basis,
- *   b) parallel execution as done in ode_robots
- *
- *   Revision 1.5  2007/11/07 13:40:24  martius
- *   sensors and motors also added as type here (not very nice anyway)
- *
- *   Revision 1.4  2006/12/21 11:44:17  martius
- *   commenting style for doxygen //< -> ///<
- *   FOREACH and FOREACHC are macros for collection iteration
- *
- *   Revision 1.3  2006/07/20 17:14:36  martius
- *   removed std namespace from matrix.h
- *   storable interface
- *   abstract model and invertablemodel as superclasses for networks
- *
- *   Revision 1.2  2006/07/14 12:24:02  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.1  2005/11/16 11:24:27  martius
- *   moved to selforg
- *
- *   Revision 1.8  2005/11/09 13:55:44  martius
- *   *** empty log message ***
- *
- *   Revision 1.7  2005/10/24 09:52:36  fhesse
- *   comments in doxygen
- *
- *   Revision 1.6  2005/10/06 17:11:36  martius
- *   switched to stl lists
- *
- *   Revision 1.5  2005/08/03 20:34:58  martius
- *   use if Inspectable interface
- *
- *   Revision 1.4  2005/07/21 15:14:47  martius
- *   wireSensors and wireMotors get constant fields
- *
- *   Revision 1.3  2005/07/18 14:44:27  martius
- *   noise moved into wiring
- *
- *   Revision 1.2  2005/07/18 10:14:45  martius
- *   noise is added here
- *
- *   Revision 1.1  2005/07/14 15:57:53  fhesse
- *   now agent contains controller, robot and wiring, plotting ability included, therefore plotagent can be removed; ono2onewiring replaces one2oneagent
- *                                            *
  *                                                                         *
  ***************************************************************************/
 #ifndef __ABSTRACTWIRING_H

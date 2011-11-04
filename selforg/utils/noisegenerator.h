@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,92 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.10  2011-06-08 16:13:27  martius
- *   ColorNormalNoise get/setTau added
- *
- *   Revision 1.9  2009/07/30 06:17:46  jhoffmann
- *   Bugfix: remove memory leak when internal random generator is used
- *
- *   Revision 1.8  2009/03/31 15:46:40  martius
- *   ColorUniform noise has functions to get and set tau
- *
- *   Revision 1.7  2009/03/26 19:15:29  martius
- *   NoNoise added (important for WiringSequence, to avoid multiple noise)
- *
- *   Revision 1.6  2009/01/22 16:51:14  martius
- *   sinenoise is now scaled with noise strength
- *
- *   Revision 1.5  2008/05/30 11:58:27  martius
- *   use cmath instead of math.h
- *
- *   Revision 1.4  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.3  2008/04/18 14:00:38  guettler
- *   fixed compile bug (assert.h was not included)
- *
- *   Revision 1.2  2008/04/17 14:54:45  martius
- *   randomGen added, which is a random generator with long period and an
- *    internal state. Each Agent has an instance and passed it to the controller
- *    and the wiring. This is good for
- *   a) repeatability on agent basis,
- *   b) parallel execution as done in ode_robots
- *
- *   Revision 1.1  2008/04/16 12:40:58  martius
- *   moved to utils
- *
- *   Revision 1.17  2007/12/07 10:58:02  der
- *   NoiseGenerator: method signature of add and generate changed!
- *   IMNS: added cfactor parameter
- *
- *   Revision 1.16  2007/12/06 18:17:14  der
- *   corrected WhiteNormalNoise. parameters are now min and max.
- *
- *   Revision 1.15  2006/12/11 14:00:09  martius
- *   colornoise is more colorful (tau = 0.5)
- *   variance for colornoise is invariant of tau now
- *
- *   Revision 1.14  2006/10/09 12:37:54  martius
- *   variance was wrong since it was sigma (std deviation)
- *
- *   Revision 1.13  2006/08/04 15:16:13  martius
- *   documentation
- *
- *   Revision 1.12  2006/07/14 12:23:59  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.10.6.1  2005/11/22 14:55:21  martius
- *   added math.h
- *
- *   Revision 1.10  2005/10/06 17:07:16  martius
- *   removed MAXINT
- *
- *   Revision 1.9  2005/09/11 11:20:21  martius
- *   virtual destructors
- *
- *   Revision 1.8  2005/08/22 20:32:29  martius
- *   sine noise has phaseShift
- *
- *   Revision 1.7  2005/08/06 20:47:54  martius
- *   Commented
- *
- *   Revision 1.6  2005/08/03 20:31:40  martius
- *   sinenoise
- *   no random initialisation anymore
- *
- *   Revision 1.5  2005/07/21 15:11:19  martius
- *   normalised noise strength for colored noise
- *
- *   Revision 1.4  2005/07/14 16:07:12  fhesse
- *   cmath included
- *
- *   Revision 1.3  2005/07/06 16:05:34  martius
- *   noise generator is splitted into sub classes with a common interface
- *
- *   Revision 1.2  2005/06/15 16:04:56  martius
- *   de-templatified
- *                                                                 *
  ***************************************************************************/
 #ifndef __NOISEGENERATOR_H
 #define __NOISEGENERATOR_H

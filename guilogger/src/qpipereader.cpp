@@ -1,6 +1,10 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Dominic Schneider   *
- *   dominic@isyspc8   *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Dominic Schneider (original author)                                  *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -16,13 +20,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *                                                                         *
- *   $Log$
- *   Revision 1.10  2011-03-14 14:47:37  guettler
- *   - allow more than 65535 signs in one line, sized up to 64M now (uses 64MB memory)
- *
- *                                                                         *
  *                                                                         *
  ***************************************************************************/
 #include "qpipereader.h"

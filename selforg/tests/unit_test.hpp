@@ -14,7 +14,7 @@
 ##
 */
 
-/** @mainpage C++ Unit Testing Framework
+/** @section C++ Unit Testing Framework
  * See implementation in
  * @ref unit_test.h
  *

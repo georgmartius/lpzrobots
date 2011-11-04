@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,26 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
- *                                                                         *
- *  DESCRIPTION                                                            *
- *                                                                         *
- *   $Log$
- *   Revision 1.1  2009-03-27 06:16:57  guettler
- *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
- *
- *   Revision 1.3  2008/04/24 11:57:00  der
- *   added new measure types
- *
- *   Revision 1.2  2008/03/12 10:57:07  der
- *   added moving average MOVAVG
- *
- *   Revision 1.1  2007/09/27 10:56:40  robot3
- *   The enum MeasureModes can be found as from now here. Seems to be better for
- *   guys who like to implement new statistic measures - the only relevant files
- *   are measuremodes.h (this one) and statisticmeasure.cpp.
- *
- *
  *                                                                         *
  ***************************************************************************/
 #ifndef _MEASUREMODES_H

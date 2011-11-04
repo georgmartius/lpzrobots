@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,20 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.1  2008-04-24 08:42:34  martius
- *   multiexpert with manipulandum data
- *
- *   Revision 1.1  2007/10/29 13:41:20  martius
- *   some nice sims about agent interaction
- *
- *   Revision 1.1  2007/10/12 15:27:42  martius
- *   simple test for controllers
- *
- *   Revision 1.1  2007/07/10 15:02:33  robot3
- *   *** empty log message ***
- *
- *
  ***************************************************************************/
 #ifndef __GLOBALDATA_H
 #define __GLOBALDATA_H

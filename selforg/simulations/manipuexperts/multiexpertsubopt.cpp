@@ -1,8 +1,7 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 by                                            *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   ANY COMMERCIAL USE FORBIDDEN!                                         *
  *   LICENSE:                                                              *
@@ -16,24 +15,6 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
- *   $Log$
- *   Revision 1.3  2011-05-30 13:52:54  martius
- *   configurable interface changed
- *    notifyOnChange is now used to inform the childclass on changes
- *    setParam, getParam, getParamList should not be overloaded anymore
- *    use addParameter and friends
- *   store and restore of configurables with children works
- *   started with tests
- *
- *   Revision 1.2  2008/06/19 15:54:28  martius
- *   *** empty log message ***
- *
- *   Revision 1.1  2008/05/30 12:00:11  martius
- *   multiexperts with suboptimality
- *
- *
- *   taken from multisat.cpp 1.9 (3c)
- *
  ***************************************************************************/
 
 #include "multiexpertsubopt.h"

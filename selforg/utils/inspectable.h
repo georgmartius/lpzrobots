@@ -1,10 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    joergweide84@aol.com (robot12)                                       *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,92 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.14  2011-10-13 14:36:29  martius
- *   stl_adds removeElement
- *   zoo: adding and removing robots
- *
- *   Revision 1.13  2011/04/28 14:07:28  martius
- *   default name is empty
- *
- *   Revision 1.12  2011/03/22 11:01:53  guettler
- *   - added todo comments
- *
- *   Revision 1.11  2011/03/21 17:46:12  guettler
- *   enhanced inspectable interface:
- *   - support for inspectable children of a inspectable
- *   - some new helper functions
- *
- *   Revision 1.10  2011/01/11 13:17:27  guettler
- *   - added typedef for infoLinesList (necessary for FOREACH)
- *
- *   Revision 1.9  2010/10/18 15:08:28  martius
- *   matrices are now explicitly const (as it should be)
- *
- *   Revision 1.8  2009/10/14 09:58:29  martius
- *   added support for description strings that are exported using the infolines
- *
- *   Revision 1.7  2009/08/10 07:37:48  guettler
- *   -Inspectable interface now supports to add infoLines itself.
- *    These lines are then outprinted line by line to the PlotOption once,
- *    preceded by a #I.
- *   -Restart functionality of PlotOptionEngine added (e.g. closePipes(), reInit()).
- *
- *   Revision 1.6  2009/08/05 08:19:23  martius
- *   addInspectableMatrix allows to specify optionally whether all or only 4x4+Diagonal is used
- *
- *   Revision 1.5  2009/07/15 13:01:15  robot12
- *   one bugfixe
- *
- *   Revision 1.4  2009/06/29 13:24:13  robot12
- *   add function getInternalParamsPtr for new class inspectableproxy
- *
- *   Revision 1.3  2008/08/01 14:42:03  guettler
- *   we try the trip to hell! make selforg AVR compatible...good luck (first changes)
- *
- *   Revision 1.2  2008/04/29 09:55:30  guettler
- *   -class uses now a list of pairs instead of a map
- *   -debug printouts removed
- *
- *   Revision 1.1  2008/04/29 07:39:24  guettler
- *   -interfaces moved to selforg/utils
- *   -added addInspectableValue and addInspectableMatrix
- *   -methods getInternalParamNames and getInternalParams do not need to be
- *   overloaded anymore, use addInspectableValue and addInspectableMatrix
- *   instead (preferred)
- *
- *   Revision 1.9  2006/12/21 11:44:17  martius
- *   commenting style for doxygen //< -> ///<
- *   FOREACH and FOREACHC are macros for collection iteration
- *
- *   Revision 1.8  2006/07/20 17:14:34  martius
- *   removed std namespace from matrix.h
- *   storable interface
- *   abstract model and invertablemodel as superclasses for networks
- *
- *   Revision 1.7  2006/07/14 12:23:58  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.5.6.1  2006/06/25 16:51:35  martius
- *   configureable has name and revision
- *   a robot is configureable by default
- *
- *   Revision 1.5  2005/10/27 15:46:38  martius
- *   inspectable interface is expanded to structural information for network visualiser
- *
- *   Revision 1.4  2005/10/06 17:06:57  martius
- *   switched to stl lists
- *
- *   Revision 1.3  2005/09/11 11:20:01  martius
- *   virtual destructor
- *
- *   Revision 1.2  2005/08/06 20:47:54  martius
- *   Commented
- *
- *   Revision 1.1  2005/08/03 20:28:57  martius
- *   inspectable interface
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __INSPECTABLE_H
 #define __INSPECTABLE_H

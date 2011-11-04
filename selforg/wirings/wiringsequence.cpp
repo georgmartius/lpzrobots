@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,37 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.5  2011-10-27 15:52:37  martius
- *   *** empty log message ***
- *
- *   Revision 1.4  2009/08/05 22:32:21  martius
- *   big change:
- *       abstractwiring is responsable for providing sensors and motors
- *        and noise to the inspectable interface.
- *       external interface: unchanged except plotMode in constructor
- *       internal interface: all subclasses have to overload
- *         initIntern, wireSensorsIntern, wireMotorsIntern
- *       All existing implementation are changed
- *
- *   Revision 1.3  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.2  2008/04/17 14:54:45  martius
- *   randomGen added, which is a random generator with long period and an
- *    internal state. Each Agent has an instance and passed it to the controller
- *    and the wiring. This is good for
- *   a) repeatability on agent basis,
- *   b) parallel execution as done in ode_robots
- *
- *   Revision 1.1  2007/11/29 19:18:46  martius
- *   sequence of wirings
- *
- *   Revision 1.1  2007/11/28 10:30:46  martius
- *   wiring with feedback connections
- *
- *                                            *
  *                                                                         *
  ***************************************************************************/
 

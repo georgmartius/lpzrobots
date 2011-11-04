@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,22 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.2  2009-03-27 06:16:57  guettler
- *   support for gcc 4.3 compatibility (has to be checked), StatisticTools moves from utils to statistictools
- *
- *   Revision 1.1  2008/08/01 14:42:04  guettler
- *   we try the trip to hell! make selforg AVR compatible...good luck (first changes)
- *
- *   Revision 1.2  2006/07/14 12:24:02  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.1  2005/11/16 11:24:27  martius
- *   moved to selforg
- *
- *   Revision 1.2  2005/11/09 13:31:51  martius
- *   GPL'ised
- *
  ***************************************************************************/
 #ifndef __AVRTYPES_H
 #define __AVRTYPES_H

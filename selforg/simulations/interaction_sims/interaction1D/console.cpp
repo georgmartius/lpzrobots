@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,38 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
- *                                                                         *
- *  DESCRIPTION                                                            *
- *    taken vom fileman.c from GNU readline lib                            *
- *    implements a cmd line interface using readline lib                   *
- *                                                                         *
- *   $Log$
- *   Revision 1.1  2011-01-15 19:17:53  martius
- *   interaction simulations from SAB2008 paper
- *
- *   Revision 1.2  2008/09/16 19:12:49  martius
- *   do not use dercontroller and universalcontroller for the release
- *   avoid cast warnings in console
- *
- *   Revision 1.1  2007/10/12 15:27:42  martius
- *   simple test for controllers
- *
- *   Revision 1.2  2007/07/28 10:13:26  martius
- *   very nicely working communication with multiple xbees *g*
- *
- *   Revision 1.1  2007/07/10 13:42:00  robot3
- *   added readline console
- *
- *   Revision 1.3  2007/04/13 13:10:28  robot4
- *   exceptions handled
- *
- *   Revision 1.2  2007/03/26 13:36:58  martius
- *   typo
- *
- *   Revision 1.1  2007/03/26 13:05:51  martius
- *   new commandline interface
- *
  *                                                                         *
  ***************************************************************************/
  

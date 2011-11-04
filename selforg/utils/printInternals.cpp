@@ -1,10 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    joergweide84@aol.com (robot12)                                       *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,31 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.18  2011-06-03 07:24:28  martius
- *   names of inspectables again in the infolines
- *
- *   Revision 1.17  2011/06/01 22:02:56  martius
- *   getAllPrimitives changed to vector return type
- *   inspectables infolines are printed without name again (for guilogger)
- *
- *   Revision 1.16  2011/03/22 16:49:29  guettler
- *   - adpaptions to enhanced configurable and inspectable interface
- *
- *   Revision 1.15  2011/03/21 17:48:13  guettler
- *   adapted to enhanced Inspectable interface:
- *   - has now a name shown also in GuiLogger
- *   - supports plotting of inspectable childs of an inspectable
- *   - inspectable names are plotted out in description line additionally
- *
- *   Revision 1.14  2010/06/03 09:52:18  martius
- *   using const list references as it should be
- *
- *   Revision 1.13  2009/08/05 20:25:29  martius
- *   Bug in printInternalParameters fixed (removed if(*i) which was nonsense)
- *
- *                                                                         *
  *                                                                         *
  ***************************************************************************/
 #include <stdio.h>

@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,29 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.6  2011-06-08 16:13:27  martius
- *   ColorNormalNoise get/setTau added
- *
- *   Revision 1.5  2010/09/30 17:09:33  martius
- *   improved makefile again
- *   examples made them compile
- *   motornoisewiring improved (was not working anymore)
- *
- *   Revision 1.4  2010/09/27 14:52:58  martius
- *   made it compile again
- *
- *   Revision 1.3  2010/03/30 08:48:01  martius
- *   intern function are called now
- *
- *   Revision 1.2  2009/03/31 15:47:11  martius
- *   works now
- *
- *   Revision 1.1  2009/03/31 07:36:18  martius
- *   wiring to add noise on motor channels
- *
-
  *                                                                         *
  ***************************************************************************/
 #ifndef __MOTORNOISEWIRING_H

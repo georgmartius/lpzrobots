@@ -1,11 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2011 by                                                 *
- *   Research Network for Self-Organization of Robot Behavior              *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    wrabe@informatik.uni-leipzig.de                                      *
- *    Georg.Martius@mis.mpg.de                                             *
- *    ralfder@mis.mpg.de                                                   *
- *    frank@nld.ds.mpg.de                                                  *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,21 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
- *                                                                         *
- *  DESCRIPTION                                                            *
- *                                                                         *
- *   $Log$
- *   Revision 1.3  2011-10-28 17:17:28  guettler
- *   improved Configurator integration
- *
- *   Revision 1.2  2011/10/27 15:54:36  martius
- *   new build system with -config shell script and configurator intragration
- *
- *   Revision 1.1  2011/10/25 12:31:16  guettler
- *   new base class for ode_robots/GlobalData;
- *   support for creation of Configurator (via ConfiguratorProxy)
- *
  *                                                                         *
  ***************************************************************************/
 

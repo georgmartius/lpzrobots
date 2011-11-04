@@ -1,10 +1,10 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    mam06fyl@studserv.uni-leipzig.de (robot14)                           *
+ *   Copyright (C) 2008-2011 LpzRobots development team                    *
+ *    Antonia Siegert (original author)                                  *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,26 +20,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *   DESCRIPTION                                                           *
- *                                                                         *
- *   Visualization tool for matrices...                                    *
- *                                                                         *
- *   $Log$
- *   Revision 1.4  2010-10-08 08:08:10  martius
- *   all output with debug condition
- *
- *   Revision 1.3  2010/10/07 16:50:34  martius
- *   fixed bug in config loading if channel is in logfile but not in current file
- *   some debug output
- *   color gradients with dot instead of komma
- *
- *   Revision 1.2  2010/06/30 11:36:59  robot14
- *   removed typo
- *
- *   Revision 1.1  2010/03/30 13:19:09  robot14
- *   first version
- *
- *
  *                                                                         *
  ***************************************************************************/
 

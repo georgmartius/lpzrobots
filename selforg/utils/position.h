@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,31 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.7  2009-10-27 17:06:07  martius
- *   initialize array to avoid compiler warnings
- *
- *   Revision 1.6  2008/05/30 11:58:28  martius
- *   use cmath instead of math.h
- *
- *   Revision 1.5  2007/12/06 07:48:43  der
- *   added method print(), same as in class Pos (see ode_robots/utils)
- *
- *   Revision 1.4  2006/09/11 12:01:43  martius
- *   *** empty log message ***
- *
- *   Revision 1.3  2006/08/11 15:48:24  martius
- *   print
- *
- *   Revision 1.2  2006/07/14 12:24:02  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.1  2005/11/16 11:24:27  martius
- *   moved to selforg
- *
- *   Revision 1.4  2005/11/09 13:31:51  martius
- *   GPL'ised
- *
  ***************************************************************************/
 #ifndef __POSITION_H
 #define __POSITION_H

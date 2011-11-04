@@ -1,8 +1,7 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 by                                            *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   ANY COMMERCIAL USE FORBIDDEN!                                         *
  *   LICENSE:                                                              *
@@ -16,34 +15,6 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
- *   This version of multiexpert has the following features                *
- *    optional raising number of experts,                                  *
- *    competition pairwise between winner and companion                    *
- *    prediction error of companion is increased for competition (hysteris)*
- *    expert get mature, when winning and low error,                       *
- *     i.e. learning rate decreases                                        *
- *    always the agent with lowest maturation is selected  as new companion*
- *    if no imature agent available than a new one is spawned              *
- *    only winner and companion are allowed to learn                       *
- *                                                                         *
- *                                                                         *
- *   $Log$
- *   Revision 1.3  2011-05-30 13:52:54  martius
- *   configurable interface changed
- *    notifyOnChange is now used to inform the childclass on changes
- *    setParam, getParam, getParamList should not be overloaded anymore
- *    use addParameter and friends
- *   store and restore of configurables with children works
- *   started with tests
- *
- *   Revision 1.2  2008/06/26 12:58:41  martius
- *   with adaptive agent number
- *
- *   Revision 1.1  2008/04/24 08:42:34  martius
- *   multiexpert with manipulandum data
- *
- *   Taken from multisat 1.11
- *
  ***************************************************************************/
 #ifndef __MULTIEXPERTPAIR_H
 #define __MULTIEXPERTPAIR_H

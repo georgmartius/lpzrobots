@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,48 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.10  2009-08-04 14:55:22  jhoffmann
- *   Remove two memory leaks, but fix needs review for the open file pointers
- *
- *   Revision 1.9  2009/04/21 16:36:27  martius
- *   removed space at end of lines in log-files
- *
- *   Revision 1.8  2008/09/12 10:11:36  martius
- *   added space to speed output
- *
- *   Revision 1.7  2008/04/28 11:11:01  guettler
- *   include "matrix.h" from trackable class removed, used forward declaration
- *   instead - this change effectuates that no robot must be recompiled if
- *   matrix.h has changed.
- *
- *   Revision 1.6  2007/08/29 11:33:20  martius
- *   simulation time enters logfile
- *
- *   Revision 1.5  2007/04/05 15:14:15  martius
- *   angular speed tracking
- *
- *   Revision 1.4  2007/04/04 06:55:35  martius
- *   *** empty log message ***
- *
- *   Revision 1.3  2007/03/28 07:15:54  martius
- *   speed and orientation tracking enabled
- *
- *   Revision 1.2  2006/07/14 12:24:02  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.2  2006/01/31 15:48:37  martius
- *   *** empty log message ***
- *
- *   Revision 1.1.2.1  2005/11/16 11:24:27  martius
- *   moved to selforg
- *
- *   Revision 1.4  2005/11/10 09:08:16  martius
- *   trace has a name
- *
- *   Revision 1.3  2005/11/09 13:31:51  martius
- *   GPL'ised
- *
  ***************************************************************************/
 #include <stdlib.h>
 #include <time.h>

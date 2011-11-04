@@ -1,10 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    joergweide84@aol.com (robot12)                                       *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,78 +19,8 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *  DESCRIPTION                                                            *
- *                                                                         *
- *                                                                         *
- *                                                                         *
- *  $Log$
- *  Revision 1.16  2011-03-26 09:10:34  guettler
- *  - PlotOptionEngine initializes PlotOptions only if PlotOption itself is initialized
- *
- *  Revision 1.15  2011/03/22 16:49:29  guettler
- *  - adpaptions to enhanced configurable and inspectable interface
- *
- *  Revision 1.14  2011/03/21 17:48:13  guettler
- *  adapted to enhanced Inspectable interface:
- *  - has now a name shown also in GuiLogger
- *  - supports plotting of inspectable childs of an inspectable
- *  - inspectable names are plotted out in description line additionally
- *
- *  Revision 1.13  2011/02/17 17:33:04  martius
- *  changed locale
- *
- *  Revision 1.12  2010/07/11 22:04:13  martius
- *  ported to MinGW/Msys
- *
- *  Revision 1.11  2010/07/02 15:57:25  martius
- *  wirings have new initIntern signature -> less errors can be made
- *  abstractwiring generates the noise of given length
- *
- *  Revision 1.10  2010/07/02 05:40:22  martius
- *  print with %s is safer
- *
- *  Revision 1.9  2009/10/23 12:37:47  martius
- *  plot description for time
- *
- *  Revision 1.8  2009/10/14 10:00:17  martius
- *  export description strings properly
- *
- *  Revision 1.7  2009/08/10 15:36:19  der
- *  plotoptions can again be added and initialized later
- *  ctrl-g and -f are working again
- *  ctrl-n added for neuronviz
- *
- *  Revision 1.6  2009/08/10 07:37:48  guettler
- *  -Inspectable interface now supports to add infoLines itself.
- *   These lines are then outprinted line by line to the PlotOption once,
- *   preceded by a #I.
- *  -Restart functionality of PlotOptionEngine added (e.g. closePipes(), reInit()).
- *
- *  Revision 1.5  2009/08/05 22:53:02  martius
- *  redesigned
- *   works as a stand alone object now
- *   added init function
- *   configurables are now in engine and not in plotoptions
- *   works with wiredcontroller
- *
- *  Revision 1.4  2009/07/29 14:19:49  jhoffmann
- *  Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
- *
- *  Revision 1.3  2009/07/21 08:50:16  robot12
- *  finish of the split
- *  to do: add some comments....
- *
- *  Revision 1.2  2009/06/29 13:11:32  robot14
- *  corrected includes (now gcc4.3 compatible)
- *
- *  Revision 1.1  2009/06/02 09:55:24  robot12
- *  Splitting of WiredController and PlotOption into WiredController : public PlotOptionEngine and
- *  PlotOption (used by ga_tools). Further refactorings needed.
- *                                                                                   *
- *                                                                         *
- **************************************************************************/
+ ***************************************************************************/
 
 #include "plotoptionengine.h"
 #include "plotoption.h"

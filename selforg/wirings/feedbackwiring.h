@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,43 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.7  2011-03-21 17:49:39  guettler
- *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
- *
- *   Revision 1.6  2010/07/02 15:57:25  martius
- *   wirings have new initIntern signature -> less errors can be made
- *   abstractwiring generates the noise of given length
- *
- *   Revision 1.5  2009/08/05 22:32:21  martius
- *   big change:
- *       abstractwiring is responsable for providing sensors and motors
- *        and noise to the inspectable interface.
- *       external interface: unchanged except plotMode in constructor
- *       internal interface: all subclasses have to overload
- *         initIntern, wireSensorsIntern, wireMotorsIntern
- *       All existing implementation are changed
- *
- *   Revision 1.4  2009/03/26 19:14:42  martius
- *   some comments
- *
- *   Revision 1.3  2008/04/28 11:10:11  guettler
- *   include "matrix.h" from trackable class removed, used forward declaration
- *   instead - this change effectuates that no robot must be recompiled if
- *   matrix.h has changed.
- *
- *   Revision 1.2  2008/04/17 14:54:45  martius
- *   randomGen added, which is a random generator with long period and an
- *    internal state. Each Agent has an instance and passed it to the controller
- *    and the wiring. This is good for
- *   a) repeatability on agent basis,
- *   b) parallel execution as done in ode_robots
- *
- *   Revision 1.1  2007/11/28 10:30:56  martius
- *   wiring with feedback connections
- *
- *                                            *
  *                                                                         *
  ***************************************************************************/
 #ifndef __FEEDBACKWIRING_H

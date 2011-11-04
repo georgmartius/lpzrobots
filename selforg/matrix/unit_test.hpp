@@ -14,7 +14,8 @@
 ##
 */
 
-/** @mainpage C++ Unit Testing Framework
+/** 
+ * @section C++ Unit Testing Framework
  * See implementation in
  * @ref unit_test.h
  *
@@ -121,7 +122,7 @@ unit_test_sub_SOURCES = sub_unit.cpp
  */
 
 /**
- * @file unit_test.h Unit Testing framework for C++
+ * @file unit_test.hpp Unit Testing framework for C++
  * @author Patrick Audley
  * @date December 2004
  */

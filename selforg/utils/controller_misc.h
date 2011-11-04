@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,140 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.13  2010-09-07 06:35:35  martius
- *   import -> include
- *   some docu
- *
- *   Revision 1.12  2010/05/17 14:34:24  martius
- *   comments updated
- *
- *   Revision 1.11  2010/01/26 09:49:37  martius
- *   added power function for matrix map
- *
- *   Revision 1.10  2009/08/05 22:48:27  martius
- *   changed many function for mapP to a normal double parameter
- *
- *   Revision 1.9  2008/05/30 11:58:27  martius
- *   use cmath instead of math.h
- *
- *   Revision 1.8  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.7  2008/04/30 14:54:48  guettler
- *   support for new matrix indices integrated
- *
- *   Revision 1.6  2008/04/29 15:31:44  guettler
- *   modified toBinary map functions
- *
- *   Revision 1.5  2008/04/29 10:29:39  guettler
- *   added toBinaryWithProbability for mapP
- *
- *   Revision 1.4  2008/04/28 15:32:46  guettler
- *   doxygen corrected
- *
- *   Revision 1.3  2008/04/25 10:31:18  guettler
- *   added toBinaryWithThreshold function for map2
- *
- *   Revision 1.2  2008/04/17 14:54:45  martius
- *   randomGen added, which is a random generator with long period and an
- *    internal state. Each Agent has an instance and passed it to the controller
- *    and the wiring. This is good for
- *   a) repeatability on agent basis,
- *   b) parallel execution as done in ode_robots
- *
- *   Revision 1.1  2008/04/16 12:44:16  martius
- *   moved to utils
- *
- *   Revision 1.24  2008/03/01 01:47:34  martius
- *   plus_ and lowercutof
- *
- *   Revision 1.23  2007/12/13 16:43:24  martius
- *   noiseMatrix adapted
- *
- *   Revision 1.22  2007/12/11 14:43:27  martius
- *   clipping for matrix mapP
- *
- *   Revision 1.21  2007/08/24 12:02:22  martius
- *   getKSmallestElement
- *
- *   Revision 1.20  2007/07/16 08:51:57  martius
- *   argmax
- *
- *   Revision 1.19  2007/06/21 16:27:43  martius
- *   min and max for matrices
- *
- *   Revision 1.18  2007/06/08 15:44:57  martius
- *   constant function
- *
- *   Revision 1.17  2007/05/22 16:01:45  martius
- *   argmin
- *
- *   Revision 1.16  2007/03/22 08:07:47  robot3
- *   added two methods for generating names and a list from arrays for the interface
- *   inspectable: getInternalParams() and getInternalParamNames()
- *
- *   Revision 1.15  2007/03/22 08:05:03  robot3
- *   this is an adapter class which implements all needed things. This class is
- *   used for example by the DiscreteControllerAdapter.
- *
- *   Revision 1.14  2007/02/20 15:41:06  martius
- *   big model stuff, elman and co
- *
- *   Revision 1.13  2007/02/02 11:16:18  martius
- *   getKthLargestElementc
- *
- *   Revision 1.12  2006/07/20 17:14:34  martius
- *   removed std namespace from matrix.h
- *   storable interface
- *   abstract model and invertablemodel as superclasses for networks
- *
- *   Revision 1.11  2006/07/14 12:23:57  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.9.6.4  2006/07/10 11:59:23  martius
- *   Matrixlib now in selforg
- *   no namespace std in header files
- *
- *   Revision 1.9.6.3  2006/01/17 16:58:39  martius
- *   loading and storing
- *
- *   Revision 1.9.6.2  2005/12/15 17:04:39  martius
- *   min, max and so on are template functions now
- *
- *   Revision 1.9.6.1  2005/11/15 12:30:27  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.9  2005/11/10 09:13:33  martius
- *   readded defines like min, max sqr,...
- *
- *   Revision 1.8  2005/10/27 14:17:17  martius
- *   some functions are now found in mathutils.h (dir: ../ode_robots/utils)
- *
- *   Revision 1.7  2005/10/21 11:50:33  martius
- *   adapt functions
- *   random number function for usage with Matrix::map
- *
- *   Revision 1.6  2005/10/06 17:06:57  martius
- *   switched to stl lists
- *
- *   Revision 1.5  2005/09/22 10:33:07  martius
- *   max and min more save
- *
- *   Revision 1.4  2005/08/29 09:05:31  fhesse
- *   removed weird bug in get4x4AndDiagonalSize, probably caused by some compiler optimization
- *
- *   Revision 1.3  2005/08/06 20:47:54  martius
- *   Commented
- *
- *   Revision 1.2  2005/07/29 14:26:56  martius
- *   fixed bug in length calculation of 4x4 diagonal routines
- *
- *   Revision 1.1  2005/07/28 11:14:52  martius
- *   helper functions for controller
- *    support for internal parameters more easy
- *
- *
  ***************************************************************************/
 #ifndef __CONTOLLER_MISC_H
 #define __CONTOLLER_MISC_H

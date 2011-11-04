@@ -1,11 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005-2009 by Robot Group Leipzig                        *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    jhoffmann@informatik.uni-leipzig.de                                  *
- *    joergweide84@aol.com (robot12)                                       *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,31 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *   This class adds functionality to the inspectable interface. So it is  *
- *   possible to change the inspectable object to become the next value.   *
- *                                                                         *
- *   The values of the inspectable will not longer be generate by only one *
- *   class.                                                                *
- *                                                                         *
- *   $Log$
- *   Revision 1.5  2011-03-21 17:46:21  guettler
- *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
- *
- *   Revision 1.4  2009/10/14 10:01:53  martius
- *   comments corrected
- *
- *   Revision 1.3  2009/08/05 13:22:21  robot12
- *   add one clean up, the function replaceList now modified the old list and don't delete all and make it new
- *
- *   Revision 1.2  2009/07/21 08:47:33  robot12
- *   add some comments
- *
- *   Revision 1.1  2009/06/29 13:37:05  robot12
- *   add the new class inspectableproxy
- *
- *
  ***************************************************************************/
 
 #ifndef INSPECTABLEPROXY_H_

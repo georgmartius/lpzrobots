@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,53 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.9  2011-03-21 17:49:38  guettler
- *   - adapted to enhance Inspectable interface (has now a name shown also in GuiLogger)
- *
- *   Revision 1.8  2010/07/02 15:57:25  martius
- *   wirings have new initIntern signature -> less errors can be made
- *   abstractwiring generates the noise of given length
- *
- *   Revision 1.7  2010/01/26 09:50:19  martius
- *   comments
- *
- *   Revision 1.6  2009/08/05 22:45:25  martius
- *   added plotMode
- *
- *   Revision 1.5  2009/08/05 22:32:21  martius
- *   big change:
- *       abstractwiring is responsable for providing sensors and motors
- *        and noise to the inspectable interface.
- *       external interface: unchanged except plotMode in constructor
- *       internal interface: all subclasses have to overload
- *         initIntern, wireSensorsIntern, wireMotorsIntern
- *       All existing implementation are changed
- *
- *   Revision 1.4  2008/04/17 14:54:45  martius
- *   randomGen added, which is a random generator with long period and an
- *    internal state. Each Agent has an instance and passed it to the controller
- *    and the wiring. This is good for
- *   a) repeatability on agent basis,
- *   b) parallel execution as done in ode_robots
- *
- *   Revision 1.3  2006/12/21 11:44:17  martius
- *   commenting style for doxygen //< -> ///<
- *   FOREACH and FOREACHC are macros for collection iteration
- *
- *   Revision 1.2  2006/07/14 12:24:02  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.1  2005/11/16 11:24:28  martius
- *   moved to selforg
- *
- *   Revision 1.2  2005/10/24 13:32:07  fhesse
- *   comments adjusted and in doxygen style
- *
- *   Revision 1.1  2005/08/22 17:28:13  martius
- *   a 1 to 1 wiring that supports the selection of some sensors only
- *
  *                                                                         *
  ***************************************************************************/
 #ifndef __SELECTIVEONE2ONEWIRING_H

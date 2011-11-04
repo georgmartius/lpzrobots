@@ -1,10 +1,10 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    mam06fyl@studserv.uni-leipzig.de (robot14)                           *
+ *   Copyright (C) 2008-2011 LpzRobots development team                    *
+ *    Antonia Siegert (original author)                                  *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,26 +20,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.6  2010-06-30 11:39:04  robot14
- *   removed VectorPlotChannel specs
- *
- *   Revision 1.5  2010/03/30 13:21:10  robot14
- *   added vector support
- *
- *   Revision 1.4  2009/10/22 15:53:08  robot14
- *   first version of texture visualisation
- *
- *   Revision 1.3  2009/10/14 12:22:31  robot14
- *   *** empty log message ***
- *
- *   Revision 1.2  2009/10/02 15:25:40  robot14
- *   filters, main app - not finished yet
- *
- *   Revision 1.1  2009/08/13 13:14:05  robot14
- *   first version
- *
  *                                                                         *
  ***************************************************************************/
 #include "MatrixVisualizer.h"
