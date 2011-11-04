@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,52 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.12  2009-03-13 09:19:53  martius
- *   changed texture handling in osgprimitive
- *   new OsgBoxTex that supports custom texture repeats and so on
- *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
- *   setTexture has to be called before init() of the primitive
- *
- *   Revision 1.11  2008/05/07 16:45:51  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.10  2007/11/07 13:21:15  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.9  2007/09/06 18:47:59  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.8  2006/07/14 12:23:40  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.4.4.7  2006/06/29 16:39:55  robot3
- *   -you can now see bounding shapes if you type ./start -drawboundings
- *   -includes cleared up
- *   -abstractobstacle and abstractground have now .cpp-files
- *
- *   Revision 1.4.4.6  2006/06/25 17:00:31  martius
- *   Id
- *
- *   Revision 1.4.4.5  2006/06/25 16:57:13  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.4.4.4  2006/01/12 14:47:47  martius
- *   just taken from nimm4
- *
- *   Revision 1.4.4.3  2005/12/06 17:38:17  martius
- *   *** empty log message ***
- *
- *   Revision 1.4.4.2  2005/11/15 12:29:26  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.4.4.1  2005/11/14 17:37:17  martius
- *   moved to selforg
- *
- *   Revision 1.4  2005/11/09 13:24:42  martius
- *   added GPL
- *
  ***************************************************************************/
 #include <assert.h>
 

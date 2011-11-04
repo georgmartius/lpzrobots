@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,21 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.3  2008-09-16 14:49:46  martius
- *   use cmath instead of math.h
- *
- *   Revision 1.2  2006/07/14 12:23:33  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.2  2006/05/29 20:10:28  martius
- *   docu, but moved to terrainground anyway
- *
- *   Revision 1.1.2.1  2006/05/28 22:14:56  martius
- *   heightfield included
- *
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __MESHGROUND_H
 #define __MESHGROUND_H

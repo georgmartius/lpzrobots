@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,42 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.8  2011-05-31 10:21:48  martius
- *   make xml stuff work again
- *   moved obsolete stuff
- *
- *   Revision 1.7  2010/11/11 08:58:45  martius
- *   comments and testing
- *
- *   Revision 1.6  2010/03/21 21:48:59  martius
- *   camera sensor bugfixing (reference to osghandle)
- *   twowheeled robot added (nimm2 with camera)
- *   sense function added to robots (before control): sensors (type Sensor) are checked here
- *   position and optical flow camera sensors added
- *
- *   Revision 1.5  2010/03/19 17:46:21  martius
- *   camerasensors added
- *   camera works great now. Near and far plane fixed by hand and optimal positioning
- *   many image processings added
- *
- *   Revision 1.4  2007/11/07 13:22:47  martius
- *   *** empty log message ***
- *
- *   Revision 1.3  2007/08/23 15:39:05  martius
- *   new IR sensor schema which uses substances and callbacks, very nice
- *
- *   Revision 1.2  2006/12/21 11:42:10  martius
- *   sensors have dimension to sense
- *   axissensors have finer settings
- *
- *   Revision 1.1  2006/08/08 11:59:01  martius
- *   new abstract class for sensors
- *
- *   Revision 1.1  2005/11/22 10:24:04  martius
- *   abstract class for position sensor
- *
  *                                                                         *
  ***************************************************************************/
 #ifndef __SENSOR_H

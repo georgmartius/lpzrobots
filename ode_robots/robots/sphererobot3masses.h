@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,120 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                 *
- ***************************************************************************
  *                                                                         *
- * Spherical Robot inspired by Julius Popp.                                *
- *                                                                         *
- *   $Log$
- *   Revision 1.24  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.23  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.22  2011/04/28 09:45:56  martius
- *   pendular range changeable at runtime
- *
- *   Revision 1.21  2010/07/08 13:51:01  der
- *   *** empty log message ***
- *
- *   Revision 1.20  2010/07/08 13:48:18  der
- *   resolved conflict
- *
- *   Revision 1.19  2010/03/16 18:33:09  martius
- *   axisShift called axesShift now and it is initialized now!
- *
- *   Revision 1.18  2009/12/08 13:56:15  der
- *   guettler: new parameter axisShift
- *   (mainly used for Barrel2Masses)
- *
- *   Revision 1.17  2009/08/10 07:48:55  guettler
- *   removed typedef to avoid compiler warnings
- *
- *   Revision 1.16  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.15  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.14  2007/09/06 18:48:00  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.13  2007/08/24 11:57:30  martius
- *   additional sensors can be before or after motor and ir sensors
- *
- *   Revision 1.12  2007/07/31 08:25:11  martius
- *   added comments
- *
- *   Revision 1.11  2007/04/03 16:27:06  der
- *   new IR shape
- *
- *   Revision 1.10  2007/01/26 12:05:05  martius
- *   servos combinied into OneAxisServo
- *
- *   Revision 1.9  2006/12/21 11:43:05  martius
- *   commenting style for doxygen //< -> ///<
- *   new sensors for spherical robots
- *
- *   Revision 1.8  2006/12/01 16:20:40  martius
- *   *** empty log message ***
- *
- *   Revision 1.7  2006/11/17 13:44:43  martius
- *   corrected z-axes sensor problem
- *   there are two sensors for this situation
- *
- *   Revision 1.6  2006/09/21 22:09:58  martius
- *   collision for mesh
- *
- *   Revision 1.5  2006/09/21 16:17:18  der
- *   *** empty log message ***
- *
- *   Revision 1.4  2006/08/04 15:07:27  martius
- *   documentation
- *
- *   Revision 1.3  2006/07/20 17:19:45  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.2  2006/07/14 12:23:42  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.4  2006/06/25 16:57:17  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.1.2.3  2006/03/30 12:34:57  martius
- *   documentation updated
- *
- *   Revision 1.1.2.2  2006/01/10 17:15:44  martius
- *   removed wrong comment
- *
- *   Revision 1.1.2.1  2006/01/10 17:15:16  martius
- *   was sphererobotarms
- *   moved to osg
- *
- *   Revision 1.10.4.3  2005/11/16 11:26:53  martius
- *   moved to selforg
- *
- *   Revision 1.10.4.2  2005/11/15 12:29:27  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.10.4.1  2005/11/14 17:37:18  martius
- *   moved to selforg
- *
- *   Revision 1.10  2005/11/09 13:27:07  martius
- *   irsensorrange
- *
- *   Revision 1.9  2005/11/07 17:04:56  martius
- *   irsensorscale added
- *
- *   Revision 1.8  2005/11/04 14:45:18  martius
- *   GPL added
- *
- *                                                                 *
  ***************************************************************************/
 
 #ifndef __SPHEREROBOT3MASSES_H

@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,56 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
- *                                                                         *
- *  windowstatistics provides cool stuff for displaying statistics on the  *
- *  graphics window.                                                       *
- *                                                                         *
- *   $Log$
- *   Revision 1.9  2010-07-08 14:27:53  martius
- *   # import is depricated
- *
- *   Revision 1.8  2010/03/17 09:33:16  martius
- *   removed memory leaks and some small bugs
- *   valgrind suppression file is updated
- *
- *   Revision 1.7  2010/01/27 10:14:46  martius
- *   moved WindowStatistics up and added function to obtain it
- *
- *   Revision 1.6  2009/09/03 11:37:06  martius
- *   color and fontsize are setable
- *
- *   Revision 1.5  2009/08/10 07:45:54  guettler
- *   uses new BackCaller implementation
- *
- *   Revision 1.4  2008/01/17 09:55:55  der
- *   methods added for adding std::list<AbstractMeasure*> to the HUD
- *
- *   Revision 1.3  2007/12/06 10:02:49  der
- *   abstractground: returns now cornerpoints
- *   abstractobstacle: is now trackable
- *   hudstatistics: supports now AbstractmMeasure
- *
- *   Revision 1.2  2007/09/28 12:31:49  robot3
- *   The HUDSM is not anymore deduced from StatisticalTools, so the statistics
- *   can be updated independently from the HUD
- *   addPhysicsCallbackable and addGraphicsCallbackable now exists in Simulation
- *
- *   Revision 1.1  2007/09/28 10:24:05  robot3
- *   The WindowStatisticsManager is now called HUDStatisticsManager
- *
- *   Revision 1.4  2007/09/28 10:08:49  robot3
- *   fixed memory bugs, statistics are from now on aligned right
- *
- *   Revision 1.3  2007/09/28 09:15:25  robot3
- *   extended comments
- *
- *   Revision 1.2  2007/09/28 08:47:29  robot3
- *   corrected some memory bug (3 still remaining)
- *
- *   Revision 1.1  2007/09/27 10:48:13  robot3
- *   first version of the WSM
- *
  *                                                                         *
  ***************************************************************************/
 #ifndef __HUD_STATISTICS_H

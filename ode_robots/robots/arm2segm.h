@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,73 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.11  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.10  2011/05/31 16:40:43  martius
- *   added optional shared linking
- *   moves some old files and code cleanup
- *
- *   Revision 1.9  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.8  2007/11/07 13:21:15  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.7  2006/08/11 15:44:52  martius
- *   *** empty log message ***
- *
- *   Revision 1.6  2006/07/20 17:19:43  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.5  2006/07/14 12:23:38  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.4.4.7  2006/06/25 16:57:11  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.4.4.6  2006/03/30 12:34:56  martius
- *   documentation updated
- *
- *   Revision 1.4.4.5  2006/01/03 13:18:51  fhesse
- *   cleaned up
- *   TO do: in the long run robot disappears (huge sensorvalues)
- *
- *   Revision 1.4.4.4  2006/01/03 10:01:46  fhesse
- *   moved to osg
- *
- *   Revision 1.4.4.3  2005/11/16 11:26:52  martius
- *   moved to selforg
- *
- *   Revision 1.4.4.2  2005/11/15 12:29:26  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.4.4.1  2005/11/14 17:37:17  martius
- *   moved to selforg
- *
- *   Revision 1.4  2005/10/06 17:14:24  martius
- *   switched to stl lists
- *
- *   Revision 1.3  2005/09/22 12:24:36  martius
- *   removed global variables
- *   OdeHandle and GlobalData are used instead
- *   sensor prepared
- *
- *   Revision 1.2  2005/09/20 11:17:29  fhesse
- *   smaller changes, needs clean up and comments
- *
- *   Revision 1.1  2005/07/28 10:22:55  fhesse
- *   initial version,
- *   known bugs: when calling show params an
- *   "pure virtual function called" error  happens
- *
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __ARM2SEGM_H
 #define __ARM2SEGM_H

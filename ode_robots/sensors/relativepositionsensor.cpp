@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,29 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *  DESCRIPTION                                                            *
- *                                                                         *
- *   $Log$
- *   Revision 1.5  2011-06-14 08:50:14  fhesse
- *   more efficient version for local coordinates (thanks to Georg)
- *
- *   Revision 1.4  2011/05/04 10:59:23  fhesse
- *   constructor has additional bool to transform output of getSensors to local
- *   coordinates; default=false to be compatible
- *
- *   Revision 1.3  2007/07/03 13:13:57  martius
- *   *** empty log message ***
- *
- *   Revision 1.2  2006/08/11 15:45:38  martius
- *   *** empty log message ***
- *
- *   Revision 1.1  2006/08/08 17:03:27  martius
- *   new sensors model
- *
- *
- *                                                                 *
  ***************************************************************************/
 
 #include <assert.h>

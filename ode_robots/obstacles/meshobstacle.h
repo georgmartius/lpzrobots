@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,30 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.3  2008-09-16 14:49:46  martius
- *   use cmath instead of math.h
- *
- *   Revision 1.2  2006/07/14 12:23:33  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.4  2006/05/24 12:23:10  robot3
- *   -passive_mesh works now (simple bound_version)
- *   -Primitive Mesh now exists (simple bound_version)
- *
- *   Revision 1.1.2.3  2006/05/18 12:54:24  robot3
- *   -fixed not being able to change the color after positioning
- *    the obstacle
- *   -cleared the files up
- *
- *   Revision 1.1.2.2  2006/05/11 08:59:15  robot3
- *   -fixed a positioning bug (e.g. for passivesphere)
- *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
- *
- *   Revision 1.1.2.1  2006/03/29 15:05:32  martius
- *   obstacle that uses a Mesh / OSGModel for graphics and a bounding shape for ODE
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __MESHOBSTACLE_H
 #define __MESHOBSTACLE_H

@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,42 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.6  2009-08-10 14:46:41  der
- *   power() functions removed because references are bad vor velocity servo
- *   setPower() functions added
- *
- *   Revision 1.5  2009/05/11 15:43:22  martius
- *   new velocity controlling servo motors
- *
- *   Revision 1.4  2006/09/21 16:15:06  der
- *   *** empty log message ***
- *
- *   Revision 1.3  2006/08/28 14:11:40  martius
- *   added getJoint()
- *
- *   Revision 1.2  2006/07/14 12:23:32  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.6  2006/03/30 12:34:49  martius
- *   documentation updated
- *
- *   Revision 1.1.2.5  2006/02/23 18:05:30  martius
- *   setPower (on all axis the same)
- *
- *   Revision 1.1.2.4  2006/02/07 15:51:56  martius
- *   axis, setpower
- *
- *   Revision 1.1.2.3  2006/01/31 15:43:47  martius
- *   *** empty log message ***
- *
- *   Revision 1.1.2.2  2006/01/03 10:20:16  fhesse
- *   methods of AngularMotor1Axis public now
- *
- *   Revision 1.1.2.1  2005/12/21 15:38:12  martius
- *   angular motors nicely wrapped
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __ANGULARMOTOR_H
 #define __ANGULARMOTOR_H

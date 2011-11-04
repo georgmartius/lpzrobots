@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,105 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.26  2011-10-27 15:54:36  martius
- *   new build system with -config shell script and configurator intragration
- *
- *   Revision 1.25  2011/06/03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.24  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.23  2011/04/28 09:44:52  martius
- *   damping added
- *
- *   Revision 1.22  2010/08/03 12:50:39  martius
- *   Servo interface changes: damping() is now get/setDamping
- *
- *   Revision 1.21  2010/01/27 10:19:11  martius
- *   showCenter variable added
- *
- *   Revision 1.20  2010/01/26 09:56:31  martius
- *   added dummy center also with velocity
- *
- *   Revision 1.19  2009/03/27 20:45:03  martius
- *   motor type can be selected
- *
- *   Revision 1.18  2009/03/26 20:25:35  martius
- *   changed color to gold; segments are equally wide
- *
- *   Revision 1.17  2009/03/26 18:01:59  martius
- *   angular motors possible
- *   sliders can be switched off -> defaultwheelie is obsolete
- *   better drawing of joints
- *   all motors are set (was a bug before)
- *
- *   Revision 1.16  2009/03/13 09:19:53  martius
- *   changed texture handling in osgprimitive
- *   new OsgBoxTex that supports custom texture repeats and so on
- *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
- *   setTexture has to be called before init() of the primitive
- *
- *   Revision 1.15  2008/09/16 14:52:58  martius
- *   provide a virtual center of the robot as main primitve
- *
- *   Revision 1.14  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.13  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.12  2007/09/06 18:48:00  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.11  2007/07/03 13:05:23  martius
- *   new servo constants
- *
- *   Revision 1.10  2007/03/30 17:52:28  martius
- *   sensor and motor assignment fixed
- *   friction with ground adaptable
- *
- *   Revision 1.9  2007/03/16 10:58:37  martius
- *   new collision control via substances
- *   fixed Bug in creation
- *
- *   Revision 1.8  2006/09/21 11:43:45  martius
- *   powerratio
- *
- *   Revision 1.7  2006/09/21 10:21:33  robot8
- *   - parameters of structure changed
- *
- *   Revision 1.6  2006/09/21 09:38:02  robot8
- *   *** empty log message ***
- *
- *   Revision 1.5  2006/09/21 08:14:55  martius
- *   with sliders inside a segment
- *
- *   Revision 1.4  2006/09/20 12:56:17  martius
- *   Snakes have CreateSegment
- *
- *   Revision 1.3  2006/07/20 17:19:44  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.2  2006/07/14 12:23:42  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.4  2006/06/26 20:33:50  robot5
- *   Joint adjustments.
- *
- *   Revision 1.1.2.3  2006/06/25 21:57:20  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.1.2.2  2006/06/20 07:18:29  robot3
- *   -added cvs log
- *   -changed some behaviour of wheelie
- *
- *
  ***************************************************************************/
 
 #include "sliderwheelie.h"

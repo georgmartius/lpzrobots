@@ -1,50 +1,53 @@
-/***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.1  2011-05-30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.7  2005/11/14 12:48:31  martius
- *   *** empty log message ***
- *
- *   Revision 1.6  2005/11/09 13:27:32  fhesse
- *   GPL added
- *                                                                * 
- ***************************************************************************/
+// // /***************************************************************************
+// //  *   Copyright (C) 2005 by Robot Group Leipzig                             *
+// //  *    martius@informatik.uni-leipzig.de                                    *
+// //  *    fhesse@informatik.uni-leipzig.de                                     *
+// //  *    der@informatik.uni-leipzig.de                                        *
+// //  *                                                                         *
+// //  *   This program is free software; you can redistribute it and/or modify  *
+// //  *   it under the terms of the GNU General Public License as published by  *
+// //  *   the Free Software Foundation; either version 2 of the License, or     *
+// //  *   (at your option) any later version.                                   *
+// //  *                                                                         *
+// //  *   This program is distributed in the hope that it will be useful,       *
+// //  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+// //  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+// //  *   GNU General Public License for more details.                          *
+// //  *                                                                         *
+// //  *   You should have received a copy of the GNU General Public License     *
+// //  *   along with this program; if not, write to the                         *
+// //  *   Free Software Foundation, Inc.,                                       *
+// //  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+// //  *                                                                         *
+// //  *   $Log$
+// //  *   Revision 1.2  2011-11-04 14:15:58  martius
+// //  *   giant edit: replaced headers with log by standard headers
+// //  *
+// //  *   Revision 1.1  2011/05/30 13:56:42  martius
+// //  *   clean up: moved old code to oldstuff
+// //  *   configable changed: notifyOnChanges is now used
+// //  *    getParam,setParam, getParamList is not to be overloaded anymore
+// //  *
+// //  *   Revision 1.7  2005/11/14 12:48:31  martius
+// //  *   *** empty log message ***
+// //  *
+// //  *   Revision 1.6  2005/11/09 13:27:32  fhesse
+// //  *   GPL added
+// //  *                                                                * 
+// //  ***************************************************************************/
 
-#include "component.h"
-#include "drawgeom.h"
+// #include "component.h"
+// #include "drawgeom.h"
 
-namespace university_of_leipzig {
-namespace robots {
+// namespace university_of_leipzig {
+// namespace robots {
 
-  OdeHandle temp(NULL, NULL, NULL);
-  //  dJointGroupID joint_group_id = dJointGroupCreate(0);
+//   OdeHandle temp(NULL, NULL, NULL);
+//   //  dJointGroupID joint_group_id = dJointGroupCreate(0);
 
-/*****************************************************************************/
-/* AbstractComponent                                                         */
-/*****************************************************************************/
+// /*****************************************************************************/
+// /* AbstractComponent                                                         */
+// /*****************************************************************************/
 
 AbstractComponent::AbstractComponent(OdeHandle &r_ode_handle) :
   ode_handle(r_ode_handle)

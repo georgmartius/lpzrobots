@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,74 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *   $Log$
- *   Revision 1.14  2011-08-04 16:43:53  martius
- *   guilogger is positioned beside simulation window (can still be improved)
- *   ctrl-h can be used to move observed agent to 0,0,0 position
- *
- *   Revision 1.13  2011/06/09 16:01:05  martius
- *   add help for o/O
- *   soxexpand: getter and setter
- *
- *   Revision 1.12  2011/06/03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.11  2011/06/01 22:02:56  martius
- *   getAllPrimitives changed to vector return type
- *   inspectables infolines are printed without name again (for guilogger)
- *
- *   Revision 1.10  2010/11/05 13:54:05  martius
- *   store and restore for robots implemented
- *
- *   Revision 1.9  2010/01/26 09:54:56  martius
- *   getposition and getVel... is done via the primitives
- *
- *   Revision 1.8  2008/09/16 14:53:40  martius
- *   use cmath instead of math.h
- *
- *   Revision 1.7  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.6  2007/12/06 10:02:49  der
- *   abstractground: returns now cornerpoints
- *   abstractobstacle: is now trackable
- *   hudstatistics: supports now AbstractmMeasure
- *
- *   Revision 1.5  2007/04/05 15:11:42  martius
- *   angular speed tracking
- *
- *   Revision 1.4  2006/08/08 17:04:46  martius
- *   added new sensor model
- *
- *   Revision 1.3  2006/07/20 17:19:44  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.2  2006/07/14 12:23:41  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.5  2006/06/25 16:57:14  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.1.2.4  2006/05/26 15:47:20  fhesse
- *   using Geom in getPosition() (temporary version)
- *
- *   Revision 1.1.2.3  2005/12/14 15:37:09  martius
- *   robots are working with osg
- *
- *   Revision 1.1.2.2  2005/12/13 18:11:40  martius
- *   still trying to port robots
- *
- *   Revision 1.1.2.1  2005/12/13 12:31:09  martius
- *   moved to cpp file
- *
- *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
- *   *** empty log message ***
- *
- *                                                                 *
  ***************************************************************************/
 
 #include "oderobot.h"

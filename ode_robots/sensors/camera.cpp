@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,44 +20,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.7  2010-03-23 18:43:54  martius
- *   lpzviewer: added checking function
- *   camerasensor new initialization
- *   twowheeled allows full customization of camera
- *   optical flow improved multiscale check
- *
- *   Revision 1.6  2010/03/21 21:48:59  martius
- *   camera sensor bugfixing (reference to osghandle)
- *   twowheeled robot added (nimm2 with camera)
- *   sense function added to robots (before control): sensors (type Sensor) are checked here
- *   position and optical flow camera sensors added
- *
- *   Revision 1.5  2010/03/19 17:46:21  martius
- *   camerasensors added
- *   camera works great now. Near and far plane fixed by hand and optimal positioning
- *   many image processings added
- *
- *   Revision 1.4  2010/03/17 17:26:36  martius
- *   robotcameramanager uses keyboard and respects resize
- *   (robot) camera is has a conf object
- *   image processing implemented, with a few standard procedures
- *
- *   Revision 1.3  2010/03/16 23:24:38  martius
- *   scaling added
- *   eventhandling in robotcameramanager added
- *
- *   Revision 1.2  2010/03/16 15:41:23  martius
- *   Camera is working now! Using the new lpzviewer it is possible to run render it at
- *    the control cycle independent of the graphics
- *
- *   Revision 1.1  2010/03/05 14:32:55  martius
- *   camera sensor added
- *   for that the scenegraph structure was changed into root, world, scene
- *   camera does not work with shadows
- *   works with newest version of ode (0.11)
- *
- *******************************************`********************************/
+ ***************************************************************************/
 
 #include "camera.h"
 

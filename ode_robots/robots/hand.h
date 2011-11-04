@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,110 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.11  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.10  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.9  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.8  2007/09/21 17:05:05  fhesse
- *   IR sensors at fingertip added
- *
- *   Revision 1.7  2007/09/18 16:01:20  fhesse
- *   ir options in conf added
- *
- *   Revision 1.6  2007/09/18 11:03:02  fhesse
- *   conf.finger_winkel and conf.number_of_ir_sensors removed
- *   conf.initWithOpenHand and conf.fingerBendAngle added
- *   servo stuff commented out (todo: readd cleaned version)
- *
- *   Revision 1.5  2007/09/17 19:31:57  fhesse
- *   changes in setMotor() and getSensors() (tried to tidy up)
- *
- *   Revision 1.4  2007/09/17 13:11:20  fhesse
- *   conf option drawFingernails added
- *   box inside palm added to have collisions between palm and fingers
- *   fixing stops of angular motor at forearm-palm-joint
- *   thumb center element removed (now thumb has only 2 parts)
- *
- *   Revision 1.3  2007/09/14 19:18:36  fhesse
- *   pose added and cleaned up in create, HandConf adapted
- *
- *   Revision 1.2  2007/09/12 14:25:44  fhesse
- *   collisionCallback() emtied
- *   comments added
- *   started cleaning up
- *
- *   Revision 1.1  2007/09/12 11:23:11  fhesse
- *   moved from simulation/hand to here (to oderobots/robot)
- *
- *   Revision 1.4  2007/07/05 11:20:02  robot6
- *   hingeservo.h substituted by oneaxismotor.h (includes Hingeservo)
- *   "hand" added in Makefile
- *
- *   Revision 1.3  2007/05/07 09:07:21  robot3
- *   intended region for converting the code from nonreadable to human readable
- *
- *   Revision 1.2  2006/09/21 16:15:57  der
- *   *** empty log message ***
- *
- *   Revision 1.6.4.9  2006/06/25 16:57:13  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.6.4.8  2006/03/30 12:34:56  martius
- *   documentation updated
- *
- *   Revision 1.6.4.7  2006/03/30 08:43:05  fhesse
- *   getTracePrimitive removed
- *
- *   Revision 1.6.4.6  2006/03/28 14:20:28  fhesse
- *   getTracePrimitive() added
- *
- *   Revision 1.6.4.5  2005/12/30 22:54:38  martius
- *   removed parentspace!
- *
- *   Revision 1.6.4.4  2005/12/21 17:35:09  martius
- *   moved to osg
- *
- *   Revision 1.6.4.3  2005/11/16 11:26:52  martius
- *   moved to selforg
- *
- *   Revision 1.6.4.2  2005/11/15 12:29:26  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.6.4.1  2005/11/14 17:37:17  martius
- *   moved to selforg
- *
- *   Revision 1.6  2005/11/09 13:26:21  martius
- *   added factorSensor
- *
- *   Revision 1.5  2005/10/06 17:14:24  martius
- *   switched to stl lists
- *
- *   Revision 1.4  2005/09/22 12:24:37  martius
- *   removed global variables
- *   OdeHandle and GlobalData are used instead
- *   sensor prepared
- *
- *   Revision 1.3  2005/08/31 17:18:15  fhesse
- *   setTextures added, Mass is now sphere (not box anymore)
- *
- *   Revision 1.2  2005/07/26 17:04:21  martius
- *   lives in its own space now
- *
- *   Revision 1.1  2005/07/21 12:17:04  fhesse
- *   new hurling snake, todo: add collision space, clean up, comment
- *
- *         
- *                                                                 *
  ***************************************************************************/
 #ifndef __HAND_H
 #define __HAND_H

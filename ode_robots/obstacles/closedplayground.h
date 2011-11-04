@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,49 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.7  2008-05-06 17:14:17  martius
- *   buildsystem further tuned,
- *   help in Makefile
- *   osg/data directory is also installed and registered at osg_robots
- *
- *   Revision 1.6  2007/03/16 11:01:37  martius
- *   abstractobstacle gets mor functionallity
- *   setSubstance
- *
- *   Revision 1.5  2006/09/12 08:23:13  robot8
- *   -corrected the wrong call for pos with getPosition ()
- *
- *   Revision 1.4  2006/08/11 15:41:04  martius
- *   playgrounds handle non-quadratic ground planes
- *
- *   Revision 1.3  2006/07/14 12:23:32  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.2.4.2  2006/05/11 08:59:15  robot3
- *   -fixed a positioning bug (e.g. for passivesphere)
- *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
- *
- *   Revision 1.2.4.1  2006/01/10 20:25:08  martius
- *   moved to osg
- *
- *   Revision 1.2  2005/09/22 12:24:36  martius
- *   removed global variables
- *   OdeHandle and GlobalData are used instead
- *   sensor prepared
- *
- *   Revision 1.1  2005/07/21 12:01:54  robot8
- *   adding a new obstacle, which is similar to playground, but closed to all directions
- *
- *   Revision 1.6  2005/07/18 14:52:33  martius
- *   world and space are not pointers anymore.
- *
- *   Revision 1.5  2005/07/07 10:24:23  martius
- *   avoid internal collisions
- *
- *   Revision 1.4  2005/06/15 14:22:11  martius
- *   GPL included
- *                                                                 *
  ***************************************************************************/
 #ifndef __CLOSEDPLAYGROUND_H
 #define __CLOSEDPLAYGROUND_H

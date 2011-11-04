@@ -1,8 +1,10 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
+ *    Guillaume de Chambrier <s0672742 at sms dot ed dot ac dot uk>        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,52 +20,9 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *  DESCRIPTION                                                            *
- *                                                                         *
- *   $Log$
- *   Revision 1.11  2010-09-30 17:11:38  martius
- *   added anisotrop friction
- *
- *   Revision 1.10  2010/03/29 16:28:21  martius
- *   abstract ground rembers groundsubstance
- *   comments and typos
- *   osgprimitive uses white for empty texture
- *
- *   Revision 1.9  2010/03/29 11:41:12  martius
- *   todo comment moved
- *
- *   Revision 1.8  2010/03/09 11:53:41  martius
- *   renamed globally ode to ode-dbl
- *
- *   Revision 1.7  2008/09/11 15:24:01  martius
- *   motioncallback resurrected
- *   noContact substance
- *   use slider center of the connecting objects for slider drawing
- *
- *   Revision 1.6  2008/08/27 19:12:02  martius
- *   comment
- *
- *   Revision 1.5  2008/02/14 14:41:48  der
- *   added snow as a new substance
- *
- *   Revision 1.4  2007/08/24 11:55:54  martius
- *   collision callbacks get more information
- *
- *   Revision 1.3  2007/07/17 07:20:29  martius
- *   updated comments
- *
- *   Revision 1.2  2007/07/03 13:14:57  martius
- *   stepsize included, but not yet sorted out
- *   changing stepsize varies the behaviour
- *
- *   Revision 1.1  2007/03/16 10:50:32  martius
- *   initial version
- *
- *
- *   
-
+ ***************************************************************************/
+/*
 This file concerns material implementation in the simulator.
 
 Terminology:
@@ -81,8 +40,6 @@ In general:
 - collission detection is done globally. 
 - via joint connected geoms are stored in a set (globally)
 - spaces are globally registered
-
-
 
  ***************************************************************************/
 #ifndef __SUBSTANCE_H

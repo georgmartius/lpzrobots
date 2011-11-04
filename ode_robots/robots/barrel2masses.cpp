@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,40 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.10  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.9  2010/09/30 15:22:38  martius
- *   changed maximal velocity of servos to 50 (from 10)
- *
- *   Revision 1.8  2010/07/08 13:50:14  der
- *   axesshift renamed
- *
- *   Revision 1.7  2007/09/06 18:47:59  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.6  2007/07/17 07:22:28  martius
- *   removed invisible primitives
- *
- *   Revision 1.5  2007/07/03 13:05:23  martius
- *   new servo constants
- *
- *   Revision 1.4  2007/04/20 12:20:13  martius
- *   new servo parameter
- *
- *   Revision 1.3  2007/02/23 15:14:17  martius
- *   *** empty log message ***
- *
- *   Revision 1.2  2006/12/21 11:43:05  martius
- *   commenting style for doxygen //< -> ///<
- *   new sensors for spherical robots
- *
- *   Revision 1.1  2006/12/01 16:21:15  martius
- *   like sphere3masses, but with 2 masses and cylindric body
- *
- *
  ***************************************************************************/
 
 #include <assert.h>

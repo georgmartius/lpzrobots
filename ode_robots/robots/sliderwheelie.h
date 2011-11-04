@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,74 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.18  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.17  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.16  2010/01/29 13:38:12  martius
- *   resolved conflict with show- and drawCenter
- *
- *   Revision 1.15  2010/01/27 10:19:14  martius
- *   showCenter variable added
- *
- *   Revision 1.14  2010/01/26 09:56:31  martius
- *   added dummy center also with velocity
- *
- *   Revision 1.13  2009/08/10 07:48:55  guettler
- *   removed typedef to avoid compiler warnings
- *
- *   Revision 1.12  2009/03/27 20:45:03  martius
- *   motor type can be selected
- *
- *   Revision 1.11  2009/03/26 18:01:59  martius
- *   angular motors possible
- *   sliders can be switched off -> defaultwheelie is obsolete
- *   better drawing of joints
- *   all motors are set (was a bug before)
- *
- *   Revision 1.10  2008/09/16 14:53:24  martius
- *   provide a virtual center of the robot as main primitive
- *
- *   Revision 1.9  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.8  2007/01/26 12:05:04  martius
- *   servos combinied into OneAxisServo
- *
- *   Revision 1.7  2006/12/21 11:43:05  martius
- *   commenting style for doxygen //< -> ///<
- *   new sensors for spherical robots
- *
- *   Revision 1.6  2006/09/21 22:09:58  martius
- *   collision for mesh
- *
- *   Revision 1.5  2006/09/21 16:17:18  der
- *   *** empty log message ***
- *
- *   Revision 1.4  2006/09/21 08:15:15  martius
- *   with sliders inside a segment
- *
- *   Revision 1.3  2006/07/20 17:19:44  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.2  2006/07/14 12:23:42  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.3  2006/06/25 21:57:20  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.1.2.2  2006/06/20 07:18:29  robot3
- *   -added cvs log
- *   -changed some behaviour of wheelie
- *
  *                                                                         *
  ***************************************************************************/
 #ifndef __SLIDERWHEELIE_H

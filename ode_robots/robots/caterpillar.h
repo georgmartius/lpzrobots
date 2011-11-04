@@ -5,11 +5,11 @@
 /*								     	  */
 /**************************************************************************/
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,34 +25,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.6  2011-05-30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.5  2007/02/12 13:28:38  martius
- *   twoaxiservos
- *
- *   Revision 1.4  2007/01/26 12:05:04  martius
- *   servos combinied into OneAxisServo
- *
- *   Revision 1.3  2006/07/20 17:19:44  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.2  2006/07/14 12:23:39  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.3  2006/05/09 08:46:47  robot3
- *   getSensors() and getMotors() modified
- *
- *   Revision 1.1.2.2  2006/04/11 13:27:00  robot3
- *   caterpillar is using now methods from schlangeservo2
- *
- *   Revision 1.1.2.1  2006/04/11 08:07:43  robot3
- *   first version
- *
  *                                                                         *
  ***************************************************************************/
 #ifndef __CATERPILLAR_H

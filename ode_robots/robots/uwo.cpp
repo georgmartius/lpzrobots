@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,55 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.12  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.11  2011/05/31 16:40:43  martius
- *   added optional shared linking
- *   moves some old files and code cleanup
- *
- *   Revision 1.10  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.9  2010/03/09 11:53:41  martius
- *   renamed globally ode to ode-dbl
- *
- *   Revision 1.8  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.7  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.6  2007/09/06 18:48:00  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.5  2007/02/13 19:32:20  martius
- *   twoaxisservo
- *
- *   Revision 1.4  2007/01/26 12:05:05  martius
- *   servos combinied into OneAxisServo
- *
- *   Revision 1.3  2006/07/20 17:19:45  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.2  2006/07/14 12:23:42  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.3  2006/06/25 16:57:50  martius
- *   Id
- *
- *   Revision 1.1.2.2  2006/06/25 16:57:17  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.1.2.1  2006/06/10 20:13:49  martius
- *   unknown walking object
- *
- *
  ***************************************************************************/
 #include <assert.h>
 #include <ode-dbl/ode.h>

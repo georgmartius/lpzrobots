@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,41 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *  DESCRIPTION                                                            *
- *                                                                         *
- *   $Log$
- *   Revision 1.7  2011-01-02 23:09:52  martius
- *   texture handling of boxes changed
- *   playground walls changed
- *
- *   Revision 1.6  2010/04/27 14:40:02  martius
- *   depth==0 is ignored for drawing but used for bounding box
- *
- *   Revision 1.5  2009/03/13 09:19:53  martius
- *   changed texture handling in osgprimitive
- *   new OsgBoxTex that supports custom texture repeats and so on
- *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
- *   setTexture has to be called before init() of the primitive
- *
- *   Revision 1.4  2008/05/07 16:45:51  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.3  2008/04/23 07:17:16  martius
- *   makefiles cleaned
- *   new also true realtime factor displayed,
- *    warning if out of sync
- *   drawinterval in full speed is 10 frames, independent of the speed
- *
- *   Revision 1.2  2007/09/06 18:46:41  martius
- *   printContours
- *
- *   Revision 1.1  2007/08/28 09:23:20  martius
- *   initial
- *
- *
- *                                                                 *
  ***************************************************************************/
 
 #include "complexplayground.h"

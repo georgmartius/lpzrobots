@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,34 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
- *                                                                         *
- *                                                                         *
- *   $Log$
- *   Revision 1.7  2009-07-30 11:52:53  guettler
- *   new CameraHandle replacing static variables in the CameraManipulators
- *
- *   Revision 1.6  2009/07/01 08:55:22  guettler
- *   new method which checks if agent is defined and in global list,
- *   if not, use the first agent of global list
- *   --> all camera manipulators fixed
- *
- *   Revision 1.5  2007/12/13 07:04:53  der
- *   fixed a stupid bug created through under sleep ;)
- *
- *   Revision 1.4  2007/12/12 10:27:31  der
- *   fixed some nullpointer bugs
- *
- *   Revision 1.3  2007/07/03 13:15:17  martius
- *   odehandle.h in cpp files included
- *
- *   Revision 1.2  2006/07/14 12:23:34  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.1  2006/03/19 13:35:10  robot3
- *   race mode now works
- *
- *
  *                                                                         *
  ***************************************************************************/
 

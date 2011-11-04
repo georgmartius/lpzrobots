@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,107 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.21  2011-01-02 23:09:52  martius
- *   texture handling of boxes changed
- *   playground walls changed
- *
- *   Revision 1.20  2010/03/31 07:38:21  martius
- *   changed wall texture
- *
- *   Revision 1.19  2010/03/29 16:28:21  martius
- *   abstract ground rembers groundsubstance
- *   comments and typos
- *   osgprimitive uses white for empty texture
- *
- *   Revision 1.18  2010/03/08 16:07:45  guettler
- *   fixed display bug that abstractground is not on top of world plane
- *
- *   Revision 1.17  2009/04/02 10:12:25  martius
- *   Texture handling changed
- *
- *   Revision 1.16  2009/03/13 09:19:53  martius
- *   changed texture handling in osgprimitive
- *   new OsgBoxTex that supports custom texture repeats and so on
- *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
- *   setTexture has to be called before init() of the primitive
- *
- *   Revision 1.15  2008/01/29 16:19:30  der
- *   increased groundbox thickness for avoiding collision bugs
- *
- *   Revision 1.14  2007/12/06 10:02:49  der
- *   abstractground: returns now cornerpoints
- *   abstractobstacle: is now trackable
- *   hudstatistics: supports now AbstractmMeasure
- *
- *   Revision 1.13  2007/10/15 13:16:57  martius
- *   changed thickness again, it was mistakingly set to 0.5
- *
- *   Revision 1.12  2007/09/27 12:47:17  der
- *   fixed abstractground placement bug (produces shadow artifacts)
- *
- *   Revision 1.11  2007/09/06 18:46:41  martius
- *   printContours
- *
- *   Revision 1.10  2007/08/27 12:27:35  martius
- *   *** empty log message ***
- *
- *   Revision 1.9  2007/08/24 11:53:10  martius
- *   Change geometry
- *
- *   Revision 1.8  2007/07/03 13:06:41  martius
- *   groundplane thick
- *
- *   Revision 1.7  2007/05/08 10:18:15  der
- *   added a function for starting the measure after a given time.
- *   made some tests
- *
- *   Revision 1.6  2007/04/05 15:10:14  martius
- *   extra ground substance
- *
- *   Revision 1.5  2007/03/16 11:01:37  martius
- *   abstractobstacle gets mor functionallity
- *   setSubstance
- *
- *   Revision 1.4  2006/11/17 13:42:26  martius
- *   Recreation in setColor and ...
- *   removed error Message
- *
- *   Revision 1.3  2006/08/11 15:41:04  martius
- *   playgrounds handle non-quadratic ground planes
- *
- *   Revision 1.2  2006/07/14 12:23:32  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.4  2006/07/14 11:19:49  martius
- *   revert to 1.1.2.1
- *
- *   Revision 1.1.2.1  2006/06/29 16:43:20  robot3
- *   abstract classes have now own .cpp-files
- *
- *   Revision 1.1.2.6  2006/06/26 08:25:03  robot3
- *   fixed ground texture bug
- *
- *   Revision 1.1.2.5  2006/06/22 12:25:45  der
- *   added setGroundTexture and setGroundColor
- *
- *   Revision 1.1.2.4  2006/06/16 22:27:26  martius
- *   getMainPrimtive
- *
- *   Revision 1.1.2.3  2006/05/23 14:13:41  der
- *   fixed initialization bug
- *
- *   Revision 1.1.2.2  2006/05/23 13:37:45  robot3
- *   -fixed some creating bugs
- *   -setColor,setTexture and createGround must be
- *    called before setPosition now
- *
- *   Revision 1.1.2.1  2006/05/19 08:41:27  robot3
- *   Class AbstractGround contains now basic routines like
- *   creating the groundPlane, setPose and so on
- *
- *                                                                         *
  *                                                                         *
  ***************************************************************************/
 #include "abstractground.h"

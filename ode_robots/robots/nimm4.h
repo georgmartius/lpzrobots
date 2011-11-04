@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,89 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.12  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.11  2011/04/28 09:44:34  martius
- *   documentation
- *
- *   Revision 1.10  2009/05/11 17:03:07  martius
- *   minor substance change
- *
- *   Revision 1.9  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.8  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.7  2007/09/06 18:48:00  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.6  2006/07/14 12:23:41  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.5.4.13  2006/06/25 16:57:14  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.5.4.12  2006/04/04 14:13:24  fhesse
- *   documentation improved
- *
- *   Revision 1.5.4.11  2006/03/31 16:20:28  fhesse
- *   class Joint; changed to: class Hinge2Joint;
- *
- *   Revision 1.5.4.10  2006/03/30 12:34:56  martius
- *   documentation updated
- *
- *   Revision 1.5.4.9  2005/12/15 17:04:08  martius
- *   Primitives are not longer inherited from OSGPrimitive, moreover
- *   they aggregate them.
- *   Joint have better getter and setter
- *
- *   Revision 1.5.4.8  2005/12/14 15:37:09  martius
- *   robots are working with osg
- *
- *   Revision 1.5.4.7  2005/12/13 18:11:40  martius
- *   still trying to port robots
- *
- *   Revision 1.5.4.6  2005/12/12 23:41:19  martius
- *   added Joint wrapper
- *
- *   Revision 1.5.4.5  2005/12/11 23:35:08  martius
- *   *** empty log message ***
- *
- *   Revision 1.5.4.4  2005/12/06 10:13:25  martius
- *   openscenegraph integration started
- *
- *   Revision 1.5.4.3  2005/11/16 11:26:52  martius
- *   moved to selforg
- *
- *   Revision 1.5.4.2  2005/11/15 12:29:26  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.5.4.1  2005/11/14 17:37:18  martius
- *   moved to selforg
- *
- *   Revision 1.5  2005/10/27 16:10:41  fhesse
- *   nimm4 as example
- *
- *   Revision 1.4  2005/09/22 12:24:37  martius
- *   removed global variables
- *   OdeHandle and GlobalData are used instead
- *   sensor prepared
- *
- *   Revision 1.3  2005/08/31 11:14:06  martius
- *   removed unused vars
- *
- *   Revision 1.2  2005/08/03 20:38:56  martius
- *   added textures and correct placement
- *
- *   Revision 1.1  2005/07/29 15:13:11  martius
- *   a robot with 4 independent wheels
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __NIMM4_H
 #define __NIMM4_H

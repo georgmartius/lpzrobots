@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,60 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *  DESCRIPTION                                                            *
- *                                                                         *
- *   $Log$
- *   Revision 1.10  2010-09-24 09:00:04  martius
- *   fixed lighing bug! Juhu. The StateSet was shared such that the material
- *    was shared. In this way the last material was used for all primitives
- *
- *   Revision 1.9  2010/07/02 05:45:06  martius
- *   comments improved
- *
- *   Revision 1.8  2010/03/16 15:47:46  martius
- *   osgHandle has now substructures osgConfig and osgScene
- *    that minimized amount of redundant data (this causes a lot of changes)
- *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
- *    Main idea is to have a world without shadow all the time avaiable for the
- *    Robot cameras (since they do not see the right shadow for some reason)
- *   tidied up old files
- *
- *   Revision 1.7  2009/07/30 11:36:01  guettler
- *   added check if noGraphics in OsgHandle is set
- *
- *   Revision 1.6  2009/03/13 09:19:53  martius
- *   changed texture handling in osgprimitive
- *   new OsgBoxTex that supports custom texture repeats and so on
- *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
- *   setTexture has to be called before init() of the primitive
- *
- *   Revision 1.5  2008/05/07 16:45:51  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.4  2006/09/20 12:55:44  martius
- *   Light
- *
- *   Revision 1.3  2006/08/04 15:05:43  martius
- *   documentation
- *
- *   Revision 1.2  2006/07/14 12:23:35  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.3  2006/06/23 09:04:48  robot3
- *   added #include <assert.h>
- *
- *   Revision 1.1.2.2  2006/06/09 15:43:49  fhesse
- *   include assert.h added
- *
- *   Revision 1.1.2.1  2006/05/28 22:14:56  martius
- *   heightfield included
- *
- *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
- *   *** empty log message ***
- *
- *                                                                 *
  ***************************************************************************/
 
 #include "osgheightfield.h"

@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,52 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
- *                                                                         *
- *                                                                         *
- *   $Log$
- *   Revision 1.8  2009-07-30 11:52:53  guettler
- *   new CameraHandle replacing static variables in the CameraManipulators
- *
- *   Revision 1.7  2009/07/01 08:55:22  guettler
- *   new method which checks if agent is defined and in global list,
- *   if not, use the first agent of global list
- *   --> all camera manipulators fixed
- *
- *   Revision 1.6  2009/07/01 08:07:59  guettler
- *   bugfix: if agent not in global list,
- *   use the first agent of global list
- *
- *   Revision 1.5  2007/12/13 07:04:53  der
- *   fixed a stupid bug created through under sleep ;)
- *
- *   Revision 1.4  2007/12/12 10:27:31  der
- *   fixed some nullpointer bugs
- *
- *   Revision 1.3  2007/07/03 13:15:17  martius
- *   odehandle.h in cpp files included
- *
- *   Revision 1.2  2006/07/14 12:23:34  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.6  2006/03/19 13:36:52  robot3
- *   race mode now works
- *
- *   Revision 1.1.2.5  2006/03/18 13:54:42  robot3
- *   syntax error fix
- *
- *   Revision 1.1.2.4  2006/03/18 13:49:05  robot3
- *   TV mode works now, the appropiate pan and tilt are calculated
- *
- *   Revision 1.1.2.3  2006/03/06 16:57:53  robot3
- *   minor changes
- *
- *   Revision 1.1.2.2  2006/03/03 12:08:50  robot3
- *   preparations made for new cameramanipulators
- *
- *   Revision 1.1.2.1  2006/02/01 10:24:34  robot3
- *   new camera manipulator added
- *
  *                                                                         *
  ***************************************************************************/
 

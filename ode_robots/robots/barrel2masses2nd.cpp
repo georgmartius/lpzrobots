@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,28 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.4  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.3  2007/09/06 18:47:59  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.2  2007/07/17 07:22:28  martius
- *   removed invisible primitives
- *
- *   Revision 1.1  2007/01/18 14:43:35  robot3
- *   special variant for master thesis
- *
- *   Revision 1.2  2006/12/21 11:43:05  martius
- *   commenting style for doxygen //< -> ///<
- *   new sensors for spherical robots
- *
- *   Revision 1.1  2006/12/01 16:21:15  martius
- *   like sphere3masses, but with 2 masses and cylindric body
- *
- *
  ***************************************************************************/
 
 #include <assert.h>

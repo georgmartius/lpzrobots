@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,48 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.13  2010-07-05 16:47:34  martius
- *   hashset transition to tr1
- *   new pid function for velocity servos, which work now fine
- *
- *   Revision 1.12  2009/08/12 10:26:47  der
- *   tau instead of alpha
- *
- *   Revision 1.11  2009/05/11 15:43:22  martius
- *   new velocity controlling servo motors
- *
- *   Revision 1.10  2007/07/03 13:01:41  martius
- *   new pid formulas, with stepsize
- *   we use clipped sum for integral term
- *   and clipped derivative value
- *
- *   Revision 1.9  2007/04/03 16:27:50  der
- *   no stepD anymore
- *
- *   Revision 1.8  2007/01/26 12:04:15  martius
- *   servos combinied into OneAxisServo
- *
- *   Revision 1.7  2006/07/14 12:23:32  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.6.4.3  2006/02/07 15:51:56  martius
- *   axis, setpower
- *
- *   Revision 1.6.4.2  2006/01/10 14:48:59  martius
- *   indentation
- *   #ifdef clausel
- *
- *   Revision 1.6.4.1  2005/12/20 17:53:42  martius
- *   changed to Joints from joint.h
- *   new servos for universal and hinge2
- *
- *   Revision 1.6  2005/11/09 14:08:48  martius
- *   *** empty log message ***
- *
- *   Revision 1.5  2005/11/09 13:28:24  fhesse
- *   GPL added
- *                                                                * 
  ***************************************************************************/
 #ifndef __PID_H
 #define __PID_H

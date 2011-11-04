@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,53 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.10  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.9  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.8  2010/07/07 14:12:40  robot6
- *   now with optional face
- *
- *   Revision 1.7  2007/12/11 14:41:54  martius
- *   *** empty log message ***
- *
- *   Revision 1.6  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.5  2007/07/04 13:16:17  martius
- *   no friction parameter anymore
- *
- *   Revision 1.4  2007/07/03 13:00:14  martius
- *   new servo parameter, for current servo implementation
- *
- *   Revision 1.3  2007/04/03 16:37:13  der
- *   *** empty log message ***
- *
- *   Revision 1.2  2007/03/16 10:57:26  martius
- *   no elasticity, since substance support allows to make Playground soft
- *
- *   Revision 1.1  2007/02/23 09:30:13  der
- *   dog :-)
- *
- *   Revision 1.3  2007/02/21 16:08:45  der
- *   frontlegs no feet
- *   ankles are powered
- *   invisible pole (or box) in top
- *
- *   Revision 1.2  2007/02/12 13:30:40  martius
- *   dog looks allready nicer
- *
- *   Revision 1.1  2007/02/02 08:58:15  martius
- *   dog
- *
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __VIERBEINER_H
 #define __VIERBEINER_H

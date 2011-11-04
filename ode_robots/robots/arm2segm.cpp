@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,72 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.16  2011-05-31 16:40:43  martius
- *   added optional shared linking
- *   moves some old files and code cleanup
- *
- *   Revision 1.15  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.14  2009/03/13 09:19:53  martius
- *   changed texture handling in osgprimitive
- *   new OsgBoxTex that supports custom texture repeats and so on
- *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
- *   setTexture has to be called before init() of the primitive
- *
- *   Revision 1.13  2008/05/07 16:45:51  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.12  2007/11/07 13:21:15  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.11  2007/09/06 18:47:59  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.10  2006/08/11 15:44:52  martius
- *   *** empty log message ***
- *
- *   Revision 1.9  2006/08/04 15:07:27  martius
- *   documentation
- *
- *   Revision 1.8  2006/07/20 17:19:43  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.7  2006/07/14 12:23:38  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.6.4.8  2006/06/25 17:00:31  martius
- *   Id
- *
- *   Revision 1.6.4.7  2006/06/25 16:57:11  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.6.4.6  2006/01/05 13:50:31  fhesse
- *   started to add tip at the end
- *
- *   Revision 1.6.4.5  2006/01/04 14:45:10  fhesse
- *   hingejoint axis multiplied with pose (in hinge joiunt constructor)
- *
- *   Revision 1.6.4.4  2006/01/03 13:18:51  fhesse
- *   cleaned up
- *   To do in the long run robot disappears (huge sensorvalues)
- *
- *   Revision 1.6.4.3  2006/01/03 10:01:46  fhesse
- *   moved to osg
- *
- *   Revision 1.6.4.2  2005/11/15 12:29:25  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.6.4.1  2005/11/14 17:37:16  martius
- *   moved to selforg
- *
- *   Revision 1.6  2005/11/09 13:24:42  martius
- *   added GPL
- *
  ***************************************************************************/
 
 #include "arm2segm.h"

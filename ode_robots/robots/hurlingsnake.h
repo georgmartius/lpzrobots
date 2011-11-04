@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,98 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.17  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.16  2011/06/01 22:02:56  martius
- *   getAllPrimitives changed to vector return type
- *   inspectables infolines are printed without name again (for guilogger)
- *
- *   Revision 1.15  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.14  2010/12/17 17:00:26  martius
- *   odeagent has new constructor (old is marked as deprecated) -> log files have again
- *    important information about simulation
- *   addsensorstorobotadapater copies configurables
- *   torquesensors still in debug mode
- *   primitives support explicit decelleration (useful for rolling friction)
- *   hurling snake has rolling friction
- *
- *   Revision 1.13  2010/06/28 14:47:44  martius
- *   internal collisions are now switched on again
- *   joints do not ignore collision of connected pairs here
- *   frictionGround effects substances->works again
- *
- *   Revision 1.12  2010/01/26 09:53:06  martius
- *   changed to new collision model
- *
- *   Revision 1.11  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.10  2006/08/11 15:44:53  martius
- *   *** empty log message ***
- *
- *   Revision 1.9  2006/07/20 17:19:44  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.8  2006/07/14 15:13:46  fhesse
- *   minor changes
- *
- *   Revision 1.6.4.9  2006/06/25 16:57:13  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.6.4.8  2006/03/30 12:34:56  martius
- *   documentation updated
- *
- *   Revision 1.6.4.7  2006/03/30 08:43:05  fhesse
- *   getTracePrimitive removed
- *
- *   Revision 1.6.4.6  2006/03/28 14:20:28  fhesse
- *   getTracePrimitive() added
- *
- *   Revision 1.6.4.5  2005/12/30 22:54:38  martius
- *   removed parentspace!
- *
- *   Revision 1.6.4.4  2005/12/21 17:35:09  martius
- *   moved to osg
- *
- *   Revision 1.6.4.3  2005/11/16 11:26:52  martius
- *   moved to selforg
- *
- *   Revision 1.6.4.2  2005/11/15 12:29:26  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.6.4.1  2005/11/14 17:37:17  martius
- *   moved to selforg
- *
- *   Revision 1.6  2005/11/09 13:26:21  martius
- *   added factorSensor
- *
- *   Revision 1.5  2005/10/06 17:14:24  martius
- *   switched to stl lists
- *
- *   Revision 1.4  2005/09/22 12:24:37  martius
- *   removed global variables
- *   OdeHandle and GlobalData are used instead
- *   sensor prepared
- *
- *   Revision 1.3  2005/08/31 17:18:15  fhesse
- *   setTextures added, Mass is now sphere (not box anymore)
- *
- *   Revision 1.2  2005/07/26 17:04:21  martius
- *   lives in its own space now
- *
- *   Revision 1.1  2005/07/21 12:17:04  fhesse
- *   new hurling snake, to do add collision space, clean up, comment
- *
- *         
- *                                                                 *
  ***************************************************************************/
 #ifndef __HURLINGSNAKE_H
 #define __HURLINGSNAKE_H

@@ -1,7 +1,10 @@
 /***************************************************************************
- *   Copyright (C) 2010 by                                                 *
- *    Guillaume de Chambrier <s0672742@sms.ed.ac.uk>                       *
- *    martius@informatik.uni-leipzig.de                                    *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Guillaume de Chambrier <s0672742 at sms dot ed dot ac dot uk>        *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,7 +21,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- **************************************************************************/
+ ***************************************************************************/
 
 #include <cmath>
 #include <assert.h>

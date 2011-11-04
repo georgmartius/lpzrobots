@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,32 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *  A robot with 4 wheels based on nimm4 with IR sensors                   *
- *                                                                         *
- *   $Log$
- *   Revision 1.6  2010-11-10 17:09:36  martius
- *   torque sensors added, but not yet tested
- *
- *   Revision 1.5  2010/03/26 14:18:07  martius
- *   fourwheeled has a 2 wheeled mode
- *   camera position/motion sensor meansure size change
- *
- *   Revision 1.4  2009/05/11 17:03:07  martius
- *   minor substance change
- *
- *   Revision 1.3  2008/04/23 07:17:16  martius
- *   makefiles cleaned
- *   new also true realtime factor displayed,
- *    warning if out of sync
- *   drawinterval in full speed is 10 frames, independent of the speed
- *
- *   Revision 1.2  2007/11/07 13:21:15  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.1  2007/08/24 11:49:35  martius
- *   initial
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __FOUR_WHEELED__
 #define __FOUR_WHEELED__

@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,45 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   This is an adapter class to add sensors to existing robots            *
- *    without modifiing them.                                              *
- *                                                                         *
- *   $Log$
- *   Revision 1.9  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.8  2010/11/10 17:09:36  martius
- *   torque sensors added, but not yet tested
- *
- *   Revision 1.7  2010/06/03 09:55:37  martius
- *   added setcolor
- *
- *   Revision 1.6  2010/03/21 21:48:59  martius
- *   camera sensor bugfixing (reference to osghandle)
- *   twowheeled robot added (nimm2 with camera)
- *   sense function added to robots (before control): sensors (type Sensor) are checked here
- *   position and optical flow camera sensors added
- *
- *   Revision 1.5  2010/03/19 17:46:21  martius
- *   camerasensors added
- *   camera works great now. Near and far plane fixed by hand and optimal positioning
- *   many image processings added
- *
- *   Revision 1.4  2009/10/09 17:17:19  martius
- *   This does not work with configurables and inspectable robots
- *   comments added.
- *
- *   Revision 1.3  2008/05/07 16:45:51  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.2  2007/11/07 13:20:25  martius
- *   also motors can be added
- *
- *   Revision 1.1  2007/08/24 11:48:56  martius
- *   initial
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __ADDSENSORS2ROBOTADAPTER__
 #define __ADDSENSORS2ROBOTADAPTER__

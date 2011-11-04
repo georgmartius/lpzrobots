@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,73 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.7  2011-05-30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.6  2008/05/07 16:45:51  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.5  2007/02/23 15:14:17  martius
- *   *** empty log message ***
- *
- *   Revision 1.4  2007/01/26 12:05:04  martius
- *   servos combinied into OneAxisServo
- *
- *   Revision 1.3  2006/07/20 17:19:44  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.2  2006/07/14 12:23:39  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.13  2006/07/05 13:12:54  der
- *   fixed sliderServos.size() bug being used in min-function
- *   (compiler said that sliderServos.size() returned size_t
- *    instead of unsigned int)
- *    this problem occured on x86_64 suse linux 10.0 (der)
- *
- *   Revision 1.1.2.12  2006/06/25 17:00:31  martius
- *   Id
- *
- *   Revision 1.1.2.11  2006/06/25 16:57:11  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.1.2.10  2006/06/13 04:24:22  robot5
- *   Separated annular and linear placement in different robots.
- *   See "wheelie" for annular segment placement.
- *
- *   Revision 1.1.2.9  2006/05/29 20:28:43  robot5
- *   Annular placement of segments.
- *
- *   Revision 1.1.2.8  2006/05/22 14:19:11  robot5
- *   Added variable conf.firstJoint to represent the first slider type in the alternating sequence.
- *   Code cleaning.
- *
- *   Revision 1.1.2.7  2006/05/16 07:57:48  robot3
- *   fixed getSensor() and getMotor() bug
- *
- *   Revision 1.1.2.6  2006/05/15 21:11:12  robot5
- *   Using slider and universal joints now (alternating)
- *
- *   Revision 1.1.2.5  2006/05/09 08:46:37  robot3
- *   getSensors() and getMotors() modified
- *
- *   Revision 1.1.2.4  2006/05/09 04:24:34  robot5
- *   Modified for testing purposes
- *
- *   Revision 1.1.2.3  2006/04/25 09:03:52  robot3
- *   caterpillar is now represented by a box
- *
- *   Revision 1.1.2.2  2006/04/11 13:26:46  robot3
- *   caterpillar is using now methods from schlangeservo2
- *
- *   Revision 1.1.2.1  2006/04/11 08:09:47  robot3
- *   first version
- *
- *
  ***************************************************************************/
 
 #include "caterpillar.h"

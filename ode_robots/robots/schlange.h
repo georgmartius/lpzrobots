@@ -5,10 +5,11 @@
 /*									*/
 /************************************************************************/
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,83 +26,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.30  2011-10-14 09:36:18  martius
- *   snakes have no frictionGround parameter anymore, since it was not used,
- *    use the substances now
- *
- *   Revision 1.29  2011/06/03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.28  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.27  2010/10/20 13:17:28  martius
- *   comment
- *
- *   Revision 1.26  2010/09/30 17:12:29  martius
- *   added anisotrop friction to schlange
- *
- *   Revision 1.25  2010/01/26 09:55:26  martius
- *   new collision model
- *
- *   Revision 1.24  2009/05/11 15:44:30  martius
- *   new velocity servos used
- *
- *   Revision 1.23  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.22  2007/07/03 13:05:23  martius
- *   new servo constants
- *
- *   Revision 1.21  2007/01/26 12:05:04  martius
- *   servos combinied into OneAxisServo
- *
- *   Revision 1.20  2006/12/21 11:43:05  martius
- *   commenting style for doxygen //< -> ///<
- *   new sensors for spherical robots
- *
- *   Revision 1.19  2006/09/20 12:56:16  martius
- *   Snakes have CreateSegment
- *
- *   Revision 1.18  2006/07/20 17:19:44  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.17  2006/07/14 13:52:01  der
- *   setheadcolor
- *
- *   Revision 1.15.4.9  2006/06/25 16:57:15  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.15.4.8  2006/05/19 09:04:38  der
- *   -setTexture and setHeadTexture added
- *   -uses now whitemetal texture
- *
- *   Revision 1.15.4.7  2006/03/30 12:34:56  martius
- *   documentation updated
- *
- *   Revision 1.15.4.6  2006/03/29 15:08:54  martius
- *   getMainPrimitive is public now
- *
- *   Revision 1.15.4.5  2006/02/23 18:05:04  martius
- *   friction with angularmotor
- *
- *   Revision 1.15.4.4  2006/02/01 18:33:40  martius
- *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
- *
- *   Revision 1.15.4.3  2005/12/30 22:53:13  martius
- *   removed parentspace!
- *
- *   Revision 1.15.4.2  2005/12/29 16:45:46  martius
- *   does not inherit from Roboter
- *   moved to osg
- *
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __SCHLANGE_H
 #define __SCHLANGE_H

@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,73 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
- *                                                                         *
- *  DESCRIPTION                                                            *
- *    taken vom fileman.c from GNU readline lib                            *
- *    implements a cmd line interface using readline lib                   *
- *                                                                         *
- *   $Log$
- *   Revision 1.17  2011-10-13 14:36:29  martius
- *   stl_adds removeElement
- *   zoo: adding and removing robots
- *
- *   Revision 1.16  2011/06/09 13:26:26  martius
- *   added RandomObstacle and keys: o and O to add and remove them on the fly
- *
- *   Revision 1.15  2011/06/03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.14  2011/05/30 21:57:16  martius
- *   store and restore from console improved
- *   console width automatically adapted
- *
- *   Revision 1.13  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.12  2011/03/22 16:44:10  guettler
- *   - adpaptions to enhanced configurable and inspectable interface
- *   - better formatted output in showParams()
- *
- *   Revision 1.11  2011/03/21 17:41:10  guettler
- *   - adapted to enhanced configurable interface: console can now handle configurable childs of configurables
- *
- *   Revision 1.10  2010/11/11 08:58:45  martius
- *   comments and testing
- *
- *   Revision 1.9  2010/09/27 14:55:56  martius
- *   reimplemented cmd_set. Works now better, also with spaces after the = sign
- *   line variable contains full cmd line now
- *
- *   Revision 1.8  2010/09/16 10:00:21  martius
- *   storage of playground contours
- *   tab completion for parameters
- *
- *   Revision 1.7  2010/09/07 06:32:57  martius
- *   documentation
- *   import -> include
- *
- *   Revision 1.6  2010/06/28 14:52:52  martius
- *   ctrl+c is hidden
- *
- *   Revision 1.5  2008/09/16 14:40:06  martius
- *   made some char* constant to avoid cast error
- *
- *   Revision 1.4  2007/08/29 15:18:19  martius
- *   index starts at 0 for objects
- *
- *   Revision 1.3  2007/04/13 13:10:28  robot4
- *   exceptions handled
- *
- *   Revision 1.2  2007/03/26 13:36:58  martius
- *   typo
- *
- *   Revision 1.1  2007/03/26 13:05:51  martius
- *   new commandline interface
- *
  *                                                                         *
  ***************************************************************************/
  

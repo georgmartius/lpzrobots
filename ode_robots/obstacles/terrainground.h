@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,27 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.10  2010-07-02 05:44:29  martius
- *   comments improved
- *
- *   Revision 1.9  2008/09/16 14:49:46  martius
- *   use cmath instead of math.h
- *
- *   Revision 1.8  2006/07/14 12:23:33  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.7.4.4  2006/06/16 22:27:26  martius
- *   getMainPrimtive
- *
- *   Revision 1.7.4.3  2006/05/29 18:55:46  martius
- *   moved from meshground to terrainground as it was in former times
- *
- *   Revision 1.1.2.1  2006/05/28 22:14:56  martius
- *   heightfield included
- *
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __TERRAINGROUND_H
 #define __TERRAINGROUND_H

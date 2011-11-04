@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,83 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.12  2011-01-02 23:09:52  martius
- *   texture handling of boxes changed
- *   playground walls changed
- *
- *   Revision 1.11  2010/01/07 14:06:24  der
- *   adapted to new wall texture
- *
- *   Revision 1.10  2009/03/13 09:19:53  martius
- *   changed texture handling in osgprimitive
- *   new OsgBoxTex that supports custom texture repeats and so on
- *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
- *   setTexture has to be called before init() of the primitive
- *
- *   Revision 1.9  2007/07/03 13:06:41  martius
- *   groundplane thick
- *
- *   Revision 1.8  2007/03/16 11:01:37  martius
- *   abstractobstacle gets mor functionallity
- *   setSubstance
- *
- *   Revision 1.7  2006/09/20 12:55:30  martius
- *   correct size of ground
- *
- *   Revision 1.6  2006/08/11 15:41:04  martius
- *   playgrounds handle non-quadratic ground planes
- *
- *   Revision 1.5  2006/07/14 12:23:33  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.4.4.11  2006/06/29 16:39:55  robot3
- *   -you can now see bounding shapes if you type ./start -drawboundings
- *   -includes cleared up
- *   -abstractobstacle and abstractground have now .cpp-files
- *
- *   Revision 1.4.4.10  2006/05/23 13:37:22  robot3
- *   -fixed some creating bugs
- *   -setColor,setTexture and createGround must be
- *    called before setPosition now
- *
- *   Revision 1.4.4.9  2006/05/19 08:42:36  robot3
- *   -some code moved to abstractground.h
- *   -it's now possible creating a playground without a groundplane
- *
- *   Revision 1.4.4.8  2006/05/18 14:38:28  robot3
- *   wall uses wall texture now
- *
- *   Revision 1.4.4.7  2006/05/18 12:54:24  robot3
- *   -fixed not being able to change the color after positioning
- *    the obstacle
- *   -cleared the files up
- *
- *   Revision 1.4.4.6  2006/05/18 12:00:57  robot3
- *   removed unused variables
- *
- *   Revision 1.4.4.5  2006/05/18 09:40:03  robot3
- *   using existing texture image in cvs for the groundplane now
- *
- *   Revision 1.4.4.4  2006/05/18 07:42:36  robot3
- *   Grounds have now a groundPlane for shadowing issues
- *   osgprimitive.cpp contains a bug that repeating textures (wrapping)
- *   don't work, needs to be fixed
- *
- *   Revision 1.4.4.3  2006/05/11 08:59:15  robot3
- *   -fixed a positioning bug (e.g. for passivesphere)
- *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
- *
- *   Revision 1.4.4.2  2006/03/29 15:04:39  martius
- *   have pose now
- *
- *   Revision 1.4.4.1  2006/01/10 20:11:12  martius
- *   moved to osg
- *
- *   Revision 1.4  2005/11/09 13:29:21  fhesse
- *   GPL added
- *                                                                 *
  *                                                                         *
  ***************************************************************************/
 #ifndef __OCTAPLAYGROUND_H

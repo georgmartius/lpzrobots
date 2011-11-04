@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,65 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.10  2007-09-27 10:47:04  robot3
- *   mathutils: moved abs to selforg/stl_adds.h
- *   simulation,base: added callbackable support,
- *   added WSM (WindowStatisticsManager) funtionality
- *
- *   Revision 1.9  2007/04/03 16:33:13  der
- *   removed clip
- *
- *   Revision 1.8  2006/08/08 17:04:47  martius
- *   added new sensor model
- *
- *   Revision 1.7  2006/07/14 12:23:56  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.3.4.10  2006/07/10 12:07:16  martius
- *   Matrixlib now in selforg
- *   optimised compilation
- *
- *   Revision 1.3.4.9  2006/06/27 14:14:30  robot3
- *   -optimized mesh and boundingshape code
- *   -other changes
- *
- *   Revision 1.3.4.8  2006/03/29 15:10:11  martius
- *   osgMatrix2matrixlib
- *
- *   Revision 1.3.4.7  2006/03/05 10:58:18  robot3
- *   added a template function normalize360
- *
- *   Revision 1.3.4.6  2006/03/04 16:57:36  robot3
- *   added a template function for abs
- *
- *   Revision 1.3.4.5  2006/02/07 15:48:56  martius
- *   axis
- *
- *   Revision 1.3.4.4  2005/12/15 17:04:32  martius
- *   getAngle
- *   min, max and so on are template functions now
- *
- *   Revision 1.3.4.3  2005/12/14 15:37:38  martius
- *   rotation matrix for axis
- *
- *   Revision 1.3.4.2  2005/11/24 16:21:45  fhesse
- *   multMatrixPosition added
- *
- *   Revision 1.3.4.1  2005/11/14 17:37:25  martius
- *   moved to selforg
- *
- *   Revision 1.3  2005/11/10 09:09:55  martius
- *   use defines for definitions of sqrt, min, max...
- *
- *   Revision 1.2  2005/10/27 14:16:11  martius
- *   some bugs fixed, module now works
- *   some functions from controller_misc.h are here now
- *
- *   Revision 1.1  2005/10/27 12:15:22  robot3
- *   several useful functions that provide mathematic operations
- *
  *                                                                         *
  ***************************************************************************/
 #ifndef __MATHUTILS_H

@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,45 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.8  2011-06-09 16:01:05  martius
- *   add help for o/O
- *   soxexpand: getter and setter
- *
- *   Revision 1.7  2011/06/09 13:26:26  martius
- *   added RandomObstacle and keys: o and O to add and remove them on the fly
- *
- *   Revision 1.6  2010/03/09 11:53:41  martius
- *   renamed globally ode to ode-dbl
- *
- *   Revision 1.5  2010/03/05 14:32:55  martius
- *   camera sensor added
- *   for that the scenegraph structure was changed into root, world, scene
- *   camera does not work with shadows
- *   works with newest version of ode (0.11)
- *
- *   Revision 1.4  2009/02/04 09:38:00  martius
- *   operator * added
- *
- *   Revision 1.3  2006/08/08 17:04:47  martius
- *   added new sensor model
- *
- *   Revision 1.2  2006/07/14 12:23:56  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.4  2005/12/21 17:42:16  martius
- *   toPosition
- *
- *   Revision 1.1.2.3  2005/12/13 18:12:20  martius
- *   some utils
- *
- *   Revision 1.1.2.2  2005/12/12 23:42:14  martius
- *   Pos is a class againt to have customisable Constructors
- *
- *   Revision 1.1.2.1  2005/12/11 23:35:08  martius
- *   *** empty log message ***
- *
- *
  ***************************************************************************/
 #ifndef __POS_H
 #define __POS_H

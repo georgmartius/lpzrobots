@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,40 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *  Declares some common osg classes in forward declaration.               *
- *  This saves a lot of compile time if included in header files           *
- *  instead of the real osg header files.                                  *
- *                                                                         *
- *   $Log$
- *   Revision 1.4  2010-03-16 15:47:46  martius
- *   osgHandle has now substructures osgConfig and osgScene
- *    that minimized amount of redundant data (this causes a lot of changes)
- *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
- *    Main idea is to have a world without shadow all the time avaiable for the
- *    Robot cameras (since they do not see the right shadow for some reason)
- *   tidied up old files
- *
- *   Revision 1.3  2007/11/07 13:18:04  martius
- *   vec4
- *
- *   Revision 1.2  2006/07/14 12:23:35  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.3  2006/01/12 14:21:00  martius
- *   drawmode, material
- *
- *   Revision 1.1.2.2  2005/12/14 15:36:45  martius
- *   joints are visible now
- *
- *   Revision 1.1.2.1  2005/12/13 18:11:13  martius
- *   transform primitive added, some joints stuff done, forward declaration
- *
- *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
- *   *** empty log message ***
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __OSGFORWARDDECL_H
 #define __OSGFORWARDDECL_H

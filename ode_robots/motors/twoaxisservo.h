@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,63 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.15  2011-02-14 15:21:36  martius
- *   min and max values can have any sign (BUG pointed out by Martin Biehl)
- *
- *   Revision 1.14  2010/11/10 17:09:09  martius
- *   new formula for compliance
- *
- *   Revision 1.13  2010/08/03 12:49:18  martius
- *   velocity servos use damping parameter to reduce force around set point
- *    This induces a body feeling
- *
- *   Revision 1.12  2010/07/05 16:47:34  martius
- *   hashset transition to tr1
- *   new pid function for velocity servos, which work now fine
- *
- *   Revision 1.11  2010/07/05 13:22:10  martius
- *   comments added
- *   setPower was wrong in Velocity servo
- *
- *   Revision 1.10  2009/08/12 10:28:48  der
- *   Centered servos use stepNoCutoff which is much more stable
- *
- *   Revision 1.9  2009/08/10 14:46:41  der
- *   power() functions removed because references are bad vor velocity servo
- *   setPower() functions added
- *
- *   Revision 1.8  2009/05/11 17:04:49  martius
- *   no velocity limit if maxVel=0
- *
- *   Revision 1.7  2009/05/11 15:43:22  martius
- *   new velocity controlling servo motors
- *
- *   Revision 1.6  2009/02/04 09:37:05  martius
- *   fixed offset of 2 in centered servos
- *
- *   Revision 1.5  2008/11/14 11:23:05  martius
- *   added centered Servos! This is useful for highly nonequal min max values
- *   skeleton has now also a joint in the back
- *
- *   Revision 1.4  2007/07/17 07:17:40  martius
- *   joints limits are set
- *   damping is accessable for both axis
- *
- *   Revision 1.3  2007/07/03 13:02:22  martius
- *   maximum velocity check
- *   new pid with stepsize
- *
- *   Revision 1.2  2007/04/03 16:31:02  der
- *   use fixed version of pid
- *   new default values
- *
- *   Revision 1.1  2007/02/12 13:28:20  martius
- *   twoaxisservo and some minor changes
- *
- *
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __SERVO2_H
 #define __SERVO2_H

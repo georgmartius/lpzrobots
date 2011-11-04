@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,71 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.8  2011-05-31 16:40:43  martius
- *   added optional shared linking
- *   moves some old files and code cleanup
- *
- *   Revision 1.7  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.6  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.5  2006/07/20 17:19:44  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.4  2006/07/14 12:23:40  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.4.14  2006/06/25 16:57:13  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.1.4.13  2006/05/05 16:20:27  fhesse
- *   hand with fixed joint -> to allow tracing
- *   (does not work with transform while only geom)
- *
- *   Revision 1.1.4.12  2006/03/31 16:13:59  fhesse
- *   *** empty log message ***
- *
- *   Revision 1.1.4.11  2006/03/30 12:34:56  martius
- *   documentation updated
- *
- *   Revision 1.1.4.10  2006/03/28 14:24:37  fhesse
- *   minor changes
- *
- *   Revision 1.1.4.9  2006/01/31 09:58:11  fhesse
- *   basically working now
- *
- *   Revision 1.1.4.8  2006/01/13 12:22:07  fhesse
- *   partially working
- *
- *   Revision 1.1.4.7  2006/01/10 16:45:53  fhesse
- *   not working osg version
- *
- *   Revision 1.1.4.6  2006/01/10 09:38:00  fhesse
- *   partially moved to osg
- *
- *   Revision 1.1.4.5  2005/12/16 16:36:05  fhesse
- *   manual control via keyboard
- *   setMotors via dJointAddSliderForce
- *
- *   Revision 1.1.4.4  2005/11/24 16:15:57  fhesse
- *   moved from main branch, sensors improved
- *
- *   Revision 1.3  2005/11/17 16:29:25  fhesse
- *   initial version
- *
- *   Revision 1.2  2005/11/15 12:36:27  fhesse
- *   muscles drawn as muscles, sphere drawn at tip of lower arm
- *
- *   Revision 1.1  2005/11/11 15:37:06  fhesse
- *   preinitial version
- *                                                                 *
  *                                                                         *
  ***************************************************************************/
 

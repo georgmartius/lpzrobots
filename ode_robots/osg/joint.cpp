@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,91 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *  Different Joint wrappers                                               *
- *                                                                         *
- *   $Log$
- *   Revision 1.10  2010-11-11 08:58:45  martius
- *   comments and testing
- *
- *   Revision 1.9  2010/06/28 14:44:04  martius
- *   joints can also not ignore collisions
- *
- *   Revision 1.8  2008/09/11 15:24:01  martius
- *   motioncallback resurrected
- *   noContact substance
- *   use slider center of the connecting objects for slider drawing
- *
- *   Revision 1.7  2007/07/03 13:03:39  martius
- *   ignorepairs is private in odeHandle
- *
- *   Revision 1.6  2007/03/16 11:00:06  martius
- *   ground plane gets primitive to support substances
- *
- *   Revision 1.5  2007/01/26 12:05:36  martius
- *   joint support forces in uniform manner
- *
- *   Revision 1.4  2006/12/13 09:09:15  martius
- *   removed some spaces at strange places
- *
- *   Revision 1.3  2006/07/26 10:36:15  martius
- *   joints support getPositions and getNumberAxes
- *
- *   Revision 1.2  2006/07/14 12:23:35  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.15  2006/06/29 16:35:56  robot3
- *   includes cleared up
- *
- *   Revision 1.1.2.14  2006/05/05 16:07:23  fhesse
- *   dJointSetFixed(joint); added in init of FixedJoint
- *   to remember relative positions
- *
- *   Revision 1.1.2.13  2006/03/29 15:05:57  martius
- *   fixed joint
- *
- *   Revision 1.1.2.12  2006/02/01 18:34:03  martius
- *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
- *
- *   Revision 1.1.2.11  2006/01/12 22:18:31  martius
- *   delete slider visual
- *
- *   Revision 1.1.2.10  2006/01/12 14:21:00  martius
- *   drawmode, material
- *
- *   Revision 1.1.2.9  2006/01/11 14:11:28  fhesse
- *   moved anchor up into Joint and introduced getAnchor()
- *
- *   Revision 1.1.2.8  2006/01/11 10:53:36  fhesse
- *   delete visual; in SliderJoint::update() removed
- *
- *   Revision 1.1.2.7  2005/12/22 14:09:18  martius
- *   low quality for joint axes
- *
- *   Revision 1.1.2.6  2005/12/21 15:39:22  martius
- *   OneAxisJoint and TwoAxisJoint as superclasses
- *
- *   Revision 1.1.2.5  2005/12/19 16:34:12  martius
- *   added Ball and Universal joint
- *
- *   Revision 1.1.2.4  2005/12/15 17:03:42  martius
- *   cameramanupulator setPose is working
- *   joints have setter and getter parameters
- *   Primitives are not longer inherited from OSGPrimitive, moreover
- *   they aggregate them
- *
- *   Revision 1.1.2.3  2005/12/14 15:36:45  martius
- *   joints are visible now
- *
- *   Revision 1.1.2.2  2005/12/13 18:11:13  martius
- *   transform primitive added, some joints stuff done, forward declaration
- *
- *   Revision 1.1.2.1  2005/12/12 23:40:42  martius
- *   hinge2 started
- *
- *
- *                                                                 *
  ***************************************************************************/
 
 //TODO: add dParamFudgeFactor, see ode docs (0.5 maybe?)

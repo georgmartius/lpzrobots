@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,80 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.6  2011-01-28 11:32:31  martius
- *   bugfix in new playground implementation
- *   passive box and sphere, ... use textures again
- *
- *   Revision 1.5  2009/04/02 13:36:48  fhesse
- *   constructor, create() and setPose() adapted to allow replacing
- *   during siumulation; if mass=0.0 elements without a body are
- *   generated (as in PassiveBox)
- *
- *   Revision 1.4  2008/09/16 14:49:46  martius
- *   use cmath instead of math.h
- *
- *   Revision 1.3  2007/03/16 11:01:37  martius
- *   abstractobstacle gets mor functionallity
- *   setSubstance
- *
- *   Revision 1.2  2006/07/14 12:23:33  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.11  2006/06/16 22:27:26  martius
- *   getMainPrimtive
- *
- *   Revision 1.1.2.10  2006/05/28 22:14:56  martius
- *   heightfield included
- *
- *   Revision 1.1.2.9  2006/05/18 12:54:24  robot3
- *   -fixed not being able to change the color after positioning
- *    the obstacle
- *   -cleared the files up
- *
- *   Revision 1.1.2.8  2006/05/11 08:59:15  robot3
- *   -fixed a positioning bug (e.g. for passivesphere)
- *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
- *
- *   Revision 1.1.2.7  2006/03/31 09:59:23  fhesse
- *   in create: z+=radius; added to place sphere on ground
- *
- *   Revision 1.1.2.6  2006/03/30 12:34:51  martius
- *   documentation updated
- *
- *   Revision 1.1.2.5  2006/03/29 15:04:39  martius
- *   have pose now
- *
- *   Revision 1.1.2.4  2006/01/18 16:46:39  martius
- *   mass adjustable
- *
- *   Revision 1.1.2.3  2005/12/15 17:02:16  martius
- *   *** empty log message ***
- *
- *   Revision 1.1.2.2  2005/12/11 23:35:07  martius
- *   *** empty log message ***
- *
- *   Revision 1.1.2.1  2005/12/09 16:53:17  martius
- *   camera is working now
- *
- *   Revision 1.5  2005/10/25 19:26:57  fhesse
- *   comments adjusted and in doxygen style
- *
- *   Revision 1.4  2005/09/22 12:24:36  martius
- *   removed global variables
- *   OdeHandle and GlobalData are used instead
- *   sensor prepared
- *
- *   Revision 1.3  2005/07/31 22:30:56  martius
- *   textures
- *
- *   Revision 1.2  2005/07/18 14:52:33  martius
- *   world and space are not pointers anymore.
- *
- *   Revision 1.1  2005/07/08 10:00:33  fhesse
- *   initial version
- *                                                    *
  *                                                                         *
  ***************************************************************************/
 #ifndef __PASSIVESPHERE_H

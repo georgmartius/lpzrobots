@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,91 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.14  2011-06-09 13:26:26  martius
- *   added RandomObstacle and keys: o and O to add and remove them on the fly
- *
- *   Revision 1.13  2011/01/02 23:09:52  martius
- *   texture handling of boxes changed
- *   playground walls changed
- *
- *   Revision 1.12  2010/03/29 16:28:21  martius
- *   abstract ground rembers groundsubstance
- *   comments and typos
- *   osgprimitive uses white for empty texture
- *
- *   Revision 1.11  2009/04/02 10:12:25  martius
- *   Texture handling changed
- *
- *   Revision 1.10  2008/04/17 15:59:00  martius
- *   OSG2 port finished
- *
- *   Revision 1.9.2.1  2008/04/15 16:21:52  martius
- *   Profiling
- *   Multithreading also for OSG and ODE but disables because of instabilities
- *
- *   Revision 1.9  2007/12/06 10:02:49  der
- *   abstractground: returns now cornerpoints
- *   abstractobstacle: is now trackable
- *   hudstatistics: supports now AbstractmMeasure
- *
- *   Revision 1.8  2007/09/06 18:46:41  martius
- *   printContours
- *
- *   Revision 1.7  2007/08/24 11:53:10  martius
- *   Change geometry
- *
- *   Revision 1.6  2007/07/03 13:06:41  martius
- *   groundplane thick
- *
- *   Revision 1.5  2007/04/05 15:10:14  martius
- *   extra ground substance
- *
- *   Revision 1.4  2007/03/16 11:01:37  martius
- *   abstractobstacle gets mor functionallity
- *   setSubstance
- *
- *   Revision 1.3  2006/08/11 15:41:04  martius
- *   playgrounds handle non-quadratic ground planes
- *
- *   Revision 1.2  2006/07/14 12:23:32  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.9  2006/07/14 11:36:32  martius
- *   revert to older revision of robot3
- *
- *   Revision 1.1.2.8  2006/07/13 12:11:26  robot5
- *   Using overhauled primitives Plane and Box.
- *   Repeat texturing is supported by them now.
- *
- *   Revision 1.1.2.7  2006/06/29 16:39:55  robot3
- *   -you can now see bounding shapes if you type ./start -drawboundings
- *   -includes cleared up
- *   -abstractobstacle and abstractground have now .cpp-files
- *
- *   Revision 1.1.2.6  2006/06/26 08:25:03  robot3
- *   fixed ground texture bug
- *
- *   Revision 1.1.2.5  2006/06/22 12:25:45  der
- *   added setGroundTexture and setGroundColor
- *
- *   Revision 1.1.2.4  2006/06/16 22:27:26  martius
- *   getMainPrimtive
- *
- *   Revision 1.1.2.3  2006/05/23 14:13:41  der
- *   fixed initialization bug
- *
- *   Revision 1.1.2.2  2006/05/23 13:37:45  robot3
- *   -fixed some creating bugs
- *   -setColor,setTexture and createGround must be
- *    called before setPosition now
- *
- *   Revision 1.1.2.1  2006/05/19 08:41:27  robot3
- *   Class AbstractGround contains now basic routines like
- *   creating the groundPlane, setPose and so on
- *
- *                                                                         *
  *                                                                         *
  ***************************************************************************/
 #ifndef __ABSTRACTGROUND_H

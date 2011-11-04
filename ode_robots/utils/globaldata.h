@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,46 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.10  2011-10-25 12:28:12  guettler
- *   GlobalData is now derived from GlobalDataBase; support for creation of Configurator (via ConfiguratorProxy)
- *
- *   Revision 1.9  2011/03/21 18:22:32  guettler
- *   - adapted to enhanced configurable interface
- *
- *   Revision 1.8  2009/08/07 13:31:54  martius
- *   sim_steps moved here
- *
- *   Revision 1.7  2009/08/07 09:11:18  martius
- *   plotoptions and globalconfigurables are now in globaldata
- *
- *   Revision 1.6  2007/11/07 13:27:55  martius
- *   sound added
- *
- *   Revision 1.5  2007/03/16 10:56:33  martius
- *   *** empty log message ***
- *
- *   Revision 1.4  2006/07/14 12:23:56  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.3.4.5  2006/06/25 17:01:26  martius
- *   removed using namespace std
- *
- *   Revision 1.3.4.4  2006/03/29 15:10:00  martius
- *   Dummy Primitive for Environment
- *
- *   Revision 1.3.4.3  2005/12/06 10:13:26  martius
- *   openscenegraph integration started
- *
- *   Revision 1.3.4.2  2005/11/15 12:30:24  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.3.4.1  2005/11/14 17:37:25  martius
- *   moved to selforg
- *
- *   Revision 1.3  2005/11/09 13:31:51  martius
- *   GPL'ised
- *
  ***************************************************************************/
 #ifndef __GLOBALDATA_H
 #define __GLOBALDATA_H

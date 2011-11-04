@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,25 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *  DESCRIPTION                                                            *
- *                                                                         *
- *   $Log$
- *   Revision 1.4  2007-11-07 13:22:18  martius
- *   scale sensor values
- *
- *   Revision 1.3  2007/08/22 08:27:15  martius
- *   removed bug with relative modes where 4 values are returned not 3
- *
- *   Revision 1.2  2007/06/08 15:37:22  martius
- *   random seed into OdeConfig -> logfiles
- *
- *   Revision 1.1  2006/12/21 11:41:06  martius
- *   sensor from measuring speed
- *
- *
- *                                                                 *
  ***************************************************************************/
 
 #include <assert.h>

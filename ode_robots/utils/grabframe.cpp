@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,30 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.6  2009-03-12 08:44:28  martius
- *   fixed video recording
- *
- *   Revision 1.5  2008/04/17 15:59:02  martius
- *   OSG2 port finished
- *
- *   Revision 1.4.4.1  2008/04/08 14:09:23  martius
- *   compiles and runs with OSG2.2. Juhu
- *
- *   Revision 1.4  2006/07/14 12:23:56  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.3.4.2  2006/05/15 13:14:10  robot3
- *   STRG-R now makes screenshots in jpg-format
- *   STRG-F now toggles the file logging (controller stuff) on/off
- *   STRG-G now restarts the GuiLogger
- *
- *   Revision 1.3.4.1  2006/02/22 15:27:22  martius
- *   class-ified and osg-ified
- *
- *   Revision 1.3  2005/11/09 13:31:51  martius
- *   GPL'ised
- *
  ***************************************************************************/
 #include <assert.h>
 #include <string.h>

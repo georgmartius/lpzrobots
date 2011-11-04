@@ -1,9 +1,10 @@
  
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,97 +20,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- ***************************************************************************
- *                                                                         *
- *   This file provides basic primitives for openscenegraph usage.         *
- *                                                                         *
- *                                                                         *
- *                                                                         *
- *   $Log$
- *   Revision 1.12  2011-01-02 23:09:52  martius
- *   texture handling of boxes changed
- *   playground walls changed
- *
- *   Revision 1.11  2010/09/17 10:07:45  martius
- *   changing size requires invalidation of display list
- *
- *   Revision 1.10  2010/07/02 05:45:06  martius
- *   comments improved
- *
- *   Revision 1.9  2010/03/16 15:47:46  martius
- *   osgHandle has now substructures osgConfig and osgScene
- *    that minimized amount of redundant data (this causes a lot of changes)
- *   Scenegraph is slightly changed. There is a world and a world_noshadow now.
- *    Main idea is to have a world without shadow all the time avaiable for the
- *    Robot cameras (since they do not see the right shadow for some reason)
- *   tidied up old files
- *
- *   Revision 1.8  2010/03/07 22:45:35  guettler
- *   - OSGMesh supports now virtual initialisation (necessary for Meshes not visible)
- *
- *   Revision 1.7  2009/07/30 11:34:15  guettler
- *   added check if noGraphics in OsgHandle is set
- *
- *   Revision 1.6  2009/04/26 10:28:49  martius
- *   added setColor for OsgBoxTex
- *
- *   Revision 1.5  2009/01/20 17:29:10  martius
- *   changed texture handling. In principle it is possible to set multiple textures
- *   per osgPrimitive.
- *   New osgboxtex started that supports custom textures.
- *
- *   Revision 1.4  2008/05/07 16:45:51  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.3  2007/08/23 14:52:26  martius
- *   box is resizeable
- *
- *   Revision 1.2  2006/07/14 12:23:35  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.13  2006/07/14 11:23:38  martius
- *   revert to older revision of robot3
- *
- *   Revision 1.1.2.11  2006/05/24 12:23:10  robot3
- *   -passive_mesh works now (simple bound_version)
- *   -Primitive Mesh now exists (simple bound_version)
- *
- *   Revision 1.1.2.10  2006/05/18 07:39:41  robot3
- *   -setTexture(string& filename,bool repeatOnX, bool repeatOnY) added
- *    note that this does not work yet (the bool parameter have no effect)
- *
- *   Revision 1.1.2.9  2006/04/04 14:13:24  fhesse
- *   documentation improved
- *
- *   Revision 1.1.2.8  2006/03/29 15:06:40  martius
- *   OSGMesh
- *
- *   Revision 1.1.2.7  2005/12/22 14:14:12  martius
- *   quality level
- *
- *   Revision 1.1.2.6  2005/12/15 17:03:43  martius
- *   cameramanupulator setPose is working
- *   joints have setter and getter parameters
- *   Primitives are not longer inherited from OSGPrimitive, moreover
- *   they aggregate them
- *
- *   Revision 1.1.2.5  2005/12/14 15:36:45  martius
- *   joints are visible now
- *
- *   Revision 1.1.2.4  2005/12/13 18:11:13  martius
- *   transform primitive added, some joints stuff done, forward declaration
- *
- *   Revision 1.1.2.3  2005/12/11 23:35:08  martius
- *   *** empty log message ***
- *
- *   Revision 1.1.2.2  2005/12/09 16:54:16  martius
- *   camera is woring now
- *
- *   Revision 1.1.2.1  2005/12/06 10:13:24  martius
- *   openscenegraph integration started
- *
- *                                                                 *
  *                                                                         *
  ***************************************************************************/
 #ifndef __OSGPRIMITIVE_H

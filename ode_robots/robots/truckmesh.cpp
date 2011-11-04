@@ -5,11 +5,11 @@
  *                                                                         *
  **************************************************************************/
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -26,107 +26,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.11  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.10  2010/03/09 11:53:41  martius
- *   renamed globally ode to ode-dbl
- *
- *   Revision 1.9  2009/03/13 09:19:53  martius
- *   changed texture handling in osgprimitive
- *   new OsgBoxTex that supports custom texture repeats and so on
- *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
- *   setTexture has to be called before init() of the primitive
- *
- *   Revision 1.8  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.7  2008/01/17 09:57:40  der
- *   correct mesh filepath
- *
- *   Revision 1.6  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.5  2007/09/06 18:48:00  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.4  2007/07/31 08:19:17  martius
- *   mesh without global
- *
- *   Revision 1.3  2006/09/21 22:09:58  martius
- *   collision for mesh
- *
- *   Revision 1.2  2006/07/14 12:23:42  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.3  2006/07/06 12:33:09  robot3
- *   -mass of the truck can be set by the constructor now
- *   -code cleaned up
- *   -all 6 wheels have now contact to the ground (instead of only 4)
- *
- *   Revision 1.1.2.2  2006/06/29 16:36:46  robot3
- *   -controller now gets 6 wheels for control
- *   -wheels are on the right position now
- *
- *   Revision 1.1.2.1  2006/06/27 15:19:52  robot3
- *   truckmesh uses a mesh for the body of the robot
- *
- *   Revision 1.7.4.16  2006/06/25 17:00:32  martius
- *   Id
- *
- *   Revision 1.7.4.15  2006/06/25 16:57:14  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.7.4.14  2006/04/04 17:03:21  fhesse
- *   docu added
- *
- *   Revision 1.7.4.13  2006/04/04 14:13:24  fhesse
- *   documentation improved
- *
- *   Revision 1.7.4.12  2006/03/31 11:11:38  fhesse
- *   minor changes in docu
- *
- *   Revision 1.7.4.11  2006/02/01 18:33:40  martius
- *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
- *
- *   Revision 1.7.4.10  2005/12/29 16:47:40  martius
- *   joint has getPosition
- *
- *   Revision 1.7.4.9  2005/12/15 17:04:08  martius
- *   Primitives are not longer inherited from OSGPrimitive, moreover
- *   they aggregate them.
- *   Joint have better getter and setter
- *
- *   Revision 1.7.4.8  2005/12/14 15:37:09  martius
- *   robots are working with osg
- *
- *   Revision 1.7.4.7  2005/12/13 18:11:39  martius
- *   still trying to port robots
- *
- *   Revision 1.7.4.6  2005/12/13 12:32:09  martius
- *   nonvisual joints
- *
- *   Revision 1.7.4.5  2005/12/12 23:41:30  martius
- *   added Joint wrapper
- *
- *   Revision 1.7.4.4  2005/12/11 23:35:08  martius
- *   *** empty log message ***
- *
- *   Revision 1.7.4.3  2005/12/06 10:13:25  martius
- *   openscenegraph integration started
- *
- *   Revision 1.7.4.2  2005/11/15 12:29:26  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.7.4.1  2005/11/14 17:37:17  martius
- *   moved to selforg
- *
- *   Revision 1.7  2005/11/09 13:24:42  martius
- *   added GPL
- *
  ***************************************************************************/
 #include <assert.h>
 #include <ode-dbl/ode.h>

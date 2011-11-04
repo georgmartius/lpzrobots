@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,159 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *                                                                         *
- *   $Log$
- *   Revision 1.26  2011-08-04 16:43:53  martius
- *   guilogger is positioned beside simulation window (can still be improved)
- *   ctrl-h can be used to move observed agent to 0,0,0 position
- *
- *   Revision 1.25  2010/09/24 13:37:51  martius
- *   balls for interaction with the mouse are again colored
- *   damping increased
- *
- *   Revision 1.24  2010/09/16 15:21:42  martius
- *   comment
- *
- *   Revision 1.23  2010/06/03 13:40:59  guettler
- *   - added method setCameraMode(modenumber): 1 - static, 2 - follow, 3 - TV, 4 - race
- *   - added method setWatchingAgent(agent)
- *
- *   Revision 1.22  2010/03/22 14:33:19  martius
- *   osghandle changeColor() with single rgba values
- *   camerasensors windowfunction bug
- *
- *   Revision 1.21  2010/03/07 22:40:43  guettler
- *   plot out XML notation strings for camera position and view (TODO: support for extended modes)
- *
- *   Revision 1.20  2010/01/29 14:16:27  martius
- *   added Mouse commands for camera movement into help message
- *
- *   Revision 1.19  2009/07/30 11:52:53  guettler
- *   new CameraHandle replacing static variables in the CameraManipulators
- *
- *   Revision 1.18  2009/07/01 09:07:03  guettler
- *   corrections (template_cycledSimulation now works fine)
- *
- *   Revision 1.17  2009/07/01 08:55:22  guettler
- *   new method which checks if agent is defined and in global list,
- *   if not, use the first agent of global list
- *   --> all camera manipulators fixed
- *
- *   Revision 1.16  2009/01/23 09:44:58  martius
- *   added damping for manipulated robots
- *
- *   Revision 1.15  2009/01/20 22:41:19  martius
- *   manipulation of agents with the mouse implemented ( a dream... )
- *
- *   Revision 1.14  2009/01/20 20:13:28  martius
- *   preparation for manipulation of agents done
- *
- *   Revision 1.13  2009/01/20 17:29:10  martius
- *   changed texture handling. In principle it is possible to set multiple textures
- *   per osgPrimitive.
- *   New osgboxtex started that supports custom textures.
- *
- *   Revision 1.12  2008/05/07 16:45:51  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.11  2007/12/13 07:04:53  der
- *   fixed a stupid bug created through under sleep ;)
- *
- *   Revision 1.10  2007/12/12 10:27:31  der
- *   fixed some nullpointer bugs
- *
- *   Revision 1.9  2007/12/06 10:36:10  der
- *   the first agent in the agentlist is now selected by default!
- *
- *   Revision 1.8  2007/09/27 10:47:04  robot3
- *   mathutils: moved abs to selforg/stl_adds.h
- *   simulation,base: added callbackable support,
- *   added WSM (WindowStatisticsManager) funtionality
- *
- *   Revision 1.7  2007/08/24 11:54:21  martius
- *   proper cameraspeed calculation. camera speed is now definied in simulated time
- *   which makes it better to follow robots in high speed simulations
- *
- *   Revision 1.6  2007/07/03 13:15:17  martius
- *   odehandle.h in cpp files included
- *
- *   Revision 1.5  2007/02/12 13:33:28  martius
- *   camera does not go to infinity anymore. Better speed scaling with drawinterval
- *
- *   Revision 1.4  2006/08/04 15:05:42  martius
- *   documentation
- *
- *   Revision 1.3  2006/08/02 09:43:07  martius
- *   comments
- *
- *   Revision 1.2  2006/07/14 12:23:34  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.17  2006/06/16 22:30:52  martius
- *   removed key debug output
- *
- *   Revision 1.1.2.16  2006/05/29 20:00:49  robot3
- *   added pos1 (center on agent) and end (move behind agent)
- *
- *   Revision 1.1.2.15  2006/04/25 09:06:16  robot3
- *   *** empty log message ***
- *
- *   Revision 1.1.2.14  2006/03/28 09:55:12  robot3
- *   -main: fixed snake explosion bug
- *   -odeconfig.h: inserted cameraspeed
- *   -camermanipulator.cpp: fixed setbyMatrix,
- *    updateFactor
- *
- *   Revision 1.1.2.13  2006/03/19 13:32:48  robot3
- *   race mode now works
- *
- *   Revision 1.1.2.12  2006/03/18 12:03:25  robot3
- *   some prints removed
- *
- *   Revision 1.1.2.11  2006/03/08 13:19:13  robot3
- *   basic modifications, follow mode now works
- *
- *   Revision 1.1.2.10  2006/03/06 16:56:44  robot3
- *   -more stable version
- *   -code optimized
- *   -some static variables used by all cameramanipulators
- *
- *   Revision 1.1.2.9  2006/03/05 15:01:57  robot3
- *   camera moves now smooth
- *
- *   Revision 1.1.2.8  2006/03/04 15:04:33  robot3
- *   cameramanipulator is now updated with every draw intervall
- *
- *   Revision 1.1.2.7  2006/03/03 12:08:50  robot3
- *   preparations made for new cameramanipulators
- *
- *   Revision 1.1.2.6  2006/02/01 10:24:34  robot3
- *   new camera manipulator added
- *
- *   Revision 1.1.2.5  2006/01/30 13:12:45  martius
- *   bug in setByMatrix
- *
- *   Revision 1.1.2.4  2005/12/29 12:55:59  martius
- *   setHome
- *
- *   Revision 1.1.2.3  2005/12/15 17:03:42  martius
- *   cameramanupulator setPose is working
- *   joints have setter and getter parameters
- *   Primitives are not longer inherited from OSGPrimitive, moreover
- *   they aggregate them
- *
- *   Revision 1.1.2.2  2005/12/11 23:35:08  martius
- *   *** empty log message ***
- *
- *   Revision 1.1.2.1  2005/12/09 16:56:21  martius
- *   camera is working now
- *
- *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
- *   *** empty log message ***
- *
- *                                                                 *
  ***************************************************************************/
 
 #include <osg/Notify>

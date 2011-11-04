@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,74 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *  Joint wrapper to ba able to draw joints and abstract from ode details  *
- *                                                                         *
- *   $Log$
- *   Revision 1.8  2010-06-28 14:43:55  martius
- *   joints can also not ignore collisions
- *
- *   Revision 1.7  2007/07/03 13:03:07  martius
- *   assert for parts
- *   getPartX also as non-Const
- *
- *   Revision 1.6  2007/03/16 11:00:41  martius
- *   registration of ignored geoms
- *
- *   Revision 1.5  2007/01/26 12:05:36  martius
- *   joint support forces in uniform manner
- *
- *   Revision 1.4  2006/08/02 10:11:27  martius
- *   getNumberAxes was mistyped
- *
- *   Revision 1.3  2006/07/26 10:36:05  martius
- *   joints support getPositions and getNumberAxes
- *
- *   Revision 1.2  2006/07/14 12:23:35  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.12  2006/06/29 16:35:56  robot3
- *   includes cleared up
- *
- *   Revision 1.1.2.11  2006/03/29 15:05:57  martius
- *   fixed joint
- *
- *   Revision 1.1.2.10  2006/02/01 18:34:03  martius
- *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
- *
- *   Revision 1.1.2.9  2006/01/12 22:19:08  martius
- *   bugfix in TwoAxisJoint Constructor (axis and anchor swapped)
- *
- *   Revision 1.1.2.8  2006/01/11 14:11:06  fhesse
- *   moved anchor up into Joint and introduced getAnchor()
- *
- *   Revision 1.1.2.7  2005/12/21 15:39:03  martius
- *   OneAxisJoint and TwoAxisJoint as superclasses
- *
- *   Revision 1.1.2.6  2005/12/19 16:34:18  martius
- *   added Ball and Universal joint
- *
- *   Revision 1.1.2.5  2005/12/15 17:03:42  martius
- *   cameramanupulator setPose is working
- *   joints have setter and getter parameters
- *   Primitives are not longer inherited from OSGPrimitive, moreover
- *   they aggregate them
- *
- *   Revision 1.1.2.4  2005/12/14 15:36:45  martius
- *   joints are visible now
- *
- *   Revision 1.1.2.3  2005/12/13 18:11:13  martius
- *   transform primitive added, some joints stuff done, forward declaration
- *
- *   Revision 1.1.2.2  2005/12/12 23:40:22  martius
- *   hinge2joint started
- *
- *   Revision 1.1.2.1  2005/12/12 22:25:16  martius
- *   added joint
- *
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __JOINT_H
 #define __JOINT_H

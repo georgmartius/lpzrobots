@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,39 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *  DESCRIPTION                                                            *
- *                                                                         *
- *   $Log$
- *   Revision 1.5  2010-03-07 22:41:33  guettler
- *   added #include <cstdio> to get compiled with gcc 4.4
- *
- *   Revision 1.4  2010/03/05 14:32:55  martius
- *   camera sensor added
- *   for that the scenegraph structure was changed into root, world, scene
- *   camera does not work with shadows
- *   works with newest version of ode (0.11)
- *
- *   Revision 1.3  2007/03/16 10:52:14  martius
- *   geom userdata is set to primitive itself
- *
- *   Revision 1.2  2006/07/14 12:23:34  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.3  2006/06/29 16:35:56  robot3
- *   includes cleared up
- *
- *   Revision 1.1.2.2  2006/06/09 15:43:49  fhesse
- *   include assert.h added
- *
- *   Revision 1.1.2.1  2006/05/28 22:14:56  martius
- *   heightfield included
- *
- *   Revision 1.1.2.1  2005/12/06 17:38:21  martius
- *   *** empty log message ***
- *
- *                                                                 *
  ***************************************************************************/
 
 #include "heightfieldprimitive.h"

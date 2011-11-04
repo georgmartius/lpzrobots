@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,51 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.10  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.9  2010/03/09 11:53:41  martius
- *   renamed globally ode to ode-dbl
- *
- *   Revision 1.8  2009/07/29 14:19:49  jhoffmann
- *   Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
- *
- *   Revision 1.7  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.6  2007/08/23 15:39:05  martius
- *   new IR sensor schema which uses substances and callbacks, very nice
- *
- *   Revision 1.5  2007/04/03 14:12:24  der
- *   getSensorNumber
- *
- *   Revision 1.4  2006/09/20 12:56:28  martius
- *   setRange
- *
- *   Revision 1.3  2006/07/14 12:23:43  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.2.4.4  2006/01/12 15:14:57  martius
- *   indentation and clear routine
- *
- *   Revision 1.2.4.3  2005/12/14 15:37:19  martius
- *   sensors are working with osg
- *
- *   Revision 1.2.4.2  2005/12/14 12:43:07  martius
- *   moved to osg
- *
- *   Revision 1.2.4.1  2005/12/13 18:11:53  martius
- *   sensors ported, but not yet finished
- *
- *   Revision 1.2  2005/09/27 13:59:26  martius
- *   ir sensors are working now
- *
- *   Revision 1.1  2005/09/27 11:03:34  fhesse
- *   sensorbank added
- *
  *                                                                         *
  ***************************************************************************/
 

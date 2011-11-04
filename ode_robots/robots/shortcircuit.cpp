@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,41 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.10  2009-02-02 16:07:49  martius
- *   added dummy object to avoid crash with tv/following camera
- *
- *   Revision 1.9  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.8  2006/12/11 18:24:37  martius
- *   memory freed
- *
- *   Revision 1.7  2006/07/20 17:19:44  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.6  2006/07/14 12:23:42  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.5.4.5  2006/06/25 17:00:33  martius
- *   Id
- *
- *   Revision 1.5.4.4  2006/06/25 16:57:16  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.5.4.3  2006/01/10 20:32:51  martius
- *   moved to osg
- *
- *   Revision 1.5.4.2  2005/11/15 12:29:27  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.5.4.1  2005/11/14 17:37:18  martius
- *   moved to selforg
- *
- *   Revision 1.5  2005/11/09 13:24:42  martius
- *   added GPL
- *
  ***************************************************************************/
 #include <assert.h>
 

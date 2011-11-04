@@ -1,7 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius (at) informatik.uni-leipzig.de                               *
- *    der (at) informatik.uni-leipzig.de                                   *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,138 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.27  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.26  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.25  2011/04/28 09:45:47  martius
- *   pendular range changeable at runtime
- *
- *   Revision 1.24  2010/03/22 14:33:19  martius
- *   osghandle changeColor() with single rgba values
- *   camerasensors windowfunction bug
- *
- *   Revision 1.23  2010/03/17 09:33:16  martius
- *   removed memory leaks and some small bugs
- *   valgrind suppression file is updated
- *
- *   Revision 1.22  2010/03/16 18:33:09  martius
- *   axisShift called axesShift now and it is initialized now!
- *
- *   Revision 1.21  2009/12/08 13:56:15  der
- *   guettler: new parameter axisShift
- *   (mainly used for Barrel2Masses)
- *
- *   Revision 1.20  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.19  2008/05/07 11:03:37  martius
- *   code cosmetics
- *
- *   Revision 1.18  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.17  2007/09/06 18:48:00  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.16  2007/08/24 11:57:30  martius
- *   additional sensors can be before or after motor and ir sensors
- *
- *   Revision 1.15  2007/07/17 07:22:28  martius
- *   removed invisible primitives
- *
- *   Revision 1.14  2007/07/03 13:05:23  martius
- *   new servo constants
- *
- *   Revision 1.13  2007/06/21 16:24:27  martius
- *   joints are deleted before objects
- *
- *   Revision 1.12  2007/04/05 15:11:43  martius
- *   angular speed tracking
- *
- *   Revision 1.11  2007/04/03 16:27:31  der
- *   new IR shape
- *   new servo parameters
- *
- *   Revision 1.10  2007/03/26 13:17:43  martius
- *   changes servo params
- *
- *   Revision 1.9  2007/02/23 15:14:17  martius
- *   *** empty log message ***
- *
- *   Revision 1.8  2007/01/03 15:01:09  fhesse
- *   created=true; added (at end of create())
- *
- *   Revision 1.7  2006/12/21 11:43:05  martius
- *   commenting style for doxygen //< -> ///<
- *   new sensors for spherical robots
- *
- *   Revision 1.6  2006/12/01 16:20:40  martius
- *   *** empty log message ***
- *
- *   Revision 1.5  2006/11/17 13:44:50  martius
- *   corrected z-axes sensor problem
- *   there are two sensors for this situation
- *
- *   Revision 1.4  2006/08/08 17:04:46  martius
- *   added new sensor model
- *
- *   Revision 1.3  2006/07/20 17:19:45  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.2  2006/07/14 12:23:42  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.9  2006/07/10 12:05:02  martius
- *   Matrixlib now in selforg
- *   no namespace std in header files
- *
- *   Revision 1.1.2.8  2006/06/29 16:39:56  robot3
- *   -you can now see bounding shapes if you type ./start -drawboundings
- *   -includes cleared up
- *   -abstractobstacle and abstractground have now .cpp-files
- *
- *   Revision 1.1.2.7  2006/06/25 17:00:33  martius
- *   Id
- *
- *   Revision 1.1.2.6  2006/06/25 16:57:16  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.1.2.5  2006/05/09 04:24:34  robot5
- *   *** empty log message ***
- *
- *   Revision 1.1.2.4  2006/03/29 15:09:27  martius
- *   Z-Sensors have been wrong all the time :-)
- *
- *   Revision 1.1.2.3  2006/02/20 10:50:20  martius
- *   pause, random, windowsize, Ctrl-keys
- *
- *   Revision 1.1.2.2  2006/01/11 19:30:28  martius
- *   transparent hull
- *
- *   Revision 1.1.2.1  2006/01/10 17:15:04  martius
- *   was sphererobotarms
- *   moved to osg
- *
- *   Revision 1.18.4.2  2005/11/15 12:29:27  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.18.4.1  2005/11/14 17:37:18  martius
- *   moved to selforg
- *
- *   Revision 1.18  2005/11/09 13:26:57  martius
- *   irsensorrange
- *
- *   Revision 1.17  2005/11/09 13:24:42  martius
- *   added GPL
- *
  ***************************************************************************/
 
 #include <assert.h>

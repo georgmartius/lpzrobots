@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,23 +19,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *  DESCRIPTION                                                            *
- *                                                                         *
- *   $Log$
- *   Revision 1.3  2011-05-04 10:59:23  fhesse
- *   constructor has additional bool to transform output of getSensors to local
- *   coordinates; default=false to be compatible
- *
- *   Revision 1.2  2006/12/21 11:42:10  martius
- *   sensors have dimension to sense
- *   axissensors have finer settings
- *
- *   Revision 1.1  2006/08/08 17:03:27  martius
- *   new sensors model
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __RELATIVEPOSITIONSENSOR_H
 #define __RELATIVEPOSITIONSENSOR_H

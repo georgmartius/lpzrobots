@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,128 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.24  2011-01-28 11:32:31  martius
- *   bugfix in new playground implementation
- *   passive box and sphere, ... use textures again
- *
- *   Revision 1.23  2011/01/02 23:09:52  martius
- *   texture handling of boxes changed
- *   playground walls changed
- *
- *   Revision 1.22  2010/10/21 07:45:13  martius
- *   removed setWallSubstance since it is the same as setSubstance
- *
- *   Revision 1.21  2010/01/07 14:06:17  der
- *   *** empty log message ***
- *
- *   Revision 1.20  2010/01/07 14:05:23  der
- *   adapted to new wall texture
- *
- *   Revision 1.19  2009/03/13 09:19:53  martius
- *   changed texture handling in osgprimitive
- *   new OsgBoxTex that supports custom texture repeats and so on
- *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
- *   setTexture has to be called before init() of the primitive
- *
- *   Revision 1.18  2008/02/07 14:25:29  der
- *   added setWallTexture for PlayGround
- *
- *   Revision 1.17  2007/08/28 09:25:13  martius
- *   include primitive.h
- *
- *   Revision 1.16  2007/08/24 11:53:10  martius
- *   Change geometry
- *
- *   Revision 1.15  2007/07/03 13:06:41  martius
- *   groundplane thick
- *
- *   Revision 1.14  2007/03/16 11:01:37  martius
- *   abstractobstacle gets mor functionallity
- *   setSubstance
- *
- *   Revision 1.13  2006/09/21 22:09:12  martius
- *   *** empty log message ***
- *
- *   Revision 1.12  2006/08/11 15:41:04  martius
- *   playgrounds handle non-quadratic ground planes
- *
- *   Revision 1.11  2006/07/14 12:23:33  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.10.4.16  2006/07/14 11:11:53  martius
- *   revert to 1.10.4.12
- *
- *   Revision 1.10.4.12  2006/06/29 16:39:55  robot3
- *   -you can now see bounding shapes if you type ./start -drawboundings
- *   -includes cleared up
- *   -abstractobstacle and abstractground have now .cpp-files
- *
- *   Revision 1.10.4.11  2006/05/23 13:37:34  robot3
- *   -fixed some creating bugs
- *   -setColor,setTexture and createGround must be
- *    called before setPosition now
- *
- *   Revision 1.10.4.10  2006/05/19 08:42:54  robot3
- *   -some code moved to abstractground.h
- *   -it's now possible creating a playground without a groundplane
- *
- *   Revision 1.10.4.9  2006/05/18 14:32:12  robot3
- *   walls are now textured with a wood texture
- *
- *   Revision 1.10.4.8  2006/05/18 12:54:24  robot3
- *   -fixed not being able to change the color after positioning
- *    the obstacle
- *   -cleared the files up
- *
- *   Revision 1.10.4.7  2006/05/18 09:43:24  robot3
- *   using existing texture image in cvs for the groundplane now
- *
- *   Revision 1.10.4.6  2006/05/18 07:42:36  robot3
- *   Grounds have now a groundPlane for shadowing issues
- *   osgprimitive.cpp contains a bug that repeating textures (wrapping)
- *   don't work, needs to be fixed
- *
- *   Revision 1.10.4.5  2006/05/11 08:59:15  robot3
- *   -fixed a positioning bug (e.g. for passivesphere)
- *   -some methods moved to abstractobstacle.h for avoiding inconsistencies
- *
- *   Revision 1.10.4.4  2006/03/29 15:04:39  martius
- *   have pose now
- *
- *   Revision 1.10.4.3  2006/01/10 20:27:15  martius
- *   protected members
- *
- *   Revision 1.10.4.2  2006/01/10 17:17:33  martius
- *   new mode for primitives
- *
- *   Revision 1.10.4.1  2005/12/06 10:13:23  martius
- *   openscenegraph integration started
- *
- *   Revision 1.10  2005/09/22 12:24:36  martius
- *   removed global variables
- *   OdeHandle and GlobalData are used instead
- *   sensor prepared
- *
- *   Revision 1.9  2005/09/13 13:19:57  martius
- *   no texture
- *
- *   Revision 1.8  2005/08/02 14:09:06  fhesse
- *   factor between length in x and y direction
- *   added to constructor
- *
- *   Revision 1.7  2005/07/29 14:27:59  martius
- *   color set to some red
- *
- *   Revision 1.6  2005/07/18 14:52:33  martius
- *   world and space are not pointers anymore.
- *
- *   Revision 1.5  2005/07/07 10:24:23  martius
- *   avoid internal collisions
- *
- *   Revision 1.4  2005/06/15 14:22:11  martius
- *   GPL included
- *                                                                 *
  ***************************************************************************/
 #ifndef __PLAYGROUND_H
 #define __PLAYGROUND_H

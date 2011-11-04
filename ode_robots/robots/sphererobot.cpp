@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,64 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.19  2008-05-07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.18  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.17  2007/09/06 18:48:00  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.16  2007/07/17 07:22:28  martius
- *   removed invisible primitives
- *
- *   Revision 1.15  2007/01/26 12:05:04  martius
- *   servos combinied into OneAxisServo
- *
- *   Revision 1.14  2006/08/08 17:04:46  martius
- *   added new sensor model
- *
- *   Revision 1.13  2006/07/20 17:19:44  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.12  2006/07/14 12:23:42  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.11.4.9  2006/07/10 12:05:02  martius
- *   Matrixlib now in selforg
- *   no namespace std in header files
- *
- *   Revision 1.11.4.8  2006/06/25 17:00:33  martius
- *   Id
- *
- *   Revision 1.11.4.7  2006/06/25 16:57:16  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.11.4.6  2006/05/09 04:24:34  robot5
- *   *** empty log message ***
- *
- *   Revision 1.11.4.5  2006/01/10 17:17:17  martius
- *   new mode for primitives
- *
- *   Revision 1.11.4.4  2006/01/10 15:10:24  martius
- *   fine tuning, fuer controllinterval 1
- *   still not transparent
- *
- *   Revision 1.11.4.3  2005/12/30 22:51:45  martius
- *   moved to osg
- *
- *   Revision 1.11.4.2  2005/11/15 12:29:27  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.11.4.1  2005/11/14 17:37:18  martius
- *   moved to selforg
- *
- *   Revision 1.11  2005/11/09 13:24:42  martius
- *   added GPL
- *
  ***************************************************************************/
 #include <assert.h>
 

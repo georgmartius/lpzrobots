@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,38 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.6  2007-11-07 13:21:15  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.5  2006/07/14 12:23:40  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.2.4.5  2006/03/30 12:34:56  martius
- *   documentation updated
- *
- *   Revision 1.2.4.4  2006/01/12 14:47:47  martius
- *   just taken from nimm4
- *
- *   Revision 1.2.4.3  2005/11/16 11:26:52  martius
- *   moved to selforg
- *
- *   Revision 1.2.4.2  2005/11/15 12:29:26  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.2.4.1  2005/11/14 17:37:17  martius
- *   moved to selforg
- *
- *   Revision 1.2  2005/09/22 12:24:37  martius
- *   removed global variables
- *   OdeHandle and GlobalData are used instead
- *   sensor prepared
- *
- *   Revision 1.1  2005/08/09 10:44:54  robot1
- *   first vehicle for formel1 simulation
- *
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __FORMEL1_H
 #define __FORMEL1_H

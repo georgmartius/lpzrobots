@@ -158,13 +158,18 @@ This mechanism is used internally for primitives that are connected by joints.
 So in most cases you don't have to worry about that.
 
 \par How to disable collisions within an entire space
+When you create the space with
+\verbatim
+  odeHandle.createNewSimpleSpace(parentspace,true/false);
+\endverbatim
+you can set the flag to true to ignore all internal collisions.
+Alternatively you can change this for an existing space with:
 \verbatim
 odeHandle.addIgnoredSpace(spaceID);
 // and to remove
 odeHandle.removeIgnoredSpace(spaceID);
 \endverbatim
 
-Todo: continue
 */
 
 /**

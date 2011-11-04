@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,97 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.36  2011-10-14 09:36:18  martius
- *   snakes have no frictionGround parameter anymore, since it was not used,
- *    use the substances now
- *
- *   Revision 1.35  2011/06/03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.34  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.33  2010/09/30 17:12:29  martius
- *   added anisotrop friction to schlange
- *
- *   Revision 1.32  2010/01/26 09:55:26  martius
- *   new collision model
- *
- *   Revision 1.31  2009/03/13 09:19:53  martius
- *   changed texture handling in osgprimitive
- *   new OsgBoxTex that supports custom texture repeats and so on
- *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
- *   setTexture has to be called before init() of the primitive
- *
- *   Revision 1.30  2008/05/07 16:45:52  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.29  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.28  2007/09/06 18:48:00  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.27  2006/10/20 14:25:08  martius
- *   *** empty log message ***
- *
- *   Revision 1.26  2006/09/21 16:17:18  der
- *   *** empty log message ***
- *
- *   Revision 1.25  2006/09/21 11:44:38  martius
- *   less hard collisions and more contact points
- *
- *   Revision 1.24  2006/09/20 12:56:16  martius
- *   Snakes have CreateSegment
- *
- *   Revision 1.23  2006/07/20 17:19:44  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.22  2006/07/14 13:52:01  der
- *   setheadcolor
- *
- *   Revision 1.20.4.10  2006/06/29 16:39:56  robot3
- *   -you can now see bounding shapes if you type ./start -drawboundings
- *   -includes cleared up
- *   -abstractobstacle and abstractground have now .cpp-files
- *
- *   Revision 1.20.4.9  2006/06/25 16:57:14  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.20.4.8  2006/05/23 13:39:02  robot3
- *   setting color to blue in init removed
- *
- *   Revision 1.20.4.7  2006/05/19 09:03:50  der
- *   -setTexture and setHeadTexture added
- *   -uses now whitemetal texture
- *
- *   Revision 1.20.4.6  2006/02/23 18:05:04  martius
- *   friction with angularmotor
- *
- *   Revision 1.20.4.5  2006/02/01 18:33:40  martius
- *   use Axis type for Joint axis. very important, since otherwise Vec3 * pose is not the right direction vector anymore
- *
- *   Revision 1.20.4.4  2006/01/18 09:55:54  martius
- *   created was uninitialised
- *
- *   Revision 1.20.4.3  2005/12/30 22:53:46  martius
- *   removed parentspace init because done in oderobot
- *
- *   Revision 1.20.4.2  2005/12/29 16:45:58  martius
- *   does not inherit from Roboter
- *   moved to osg
- *
- *   Revision 1.20.4.1  2005/11/15 12:29:27  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.20  2005/11/09 13:24:42  martius
- *   added GPL
- *
  ***************************************************************************/
 
 #include "schlange.h"

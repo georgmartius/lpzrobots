@@ -1,9 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,42 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.6  2009-01-09 16:52:36  martius
- *   use pose instead of translation only
- *
- *   Revision 1.5  2008/09/16 14:49:46  martius
- *   use cmath instead of math.h
- *
- *   Revision 1.4  2007/07/31 08:20:49  martius
- *   mesh without global
- *
- *   Revision 1.3  2006/10/15 15:42:59  robot3
- *   fixed package relation
- *
- *   Revision 1.2  2006/07/14 12:23:33  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.5  2006/06/29 16:39:55  robot3
- *   -you can now see bounding shapes if you type ./start -drawboundings
- *   -includes cleared up
- *   -abstractobstacle and abstractground have now .cpp-files
- *
- *   Revision 1.1.2.4  2006/06/27 14:14:29  robot3
- *   -optimized mesh and boundingshape code
- *   -other changes
- *
- *   Revision 1.1.2.3  2006/06/23 09:01:14  robot3
- *   made changes on primitive Mesh
- *
- *   Revision 1.1.2.2  2006/06/16 22:27:26  martius
- *   getMainPrimtive
- *
- *   Revision 1.1.2.1  2006/05/29 19:17:41  robot3
- *   first version
- *
- *                                                                         *
  *                                                                         *
  ***************************************************************************/
 #ifndef __PASSIVEMESH_H

@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius (at) informatik.uni-leipzig.de                                    *
- *    fhesse (at) informatik.uni-leipzig.de                                     *
- *    der (at) informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,47 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.1  2008-05-07 16:45:51  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.19  2008/05/01 22:03:56  martius
- *   build system expanded to allow system wide installation
- *   that implies  <ode_robots/> for headers in simulations
- *
- *   Revision 1.18  2007/01/26 12:07:08  martius
- *   orientationsensor added
- *
- *   Revision 1.17  2006/08/04 15:07:47  martius
- *   documentation
- *
- *   Revision 1.16  2006/07/14 12:23:54  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.15.4.5  2006/05/15 13:11:30  robot3
- *   -handling of starting guilogger moved to simulation.cpp
- *    (is in internal simulation routine now)
- *   -CTRL-F now toggles logging to the file (controller stuff) on/off
- *   -CTRL-G now restarts the GuiLogger
- *
- *   Revision 1.15.4.4  2006/02/20 10:50:20  martius
- *   pause, random, windowsize, Ctrl-keys
- *
- *   Revision 1.15.4.3  2006/01/12 15:17:39  martius
- *   *** empty log message ***
- *
- *   Revision 1.15.4.2  2006/01/10 20:33:50  martius
- *   moved to osg
- *
- *   Revision 1.15.4.1  2005/11/15 12:30:17  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.15  2005/11/09 14:54:46  fhesse
- *   nchannelcontroller used
- *
- *   Revision 1.14  2005/11/09 13:41:25  martius
- *   GPL'ised
- *
  ***************************************************************************/
 
 // include simulation environment stuff

@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,58 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.13  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.12  2011/04/28 09:42:03  martius
- *   ir sensor handling improved
- *
- *   Revision 1.11  2010/11/10 17:09:36  martius
- *   torque sensors added, but not yet tested
- *
- *   Revision 1.10  2010/03/26 14:18:07  martius
- *   fourwheeled has a 2 wheeled mode
- *   camera position/motion sensor meansure size change
- *
- *   Revision 1.9  2010/03/21 21:48:59  martius
- *   camera sensor bugfixing (reference to osghandle)
- *   twowheeled robot added (nimm2 with camera)
- *   sense function added to robots (before control): sensors (type Sensor) are checked here
- *   position and optical flow camera sensors added
- *
- *   Revision 1.8  2010/03/09 11:53:41  martius
- *   renamed globally ode to ode-dbl
- *
- *   Revision 1.7  2009/05/11 17:03:07  martius
- *   minor substance change
- *
- *   Revision 1.6  2009/03/13 09:19:53  martius
- *   changed texture handling in osgprimitive
- *   new OsgBoxTex that supports custom texture repeats and so on
- *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
- *   setTexture has to be called before init() of the primitive
- *
- *   Revision 1.5  2008/05/07 16:45:51  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.4  2008/04/23 07:17:16  martius
- *   makefiles cleaned
- *   new also true realtime factor displayed,
- *    warning if out of sync
- *   drawinterval in full speed is 10 frames, independent of the speed
- *
- *   Revision 1.3  2007/11/07 13:21:15  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.2  2007/09/06 18:47:59  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.1  2007/08/24 11:49:25  martius
- *   initial
- *
- *                                                                 *
  ***************************************************************************/
 
 #include <ode-dbl/ode.h>

@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,75 +19,6 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- *   $Log$
- *   Revision 1.17  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.16  2011/05/30 21:57:16  martius
- *   store and restore from console improved
- *   console width automatically adapted
- *
- *   Revision 1.15  2011/03/22 16:42:48  guettler
- *   - adpaptions to enhanced configurable and inspectable interface
- *
- *   Revision 1.14  2011/02/24 20:45:21  martius
- *   added fixRobot parameter to motorbabbling
- *
- *   Revision 1.13  2010/12/17 17:00:26  martius
- *   odeagent has new constructor (old is marked as deprecated) -> log files have again
- *    important information about simulation
- *   addsensorstorobotadapater copies configurables
- *   torquesensors still in debug mode
- *   primitives support explicit decelleration (useful for rolling friction)
- *   hurling snake has rolling friction
- *
- *   Revision 1.12  2010/10/20 13:16:51  martius
- *   motor babbling mode added: try to fix robot (has to be improved!)
- *
- *   Revision 1.11  2009/08/07 09:28:33  martius
- *   additional constructor with globaldata
- *   uses globalconfigurables
- *
- *   Revision 1.10  2009/03/27 13:55:20  martius
- *   traceing in a extra function (and segments are longer)
- *
- *   Revision 1.9  2008/09/16 14:48:05  martius
- *   Code indentation
- *
- *   Revision 1.8  2008/04/29 08:44:20  guettler
- *   #include <assert> added
- *
- *   Revision 1.7  2008/04/18 09:50:24  guettler
- *   Implemented step functions for multiple threads of the class Simulation
- *
- *   Revision 1.6  2007/08/30 09:46:29  martius
- *   simulation time
- *
- *   Revision 1.5  2007/03/28 07:16:37  martius
- *   drawing of tracking trace fixed
- *
- *   Revision 1.4  2006/08/11 15:40:27  martius
- *   removed to do
- *
- *   Revision 1.3  2006/08/04 15:06:24  martius
- *   TrackRobot tracing changed
- *
- *   Revision 1.2  2006/07/14 12:23:31  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.3  2006/03/31 16:16:58  fhesse
- *   changed trace() to init_tracing()
- *   and check for init at beginning of step
- *
- *   Revision 1.1.2.2  2006/03/30 12:32:46  fhesse
- *   trace via trackrobot
- *
- *   Revision 1.1.2.1  2006/03/28 14:14:44  fhesse
- *   tracing of a given primitive (in the osg window) added
- *                                                *
- *                                                                         *
  *                                                                         *
  ***************************************************************************/
 
@@ -129,9 +61,11 @@ namespace lpzrobots {
   
   
   void OdeAgent::constructor_helper(const GlobalData* globalData){
-    fixateRobot = false;
-    fixedJoint  = 0;
-    tracing_initialized=false;
+    fixateRobot         = false;
+    fixedJoint          = 0;
+    tracing_initialized = false;
+    trace_length        = 1000;
+    trace_thickness     = 0.05;
     if(globalData){
       FOREACHC(std::list<Configurable*>, globalData->globalconfigurables, c){
         plotEngine.addConfigurable(*c);
@@ -139,9 +73,17 @@ namespace lpzrobots {
     }
   }
 
-  void OdeAgent::init_tracing(int tracelength,double tracethickness){
-    trace_length=tracelength;
-    trace_thickness=tracethickness;
+
+  bool OdeAgent::setTraceLength(int tracelength){
+    if(tracing_initialized==true || tracelength < 1){
+      return false;
+    }else{
+      this->trace_length = tracelength;
+      return true;
+    }
+  }
+
+  void OdeAgent::init_tracing(){
 
     segments = (OSGPrimitive**) malloc(sizeof(OSGPrimitive*) * trace_length);
     for (int i=0; i<trace_length; i++){

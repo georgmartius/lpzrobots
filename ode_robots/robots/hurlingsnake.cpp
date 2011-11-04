@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,127 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.27  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.26  2011/06/01 22:02:56  martius
- *   getAllPrimitives changed to vector return type
- *   inspectables infolines are printed without name again (for guilogger)
- *
- *   Revision 1.25  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.24  2011/04/28 09:42:27  martius
- *   texture changed
- *
- *   Revision 1.23  2010/12/17 17:00:26  martius
- *   odeagent has new constructor (old is marked as deprecated) -> log files have again
- *    important information about simulation
- *   addsensorstorobotadapater copies configurables
- *   torquesensors still in debug mode
- *   primitives support explicit decelleration (useful for rolling friction)
- *   hurling snake has rolling friction
- *
- *   Revision 1.22  2010/06/28 14:47:50  martius
- *   internal collisions are now switched on again
- *   joints do not ignore collision of connected pairs here
- *   frictionGround effects substances->works again
- *
- *   Revision 1.21  2010/01/26 09:53:06  martius
- *   changed to new collision model
- *
- *   Revision 1.20  2009/03/13 09:19:53  martius
- *   changed texture handling in osgprimitive
- *   new OsgBoxTex that supports custom texture repeats and so on
- *   Box uses osgBoxTex now. We also need osgSphereTex and so on.
- *   setTexture has to be called before init() of the primitive
- *
- *   Revision 1.19  2008/05/07 16:45:51  martius
- *   code cosmetics and documentation
- *
- *   Revision 1.18  2007/11/07 13:21:16  martius
- *   doInternal stuff changed signature
- *
- *   Revision 1.17  2007/09/06 18:47:59  martius
- *   createNewSimpleSpace used
- *
- *   Revision 1.16  2007/06/28 11:25:36  fhesse
- *   dBodyAddRelForce() as comment in  setMotors to check later
- *
- *   Revision 1.15  2006/10/20 14:25:07  martius
- *   *** empty log message ***
- *
- *   Revision 1.14  2006/09/21 22:09:58  martius
- *   collision for mesh
- *
- *   Revision 1.13  2006/09/21 16:15:40  der
- *   different friction because of terrain
- *
- *   Revision 1.12  2006/08/11 15:44:53  martius
- *   *** empty log message ***
- *
- *   Revision 1.11  2006/07/14 15:13:45  fhesse
- *   minor changes
- *
- *   Revision 1.9.4.7  2006/06/29 16:39:55  robot3
- *   -you can now see bounding shapes if you type ./start -drawboundings
- *   -includes cleared up
- *   -abstractobstacle and abstractground have now .cpp-files
- *
- *   Revision 1.9.4.6  2006/06/25 17:00:32  martius
- *   Id
- *
- *   Revision 1.9.4.5  2006/06/25 16:57:13  martius
- *   abstractrobot is configureable
- *   name and revision
- *
- *   Revision 1.9.4.4  2005/12/30 22:54:38  martius
- *   removed parentspace!
- *
- *   Revision 1.9.4.3  2005/12/21 17:34:59  martius
- *   moved to osg
- *
- *   Revision 1.9.4.2  2005/11/15 12:29:26  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.9.4.1  2005/11/14 17:37:17  martius
- *   moved to selforg
- *
- *   Revision 1.9  2005/11/09 13:26:31  martius
- *   added factorSensors
- *
- *   Revision 1.8  2005/10/06 17:14:24  martius
- *   switched to stl lists
- *
- *   Revision 1.7  2005/09/22 12:24:37  martius
- *   removed global variables
- *   OdeHandle and GlobalData are used instead
- *   sensor prepared
- *
- *   Revision 1.6  2005/08/31 17:18:15  fhesse
- *   setTextures added, Mass is now sphere (not box anymore)
- *
- *   Revision 1.5  2005/08/29 06:41:22  martius
- *   kosmetik
- *
- *   Revision 1.4  2005/08/03 20:35:28  martius
- *   *** empty log message ***
- *
- *   Revision 1.3  2005/07/27 13:23:09  martius
- *   new color and position construction
- *
- *   Revision 1.2  2005/07/26 17:04:21  martius
- *   lives in its own space now
- *
- *   Revision 1.1  2005/07/21 12:17:04  fhesse
- *   new hurling snake, to do add collision space, clean up, comment
- *
- *         
- *                                                                 *
  ***************************************************************************/
 
 #include "hurlingsnake.h"

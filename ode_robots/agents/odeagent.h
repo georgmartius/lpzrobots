@@ -1,8 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
+ *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Rald Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -19,80 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.15  2011-05-30 21:57:16  martius
- *   store and restore from console improved
- *   console width automatically adapted
- *
- *   Revision 1.14  2011/03/22 16:42:48  guettler
- *   - adpaptions to enhanced configurable and inspectable interface
- *
- *   Revision 1.13  2011/02/24 20:45:21  martius
- *   added fixRobot parameter to motorbabbling
- *
- *   Revision 1.12  2010/12/17 17:00:26  martius
- *   odeagent has new constructor (old is marked as deprecated) -> log files have again
- *    important information about simulation
- *   addsensorstorobotadapater copies configurables
- *   torquesensors still in debug mode
- *   primitives support explicit decelleration (useful for rolling friction)
- *   hurling snake has rolling friction
- *
- *   Revision 1.11  2010/10/20 13:16:51  martius
- *   motor babbling mode added: try to fix robot (has to be improved!)
- *
- *   Revision 1.10  2009/08/07 09:27:58  martius
- *   additional constructor with globaldata
- *
- *   Revision 1.9  2009/03/27 13:55:06  martius
- *   traceing in a extra function
- *
- *   Revision 1.8  2008/04/18 09:50:24  guettler
- *   Implemented step functions for multiple threads of the class Simulation
- *
- *   Revision 1.7  2008/04/17 15:59:00  martius
- *   OSG2 port finished
- *
- *   Revision 1.6.2.1  2008/04/17 15:05:47  martius
- *   use RandGen
- *
- *   Revision 1.6  2007/08/30 09:46:41  martius
- *   simulation time
- *
- *   Revision 1.5  2007/03/28 07:16:58  martius
- *   trace is drawn thicker
- *
- *   Revision 1.4  2006/12/11 18:11:01  martius
- *   noisefactor and default constructor
- *
- *   Revision 1.3  2006/07/20 17:19:43  martius
- *   removed using namespace std from matrix.h
- *
- *   Revision 1.2  2006/07/14 12:23:31  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.1.2.6  2006/05/15 13:14:10  robot3
- *   STRG-R now makes screenshots in jpg-format
- *   STRG-F now toggles the file logging (controller stuff) on/off
- *   STRG-G now restarts the GuiLogger
- *
- *   Revision 1.1.2.5  2006/03/31 16:16:58  fhesse
- *   changed trace() to init_tracing()
- *   and check for init at beginning of step
- *
- *   Revision 1.1.2.4  2006/03/29 15:08:06  martius
- *   Agent::interninit not necessary
- *
- *   Revision 1.1.2.3  2006/03/28 14:14:44  fhesse
- *   tracing of a given primitive (in the osg window) added
- *
- *   Revision 1.1.2.2  2005/12/06 10:13:23  martius
- *   openscenegraph integration started
- *
- *   Revision 1.1.2.1  2005/11/15 12:29:18  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *                                                                 *
  ***************************************************************************/
 #ifndef __ODEAGENT_H
 #define __ODEAGENT_H
@@ -112,30 +39,32 @@ namespace lpzrobots {
    */
   class OdeAgent : public Agent, public Storeable {
   public:
-    /// obsolete provide globaldata, see below
-    OdeAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$") __attribute__ ((deprecated));
-    /// obsolete provide globaldata, see below
-    OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$") __attribute__ ((deprecated));
-    /// Constructor: The plotoptions are taken from globaldata
-    OdeAgent(const GlobalData& globalData, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$");
-    /** Constructor: A single plotoption is used as given by plotOption */
-    OdeAgent(const GlobalData& globalData, const PlotOption& plotOption, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$");
-    /** Constructor: The plotoptions are taken from the given plotOptions 
-        (if you wish to overwrite them)
-    */
-    OdeAgent(const GlobalData& globalData, const PlotOptionList& plotOptions, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$");
-    /** destructor
+
+    /** @deprecated obsolete provide globaldata, see the other constructors
      */
+    OdeAgent(const PlotOption& plotOption = PlotOption(NoPlot), double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$") __attribute__ ((deprecated));
+    /** @deprecated obsolete provide globaldata, see the other constructors
+     */
+    OdeAgent(const std::list<PlotOption>& plotOptions, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "$ID$") __attribute__ ((deprecated));
+    /** The plotoptions are taken from globaldata
+        @param noisefactor factor for sensor noise for this agent
+     */
+    OdeAgent(const GlobalData& globalData, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "");
+    /** Provided for convinience. A single plotoption is used as given by plotOption */
+    OdeAgent(const GlobalData& globalData, const PlotOption& plotOption, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "");
+    /** Provided for convinience. The plotoptions are taken from the given plotOptions 
+        (and not from globaldata, if you wish to overwrite them)
+    */
+    OdeAgent(const GlobalData& globalData, const PlotOptionList& plotOptions, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "");
     virtual ~OdeAgent() {}
 
     /** initializes the object with the given controller, robot and wiring
-	and initializes pipe to guilogger
+	and initializes plotoptionengine
     */
     virtual bool init(AbstractController* controller, OdeRobot* robot, AbstractWiring* wiring,
 		      long int seed = 0){
       return Agent::init(controller, robot, wiring, seed);
     }
-
 
     virtual void step(double noise, double time);
 
@@ -175,8 +104,19 @@ namespace lpzrobots {
      */
     virtual const OdeRobot* getRobot() const { return (OdeRobot*)robot;}
 
-    /// gives the number of past robot positions shown as trace in osg
+    /// gives the number of past robot positions shown as trace in the graphical rendering
     virtual int getTraceLength(){return trace_length;}
+
+    /** sets the number of past robot positions shown as trace in the graphical rendering.
+        Has to be called before the tracing is initialized (otherwise returns false).
+     */
+    virtual bool setTraceLength(int tracelength);
+
+    /// sets the thickness of the tube representing the trace in the graphical rendering
+    virtual void setTraceThickness(int tracethickness){
+      this->trace_thickness = tracethickness;
+    }
+
 
 
     /****** STOREABLE **********/
@@ -191,10 +131,8 @@ namespace lpzrobots {
     
     /**
      * initialize tracing in ode
-     * @param tracelength number of past positions shown as trace in osg
-     * @param tracethickness  thickness of the trace
      */
-    virtual void init_tracing(int tracelength=1000, double tracethickness=0.05);
+    virtual void init_tracing();
 
     
     /**
