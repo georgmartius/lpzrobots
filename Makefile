@@ -124,7 +124,7 @@ distclean :  clean-all
 conf: usage
 	-mv Makefile.conf Makefile.conf.bak
 # automatically creates Makefile.conf since it is included 
-	$(MAKE) PREFIX=$(PREFIX) Makefile.conf
+	$(MAKE) PREFIX=$(PREFIX) TYPE=$(TYPE) Makefile.conf
 
 
 .PHONY: guilogger
@@ -207,7 +207,7 @@ endif
 
 
 Makefile.conf:	
-	@bash createMakefile.conf.sh $(PREFIX)
+	@bash createMakefile.conf.sh $(PREFIX) $(TYPE)
 
 
 .PHONY: tags
