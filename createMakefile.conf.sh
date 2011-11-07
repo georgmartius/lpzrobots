@@ -5,8 +5,10 @@ echo " You can change your preference by editing Makefile.conf"
 echo " or just delete it and run make again"
 
 defprefix=${1:-/usr/local}
+deftype=${2:-DEVEL}
 echo  "Where do you want to install the simulator?";
-echo  "Please use either /usr, /usr/local  or you home directory unless you know what you are doing.";
+echo  "Please use either /usr, /usr/local  or you home directory"
+echo  "unless you know what you are doing. (no tailing slash)";
 echo -n "e.g. (/home/yourlogin) (don' use ~): [$defprefix] ";
 read prefix 
 [ -z "$prefix" ] && prefix=$defprefix  # $(HOME)'
@@ -31,13 +33,21 @@ else
   System="MAC"
 fi
 
-choice="d";
+if [ $deftype = "DEVEL" ]; then
+    defchoice="d";
+else
+    defchoice="u";
+fi
 echo -en "Installation type (user or development):\n\
  Choose user  (u) if you are a user and only program your own simulations (default)\n\
  Choose devel (d) if you develop the simulator\n\
-Our choice [U/d] "
+Our choice (u/d): [$defchoice] "
 read choice 
-if [ -z "$choice" -o "$choice" = "U" ]; then choice='u'; fi
+if [ -z "$choice" ]; then
+    choice=$defchoice;
+fi
+if [ "$choice" = "U" ]; then choice='u'; fi
+if [ "$choice" = "D" ]; then choice='d'; fi
 
 echo -e "Check your settings:\n Installation to $prefix";
 if [ "$choice" = "u" ]; then 
