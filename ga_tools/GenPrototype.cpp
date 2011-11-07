@@ -1,11 +1,11 @@
 /***************************************************************************
- *   Copyright (C) 2005-2009 by Robot Group Leipzig                        *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    jhoffmann@informatik.uni-leipzig.de                                  *
- *    joergweide84@aol.com (robot12)                                       *
+ *   Copyright (C) 2008-2011 LpzRobots development team                    *
+ *    Joerg Weider   <joergweide84 at aol dot com> (robot12)               *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
+ *    Joern Hoffmann <jhoffmann at informatik dot uni-leipzig dot de       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,48 +21,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *   This class is used for group some gens and is needed from the         *
- *   genFactory. It saves all GenContexte which are use this prototype.    *
- *   The group of gens becomes whit it an name.                            *
- *                                                                         *
- *   The prototypes inside the gen. alg. are saved in the GenContext, in   *
- *   the Gen and in the GenEngine (only here can be deleted!!!).           *
- *                                                                         *
- *   $Log$
- *   Revision 1.7  2009-11-05 14:07:41  robot12
- *   bugfix for restore and store
- *
- *   Revision 1.6  2009/10/21 14:08:06  robot12
- *   add restore and store functions to the ga package
- *
- *   Revision 1.5  2009/07/28 13:21:30  robot12
- *   workaround! is to do in next time!!!
- *
- *   Revision 1.4  2009/07/21 08:37:59  robot12
- *   add some comments
- *
- *   Revision 1.3  2009/05/14 15:29:54  robot12
- *   bugfix: mutation change the oldGen, not the new!!! now fixed
- *
- *   Revision 1.2  2009/05/07 14:47:46  robot12
- *   some comments
- *
- *   Revision 1.1  2009/05/04 15:27:55  robot12
- *   rename of some files and moving files to other positions
- *    - SingletonGenAlgAPI has one error!!! --> is not ready now
- *
- *   Revision 1.2  2009/04/30 11:35:53  robot12
- *   some changes:
- *    - insert a SelectStrategie
- *    - insert a MutationStrategie
- *    - reorganisation of the design
- *
- *   Revision 1.1  2009/04/27 10:59:34  robot12
- *   some implements
- *
- *
  ***************************************************************************/
 
 #include "GenPrototype.h"

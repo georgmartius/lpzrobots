@@ -1,11 +1,11 @@
 /***************************************************************************
- *   Copyright (C) 2005-2009 by Robot Group Leipzig                        *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    jhoffmann@informatik.uni-leipzig.de                                  *
- *    joergweide84@aol.com (robot12)                                       *
+ *   Copyright (C) 2008-2011 LpzRobots development team                    *
+ *    Joerg Weider   <joergweide84 at aol dot com> (robot12)               *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
+ *    Joern Hoffmann <jhoffmann at informatik dot uni-leipzig dot de       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,33 +21,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *   This is a example implementation for IFitnessStrategy. It only calc.  *
- *   the Sum of all double gens of the individual.                         *
- *                                                                         *
- *   $Log$
- *   Revision 1.4  2009-07-21 08:37:59  robot12
- *   add some comments
- *
- *   Revision 1.3  2009/06/15 13:58:37  robot12
- *   3 new fitness strategys and IFitnessStrategy and SumFitnessStragegy with comments.
- *
- *   Revision 1.2  2009/05/06 13:28:23  robot12
- *   some implements... Finish
- *
- *   Revision 1.1  2009/05/04 15:27:56  robot12
- *   rename of some files and moving files to other positions
- *    - SingletonGenAlgAPI has one error!!! --> is not ready now
- *
- *   Revision 1.2  2009/05/04 09:06:00  robot12
- *   some implements... Part7
- *
- *   Revision 1.1  2009/04/30 11:51:26  robot12
- *   some implements... new classes
- *
- *
- *
  ***************************************************************************/
 
 #include "SumFitnessStrategy.h"

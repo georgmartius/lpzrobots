@@ -1,11 +1,11 @@
 /***************************************************************************
- *   Copyright (C) 2005-2009 by Robot Group Leipzig                        *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    jhoffmann@informatik.uni-leipzig.de                                  *
- *    joergweide84@aol.com (robot12)                                       *
+ *   Copyright (C) 2008-2011 LpzRobots development team                    *
+ *    Joerg Weider   <joergweide84 at aol dot com> (robot12)               *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
+ *    Joern Hoffmann <jhoffmann at informatik dot uni-leipzig dot de       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,60 +21,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *   This class represent one individual of the complete gen. alg. It have *
- *   some gens and a fitness.                                              *
- *                                                                         *
- *   $Log$
- *   Revision 1.14  2009-11-05 14:07:41  robot12
- *   bugfix for restore and store
- *
- *   Revision 1.13  2009/10/23 10:47:45  robot12
- *   bugfix in store and restore
- *
- *   Revision 1.12  2009/10/21 14:08:06  robot12
- *   add restore and store functions to the ga package
- *
- *   Revision 1.11  2009/10/01 13:29:42  robot12
- *   now the individual save his own fitness value
- *
- *   Revision 1.10  2009/07/21 08:37:59  robot12
- *   add some comments
- *
- *   Revision 1.9  2009/07/06 15:06:35  robot12
- *   bugfix
- *
- *   Revision 1.8  2009/06/29 14:52:14  robot12
- *   finishing Individual and add some comments
- *
- *   Revision 1.7  2009/05/14 15:29:56  robot12
- *   bugfix: mutation change the oldGen, not the new!!! now fixed
- *
- *   Revision 1.6  2009/05/12 13:29:26  robot12
- *   some new function
- *   -> toString methodes
- *
- *   Revision 1.5  2009/05/11 14:08:52  robot12
- *   patch some bugfix....
- *
- *   Revision 1.4  2009/05/04 15:27:55  robot12
- *   rename of some files and moving files to other positions
- *    - SingletonGenAlgAPI has one error!!! --> is not ready now
- *
- *   Revision 1.6  2009/04/30 11:35:53  robot12
- *   some changes:
- *    - insert a SelectStrategie
- *    - insert a MutationStrategie
- *    - reorganisation of the design
- *
- *   Revision 1.5  2009/04/28 13:23:55  robot12
- *   some implements... Part2
- *
- *   Revision 1.4  2009/04/27 10:59:34  robot12
- *   some implements
- *
- *
  ***************************************************************************/
 
 #include "Individual.h"

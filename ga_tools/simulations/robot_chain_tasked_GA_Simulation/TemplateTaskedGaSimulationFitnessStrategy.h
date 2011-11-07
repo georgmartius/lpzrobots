@@ -1,11 +1,11 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Robot Group Leipzig                             *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    frankguettler@gmx.de                                                 *
- *    mai00bvz@studserv.uni-leipzig.de                                     *
- *    joergweide84@aol.com (robot12)                                       *
+ *   Copyright (C) 2008-2011 LpzRobots development team                    *
+ *    Joerg Weider   <joergweide84 at aol dot com> (robot12)               *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
+ *    Joern Hoffmann <jhoffmann at informatik dot uni-leipzig dot de       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -22,30 +22,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.1  2009-10-23 16:33:51  martius
- *   moved simulations here
- *
- *   Revision 1.1  2009/10/23 10:59:48  robot12
- *   simulation from template_tasked_GA_Simulation for ga on robot chain
- *   is the first example for restore and store in ga_tools
- *
- *   Revision 1.1  2009/10/01 13:33:38  robot12
- *   rename of the TemplateCycledGaSimulationFitnessStrategy into TemplateTaskedGaSimulationFitnessStrategy
- *
- *   Revision 1.1  2009/08/24 11:09:56  robot12
- *   new template for tasked simulations use the ga_tools added
- *
- *   Revision 1.1  2009/07/21 09:09:05  robot12
- *   rename of the project from "temlate_..." to template_..."
- *
- *   Revision 1.2  2009/07/16 13:07:27  robot12
- *   some comments added
- *
- *   Revision 1.1  2009/07/15 12:56:25  robot12
- *   the simulation
- *
- *
  ***************************************************************************/
 
 #ifndef TEMPLATETASKEDGASIMULATIONFITNESSSTRATEGY_H_

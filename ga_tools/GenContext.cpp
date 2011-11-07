@@ -1,11 +1,11 @@
 /***************************************************************************
- *   Copyright (C) 2005-2009 by Robot Group Leipzig                        *
- *    martius@informatik.uni-leipzig.de                                    *
- *    fhesse@informatik.uni-leipzig.de                                     *
- *    der@informatik.uni-leipzig.de                                        *
- *    guettler@informatik.uni-leipzig.de                                   *
- *    jhoffmann@informatik.uni-leipzig.de                                  *
- *    joergweide84@aol.com (robot12)                                       *
+ *   Copyright (C) 2008-2011 LpzRobots development team                    *
+ *    Joerg Weider   <joergweide84 at aol dot com> (robot12)               *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
+ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
+ *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
+ *    Joern Hoffmann <jhoffmann at informatik dot uni-leipzig dot de       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,51 +21,7 @@
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************
  *                                                                         *
- *   This class is used for create a context for some gens. This mean it   *
- *   saves all gens which have the same prototype and are a part of an     *
- *   individual which are in ONE generation. It can be useful for some     *
- *   statistical calculation or for optimizing the mutation factor.        *
- *                                                                         *
- *   The Gen Context is inside the gen. alg. only saved in the             *
- *                                                                         *
- *   $Log$
- *   Revision 1.8  2011-03-23 15:22:32  robot14
- *   - adapted to enhanced inspectable interface
- *
- *   Revision 1.7  2009/10/23 10:47:45  robot12
- *   bugfix in store and restore
- *
- *   Revision 1.6  2009/10/21 14:08:06  robot12
- *   add restore and store functions to the ga package
- *
- *   Revision 1.5  2009/07/28 09:12:47  robot12
- *   add a clean up to update (delete context)
- *
- *   Revision 1.4  2009/07/21 08:37:58  robot12
- *   add some comments
- *
- *   Revision 1.3  2009/06/29 14:32:51  robot12
- *   finishing the GenContext and add some comments
- *
- *   Revision 1.2  2009/05/07 14:47:47  robot12
- *   some comments
- *
- *   Revision 1.1  2009/05/04 15:27:55  robot12
- *   rename of some files and moving files to other positions
- *    - SingletonGenAlgAPI has one error!!! --> is not ready now
- *
- *   Revision 1.2  2009/04/30 11:35:54  robot12
- *   some changes:
- *    - insert a SelectStrategie
- *    - insert a MutationStrategie
- *    - reorganisation of the design
- *
- *   Revision 1.1  2009/04/27 10:59:33  robot12
- *   some implements
- *
- *
  ***************************************************************************/
 
 #include "GenContext.h"
