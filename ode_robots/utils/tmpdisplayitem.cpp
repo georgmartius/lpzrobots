@@ -22,46 +22,35 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef   	SOUND_H_
-# define   	SOUND_H_
-
-#include "pos.h"
+#include "tmpdisplayitem.h"
+#include "osgprimitive.h"
 
 namespace lpzrobots {
-
-  class OSGSphere;
-  class OsgHandle;
   
-  /// Object that represents a sound signal in the simulator
-  class Sound {
-  public:
-    Sound(double time, const Pos& pos, float intensity, float frequency, void* sender)
-      : time(time), pos(pos), 
-      intensity(intensity), frequency(frequency), sender(sender),
-      visual(0) {}
-
-    ~Sound();
+  TmpDisplayItem::TmpDisplayItem(OSGPrimitive* p, const Pos& pos,
+                                         const Color& color)
+    : item(p), time(0), pos(pos), color(color), initialized(false) {
+    if(!item) 
+      item = new OSGSphere(0.1);
+  }
     
-    /// nice predicate function for finding old sound signals
-    struct older_than : public std::unary_function<const Sound&, bool> {
-      older_than(double time) : time(time) {}
-      double time;
-      bool operator()(const Sound& s) { return s.time < time; }
-    };
+  void TmpDisplayItem::init(const OsgHandle& osgHandle){
+    item->init(osgHandle.changeColor(color));
+    item->setMatrix(osg::Matrix::translate(pos));      
+    initialized=true;
+  }
 
-    void render(const OsgHandle& osgHandle);
+  void TmpDisplayItem::setExpireTime(double time){
+    this->time= time;
+  }
+  
+  bool TmpDisplayItem::expired(double time) const {
+    return this->time < time;
+  }
+          
+  void TmpDisplayItem::deleteItem(){
+    if(item) delete item;
+    item=0;
+  }
+}
 
-    double time;
-    Pos pos;    ///< emission position
-    float intensity; ///< intensity -1..1
-    float frequency; ///< frequency -1..1
-    void* sender;    ///< pointer to the sender (can be used for self
-		     ///detection)
-    
-  private:
-    OSGSphere* visual;    
-  };
-
-} // end namespace
-
-#endif 	    /* !SOUND_H_ */

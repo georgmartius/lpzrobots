@@ -24,8 +24,48 @@
 #include "globaldata.h"
 #include <algorithm>
 #include "odeagent.h"
+#include "osgprimitive.h"
 
 namespace lpzrobots {
+
+  void GlobalData::addTmpDisplayItem(TmpDisplayItem i, double duration){
+    i.setExpireTime(time+duration);
+    uninitializedTmpDisplayItems.push_back(i);
+  }
+  
+  void GlobalData::initializeTmpDisplayItems(const OsgHandle& osgHandle){
+    if(uninitializedTmpDisplayItems.size()>0){
+      FOREACH(TmpDisplayItemList, uninitializedTmpDisplayItems, i){
+        i->init(osgHandle);
+        tmpDisplayItems.push_back(*i);
+      }
+      uninitializedTmpDisplayItems.clear();
+    }
+  }
+
+  struct delOldTmpItems : 
+    public std::unary_function< const TmpDisplayItem&, bool> 
+  {
+    delOldTmpItems(double time) : time(time) {}
+    double time;
+    bool operator()(const TmpDisplayItem& item) const {
+      if(item.expired(time)){
+        ((TmpDisplayItem)item).deleteItem();
+        return true;
+      }else
+        return false;
+    }
+  };
+ 
+  void GlobalData::removeExpiredItems(){
+    // we cannot use remove_if because we want to delete the primitives
+    if(tmpDisplayItems.size()>0)
+      tmpDisplayItems.remove_if(delOldTmpItems(time));
+    // remove old signals from sound list
+    if(sounds.size()>0)
+      sounds.remove_if(Sound::older_than(time));
+  }
+
 
   AgentList& GlobalData::getAgents() {
     transform(agents.begin(), agents.end(), std::back_inserter(baseAgents), dynamic_agent_caster<OdeAgent*> ());

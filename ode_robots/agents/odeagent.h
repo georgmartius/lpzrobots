@@ -29,11 +29,13 @@
 #include "oderobot.h"
 #include "osgprimitive.h"
 #include "primitive.h"
+#include "operator.h"
 
 namespace lpzrobots {
   class Joint;
   
   typedef std::list<PlotOption> PlotOptionList;
+  typedef std::list<Operator*> OperatorList;
   
   /** Specialised agent for ode robots
    */
@@ -56,7 +58,7 @@ namespace lpzrobots {
         (and not from globaldata, if you wish to overwrite them)
     */
     OdeAgent(const GlobalData& globalData, const PlotOptionList& plotOptions, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "");
-    virtual ~OdeAgent() {}
+    virtual ~OdeAgent();
 
     /** initializes the object with the given controller, robot and wiring
 	and initializes plotoptionengine
@@ -83,6 +85,11 @@ namespace lpzrobots {
      * of the motor- and sensorvalues.
      */
     virtual void setMotorsGetSensors();
+
+    /** should be called before step() or stepOnlyWiredController() 
+        and calls operators and robot->sense()
+    */
+    virtual void beforeStep(GlobalData& global);
 
     /** Enables the motor babbling mode. 
         The robot is move into the air and is fixed by a fixed joint if fixRobot==true
@@ -122,7 +129,18 @@ namespace lpzrobots {
     /****** STOREABLE **********/
     virtual bool store(FILE* f) const;
     virtual bool restore(FILE* f);  
+
+
+    /****** OPERATORS *********/
+    /// adds an operator to the agent (the operator is deleted on destruction of the agent!)
+    virtual void addOperator(Operator* o);
     
+    /** removes the given operator: it is _not_ deleted
+        @return true on success
+     */
+    virtual bool removeOperator(Operator* o);  
+    /// removes (and deletes) all operators
+    virtual void removeOperators();    
 
   protected:
     void internInit(){
@@ -157,6 +175,8 @@ namespace lpzrobots {
     Pos fixatingPos; 
     bool fixateRobot;
     Joint* fixedJoint;
+
+    OperatorList operators; 
   };
 
 }

@@ -2,7 +2,7 @@
  *   Copyright (C) 2005-2011 LpzRobots development team                    *
  *    Georg Martius  <georg dot martius at web dot de>                     *
  *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
- *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
++ *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
  *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -21,47 +21,34 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
+#ifndef __OPERATORS_H
+#define __OPERATORS_H
 
-#ifndef   	SOUND_H_
-# define   	SOUND_H_
-
-#include "pos.h"
+#include "operator.h"
+#include "axis.h"
 
 namespace lpzrobots {
-
-  class OSGSphere;
-  class OsgHandle;
-  
-  /// Object that represents a sound signal in the simulator
-  class Sound {
+  /**
+     An Operator for limiting the orientation of the main primitive of a robot.
+   */
+  class LimitOrientationOperator : public Operator {
   public:
-    Sound(double time, const Pos& pos, float intensity, float frequency, void* sender)
-      : time(time), pos(pos), 
-      intensity(intensity), frequency(frequency), sender(sender),
-      visual(0) {}
+    LimitOrientationOperator(const Axis& robotAxis, const Axis& globalAxis, 
+                             double maxAngle, double force)
+      : robotAxis(robotAxis), globalAxis(globalAxis), 
+        maxAngle(maxAngle), force(force), currentforce(force) {
+    }
 
-    ~Sound();
-    
-    /// nice predicate function for finding old sound signals
-    struct older_than : public std::unary_function<const Sound&, bool> {
-      older_than(double time) : time(time) {}
-      double time;
-      bool operator()(const Sound& s) { return s.time < time; }
-    };
+    virtual ManipAction observe(OdeAgent* agent, GlobalData& global);
+  protected:
+    Axis robotAxis;
+    Axis globalAxis;
+    double maxAngle;
 
-    void render(const OsgHandle& osgHandle);
-
-    double time;
-    Pos pos;    ///< emission position
-    float intensity; ///< intensity -1..1
-    float frequency; ///< frequency -1..1
-    void* sender;    ///< pointer to the sender (can be used for self
-		     ///detection)
-    
-  private:
-    OSGSphere* visual;    
+    double force;
+    double currentforce;
   };
 
-} // end namespace
+}
 
-#endif 	    /* !SOUND_H_ */
+#endif

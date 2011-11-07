@@ -512,7 +512,7 @@ namespace lpzrobots {
               QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED)
               {
                 QMP_USE_SHARED(globalData, GlobalData);
-		globalData.agents[i]->getRobot()->sense(globalData);
+		globalData.agents[i]->beforeStep(globalData);
                 globalData.agents[i]->stepOnlyWiredController(globalData.odeConfig.noise, globalData.time);
               }
               QMP_END_PARALLEL_FOR;
@@ -520,7 +520,7 @@ namespace lpzrobots {
               QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED)
               {
                 QMP_USE_SHARED(globalData, GlobalData);
-		globalData.agents[i]->getRobot()->sense(globalData);
+		globalData.agents[i]->beforeStep(globalData);
                 globalData.agents[i]->step(globalData.odeConfig.noise, globalData.time);
               }
               QMP_END_PARALLEL_FOR;
@@ -530,12 +530,12 @@ namespace lpzrobots {
             // there is a problem with the useOdeThread in the loop (not static)
             if (useOdeThread) {
               FOREACH(OdeAgentList, globalData.agents, i) {
-		(*i)->getRobot()->sense(globalData);
+		(*i)->beforeStep(globalData);
                 (*i)->stepOnlyWiredController(globalData.odeConfig.noise, globalData.time);
               }
             } else {
               FOREACH(OdeAgentList, globalData.agents, i) {
-		(*i)->getRobot()->sense(globalData);
+		(*i)->beforeStep(globalData);
                 (*i)->step(globalData.odeConfig.noise, globalData.time);
               }
             }
@@ -592,8 +592,8 @@ namespace lpzrobots {
           callBack(Base::PHYSICS_CALLBACKABLE);
         QP(PROFILER.endBlock("physicsCB                    "));
         
-	// remove old signals from sound list
-	globalData.sounds.remove_if(Sound::older_than(globalData.time));
+	// remove old sound signal and TmpDisplayItems
+	globalData.removeExpiredItems();
       }
 
       // graphics rendering
@@ -675,7 +675,7 @@ namespace lpzrobots {
 
 
   void Simulation::updateGraphics(){
-    /************************** Update the scene ***********************/
+    /************************** Update the scene ***********************/    
     FOREACH(ObstacleList, globalData.obstacles, i) {
       (*i)->update();
     }
@@ -688,6 +688,7 @@ namespace lpzrobots {
         i->render(osgHandle);
       }
     }
+    globalData.initializeTmpDisplayItems(osgHandle);
   }
 
   bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&) {

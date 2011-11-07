@@ -43,6 +43,14 @@ namespace lpzrobots{
 
     osg::Vec3 vec3() const { return osg::Vec3( x(), y(), z()); }
 
+    float enclosingAngle(const Axis& a) const {
+      return acos((*this * a)/(this->length() * a.length()));
+    }
+
+    Axis crossProduct(const Axis& a) const {
+      return Axis(y()*a.z() - z()*a.y(), z()*a.x() - x()*a.z(), x()*a.y() - y()*a.x());
+    }
+    
     void print(){
       std::cout << '(' << x() << ',' << y() << ',' << z() << ')' << std::endl;
     }

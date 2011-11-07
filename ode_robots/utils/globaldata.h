@@ -28,6 +28,7 @@
 #include "odehandle.h"
 #include "odeconfig.h"
 #include "sound.h"
+#include "tmpdisplayitem.h"
 #include <selforg/plotoption.h>
 #include <selforg/globaldatabase.h>
 
@@ -38,12 +39,15 @@ namespace lpzrobots {
   class OdeAgent;
   class AbstractObstacle;
   class Primitive;
+  class OSGPrimitive;
 
   typedef std::vector<AbstractObstacle*> ObstacleList;
   typedef Configurable::configurableList ConfigList;
   typedef std::vector<OdeAgent*> OdeAgentList;
   typedef std::list<Sound> SoundList;
   typedef std::list<PlotOption> PlotOptionList;
+  typedef std::list<std::pair<OSGPrimitive*, double> > TmpObjectsList;
+  typedef std::list<TmpDisplayItem> TmpDisplayItemList;
 
   /**
    Data structure holding all essential global information.
@@ -69,10 +73,21 @@ namespace lpzrobots {
 
       double time;
       long int sim_step; ///< time steps since start
+    
+      
+      /// adds a temporary display item with given life duration in sec
+      virtual void addTmpDisplayItem(TmpDisplayItem i, double duration);
+      virtual void initializeTmpDisplayItems(const OsgHandle& osgHandle);
+
+      /// removes all expired sounds and temporary display items
+      virtual void removeExpiredItems();
 
       virtual AgentList& getAgents();
 
     private:
+
+      TmpDisplayItemList uninitializedTmpDisplayItems;
+      TmpDisplayItemList tmpDisplayItems;
       AgentList baseAgents;
   };
 

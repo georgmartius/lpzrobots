@@ -21,47 +21,42 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
+#ifndef __TMPDISPLAYITEM_H
+#define __TMPDISPLAYITEM_H
 
-#ifndef   	SOUND_H_
-# define   	SOUND_H_
-
+#include "osghandle.h"
 #include "pos.h"
 
 namespace lpzrobots {
 
-  class OSGSphere;
-  class OsgHandle;
+  class OSGPrimitive;
   
-  /// Object that represents a sound signal in the simulator
-  class Sound {
+  /**
+   holding a temporary graphical item
+   */
+  class TmpDisplayItem {
   public:
-    Sound(double time, const Pos& pos, float intensity, float frequency, void* sender)
-      : time(time), pos(pos), 
-      intensity(intensity), frequency(frequency), sender(sender),
-      visual(0) {}
+    /** creates a new item from the given primitives and initializes it.
+        The lifetime is set when adding it to globalData
+     */
 
-    ~Sound();
+    TmpDisplayItem(OSGPrimitive* p, const Pos& pos, const Color& color);
     
-    /// nice predicate function for finding old sound signals
-    struct older_than : public std::unary_function<const Sound&, bool> {
-      older_than(double time) : time(time) {}
-      double time;
-      bool operator()(const Sound& s) { return s.time < time; }
-    };
+    void init(const OsgHandle& osgHandle);
 
-    void render(const OsgHandle& osgHandle);
+    void setExpireTime(double time);
+    bool expired(double time) const;
 
-    double time;
-    Pos pos;    ///< emission position
-    float intensity; ///< intensity -1..1
-    float frequency; ///< frequency -1..1
-    void* sender;    ///< pointer to the sender (can be used for self
-		     ///detection)
+    void deleteItem();
     
   private:
-    OSGSphere* visual;    
+    OSGPrimitive* item;  
+    double time;
+    Pos pos;  
+    Color color;
+    bool initialized;
   };
 
-} // end namespace
+}
 
-#endif 	    /* !SOUND_H_ */
+#endif

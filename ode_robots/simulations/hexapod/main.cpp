@@ -20,7 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.11  2011-11-02 09:11:49  martius
+ *   Revision 1.12  2011-11-07 16:46:31  martius
+ *   added support for operators that observe robots and manipulates them
+ *    if required (for example to flip back if fallen over)
+ *
+ *   Revision 1.11  2011/11/02 09:11:49  martius
  *   capcolbug patch added
  *   use proper include pathes for user installation and library compilation
  *
@@ -83,6 +87,7 @@
 #include <ode_robots/complexplayground.h>
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
+#include <ode_robots/operators.h>
 
 #include <selforg/invertmotornstep.h>
 #include <selforg/semox.h>
@@ -179,7 +184,7 @@ public:
 			  myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
 
     // on the top
-    vehicle->place(osg::Matrix::rotate(M_PI*0,1,0,0)*osg::Matrix::translate(0,0,1+ 2*ii));
+    vehicle->place(osg::Matrix::rotate(M_PI*1,1,0,0)*osg::Matrix::translate(0,0,1+ 2*ii));
     // normal position
     //    vehicle->place(osg::Matrix::translate(0,0,0));
 
@@ -255,6 +260,8 @@ public:
     //global.plotoptions.push_back(PlotOption(GuiLogger,Robot,5));
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
+    // add an operator to keep robot from falling over
+    agent->addOperator(new LimitOrientationOperator(Axis(0,0,1), Axis(0,0,1), M_PI*0.5, 1));
     if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, ""));
     global.agents.push_back(agent);
     global.configs.push_back(agent);

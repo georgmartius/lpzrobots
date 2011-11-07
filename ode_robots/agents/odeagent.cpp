@@ -59,6 +59,9 @@ namespace lpzrobots {
     constructor_helper(&globalData);
   }
   
+  OdeAgent::~OdeAgent(){
+    removeOperators();
+  }
   
   void OdeAgent::constructor_helper(const GlobalData* globalData){
     fixateRobot         = false;
@@ -106,6 +109,30 @@ namespace lpzrobots {
     if(fixateRobot && !fixedJoint) tryFixateRobot();
   }
 
+  void OdeAgent::beforeStep(GlobalData& global){
+    OdeRobot* r = getRobot();
+    r->sense(global);
+    // use other return values!
+    Operator::ManipAction m;
+    FOREACH(OperatorList, operators, i){
+      m=(*i)->observe(this, global);
+      switch(m.type){
+      case Operator::RemoveOperator:        
+        delete *i;
+        i=operators.erase(i);
+        if(i!=operators.end()) i--;
+        break;
+      case Operator::Move:
+      case Operator::Limit:
+        
+        global.addTmpDisplayItem(TmpDisplayItem(new OSGSphere(0.05), m.pos, 
+                                                Color(1,1,0)),0.5);
+        
+        break;
+      default: break;
+      }
+    }
+  }
 
   void OdeAgent::stepOnlyWiredController(double noise, double time) {
     WiredController::step(rsensors,rsensornumber, rmotors, rmotornumber, noise, time);
@@ -196,6 +223,26 @@ namespace lpzrobots {
   bool OdeAgent::restore(FILE* f){
     OdeRobot* r = getRobot();
     return r->restore(f) && getController()->restore(f);        
+  }
+
+
+  
+  void OdeAgent::addOperator(Operator* o){
+    if(o)
+      operators.push_back(o);
+  }
+
+  bool OdeAgent::removeOperator(Operator* o){
+    unsigned int size = operators.size();
+    operators.remove(o);
+    return operators.size() < size;
+  }
+  
+  void OdeAgent::removeOperators(){
+    FOREACHC(OperatorList, operators, i){
+      delete (*i);
+    }
+    operators.clear();
   }
 
 

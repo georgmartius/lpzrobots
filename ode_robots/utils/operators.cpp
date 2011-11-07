@@ -22,46 +22,34 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef   	SOUND_H_
-# define   	SOUND_H_
-
-#include "pos.h"
+#include "operators.h"
+#include "odeagent.h"
 
 namespace lpzrobots {
-
-  class OSGSphere;
-  class OsgHandle;
   
-  /// Object that represents a sound signal in the simulator
-  class Sound {
-  public:
-    Sound(double time, const Pos& pos, float intensity, float frequency, void* sender)
-      : time(time), pos(pos), 
-      intensity(intensity), frequency(frequency), sender(sender),
-      visual(0) {}
+  Operator::ManipAction LimitOrientationOperator::observe(OdeAgent* agent, GlobalData& global){
+    OdeRobot* r = agent->getRobot();
+    Primitive* p  = r->getMainPrimitive();
+    ManipAction rv;
+    rv.type=None;
+    if(!p) return rv;
+    const Axis& rpose = p->toGlobal(robotAxis);
+    double angle = rpose.enclosingAngle(globalAxis);
+    // printf("test %f \t %f\n", angle, currentforce);
+    if(angle>maxAngle){
+      // get orthogonal axis
+      const Axis& rot = rpose.crossProduct(globalAxis);
+      osg::Vec3 torque = rot.vec3();
+      torque.normalize();
+      p->applyTorque(torque*currentforce*(angle-maxAngle));
+      currentforce=currentforce*1.01;
+      rv.type = Move;
+      rv.pos  = p->getPosition() + rpose.vec3()*0.5;
+      return rv;
+    }else{
+      currentforce=force;
+    }
+    return rv;
+  }
 
-    ~Sound();
-    
-    /// nice predicate function for finding old sound signals
-    struct older_than : public std::unary_function<const Sound&, bool> {
-      older_than(double time) : time(time) {}
-      double time;
-      bool operator()(const Sound& s) { return s.time < time; }
-    };
-
-    void render(const OsgHandle& osgHandle);
-
-    double time;
-    Pos pos;    ///< emission position
-    float intensity; ///< intensity -1..1
-    float frequency; ///< frequency -1..1
-    void* sender;    ///< pointer to the sender (can be used for self
-		     ///detection)
-    
-  private:
-    OSGSphere* visual;    
-  };
-
-} // end namespace
-
-#endif 	    /* !SOUND_H_ */
+}

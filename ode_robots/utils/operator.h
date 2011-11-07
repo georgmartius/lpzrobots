@@ -24,45 +24,40 @@
 #ifndef __OPERATOR_H
 #define __OPERATOR_H
 
+#include "globaldata.h"
+
 namespace lpzrobots {
   /**
-     An Operator observes a robot and manipulates it if necessary.
-     For instance if the robot is falled over the operator can lift it up.
-     This is a abstract base class and subclasses should overload at least
-      observe()
+     An Operator observes an agent (robot) and manipulates it if necessary.
+     For instance if the robot is falled over the operator can flip it back.
+     This is an abstract base class and subclasses should overload at least
+     observe()
    */
+
+  class OdeAgent;
+
   class Operator {
   public:
-    // type of manipulation of the robot (for display)
-    enum ManipType = {None, Limit, Move};
+    /** type of manipulation of the robot (for display) and or operation
+        RemoveOperator means that the operator should be removed
+     */
+    enum ManipType {None, Limit, Move, RemoveOperator};
+    struct ManipAction {
+      ManipType type;
+      Pos pos;
+    };
     
     Operator(){      
-      robot = 0;
-      initialized=false;
     }
 
     virtual ~Operator(){      
     }
 
-    /// initializes the observer with the robot
-    bool init(OdeRobot* robot){
-      this->robot=robot;
-      intern_init();
-      initialized=true;        
-    }
-
-    /// initializes the subclass
-    virtual bool intern_init() = 0;
-
     /** called every simulation step
         @return what was done with the robot
      */
-    virtual ManipType observe(GlobalData& global) = 0;
+    virtual ManipAction observe(OdeAgent* agent, GlobalData& global) = 0;
 
-  protected:
-    OdeRobot* robot;
-    bool initialized;
-    
   };
 
 }
