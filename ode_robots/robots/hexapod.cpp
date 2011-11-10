@@ -417,10 +417,11 @@ namespace lpzrobots {
 
     if(conf.useBigBox){
       Primitive* pole;
-      double poleheight=conf.size*2;
-      pole = new Box(poleheight, twidth*3.2, .1);
-      bigboxtransform= new Transform(trunk,pole, osg::Matrix::translate(0,0,1.2*theight));
-      bigboxtransform->init(odeHandle, 0, osgHandle,Primitive::Geom /*| Primitive::Draw */);
+      double boxlen=conf.size*2;
+      double boxheight=conf.size;
+      pole = new Box(boxlen, twidth*3, boxheight);
+      bigboxtransform= new Transform(trunk,pole, osg::Matrix::translate(0,0,1.2*theight+boxheight/2.0));
+      bigboxtransform->init(odeHandle, 0, osgHandle,Primitive::Geom /*| Primitive::Draw*/ );
     }else{
       bigboxtransform=0;
     }

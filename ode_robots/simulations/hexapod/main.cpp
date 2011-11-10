@@ -20,7 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.12  2011-11-07 16:46:31  martius
+ *   Revision 1.13  2011-11-10 16:28:48  der
+ *   liftup operator
+ *
+ *   Revision 1.12  2011/11/07 16:46:31  martius
  *   added support for operators that observe robots and manipulates them
  *    if required (for example to flip back if fallen over)
  *
@@ -35,49 +38,49 @@
  *   Revision 1.9  2011/10/12 13:41:04  der
  *   *** empty log message ***
  *
- *   Revision 1.8  2011/05/30 21:57:16  martius
- *   store and restore from console improved
- *   console width automatically adapted
- *
- *   Revision 1.7  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.6  2011/01/31 11:31:10  martius
- *   renamed sox to soml
- *
- *   Revision 1.5  2010/11/05 13:54:05  martius
- *   store and restore for robots implemented
- *
- *   Revision 1.4  2010/10/20 13:18:38  martius
- *   parameters changed,
- *   motor babbling added
- *
- *   Revision 1.3  2010/10/13 12:41:44  martius
- *   changed to new version of hexapod now which is in lpzrobots
- *
- *   Revision 1.2  2010/08/03 12:51:17  martius
- *   hexapod adapted Velocity servos
- *
- *   Revision 1.1  2010/07/06 08:36:30  martius
- *   hexapod of Guillaume improved and included
- *
- *   Revision 1.4  2010/07/05 16:45:55  martius
- *   hexapod tuned
- *
- *   Revision 1.3  2010/07/02 15:54:26  martius
- *   robot tuned
- *   parameters for guidance experimented
- *
- *   Revision 1.2  2010/07/02 06:39:21  martius
- *   *** empty log message ***
- *
- *   Revision 1.1  2010/07/02 06:12:55  martius
- *   initial version with hexapod made by Guillaume
- *
- *
- ***************************************************************************/
+u *   Revision 1.8  2011/05/30 21:57:16  martius
+*   store and restore from console improved
+*   console width automatically adapted
+*
+*   Revision 1.7  2011/05/30 13:56:42  martius
+*   clean up: moved old code to oldstuff
+*   configable changed: notifyOnChanges is now used
+*    getParam,setParam, getParamList is not to be overloaded anymore
+*
+*   Revision 1.6  2011/01/31 11:31:10  martius
+*   renamed sox to soml
+*
+*   Revision 1.5  2010/11/05 13:54:05  martius
+*   store and restore for robots implemented
+*
+*   Revision 1.4  2010/10/20 13:18:38  martius
+*   parameters changed,
+*   motor babbling added
+*
+*   Revision 1.3  2010/10/13 12:41:44  martius
+*   changed to new version of hexapod now which is in lpzrobots
+*
+*   Revision 1.2  2010/08/03 12:51:17  martius
+*   hexapod adapted Velocity servos
+*
+*   Revision 1.1  2010/07/06 08:36:30  martius
+*   hexapod of Guillaume improved and included
+*
+*   Revision 1.4  2010/07/05 16:45:55  martius
+*   hexapod tuned
+*
+*   Revision 1.3  2010/07/02 15:54:26  martius
+*   robot tuned
+*   parameters for guidance experimented
+*
+*   Revision 1.2  2010/07/02 06:39:21  martius
+*   *** empty log message ***
+*
+*   Revision 1.1  2010/07/02 06:12:55  martius
+*   initial version with hexapod made by Guillaume
+*
+*
+***************************************************************************/
 
 #include <ode_robots/simulation.h>
 
@@ -99,8 +102,8 @@
 #include <selforg/soml.h>
 #include <selforg/derinf.h>
 
-
 #include "sox.h"
+//#include <selforg/sox.h>
 #include <ode_robots/hexapod.h>
 //#include "hexapod.h"
 
@@ -136,13 +139,14 @@ public:
     setParam("UseQMPThread", false);
     //setupPlaygrounds(odeHandle, osgHandle, global,  Normal);
     // use Playground as boundary:
-//    playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
-//     // playground->setColor(Color(0,0,0,0.8)); 
-//     playground->setGroundColor(Color(2,2,2,1)); 
-//     playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
-//     global.obstacles.push_back(playground); 
-    int diam = 80;
-    OctaPlayground* playground3 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/4*diam, 5*diam,/*Height*/ .2), 12,false);
+    //    playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
+    //     // playground->setColor(Color(0,0,0,0.8)); 
+    //     playground->setGroundColor(Color(2,2,2,1)); 
+    //     playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
+    //     global.obstacles.push_back(playground); 
+    double diam = .90;
+    OctaPlayground* playground3 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/4.0*diam, 5,/*Height*/ .3), 12, 
+                                                     false);
     //  playground3->setColor(Color(.0,0.2,1.0,1));
     playground3->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground3);
@@ -171,9 +175,9 @@ public:
     myHexapodConf.tebiaJointLimit = 1.5;// M_PI/4; // +- 45 degree
     myHexapodConf.percentageBodyMass=.5;
     // if ( ii =0 )
-    myHexapodConf.useBigBox=true;
+    myHexapodConf.useBigBox=false;
     myHexapodConf.tarsus=true;
-    myHexapodConf.numTarsusSections = 1;
+    myHexapodConf.numTarsusSections = 2;
     myHexapodConf.useTarsusJoints = true;
 
     OdeHandle rodeHandle = odeHandle;
@@ -197,20 +201,20 @@ public:
 //     semox->setParam("continuity", 0.005);
 //     semox->setParam("teacher", teacher);
 
-    // SoMLConf sc = SoML::getDefaultConf();
-    // sc.useHiddenContr=true;
-    // sc.useHiddenModel=true;
-    // sc.someInternalParams=false;
-    // sc.useS=false;
-    // SoML* sox = new SoML(sc);
-    // sox->setParam("epsC",0.105);
-    // sox->setParam("epsA",0.05);
+    SoMLConf sc = SoML::getDefaultConf();
+    sc.useHiddenContr=true;
+    sc.useHiddenModel=false;
+    sc.someInternalParams=false;
+    sc.useS=false;
+    SoML* soml = new SoML(sc);
+    soml->setParam("epsC",0.105);
+    soml->setParam("epsA",0.05);
 
-    Sox* sox = new Sox(1.2, false);
+     Sox* sox = new Sox(1.2, false);
     sox->setParam("epsC",0.105);
     sox->setParam("epsA",0.05);
     sox->setParam("Logarithmic",1);
-    //  sox->setParam("osceps",10);
+     sox->setParam("osceps",10);
 
 
     SeMoXConf cc = SeMoX::getDefaultConf();    
@@ -250,6 +254,7 @@ public:
     }else{
       //      controller = semox;
      controller = sox;
+     //  controller = soml;
       // controller = derinf; 
     }
 
@@ -261,11 +266,10 @@ public:
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     // add an operator to keep robot from falling over
-    agent->addOperator(new LimitOrientationOperator(Axis(0,0,1), Axis(0,0,1), M_PI*0.5, 1));
+    agent->addOperator(new LimitOrientationOperator(Axis(0,0,1), Axis(0,0,1), M_PI*0.5, 10));
     if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, ""));
     global.agents.push_back(agent);
     global.configs.push_back(agent);
-
     //agent->startMotorBabblingMode(5000);
 
     // this->getHUDSM()->setColor(Color(1.0,1.0,0));
@@ -315,7 +319,7 @@ int main (int argc, char **argv)
 
   ThisSim sim;
   sim.setGroundTexture("Images/green_velour_wb.rgb");
-  sim.setCaption("lpzrobots Simulator Homeokinesis -  Multilayer NN");
+  sim.setCaption("lpzrobots Simulator Homeokinesis -  One-Layer Controller");
   return sim.run(argc, argv) ? 0 :  1;
 }
 

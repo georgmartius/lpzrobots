@@ -191,7 +191,7 @@ public:
       
      
      //   AbstractController* controller = derinf;
-     controller = sos;
+     AbstractController* controller = sos;
      //    controller = sox;
 
 

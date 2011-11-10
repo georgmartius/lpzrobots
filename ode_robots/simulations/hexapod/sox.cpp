@@ -22,7 +22,7 @@ using namespace matrix;
 using namespace std;
 
 Sox::Sox(double init_feedback_strength, bool useExtendedModel)  
-  : AbstractController("Sox", "0.7der"), 
+  : AbstractController("Sox", "0.7der2"), 
     init_feedback_strength(init_feedback_strength),
     useExtendedModel(useExtendedModel) {
   t=0;
@@ -36,14 +36,18 @@ Sox::Sox(double init_feedback_strength, bool useExtendedModel)
   addParameterDef("sense",  &sense,    1, 0.2,5,           "sensibility");
   addParameterDef("creativity", &creativity, 0, 0, 1,      "creativity term (0: disabled) ");
   addParameterDef("damping",   &damping,     0.00001, 0,0.01, "forgetting term for model");  
-  addParameterDef("causeaware", &causeaware, useExtendedModel ? 0.01 : 0 , 0,0.1, 
+  addParameterDef("damp_c",   &damp_c,     0.00001, 0,0.01, "forgetting term for model");  
+  addParameterDef("causeaware", &causeaware, useExtendedModel ? 0.000001 : 0 , 0,0.0001, 
                   "awarness of controller influences");
-  addParameterDef("harmony",    &harmony,    0, 0,0.1,
+  addParameterDef("harmony",    &harmony,    0, 0,0.0001,
                   "dynamical harmony between internal and external world");
   addParameterDef("pseudo",   &pseudo   , 0  , 
        "type of pseudo inverse: 0 moore penrose, 1 sensor space, 2 motor space, 3 special");
   addParameterDef("dreaming", &dreaming, 0,  0, 100, "number of steps between dreaming (0 no dream learning)");
-  //  addParameterDef("osceps", &osceps, 0,  0, 100, "frequency of eps oscillations");
+  addParameterDef("osceps", &osceps, 30,  0, 100, "frequency of eps oscillations");
+
+  addParameterDef("test", &test, 0.0,     0,5, "parameter for tests");
+  addParameterDef("test1", &test1, 0.1,     0,5, "parameter for tests");
 
 
   addInspectableMatrix("A", &A, false, "model matrix");
@@ -70,16 +74,19 @@ void Sox::init(int sensornumber, int motornumber, RandGen* randGen){
   A.set(number_sensors, number_motors);
   S.set(number_sensors, number_sensors);
   C.set(number_motors, number_sensors);
+  C_damp.set(number_motors, number_sensors);
   b.set(number_sensors, 1);
   h.set(number_motors, 1);
   L.set(number_sensors, number_sensors);
   v_avg.set(number_sensors, 1);
+  vector.set(number_sensors, 1);
 
   R.set(number_sensors, number_sensors);
 
   A.toId(); // set a to identity matrix;
   C.toId(); // set a to identity matrix;
   C*=init_feedback_strength;
+  C_damp.toId();
   //  double val=1;  
   //  C.toMapP(val,constant);
    
@@ -160,13 +167,16 @@ void Sox::stepNoLearning(const sensor* x_, int number_sensors,
   x_buffer[t%buffersize] = x_smooth; // we store the smoothed sensor value
   
   // calculate controller values based on current input values (smoothed)  
-  Matrix y =   (C*(x_smooth + (v_avg*creativity)) + h).map(g);
+  Matrix y =   (C*(x_smooth + (v_avg*creativity)) + h).map(g);//TEST b 
   
   // Put new output vector in ring buffer y_buffer
   y_buffer[t%buffersize] = y;
 
+  ((C*(x_smooth + (v_avg*creativity)) + h*(1+ test)).map(g)).convertToBuffer(y_, number_motors);
+
+//TEST b 
   // convert y to motor* 
-  y.convertToBuffer(y_, number_motors);
+// y.convertToBuffer(y_, number_motors);
 
   // update step counter
   t++;
@@ -203,7 +213,7 @@ void Sox::motorBabblingStep(const sensor* x_, int number_sensors,
   h += (delta * (epsC *factor)).mapP(0.1, clip);
   
   t++;
-}
+}//Ende motorBabblingStep
 
 
 Matrix Sox::pseudoInvL(const Matrix& L, const Matrix& A, const Matrix& C){
@@ -233,6 +243,7 @@ void Sox::learn(){
   const Matrix& z    = (C * (x) + h); // here no creativity 
   const Matrix& y    = z.map(g);
   const Matrix& g_prime = z.map(g_s);
+  //  const Matrix& g_prime = z.map(g_s);
 
   L = A * (C & g_prime) + S;
   R = A * C+S; // this is only used for visualization
@@ -249,33 +260,46 @@ void Sox::learn(){
   
   const Matrix& v_hat = v + x * harmony;
 
-  v_avg += ( v  - v_avg ) *.1; 
+  v_avg += ( v  - v_avg ) *.4; 
 
-  double EE = 1.0; 
-  if(loga){
-    //  EE = .1/(v.norm_sqr() + .001); // logarithmic error (E = log(v^T v))
-    EE = .1/(((A^T)*v).norm_sqr() + .0001);  //neue Norm 
+  // for (int i =0; i<number_sensors;i++) vector.val(i,0)=exp(b.val(i,0)*b.val(i,0)*-test1);
+  double EE = 1.0;
+ if(loga){
+   EE = .1/(xi.norm_sqr() + .00001); // logarithmic error (E = log(v^T v))
+    //   EE = .1/(((A^T)*v).norm_sqr() + .0001);  //neue Norm 
   }
-  double fsin=1.0;
-  if ( t%30 < 20) fsin = 0;  
-
-  EE *= fsin; 
-  //  cout << fsin << endl;
-  A += (xi * (y_hat^T) * epsA + (A *  -damping) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);
+ A += (xi * (y_hat^T) * epsA*EE);// + (A *  -damping) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);
+ //A += (xi * ((((C^T)^-1)*y)^T) * epsA*EE + (A *  -damping) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);//TEST Metrik pullback
+   A += (C_damp*1.02 - A )*(C_damp*1.02 - A )*(C_damp*1.02 - A )*damping;
   if(useExtendedModel)
-    S += (xi * (x^T)     * epsA + (S *  -damping*10 ) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);
-  b += (xi             * epsA + (b *  -damping) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);
+    S += (xi * (x^T)     * epsA*EE*.3 + (S *  -damping*3 ) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);
+    b += (xi             * epsA*EE*.1 + (b *  -damping) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);
   //  cout << "test";
-  C += ( (((A^T)*A)^-1)* (( mu * (v_hat^T)    - (epsrel & y) * (x^T)) * (EE *epsC) )).mapP(.05, clip); 
-  //C += (((A*(A^T))^-1)( mu * (v_hat^T)           - (epsrel & y) * (x^T)) * (EE *epsC) ).mapP(.05, clip); 
-  h += ((mu*harmony - (epsrel & y)) * (EE * epsC)).mapP(.05, clip);   
-};
+
+ 
+ if(loga){
+   EE = .1/(v.norm_sqr() + .00001); // logarithmic error (E = log(v^T v))
+    //   EE = .1/(((A^T)*v).norm_sqr() + .0001);  //neue Norm 
+  }
+  
+ if (osceps) {
+   double fsin=(1.0+sin(2*M_PI*t/(osceps+.0001)))/2.0;
+   EE *= fsin; 
+ }
+
+ C += (/* (((A^T)*A)^-1)**/ (( mu * (v_hat^T)    - (epsrel & y) * ((x/*&vector*/)^T)) * (EE *epsC) )).mapP(.05, clip); //TEST clip
+ // h += ((mu*harmony - (epsrel & y)) * (EE * epsC)).mapP(.0105, clip);   //TEST clip
+  h += ((mu*harmony - (epsrel & y)) * (epsC)).mapP(.05, clip);   //TEST clip
+   C += (C_damp*1.2 - C )*(C_damp*1.2 - C )*(C_damp*1.2 - C )*damp_c;
+   h += (h&h&h)*-.001;
+ //  h += b * -.01; //TEST
+};//Ende Sox learn
 
 
 void Sox::dreamingStep() {
   // like normal learning step but with a random input x_t and the same x_{t+1}
   Matrix x(number_sensors,1);
-  x = x.map(random_minusone_to_one) * 1.2;  
+  x = x.map(random_minusone_to_one) * 1.2;
 
   const Matrix& z    = (C * (x) + h); // here no creativity 
   const Matrix& y    = z.map(g);

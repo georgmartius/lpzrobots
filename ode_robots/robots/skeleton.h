@@ -281,7 +281,7 @@ namespace lpzrobots {
     virtual void notifyOnChange(const paramkey& key);
 
     /** the main object of the robot, which is used for position and speed tracking */
-    virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }
+    virtual Primitive* getMainPrimitive() const { return objects[Thorax]; } // Trunk_comp
 
     /** all parts of the robot */
     virtual std::vector<Primitive*>& getPrimitives() { return objects; }

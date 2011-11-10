@@ -49,6 +49,29 @@ namespace lpzrobots {
     double currentforce;
   };
 
+
+  /**
+     An Operator for lifting up a robot from time to time.
+   */
+  class LiftUpOperator : public Operator {
+  public:
+    LiftUpOperator(const Axis& globalAxis, 
+                   double height, double force, double duration, double interval)
+      : globalAxis(globalAxis), height(height), force(force), duration(duration), interval(interval), currentforce(force)
+    {
+    }
+
+    virtual ManipAction observe(OdeAgent* agent, GlobalData& global);
+  protected:
+    Axis globalAxis;
+    double height;
+
+    double force;
+    double duration;
+    double interval;
+    double currentforce;
+  };
+
 }
 
 #endif

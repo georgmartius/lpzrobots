@@ -48,6 +48,7 @@
 #include <ode_robots/skeleton.h>
 
 #include "environment.h"
+#include <ode_robots/operators.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -95,12 +96,12 @@ public:
     addParameterDef("multilayer",&useMultilayer, false, "use multilayer controller (SoML)");
     
     int numHexapods      = 0;
-    int numSphericals    = 1;
-    int numSnakes        = 2;
+    int numSphericals    = 0;
+    int numSnakes        = 0;
     int numHumanoids     = 1;
-    int numSliderWheelie = 1;
-    int numLongVehicle   = 1;
-    int numCaterPillars   = 1;
+    int numSliderWheelie = 0;
+    int numLongVehicle   = 0;
+    int numCaterPillars   = 0;
 
     setCameraHomePos(Pos(-19.15, 13.9, 6.9),  Pos(-126.1, -17.6, 0));
     // initialization
@@ -317,6 +318,8 @@ public:
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     OdeAgent*      agent  = new OdeAgent(global);
     agent->init(controller, human, wiring);
+    // add an operator to keep robot from falling over
+    agent->addOperator(new LiftUpOperator(Axis(0,0,1), 1.5, 10, 100, 100));
     global.agents.push_back(agent);
     global.configs.push_back(agent);
     return agent;

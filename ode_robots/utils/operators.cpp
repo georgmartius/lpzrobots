@@ -52,4 +52,27 @@ namespace lpzrobots {
     return rv;
   }
 
+  Operator::ManipAction LiftUpOperator::observe(OdeAgent* agent, GlobalData& global){
+    OdeRobot* r = agent->getRobot();
+    Primitive* p  = r->getMainPrimitive();
+    ManipAction rv;
+    rv.type=None;
+    if(!p) return rv;
+    const Pos& pos = p->getPosition();
+    // printf("test %f \t %f\n", angle, currentforce);
+    if(pos.z() < height){
+      // get orthogonal axis
+      osg::Vec3 force(0,0,height-pos.z());
+      p->applyForce(force*currentforce);
+      currentforce=currentforce*1.01;
+      rv.type = Move;
+      rv.pos  = p->getPosition() + force*0.5;
+      return rv;
+    }else{
+      currentforce=force;
+    }
+    return rv;
+  }
+
+
 }

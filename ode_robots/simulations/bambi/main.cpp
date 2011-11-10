@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.9  2011-10-27 15:54:36  martius
+ *   Revision 1.10  2011-11-10 16:28:48  der
+ *   liftup operator
+ *
+ *   Revision 1.9  2011/10/27 15:54:36  martius
  *   new build system with -config shell script and configurator intragration
  *
  *   Revision 1.8  2011/10/14 09:36:18  martius
@@ -260,7 +263,7 @@ public:
     reckturner = false;
     // Playground types
     bool narrow = true; 
-    double widthground = 25.85;// 100; //1.3;
+    double widthground = 10.85;// 100; //1.3;
     double heightground = .8;// 1.2;
     addParameterDef("centerforce", &centerforce, .0);//2.0
     addParameterDef("forwardforce", &forwardforce, 0.0);
@@ -353,8 +356,8 @@ public:
      global.obstacles.push_back(playground);
      /*    double xboxes=0.0;
 	   double yboxes=0.0;*/
-     double xboxes=0;//15;//19.0;
-     double yboxes=0;//15;
+     double xboxes=15;//19.0;
+     double yboxes=15;
      double boxdis=.9;//.45;//1.6;
      for (double j=0.0;j<xboxes;j++)
        for(double i=0.0; i<yboxes; i++) {
@@ -483,10 +486,10 @@ public:
      
    cc.useS=true;
     //       cc.useS=false;
-   // AbstractController* controller = new DerLinInvert(cc);
+    AbstractController* controller = new DerLinInvert(cc);
      //     AbstractController* controller = new BasicController(cc);
    //   AbstractController* controller = new SineController(1<<14); // only motor 14
-   AbstractController* controller = new SineController(); // only motor 14
+    //   AbstractController* controller = new SineController(); // only motor 14
      //AbstractController* controller = new SineController(0,SineController::Impulse);
    //AbstractController* controller = new SineController((~0),SineController::Impulse);
      //AbstractController* controller = new SineController(3<<17,SineController::Impulse);

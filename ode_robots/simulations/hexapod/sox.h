@@ -84,11 +84,13 @@ protected:
   matrix::Matrix b; // Model Bias
   matrix::Matrix L; // Jacobi Matrix
   matrix::Matrix R; // 
+  matrix::Matrix C_damp;
   matrix::Matrix y_buffer[buffersize]; // buffer needed for delay
   matrix::Matrix x_buffer[buffersize]; // buffer of sensor values 
   matrix::Matrix v_avg;
   matrix::Matrix x;        // current sensor value vector
   matrix::Matrix x_smooth; // time average of x values
+  matrix::Matrix vector; //for testing purposes 
   int t;
   bool TLE;
   bool loga;
@@ -109,6 +111,11 @@ protected:
   paramint s4delay;        // # of steps the motor values are delayed (1 means no delay)
   paramint dreaming;       ///< steps between dreaming learning steps
 
+
+  paramval test;
+  paramval test1;
+  paramval osceps;
+  paramval damp_c;
   // calculates the pseudo inverse of L in different ways, depending on pseudo
   matrix::Matrix pseudoInvL(const matrix::Matrix& L, const matrix::Matrix& A, const matrix::Matrix& C);
   
@@ -128,7 +135,7 @@ protected:
   static double g_s(double z)
   {
     double k=tanh(z);
-    return 1.0 - k*k;
+    return 1.2 - k*k;//TEST
   };
 
   /// function that clips the second argument to the interval [-first,first]
