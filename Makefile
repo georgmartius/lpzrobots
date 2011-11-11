@@ -213,6 +213,11 @@ Makefile.conf:
 .PHONY: tags
 ##!tags		create TAGS file for emacs
 tags: 
+	@if type etags; then $(MAKE) tags_internal ; else \
+	 echo "etags program not found. If you use emacs install emacs-common-bin" ; fi
+
+.PHONY: tags_internal
+tags_internal:
 	rm -f TAGS
 	cd selforg && $(MAKE) tags
 	cd ode_robots && $(MAKE) tags
