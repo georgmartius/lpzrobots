@@ -46,10 +46,6 @@
 // include header file
 #include "hexapod.h"
 
-// rotation and translation matrixes (to make the code shorter)
-#define ROTM osg::Matrix::rotate
-#define TRANSM osg::Matrix::translate
-
 using namespace osg;
 using namespace std;
 

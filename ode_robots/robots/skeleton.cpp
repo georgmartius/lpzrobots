@@ -981,8 +981,7 @@ GUIDE adding new sensors
 
       cleanup();
       irSensorBank.clear();
-      odeHandle.removeSpace(odeHandle.space);
-      dSpaceDestroy(odeHandle.space);
+      odeHandle.deleteSpace();
     }
 
     created=false;

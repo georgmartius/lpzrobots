@@ -30,10 +30,10 @@
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
 #include <ode_robots/passivecapsule.h>
+#include <ode_robots/seesaw.h>
 
 using namespace lpzrobots;
 using namespace std;
-
 
 
 class Env {
@@ -93,6 +93,11 @@ public:
         /* substance.toRubber(5); */
         /* playground->setGroundSubstance(substance); */
         global.obstacles.push_back(playground);
+
+        Seesaw* seesaw = new Seesaw(odeHandle, osgHandle);
+        seesaw->setColor(Color(203./255.,144./255.,18./255.)); 
+        seesaw->setPose(ROTM(M_PI/2.0,0,0,1)*TRANSM(1,-0,.0));
+        global.obstacles.push_back(seesaw);
         break;
       }
     case Octa:

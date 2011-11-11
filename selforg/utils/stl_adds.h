@@ -52,6 +52,24 @@ namespace std {
       return false;
     }
   }
+
+
+  template <class T>
+  struct join : public unary_function<T, void>
+  {
+    join(const T& delimit) : delimit(delimit), count(0) {}
+    void operator() (const T& s) { 
+      if(count==0){
+        joined=s;
+      }else{       
+        joined += delimit + s;        
+      }
+      ++count; 
+    }
+    T delimit;
+    T joined;
+    int count;
+  };
   
 }
 

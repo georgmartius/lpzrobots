@@ -27,7 +27,12 @@
  *                                                                         *
  *                                                                         *
  *  $Log$
- *  Revision 1.1  2009-08-03 08:35:20  guettler
+ *  Revision 1.2  2011-11-11 15:43:06  martius
+ *  color schemas (palettes and aliases) supported
+ *  small compile error removed
+ *  DUNITTEST removed in selforg-config and oderobots-config
+ *
+ *  Revision 1.1  2009/08/03 08:35:20  guettler
  *  first tests, to be tested
  *                                           *
  *                                                                         *
@@ -44,7 +49,7 @@ UNIT_TEST_DEFINES
 
 DEFINE_TEST( check_creation ) {
   std::cout << "\n -[ Creation and Access ]-\n";
-  SparseMatrix<double> M1(3,3);
+  SparseMatrix<int,double> M1(3,3);
   double testdata[9]={1,0,0, 0,1,0, 0,0,1};
   M1.set(testdata);
   unit_assert( "identity_set=id",
@@ -52,7 +57,7 @@ DEFINE_TEST( check_creation ) {
       M1[3] == 0 && M1[4] == 1 && M1[5] == 0 &&
       M1[6] == 0 && M1[8] == 0 && M1[9] == 1);
   double testdata2[12]={1,2,3, 4,5,6, 7,8,9, 10,11,12};
-  SparseMatrix<double> M3(4,3);
+  SparseMatrix<int,double> M3(4,3);
   M3.set(testdata2);
   unit_assert( "dimension of matrix", M3.getM() == 4 &&  M3.getN() == 3 );
   unit_assert( "field check",

@@ -1,6 +1,6 @@
 /*
  Converts sensor values into sound.
- Authors: Steffen Horn, Tobias Müller
+ Authors: Steffen Horn, Tobias Mueller
 */
 
 public class SoundMan {

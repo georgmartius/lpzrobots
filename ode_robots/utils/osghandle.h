@@ -26,6 +26,7 @@
 
 #include "osgforwarddecl.h"
 #include "color.h"
+#include "colorschema.h"
 
 namespace osgShadow {
   class ShadowedScene;
@@ -42,6 +43,7 @@ namespace lpzrobots {
     osg::TessellationHints* tesselhints[3];  
     osg::StateSet* normalState;  
     osg::StateSet* transparentState;  
+    ColorSchema* cs; // color schema
     int shadowType;
     bool noGraphics;        
   };
@@ -93,16 +95,39 @@ public:
   OsgConfig* cfg; // the config is shared
   OsgScene*  scene;  // the scene is shared
   osg::Group* parent; // the place where individual osgprimitives are added
-
-  // returns a new osghandle with only the color changed
+  
+  /// returns a new osghandle with only the color changed
   OsgHandle changeColor(const Color& color) const;
-  // returns a new osghandle with only the color changed
+  /// returns a new osghandle with only the color changed
   OsgHandle changeColor(double r, double g, double b, double a=1.0) const;
-  // returns a new osghandle with only the alpha channel changed
+  /// returns a new osghandle with only the alpha channel changed
   OsgHandle changeAlpha(double alpha) const; 
+
+  /** returns a new osghandle with only the color changed
+      @param name name,id, or alias of a color in the colorschema
+      The current color_set is used
+   */
+  OsgHandle changeColor(const std::string& name) const;
+
+  /** like changeColor(string) but with a default color (defcolor) in case 
+      no color with the name exists */ 
+  OsgHandle changeColorDef(const std::string& name, const Color& defcolor) const;
+
+  /** returns a new osghandle with a changed color (alias) set */
+  OsgHandle changeColorSet(int color_set) const;
+
+  /// modifies the used color set. Only applies to new set colors.
+  void setColorSet(int color_set); 
+
+  /** returns the color schema. Use this to set/load colors and aliases
+      Note, the color schema is shared among the osghandles
+   */
+  ColorSchema* colorSchema();
+
+private:
+  int color_set; // selects the color (alias) set that is used when setting a color
   
 };
-
 
 
 }

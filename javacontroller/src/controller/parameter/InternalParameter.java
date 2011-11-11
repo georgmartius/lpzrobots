@@ -192,7 +192,7 @@ public class InternalParameter {
 			}//##################################
 			
 			
-			//für alle anderen matrix_print_typen
+			//fuer alle anderen matrix_print_typen
 			return "#" + String.valueOf(key);
 		}
 		//***************************************
@@ -307,7 +307,7 @@ public class InternalParameter {
 			}//##################################
 			
 			
-			//für alle anderen matrix_print_typen
+			//fuer alle anderen matrix_print_typen
 			if(print_type == MatrixNorm_MaxColSum){
 				return "#" + String.valueOf(matrix.norm1());			
 			}

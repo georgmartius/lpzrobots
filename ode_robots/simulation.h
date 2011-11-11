@@ -123,6 +123,15 @@ namespace lpzrobots {
      */
     virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {};
 
+    /** adds a palette file to be loaded at initialization time
+        Call this before run()!
+     */
+    virtual void addPaletteFile(const std::string& filename, bool verbose = false);
+    /** adds a color alias file to be loaded at initialization time
+        Call this before run()!                
+     */
+    virtual void addColorAliasFile(const std::string& filename, bool verbose = false);
+
     virtual void odeStep();
 
     virtual void osgStep();
@@ -247,6 +256,11 @@ namespace lpzrobots {
 
     static int ctrl_C;
     char** orig_argv;
+
+    std::list<std::string> paletteFiles;
+    std::list<std::string> colorAliasFiles;
+    bool verboseColorLoading;
+
 
     // -conf detected in console arguments?
     bool startConfigurator;

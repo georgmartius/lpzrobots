@@ -34,8 +34,8 @@
 namespace lpzrobots {
 
   OsgHandle::OsgHandle()
-    : drawBoundings(false), cfg(0), scene(0), parent(0) 
-  {
+    : drawBoundings(false), cfg(0), scene(0), parent(0), color_set(0)
+  {    
   };
 
 
@@ -45,6 +45,9 @@ namespace lpzrobots {
 
     cfg->normalState = new osg::StateSet();
     cfg->normalState->ref();
+    cfg->cs = new ColorSchema();
+    // load colors....
+
     
     // set up blending for transparent stateset
     osg::StateSet* stateset = new osg::StateSet();
@@ -66,7 +69,7 @@ namespace lpzrobots {
     cfg->tesselhints[1]->setDetailRatio(1.0f); // Middle
     cfg->tesselhints[2]->setDetailRatio(3.0f); // High
 
-    scene = new OsgScene(); 
+    scene = new OsgScene();     
 
     color = Color(1,1,1,1);
   }
@@ -80,12 +83,15 @@ namespace lpzrobots {
       if(cfg->tesselhints[i])
 	cfg->tesselhints[i]->unref();
     }
+    if(cfg->cs) delete cfg->cs;
     delete cfg;    
+    cfg=0;
     // don't delete the camManager because it is deleted automatically (eventhandler)
     // delete scene->robotCamManager; 
     if(scene->world) scene->world->unref();
     if(scene->world_noshadow) scene->world_noshadow->unref();
     delete scene;
+    scene=0;
   }
 
   void OsgHandle::setup(int windowW, int windowH){
@@ -113,4 +119,41 @@ namespace lpzrobots {
     copy.color.alpha() = alpha;
     return copy;
   }
+
+  OsgHandle OsgHandle::changeColor(const std::string& name) const {
+    OsgHandle copy(*this);
+    if(cfg && cfg->cs)
+      copy.color = cfg->cs->color(name,color_set);
+    return copy;    
+  }
+
+  OsgHandle OsgHandle::changeColorDef(const std::string& name, const Color& defcolor) const{
+    OsgHandle copy(*this);
+    if(cfg && cfg->cs){      
+      if(!cfg->cs->color(copy.color, name,color_set)){
+        copy.color = defcolor;
+      }
+    }
+    return copy;        
+  }
+
+  ColorSchema* OsgHandle::colorSchema(){
+    return cfg->cs;
+  }
+
+
+  /** returns a new osghandle with a changed color (alias) set */
+  OsgHandle OsgHandle::changeColorSet(int color_set) const {
+    OsgHandle copy(*this);
+    copy.setColorSet(color_set);
+    return copy;
+  }
+  
+  void OsgHandle::setColorSet(int color_set) {
+    if(color_set>0) 
+      this->color_set=color_set;
+  }
+
+  
+
 }

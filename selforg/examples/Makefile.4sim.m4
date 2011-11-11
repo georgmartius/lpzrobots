@@ -41,7 +41,7 @@ DEV(LIBSELFORGLIB=$(shell selforg-config $(CFGOPTS) --libfile))
 DEV(SRCPREFIX=$(shell selforg-config $(CFGOPTS) --srcprefix))
 
 ## use -pg for profiling
-CPPFLAGS = -Wall -pipe -Wno-deprecated $(INC) $(shell selforg-config $(CFGOPTS) --cflags) 
+CPPFLAGS = -Wall -pipe -Wno-deprecated $(INC) $(shell selforg-config $(CFGOPTS) --intern --cflags) 
 
 CXX = g++
 
@@ -50,7 +50,7 @@ normal: DEV(libselforg)
 opt   : DEV(libselforg_opt)
 	$(MAKE) CFGOPTS=--opt EXEC=$(EXEC)_opt $(EXEC)
 dbg   : DEV(libselforg_dbg)
-	$(MAKE) CFGOPTS=--opt EXEC=$(EXEC)_dbg $(EXEC)
+	$(MAKE) CFGOPTS=--dbg EXEC=$(EXEC)_dbg $(EXEC)
 
 $(EXEC): Makefile.depend $(OFILES) DEV($(LIBSELFORGLIB))
 	$(CXX) $(OFILES) $(LIBS) -o $(EXEC)
@@ -67,10 +67,10 @@ libselforg_opt:
 )
 
 depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
+	makedepend -- $(CPPFLAGS) -- $(CFILES) -f- > Makefile.depend 2>/dev/null
 
-Makefile.depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
+Makefile.depend:
+	makedepend -- $(CPPFLAGS) -- $(CFILES) -f- > Makefile.depend 2>/dev/null
 
 todo:
 	find -name "*.[ch]*" -exec grep -Hni "TODO" {} \;

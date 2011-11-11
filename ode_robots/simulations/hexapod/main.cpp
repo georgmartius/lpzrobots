@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.13  2011-11-10 16:28:48  der
+ *   Revision 1.14  2011-11-11 15:43:06  martius
+ *   color schemas (palettes and aliases) supported
+ *   small compile error removed
+ *   DUNITTEST removed in selforg-config and oderobots-config
+ *
+ *   Revision 1.13  2011/11/10 16:28:48  der
  *   liftup operator
  *
  *   Revision 1.12  2011/11/07 16:46:31  martius
@@ -184,7 +189,7 @@ public:
     rodeHandle.substance.toRubber(20);
 
     
-    vehicle = new Hexapod(rodeHandle, osgHandle.changeColor(Color(1,1,1)), 
+    vehicle = new Hexapod(rodeHandle, osgHandle.changeColor("Green"), 
 			  myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
 
     // on the top

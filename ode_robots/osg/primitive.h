@@ -36,6 +36,10 @@
 // another forward declaration "block"
 #include "osgforwarddecl.h"
 
+// rotation and translation matrixes (to make the code shorter)
+#define ROTM osg::Matrix::rotate
+#define TRANSM osg::Matrix::translate
+
 namespace lpzrobots {
 
    /***** begin of forward declaration block *****/

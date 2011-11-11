@@ -103,7 +103,8 @@ public:
     int numLongVehicle   = 0;
     int numCaterPillars   = 0;
 
-    setCameraHomePos(Pos(-19.15, 13.9, 6.9),  Pos(-126.1, -17.6, 0));
+    setCameraHomePos(Pos(-0.282677, 28.654, 8.41382),  Pos(-178.667, -18.1136, 0));
+    setCameraMode(Static);
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
@@ -211,7 +212,7 @@ public:
     Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
     conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
     OdeRobot* sphere = 
-      new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
+      new Sphererobot3Masses ( odeHandle, osgHandle.changeColor("Green"), 
                                conf, name, 0.2); 
     sphere->place(pose);
     AbstractController* controller = new Sos();

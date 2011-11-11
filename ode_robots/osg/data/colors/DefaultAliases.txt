@@ -1,0 +1,6 @@
+Black Lackschwarz 0
+Blue RGB-Blau 0
+Red RGB-Rot 0
+Yellow RGB-Gelb 0
+Greeen RGB-Gruen 0
+White Weiss 0

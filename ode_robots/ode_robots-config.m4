@@ -80,7 +80,7 @@ while test $# -gt 0; do
     ;;
     --opt) ##Optimisation
       LIBBASE=$LIBASE_opt
-      CPPFLAGS="$CBASEFLAGS -DUNITTEST -DNDEBUG"
+      CPPFLAGS="$CBASEFLAGS -DNDEBUG"
       INTERNFLAGS="-O3"
       ;;
     --dbg) ## DEBUG      

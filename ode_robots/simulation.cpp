@@ -140,6 +140,11 @@ namespace lpzrobots {
 
     currentCycle = 1;
     windowName = "Lpzrobots - Selforg";
+
+    // default color palette
+    paletteFiles.push_back("colors/RGB_Full.gpl");
+    colorAliasFiles.push_back("colors/DefaultAliases.txt");
+    verboseColorLoading=false;
   }
 
 
@@ -176,6 +181,16 @@ namespace lpzrobots {
     // osgDB::Registry::instance()->getOrCreateSharedStateManager()->prune();
   }
 
+  void Simulation::addPaletteFile(const std::string& filename, bool verbose){
+    paletteFiles.push_back(filename);
+    verboseColorLoading=verbose;
+  }
+  void Simulation::addColorAliasFile(const std::string& filename, bool verbose){
+    colorAliasFiles.push_back(filename);    
+    verboseColorLoading=verbose;
+  }
+
+
   bool Simulation::init(int argc, char** argv) {
     orig_argv = argv;
 
@@ -205,10 +220,6 @@ namespace lpzrobots {
 
     /**************** OpenSceneGraph-Section   ***********************/
 
-    osgHandle.init();
-    addParameter("Shadow",&(osgHandle.cfg->shadowType));
-    osgHandle.cfg->noGraphics = noGraphics;
-
     osgDB::FilePathList l = osgDB::getDataFilePathList();
     l.push_back("data");
     const char* oderobotsdata = getenv("ODEROBOTSDATA");
@@ -220,6 +231,29 @@ namespace lpzrobots {
 #endif
     l.push_back("../../osg/data");
     osgDB::setDataFilePathList(l);
+       
+    osgHandle.init();
+    addParameter("Shadow",&(osgHandle.cfg->shadowType));
+    osgHandle.cfg->noGraphics = noGraphics;
+    FOREACH(std::list<std::string>, paletteFiles, f){
+      int rv = osgHandle.colorSchema()->loadPalette(*f);      
+      if(rv<=0){
+	cerr << "Error with palette file " << *f << ": " 
+             << osgHandle.colorSchema()->getLoadErrorString(rv) << endl;
+      }else if(verboseColorLoading){
+        cerr << "Loaded " << rv << " colors from Palette " << *f << endl; 
+      }
+    }
+    FOREACH(std::list<std::string>, colorAliasFiles, f){
+      int rv = osgHandle.colorSchema()->loadAliases(*f);
+      if(rv<=0){
+	cerr << "Error with alias file " << *f << ": " 
+             << osgHandle.colorSchema()->getLoadErrorString(rv) << endl;
+      }else if(verboseColorLoading){
+        cerr << "Loaded " << rv << " alias definitions " << *f << endl; 
+      }
+    }
+
 
     // load config file (first in the current directory and then in ~/.lpzrobots/)
     sprintf(odeRobotsCfg,"ode_robots");

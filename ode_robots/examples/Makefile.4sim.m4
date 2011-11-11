@@ -35,8 +35,8 @@ OFILES = $(addsuffix .o, $(FILES))
 # the CFGOPTS are set by the opt and dbg target
 CFGOPTS=
 INC    += -I.
-BASELIBS = $(shell selforg-config $(CFGOPTS) --static --libs) $(shell ode_robots-config $(CFGOPTS) --static --libs)
-BASELIBSSHARED := $(shell selforg-config $(CFGOPTS) --libs) $(shell ode_robots-config $(CFGOPTS) --libs)
+BASELIBS = $(shell ode_robots-config $(CFGOPTS) --static --libs) $(shell selforg-config $(CFGOPTS) --static --libs) 
+BASELIBSSHARED := $(shell ode_robots-config $(CFGOPTS) --libs) $(shell selforg-config $(CFGOPTS) --libs)
 
 
 DEV(LIBSELFORG=$(shell selforg-config $(CFGOPTS) --libfile))
@@ -80,10 +80,10 @@ libode_robots_shared:
 )
 
 Makefile.depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
+	makedepend -- $(CPPFLAGS) -- $(CFILES) -f- > Makefile.depend 2>/dev/null
 
 depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES)  -f- > Makefile.depend 2>/dev/null
+	makedepend -- $(CPPFLAGS) -- $(CFILES)  -f- > Makefile.depend 2>/dev/null
 
 tags: 
 	etags $(find -name "*.[ch]")

@@ -80,10 +80,10 @@ libode_robots_shared:
 )
 
 Makefile.depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
+	makedepend -- $(CPPFLAGS) -- $(CFILES) -f- > Makefile.depend 2>/dev/null
 
 depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES)  -f- > Makefile.depend 2>/dev/null
+	makedepend -- $(CPPFLAGS) -- $(CFILES)  -f- > Makefile.depend 2>/dev/null
 
 tags: 
 	etags $(find -name "*.[ch]")

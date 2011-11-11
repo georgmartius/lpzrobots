@@ -24,7 +24,8 @@
 #ifndef __COLOR_H
 #define __COLOR_H
 
-#include<osg/Vec4>
+#include <osg/Vec4>
+#include <iostream>
 
 namespace lpzrobots{
 
@@ -39,6 +40,20 @@ public:
   Color(float r, float g, float b, float a)
     : osg::Vec4(r, g, b, a){} 
 
+  static Color rgb255(unsigned char r, unsigned char g, unsigned char b, 
+                      unsigned char a = 255){
+    return Color(((float)r)/255.0, ((float)g)/255.0, ((float)b)/255.0, ((float)a)/255.0); 
+  }
+
+  void print(std::ostream& out) const {
+    out << '(' << r() << ',' << g() << ',' << b() << ',' << a() << ')';
+  }
+
+  friend std::ostream& operator<<(std::ostream& out, const Color& col) {
+    col.print(out);
+    return out;
+  }
+
 /*   float r() const { return x(); } */
 /*   float& r() { return x(); } */
 /*   float g() const { return y(); } */
@@ -50,7 +65,7 @@ public:
   float alpha() const { return w(); }
   float& alpha() { return w(); }
 };
-
+  
 }
 
 #endif

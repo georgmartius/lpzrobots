@@ -167,7 +167,9 @@ namespace lpzrobots{
       // dReal quat[4] = {q.x(), q.y(), q.z(), q.w()};
       dReal quat[4] = {q.w(), q.x(), q.y(), q.z()};
       dGeomSetQuaternion(geom, quat);
-    }  
+    } else { 
+      assert(0 && "Call setPose only after initialization");
+    } 
     update(); // update the scenegraph stuff
   }
 

@@ -67,10 +67,10 @@ libselforg_opt:
 )
 
 depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
+	makedepend -- $(CPPFLAGS) -- $(CFILES) -f- > Makefile.depend 2>/dev/null
 
-Makefile.depend: 
-	makedepend $(CFLAGS) $(INC) $(CFILES) -f- > Makefile.depend 2>/dev/null
+Makefile.depend:
+	makedepend -- $(CPPFLAGS) -- $(CFILES) -f- > Makefile.depend 2>/dev/null
 
 todo:
 	find -name "*.[ch]*" -exec grep -Hni "TODO" {} \;
