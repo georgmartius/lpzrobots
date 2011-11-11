@@ -15,7 +15,8 @@ read prefix
 if ! echo $PATH | grep "$prefix/bin"; then
     echo "Cannot find "$prefix/bin" in PATH variable!" 
     echo "The installation will not work if you do not add it!" 
-    echo " use export PATH=\$PATH:$prefix/bin in your ~/.bashrc and reopen the shell!" 
+    echo " use export PATH=\$PATH:$prefix/bin in your ~/.bashrc and " 
+    echo " type: source ~/.bashrc to reload the settings!" 
     cp -f Makefile.conf.bak Makefile.conf
     exit 1;
 fi
