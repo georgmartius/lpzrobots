@@ -12,12 +12,12 @@
 	University Leipzig \n
 	Institute for Computer Science  \n
 	Dept. Intelligent Systems \n
-	Frank Guettler \n
+	Frank GÃ¼ttler \n
         Research Group: Technische Informatik\n
 
 
 \par People:
-Georg Martius, Ralf Der, Frank Hesse, Frank Güttler, Jörn Hoffmann\n
+Georg Martius, Ralf Der, Frank Hesse, Frank GÃ¼ttler, JÃ¶rn Hoffmann\n
 Former Contributors: Antonia Siegert, Marcel Kretschmann, Dominic Schneider, Claus Stadler
  
 \section General
@@ -46,17 +46,6 @@ program
                   which is upstream (in svn)
                   (please follow the link for installation hints)
 
-\section Requirements
- 
-\subsection Linux
- Check the <tt>Dependencies</tt> file for required packages.
-
-\subsection MAC
- We recommend to install the ODE and OSG via macports (http://www.macports.org)
- (after installation of macports type on a console 
- <tt>sudo port install osg OpenSceneGraph</tt>) and see the <tt>Dependencies</tt> file.
- We will update the mac-related install procedures soon.
-
 \section Inst Installation \& Startup
 
 You have two different ways to get the simulator to work. 
@@ -68,7 +57,7 @@ You have two different ways to get the simulator to work.
 \subsubsection Ubuntu
   A package repository is hosted at
   https://launchpad.net/~georg-martius/+archive/lpzrobots \n
-  There is a link: "read about installing" or do on a terminal:
+  Do on a terminal (or read the link: "read about installing" on that page):
 \verbatim
 sudo add-apt-repository ppa:georg-martius/lpzrobots
 sudo apt-get update
@@ -78,6 +67,12 @@ Then you can install <tt>lpzrobots</tt> as any other package do:
 sudo apt-get install guilogger lpzrobots-oderobots
 \endverbatim
 This will automatically install all other dependencies.
+
+That'it!
+
+Now you can copy the sample simulations from
+  <tt>/usr/share/lpzrobots/</tt> to your home directory and 
+  continue reading in section \ref RunExample.
 
 \subsubsection Other debian based systems (deb)
 There is an install makefile located here: 
@@ -93,30 +88,37 @@ If something fails you can also redo parts of the process, see "make -f install_
 The packages are: guilogger, ode-dbl, lpzrobots-selforg, and lpzrobots-oderobots
 You can uninstall them later using the package manager (apt-get or synaptics)
 
-Alternatively you can do it step by step as follows:
+
+\subsubsection Alternatively: Creating your own packages
+You can do it step by step as follows:
 Download all files from http://robot.informatik.uni-leipzig.de/software/packages/deb/current/ \n
 Then do
 \verbatim
 # here you need (should not) be root
- dpkg-source -x guilogger-0.6*.dsc
- cd guilogger-0.6* 
+ dpkg-source -x guilogger-0.*.dsc
+ cd guilogger-0.* 
  dpkg-buildpackage -rfakeroot -b -uc
  cd ../
-# become root
- dpkg -i guilogger-0.6*.deb
+# become root (e.g. with su or sudo -s)
+ dpkg -i guilogger-0.*.deb
 \endverbatim
 This you have to repeat for each package (e.g. replace guilogger by ode-dbl, lpzrobots-selforg, and lpzrobots-oderobots)
 
-- Now you can copy the sample simulations from
-  <tt>/usr/share/lpzrobots/</tt> to your home directory and 
-  continue reading in section \ref RunExample.
-
-
 \subsection InstB Way B: Installation from source
+\subsubsection Linux
+ Check the <tt>Dependencies</tt> file for required packages.
 
-- Download source tar ball from 
-  http://robot.informatik.uni-leipzig.de/software .
-- Unpack file.
+\subsubsection MAC
+ We recommend to install the ODE and OSG via macports (http://www.macports.org)
+ (after installation of macports type on a console 
+ <tt>sudo port install osg OpenSceneGraph</tt>) and see the <tt>Dependencies</tt> file.
+ We will update the mac-related install procedures soon.
+
+\subsubsection Instructions
+
+- Download the source tar ball from 
+  http://robot.informatik.uni-leipzig.de/software/current .
+- Unpack file (<tt>tar -xvzf lpzrobots*.tar</tt>).
 - Change into <tt> lpzrobots </tt> directory
 - Call <tt> make </tt> to get a help display and continue with
   <tt> make prepare</tt>, which will do the following:
