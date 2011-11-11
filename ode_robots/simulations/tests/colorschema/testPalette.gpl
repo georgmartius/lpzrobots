@@ -1,0 +1,9 @@
+
+GIMP Palette
+Name: testPalette.gpl
+Columns: 0
+#
+200	0	0	test1
+0	200	0	test2
+0	0	200	test3
+200	200	0	test4

@@ -21,7 +21,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  *   $Log$
- *   Revision 1.2  2011-06-03 13:42:48  martius
+ *   Revision 1.3  2011-11-11 15:40:51  martius
+ *   test for collorschema
+ *
+ *   Revision 1.2  2011/06/03 13:42:48  martius
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
@@ -132,17 +135,17 @@ public:
     }
 
     b = new OSGBoxTex(5,1,2);
-    b->setTexture(0,"Images/dusty.rgb",1,1);
-    b->setTexture(1,"Images/tire_full.rgb",3,1);
-    b->setTexture(2,"Images/whitemetal_farbig_small.rgb",1,1);
-    b->setTexture(3,"Images/wall.rgb",1,1);
-    b->setTexture(4,"Images/really_white.rgb",1,1);
-    b->setTexture(5,"Images/light_chess.rgb",-1,-1);
-    b->init(osgHandle.changeColor(Color(1,1,0)));
+    b->setTexture(0,TextureDescr("Images/dusty.rgb",1,1));
+    b->setTexture(1,TextureDescr("Images/tire_full.rgb",3,1));                
+    b->setTexture(2,TextureDescr("Images/whitemetal_farbig_small.rgb",1,1));  
+    b->setTexture(3,TextureDescr("Images/wall.rgb",1,1));                     
+    b->setTexture(4,TextureDescr("Images/really_white.rgb",1,1));             
+    b->setTexture(5,TextureDescr("Images/light_chess.rgb",-1,-1));            
+    b->init(osgHandle.changeColor(Color(1,1,0)));			    
     b->setMatrix(osg::Matrix::translate(0,-2,2));
 
     b2 = new OSGBox(5,1,2);
-    b2->setTexture("Images/light_chess.rgb",1,1);
+    b2->setTexture(TextureDescr("Images/light_chess.rgb",1,1));
     b2->init(osgHandle);
     b2->setMatrix(osg::Matrix::translate(7,0,2));
 

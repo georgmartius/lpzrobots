@@ -1,0 +1,4 @@
+alias1 test1 0
+alias1 test2 1
+alias1 test4 4
+alias2 test3 1
