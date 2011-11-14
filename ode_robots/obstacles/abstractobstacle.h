@@ -94,6 +94,13 @@ class AbstractObstacle{
    */
   virtual void setColor(const Color& color);
 
+  /*
+   * sets the obstacle color from color name
+   * @param color name of color in colorschema
+   */
+  virtual void setColor(const std::string& color);
+
+
 
   /** assigns a texture to the all primitives of this obstactle with repeat -1,-1
       @see Primitive::setTexture()

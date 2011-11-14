@@ -83,6 +83,9 @@ namespace lpzrobots {
     virtual std::vector<TextureDescr> getTextures() const;
     /// sets the color for painting this primitive
     virtual void setColor(const Color& color);
+    /// sets the color using the colorschema of osgHandle
+    virtual void setColor(const std::string& color);
+
     /// returns a osg transformation object;
     virtual osg::Transform* getTransform();
     /// returns the osgHandle object

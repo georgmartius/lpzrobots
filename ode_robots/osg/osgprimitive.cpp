@@ -161,6 +161,15 @@ namespace lpzrobots {
       shape->setColor(color);
   }
 
+  void OSGPrimitive::setColor(const std::string& color){
+    if (!osgHandle.cfg || osgHandle.cfg->noGraphics)
+      return;
+    if(shape.valid()){
+      shape->setColor(osgHandle.getColor(color)); 
+    }
+  }
+
+
 
   /******************************************************************************/
   OSGDummy::OSGDummy(){}

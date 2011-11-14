@@ -118,6 +118,11 @@ namespace lpzrobots{
       getOSGPrimitive()->setColor(color);
   }
 
+  void Primitive::setColor(const std::string& color){
+    if(getOSGPrimitive())
+      getOSGPrimitive()->setColor(color);
+  }
+
   
   void Primitive::setTexture(const std::string& filename){
     if(getOSGPrimitive())

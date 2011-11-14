@@ -113,6 +113,12 @@ public:
       no color with the name exists */ 
   OsgHandle changeColorDef(const std::string& name, const Color& defcolor) const;
 
+  /** returns the color that corresponds to the name (name,id, or alias)
+      in the colorschema. The current color_set is used
+  */
+  Color getColor(const std::string& name) const;
+
+
   /** returns a new osghandle with a changed color (alias) set */
   OsgHandle changeColorSet(int color_set) const;
 
@@ -123,6 +129,8 @@ public:
       Note, the color schema is shared among the osghandles
    */
   ColorSchema* colorSchema();
+  const ColorSchema* colorSchema() const;
+
 
 private:
   int color_set; // selects the color (alias) set that is used when setting a color

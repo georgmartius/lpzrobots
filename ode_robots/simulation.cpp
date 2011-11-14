@@ -143,7 +143,8 @@ namespace lpzrobots {
 
     // default color palette
     paletteFiles.push_back("colors/RGB_Full.gpl");
-    colorAliasFiles.push_back("colors/DefaultAliases.txt");
+    paletteFiles.push_back("colors/DefaultColors.gpl");
+    colorAliasFiles.push_back("colors/DefaultColorSchema.txt");
     verboseColorLoading=false;
   }
 
@@ -354,7 +355,7 @@ namespace lpzrobots {
 
     makePhysicsScene();
     if (!noGraphics) {
-      makeScene(osgHandle.scene);
+      makeScene(osgHandle.scene, *osgHandle.cfg);
       if (!osgHandle.scene->scene)
 	return false;
       osgHandle.parent=osgHandle.scene->scene;

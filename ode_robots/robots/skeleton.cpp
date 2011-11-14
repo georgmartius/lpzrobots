@@ -387,8 +387,9 @@ GUIDE adding new sensors
     }
     
     odeHandle.space = dSimpleSpaceCreate (parentspace);
-    odeHandle.addSpace(odeHandle.space);      
-    OsgHandle osgHandleJ = osgHandle.changeColor(Color(1.0,0.0,0.0));
+    odeHandle.addSpace(odeHandle.space);          
+    osgHandle = osgHandle.changeColor(conf.bodyColor);
+    OsgHandle osgHandleJ = osgHandle.changeColor("joint");
     HingeJoint* j;
     UniversalJoint* uj;
     FixedJoint* fj;
@@ -471,7 +472,7 @@ GUIDE adding new sensors
     //  Neck
     b = new Capsule(0.05,0.03+headsize);
     b->setTexture(conf.bodyTexture);
-    b->init(odeHandle, 1,osgHandle.changeColor(conf.bodyColor));
+    b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0, 1.6884+headsize/2, 0.0253) * pose );
 //     b->setMass(.1/*1*/, 0, 0, 0, 0.0003125, 0.0003125, 0.0003125, 0, 0, 0);
     b->setMass(.05*conf.massfactor);//.01
@@ -486,13 +487,12 @@ GUIDE adding new sensors
     // b->setMass(5.89, 0, 0, 0, 0.0413, 0.0306, 0.0329, 0, 0, 0);
 //     b->setMass(.1, 0, 0, 0, 0.0413, 0.0306, 0.0329, 0, 0, 0);
 //    b->setMass(0.03*conf.massfactor);
-//    b->setColor(conf.headColor);
     objects[Head_comp]=b;
     
     // Connect Head and Neck
     Transform* t = new Transform(objects[Neck], objects[Head_comp], 
 				 osg::Matrix::translate(0, 0, -(.05)));
-    t->init(odeHandle, 1,osgHandle);
+    t->init(odeHandle, 1,osgHandle.changeColor(conf.headColor));
     objects[Head_trans] = t;
     irSensorBank.init(odeHandle, osgHandle);
     if(conf.irSensors){

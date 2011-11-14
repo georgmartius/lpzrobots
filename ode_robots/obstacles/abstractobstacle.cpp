@@ -86,13 +86,17 @@ namespace lpzrobots {
    */
   osg::Matrix AbstractObstacle::getPose(){ return pose; }
 
-
-  /*
-   * sets the obstacle color
-   * @param color values in RGBA
-   */
   void AbstractObstacle::setColor(const Color& color) {
     osgHandle.color = color;
+    if (obstacle_exists) {
+      FOREACH(vector<Primitive*>, obst, it){
+	(*it)->setColor(color);
+      }
+    }
+  }
+
+  void AbstractObstacle::setColor(const string& color) {
+    osgHandle.color = osgHandle.getColor(color);
     if (obstacle_exists) {
       FOREACH(vector<Primitive*>, obst, it){
 	(*it)->setColor(color);

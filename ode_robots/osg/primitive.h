@@ -116,6 +116,9 @@ public:
   /// sets the color for the underlaying osgprimitive
   virtual void setColor(const Color& color);
 
+  /// sets the color using the colorschema of osgHandle
+  virtual void setColor(const std::string& color);
+
   /// assigns a texture to the primitive
   virtual void setTexture(const std::string& filename);
   /// assigns a texture to the primitive, you can choose if the texture should be repeated

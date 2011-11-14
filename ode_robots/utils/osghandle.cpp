@@ -127,6 +127,15 @@ namespace lpzrobots {
     return copy;    
   }
 
+  Color OsgHandle::getColor(const std::string& name) const {
+    if(cfg && cfg->cs)
+      return cfg->cs->color(name,color_set);    
+    else {
+      return Color();
+    }
+  }
+
+
   OsgHandle OsgHandle::changeColorDef(const std::string& name, const Color& defcolor) const{
     OsgHandle copy(*this);
     if(cfg && cfg->cs){      
@@ -138,6 +147,10 @@ namespace lpzrobots {
   }
 
   ColorSchema* OsgHandle::colorSchema(){
+    return cfg->cs;
+  }
+
+  const ColorSchema* OsgHandle::colorSchema() const {
     return cfg->cs;
   }
 

@@ -65,13 +65,13 @@ namespace lpzrobots
     /** creates the base scene graph with world, sky and floor and shadow and HUD
         and stores it in scene
      */
-    virtual void makeScene(OsgScene* scene);
-    virtual osg::Node* makeSky();
-    virtual osg::Node* makeGround();
-    virtual osg::Node* createHUD();
+    virtual void makeScene(OsgScene* scene, const OsgConfig& config);
+    virtual osg::Node* makeSky(const OsgConfig& config);
+    virtual osg::Node* makeGround(const OsgConfig& config);
+    virtual osg::Node* createHUD(const OsgConfig& config);
     virtual void createHUDManager(osg::Geode* geode, osgText::Font* font);
     /// adds light to the node
-    virtual void makeLights(osg::Group* node);
+    virtual void makeLights(osg::Group* node, const OsgConfig& config);
 
     /** Shadow types:
      * 1 - ShadowVolume

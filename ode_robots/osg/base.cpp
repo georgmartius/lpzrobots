@@ -101,7 +101,7 @@ namespace lpzrobots {
   "}\n";
 
      Base::Base(const std::string& caption)
-       : Configurable("lpzrobots-ode_robots", "0.4"), ground(0), caption(caption), groundTexture("Images/greenground.rgb"),
+       : Configurable("lpzrobots-ode_robots", "0.7"), ground(0), caption(caption), groundTexture("Images/whiteground.jpg"),
          dummy(0), hud(0), timestats(0), captionline(0), statisticLine(0), 
          plane(0), hUDStatisticsManager(0), ReceivesShadowTraversalMask(0x1),
          CastsShadowTraversalMask(0x2), shadowTexSize(2048), useNVidia(1)
@@ -272,7 +272,7 @@ namespace lpzrobots {
   return shadowedScene;
 }
 
-  osg::Node* Base::createHUD()
+  osg::Node* Base::createHUD(const OsgConfig& config)
   {
     osg::Geode* geode = new osg::Geode();
 
@@ -282,7 +282,7 @@ namespace lpzrobots {
     osgText::Font* font = osgText::readFontFile("fonts/fudd.ttf");
 
     osg::Vec3 position(500.0f,9.0f,0.0f);
-    Color textColor(0.2,0.2,0.0);
+    Color textColor = config.cs->color("text");
     int fontsize=12;
 
     {
@@ -331,7 +331,9 @@ namespace lpzrobots {
       geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
 
       osg::Vec4Array* colors = new osg::Vec4Array;
-      colors->push_back(osg::Vec4(1.0f,1.0,0.8f,0.5f));
+      Color hudcolor=config.cs->color("hud");
+      hudcolor.alpha() = 0.5f;
+      colors->push_back(hudcolor);
       geom->setColorArray(colors);
       geom->setColorBinding(osg::Geometry::BIND_OVERALL);
 
@@ -403,7 +405,7 @@ namespace lpzrobots {
     }
   }
 
-  void Base::makeScene(OsgScene* scene){
+  void Base::makeScene(OsgScene* scene, const OsgConfig& config){
     scene->root = new Group; // master node containing scene but also hud and other stuff
     scene->world = new Group;// actual world with sky, ground, scene and so on.
     scene->world_noshadow = new Group;// like world but without shadow
@@ -437,11 +439,11 @@ namespace lpzrobots {
     scene->world_noshadow->addChild(clearNodeNS);    
     
   
-    osg::Node* sky = makeSky();
+    osg::Node* sky = makeSky(config);
     scene->worldtransform->addChild(sky); // bin number -2 so drawn first.
     transformNS->addChild(sky);          // bin number -2 so drawn first.
 
-    scene->groundScene = makeGround();
+    scene->groundScene = makeGround(config);
     // add it  to the noshadow world 
     // for the shadow we have to distinguish between different modes
     transformNS->addChild(scene->groundScene);     
@@ -450,8 +452,8 @@ namespace lpzrobots {
     // scene->lightSource = makeLights(scene->world->getOrCreateStateSet());
     // scene->worldtransform->addChild(scene->lightSource);    
     // transformNS->addChild(makeLights(transformNS->getOrCreateStateSet()));    
-    makeLights(scene->worldtransform);
-    makeLights(transformNS);
+    makeLights(scene->worldtransform, config);
+    makeLights(transformNS, config);
     
     
     int shadowType=(int)osgHandle.cfg->shadowType;
@@ -486,24 +488,14 @@ namespace lpzrobots {
     dummy->addChild(scene->world_noshadow);
 
 
-    hud = createHUD();
+    hud = createHUD(config);
     if(hud) scene->root->addChild(hud);    
   }
 
-  Node* Base::makeSky() {
+  Node* Base::makeSky(const OsgConfig& config) {
     // taken from osghangglider example
     int i, j;
     float lev[] = {-5.0, -1.0, 2.0, 12.0, 30.0, 60.0, 90.0  };
-    float cc[][4] =
-      {
-        { 0.5, 0.5, 0.65 }, // horizon
-        { 0.5, 0.5, 0.65 },
-        { 0.4, 0.4, 0.7 },
-        { 0.2, 0.2, 0.6 },
-        { 0.1, 0.1, 0.6 },
-        { 0.1, 0.1, 0.6 },
-        { 0.1, 0.1, 0.6 }, // zenit
-      };
     float x, y, z;
     float alpha, theta;
     float radius = 1000.0f;
@@ -516,6 +508,16 @@ namespace lpzrobots {
     Vec2Array& tcoords = *(new Vec2Array(19*nlev));
 
 
+    Color cc[] =
+      { config.cs->color("sky1"),// horizon
+        config.cs->color("sky2"),
+        config.cs->color("sky3"),
+        config.cs->color("sky4"),
+        config.cs->color("sky5"),
+        config.cs->color("sky6"),
+        config.cs->color("sky7"), // zenit
+      };
+    
     int ci = 0;
 
     for( i = 0; i < nlev; i++ )
@@ -533,10 +535,7 @@ namespace lpzrobots {
             coords[ci][1] = y;
             coords[ci][2] = z;
 
-            colors[ci][0] = cc[i][0];
-            colors[ci][1] = cc[i][1];
-            colors[ci][2] = cc[i][2];
-            colors[ci][3] = 1.0;
+            colors[ci] = cc[i];
 
             tcoords[ci][0] = (float)j/18.0;
             tcoords[ci][1] = (float)i/(float)(nlev-1);
@@ -609,14 +608,14 @@ namespace lpzrobots {
   }
 
 
-  Node* Base::makeGround(){ // the old ground, is NOT used for shadowing!
+  Node* Base::makeGround(const OsgConfig& config){ // the old ground, is NOT used for shadowing except for shadow mode 3!
     float ir = 1000.0f;
     float texscale =0.2;
     Vec3Array *coords = new Vec3Array(4);
     Vec2Array *tcoords = new Vec2Array(4);
     Vec4Array *colors = new Vec4Array(1);
 
-    (*colors)[0].set(1.0f,1.0f,1.0f,1.0f);
+    (*colors)[0]=config.cs->color("ground");
 
     (*coords)[0].set(-ir,-ir,0.0f);
     (*coords)[1].set( ir,-ir,0.0f);
@@ -695,7 +694,7 @@ namespace lpzrobots {
   }
 
 
-  void Base::makeLights(osg::Group* node)
+  void Base::makeLights(osg::Group* node, const OsgConfig& config)
   {
 
     // create a default light that is used independently of the shadow. Only ambient and specular

@@ -41,8 +41,9 @@ namespace lpzrobots {
       groundSubstance(odeHandle.substance) {
     groundPlane=0;
     setTexture(0,0,TextureDescr("Images/wall.jpg",-1.5,-3)); // was: wall.rgb 
-    groundTextureFileName="Images/greenground.rgb";
-    groundColor=Color(1.0f,1.0f,1.0f);
+    groundTextureFileName="Images/whiteground.jpg";
+    groundColor=osgHandle.colorSchema()->color("arenaground");
+    setColor(osgHandle.colorSchema()->color("wall"));
   };
   
   AbstractGround::~AbstractGround(){
