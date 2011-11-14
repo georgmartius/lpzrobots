@@ -1,0 +1,39 @@
+sky1            MilchblauLSHV
+sky2            MilchblauLSHV
+sky3            MilchblauLS
+sky4            Milchblau
+sky5            MilchblauHSLV
+sky6            MilchblauHSLV
+sky7            MilchblauHSLV
+ground          Olivgruen
+text            lpztext
+hud             lpzhud
+arenaground     Bastgelb
+#wall            lpzwall
+wall            Golden_Nugget
+# robot1 is the salient color
+# Robot Set 1
+robot1          Blaucyan        0
+robot2          Sommergelb      0
+robot3          Capriblau       0
+# robot4 is a pale color
+robot4          Vanille         0
+joint           Cyan-Vollschwarz 0
+# Robot Set 2
+robot1          Mandarin        1
+robot2          Neutralgruen    1
+robot3          Lackschwarz     1
+robot4          Bleigrau        1
+joint           Inforot         1
+# Robot Set 3
+robot1          Lindengruen     2
+robot2          Schmutzigblau   2
+robot3          Mandarin        2
+robot4          Weissgrau       2
+joint           Schieferviolett 2
+# Robot Set 4
+robot1          Columbine_Pink  3
+robot2          Pinkorange      3
+robot3          Renaissancegruen 3
+robot4          Rauchgrau       3
+joint           Koenigspurpur   3
