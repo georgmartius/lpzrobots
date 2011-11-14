@@ -90,6 +90,11 @@ public:
   double lastRobotCreation;
   bool useMultilayer;
 
+  ThisSim(){
+    addPaletteFile("colors/UrbanExtraColors.gpl");
+    addColorAliasFile("colors/UrbanColorSchema.txt");
+  }
+
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
@@ -263,17 +268,7 @@ public:
     // conf.ankleJointLimit = 0.001; //!
     // conf.pelvisPower     = 20;
      
-    conf.powerfactor  = .15;    // .95;//.65;//5;
-    switch (num){
-    case 0:
-      conf.trunkColor = Color(0.1, 0.3, 0.8);  break;      
-    case 1:
-      conf.trunkColor = Color(0.75, 0.1, 0.1); break;      
-    case 2:
-      conf.trunkColor = Color(0.1, 0.75, .1); break;      
-    default:
-      conf.trunkColor = Color(0.5, 0.1, 0.5);  break; 
-    }
+    conf.powerfactor  = .15;    // .95;//.65;//5;    
     
     conf.useBackJoint     = true;
     conf.jointLimitFactor = 1.4;
@@ -281,10 +276,12 @@ public:
     // conf.irSensors = true;    
     
     OdeHandle skelHandle=odeHandle;
+    OsgHandle skelOsgHandle=osgHandle.changeColorSet(num);
+
     // skelHandle.substance.toMetal(1);
     // skelHandle.substance.toPlastic(.5);//TEST sonst 40
     // skelHandle.substance.toRubber(5.00);//TEST sonst 40
-    Skeleton* human = new Skeleton(skelHandle, osgHandle, conf, name);           
+    Skeleton* human = new Skeleton(skelHandle, skelOsgHandle, conf, name);
     // // additional sensor
     // std::list<Sensor*> sensors;
     // // sensors.push_back(new AxisOrientationSensor(AxisOrientationSensor::OnlyZAxis));

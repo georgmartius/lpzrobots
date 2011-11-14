@@ -83,10 +83,9 @@ public:
     case Normal:
       {
         playground = new Playground(odeHandle, osgHandle,osg::Vec3(widthground, 0.208, heightground)); 
-        playground->setColor(Color(1.,1.,1.)); 
         //     playground->setTexture("Images/really_white.rgb");
-        playground->setGroundTexture("Images/yellow_velour.rgb");
-        //playground->setGroundColor(Color(1.,1.,1.,1.));
+        //        playground->setGroundTexture("Images/yellow_velour.rgb");
+        playground->setTexture(0,0,TextureDescr("Images/wall_bw.jpg",-1.5,-3)); // was: wall.rgb 
         playground->setPosition(osg::Vec3(0,0,.03));
         // CHECK:
         /* Substance substance; */
@@ -95,7 +94,7 @@ public:
         global.obstacles.push_back(playground);
 
         Seesaw* seesaw = new Seesaw(odeHandle, osgHandle);
-        seesaw->setColor(Color(203./255.,144./255.,18./255.)); 
+        seesaw->setColor("wall"); 
         seesaw->setPose(ROTM(M_PI/2.0,0,0,1)*TRANSM(1,-0,.0));
         global.obstacles.push_back(seesaw);
         break;
