@@ -223,6 +223,8 @@ namespace lpzrobots {
 
     osgDB::FilePathList l = osgDB::getDataFilePathList();
     l.push_back("data");
+    
+    l.push_back("../../osg/data");
     const char* oderobotsdata = getenv("ODEROBOTSDATA");
     if(oderobotsdata){
       l.push_back(oderobotsdata);
@@ -230,7 +232,6 @@ namespace lpzrobots {
 #ifdef PREFIX
     l.push_back(PREFIX+string("/share/lpzrobots/data"));// installation path
 #endif
-    l.push_back("../../osg/data");
     osgDB::setDataFilePathList(l);
        
     osgHandle.init();
@@ -366,14 +367,21 @@ namespace lpzrobots {
       keyswitchManipulator = new osgGA::KeySwitchMatrixManipulator;
 
       // setup the camera manipulators (make sure it is in agreement with the CameraMode enum)
-      keyswitchManipulator->addMatrixManipulator( '1', "Static", 
-          new CameraManipulator(osgHandle.scene->scene, globalData, cameraHandle) );
-      keyswitchManipulator->addMatrixManipulator( '2', "Follow", 
-          new CameraManipulatorFollow(osgHandle.scene->scene, globalData, cameraHandle) );
-      keyswitchManipulator->addMatrixManipulator( '3', "TV", 
-          new CameraManipulatorTV(osgHandle.scene->scene, globalData, cameraHandle) );
-      keyswitchManipulator->addMatrixManipulator( '4', "Race", 
-          new CameraManipulatorRace(osgHandle.scene->scene, globalData, cameraHandle) );
+      CameraManipulator* cm[] = {
+        new CameraManipulator(osgHandle.scene->scene, globalData, cameraHandle),
+        new CameraManipulatorFollow(osgHandle.scene->scene, globalData, cameraHandle),
+        new CameraManipulatorTV(osgHandle.scene->scene, globalData, cameraHandle),
+        new CameraManipulatorRace(osgHandle.scene->scene, globalData, cameraHandle)
+      };
+        
+      keyswitchManipulator->addMatrixManipulator( '1', "Static", cm[0]);
+      keyswitchManipulator->addMatrixManipulator( '2', "Follow", cm[1]);
+      keyswitchManipulator->addMatrixManipulator( '3', "TV",     cm[2]);
+      keyswitchManipulator->addMatrixManipulator( '4', "Race",   cm[3]);          
+      for(int i=0; i< 4; i++){
+        globalData.agents.addCallbackable(cm[i], OdeAgentList::BACKCALLER_VECTOR_MODIFIED);
+      }
+      
 
       // select TV mode as default.
       keyswitchManipulator->selectMatrixManipulator(TV);

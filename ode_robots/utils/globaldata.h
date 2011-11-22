@@ -31,6 +31,7 @@
 #include "tmpdisplayitem.h"
 #include <selforg/plotoption.h>
 #include <selforg/globaldatabase.h>
+#include <selforg/backcallervector.h>
 
 class Configurable;
 
@@ -43,7 +44,7 @@ namespace lpzrobots {
 
   typedef std::vector<AbstractObstacle*> ObstacleList;
   typedef Configurable::configurableList ConfigList;
-  typedef std::vector<OdeAgent*> OdeAgentList;
+  typedef BackCallerVector<OdeAgent*> OdeAgentList;
   typedef std::list<Sound> SoundList;
   typedef std::list<PlotOption> PlotOptionList;
   typedef std::list<std::pair<OSGPrimitive*, double> > TmpObjectsList;

@@ -173,6 +173,81 @@ odeHandle.removeIgnoredSpace(spaceID);
 */
 
 /**
+\page ode_robots_colors Colors and Color Alias Sets
+
+Since 0.7 we support color palettes and schemas in ode_robots. 
+
+\par The basic idea is simple: 
+We have a list of colors (loaded from gimp palette files)
+ that carry a name. We have alias names for these colors to allow some abstraction.
+Aliases may point to different colors depending on the alias-set.
+See \ref lpzrobots::ColorSchema for the implementation and \ref lpzrobots::OsgHandle for the access.
+
+\par Example:
+Assume we have colors: Red, Green, Blue. An alias may be called groundcolor pointing to Green. So far so good. 
+Now we can define for each alias a color for different color sets.
+Let's say we define alias robot1 that points to Red in set 0 and to Blue in set 1.
+
+In the implementation of a robot we simply use the color robot1, but we can
+ change the default color set (in the \ref lpzrobots::OsgHandle) 
+ such that the robot magically becomes blue.
+
+\par Files:
+For an example palette file check:
+ode_robots/osg/data/colors/DefaultColors.gpl
+
+The default color-set file is located at:
+ode_robots/osg/data/colors/DefaultColorsSchema.txt
+
+The format is
+\verbatim
+# comment
+AliasName  ColorName [Set]
+...
+\endverbatim
+where ColorName cannot refer to another alias and Set is optional (0 by default)
+
+BTW: By providing your own alias files you can tune the colors of your simulation without recompiling it. The files are searched relative to the folders: data/, PREFIX/share/lpzrobots/data, and if the variable ODE_ROBOTS_DATA exists, then also there.
+
+There is a big palette file called RGB_full.gpl that contains the colors
+ from a book called "Farbwelten" from www.CleverPrinting.de. 
+It is great resource for colors but it is unfortunatelly in German, 
+ so most of the color names are in german too. 
+
+\par Handling:
+If a alias is accessed and there is no color found for the current alias-set then the 
+ color refered to in the set 0 is used. If this also does not exist then the default color is used.
+
+
+If you want to change the colors in your simulation you can load a different color-alias-set. See for instance UrbanColorSchema.txt, UrbanExtraColors.gpl in the colors folder.
+You need to register them with your simulation in the constructor with 
+    \ref lpzrobots::Simulation::addPaletteFile and \ref lpzrobots::Simulation::addColorAliasFile. An example is given in ode_robots/simulations/zoo/main.cpp.
+You may load them later as well, but the colors used for the environment will not be affected this way.
+
+
+*/
+
+
+/**
+\page ode_robots_operators Robot Operators/Manipulators
+
+\par Introduction
+In robot simulations there is sometimes the necessity to watch the robots and help them, 
+ when they got stuck. 
+For example a legged robot may have fallen over, and you wish to automatically flip it back over again.
+So in a way we need a simulated human operator. 
+ 
+\par Implementation
+The base class/interface is defined by \ref lpzrobots::Operator where you also find the
+ inherited Operators (\ref lpzrobots::LimitOrientationOperator and \ref lpzrobots::LiftUpOperator)
+An Operator is registed to an \ref lpzrobots::OdeAgent and is called every simulation step.
+ In case it takes actions it is also visualized by a yellow sphere.
+
+\ref ode_robots/simulations/hexapod/main
+*/
+
+
+/**
 \example template_sphererobot/main.cpp  
  Simple example for a simulation of one spherical robot (ode_robots/examples/template_sphererobot/main.cpp). 
 */

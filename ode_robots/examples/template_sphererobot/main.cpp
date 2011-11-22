@@ -112,17 +112,14 @@ public:
     // create pointer to one2onewiring which uses colored-noise 
     One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
 
-    // create pointer to agent (plotoptions is provided by Simulation (generated from cmdline options)
+    // create pointer to agent 
     // initialize pointer with controller, robot and wiring
     // push agent in globel list of agents    
-    OdeAgent* agent = new OdeAgent ( plotoptions );
+    OdeAgent* agent = new OdeAgent ( global );
     agent->init ( controller , sphere1 , wiring );
     // the following line will enable a position tracking of the robot, which is written into a file
     // agent->setTrackOptions(TrackRobot(true, false, false, "Sphere_zaxis", 50)); 
     global.agents.push_back ( agent );
-      
-    // display all parameters of all configurable objects on the console
-    showParams(global.configs);
   }
 
   /** is called if a key was pressed. 

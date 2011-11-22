@@ -36,6 +36,7 @@
 #endif
 #include "globaldata.h"
 #include <selforg/position.h>
+#include <selforg/callbackable.h>
 #include "camerahandle.h"
 
 namespace lpzrobots {
@@ -51,7 +52,7 @@ namespace lpzrobots {
 
      It also enables to manipulate agents with forces
   */
-  class CameraManipulator : public OSGCameraManipulator
+  class CameraManipulator : public OSGCameraManipulator, public Callbackable
     {
     public:
 
@@ -125,6 +126,10 @@ namespace lpzrobots {
 
       /// returns watched agent
       virtual OdeAgent* getWatchedAgent();
+
+      /// called if agents list changed
+      virtual void doOnCallBack(BackCaller* source, BackCaller::CallbackableType type 
+                                = BackCaller::DEFAULT_CALLBACKABLE_TYPE);
 
     protected:
 

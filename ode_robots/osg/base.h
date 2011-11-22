@@ -55,7 +55,7 @@ namespace lpzrobots
   class Base : public Configurable
   {
   public:
-    Base(const std::string& caption="lpzrobots Simulator          Martius, Der, Guettler");
+    Base(const std::string& caption="LpzRobots Simulator (Martius et al)");
 
     static const int PHYSICS_CALLBACKABLE = 1; //!< called each ode/physics step
     static const int GRAPHICS_CALLBACKABLE = 2; //!< called each osg/draw step
@@ -86,7 +86,11 @@ namespace lpzrobots
       this->groundTexture = filename;
     }
 
+    /// sets the cpation that is printed at the right of the status line
     virtual void setCaption(const std::string& caption);
+
+    /// sets the title that is printed in the center of the status line
+    virtual void setTitle(const std::string& title);
 
     /**
      * Create HUDStatisticsManager and register it for being called back every step.
@@ -124,6 +128,7 @@ namespace lpzrobots
     // ODE globals
     OdeHandle odeHandle;
     std::string caption;
+    std::string title;
     std::string groundTexture;
 
     osg::Group* dummy;
@@ -131,7 +136,7 @@ namespace lpzrobots
     osg::Node* hud;
     osgText::Text* timestats;
     osgText::Text* captionline;
-    osgText::Text* statisticLine;
+    osgText::Text* titleline;
 
     Primitive* plane;
 

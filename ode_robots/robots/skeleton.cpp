@@ -400,7 +400,8 @@ GUIDE adding new sensors
     //    AngularMotor* f;
     
     objects.clear();
-    objects.resize(LastPart);
+    objects.resize(LastPart, 0);
+    
 
     // this is taken from DANCE, therefore the body creation is rather static
     // body creation    
@@ -947,11 +948,6 @@ GUIDE adding new sensors
    */
   void Skeleton::destroy(){
     if (created){
-//       odeHandle.removeIgnoredPair(bigboxtransform,headtrans);
-//       odeHandle.removeIgnoredPair(bigboxtransform,neck);
-//       odeHandle.removeIgnoredPair(trunk,headtrans);
-//       odeHandle.removeIgnoredPair(bigboxtransform,tail);
-
 
       FOREACH(vector<TwoAxisServo*>, hipservos, i){
 	if(*i) delete *i;

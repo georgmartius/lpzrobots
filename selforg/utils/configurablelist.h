@@ -31,8 +31,9 @@
 /**
  * Establishes for some methods the notifications for registered Callbackable instances
  * (use addCallbackable(...)).
- * @warning Only three methods are currently supported: push_back(...), pop_back() and clear()!
- * You can use iterators with the limitation that no deletion or insertion process is done with them.
+ * @warning Only the following methods are currently supported: 
+    push_back(...), pop_back(), erase() and clear()!
+ * You can use iterators with the limitation to not delete or insert.
  */
 class ConfigurableList : public std::vector<Configurable*>, public BackCaller {
   public:
@@ -50,6 +51,7 @@ class ConfigurableList : public std::vector<Configurable*>, public BackCaller {
     static const CallbackableType CALLBACK_CONFIGURABLE_LIST_BEING_DELETED = 4;
 
     void push_back(Configurable* const & configurable);
+    iterator erase(iterator pos);
     void pop_back();
     void clear();
 };

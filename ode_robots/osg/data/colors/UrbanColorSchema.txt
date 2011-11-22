@@ -10,9 +10,10 @@ text            lpztext
 hud             lpzhud
 arenaground     Bastgelb
 #wall            lpzwall
-wall            Golden_Nugget
-# robot1 is the salient color
+#wall            Golden_Nugget
+wall            Zartgrau
 # Robot Set 1
+# robot1 is the salient color
 robot1          Blaucyan        0
 robot2          Sommergelb      0
 robot3          Capriblau       0

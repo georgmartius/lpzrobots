@@ -1,20 +1,31 @@
-2010-07-05 martius (0.65)
-	Build system changed. Object files come to separate directory. 
-	M4 Makefile for simulations
-	Angularmotors bug fixed. Axis were global. 
-	New Servos (XAxisVel) that control internally the velocity work great now
+2011-11-11 martius (0.7)
+	Build system: use config scripts like selforg-config etc.
+	Configurator added (some stability issues remain)
+	Operators/Manipulators: observe agent and can turn it over of lift up
+	  see LimitOrientationOperator and LiftUpOperator
+	Colors and ColorSchema: named colors and alias sets
+   	 color palette files (gimp format)
+	 alias files: simple tab seperated file
 	
+
+
+2010-07-05 martius (0.65)
+	Build system changed. Object files come to separate directory.
+	M4 Makefile for simulations
+	Angularmotors bug fixed. Axis were global.
+	New Servos (XAxisVel) that control internally the velocity work great now
+
 
 2010-03-25 martius (0.6)
 	long time no update in the Changelog file. Almost everthing changed ;-)
 	Main points
 	1. Camera Support
 	2. Normal target is with -O1 and there is an additional debug target
-	
-	
+
+
 2008-04-17 martius
 	1. OSG2 port
-	New viewer is used. 
+	New viewer is used.
 	Various shadow algorithms are avaiable
 	2. Multithreading build in using QuickMP
 	Controllers (Agent::step) run in parallel
@@ -22,38 +33,38 @@
 	ODE can also run in a separate thread if wanted, this has some consequences:
 	  - sensors are one timestep delayed
 	OSG can also run in a separate thread if wanted, this has some consequences:
-	  - sometimes the program just stalls right after the start which is due 
-	    to some problems with the Xlib and concurrent access	   
+	  - sometimes the program just stalls right after the start which is due
+	    to some problems with the Xlib and concurrent access
 	3. Random generator with state
-	Agents have there own random generator and 
+	Agents have there own random generator and
 	pass it to controller and wiring
-	4. Configuration file 
-	a config file (~/.lpzrobots/ode_robots.cfg) loads defaults for 
+	4. Configuration file
+	a config file (~/.lpzrobots/ode_robots.cfg) loads defaults for
 	 e.g. shadow, window size, threads and so on.
-	The cfg file is written at the first start, 
+	The cfg file is written at the first start,
 	 and it can be also saved with -savecfg flag
 	5. Support for simple sound signals
 	very simple sound sensor and sound emitting with graphic represenation
 	6. Binary distribution creation script
-	
-	
+
+
 2007-03-26 martius
 	1. new collision treatment
 	Class substance carries information about material of each primitive.
-	The substance for new primitives is taken from odeHandle. 
-	For an example see simulations/tests. 
-	On collision the substances of two colliding primitives are combines to 
-	contact surface parameter. 
-	There is a global list of ignored pairs of geoms. If you create a joint the 
-	two parts are automatically inserted in this list. If you want to specify 
+	The substance for new primitives is taken from odeHandle.
+	For an example see simulations/tests.
+	On collision the substances of two colliding primitives are combines to
+	contact surface parameter.
+	There is a global list of ignored pairs of geoms. If you create a joint the
+	two parts are automatically inserted in this list. If you want to specify
 	additional pairs, which should not collide, then use odeHandle.addIgnoredPair().
-	If you want to ignore an entire space then use odeHandle.addIgnoredSpace(). 
-	In order to stay backwards compatible each robot is asked for the collision 
-	handling as before. If no robots handles the collision the general collision 
-	handling is used. See also simulations/tests. 
-	
+	If you want to ignore an entire space then use odeHandle.addIgnoredSpace().
+	In order to stay backwards compatible each robot is asked for the collision
+	handling as before. If no robots handles the collision the general collision
+	handling is used. See also simulations/tests.
+
 	2.There is a new commandline interface using gnu readline.
-	Features: Commands	
+	Features: Commands
 	param=val      sets PARAM of all objects to VAL.
 	help           Display this text.
 	?              Synonym for `help'.
@@ -65,78 +76,78 @@
 	show           [OBJECTID]: Lists paramters of OBJECTID or of all objects (if no id given).
 	view           Synonym for `show'.
 	quit           Quit program.
-	
+
 	There is also a history and all features you know from you terminal console e.g.:
 	Up / Down  previous and next in history
-	TAB        auto completion 
+	TAB        auto completion
 	Ctrl+r     reverse search in history
-	...	
-	
+	...
+
 	With store and load you can save the controller of any agent
-	
+
 2006-12-12 martius
 	1. agents receive comments about changes in configuration values
 	from simulations.cpp
-	
-	
+
+
 2006-12-11 martius
 	1. controllinterval wie schon angekuendigt ist jetzt die richtige
 	Verhalten bezueglich des controllintervals eingecheckt. D.h. in
 	jedem Simulationsschritt werden die Motorsignale an den Roboter
 	geschickt, aber nur aller "controllinterval" Schritte werden sie
 	Sensoren abgefragt und der Controller benutzt.
-	
+
 	2. derivativewiring
-	2a: Reihenfolge hat sich geaendert: Jetzt: sensoren einer Qualitaet in 
-	Bloecken. Also erst alle Sensorwerte (Id), dann alle ersten Ableitungen 
+	2a: Reihenfolge hat sich geaendert: Jetzt: sensoren einer Qualitaet in
+	Bloecken. Also erst alle Sensorwerte (Id), dann alle ersten Ableitungen
 	(FirstD), dann alle zweiten Ableitungen (SecondD)
-	2b: Rauschen: Nur der erste Block an Sensorwerten wird verrauscht. Also wenn 
-	man Id und FirstD benutzt, dann sind nur Id verrauscht. Wenn man FirstD und 
+	2b: Rauschen: Nur der erste Block an Sensorwerten wird verrauscht. Also wenn
+	man Id und FirstD benutzt, dann sind nur Id verrauscht. Wenn man FirstD und
 	SecondD benutzt, dann ist nur FirstD verrauscht.
-	2c: Defaults: es gibt jetzt zwei Default Funktionen: 
+	2c: Defaults: es gibt jetzt zwei Default Funktionen:
 		getDefautConf(): Id und FirstD, kein Smoothing, kein Scaling
 		getDetaultConf1() Nur FirstD, Smoothing ueber 2 Zeitschritte, Scaling mit 5
 		(die alten Einstellungen: Smoothing ueber 20 Zeitschritte, Scaling mit 10)
 	2d: bei blind motors wird jetzt direkt die Nummer angegeben.
-	
+
 	3. agent hat eigenen noisefactor:
 	beim Konstuktor eines Agents, kann man jetzt einen noisefactor angeben.
-	z.B. OdeAgent* agent  = new OdeAgent(plotoptions, 0.1); 
-	Heisst dann dieser Agent nur ein 10tel des Rauschens benutzt. Das eigentliche 
+	z.B. OdeAgent* agent  = new OdeAgent(plotoptions, 0.1);
+	Heisst dann dieser Agent nur ein 10tel des Rauschens benutzt. Das eigentliche
 	Rauschlevel wird nach wie vor von der globalen noise Variable bestimmt.
-	
+
 	4. colornoise
-	4a: die Varianz des farbigen Rauschens ist jetzt farbunabhaengig. (Haette es 
-	schon die ganze Zeit sein sollen). Also egal welches tau man angibt, die 
+	4a: die Varianz des farbigen Rauschens ist jetzt farbunabhaengig. (Haette es
+	schon die ganze Zeit sein sollen). Also egal welches tau man angibt, die
 	Varianz ist wie beim weissen Rauschen.
-	4b: der default Wert fuer tau (Farbigkeit) ist jetzt bei 0.05, d.h. ueber 20 
-	Schritte. Meist haben wir 0.1 benutzt, aber der default wert war auf 0.5, was 
+	4b: der default Wert fuer tau (Farbigkeit) ist jetzt bei 0.05, d.h. ueber 20
+	Schritte. Meist haben wir 0.1 benutzt, aber der default wert war auf 0.5, was
 	quasi fast weiss ist.
-	
-	5. memory leak tester valgrind 
-	Ich habe die letzten 2 Tage damit verbracht unsere Simulationsumgebung von 
-	Memoryleak und dergleichen zu gefreien. Dazu gibt es ein schoenes Tool namens 
-	"valgrind". Das findet wirklich alles raus. Leider soviel, dass es auch in 
-	den Standard-libs und in OpenGl und osg und uberall was findet. Damit man bei 
-	unserem Komplexen Programm ueberhaupt etwas sieht habe ich ein suppression 
-	file unter ode_robots/ angelegt. Der Aufruf von valgrind ist unter 
-	ode_robots/utils/valgrind.cmd zu finden. Aber es werden immer irgendwelche 
+
+	5. memory leak tester valgrind
+	Ich habe die letzten 2 Tage damit verbracht unsere Simulationsumgebung von
+	Memoryleak und dergleichen zu gefreien. Dazu gibt es ein schoenes Tool namens
+	"valgrind". Das findet wirklich alles raus. Leider soviel, dass es auch in
+	den Standard-libs und in OpenGl und osg und uberall was findet. Damit man bei
+	unserem Komplexen Programm ueberhaupt etwas sieht habe ich ein suppression
+	file unter ode_robots/ angelegt. Der Aufruf von valgrind ist unter
+	ode_robots/utils/valgrind.cmd zu finden. Aber es werden immer irgendwelche
 	Sachen gefunden, die aber nicht durch uns auftreten.
-	Controller kann man am besten testen, in dem man sie in 
-	selforg/examples/directconnect oder selforg/examples/integration einsetzt und 
-	dann dort valgrind startet. Aufruf ist auch in 
+	Controller kann man am besten testen, in dem man sie in
+	selforg/examples/directconnect oder selforg/examples/integration einsetzt und
+	dann dort valgrind startet. Aufruf ist auch in
 	selforg/examples/integration/valgrind.cmd zu finden.
 
-2005-12-12 11:58 martius 
+2005-12-12 11:58 martius
 	to version 0.2
 	* selforg agent and controller and abstract robot are moved to selforg directory
 	and are cleaned of ode related stuff.
 	Implication: - includes from selforg: #include <selforg/header.h>
-	             - robots in ode have to be inherited from OdeRobot instead of AbstractRobot		     
+	             - robots in ode have to be inherited from OdeRobot instead of AbstractRobot
 	* includes are automatically copied (by link) to include directories in ode_robots and selforg.
 	This occurs on make depend.
 	* OpenSceneGraph integration!
 	* OsgHandle is a structure that is needed for create an OpenSceneGraph note.
 	* osg directory contains some osg wrappers for ODE objects and joints
-	
-	
+
+

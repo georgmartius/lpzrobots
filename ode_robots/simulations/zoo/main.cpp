@@ -93,6 +93,7 @@ public:
   ThisSim(){
     addPaletteFile("colors/UrbanExtraColors.gpl");
     addColorAliasFile("colors/UrbanColorSchema.txt");
+    setGroundTexture("Images/whiteground.jpg");
   }
 
   // starting function (executed once at the beginning of the simulation loop)

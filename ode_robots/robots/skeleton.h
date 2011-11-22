@@ -115,13 +115,14 @@ namespace lpzrobots {
   class Skeleton : public OdeRobot, public Inspectable{
   public:
 
-    enum SkelParts {Pole,Pole2, Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp, 
-			     Left_Shoulder, Left_Forearm, Left_Hand,
-			     Right_Shoulder, Right_Forearm, Right_Hand, 
-			     Left_Thigh, Left_Shin, Left_Foot,
-			     Right_Thigh, Right_Shin, Right_Foot,
-			     LastPart };
-
+    enum SkelParts {Hip,Trunk_comp, Belly, Thorax, Neck, 
+                    Head_trans, Head_comp, 
+                    Left_Shoulder, Left_Forearm, Left_Hand,
+                    Right_Shoulder, Right_Forearm, Right_Hand, 
+                    Left_Thigh, Left_Shin, Left_Foot,
+                    Right_Thigh, Right_Shin, Right_Foot,
+                    LastPart };
+    
   
     /**
      * constructor of Skeleton robot
@@ -307,8 +308,6 @@ namespace lpzrobots {
 
     bool created;      // true if robot was created
 
-    std::vector<Primitive*>    objects;  // all the objects
-    std::vector<Joint*>        joints; // joints legs
     std::vector<TwoAxisServo*> hipservos; // motors
     std::vector<OneAxisServo*> kneeservos; // motors
     std::vector<OneAxisServo*> ankleservos; // motors

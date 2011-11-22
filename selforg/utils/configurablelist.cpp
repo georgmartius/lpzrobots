@@ -49,3 +49,10 @@ void ConfigurableList::clear() {
   vector<Configurable*>::clear();
   callBack(CALLBACK_CONFIGURABLE_LIST_MODIFIED);
 }
+
+
+ConfigurableList::iterator ConfigurableList::erase(iterator pos){
+  ConfigurableList::iterator i  = vector<Configurable*>::erase(pos);
+  callBack(CALLBACK_CONFIGURABLE_LIST_MODIFIED);
+  return i;  
+}

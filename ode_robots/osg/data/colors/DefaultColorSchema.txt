@@ -11,7 +11,7 @@ sky4            lpzsky3
 sky5            lpzsky4
 sky6            lpzsky4
 sky7            lpzsky4
-ground          lpzground
+ground          Weiss
 text            lpztext
 hud             lpzhud
 arenaground     lpzarenaground

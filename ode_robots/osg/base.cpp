@@ -101,8 +101,10 @@ namespace lpzrobots {
   "}\n";
 
      Base::Base(const std::string& caption)
-       : Configurable("lpzrobots-ode_robots", "0.7"), ground(0), caption(caption), groundTexture("Images/whiteground.jpg"),
-         dummy(0), hud(0), timestats(0), captionline(0), statisticLine(0), 
+       : Configurable("lpzrobots-ode_robots", "0.7"), ground(0), 
+         caption(caption), title(""),
+         groundTexture("Images/greenground.rgb"),
+         dummy(0), hud(0), timestats(0), captionline(0), titleline(0),
          plane(0), hUDStatisticsManager(0), ReceivesShadowTraversalMask(0x1),
          CastsShadowTraversalMask(0x2), shadowTexSize(2048), useNVidia(1)
      {
@@ -281,10 +283,11 @@ namespace lpzrobots {
     stateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
     osgText::Font* font = osgText::readFontFile("fonts/fudd.ttf");
 
-    osg::Vec3 position(500.0f,9.0f,0.0f);
     Color textColor = config.cs->color("text");
     int fontsize=12;
 
+    // caption (right)
+    osg::Vec3 position(500.0f,9.0f,0.0f);
     {
       captionline = new  osgText::Text;
       geode->addDrawable( captionline );
@@ -296,7 +299,20 @@ namespace lpzrobots {
       captionline->setText(caption.c_str());
     }
 
-    // timing
+    // title (center)
+    position = osg::Vec3(250.0f,9.0f,0.0f);
+    {
+      titleline = new  osgText::Text;
+      geode->addDrawable( titleline );
+      titleline->setCharacterSize(fontsize);
+      titleline->setFont(font);
+      titleline->setPosition(position);
+      titleline->setColor(textColor);
+      titleline->setAlignment(osgText::Text::CENTER_BASE_LINE);
+      titleline->setText(title.c_str());
+    }
+
+    // timing (left)
     position=osg::Vec3(12.0f,9.0f,0.0f);
     {
       timestats = new  osgText::Text;
@@ -402,6 +418,13 @@ namespace lpzrobots {
     this->caption = caption;
     if(captionline){
       captionline->setText(caption);
+    }
+  }
+
+  void Base::setTitle(const std::string& title) {
+    this->title = title;
+    if(titleline){
+      titleline->setText(title);
     }
   }
 

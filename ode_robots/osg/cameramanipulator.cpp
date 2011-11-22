@@ -508,8 +508,11 @@ namespace lpzrobots {
       return false;
     OdeAgentList::iterator itr = find (globalData.agents.begin(),globalData.agents.end(),camHandle.watchingAgent);
     // if watchingAgent is defined but not in list, select the first one in the list
-    if (itr==globalData.agents.end() && !globalData.agents.empty()) {
-      camHandle.watchingAgent = (*globalData.agents.begin());
+    if (itr==globalData.agents.end()) {
+      if (!globalData.agents.empty()) {
+        camHandle.watchingAgent = (*globalData.agents.begin());
+      }else 
+        return false;
     }
     if (!camHandle.watchingAgent)
       return false;
@@ -567,6 +570,17 @@ namespace lpzrobots {
     if (!this->isWatchingAgentDefined()) return 0;
     return camHandle.watchingAgent;
   }
+
+  void CameraManipulator::doOnCallBack(BackCaller* source, 
+                                       BackCaller::CallbackableType type){
+    if (type == OdeAgentList::BACKCALLER_VECTOR_BEING_DELETED){
+      camHandle.watchingAgent = 0;
+      camHandle.watchingAgentDefined = false;
+    }else if (type == OdeAgentList::BACKCALLER_VECTOR_MODIFIED){
+      isWatchingAgentDefined();
+    }   
+  }
+
 
 }
 
