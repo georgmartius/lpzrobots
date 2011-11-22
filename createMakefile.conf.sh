@@ -12,13 +12,16 @@ echo  "unless you know what you are doing. (no tailing slash)";
 echo -n "e.g. (/home/yourlogin) (don' use ~): [$defprefix] ";
 read prefix 
 [ -z "$prefix" ] && prefix=$defprefix  # $(HOME)'
+echo  "Checking PATH variable: "
 if ! echo $PATH | grep "$prefix/bin"; then
     echo "Cannot find "$prefix/bin" in PATH variable!" 
     echo "The installation will not work if you do not add it!" 
-    echo " use export PATH=\$PATH:$prefix/bin in your ~/.bashrc and " 
+    echo " use export PATH=$prefix/bin:\$PATH in your ~/.bashrc and " 
     echo " type: source ~/.bashrc to reload the settings!" 
     cp -f Makefile.conf.bak Makefile.conf
     exit 1;
+else 
+echo  " ... Okay!"
 fi
 
 
@@ -52,10 +55,10 @@ if [ "$choice" = "D" ]; then choice='d'; fi
 
 echo -e "Check your settings:\n Installation to $prefix";
 if [ "$choice" = "u" ]; then 
- echo " (u) user installation with libaries and include files."
+ echo " (u) user installation"
  Type=USER
 else 
- echo " (d) development installation without libaries and include files, only utilities."
+ echo " (d) development installation"
  Type=DEVEL
 fi
 echo -n "All right? [y/N] "
@@ -89,7 +92,7 @@ for Folder in selforg ode_robots configurator; do
 done
 
 
-for Folder in ode_robots/simulations selforg/simulations selforg/examples ga_tools/simulations; do
+for Folder in ode_robots/simulations ode_robots/examples selforg/simulations selforg/examples ga_tools/simulations; do
   echo "call: m4 -D \"$System\" -D \"$Type\" $Folder/Makefile.4sim.m4";
   if m4 -D "$System" -D "$Type" "$Folder/Makefile.4sim.m4" > "$Folder/Makefile.4sim"; then
     for F in `find "$Folder" -mindepth 2 -name Makefile.conf`; do
