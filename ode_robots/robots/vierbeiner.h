@@ -24,7 +24,7 @@
 #ifndef __VIERBEINER_H
 #define __VIERBEINER_H
 
-#include "oderobot.h"
+#include <ode_robots/oderobot.h>
 
 namespace lpzrobots {
 
@@ -39,6 +39,8 @@ namespace lpzrobots {
     int    legNumber;  ///<  number of snake elements
     double mass;       ///< chassis mass
     double relLegmass; ///< relative overall leg mass
+    double powerFactor;   ///< global factor for power parameters
+    double dampingFactor; ///< global factor for damping parameters
     double hipPower; ///< maximal force for at hip joint motors
     double hipDamping; ///< damping of hio joint servos
     double hipJointLimit; ///< angle range for legs
@@ -47,7 +49,10 @@ namespace lpzrobots {
     double kneeDamping; ///< damping in the knees
     double anklePower;  ///< spring strength in the ankles
     double ankleDamping; ///< damping in the ankles
-    bool  drawstupidface;
+    bool   hippo;        ///< "dog" looks like a hippopotamus
+    bool   drawstupidface;
+    bool   useBigBox;   ///< use big box on back or not 
+    bool   legBodyCollisions; ///< legs and body collide
   } VierBeinerConf;
 
 
@@ -74,21 +79,26 @@ namespace lpzrobots {
 
     static VierBeinerConf getDefaultConf(){
       VierBeinerConf c;
-      c.size       = 1;
-      c.legNumber  = 4;
-      c.legLength  = 0.6;
-      c.mass       = 1;
-      c.relLegmass = 1;
-      c.hipPower = 3;
-      c.hipDamping = 0.1;
-      c.kneePower  = 2;
-      c.kneeDamping = 0.05;
-      c.anklePower  = 0.5;
-      c.ankleDamping = 0.02;
-      c.hipJointLimit = M_PI/3; // +- 60 degree
-      c.kneeJointLimit = M_PI/4; // +- 45 degree
+      c.size               = 1;
+      c.legNumber          = 4;
+      c.legLength          = 0.6;
+      c.mass               = 1;
+      c.relLegmass         = 1;
+      c.powerFactor        = 1;
+      c.dampingFactor      = 1;
+      c.hipPower           = 2; //3;
+      c.hipDamping         = 0.1;
+      c.kneePower          = 1; //2;
+      c.kneeDamping        = 0.05;
+      c.anklePower         = 0.1; //5;
+      c.ankleDamping       = 0.02;
+      c.hipJointLimit      = M_PI/3; // +- 60 degree
+      c.kneeJointLimit     = M_PI/4; // +- 45 degree
       //      c.elasticity = 10;
-      c.drawstupidface=1;
+      c.hippo              = false;
+      c.drawstupidface     = 1;
+      c.useBigBox          = true;
+      c.legBodyCollisions  = false;
       return c;
     }
 
@@ -123,12 +133,6 @@ namespace lpzrobots {
     /** returns number of motors
      */
     virtual int getMotorNumber();
-    /** checks for internal collisions and treats them. 
-     *  In case of a treatment return true (collision will be ignored by other objects 
-     *  and the default routine)  else false (collision is passed to other objects and 
-     *  (if not treated) to the default routine).
-     */
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.
@@ -169,6 +173,8 @@ namespace lpzrobots {
     std::vector <OneAxisServo*> kneeservos; // motors
     std::vector <OneAxisServo*> ankleservos; // motors
     std::vector <OneAxisServo*> headtailservos; // motors
+
+    std::list <Primitive*> legparts; // lower leg parts (lower legs and feet) if collisions are ignored
 
   };
 
