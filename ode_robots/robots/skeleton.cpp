@@ -488,13 +488,13 @@ GUIDE adding new sensors
     // b->setMass(5.89, 0, 0, 0, 0.0413, 0.0306, 0.0329, 0, 0, 0);
 //     b->setMass(.1, 0, 0, 0, 0.0413, 0.0306, 0.0329, 0, 0, 0);
 //    b->setMass(0.03*conf.massfactor);
-    objects[Head_comp]=b;
+//    objects[Head_comp]=b;
     
     // Connect Head and Neck
-    Transform* t = new Transform(objects[Neck], objects[Head_comp], 
+    Transform* t = new Transform(objects[Neck], b,  
 				 osg::Matrix::translate(0, 0, -(.05)));
     t->init(odeHandle, 1,osgHandle.changeColor(conf.headColor));
-    objects[Head_trans] = t;
+    objects[Head_comp] = t;
     irSensorBank.init(odeHandle, osgHandle);
     if(conf.irSensors){
       // add Eyes ;-)
@@ -918,7 +918,6 @@ GUIDE adding new sensors
                 
     // register ignored pairs
     odeHandle.addIgnoredPair(objects[Head_comp],objects[Thorax]);
-    odeHandle.addIgnoredPair(objects[Head_trans],objects[Thorax]);
     odeHandle.addIgnoredPair(objects[Trunk_comp],objects[Thorax]);
     odeHandle.addIgnoredPair(objects[Left_Thigh],objects[Trunk_comp]);
     odeHandle.addIgnoredPair(objects[Right_Thigh],objects[Trunk_comp]);

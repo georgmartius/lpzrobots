@@ -61,12 +61,11 @@ namespace lpzrobots {
     const Pos& pos = p->getPosition();
     // printf("test %f \t %f\n", angle, currentforce);
     if(pos.z() < height){
-      // get orthogonal axis
       osg::Vec3 force(0,0,height-pos.z());
       p->applyForce(force*currentforce);
       currentforce=currentforce*1.01;
       rv.type = Move;
-      rv.pos  = p->getPosition() + force*0.5;
+      rv.pos  = p->getPosition() + Pos(0,0,visualHeight);
       return rv;
     }else{
       currentforce=force;

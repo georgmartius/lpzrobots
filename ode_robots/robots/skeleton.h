@@ -116,7 +116,7 @@ namespace lpzrobots {
   public:
 
     enum SkelParts {Hip,Trunk_comp, Belly, Thorax, Neck, 
-                    Head_trans, Head_comp, 
+                    Head_comp, 
                     Left_Shoulder, Left_Forearm, Left_Hand,
                     Right_Shoulder, Right_Forearm, Right_Hand, 
                     Left_Thigh, Left_Shin, Left_Foot,

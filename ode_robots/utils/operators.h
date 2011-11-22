@@ -56,8 +56,10 @@ namespace lpzrobots {
   class LiftUpOperator : public Operator {
   public:
     LiftUpOperator(const Axis& globalAxis, 
-                   double height, double force, double duration, double interval)
-      : globalAxis(globalAxis), height(height), force(force), duration(duration), interval(interval), currentforce(force)
+                   double height, double force, double duration, double interval, 
+                   double visualHeight=0.5)
+      : globalAxis(globalAxis), height(height), force(force), duration(duration), 
+        interval(interval), currentforce(force), visualHeight(visualHeight)
     {
     }
 
@@ -70,6 +72,7 @@ namespace lpzrobots {
     double duration;
     double interval;
     double currentforce;
+    double visualHeight;
   };
 
 }
