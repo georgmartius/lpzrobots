@@ -183,9 +183,9 @@ namespace lpzrobots {
       c.backDamping=0.1;
       c.backVelocity=20;
 
-      c.hipJointLimit = 2.2;
+      c.hipJointLimit = 1.6; // 2.2
       c.hip2JointLimit= 1.4;
-      c.kneeJointLimit = 2.8; // + 300, -20 degree
+      c.kneeJointLimit = 2; // 2.8; // + 300, -20 degree
       c.ankleJointLimit = M_PI/2; // - 90 + 45 degree
 
       c.armJointLimit = M_PI/2; // +- 90 degree
@@ -307,6 +307,8 @@ namespace lpzrobots {
     SkeletonConf conf; 
 
     bool created;      // true if robot was created
+
+    OdeHandle ignoreColSpace; // odehandle with space within collisions are ignored
 
     std::vector<TwoAxisServo*> hipservos; // motors
     std::vector<OneAxisServo*> kneeservos; // motors

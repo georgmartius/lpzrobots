@@ -56,11 +56,11 @@ CPPFLAGS = -Wall -pipe -Wno-deprecated $(INC) $(shell selforg-config $(CFGOPTS) 
 normal: DEV(libode_robots) 
 	$(MAKE) $(EXEC)
 opt:    DEV(libode_robots_opt) 
-	$(MAKE) CFGOPTS=--opt EXEC=$(EXEC)_opt $(EXEC)
+	$(MAKE) CFGOPTS=--opt EXEC=$(EXEC)_opt $(EXEC)_opt
 dbg:    DEV(libode_robots_dbg) 
-	$(MAKE) CFGOPTS=--dbg EXEC=$(EXEC)_dbg $(EXEC)
+	$(MAKE) CFGOPTS=--dbg EXEC=$(EXEC)_dbg $(EXEC)_dbg
 shared:  DEV(libode_robots_shared) 
-	$(MAKE) BASELIBS="$(BASELIBSSHARED)" $(EXEC)
+	$(MAKE) BASELIBS="$(BASELIBSSHARED)" EXEC=$(EXEC)_shared $(EXEC)_shared
 
 $(EXEC): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS) $(LIBSELFORG))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)

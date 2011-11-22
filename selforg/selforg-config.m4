@@ -81,12 +81,12 @@ while test $# -gt 0; do
       STATICEND=-Wl,-Bdynamic
     ;;
     --opt) ##Optimisation
-      LIBBASE=selforg_opt
+      LIBBASE=${LIBBASE}_opt
       CPPFLAGS="$CBASEFLAGS -DNDEBUG"
       INTERNFLAGS="-O3"
       ;;
     --dbg) ## DEBUG      
-      LIBBASE=selforg_dbg
+      LIBBASE=${LIBBASE}_dbg
       CPPFLAGS="$CBASEFLAGS -g"
       INTERNFLAGS="-g"
       ;;
