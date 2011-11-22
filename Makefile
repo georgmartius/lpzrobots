@@ -8,7 +8,7 @@ include Makefile.conf
 
 USAGE   = "Try 'make help' for more..."
 USAGE2  = "lpzrobots Makefile Targets:"
-USAGE3  = "Usually you do:\nmake prepare\nsudo make preinstall\nmake ode\t\t\# if not installed\nsudo make install_ode \t\# if not installed\nmake libs \t\t\# get a cup of tea\nsudo make install\n"
+USAGE3  = "Usually you do: \nmake all\nor step by step:\nmake prepare\nsudo make preinstall\nmake ode\t\t\# if not installed\nsudo make install_ode \t\# if not installed\nmake libs \t\t\# get a cup of tea\nsudo make install\n"
 
 ##!help		show this help text (default)
 help: 
@@ -16,6 +16,23 @@ help:
 	@echo $(USAGE2)
 	@grep -E "^\#\#\!.*" Makefile | sed -e "s/##!/   /"
 	@echo -e  $(USAGE3)
+
+.PHONY: all
+##!all		does everyhing prepare, preinstall, ode, ode_install, libs and install
+##!		 (sudo automatically)
+all:
+	@if [ -w $(PREFIX) ]; then $(MAKE) all_intern; else $(MAKE) SUDO=sudo all_intern; fi
+
+.PHONY: all_intern
+all_intern:
+	$(MAKE) prepare
+	$(SUDO) $(MAKE) preinstall
+	$(MAKE) ode                # if not installed
+	$(SUDO) $(MAKE) install_ode   # if not installed
+	$(MAKE) libs               # get a cup of tea
+	$(SUDO) $(MAKE) install
+
+
 
 .PHONY: prepare
 ##!prepare	build tools and create dependency files (do that first)
