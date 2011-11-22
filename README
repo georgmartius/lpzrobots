@@ -121,7 +121,8 @@ This you have to repeat for each package (e.g. replace guilogger by ode-dbl, lpz
 - Unpack file (<tt>tar -xvzf lpzrobots*.tar</tt>).
 - Change into <tt> lpzrobots </tt> directory
 - Call <tt> make </tt> to get a help display and continue with
-  <tt> make prepare</tt>, which will do the following:
+  <b><tt> make all</tt></b>. This will do everything. You can do each step as follows (read it to know what is going on):
+  -  <tt> make prepare</tt>, does the following:
 	- it creates a configuration makefile (Makefile.conf)  with your interaction 
           (you can reconfigure later with make conf)
 	- it compiles \ref matrixviz (not strictly necessary, only for displaying neuronal network parameters online) 
@@ -131,7 +132,7 @@ This you have to repeat for each package (e.g. replace guilogger by ode-dbl, lpz
  	  because they are optional.  
 	  You can type <tt> make guilogger </tt> and <tt> make matrixviz </tt> to compile them separately.
 	- it creates dependency files and creates links to header files, such that thay are found.
-- The order of makefile targets is
+  - The order of makefile targets is
 \verbatim
 make prepare            # which you just did 
 sudo make preinstall
@@ -140,7 +141,7 @@ sudo make install_ode
 make libs               # get a cup of tea
 sudo make install
 \endverbatim 
-- you do not need the <tt>sudo</tt> if the installation is into your home directory or any place where you have write permission. Note that the <tt>PATH</tt> variable needs to be set. 
+  - you do not need the <tt>sudo</tt> if the installation is into your home directory or any place where you have write permission. (make all will do use it automatically if required). Note that the <tt>PATH</tt> variable needs to contain the PREFIX/bin (as checked by the configuration process).
 
 - Now you are done with the installation and you can try a sample simulation see next section.
 
