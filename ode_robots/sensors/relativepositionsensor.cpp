@@ -49,38 +49,43 @@ namespace lpzrobots {
   }
   
   std::list<sensor> RelativePositionSensor::get() const {
-     assert(ref);    assert(own);
-     std::list<sensor> s;
-     osg::Vec3 v;
-     if (local_coords){
-     	v = own->toLocal(ref->getPosition());
-     }else{
-     	v = ref->getPosition() - own->getPosition();
-     }
-     double scale = pow(v.length() / maxDistance, exponent);
-     v *= (1/maxDistance)*scale;
-     if (dimensions & X) s.push_back(v.x());
-     if (dimensions & Y) s.push_back(v.y());
-     if (dimensions & Z) s.push_back(v.z());
-     return s;
-   }
-
-   int RelativePositionSensor::get(sensor* sensors, int length) const{
-     assert(ref);    assert(own);
-     int i = 0;
-     assert ( length >= getSensorNumber() );
-     osg::Vec3 v;
-     if (local_coords){
-     	v = own->toLocal(ref->getPosition());
-     }else{
-     	v = ref->getPosition() - own->getPosition();
-     }
-     double scale = pow(v.length() / maxDistance, exponent);
-     v *= (1/maxDistance)*scale;
-     if (dimensions & X) sensors[i++] = v.x();
-     if (dimensions & Y) sensors[i++] = v.y();
-     if (dimensions & Z) sensors[i++] = v.z();
-     return i;
-   }
+    assert(ref);    assert(own);
+    std::list<sensor> s;
+    osg::Vec3 v;
+    if (local_coords){
+      v = own->toLocal(ref->getPosition());
+    }else{
+      v = ref->getPosition() - own->getPosition();
+    }
+    double scale = pow(v.length() / maxDistance, exponent);
+    v *= (1/maxDistance)*scale;
+    if (dimensions & X) s.push_back(v.x());
+    if (dimensions & Y) s.push_back(v.y());
+    if (dimensions & Z) s.push_back(v.z());
+    return s;
+  }
+  
+  bool RelativePositionSensor::sense(const GlobalData& globaldata){
+    return true;
+  }
+  
+  
+  int RelativePositionSensor::get(sensor* sensors, int length) const{
+    assert(ref);    assert(own);
+    int i = 0;
+    assert ( length >= getSensorNumber() );
+    osg::Vec3 v;
+    if (local_coords){
+      v = own->toLocal(ref->getPosition());
+    }else{
+      v = ref->getPosition() - own->getPosition();
+    }
+    double scale = pow(v.length() / maxDistance, exponent);
+    v *= (1/maxDistance)*scale;
+    if (dimensions & X) sensors[i++] = v.x();
+    if (dimensions & Y) sensors[i++] = v.y();
+    if (dimensions & Z) sensors[i++] = v.z();
+    return i;
+  }
 
 }
