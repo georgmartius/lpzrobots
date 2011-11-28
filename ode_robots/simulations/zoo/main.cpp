@@ -317,13 +317,17 @@ public:
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     OdeAgent*      agent  = new OdeAgent(global);
     agent->init(controller, human, wiring);
-    // add an operator to keep robot from falling over
+    // add an operator to keep robot up
     LiftUpOperatorConf lc = LiftUpOperator::getDefaultConf();
     lc.height = 1.5;
     lc.force  = 10;
-    lc.intervalMode = true;
-    
+    // lc.intervalMode = true;    
     agent->addOperator(new LiftUpOperator(lc));
+
+    // like a bungee
+    //agent->addOperator(new PullToPointOperator(Pos(0,0,5),50,true, 
+    //                                               PullToPointOperator::Z, 
+    //                                               0, 0.1));
     
     global.agents.push_back(agent);
     global.configs.push_back(agent);

@@ -74,7 +74,6 @@ namespace lpzrobots {
       : Operator("LiftUpOperator","0.8"), conf(conf)
     {
       currentforce = conf.force;
-      startInterval = 0;
       addParameter("force",    &this->conf.force,   0, 100, "lift up force");
       addParameter("height",   &this->conf.height,  0, 100, "lift up height");
       if(conf.intervalMode){
@@ -102,9 +101,40 @@ namespace lpzrobots {
     LiftUpOperatorConf conf;
 
     double currentforce;
-    double startInterval;
-    
   };
+
+
+  /**
+     An Operator for pulling the main primitive of a robot towards a point
+   */
+  class PullToPointOperator : public Operator {
+  public:
+    /// defines which dimensions should be effected
+    enum Dimensions { X = 1, Y = 2, Z = 4, XY = X | Y, XZ = X | Z, YZ = Y | Z, 
+                      XYZ = X | Y | Z };
+
+    PullToPointOperator(const Pos& point, double force,
+                        bool showPoint, Dimensions dim = XYZ, 
+                        double minDist = 0, double damp = 0)
+      : Operator("PullToPointOperator","1.0"), 
+        point(point), force(force), showPoint(showPoint), dim(dim),
+        minDist(minDist), damp(damp)
+    {
+      addParameter("force",    &this->force,   0, 100, "pull to point force");
+      addParameter("damp",     &this->damp,   0, 1,   "pull to point damping");
+    }
+
+    virtual ManipType observe(OdeAgent* agent, GlobalData& global, ManipDescr& descr);
+
+  protected:
+    Pos point;    
+    double force;
+    bool showPoint;
+    Dimensions dim;
+    double minDist;
+    double damp;
+  };
+
 
 }
 

@@ -98,4 +98,36 @@ namespace lpzrobots {
   }
 
 
+  Operator::ManipType PullToPointOperator::observe(OdeAgent* agent, GlobalData& global, 
+                                                   ManipDescr& descr){
+    OdeRobot* r = agent->getRobot();
+    Primitive* p  = r->getMainPrimitive();
+    ManipType rv;
+    rv=None;
+    if(!p) return rv;
+    const Pos& pos = p->getPosition();
+    Pos vec = point - pos;
+    if( (dim & X) == 0) vec.x()=0;
+    if( (dim & Y) == 0) vec.y()=0;
+    if( (dim & Z) == 0) vec.z()=0;
+    if(vec.length() > minDist){
+      p->applyForce(vec*force);
+      if(damp>0){
+        Pos vel(p->getVel());
+        if( (dim & X) == 0) vel.x()=0;
+        if( (dim & Y) == 0) vel.y()=0;
+        if( (dim & Z) == 0) vel.z()=0;
+        p->applyForce(vel*(-damp)*force);
+      }
+
+
+
+      descr.pos  = pos + vec;
+      descr.show = showPoint;
+      return Move;
+    }
+    return rv;
+  }
+
+
 }
