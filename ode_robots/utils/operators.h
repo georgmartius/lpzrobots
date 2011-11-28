@@ -35,7 +35,8 @@ namespace lpzrobots {
   public:
     LimitOrientationOperator(const Axis& robotAxis, const Axis& globalAxis, 
                              double maxAngle, double force)
-      : robotAxis(robotAxis), globalAxis(globalAxis), 
+      : Operator("LimitOrientationOperator","1.0"), 
+        robotAxis(robotAxis), globalAxis(globalAxis), 
         maxAngle(maxAngle), force(force), currentforce(force) {
     }
 
@@ -50,29 +51,59 @@ namespace lpzrobots {
   };
 
 
+  struct LiftUpOperatorConf {
+    bool   resetForceIfLifted;  ///< force is reseted as soon as robot has reached height
+    bool   increaseForce;       ///< increase force (until robot has reached height)
+    bool   propControl;         ///< if true then applied force is scaled with distance
+
+    bool   intervalMode;        ///< if true then the operator works only in intervals 
+    double duration;            ///< duration of operation in interval-mode
+    double interval;            ///< interval between restart of operation ( > duration)
+                               
+    double height;              ///< height to which it is lifted
+    double force;               ///< initial force
+    double visualHeight;        ///< height above the robot main object for the visual sphere
+  };
+
   /**
      An Operator for lifting up a robot from time to time.
    */
   class LiftUpOperator : public Operator {
   public:
-    LiftUpOperator(const Axis& globalAxis, 
-                   double height, double force, double duration, double interval, 
-                   double visualHeight=0.5)
-      : globalAxis(globalAxis), height(height), force(force), duration(duration), 
-        interval(interval), currentforce(force), visualHeight(visualHeight)
+    LiftUpOperator(const LiftUpOperatorConf conf = getDefaultConf())
+      : Operator("LiftUpOperator","0.8"), conf(conf)
     {
+      currentforce = conf.force;
+      startInterval = 0;
+      addParameter("force",    &this->conf.force,   0, 100, "lift up force");
+      addParameter("height",   &this->conf.height,  0, 100, "lift up height");
+      if(conf.intervalMode){
+        addParameter("interval", &this->conf.interval,  0, 1000, "interval of operation");
+        addParameter("duration", &this->conf.duration,  0, 1000, "duration of lifting within interval");
+      }
+    }
+
+    static LiftUpOperatorConf getDefaultConf(){
+      LiftUpOperatorConf c;
+      c.resetForceIfLifted = true;
+      c.increaseForce      = true; 
+      c.intervalMode       = false; 
+      c.propControl        = true; 
+      c.duration           = 1; 
+      c.interval           = 10;      
+      c.height             = 1; 
+      c.force              = 1; 
+      c.visualHeight       = 0.5; 
+      return c;
     }
 
     virtual ManipType observe(OdeAgent* agent, GlobalData& global, ManipDescr& descr);
   protected:
-    Axis globalAxis;
-    double height;
+    LiftUpOperatorConf conf;
 
-    double force;
-    double duration;
-    double interval;
     double currentforce;
-    double visualHeight;
+    double startInterval;
+    
   };
 
 }

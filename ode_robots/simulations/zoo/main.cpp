@@ -318,7 +318,13 @@ public:
     OdeAgent*      agent  = new OdeAgent(global);
     agent->init(controller, human, wiring);
     // add an operator to keep robot from falling over
-    agent->addOperator(new LiftUpOperator(Axis(0,0,1), 1.5, 10, 100, 100));
+    LiftUpOperatorConf lc = LiftUpOperator::getDefaultConf();
+    lc.height = 1.5;
+    lc.force  = 10;
+    lc.intervalMode = true;
+    
+    agent->addOperator(new LiftUpOperator(lc));
+    
     global.agents.push_back(agent);
     global.configs.push_back(agent);
     return agent;

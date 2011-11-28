@@ -61,17 +61,38 @@ namespace lpzrobots {
     ManipType rv;
     rv = None;
     if(!p) return rv;
+    if(conf.intervalMode){      
+      /// time in units of interval
+      double intTime = global.time/conf.interval;
+      // ration of the duration w.r.t interval;
+      double durRatio = conf.duration / conf.interval; 
+      double timeInInt = intTime - int(intTime); // from 0-1
+      if(timeInInt > durRatio){ // do nothing
+        currentforce = conf.force;
+        return rv;
+      }
+    }
+
     const Pos& pos = p->getPosition();
     // printf("test %f \t %f\n", angle, currentforce);
-    if(pos.z() < height){
-      osg::Vec3 force(0,0,height-pos.z());
-      p->applyForce(force*currentforce);
-      currentforce=currentforce*1.01;
-      descr.pos  = p->getPosition() + Pos(0,0,visualHeight);
+    if(pos.z() < conf.height){     
+      double f = 1;
+      if(conf.propControl)
+        f = conf.height-pos.z();
+      p->applyForce(osg::Vec3(0,0,f)*currentforce);
+      if(conf.increaseForce){
+        currentforce=currentforce*1.01;
+      }
+      descr.pos  = p->getPosition() + Pos(0,0,conf.visualHeight);
       descr.show = true;
       return Move;
     }else{
-      currentforce=force;
+      if(conf.increaseForce){
+        currentforce=currentforce*0.99;
+      }
+      if(conf.resetForceIfLifted){
+        currentforce=conf.force;
+      }
     }
     return rv;
   }

@@ -34,12 +34,12 @@ namespace lpzrobots {
      An Operator observes an agent (robot) and manipulates it if necessary.
      For instance if the robot is falled over the operator can flip it back.
      This is an abstract base class and subclasses should overload at least
-     observe()
+     observe().
    */
 
   class OdeAgent;
 
-  class Operator {
+  class Operator : public Configurable {
   public:
     /** type of manipulation of the robot (for display) and or operation
         RemoveOperator means that the operator should be removed
@@ -56,7 +56,9 @@ namespace lpzrobots {
 
     };
     
-    Operator(){      
+    Operator( const std::string& name, const std::string& revision)
+      : Configurable(name, revision)
+    {      
     }
 
     virtual ~Operator(){      

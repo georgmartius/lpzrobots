@@ -133,9 +133,9 @@ namespace lpzrobots {
 
     /****** OPERATORS *********/
     /// adds an operator to the agent (the operator is deleted on destruction of the agent!)
-    virtual void addOperator(Operator* o);
+    virtual void addOperator(Operator* o, bool addToConfigurable = true );
     
-    /** removes the given operator: it is _not_ deleted
+    /** removes the given operator: it is _not_ deleted (memory wise)
         @return true on success
      */
     virtual bool removeOperator(Operator* o);  

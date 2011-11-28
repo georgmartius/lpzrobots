@@ -232,19 +232,26 @@ namespace lpzrobots {
 
 
   
-  void OdeAgent::addOperator(Operator* o){
-    if(o)
+  void OdeAgent::addOperator(Operator* o, bool addToConfigurable){
+    if(o){
       operators.push_back(o);
+      if(addToConfigurable){
+        addConfigurable(o);
+      }
+    }
+    
   }
 
   bool OdeAgent::removeOperator(Operator* o){
     unsigned int size = operators.size();
     operators.remove(o);
+    removeConfigurable(o); 
     return operators.size() < size;
   }
   
   void OdeAgent::removeOperators(){
     FOREACHC(OperatorList, operators, i){
+      removeConfigurable(*i); 
       delete (*i);
     }
     operators.clear();
