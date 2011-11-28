@@ -274,7 +274,7 @@ namespace lpzrobots {
   return shadowedScene;
 }
 
-  osg::Node* Base::createHUD(const OsgConfig& config)
+  osg::Node* Base::createHUD(OsgScene* scene, const OsgConfig& config)
   {
     osg::Geode* geode = new osg::Geode();
 
@@ -289,7 +289,7 @@ namespace lpzrobots {
     // caption (right)
     osg::Vec3 position(500.0f,9.0f,0.0f);
     {
-      captionline = new  osgText::Text;
+      captionline = new osgText::Text;
       geode->addDrawable( captionline );
       captionline->setCharacterSize(fontsize);
       captionline->setFont(font);
@@ -382,6 +382,7 @@ namespace lpzrobots {
     camera->setRenderOrder(osg::CameraNode::POST_RENDER);
 
     camera->addChild(geode);
+    scene->hud = geode;
 
     return camera;
   }
@@ -511,7 +512,7 @@ namespace lpzrobots {
     dummy->addChild(scene->world_noshadow);
 
 
-    hud = createHUD(config);
+    hud = createHUD(scene, config);
     if(hud) scene->root->addChild(hud);    
   }
 

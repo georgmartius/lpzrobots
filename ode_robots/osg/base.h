@@ -68,7 +68,9 @@ namespace lpzrobots
     virtual void makeScene(OsgScene* scene, const OsgConfig& config);
     virtual osg::Node* makeSky(const OsgConfig& config);
     virtual osg::Node* makeGround(const OsgConfig& config);
-    virtual osg::Node* createHUD(const OsgConfig& config);
+    /** creates hud and is supposed to return the camera to it and 
+        adds the geode of the hud to the scene */
+    virtual osg::Node* createHUD(OsgScene* scene, const OsgConfig& config);
     virtual void createHUDManager(osg::Geode* geode, osgText::Font* font);
     /// adds light to the node
     virtual void makeLights(osg::Group* node, const OsgConfig& config);

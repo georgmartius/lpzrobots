@@ -26,6 +26,9 @@
 
 #include "globaldata.h"
 
+#include <osg/Matrix>
+
+
 namespace lpzrobots {
   /**
      An Operator observes an agent (robot) and manipulates it if necessary.
@@ -42,9 +45,15 @@ namespace lpzrobots {
         RemoveOperator means that the operator should be removed
      */
     enum ManipType {None, Limit, Move, RemoveOperator};
-    struct ManipAction {
-      ManipType type;
+    /// description of action (for visualization)
+    struct ManipDescr {
+      ManipDescr() : show(false), size(0.05,0.05,0.05){        
+      }
+      bool show; 
       Pos pos;
+      osg::Matrix orientation;
+      Pos size;
+
     };
     
     Operator(){      
@@ -56,7 +65,7 @@ namespace lpzrobots {
     /** called every simulation step
         @return what was done with the robot
      */
-    virtual ManipAction observe(OdeAgent* agent, GlobalData& global) = 0;
+    virtual ManipType observe(OdeAgent* agent, GlobalData& global, ManipDescr& descr) = 0;
 
   };
 

@@ -27,11 +27,13 @@
 
 namespace lpzrobots {
   
-  Operator::ManipAction LimitOrientationOperator::observe(OdeAgent* agent, GlobalData& global){
+  Operator::ManipType LimitOrientationOperator::observe(OdeAgent* agent, 
+                                                        GlobalData& global, 
+                                                        ManipDescr& descr){
     OdeRobot* r = agent->getRobot();
     Primitive* p  = r->getMainPrimitive();
-    ManipAction rv;
-    rv.type=None;
+    ManipType rv;
+    rv=None;
     if(!p) return rv;
     const Axis& rpose = p->toGlobal(robotAxis);
     double angle = rpose.enclosingAngle(globalAxis);
@@ -43,20 +45,21 @@ namespace lpzrobots {
       torque.normalize();
       p->applyTorque(torque*currentforce*(angle-maxAngle));
       currentforce=currentforce*1.01;
-      rv.type = Move;
-      rv.pos  = p->getPosition() + rpose.vec3()*0.5;
-      return rv;
+      descr.pos  = p->getPosition() + rpose.vec3()*0.5;
+      descr.show = true;
+      return Move;
     }else{
       currentforce=force;
     }
     return rv;
   }
 
-  Operator::ManipAction LiftUpOperator::observe(OdeAgent* agent, GlobalData& global){
+  Operator::ManipType LiftUpOperator::observe(OdeAgent* agent, GlobalData& global,
+                                              ManipDescr& descr){
     OdeRobot* r = agent->getRobot();
     Primitive* p  = r->getMainPrimitive();
-    ManipAction rv;
-    rv.type=None;
+    ManipType rv;
+    rv = None;
     if(!p) return rv;
     const Pos& pos = p->getPosition();
     // printf("test %f \t %f\n", angle, currentforce);
@@ -64,9 +67,9 @@ namespace lpzrobots {
       osg::Vec3 force(0,0,height-pos.z());
       p->applyForce(force*currentforce);
       currentforce=currentforce*1.01;
-      rv.type = Move;
-      rv.pos  = p->getPosition() + Pos(0,0,visualHeight);
-      return rv;
+      descr.pos  = p->getPosition() + Pos(0,0,visualHeight);
+      descr.show = true;
+      return Move;
     }else{
       currentforce=force;
     }

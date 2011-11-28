@@ -112,22 +112,27 @@ namespace lpzrobots {
   void OdeAgent::beforeStep(GlobalData& global){
     OdeRobot* r = getRobot();
     r->sense(global);
-    // use other return values!
-    Operator::ManipAction m;
+    Operator::ManipDescr d;
+    Operator::ManipType m;    
     FOREACH(OperatorList, operators, i){
-      m=(*i)->observe(this, global);
-      switch(m.type){
+      m=(*i)->observe(this, global, d);
+      switch(m){
       case Operator::RemoveOperator:        
         delete *i;
         i=operators.erase(i);
         if(i!=operators.end()) i--;
         break;
       case Operator::Move:
+        if(d.show){
+          global.addTmpDisplayItem(TmpDisplayItem(new OSGSphere(d.size.x()), d.pos, 
+                                                  Color(1,1,0)),0.5);
+        }
+        break;
       case Operator::Limit:
-        
-        global.addTmpDisplayItem(TmpDisplayItem(new OSGSphere(0.05), m.pos, 
-                                                Color(1,1,0)),0.5);
-        
+        if(d.show){
+          global.addTmpDisplayItem(TmpDisplayItem(new OSGSphere(d.size.x()), d.pos, 
+                                                  Color(1,1,0)),0.5);
+        }        
         break;
       default: break;
       }

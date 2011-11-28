@@ -162,9 +162,7 @@ ifneq ($(TYPE),DEVEL)
 endif
 	install -d $(PREFIX)/share/lpzrobots $(PREFIX)/share/lpzrobots/ode_robots
 	cp -R osg/data $(PREFIX)/share/lpzrobots/
-ifeq ($(TYPE),DEVEL)
-	-find $(PREFIX)/share/lpzrobots/ -type d -name "CVS" | xargs rm -r
-else
+ifneq ($(TYPE),DEVEL)
 	@echo "*************** Install example simulations ******************"
 	cp -RL simulations $(PREFIX)/share/lpzrobots/ode_robots/
 	chmod -R ugo+r $(PREFIX)/share/lpzrobots

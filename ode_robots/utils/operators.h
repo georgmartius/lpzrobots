@@ -39,7 +39,7 @@ namespace lpzrobots {
         maxAngle(maxAngle), force(force), currentforce(force) {
     }
 
-    virtual ManipAction observe(OdeAgent* agent, GlobalData& global);
+    virtual ManipType observe(OdeAgent* agent, GlobalData& global, ManipDescr& descr);
   protected:
     Axis robotAxis;
     Axis globalAxis;
@@ -63,7 +63,7 @@ namespace lpzrobots {
     {
     }
 
-    virtual ManipAction observe(OdeAgent* agent, GlobalData& global);
+    virtual ManipType observe(OdeAgent* agent, GlobalData& global, ManipDescr& descr);
   protected:
     Axis globalAxis;
     double height;

@@ -8,3 +8,8 @@ a.out
 doxygen.warn
 .settings
 log.settings
+*.a
+*.o
+*.so
+*.lo
+*.la

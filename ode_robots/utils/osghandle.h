@@ -63,6 +63,8 @@ namespace lpzrobots {
     osg::Group* shadowedSceneRoot; // root node of shadowed scene 
     osg::Node* groundScene;
 
+    osg::Geode* hud;  
+
     osg::LightSource* lightSource;  // the light source
     osg::Transform* worldtransform; // unit transformation at the moment
 

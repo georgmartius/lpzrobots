@@ -142,6 +142,7 @@ namespace lpzrobots {
     // this is only the default implementation. For Non-ShapeDrawables this most prob. be overloaded
     if(textures.size() > 0){
       osg::Group* grp = getGroup();
+      if(!grp) return;
       osg::Texture2D* texture = new osg::Texture2D;
       texture->setDataVariance(osg::Object::DYNAMIC); // protect from being optimized away as static state.
       texture->setImage(osgDB::readImageFile(textures[0].filename));
@@ -646,5 +647,48 @@ namespace lpzrobots {
 
   }
 
+  /******************************************************************************/
+  OSGText::OSGText(const std::string& text, int fontsize, 
+                   osgText::Text::AlignmentType align) {
+    osgText = new osgText::Text;    
+    osgText->setCharacterSize(fontsize);
+    osgText::Font* font = osgText::readFontFile("fonts/fudd.ttf");
+    osgText->setFont(font);
+    osgText->setAlignment(align);
+    osgText->setText(text.c_str());    
+  }
+
+  OSGText::~OSGText(){
+    if(osgHandle.scene && osgHandle.scene->hud && osgText){
+      osgHandle.scene->hud->removeDrawable( osgText );
+    }
+  }
+  
+  void OSGText::init(const OsgHandle& osgHandle, Quality quality){
+    if( !osgHandle.scene->hud ) return;
+    osgHandle.scene->hud->addDrawable( osgText );
+    setColor(osgHandle.color);
+    this->osgHandle=osgHandle;
+  }
+  
+  void OSGText::setMatrix( const osg::Matrix& m4x4 ) {
+    osg::Vec3 p = osg::Vec3(0,0,0)*m4x4;
+    p.z()=0;
+    osgText->setPosition(p); 
+  }
+  
+  Group* OSGText::getGroup() { 
+    return 0;
+  }
+
+
+  void OSGText::setColor(const Color& color) {
+    printf("setting color\n");
+    osgText->setColor(color);
+  }
+  
+  Transform* OSGText::getTransform() {
+    return 0;
+  }
 
 }

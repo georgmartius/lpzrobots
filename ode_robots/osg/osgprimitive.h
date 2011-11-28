@@ -31,6 +31,7 @@
 #include "osgforwarddecl.h"
 #include "osghandle.h"
 #include <osgDB/ReadFile>
+#include <osgText/Text>
 
 namespace lpzrobots {
 
@@ -256,6 +257,27 @@ namespace lpzrobots {
     virtual void internInit(const OsgHandle& osgHandle, bool loadAndDisplayMesh, Quality quality = Middle);
         
   };
+
+  /**
+     Text to be displayed on the hud
+  */
+  class OSGText : public OSGPrimitive {
+  public:
+    OSGText(const std::string& text, int fontsize = 12, 
+            osgText::Text::AlignmentType align = osgText::Text::LEFT_BASE_LINE);
+
+    virtual ~OSGText(); 
+
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
+    virtual void setMatrix( const osg::Matrix& m4x4 );
+    virtual osg::Group* getGroup();
+    virtual void setColor(const Color& color);
+    /// returns a osg transformation object;
+    virtual osg::Transform* getTransform();  
+  private:
+    osgText::Text* osgText;
+  };
+
 
 }
 
