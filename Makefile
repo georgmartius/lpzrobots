@@ -179,7 +179,7 @@ confsubmodules:
 	@if [ `uname -a | sed 's/\(\w*\).*/\1/'` = "Linux" ]; then \
 		System="LINUX"; else System="MAC"; fi; \
 	for Folder in selforg ode_robots configurator; do \
-	    CMD="$$Folder/configure --prefix=\"$(PREFIX)\" --system=\"$$System\" --type=\"$(TYPE)\""; \
+	    CMD="$$Folder/configure --prefix=\"$(PREFIX)\" --system=$$System --type=$(TYPE)"; \
 	    echo "call $$CMD"; \
 	    if ! $$CMD; then  exit 1; fi \
 	done
@@ -188,7 +188,7 @@ confsubmodules:
 	@if [ `uname -a | sed 's/\(\w*\).*/\1/'` = "Linux" ]; then \
 		System="LINUX"; else System="MAC"; fi; \
 	for Folder in ode_robots/simulations ode_robots/examples selforg/simulations selforg/examples ga_tools/simulations; do \
-	    CMD="m4 -D \"$$System\" -D \"$(TYPE)\" $$Folder/Makefile.4sim.m4"; \
+	    CMD="m4 -D $$System -D $(TYPE) $$Folder/Makefile.4sim.m4"; \
 	    echo "call: $$CMD"; \
 	    if $$CMD > "$$Folder/Makefile.4sim"; then \
 		for F in `find "$$Folder" -mindepth 2 -name Makefile.conf`; do \
