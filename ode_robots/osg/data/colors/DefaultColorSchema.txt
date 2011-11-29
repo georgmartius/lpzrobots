@@ -16,6 +16,8 @@ text            lpztext
 hud             lpzhud
 arenaground     lpzarenaground
 wall            lpzwall
+manipmove       Safrangelb
+maniplimit      Magenta
 # robot1 is the salient color
 robot1          lpzblue         0
 robot1          Zinnoberrot     1

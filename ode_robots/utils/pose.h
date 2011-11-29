@@ -21,54 +21,19 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
+#ifndef __POSE_H
+#define __POSE_H
 
-#include "tmpdisplayitem.h"
-#include "osgprimitive.h"
+#include <osg/Matrix>
 
-namespace lpzrobots {
+// rotation and translation matrixes (to make the code shorter)
+#define ROTM osg::Matrix::rotate
+#define TRANSM osg::Matrix::translate
+
+namespace lpzrobots{
+
+  typedef osg::Matrix Pose;
   
-  TmpDisplayItem::TmpDisplayItem(OSGPrimitive* p, const Pose& pose,
-                                 const Color& color)
-    : item(p), time(0), pose(pose), color(color), initialized(false) 
-  {
-    useColorName=false;
-    if(!item) 
-      item = new OSGSphere(0.1);
-  }
-
-  TmpDisplayItem::TmpDisplayItem(OSGPrimitive* p, const Pose& pose,
-                                 const std::string& colorname, float alpha)
-    : item(p), time(0), pose(pose), colorname(colorname), alpha(alpha),
-      initialized(false) 
-  {
-    useColorName=true;
-    if(!item) 
-      item = new OSGSphere(0.1);
-  }
-    
-  void TmpDisplayItem::init(const OsgHandle& osgHandle){
-    if(useColorName){
-      Color mcolor = osgHandle.getColor(colorname);
-      mcolor.alpha() = alpha;
-      item->init(osgHandle.changeColor(mcolor));
-    }else{
-      item->init(osgHandle.changeColor(color));
-    }
-    item->setMatrix(pose);      
-    initialized=true;
-  }
-
-  void TmpDisplayItem::setExpireTime(double time){
-    this->time= time;
-  }
-  
-  bool TmpDisplayItem::expired(double time) const {
-    return this->time < time;
-  }
-          
-  void TmpDisplayItem::deleteItem(){
-    if(item) delete item;
-    item=0;
-  }
 }
 
+#endif

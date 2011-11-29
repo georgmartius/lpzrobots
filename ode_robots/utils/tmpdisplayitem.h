@@ -25,7 +25,7 @@
 #define __TMPDISPLAYITEM_H
 
 #include "osghandle.h"
-#include "pos.h"
+#include "pose.h"
 
 namespace lpzrobots {
 
@@ -40,7 +40,11 @@ namespace lpzrobots {
         The lifetime is set when adding it to globalData
      */
 
-    TmpDisplayItem(OSGPrimitive* p, const Pos& pos, const Color& color);
+    TmpDisplayItem(OSGPrimitive* p, const Pose& pose, const Color& color);
+
+    /// provided for convenience to supply color as name and alpha independently
+    TmpDisplayItem(OSGPrimitive* p, const Pose& pose, 
+                   const std::string& colorname, float alpha = 1.0);
     
     void init(const OsgHandle& osgHandle);
 
@@ -52,9 +56,13 @@ namespace lpzrobots {
   private:
     OSGPrimitive* item;  
     double time;
-    Pos pos;  
+    Pose pose;  
     Color color;
+    std::string colorname;
+    bool useColorName;
+    float alpha;
     bool initialized;
+
   };
 
 }

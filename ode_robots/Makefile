@@ -97,6 +97,11 @@ ${BUILD_DIR}/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) -c $(CPPFLAGS) $(CFLAGS) -o "$@" "$<"
 
+${BUILD_DIR}/%.gch: %.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) -c $(CPPFLAGS) $(CFLAGS) -o "$@" "$<"
+
+
 
 utils/splitvideo: utils/splitvideo.c
 	$(CXX) -o utils/splitvideo utils/splitvideo.c

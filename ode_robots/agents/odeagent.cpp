@@ -124,14 +124,15 @@ namespace lpzrobots {
         break;
       case Operator::Move:
         if(d.show){
-          global.addTmpDisplayItem(TmpDisplayItem(new OSGSphere(d.size.x()), d.pos, 
-                                                  Color(1,1,0)),0.5);
+          global.addTmpDisplayItem(TmpDisplayItem(new OSGSphere(d.size.x()), 
+                                                  TRANSM(d.pos), "manipmove"),0.5);
         }
         break;
       case Operator::Limit:
         if(d.show){
-          global.addTmpDisplayItem(TmpDisplayItem(new OSGSphere(d.size.x()), d.pos, 
-                                                  Color(1,1,0)),0.5);
+          global.addTmpDisplayItem(TmpDisplayItem(new OSGCylinder(d.size.x(),d.size.z()), 
+                                                  d.orientation * TRANSM(d.pos), 
+                                                  "maniplimit", 0.2),0.5);
         }        
         break;
       default: break;

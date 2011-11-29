@@ -25,20 +25,16 @@
 #ifndef __PRIMITIVE_H
 #define __PRIMITIVE_H
 
-#include <osg/Matrix>
 #include <ode-dbl/common.h>
 #include <selforg/storeable.h>
 
 #include <vector>
 
 #include "pos.h"
+#include "pose.h"
 #include "substance.h"
 // another forward declaration "block"
 #include "osgforwarddecl.h"
-
-// rotation and translation matrixes (to make the code shorter)
-#define ROTM osg::Matrix::rotate
-#define TRANSM osg::Matrix::translate
 
 namespace lpzrobots {
 
@@ -64,13 +60,13 @@ namespace lpzrobots {
 
 
 /// returns the osg (4x4) pose matrix of the ode geom
-osg::Matrix osgPose( dGeomID geom );
+Pose osgPose( dGeomID geom );
 /// returns the osg (4x4) pose matrix of the ode body
-osg::Matrix osgPose( dBodyID body );
+Pose osgPose( dBodyID body );
 /// converts a position vector and a rotation matrix from ode to osg 4x4 matrix
-osg::Matrix osgPose( const double * position , const double * rotation );
+Pose osgPose( const double * position , const double * rotation );
 /// converts the rotation component of pose into an ode rotation matrix
-void odeRotation( const osg::Matrix& pose , dMatrix3& odematrix);
+void odeRotation( const Pose& pose , dMatrix3& odematrix);
 
 /** counts number of max velocity violations at joints 
  * (Attention, this is a global variable, initialized to 0 at start)   
@@ -138,11 +134,11 @@ public:
   /// set the position of the primitive (orientation is preserved)
   virtual void setPosition(const Pos& pos);
   /// set the pose of the primitive
-  virtual void setPose(const osg::Matrix& pose);
+  virtual void setPose(const Pose& pose);
   /// returns the position
   virtual Pos getPosition() const;
   /// returns the pose
-  virtual osg::Matrix getPose() const;
+  virtual Pose getPose() const;
   /// returns the velocity
   virtual Pos getVel() const;  
   /// returns the angular velocity
@@ -382,14 +378,14 @@ public:
    */
   virtual void setBoundingShape(BoundingShape* boundingShape);
 
-  virtual void setPose(const osg::Matrix& pose);
+  virtual void setPose(const Pose& pose);
 
 protected:
   OSGMesh* osgmesh;
   const std::string filename;
   float scale;
   BoundingShape* boundshape;
-  osg::Matrix poseWithoutBodyAndGeom;
+  Pose poseWithoutBodyAndGeom;
 
 };
 
@@ -406,7 +402,7 @@ public:
       @param child  is transformed by pose in respect to parent. 
       This Primitive must NOT have a body and should not be initialised
   */
-  Transform(Primitive* parent, Primitive* child, const osg::Matrix& pose);
+  Transform(Primitive* parent, Primitive* child, const Pose& pose);
 
   /// destructor deletes child object
   ~Transform();
@@ -427,7 +423,7 @@ public:
 protected:
   Primitive* parent;
   Primitive* child;
-  osg::Matrix pose;
+  Pose pose;
 };
 
 /**

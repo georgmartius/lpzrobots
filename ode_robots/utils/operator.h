@@ -26,7 +26,7 @@
 
 #include "globaldata.h"
 
-#include <osg/Matrix>
+#include "pose.h"
 
 
 namespace lpzrobots {
@@ -51,7 +51,7 @@ namespace lpzrobots {
       }
       bool show; 
       Pos pos;
-      osg::Matrix orientation;
+      Pose orientation;
       Pos size;
 
     };

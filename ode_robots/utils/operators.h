@@ -135,6 +135,40 @@ namespace lpzrobots {
     double damp;
   };
 
+  /**
+     An Operator for keeping robots within a sphere / box
+   */
+  class BoxRingOperator : public Operator {
+  public:
+
+    /** a box ring (cube with edges 2*size or sphere with radius size)
+        @param offset distance to wall before acting (to compensate for body width)
+        @sphere spherical or box shape area
+     */
+
+    BoxRingOperator(const Pos& center, double size, double offset, 
+                    double force, bool sphere = false)
+      : Operator("BoxRingOperator","1.0"), 
+        center(center), size(size), offset(offset), force(force), sphere(sphere)
+    {
+      addParameter("force",    &this->force,   0, 1000, 
+                   "force of the boxring to keep robots inside");
+      addParameter("boxringsize", &this->size,   .5, 100, 
+                   "size of boxring/spherical arena (in radius or half-length)");
+    }
+
+    virtual ManipType observe(OdeAgent* agent, GlobalData& global, ManipDescr& descr);
+
+  protected:
+
+    Pos center;    
+    double size;
+    double offset;
+    double force;
+    bool sphere;
+  };
+
+
 
 }
 
