@@ -25,10 +25,11 @@
 #define __GLOBALDATA_H
 
 #include <vector>
+#include <map>
 #include "odehandle.h"
 #include "odeconfig.h"
 #include "sound.h"
-#include "tmpdisplayitem.h"
+#include "tmpobject.h"
 #include <selforg/plotoption.h>
 #include <selforg/globaldatabase.h>
 #include <selforg/backcallervector.h>
@@ -47,8 +48,8 @@ namespace lpzrobots {
   typedef BackCallerVector<OdeAgent*> OdeAgentList;
   typedef std::list<Sound> SoundList;
   typedef std::list<PlotOption> PlotOptionList;
-  typedef std::list<std::pair<OSGPrimitive*, double> > TmpObjectsList;
-  typedef std::list<TmpDisplayItem> TmpDisplayItemList;
+  typedef std::multimap<double, TmpObject* > TmpObjectMap;
+  typedef std::list< std::pair<double, TmpObject*> > TmpObjectList;
 
   /**
    Data structure holding all essential global information.
@@ -75,21 +76,23 @@ namespace lpzrobots {
       double time;
       long int sim_step; ///< time steps since start
     
+      /// returns the list of all agents
+      virtual AgentList& getAgents();
+    
       
       /// adds a temporary display item with given life duration in sec
-      virtual void addTmpDisplayItem(TmpDisplayItem i, double duration);
-      virtual void initializeTmpDisplayItems(const OsgHandle& osgHandle);
+      virtual void addTmpObject(TmpObject* i, double duration);
+      virtual void initializeTmpObjects(const OdeHandle& odeHandle, 
+                                        const OsgHandle& osgHandle);
 
-      /// removes all expired sounds and temporary display items
-      virtual void removeExpiredItems();
-
-      virtual AgentList& getAgents();
+      /// removes all expired sounds and temporary objects
+      virtual void removeExpiredObjects();
 
     private:
 
-      TmpDisplayItemList uninitializedTmpDisplayItems;
-      TmpDisplayItemList tmpDisplayItems;
-      AgentList baseAgents;
+      TmpObjectList uninitializedTmpObjects;
+      TmpObjectMap  tmpObjects;
+      AgentList     baseAgents;
   };
 
 }

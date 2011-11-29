@@ -145,7 +145,8 @@ bool Configurable::setParam(const paramkey& key, paramval val, bool traverseChil
   if (traverseChildren) {
     FOREACHC(configurableList, ListOfConfigurableChildren, conf) {
       //      if ((*conf)->hasParam(key)) // not needed
-      valueSet |= ((*conf)->setParam(key, val));
+      bool vs = ((*conf)->setParam(key, val));
+      valueSet |= vs;
     }
   }
   return valueSet;

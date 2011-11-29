@@ -162,5 +162,11 @@ namespace lpzrobots {
     robot->doInternalStuff(globalData);
   }
 
+  void AddSensors2RobotAdapter::notifyOnChange(const paramkey& key){
+    if(initialized && robot)
+      robot->notifyOnChange(key);
+  }
+
+
 }
 

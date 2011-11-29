@@ -82,8 +82,8 @@ namespace lpzrobots {
     double backVelocity; ///< velocity of back joint servo
     double backJointLimit; ///< angle range of back joint
 
-    double powerfactor; ///< scale factor for maximal forces of the servos
-    double dampingfactor; ///< scale factor for damping of the servos
+    double powerFactor; ///< scale factor for maximal forces of the servos
+    double dampingFactor; ///< scale factor for damping of the servos
     
     double jointLimitFactor; ///< factor between servo range (XXXJointLimit, see above) and physical joint limit
 
@@ -137,81 +137,81 @@ namespace lpzrobots {
 
     static SkeletonConf getDefaultConf(){
       SkeletonConf c;
-      c.size       = 1;
-      c.massfactor = 1;
-      c.relLegmass = 1;   // unused
-      c.relFeetmass = 1;// .1; unused
-      c.relArmmass = 1;// 0.3; unused
+      c.size        = 1;
+      c.massfactor  = 1;
+      c.relLegmass  = 1;        // unused
+      c.relFeetmass = 1;        // .1; unused
+      c.relArmmass  = 1;        // 0.3; unused
 
       c.useVelocityServos = false;
-      c.powerfactor=1.0;
-      c.dampingfactor=1.0;
-      c.jointLimitFactor=1.0;
+      c.powerFactor       = 1.0;
+      c.dampingFactor     = 1.0;
+      c.jointLimitFactor  = 1.0;
 
-      c.hipPower=100;
-      c.hipDamping= 0.2;
-      c.hipVelocity=20;
+      c.hipPower    = 20; 
+      c.hipDamping  = 0.2;
+      c.hipVelocity = 20;
 
-      c.hip2Power=100;
-      c.hip2Damping=0.2;
+      c.hip2Power   = 20;
+      c.hip2Damping = 0.2;
 
-      c.neckPower=20;
-      c.neckDamping=0.1;
-      c.neckVelocity=20;
+      c.neckPower    = 2;
+      c.neckDamping  = 0.1;
+      c.neckVelocity = 20;
 
-      c.kneePower=60;
-      c.kneeDamping=0.1;
-      c.kneeVelocity=20;
+      c.kneePower    = 10;
+      c.kneeDamping  = 0.1;
+      c.kneeVelocity = 20;
 
-      c.anklePower=30;
-      c.ankleDamping=0.1;
-      c.ankleVelocity=20;
+      c.anklePower    = 3;
+      c.ankleDamping  = 0.1;
+      c.ankleVelocity = 20;
 
-      c.armPower=40;
-      c.armDamping=0.1;
-      c.armVelocity=20;
+      c.armPower    = 8;
+      c.armDamping  = 0.1;
+      c.armVelocity = 20;
 
-      c.elbowPower=30;
-      c.elbowDamping=0.1;
-      c.elbowVelocity=20;
+      c.elbowPower    = 4;
+      c.elbowDamping  = 0.1;
+      c.elbowVelocity = 20;
 
-      c.pelvisPower=200;
-      c.pelvisDamping=0.2;
-      c.pelvisVelocity=20;
+      c.pelvisPower    = 20;
+      c.pelvisDamping  = 0.2;
+      c.pelvisVelocity = 20;
 
-      c.backPower=200;
-      c.backDamping=0.1;
-      c.backVelocity=20;
+      c.backPower    = 20;
+      c.backDamping  = 0.1;
+      c.backVelocity = 20;
 
-      c.hipJointLimit = 1.6; // 2.2
-      c.hip2JointLimit= 1.4;
-      c.kneeJointLimit = 2; // 2.8; // + 300, -20 degree
+      c.hipJointLimit  = 2.1;   //1.6;
+      c.hip2JointLimit = .8;    //
+
+      c.kneeJointLimit  = 2;    // 2.8; // + 300, -20 degree
       c.ankleJointLimit = M_PI/2; // - 90 + 45 degree
 
-      c.armJointLimit = M_PI/2; // +- 90 degree
-      c.elbowJointLimit = 2.4;
+      c.armJointLimit   = M_PI/2; // +- 90 degree
+      c.elbowJointLimit = 1.4;
 
-      c.hip2JointLimit = M_PI/30; // +- 6 degree
       c.pelvisJointLimit = M_PI/10; // +- 18 degree
 
       c.neckJointLimit = M_PI/5;
       c.backJointLimit = M_PI/3;//4// // +- 60 degree (half of it to the back)
 
-      c.onlyPrimaryFunctions=false;
-      c.handsRotating = false;
-      c.movableHead   = false;
-      c.useBackJoint  = true;
-      c.irSensors  = false;
+      c.onlyPrimaryFunctions = false;
+      c.handsRotating        = false;
+      c.movableHead          = false;
+      c.useBackJoint         = true;
+      c.irSensors            = false;
 
-      //      c.headTexture="Images/really_white.rgb";
-      c.headTexture="Images/dusty.rgb";
-      c.headColor="robot4";  
-      //  c.bodyTexture="Images/whitemetal_farbig_small.rgb";
-      c.bodyTexture="Images/dusty.rgb";
-      c.bodyColor="robot2";
-      c.trunkTexture="Images/dusty.rgb";//"Images/whitemetal_farbig_small.rgb";
-      c.trunkColor="robot1";
-      c.handColor="robot3";
+      //      c.headTexture = "Images/really_white.rgb";
+      c.headTexture     = "Images/dusty.rgb";
+      c.headColor       = "robot4";  
+      //  c.bodyTexture = "Images/whitemetal_farbig_small.rgb";
+      c.bodyTexture     = "Images/dusty.rgb";
+      c.bodyColor       = "robot2";
+      c.trunkTexture    = "Images/dusty.rgb"; //"Images/whitemetal_farbig_small.rgb";
+      c.trunkColor      = "robot1";
+      c.handColor       = "robot3";
       return c;
     }
 
@@ -219,17 +219,18 @@ namespace lpzrobots {
       SkeletonConf c = getDefaultConf();
 
       c.useVelocityServos = true;
-      c.dampingfactor=0.1; // softness 
+
+      c.hipDamping    = 0.01;
+      c.hip2Damping   = 0.01;
+      c.neckDamping   = 0.01;
+      c.kneeDamping   = 0.01;
+      c.ankleDamping  = 0.01;
+      c.armDamping    = 0.01;
+      c.elbowDamping  = 0.01;
+      c.pelvisDamping = 0.01;
+      c.backDamping   = 0.01;
+
       
-/*       c.hipDamping= 0.01; */
-/*       c.hip2Damping=0.01; */
-/*       c.neckDamping=0.01; */
-/*       c.kneeDamping=0.01; */
-/*       c.ankleDamping=0.01; */
-/*       c.armDamping=0.01; */
-/*       c.elbowDamping=0.01; */
-/*       c.pelvisDamping=0.01; */
-/*       c.backDamping=0.01; */
       return c;
     }
 
@@ -283,9 +284,6 @@ namespace lpzrobots {
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[Thorax]; } // Trunk_comp
-
-    /** all parts of the robot */
-    virtual std::vector<Primitive*>& getPrimitives() { return objects; }
 
     /** returns the position of the head */
     virtual Position getHeadPosition();

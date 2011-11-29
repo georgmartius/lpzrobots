@@ -39,7 +39,8 @@ namespace lpzrobots {
 
   /** Data structure containing some configuration variables for OSG */
   struct OsgConfig {
-    OsgConfig() : normalState(0), transparentState(0), noGraphics(false) {}
+    OsgConfig() : normalState(0), transparentState(0), 
+                  shadowType(0), noGraphics(false) {}
     osg::TessellationHints* tesselhints[3];  
     osg::StateSet* normalState;  
     osg::StateSet* transparentState;  

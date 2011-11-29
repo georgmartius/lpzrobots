@@ -12,6 +12,9 @@ arenaground     Bastgelb
 #wall            lpzwall
 #wall            Golden_Nugget
 wall            Zartgrau
+# colors for manipulation by operators
+manipmove       Narzissengelb
+maniplimit      Koenigspurpur
 # Robot Set 1
 # robot1 is the salient color
 robot1          Blaucyan        0

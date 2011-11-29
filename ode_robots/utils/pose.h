@@ -21,40 +21,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
-#ifndef __GRIPPER_H
-#define __GRIPPER_H
+#ifndef __POSE_H
+#define __POSE_H
 
-#include "substance.h"
-#include <selforg/stl_map.h>
-#include <vector>
+#include <osg/Matrix>
 
-namespace lpzrobots {
-  
-  class FixedJoint;
-  class Primitive;
+// rotation and translation matrixes (to make the code shorter)
+#define ROTM osg::Matrix::rotate
+#define TRANSM osg::Matrix::translate
 
-  class Gripper : public Substance {
-  public:
-    Gripper(Primitive* own);
-    
-    void addGrippables(const std::vector<Primitive*>& ps);
-    void removeGrippables(const std::vector<Primitive*>& ps);
-    void removeAllGrippables();
+namespace lpzrobots{
 
-    static int onCollision(dSurfaceParameters& params, GlobalData& globaldata, 
-			   void *userdata, 
-			   dContact* contacts, int numContacts,
-			   dGeomID o1, dGeomID o2, 
-			   const Substance& s1, const Substance& s2);
-
-  private:
-    Primitive* own;
-    double gripTime;
-    bool incOrExc; /// include (false) or exclude (true) grippables;
-    HashMap<dGeomID, Primitive*> grippables;
-    double gripStartTime;
-    FixedJoint* joint;
-  };
+  typedef osg::Matrix Pose;
   
 }
 

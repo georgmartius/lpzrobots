@@ -49,25 +49,25 @@ namespace lpzrobots{
 
 
   // returns the osg (4x4) pose matrix of the ode geom
-  osg::Matrix osgPose( dGeomID geom ){
+  Pose osgPose( dGeomID geom ){
     return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));
   }
 
   // returns the osg (4x4) pose matrix of the ode body
-  osg::Matrix osgPose( dBodyID body ){
+  Pose osgPose( dBodyID body ){
     return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));
   }
 
   // converts a position vector and a rotation matrix from ode to osg 4x4 matrix
-  osg::Matrix osgPose( const double * V , const double * R ){
-    return osg::Matrix( R[0], R[4], R[8],  0,
-			R[1], R[5], R[9],  0,
-			R[2], R[6], R[10], 0,
-			V[0], V[1], V[2] , 1);  
+  Pose osgPose( const double * V , const double * R ){
+    return Pose( R[0], R[4], R[8],  0,
+                 R[1], R[5], R[9],  0,
+                 R[2], R[6], R[10], 0,
+                 V[0], V[1], V[2] , 1);  
   }
 
   // converts a osg 4x4 matrix to an ode version of it
-  void odeRotation( const osg::Matrix& pose , dMatrix3& odematrix){
+  void odeRotation( const Pose& pose , dMatrix3& odematrix){
     osg::Quat q;
     pose.get(q);
     // THIS should be
@@ -153,7 +153,7 @@ namespace lpzrobots{
     update(); // update the scenegraph stuff
   }
 
-  void Primitive::setPose(const osg::Matrix& pose){
+  void Primitive::setPose(const Pose& pose){
     if(body){
       osg::Vec3 pos = pose.getTrans();
       dBodySetPosition(body, pos.x(), pos.y(), pos.z());    
@@ -184,10 +184,10 @@ namespace lpzrobots{
     else return Pos(0,0,0);
   }
 
-  osg::Matrix Primitive::getPose() const {
+  Pose Primitive::getPose() const {
     if(!body) {
       if (!geom) 
-	return osg::Matrix::translate(0.0f,0.0f,0.0f); // fixes init bug
+	return Pose::translate(0.0f,0.0f,0.0f); // fixes init bug
       else 
 	return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));    
     }
@@ -282,7 +282,7 @@ namespace lpzrobots{
 
 
   osg::Vec3 Primitive::toLocal(const osg::Vec3& pos) const {
-    const osg::Matrix& m = osg::Matrix::inverse(getPose());
+    const Pose& m = Pose::inverse(getPose());
     return pos*m;
 //     osg::Vec4 p(pos,1);    
 //     const osg::Vec4& pl = p*m;    
@@ -291,8 +291,8 @@ namespace lpzrobots{
   }
 
   osg::Vec4 Primitive::toLocal(const osg::Vec4& v) const {
-    osg::Matrix m = getPose();
-    return v*osg::Matrix::inverse(m);
+    Pose m = getPose();
+    return v*Pose::inverse(m);
   }
 
   osg::Vec3 Primitive::toGlobal(const osg::Vec3& pos) const {
@@ -309,11 +309,11 @@ namespace lpzrobots{
   }
 
   bool Primitive::store(FILE* f) const {
-    const osg::Matrix& pose  = getPose();
+    const Pose& pose  = getPose();
     const Pos& vel = getVel();  
     const Pos& avel = getAngularVel();  
     
-    if ( fwrite ( pose.ptr() , sizeof ( osg::Matrix::value_type), 16, f ) == 16 )
+    if ( fwrite ( pose.ptr() , sizeof ( Pose::value_type), 16, f ) == 16 )
       if( fwrite ( vel.ptr() , sizeof ( Pos::value_type), 3, f ) == 3 )
         if( fwrite ( avel.ptr() , sizeof ( Pos::value_type), 3, f ) == 3 )
           return true;
@@ -321,11 +321,11 @@ namespace lpzrobots{
   }
   
   bool Primitive::restore(FILE* f){
-    osg::Matrix pose;
+    Pose pose;
     Pos vel;
     Pos avel;
     
-    if ( fread ( pose.ptr() , sizeof ( osg::Matrix::value_type), 16, f ) == 16 )
+    if ( fread ( pose.ptr() , sizeof ( Pose::value_type), 16, f ) == 16 )
       if( fread ( vel.ptr() , sizeof ( Pos::value_type), 3, f ) == 3 )
         if( fread ( avel.ptr() , sizeof ( Pos::value_type), 3, f ) == 3 ){
           setPose(pose);
@@ -634,7 +634,7 @@ namespace lpzrobots{
 
   void Ray::update(){
     if(mode & Draw) {
-      osgbox->setMatrix(osg::Matrix::translate(0,0,length/2)*osgPose(geom));
+      osgbox->setMatrix(Pose::translate(0,0,length/2)*osgPose(geom));
     }
   }
 
@@ -645,7 +645,7 @@ namespace lpzrobots{
 
 
   /******************************************************************************/
-  Transform::Transform(Primitive* parent, Primitive* child, const osg::Matrix& pose)
+  Transform::Transform(Primitive* parent, Primitive* child, const Pose& pose)
     : parent(parent), child(child), pose(pose) {
   }
 
@@ -751,9 +751,9 @@ namespace lpzrobots{
       if(!boundshape->init(odeHandle, osgHandle.changeColor(Color(1,0,0,0.3)), scale, drawBoundingMode)){
         printf("use default bounding box, because bbox file not found!\n");
         Primitive* bound = new Sphere(r);
-        Transform* trans = new Transform(this,bound,osg::Matrix::translate(0.0f,0.0f,0.0f));
+        Transform* trans = new Transform(this,bound,Pose::translate(0.0f,0.0f,0.0f));
         trans->init(odeHandle, 0, osgHandle.changeColor(Color(1,0,0,0.3)),drawBoundingMode);
-        osgmesh->setMatrix(osg::Matrix::translate(0.0f,0.0f,osgmesh->getRadius())*getPose()); // set obstacle higher
+        osgmesh->setMatrix(Pose::translate(0.0f,0.0f,osgmesh->getRadius())*getPose()); // set obstacle higher
       }
     }
     QMP_END_CRITICAL(7);
@@ -765,7 +765,7 @@ namespace lpzrobots{
     boundshape = boundingShape;
   }
 
-  void Mesh::setPose(const osg::Matrix& pose){
+  void Mesh::setPose(const Pose& pose){
      if(body){
        osg::Vec3 pos = pose.getTrans();
        dBodySetPosition(body, pos.x(), pos.y(), pos.z());
@@ -785,7 +785,7 @@ namespace lpzrobots{
        dReal quat[4] = {q.w(), q.x(), q.y(), q.z()};
        dGeomSetQuaternion(geom, quat);
      } else
-       poseWithoutBodyAndGeom = osg::Matrix(pose);
+       poseWithoutBodyAndGeom = Pose(pose);
      update(); // update the scenegraph stuff
    }
 

@@ -635,8 +635,8 @@ namespace lpzrobots {
           callBack(Base::PHYSICS_CALLBACKABLE);
         QP(PROFILER.endBlock("physicsCB                    "));
         
-	// remove old sound signal and TmpDisplayItems
-	globalData.removeExpiredItems();
+	// remove old sound signal and TmpObjects
+	globalData.removeExpiredObjects();
       }
 
       // graphics rendering
@@ -731,7 +731,7 @@ namespace lpzrobots {
         i->render(osgHandle);
       }
     }
-    globalData.initializeTmpDisplayItems(osgHandle);
+    globalData.initializeTmpObjects(odeHandle, osgHandle);
   }
 
   bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&) {

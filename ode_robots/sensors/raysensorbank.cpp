@@ -122,6 +122,7 @@ namespace lpzrobots {
         delete bank[i];      
     }
     bank.clear();
+    //odeHandle.deleteSpace();
   }
 
 

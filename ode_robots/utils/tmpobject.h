@@ -21,36 +21,34 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
+#ifndef __TMPOBJECT_H
+#define __TMPOBJECT_H
 
-#include "tmpdisplayitem.h"
-#include "osgprimitive.h"
+#include "osghandle.h"
+#include "odehandle.h"
+#include "pose.h"
 
 namespace lpzrobots {
   
-  TmpDisplayItem::TmpDisplayItem(OSGPrimitive* p, const Pos& pos,
-                                         const Color& color)
-    : item(p), time(0), pos(pos), color(color), initialized(false) {
-    if(!item) 
-      item = new OSGSphere(0.1);
-  }
+  /**
+     this is the base-class for objects that exist temporarily like 
+     some indicator of manipulation are a message
+   */
+  class TmpObject {
+  public:
+    TmpObject() 
+      : time(0) {} ;
+    virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle) = 0;
+    /// deletes the object 
+    virtual void deleteObject() = 0;
     
-  void TmpDisplayItem::init(const OsgHandle& osgHandle){
-    item->init(osgHandle.changeColor(color));
-    item->setMatrix(osg::Matrix::translate(pos));      
-    initialized=true;
-  }
+    void setExpireTime(double time) { this->time= time; }  
+    bool expired(double time) { return this->time < time;}
+    
+  protected:
+    double time;
+  };
 
-  void TmpDisplayItem::setExpireTime(double time){
-    this->time= time;
-  }
-  
-  bool TmpDisplayItem::expired(double time) const {
-    return this->time < time;
-  }
-          
-  void TmpDisplayItem::deleteItem(){
-    if(item) delete item;
-    item=0;
-  }
 }
 
+#endif

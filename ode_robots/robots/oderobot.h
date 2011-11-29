@@ -131,6 +131,8 @@ namespace lpzrobots {
 
     /// returns a list of all primitives of the robot (used to store and restore the robot)
     virtual std::vector<Primitive*> getAllPrimitives() const { return objects; };
+
+    virtual std::vector<Primitive*>& getAllPrimitives() { return objects; };
     /// returns a list of all primitives of the robot (const version) (used to store and restore the robot)
 
     /* ********** STORABLE INTERFACE **************** */

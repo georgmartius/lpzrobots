@@ -21,41 +21,77 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
-#ifndef __TMPDISPLAYITEM_H
-#define __TMPDISPLAYITEM_H
+#ifndef __TMPPRIMITIVE_H
+#define __TMPPRIMITIVE_H
 
-#include "osghandle.h"
-#include "pos.h"
+#include "tmpobject.h"
 
 namespace lpzrobots {
 
   class OSGPrimitive;
+  class Primitive;
+  class Joint;
+  
+  /**
+   holding a temporary primitive
+   */
+  class TmpPrimitive : public TmpObject {
+  public:
+    /** creates a new item from the given primitives and initializes it.
+        The lifetime is set when adding it to globalData
+     */    
+    TmpPrimitive(Primitive* p, char mode, double mass, const Pose& pose, 
+                 const Color& color);
+    
+    /// provided for convenience to supply color as name and alpha independently
+    TmpPrimitive(Primitive* p, char mode, double mass, const Pose& pose, 
+                 const std::string& colorname, float alpha = 1.0);
+    
+    virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle);    
+    virtual void deleteObject();
+
+    
+  private:
+    Primitive* item;  
+    char mode;
+    double mass;
+    Pose pose;  
+    Color color;
+    std::string colorname;
+    bool useColorName;
+    float alpha;
+    bool initialized;
+  };
   
   /**
    holding a temporary graphical item
    */
-  class TmpDisplayItem {
+  class TmpDisplayItem : public TmpObject {
   public:
     /** creates a new item from the given primitives and initializes it.
         The lifetime is set when adding it to globalData
      */
+    TmpDisplayItem(OSGPrimitive* p, const Pose& pose, const Color& color);
 
-    TmpDisplayItem(OSGPrimitive* p, const Pos& pos, const Color& color);
+    /// provided for convenience to supply color as name and alpha independently
+    TmpDisplayItem(OSGPrimitive* p, const Pose& pose, 
+                   const std::string& colorname, float alpha = 1.0);
     
-    void init(const OsgHandle& osgHandle);
+    virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle);
 
-    void setExpireTime(double time);
-    bool expired(double time) const;
-
-    void deleteItem();
+    virtual void deleteObject();
     
   private:
     OSGPrimitive* item;  
-    double time;
-    Pos pos;  
+    Pose pose;  
     Color color;
+    std::string colorname;
+    bool useColorName;
+    float alpha;
     bool initialized;
   };
+
+
 
 }
 

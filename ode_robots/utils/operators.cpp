@@ -120,11 +120,43 @@ namespace lpzrobots {
         p->applyForce(vel*(-damp)*force);
       }
 
-
-
       descr.pos  = pos + vec;
       descr.show = showPoint;
       return Move;
+    }
+    return rv;
+  }
+
+  Operator::ManipType BoxRingOperator::observe(OdeAgent* agent, GlobalData& global, 
+                                               ManipDescr& descr){
+    OdeRobot* r = agent->getRobot();
+    Primitive* p  = r->getMainPrimitive();
+    ManipType rv;
+    rv=None;
+    if(!p) return rv;
+    const Pos& pos = p->getPosition();
+    Pos vec = center - pos;
+    if(!sphere) {
+      double max = 0;
+      int idx=0;
+      for(int i=0; i < 3; i++ ){
+        if(fabs(vec.ptr()[i]) > fabs(max)){ 
+          max = vec.ptr()[i];
+          idx = i;
+        }
+        vec.ptr()[i] = 0;
+      }
+      vec.ptr()[idx] = max; // all but the one component is 0;
+    }    
+    if(vec.length() > size - offset){
+      p->applyForce(vec*force);
+      Pos p(vec);
+      p.normalize();
+      descr.pos          = pos  - p*offset;
+      descr.orientation  = Pose::rotate(osg::Vec3(0,0,1), vec);
+      descr.size         = Pos(0.3,0,0.05);
+      descr.show = true;
+      return Limit;
     }
     return rv;
   }
