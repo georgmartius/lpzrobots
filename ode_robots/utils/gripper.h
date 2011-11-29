@@ -26,8 +26,7 @@
 
 #include "substance.h"
 #include <selforg/stl_map.h>
-
-
+#include <vector>
 
 namespace lpzrobots {
   
@@ -38,7 +37,6 @@ namespace lpzrobots {
   public:
     Gripper(Primitive* own);
     
-    void addGrippables(const std::vector<dGeomID>& gs);
     void addGrippables(const std::vector<Primitive*>& ps);
     void removeGrippables(const std::vector<Primitive*>& ps);
     void removeAllGrippables();
@@ -53,7 +51,7 @@ namespace lpzrobots {
     Primitive* own;
     double gripTime;
     bool incOrExc; /// include (false) or exclude (true) grippables;
-    HashMap<dGeomID*, Primitive*> gippables;
+    HashMap<dGeomID, Primitive*> grippables;
     double gripStartTime;
     FixedJoint* joint;
   };

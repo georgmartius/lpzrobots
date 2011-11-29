@@ -322,12 +322,12 @@ public:
     lc.height = 1.5;
     lc.force  = 10;
     // lc.intervalMode = true;    
-    agent->addOperator(new LiftUpOperator(lc));
+    // agent->addOperator(new LiftUpOperator(lc));
 
     // like a bungee
-    //agent->addOperator(new PullToPointOperator(Pos(0,0,5),50,true, 
-    //                                               PullToPointOperator::Z, 
-    //                                               0, 0.1));
+    agent->addOperator(new PullToPointOperator(Pos(0,0,5),50,true, 
+                                               PullToPointOperator::XYZ, 
+                                               0, 0.1));
     
     global.agents.push_back(agent);
     global.configs.push_back(agent);

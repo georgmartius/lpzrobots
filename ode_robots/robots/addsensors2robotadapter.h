@@ -80,8 +80,15 @@ namespace lpzrobots {
     void sense(GlobalData& globalData);
     void doInternalStuff(GlobalData& globalData);
 
+    virtual void notifyOnChange(const paramkey& key);
+
     virtual Primitive* getMainPrimitive() const { return robot->getMainPrimitive();}
-    virtual std::vector<Primitive*> getAllPrimitives() const { return robot->getAllPrimitives();}    
+    virtual std::vector<Primitive*> getAllPrimitives() const { 
+      return robot->getAllPrimitives();
+    }    
+    virtual std::vector<Primitive*>& getAllPrimitives() { 
+      return robot->getAllPrimitives();
+    }    
       
   protected:
     OdeRobot* robot;

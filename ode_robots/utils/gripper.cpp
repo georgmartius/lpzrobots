@@ -27,6 +27,8 @@
 #include "primitive.h"
 #include "joint.h"
 
+#include <selforg/stl_adds.h>
+
 namespace lpzrobots {
 
   Gripper::Gripper(Primitive* own)
@@ -53,21 +55,22 @@ namespace lpzrobots {
 	
   }
   
-  static int Gripper::onCollision(dSurfaceParameters& params, GlobalData& globaldata, 
-			   void *userdata, 
-			   dContact* contacts, int numContacts,
-			   dGeomID o1, dGeomID o2, 
-			   const Substance& s1, const Substance& s2){
-    Gripper* g = dynamic_cast<Gripper*>(userdata);
+  int Gripper::onCollision(dSurfaceParameters& params, GlobalData& globaldata, 
+                           void *userdata, 
+                           dContact* contacts, int numContacts,
+                           dGeomID o1, dGeomID o2, 
+                           const Substance& s1, const Substance& s2){
+    //  Gripper* g = dynamic_cast<Gripper*>(userdata);
+    Gripper* g = (Gripper*)(userdata);
     if(!g) return 1;
     if(g->grippables.find(o2) != g->grippables.end()){ // collision with grippable object
       Primitive* p2 = g->grippables[o2];
       
       // create fixed joint
       g->joint = new FixedJoint(g->own, p2);
-      
+      return 0;
     }
-    
+    return 1;    
   }
 
 

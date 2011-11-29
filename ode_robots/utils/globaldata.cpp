@@ -28,39 +28,41 @@
 
 namespace lpzrobots {
 
-  void GlobalData::addTmpDisplayItem(TmpDisplayItem i, double duration){
-    i.setExpireTime(time+duration);
-    uninitializedTmpDisplayItems.push_back(i);
+  void GlobalData::addTmpObject(TmpObject* i, double duration){
+    if(i){
+      i->setExpireTime(time+duration);
+      uninitializedTmpObjects.push_back(std::pair<double, TmpObject*>(time+duration,i));
+    }
   }
   
-  void GlobalData::initializeTmpDisplayItems(const OsgHandle& osgHandle){
-    if(uninitializedTmpDisplayItems.size()>0){
-      FOREACH(TmpDisplayItemList, uninitializedTmpDisplayItems, i){
-        i->init(osgHandle);
-        tmpDisplayItems.push_back(*i);
+  void GlobalData::initializeTmpObjects(const OdeHandle& odeHandle, 
+                                        const OsgHandle& osgHandle){
+    if(uninitializedTmpObjects.size()>0){
+      FOREACH(TmpObjectList, uninitializedTmpObjects, i){
+        i->second->init(odeHandle, osgHandle);
+        tmpObjects.insert(TmpObjectList::value_type(i->first, i->second));
       }
-      uninitializedTmpDisplayItems.clear();
+      uninitializedTmpObjects.clear();
     }
   }
-
-  struct delOldTmpItems : 
-    public std::unary_function< const TmpDisplayItem&, bool> 
-  {
-    delOldTmpItems(double time) : time(time) {}
-    double time;
-    bool operator()(const TmpDisplayItem& item) const {
-      if(item.expired(time)){
-        ((TmpDisplayItem)item).deleteItem();
-        return true;
-      }else
-        return false;
-    }
-  };
  
-  void GlobalData::removeExpiredItems(){
-    // we cannot use remove_if because we want to delete the primitives
-    if(tmpDisplayItems.size()>0)
-      tmpDisplayItems.remove_if(delOldTmpItems(time));
+  void GlobalData::removeExpiredObjects(){
+    if(tmpObjects.size()>0){
+      TmpObjectMap::iterator i = tmpObjects.begin();
+      while(i != tmpObjects.end()){
+        if( i->first < time ){
+          TmpObjectMap::iterator tmp = i;
+          tmp++;
+          i->second->deleteObject();
+          delete i->second;
+          tmpObjects.erase(i);
+          i=tmp;
+        }else{
+          break; // since they are ordered we can stop here
+        }
+      }
+    }
+
     // remove old signals from sound list
     if(sounds.size()>0)
       sounds.remove_if(Sound::older_than(time));

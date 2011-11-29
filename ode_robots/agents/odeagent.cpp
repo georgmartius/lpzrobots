@@ -27,6 +27,7 @@
 #include "globaldata.h"
 #include "joint.h"
 #include "pos.h"
+#include "tmpprimitive.h"
 #include <assert.h>
 
 namespace lpzrobots {
@@ -124,15 +125,15 @@ namespace lpzrobots {
         break;
       case Operator::Move:
         if(d.show){
-          global.addTmpDisplayItem(TmpDisplayItem(new OSGSphere(d.size.x()), 
-                                                  TRANSM(d.pos), "manipmove"),0.5);
+          global.addTmpObject(new TmpDisplayItem(new OSGSphere(d.size.x()), 
+                                                 TRANSM(d.pos), "manipmove"),0.5);
         }
         break;
       case Operator::Limit:
         if(d.show){
-          global.addTmpDisplayItem(TmpDisplayItem(new OSGCylinder(d.size.x(),d.size.z()), 
-                                                  d.orientation * TRANSM(d.pos), 
-                                                  "maniplimit", 0.2),0.5);
+          global.addTmpObject(new TmpDisplayItem(new OSGCylinder(d.size.x(),d.size.z()), 
+                                                 d.orientation * TRANSM(d.pos), 
+                                                 "maniplimit", 0.2),0.5);
         }        
         break;
       default: break;

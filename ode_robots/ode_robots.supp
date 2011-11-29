@@ -18,31 +18,31 @@
 {
    libGL_Addr
    Memcheck:Addr4
-   obj:/usr/lib/libGL*
+   obj:/usr/*/libGL*
 }
 
 {
    libGL_Val
    Memcheck:Value4
-   obj:/usr/lib/libGL*
+   obj:/usr/*/libGL*
 }
 
 {
    libGL_Val64
    Memcheck:Value8
-   obj:/usr/lib64/libGL*
+   obj:/usr/*/libGL*
 }
 
 {
    libGL_Cond
    Memcheck:Cond
-   obj:/usr/lib/libGL*
+   obj:/usr/*/libGL*
 }
 
 {
    libGL_Cond64
    Memcheck:Cond
-   obj:/usr/lib64/libGL*
+   obj:/usr/*/libGL*
 }
 
 

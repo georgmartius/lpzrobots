@@ -46,14 +46,14 @@ namespace lpzrobots {
   }
 
   void OdeRobot::cleanup(){
-    FOREACH(std::vector<Primitive*>, objects, o){
-      if(*o) delete *o;
-    }
-    objects.clear();
     FOREACH(std::vector<Joint*>, joints, j){
       if(*j) delete *j;
     }
     joints.clear();
+    FOREACH(std::vector<Primitive*>, objects, o){
+      if(*o) delete *o;
+    }
+    objects.clear();
   }
 
 
