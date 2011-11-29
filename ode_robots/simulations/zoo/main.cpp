@@ -269,7 +269,7 @@ public:
     // conf.ankleJointLimit = 0.001; //!
     // conf.pelvisPower     = 20;
      
-    conf.powerfactor  = .15;    // .95;//.65;//5;    
+    conf.powerFactor  = 1;
     
     conf.useBackJoint     = true;
     conf.jointLimitFactor = 1.4;

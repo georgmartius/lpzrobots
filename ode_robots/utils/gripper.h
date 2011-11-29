@@ -35,11 +35,11 @@ namespace lpzrobots {
 
   class Gripper : public Substance {
   public:
-    Gripper(Primitive* own);
+    Gripper(Primitive* own, double gripTime, double restTime);
     
-    void addGrippables(const std::vector<Primitive*>& ps);
-    void removeGrippables(const std::vector<Primitive*>& ps);
-    void removeAllGrippables();
+    virtual void addGrippables(const std::vector<Primitive*>& ps);
+    virtual void removeGrippables(const std::vector<Primitive*>& ps);
+    virtual void removeAllGrippables();
 
     static int onCollision(dSurfaceParameters& params, GlobalData& globaldata, 
 			   void *userdata, 
@@ -48,9 +48,10 @@ namespace lpzrobots {
 			   const Substance& s1, const Substance& s2);
 
   private:
-    Primitive* own;
+    Primitive* own;    
     double gripTime;
-    bool incOrExc; /// include (false) or exclude (true) grippables;
+    double restTime;
+    //     bool incOrExc; /// include (false) or exclude (true) grippables;
     HashMap<dGeomID, Primitive*> grippables;
     double gripStartTime;
     FixedJoint* joint;

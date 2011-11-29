@@ -25,6 +25,7 @@
 #include "tmpprimitive.h"
 #include "primitive.h"
 #include "osgprimitive.h"
+#include "joint.h"
 
 namespace lpzrobots {
 
@@ -101,6 +102,41 @@ namespace lpzrobots {
   void TmpDisplayItem::deleteObject(){
     if(item) delete item;
     item=0;
+  }
+
+  TmpJoint::TmpJoint(Joint* p, const Color& color, bool withVisual, double visualSize, 
+		     bool ignoreColl)
+
+    : joint(p), color(color), withVisual(withVisual), visualSize(visualSize), 
+      ignoreColl(ignoreColl), initialized(false) 
+  {
+    useColorName=false;
+  }
+  
+  TmpJoint::TmpJoint(Joint* p, const std::string& colorname, float alpha, 
+		     bool withVisual, double visualSize, bool ignoreColl)
+
+    : joint(p), colorname(colorname), alpha(alpha), 
+      withVisual(withVisual), visualSize(visualSize), 
+      ignoreColl(ignoreColl), initialized(false) 
+  {
+    useColorName=true;
+  }
+    
+  void TmpJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle){
+    Color mcolor(color);
+    if(useColorName){
+      mcolor = osgHandle.getColor(colorname);
+      mcolor.alpha() = alpha;
+    }
+    joint->init(odeHandle, osgHandle.changeColor(mcolor), 
+		withVisual, visualSize, ignoreColl);
+    initialized=true;
+  }
+          
+  void TmpJoint::deleteObject(){
+    if(joint) delete joint;
+    joint=0;
   }
 
 }

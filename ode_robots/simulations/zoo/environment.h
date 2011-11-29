@@ -174,7 +174,7 @@ public:
         int anzgrounds=2;
         for (int i=0; i< anzgrounds; i++){
           playground = new Playground(odeHandle, osgHandle, osg::Vec3(10+4*i, .2, .95+0.15*i), 1, i==(anzgrounds-1));
-          OdeHandle myhandle = odeHandle;
+          //OdeHandle myhandle = odeHandle;
           //      myhandle.substance.toFoam(10);
           // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
           playground->setPosition(osg::Vec3(0,0,0.2)); // playground positionieren und generieren

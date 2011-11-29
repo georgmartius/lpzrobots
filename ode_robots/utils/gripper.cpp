@@ -24,17 +24,21 @@
 
 #include "gripper.h"
 
+#include "tmpprimitive.h"
 #include "primitive.h"
 #include "joint.h"
+#include "globaldata.h"
 
 #include <selforg/stl_adds.h>
 
 namespace lpzrobots {
 
-  Gripper::Gripper(Primitive* own)
-    : own(own){
+  Gripper::Gripper(Primitive* own, double gripTime, double restTime)
+    : own(own), gripTime(gripTime), restTime(restTime) {
     setCollisionCallback(onCollision, this);
+    fprintf(stderr, "pla1: %i, %i",this, grippables.size());
     joint=0;
+    gripStartTime=-restTime;
   }
     
 
@@ -51,8 +55,7 @@ namespace lpzrobots {
   }
 
   void Gripper::removeAllGrippables(){
-    grippables.clear();
-	
+    grippables.clear();	
   }
   
   int Gripper::onCollision(dSurfaceParameters& params, GlobalData& globaldata, 
@@ -60,15 +63,19 @@ namespace lpzrobots {
                            dContact* contacts, int numContacts,
                            dGeomID o1, dGeomID o2, 
                            const Substance& s1, const Substance& s2){
-    //  Gripper* g = dynamic_cast<Gripper*>(userdata);
+    //    Gripper* g = dynamic_cast<Gripper*>((Gripper*)userdata);
     Gripper* g = (Gripper*)(userdata);
     if(!g) return 1;
+    fprintf(stderr, "pla2: %i, %i",g, g->grippables.size());
     if(g->grippables.find(o2) != g->grippables.end()){ // collision with grippable object
-      Primitive* p2 = g->grippables[o2];
-      
-      // create fixed joint
-      g->joint = new FixedJoint(g->own, p2);
-      return 0;
+      if(globaldata.time > g->gripStartTime + g->restTime) {
+	Primitive* p2 = g->grippables[o2];      
+	// create fixed joint
+	globaldata.addTmpObject(new TmpJoint(new FixedJoint(g->own, p2), Color(1,0,0), 
+					     true), g->gripTime); 
+	g->gripStartTime=globaldata.time;
+	return 0;
+      }
     }
     return 1;    
   }

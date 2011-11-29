@@ -26,6 +26,7 @@
 
 #include <ode_robots/oderobot.h>
 #include <ode_robots/raysensorbank.h>
+#include <ode_robots/gripper.h>
 
 namespace lpzrobots {
 
@@ -90,6 +91,7 @@ namespace lpzrobots {
 
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
     bool handsRotating; ///< hands are attached with a ball joint
+    bool useGripper;
 
     bool movableHead;  ///< if false then no neck movement 
 
@@ -106,6 +108,7 @@ namespace lpzrobots {
     std::string headTexture; // texture of the head
     std::string bodyTexture; // texture of the body
     std::string trunkTexture; // texture of the trunk and thorax
+        
 
   } SkeletonConf;
 
@@ -199,6 +202,7 @@ namespace lpzrobots {
 
       c.onlyPrimaryFunctions = false;
       c.handsRotating        = false;
+      c.useGripper           = false;
       c.movableHead          = false;
       c.useBackJoint         = true;
       c.irSensors            = false;
@@ -291,6 +295,9 @@ namespace lpzrobots {
     /** returns the position of the trunk */
     virtual Position getTrunkPosition();
 
+    /// returns a pointer to a gripper substance (zero if useGripper false)
+    virtual Gripper* getGripper(int leftorright);
+
   protected:
 
     /** creates vehicle at desired pose
@@ -323,7 +330,6 @@ namespace lpzrobots {
     std::vector<AngularMotor*> frictionmotors;
 
     RaySensorBank irSensorBank;
-
   };
 
 }

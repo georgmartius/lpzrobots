@@ -50,7 +50,7 @@ namespace lpzrobots {
     : OdeRobot(odeHandle, osgHandle, name, "1.2"), Inspectable(name), conf(c)
   { 
     // robot is not created till now
-    created=false;
+    created=false;    
 
     //    this->osgHandle.color = Color(1.0, 1,1,1);
     // choose color here a pastel white is used
@@ -388,7 +388,6 @@ GUIDE adding new sensors
     
     objects.clear();
     objects.resize(LastPart, 0);
-    
 
     // this is taken from DANCE, therefore the body creation is rather static
 
@@ -501,7 +500,7 @@ GUIDE adding new sensors
 //     b->setMass(1.21, 0, 0, 0, 0.00055, 0.0076, 0.0076, 0, 0, 0);
     b->setMass(0.121*conf.massfactor);
     objects[Left_Forearm]=b;
-
+    
     // Left_Hand
     // b = new Cylinder(0.06,0.05);
     b = new Sphere(0.07);
@@ -907,11 +906,26 @@ GUIDE adding new sensors
     //  odeHandle.addIgnoredPair(objects[Left_Shin],objects[Right_Shin]);
    // odeHandle.addIgnoredPair(objects[Left_Foot],objects[Right_Foot]);
 
+    if(conf.useGripper){
+      objects[Left_Hand]->substance = Gripper(objects[Left_Hand], 5, 10);
+    }
+
+
     // we call setParam in order to set all the dampings and default values
     notifyOnChange("thisparamdoesnotexist");
 
     created=true;    
   }; 
+
+  /// returns a pointer to a gripper substance (zero if useGripper false)
+  Gripper* Skeleton::getGripper(int leftorright){
+    if(conf.useGripper && objects[Left_Hand]){
+      Substance* s = &(objects[Left_Hand]->substance);      
+      Gripper* g   = dynamic_cast<Gripper*>(s);	
+      return g;
+    }
+    else return 0;      
+  }
 
 
   /** destroys vehicle and space
@@ -960,7 +974,6 @@ GUIDE adding new sensors
   }
 
   void Skeleton::notifyOnChange(const paramkey& key){
-    printf("%s\n",key.c_str()); 
     // we just set all parameters independend of what was actually changed
     FOREACH(vector<TwoAxisServo*>, hipservos, i){
       if(*i) { 

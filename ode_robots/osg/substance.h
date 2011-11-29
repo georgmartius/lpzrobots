@@ -105,6 +105,7 @@ namespace lpzrobots {
     Substance();
     Substance( float roughness, float slip, float hardness, float elasticity);
 
+    virtual ~Substance() {};
   public:
     
     float roughness;
@@ -182,6 +183,7 @@ namespace lpzrobots {
   public:
     DebugSubstance();
     DebugSubstance( float roughness, float slip, float hardness, float elasticity);
+    virtual ~DebugSubstance() {};
   protected:
     static int dbg_output(dSurfaceParameters& params, GlobalData& globaldata, void *userdata, 
                       dContact* contacts, int numContacts,
