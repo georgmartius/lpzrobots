@@ -24,19 +24,6 @@ else
 echo  " ... Okay!"
 fi
 
-
-# system autodetection
-# some muggling for the achitecture
-OS=`uname -a | sed 's/\(\w*\).*/\1/'` # selects first word (e.g Linux or Darwin)
-
-if [ "$OS" = "Linux" ]; then
-  #linux
-  System="LINUX"
-else
-  # mac
-  System="MAC"
-fi
-
 if [ $deftype = "DEVEL" ]; then
     defchoice="d";
 else
@@ -84,20 +71,4 @@ echo "TYPE=$Type" >> Makefile.conf
 echo "// Automatically generated file! Use make conf in lpzrobots." > ode_robots/install_prefix.conf
 echo "#define PREFIX \"$prefix\"" >> ode_robots/install_prefix.conf
 
-for Folder in selforg ode_robots configurator; do
-    echo "call $Folder/configure --prefix=\"$prefix\" --system=\"$System\" --type=\"$Type\"";  
-    if ! $Folder/configure --prefix="$prefix" --system="$System" --type="$Type"; then
-        exit 1;
-    fi
-done
-
-
-for Folder in ode_robots/simulations ode_robots/examples selforg/simulations selforg/examples ga_tools/simulations; do
-  echo "call: m4 -D \"$System\" -D \"$Type\" $Folder/Makefile.4sim.m4";
-  if m4 -D "$System" -D "$Type" "$Folder/Makefile.4sim.m4" > "$Folder/Makefile.4sim"; then
-    for F in `find "$Folder" -mindepth 2 -name Makefile.conf`; do
-        cp "$Folder/Makefile.4sim" "${F%.conf}";
-    done
-  fi
-done
 
