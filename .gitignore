@@ -1,10 +1,8 @@
-bin
 TAGS
 .project
+.cproject
 .history
 Makefile.conf
-a.out
-.cproject
 doxygen.warn
 .settings
 log.settings
@@ -13,3 +11,4 @@ log.settings
 *.so
 *.lo
 *.la
+*~
