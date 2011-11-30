@@ -100,15 +100,6 @@ namespace lpzrobots {
     */
     virtual void place(const osg::Matrix& pose);
   
-    /**
-     *This is the collision handling function for snake robots.
-     *This overwrides the function collisionCallback of the class robot.
-     *@param data
-     *@param o1 first geometrical object, which has taken part in the collision
-     *@param o2 second geometrical object, which has taken part in the collision
-     *@return true if the collision was threated  by the robot, false if not
-     **/
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment

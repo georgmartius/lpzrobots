@@ -74,8 +74,6 @@ namespace lpzrobots {
     */
     virtual void doInternalStuff(GlobalData& globalData) {}
 
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) { return false;}
-
   protected:
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return 0; }

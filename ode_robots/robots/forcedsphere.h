@@ -98,7 +98,6 @@ namespace lpzrobots {
 
     virtual void place(const osg::Matrix& pose);
   
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
     virtual void doInternalStuff(GlobalData& globalData);
 	
     virtual int getSensors ( sensor* sensors, int sensornumber );

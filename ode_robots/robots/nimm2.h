@@ -134,7 +134,6 @@ public:
   */
   virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
-  virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
     /** this function is called in each timestep. It should perform robot-internal checks,
       like space-internal collision detection, sensor resets/update etc.

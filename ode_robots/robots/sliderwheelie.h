@@ -110,8 +110,6 @@ namespace lpzrobots {
 
     void doInternalStuff(GlobalData& global);
 
-    bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
-
     virtual void setMotors ( const motor* motors, int motornumber );
 
     virtual int getSensors ( sensor* sensors, int sensornumber );

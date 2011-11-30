@@ -205,8 +205,6 @@ namespace lpzrobots{
      * @param position vector position vector
      */
     void getEndeffectorPosition(double* position);
-		
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2); 
 
     /** 
      * this function is called in each timestep. It should perform robot-internal checks,
