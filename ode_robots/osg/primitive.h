@@ -82,10 +82,10 @@ public:
   /** Body means that it is a dynamic object with a body.
       Geom means it has a geometrical represenation used for collision detection.
       Draw means the primitive is drawn
-      Child is only used internally and is used for transformed geoms.
+      _Child and _Transform are only used internally and used for transformed geoms.
   */
 
-  /* typedef */ enum Modes {Body=1, Geom=2, Draw=4, Child=8};
+  /* typedef */ enum Modes {Body=1, Geom=2, Draw=4, _Child=8, _Transform=16};
   /* typedef */ enum Category { Dyn=1, Stat=2};
 
 
@@ -168,9 +168,9 @@ public:
 	       double I12, double I13, double I23);
 
   /// returns ODE geomID if there
-  dGeomID getGeom() const;    
+  dGeomID getGeom() const { return geom; }
   /// returns ODE bodyID if there
-  dBodyID getBody() const;
+  dBodyID getBody() const { return body; }
 
   /// checks whether the object has higher velocity than maxVel and limits it in case
   bool limitLinearVel(double maxVel);

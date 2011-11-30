@@ -104,11 +104,18 @@ namespace lpzrobots {
 /***************************************************************************/
 
   
-  FixedJoint::FixedJoint(Primitive* part1, Primitive* part2)
-  : Joint(part1, part2, osg::Vec3(0,0,0)){
+  FixedJoint::FixedJoint(Primitive* part1, Primitive* part2,
+                         const osg::Vec3& anchor)
+    : Joint(part1, part2, anchor), visual(0) {    
+    // anchor is here used as a relative position to part1
+      if(anchor.x()!=0 || anchor.y()!=0 || anchor.z()!=0 ){ // some anchor given
+        this->anchor = part1->toLocal(anchor);
+      } // 0,0,0 at part1 position
   }
 
-  FixedJoint::~FixedJoint(){}
+  FixedJoint::~FixedJoint(){    
+    if (visual) delete visual; 
+  }
 
     /** initialises (and creates) the joint. 
     */
@@ -118,9 +125,20 @@ namespace lpzrobots {
     joint = dJointCreateFixed (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody()); 
     dJointSetFixed (joint);
+
+    if(withVisual){
+      visual = new OSGSphere(visualSize/2.0);
+      visual->init(osgHandle, OSGPrimitive::Low);
+           
+      visual->setMatrix(TRANSM(anchor) * part1->getPose()); 
+    }
   }
  
-  void FixedJoint::update(){}
+  void FixedJoint::update(){           
+    if(visual){
+      visual->setMatrix(TRANSM(anchor) * part1->getPose());     
+    }
+  }
 
   void FixedJoint::setParam(int parameter, double value) {
   }

@@ -725,13 +725,11 @@ namespace lpzrobots {
     FOREACH(OdeAgentList, globalData.agents, i) {
       (*i)->getRobot()->update();
     }
-    // draw sound blobs
-    if(!globalData.sounds.empty()){
-      FOREACH(SoundList, globalData.sounds, i){
-        i->render(osgHandle);
-      }
-    }
+
+    // initialize those objects that are not yet initialized
     globalData.initializeTmpObjects(odeHandle, osgHandle);
+    // draw/update temporary objects and sound blobs
+    globalData.updateTmpObjects(osgHandle);
   }
 
   bool Simulation::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&) {

@@ -45,6 +45,19 @@ namespace lpzrobots {
       uninitializedTmpObjects.clear();
     }
   }
+
+  void GlobalData::updateTmpObjects(const OsgHandle& osgHandle){
+    if(!sounds.empty()){
+      FOREACH(SoundList, sounds, i){
+        i->render(osgHandle);
+      }
+    }
+    if(!tmpObjects.empty()){
+      FOREACH(TmpObjectMap, tmpObjects, i){
+        i->second->update();
+      }
+    }
+  }
  
   void GlobalData::removeExpiredObjects(){
     if(tmpObjects.size()>0){

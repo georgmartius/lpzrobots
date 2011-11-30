@@ -22,7 +22,7 @@ robot2          Sommergelb      0
 robot3          Capriblau       0
 # robot4 is a pale color
 robot4          Vanille         0
-joint           Cyan-Vollschwarz 0
+joint           Inforot         0
 # Robot Set 2
 robot1          Mandarin        1
 robot2          Neutralgruen    1

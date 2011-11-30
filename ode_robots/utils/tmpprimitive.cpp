@@ -65,6 +65,10 @@ namespace lpzrobots {
     if(item) delete item;
     item=0;    
   }
+  
+  void TmpPrimitive::update(){
+    if(item) item->update();
+  }
 
 
   // ////////////////// TmpDisplayItem //////////////////// //
@@ -104,6 +108,7 @@ namespace lpzrobots {
     item=0;
   }
 
+
   TmpJoint::TmpJoint(Joint* p, const Color& color, bool withVisual, double visualSize, 
 		     bool ignoreColl)
 
@@ -138,6 +143,11 @@ namespace lpzrobots {
     if(joint) delete joint;
     joint=0;
   }
+
+  void TmpJoint::update(){
+    if(joint) joint->update();
+  }
+
 
 }
 

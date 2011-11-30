@@ -98,14 +98,13 @@ namespace lpzrobots {
      = \frac{(1-e_1)kp_2 + (1-e_2)kp_1}{kp_1+kp_2}\f].
 
      Note that you cannot add any member variables to derived classes 
-      since they do not fit into the substance object in OdeHandle.
+      since they do not fit into the substance object in OdeHandle!
  */
   class Substance {
   public:
     Substance();
     Substance( float roughness, float slip, float hardness, float elasticity);
 
-    virtual ~Substance() {};
   public:
     
     float roughness;
@@ -183,7 +182,6 @@ namespace lpzrobots {
   public:
     DebugSubstance();
     DebugSubstance( float roughness, float slip, float hardness, float elasticity);
-    virtual ~DebugSubstance() {};
   protected:
     static int dbg_output(dSurfaceParameters& params, GlobalData& globaldata, void *userdata, 
                       dContact* contacts, int numContacts,

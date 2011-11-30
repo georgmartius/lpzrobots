@@ -49,7 +49,7 @@ namespace lpzrobots {
     
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle);    
     virtual void deleteObject();
-
+    virtual void update();
     
   private:
     Primitive* item;  
@@ -80,6 +80,7 @@ namespace lpzrobots {
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle);
 
     virtual void deleteObject();
+    virtual void update() {} // nothing to be done here, because they do not move
     
   private:
     OSGPrimitive* item;  
@@ -109,6 +110,7 @@ namespace lpzrobots {
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle);
 
     virtual void deleteObject();
+    virtual void update();
     
   private:
     Joint* joint;  

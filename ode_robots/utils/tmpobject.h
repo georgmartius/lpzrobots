@@ -41,6 +41,8 @@ namespace lpzrobots {
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle) = 0;
     /// deletes the object 
     virtual void deleteObject() = 0;
+    /// update graphics here
+    virtual void update() =0 ;
     
     void setExpireTime(double time) { this->time= time; }  
     bool expired(double time) { return this->time < time;}

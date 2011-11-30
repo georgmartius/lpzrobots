@@ -140,7 +140,11 @@ namespace lpzrobots {
 
   class FixedJoint : public Joint {
   public:
-    FixedJoint(Primitive* part1, Primitive* part2);
+    /** the anchor is only required for drawing. 
+        If not provided than part1 position is used
+    */
+    FixedJoint(Primitive* part1, Primitive* part2, 
+               const osg::Vec3& anchor = osg::Vec3(0,0,0));
 
     virtual ~FixedJoint();
 
@@ -155,7 +159,8 @@ namespace lpzrobots {
     virtual double getParam(int parameter) const;
 
     virtual int getNumberAxes() const { return 0; }
-
+  protected:
+    OSGPrimitive* visual;
   };
 
 

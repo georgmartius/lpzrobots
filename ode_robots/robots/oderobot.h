@@ -80,7 +80,7 @@ namespace lpzrobots {
      *  else false (collision is passed to other objects and (if not treated) 
      *   to the default routine). 
      */
-    __attribute__ ((deprecated)) virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){ return false; };
+    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){ return false; };
 
     /** this function is called each controlstep before control. 
 	This is the place the perform active sensing (e.g. Image processing)

@@ -68,7 +68,8 @@ namespace lpzrobots {
       OdeAgentList agents;
       Primitive* environment; /// < this is used to be able to attach objects to the static environment
 
-      SoundList sounds; ///< sound space
+      // Todo: the sound visualization could be done with the new TmpObjects
+      SoundList sounds; ///< sound space 
 
       PlotOptionList plotoptions; ///< plotoptions used for new agents
       std::list<Configurable*> globalconfigurables; ///< global configurables plotted by all agents
@@ -82,10 +83,14 @@ namespace lpzrobots {
       
       /// adds a temporary display item with given life duration in sec
       virtual void addTmpObject(TmpObject* i, double duration);
+
+      /// called by Simulation to initialize tmp objects
       virtual void initializeTmpObjects(const OdeHandle& odeHandle, 
                                         const OsgHandle& osgHandle);
+      /// called by Simulation to update tmp objects
+      virtual void updateTmpObjects(const OsgHandle& osgHandle);
 
-      /// removes all expired sounds and temporary objects
+      /// called by Simulation to removes all expired sounds and temporary objects
       virtual void removeExpiredObjects();
 
     private:

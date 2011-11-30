@@ -907,7 +907,17 @@ GUIDE adding new sensors
    // odeHandle.addIgnoredPair(objects[Left_Foot],objects[Right_Foot]);
 
     if(conf.useGripper){
-      objects[Left_Hand]->substance = Gripper(objects[Left_Hand], 5, 10);
+      Gripper* g;
+      //      g = new Gripper(10,12, osgHandle.getColor("joint"), 0.19, false);
+      g = new Gripper(10,12, osgHandle.getColor("joint"), 0.15, true);
+      g->attach(objects[Left_Hand]);
+      grippers.push_back(g);
+      addConfigurable(g);
+      //      g = new Gripper(10,12, osgHandle.getColor("joint"), 0.19, false);
+      g = new Gripper(10,12, osgHandle.getColor("joint"), 0.15, true);
+      g->attach(objects[Right_Hand]);
+      grippers.push_back(g);
+      addConfigurable(g);
     }
 
 
@@ -917,14 +927,9 @@ GUIDE adding new sensors
     created=true;    
   }; 
 
-  /// returns a pointer to a gripper substance (zero if useGripper false)
-  Gripper* Skeleton::getGripper(int leftorright){
-    if(conf.useGripper && objects[Left_Hand]){
-      Substance* s = &(objects[Left_Hand]->substance);      
-      Gripper* g   = dynamic_cast<Gripper*>(s);	
-      return g;
-    }
-    else return 0;      
+  /// returns the grippers 
+  GripperList& Skeleton::getGrippers(){
+    return grippers;
   }
 
 
@@ -952,15 +957,22 @@ GUIDE adding new sensors
       FOREACH(vector<TwoAxisServo*>, armservos, i){
 	if(*i) delete *i;
       }
+      armservos.clear();
       FOREACH(vector<OneAxisServo*>, arm1servos, i){
 	if(*i) delete *i;
       }
-      //      headservos.clear();
+      arm1servos.clear();
 
       if(pelvisservo) delete pelvisservo;
       FOREACH(vector<OneAxisServo*>, backservos, i){
 	if(*i) delete *i;
       }
+      backservos.clear();
+      
+      FOREACH(GripperList, grippers, i){
+	if(*i) delete *i;
+      }
+      grippers.clear();      
 
       cleanup();
       irSensorBank.clear();

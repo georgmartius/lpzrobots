@@ -27,24 +27,46 @@
 #include "tmpprimitive.h"
 #include "primitive.h"
 #include "joint.h"
+#include "color.h"
 #include "globaldata.h"
 
 #include <selforg/stl_adds.h>
 
 namespace lpzrobots {
 
-  Gripper::Gripper(Primitive* own, double gripTime, double restTime)
-    : own(own), gripTime(gripTime), restTime(restTime) {
-    setCollisionCallback(onCollision, this);
-    fprintf(stderr, "pla1: %i, %i",this, grippables.size());
-    joint=0;
-    gripStartTime=-restTime;
+  Gripper::Gripper(double gripDuration, double releaseDuration,
+                   const Color& color, double size, bool drawAtContactPoint)
+    : gripDuration(gripDuration), releaseDuration(releaseDuration), 
+      color(color), size(size), drawAtContactPoint(drawAtContactPoint),
+      isAttached(false) 
+  {
+    gripStartTime= - releaseDuration - gripDuration;
+    addParameter("gripduration", &this->gripDuration, 0, 1000, 
+                 "time the gripper grasps");
+    addParameter("releaseduration", &this->releaseDuration, 0, 1000, 
+                 "time the gripper has to release before grasping again");
   }
-    
+  
+  bool Gripper::attach(Primitive* p){
+    if(!p) return false;
+    if(isAttached) {
+      fprintf(stderr, "Gripper::attach(): is already attached!\n");
+      return false;    
+    }
+    if(p->substance.callback!=0) {
+      fprintf(stderr, "Gripper::attach(): Primitive has already a callback\n");
+      return false;
+    }
+    p->substance.setCollisionCallback(onCollision, this);
+    isAttached = true;
+    return true;
+  }
 
   void Gripper::addGrippables(const std::vector<Primitive*>& ps){
+    // int i=0;
     FOREACHC(std::vector<Primitive*>, ps, p){
-      grippables[(*p)->getGeom()] = *p;
+      grippables.insert((*p)->getGeom());
+      // fprintf(stderr, "adding: %i \t%p\n",i, (*p)->getGeom()); i++;
     }
   }
   
@@ -63,17 +85,29 @@ namespace lpzrobots {
                            dContact* contacts, int numContacts,
                            dGeomID o1, dGeomID o2, 
                            const Substance& s1, const Substance& s2){
-    //    Gripper* g = dynamic_cast<Gripper*>((Gripper*)userdata);
+
     Gripper* g = (Gripper*)(userdata);
-    if(!g) return 1;
-    fprintf(stderr, "pla2: %i, %i",g, g->grippables.size());
+    if(!g || numContacts < 1) return 1;
     if(g->grippables.find(o2) != g->grippables.end()){ // collision with grippable object
-      if(globaldata.time > g->gripStartTime + g->restTime) {
-	Primitive* p2 = g->grippables[o2];      
-	// create fixed joint
-	globaldata.addTmpObject(new TmpJoint(new FixedJoint(g->own, p2), Color(1,0,0), 
-					     true), g->gripTime); 
-	g->gripStartTime=globaldata.time;
+      if(globaldata.time > g->gripStartTime + g->gripDuration + g->releaseDuration) {
+        // fprintf(stderr, "grip:      %p, %i \t %p\n",g, g->grippables.size(), o2);
+
+        Primitive* own   = dynamic_cast<Primitive*>((Primitive*)dGeomGetData (o1));
+        Primitive* other = dynamic_cast<Primitive*>((Primitive*)dGeomGetData (o2));
+        if(own && other){
+          // get contact position
+          Pos p;
+          if(g->drawAtContactPoint){
+            p = Pos(contacts[0].geom.pos);
+          }else{
+            p = own->getPosition();
+          }
+
+          // create fixed joint
+          globaldata.addTmpObject(new TmpJoint(new FixedJoint(own, other, p), g->color, 
+                                               (g->size>0), g->size), g->gripDuration); 
+          g->gripStartTime=globaldata.time;
+        }
 	return 0;
       }
     }

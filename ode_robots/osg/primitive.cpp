@@ -89,7 +89,7 @@ namespace lpzrobots{
     // hack for tasked simulations; there are some problems if running in parallel mode,
     // if you do not destroy the geom, everything is fine (should be no problem because world is destroying geoms too)
     if(destroyGeom && geom) dGeomDestroy( geom );
-    if(body) dBodyDestroy( body );
+    if(body && ((mode & _Transform) == 0) ) dBodyDestroy( body );
     QMP_END_CRITICAL(8);
   }
 
@@ -105,7 +105,7 @@ namespace lpzrobots{
       dGeomSetCategoryBits (geom, Stat);
       dGeomSetCollideBits (geom, ~Stat);
     }
-    if(mode & Child){ // in case of a child object it is always dynamic
+    if(mode & _Child){ // in case of a child object it is always dynamic
       dGeomSetCategoryBits (geom, Dyn);
       dGeomSetCollideBits (geom, ~0x0); // collides with everything
     }
@@ -185,13 +185,13 @@ namespace lpzrobots{
   }
 
   Pose Primitive::getPose() const {
-    if(!body) {
-      if (!geom) 
+    if(!geom) {
+      if (!body) 
 	return Pose::translate(0.0f,0.0f,0.0f); // fixes init bug
       else 
-	return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));    
+        return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));
     }
-    return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));
+    return osgPose(dGeomGetPosition(geom), dGeomGetRotation(geom));    
   }
 
   Pos Primitive::getVel() const{  
@@ -227,14 +227,6 @@ namespace lpzrobots{
       dBodyAddTorque(body, x, y, z); 
       return true;
     } else return false;
-  }
-
-  dGeomID Primitive::getGeom() const { 
-   return geom;    
-  }
-
-  dBodyID Primitive::getBody() const { 
-   return body;    
   }
 
   /** sets full mass specification.
@@ -661,6 +653,7 @@ namespace lpzrobots{
     // Primitive::body is ignored (removed) from mode
     assert(parent && parent->getBody() != 0 && child); // parent and child must exist
     assert(child->getBody() == 0 && child->getGeom() == 0); // child should not be initialised    
+    this->mode = mode | Primitive::_Transform;
     if (!substanceManuallySet)
       substance = odeHandle.substance;
 
@@ -678,7 +671,7 @@ namespace lpzrobots{
     osgHandleChild.parent = parent->getOSGPrimitive()->getTransform();
     assert(osgHandleChild.scene);
     // initialise the child
-    child->init(odeHandleChild, mass, osgHandleChild, (mode & ~Primitive::Body) | Primitive::Child );
+    child->init(odeHandleChild, mass, osgHandleChild, (mode & ~Primitive::Body) | Primitive::_Child );
     // move the child to the right place (in local coordinates)
     child->setPose(pose);
   
@@ -687,6 +680,10 @@ namespace lpzrobots{
     // finally bind the transform the body of parent
     dGeomSetBody (geom, parent->getBody());    
     dGeomSetData(geom, (void*)this); // set primitive as geom data
+    
+    // we assign the body here. Since our mode is Transform it is not destroyed
+    body=parent->getBody();
+      
     QMP_END_CRITICAL(6);
   }
 

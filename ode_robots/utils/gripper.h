@@ -25,17 +25,40 @@
 #define __GRIPPER_H
 
 #include "substance.h"
+#include "primitive.h"
+#include "color.h"
+#include <selforg/configurable.h>
 #include <selforg/stl_map.h>
 #include <vector>
 
 namespace lpzrobots {
-  
-  class FixedJoint;
-  class Primitive;
 
-  class Gripper : public Substance {
+  
+  /**
+     A gripper can be attached to a primitive via its substance
+     and implements gripping (a fixed joint) on collision with
+     specified objects.
+     Usage: in your robot, create a Gripper object and attach 
+      it to the primitive that grips (e.g. hand). Then you 
+      need make the gripper(s) available to you simulation
+      in order to set call the addGrippables from there 
+      (e.g. with otherrobot->getAllPrimitives()), see Skeleton.
+   */
+  class Gripper : public Configurable {
   public:
-    Gripper(Primitive* own, double gripTime, double restTime);
+    /**
+       @param gripDuration time in seconds for how long the gripper grasps
+       @param releaseDuration time in seconds for how long the gripper cannot grasp
+        after release
+       @param size diameter of the drawn sphere (if 0 nothing is drawn)
+       @param drawAtContactPoint sphere is drawn at contact point (true) 
+              or at center of attached primitive (false)
+    */ 
+    Gripper(double gripDuration, double releaseDuration, 
+            const Color& color, double size, bool drawAtContactPoint = true);
+
+    /// call this to attach the gripper to the given primitive
+    bool attach(Primitive* p);    
     
     virtual void addGrippables(const std::vector<Primitive*>& ps);
     virtual void removeGrippables(const std::vector<Primitive*>& ps);
@@ -48,14 +71,18 @@ namespace lpzrobots {
 			   const Substance& s1, const Substance& s2);
 
   private:
-    Primitive* own;    
-    double gripTime;
-    double restTime;
+    double gripDuration;
+    double releaseDuration;
+    Color  color;
+    double size;
+    bool   drawAtContactPoint; 
+    bool   isAttached;
     //     bool incOrExc; /// include (false) or exclude (true) grippables;
-    HashMap<dGeomID, Primitive*> grippables;
+    HashSet<dGeomID> grippables;
     double gripStartTime;
-    FixedJoint* joint;
   };
+  
+  typedef std::vector<Gripper*> GripperList;
   
 }
 

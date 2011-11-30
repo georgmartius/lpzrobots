@@ -91,7 +91,9 @@ namespace lpzrobots {
 
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
     bool handsRotating; ///< hands are attached with a ball joint
-    bool useGripper;
+    bool useGripper;        ///< hands have a gripper: use getGrippers and add grippables
+    double gripDuration;    ///< time the gripper can grasp
+    double releaseDuration; ///< time the gripper has to release before grasping again
 
     bool movableHead;  ///< if false then no neck movement 
 
@@ -202,10 +204,12 @@ namespace lpzrobots {
 
       c.onlyPrimaryFunctions = false;
       c.handsRotating        = false;
-      c.useGripper           = false;
       c.movableHead          = false;
       c.useBackJoint         = true;
       c.irSensors            = false;
+      c.useGripper           = false;
+      c.gripDuration         = 5;
+      c.releaseDuration      = 10;
 
       //      c.headTexture = "Images/really_white.rgb";
       c.headTexture     = "Images/dusty.rgb";
@@ -289,8 +293,9 @@ namespace lpzrobots {
     /** returns the position of the trunk */
     virtual Position getTrunkPosition();
 
-    /// returns a pointer to a gripper substance (zero if useGripper false)
-    virtual Gripper* getGripper(int leftorright);
+    /// returns a the gripper list
+    GripperList& getGrippers();
+    
 
   protected:
 
@@ -324,6 +329,7 @@ namespace lpzrobots {
     std::vector<AngularMotor*> frictionmotors;
 
     RaySensorBank irSensorBank;
+    GripperList grippers;
   };
 
 }
