@@ -141,12 +141,16 @@ findi:
 
 distclean: clean-all
 clean-all: clean
-	rm -f $(LIB) $(LIB_DBG) $(LIB_OPT) $(LIB_PROF)
 
 clean:
 	rm -f Makefile.depend
 	rm -rf build build_dbg build_opt
+	rm -f $(SHAREDLIB)	
+	rm -f $(shell ./ode_robots-config --srcprefix="." --libfile)
+	rm -f $(shell ./ode_robots-config --opt --srcprefix="." --libfile)
+	rm -f $(shell ./ode_robots-config --dbg --srcprefix="." --libfile)
 	find $(INCLUDEDIR) -type l -exec rm \{\} \;
+
 
 install_scripts:
 	@echo "*************** Install binaries and scripts to $(PREFIX)/bin **********"

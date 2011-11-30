@@ -133,13 +133,14 @@ findi:
 
 distclean: clean-all
 clean-all: clean
-	rm -f $(SHAREDLIB)
-	rm -f $(shell ./selforg-config --opt --srcprefix="." --libfile)
-	rm -f $(shell ./selforg-config --dbg --srcprefix="." --libfile)
 
 clean:
 	rm -f Makefile.depend
 	rm -rf build build_dbg build_opt
+	rm -f $(SHAREDLIB)
+	rm -f $(shell ./selforg-config --srcprefix="." --libfile)
+	rm -f $(shell ./selforg-config --opt --srcprefix="." --libfile)
+	rm -f $(shell ./selforg-config --dbg --srcprefix="." --libfile)
 	find $(INCLUDEDIR) -type l -exec rm \{\} \;
 
 todo:
