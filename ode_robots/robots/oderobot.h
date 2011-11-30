@@ -73,13 +73,14 @@ namespace lpzrobots {
     */
     virtual void place(const osg::Matrix& pose) = 0;
 
-    /** @deprecated
+    /** @deprecated This function will be removed in 0.8 
      *  Do not use it anymore, collision control is done automatically. 
-     *  In case of a treatment return true 
+     *  In case of a routine return true 
      *  (collision will be ignored by other objects and the default routine)
-     *  else false (collision is passed to other objects and (if not treated) to the default routine).
+     *  else false (collision is passed to other objects and (if not treated) 
+     *   to the default routine). 
      */
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){ return false; };
+    __attribute__ ((deprecated)) virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){ return false; };
 
     /** this function is called each controlstep before control. 
 	This is the place the perform active sensing (e.g. Image processing)

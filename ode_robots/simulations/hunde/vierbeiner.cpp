@@ -219,41 +219,6 @@ namespace lpzrobots {
   void VierBeiner::doInternalStuff(GlobalData& global){     
   }
 
-  /** checks for internal collisions and treats them. 
-   *  In case of a treatment return true (collision will be ignored by other objects 
-   *  and the default routine)  else false (collision is passed to other objects and 
-   *  (if not treated) to the default routine).
-   */
-  bool VierBeiner::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-//     assert(created); // robot must exist
-    
-//     //checks if one of the collision objects is part of the robot
-//     if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
-//       int i,n;  
-//       const int N = 100;
-//       dContact contact[N];
-//       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-//       for (i=0; i<n; i++){
-// 	//      contact[i].surface.mode = dContactMu2 | dContactSlip1 | dContactSlip2 |
-// 	//	dContactSoftERP | dContactSoftCFM | dContactApprox1;
-// 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |	
-// 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-// 	contact[i].surface.slip1 = 0.005;
-// 	contact[i].surface.slip2 = 0.005;
-// 	contact[i].surface.mu = conf.frictionGround;
-// 	double hkp = conf.elasticity;
-// 	double kd = hkp/4;
-// 	contact[i].surface.soft_erp = hkp /(hkp+kd);
-// 	contact[i].surface.soft_cfm = 1/(hkp+kd);
-	
-// 	dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-// 	dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2)); 
-//       }
-//       return true;
-//     }
-    return false;
-  }
-
 
   /** creates vehicle at desired position 
       @param pos struct Position with desired position

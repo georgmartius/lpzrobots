@@ -103,39 +103,6 @@ namespace lpzrobots {
 
   void Sphererobot::doInternalStuff(GlobalData& global){}
 
-  bool Sphererobot::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
-    //checks if both of the collision objects are part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {      
-      int i,n;  
-      const int N = 10;
-      dContact contact[N];
-    
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i<n; i++) {
-	if( contact[i].geom.g1 == object[Base]->getGeom() || contact[i].geom.g2 == object[Base]->getGeom() ){ 
-	  // only treat collisions with envelop
-	  contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	  contact[i].surface.mu = 1.0;
-	  contact[i].surface.soft_erp = 0.5;
-	  contact[i].surface.soft_cfm = 0.1;
-	  // 	contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-	  // 	  dContactSoftERP | dContactSoftCFM | dContactApprox1;
-	  // 	contact[i].surface.mu = frictionGround;
-	  // 	contact[i].surface.slip1 = 0.005;
-	  // 	contact[i].surface.slip2 = 0.005;
-	  // 	contact[i].surface.soft_erp = 1;
-	  // 	contact[i].surface.soft_cfm = 0.00001;
-	  dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-	} 
-      }
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-
   /**
    *Returns the number of motors used by the snake.
    *@return number of motors

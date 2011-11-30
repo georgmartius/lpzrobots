@@ -126,10 +126,6 @@ namespace lpzrobots {
    return n;
   }
 
-  bool SliderWheelie::collisionCallback(void *data, dGeomID o1, dGeomID o2)
-  {
-    return false;
-  }
 
   void SliderWheelie::create(const osg::Matrix& pose) {
     if (created) {

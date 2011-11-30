@@ -273,16 +273,8 @@ namespace lpzrobots {
 
   };
 
-  // /// initializes or resets the camera per user, if wanted
-  // void camera_init(CameraType type, OdeRobot* robot);
-
-  // /// starts the simulation.
-  // void simulation_start(int argc, char** argv);
-  // /// call this after the @simulation_start()@ has returned to tidy up.
-  // void simulation_close();
-
-
-  /// creates a new directory with the stem base, which is not yet there (using subsequent numbers)
+  /** creates a new directory with the stem base, which is not yet there 
+      (using subsequent numbers)  and returns its name in newdir */
   void createNewDir(const char* base, char *newdir);
 }
 

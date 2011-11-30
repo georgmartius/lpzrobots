@@ -203,10 +203,6 @@ namespace lpzrobots {
 
     }
   }
-  bool Hand::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-    return false;
-  }
-
   
 
   /** returns actual sensorvalues

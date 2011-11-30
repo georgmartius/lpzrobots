@@ -132,11 +132,6 @@ namespace lpzrobots {
 
   }
 
-  bool ForcedSphere::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
-    return false; // let the standard routine do it for us
-  }
-
-
   int ForcedSphere::getMotorNumber(){    
     int s = 0;
     FOREACHC(list<Motor*>, conf.motors, i){

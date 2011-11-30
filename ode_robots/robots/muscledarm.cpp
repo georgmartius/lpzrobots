@@ -282,49 +282,6 @@ namespace lpzrobots{
 
   }
 
-
-  bool MuscledArm::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-    //checks if both of the collision objects are part of the robot
-    if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space) {
-
-      // treat inner collisions in mycallback  => now done with joint stops
-      // dSpaceCollide(odeHandle.space, this, mycallback);
-
-      int i,n;  
-      const int N = 10;
-      dContact contact[N];
-    
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-      for (i=0; i<n; i++) {
-
- 	if( // only treat collisions with fixed body, upper arm ,lower arm or hand
-	   contact[i].geom.g1 == object[base]->getGeom() || 
-	   contact[i].geom.g2 == object[base]->getGeom() ||
-	   contact[i].geom.g1 == object[upperArm]->getGeom()  || 
-	   contact[i].geom.g2 == object[upperArm]->getGeom()  || 
-	   contact[i].geom.g1 == object[lowerArm]->getGeom()  || 
-	   contact[i].geom.g2 == object[lowerArm]->getGeom()  ||
-	   contact[i].geom.g1 == object[hand]->getGeom()  || 
-	   contact[i].geom.g2 == object[hand]->getGeom() ){ 
-
-	  contact[i].surface.mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
- 	  contact[i].surface.mu = 0.01;
- 	  contact[i].surface.soft_erp = 1;
- 	  contact[i].surface.soft_cfm = 0.00001;
-
- 	  dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
- 	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
- 	} 
-      }
-      return true;
-    } else {
-      return false;
-    }
- 
-    return true;
-  }
-
-
   /** creates arm at desired position 
   */
   void MuscledArm::create(const osg::Matrix& pose){

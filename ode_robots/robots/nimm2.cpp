@@ -202,72 +202,8 @@ namespace lpzrobots {
 
   }
 
-   bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-     return false;
-   }
-
-//   bool Nimm2::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-//     //checks if one of the collision objects is part of the robot
-//     assert(created);
-//     bool colwithme = false;
-
-// 	  if( o1 == (dGeomID)odeHandle.space || o2 == (dGeomID)odeHandle.space ){
-// // 	    // collision between anything and me was detected
-// //       if(o1 == (dGeomID)odeHandle.space) irSensorBank.sense(o2);
-// //       if(o2 == (dGeomID)odeHandle.space) irSensorBank.sense(o1);
-
-//       bool colwithbody;
-//       int i,n;
-// 	    const int N = 50; // number of created contact points
-// 	    dContact contact[N]; // array for contact points
-//       //    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
-// 	    n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact)); // let ode create contacts of collision
-// 		if (visForce)
-// 			contactPoints+= n;
-//       for (i=0; i<n; i++){
-// 		colwithme = true; // there is at least one collision with some part of the robot (not sensors)
-// 		colwithbody = false;
-// 		if( contact[i].geom.g1 == objects[0]->getGeom() || contact[i].geom.g2 == objects[0]->getGeom() ||
-// 	    	( bumper[0].trans && bumper[1].trans) && (
-// 	    	contact[i].geom.g1 == bumper[0].trans->getGeom() ||
-// 	    	contact[i].geom.g2 == bumper[0].trans->getGeom() ||
-// 	    	contact[i].geom.g1 == bumper[1].trans->getGeom() ||
-// 	    	contact[i].geom.g2 == bumper[1].trans->getGeom()) ){
-// 			  colwithbody = true;
-// 		}
-// 		contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
-// 	  	dContactSoftERP | dContactSoftCFM | dContactApprox1;
-// 		// one could try to make the body sliping along its axis by using
-// 		//  sin(alpha), cos(alpha) for sliping params (only for body collisions)
-// 		contact[i].surface.slip1 = 0.005; // sliping in x
-// 		contact[i].surface.slip2 = 0.005; // sliping in y
-// 		if(colwithbody){
-// 	  		contact[i].surface.mu = 0.1; // small friction of smooth body
-// 		  	// contact[i].surface.soft_erp = 0.8;
-// 	  		//contact[i].surface.soft_cfm = 0.1;
-// 	  		//contact[i].surface.soft_erp = 0.99;
-// 	  		//contact[i].surface.soft_cfm = 0.01;
-
-// 	  		contact[i].surface.soft_erp = 0.8;
-// 	  		contact[i].surface.soft_cfm = 0.01;
-// 		}else{
-// 			// collision with external world!
-// 		  	contact[i].surface.mu = 5.0; //large friction
-// 	  		contact[i].surface.soft_erp = 0.8;
-// 	  		contact[i].surface.soft_cfm = 0.01;
-// 			if (visForce) {
-// 				sumForce+=contact[i].geom.depth;
-// 			}
-// 		}
-// 		dJointID c = dJointCreateContact( odeHandle.world, odeHandle.jointGroup, &contact[i]);
-// 		dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-//       }
-//     }
-//     return colwithme;
-//   }
 
   void Nimm2::doInternalStuff(GlobalData& globalData){
-    // dSpaceCollide(car_space, this, mycallback); // checks collisions in the car_space only (not needed)
     irSensorBank.reset(); // reset sensorbank (infrared sensors)
 	  if (visForce) {
 		  sumForce=0;
