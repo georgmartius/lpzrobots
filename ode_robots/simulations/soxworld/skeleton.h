@@ -353,12 +353,6 @@ namespace lpzrobots {
     /** returns number of motors
      */
     virtual int getMotorNumber();
-    /** checks for internal collisions and treats them. 
-     *  In case of a treatment return true (collision will be ignored by other objects 
-     *  and the default routine)  else false (collision is passed to other objects and 
-     *  (if not treated) to the default routine).
-     */
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) {return false;}
 
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.
