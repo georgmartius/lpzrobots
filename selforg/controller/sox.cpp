@@ -266,7 +266,7 @@ void Sox::learn(){
   if(epsA > 0){
     A   += (xi * (y_hat^T) * epsA                      ).mapP(0.1, clip);
     if(damping)
-      A += (((A_native-A).map(power3))*damping                   ).mapP(0.1, clip);
+      A += (((A_native-A).map(power3))*damping         ).mapP(0.1, clip);
     if(useExtendedModel)
       S += (xi * (x^T)     * epsA + (S *  -damping*10) ).mapP(0.1, clip);
     b   += (xi             * epsA + (b *  -damping)    ).mapP(0.1, clip);
@@ -275,7 +275,7 @@ void Sox::learn(){
     C += (( mu * (v_hat^T) 
             - (epsrel & y) * (x^T))   * (EE * epsC) ).mapP(.05, clip); 
     if(damping)
-      C += (((C_native-C).map(power3))*damping                ).mapP(.05, clip);
+      C += (((C_native-C).map(power3))*damping      ).mapP(.05, clip);
     h += ((mu*harmony - (epsrel & y)) * (EE * epsC) ).mapP(.05, clip);
     
     if(intern_isTeaching && gamma > 0){    
