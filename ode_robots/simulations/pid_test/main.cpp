@@ -102,6 +102,8 @@ public:
     dWorldSetContactMaxCorrectingVel ( odeHandle.world , 50);
     dWorldSetContactSurfaceLayer (odeHandle.world, 0.001);
 
+    bool useVelServos = true;
+
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
@@ -127,7 +129,11 @@ public:
     sphere1->setPose(osg::Matrix::translate(0,0,1));
     joint = new SliderJoint(sphere1, global.environment, sphere1->getPosition(), Axis(0,0,1));
     joint->init(odeHandle, osgHandle, true,0.1);
-    servo = new OneAxisServo(joint,-1,1,100,0.2,2);    
+    //    if(useVelServos){
+      servo = new OneAxisServo(joint,-1,1,100,0.2,2);    
+      //    }else{
+      //      servo = new OneAxisServoVel(joint,-1,1,100,0.1,10);    
+      //    }
 
     box1=new Box(1,1,1);
     box1->init(odeHandle, 10, osgHandle);
@@ -177,10 +183,10 @@ public:
       case 'a' : dBodyAddForce ( sphere1->getBody(), 0 , 0 , -1000 ); break;
       case 'S' : freq*=0.8; printf("FR : %g\n", freq);	break; 
       case 's' : freq/=0.8; printf("FR : %g\n", freq);	break; 
-      case 'P' : servo->power()+=5; printf("KP : %g\n", servo->power()); break;
-      case 'p' : servo->power()-=5; printf("KP : %g\n", servo->power()); break;
-      case 'D' : servo->damping()*=1.01; printf("KD : %g\n", servo->damping()); break;
-      case 'd' : servo->damping()*=0.99; printf("KD : %g\n", servo->damping()); break;
+      case 'P' : servo->setPower(servo->getPower()+5); printf("KP : %g\n", servo->getPower()); break;
+      case 'p' : servo->setPower(servo->getPower()-5); printf("KP : %g\n", servo->getPower()); break;
+      case 'D' : servo->setDamping(servo->getDamping()*1.01); printf("KD : %g\n", servo->getDamping()); break;
+      case 'd' : servo->setDamping(servo->getDamping()*0.99); printf("KD : %g\n", servo->getDamping()); break;
       case 'I' : servo->offsetCanceling()*=1.01; printf("KI : %g\n", servo->offsetCanceling()); break;
       case 'i' : servo->offsetCanceling()*=0.99; printf("KI : %g\n", servo->offsetCanceling()); break;
       default:

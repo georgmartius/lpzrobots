@@ -564,7 +564,13 @@ namespace matrix {
         toTranspose();
         break;
       default:
-        assert ( "Should not be reached" == 0 );
+        if(exponent>0){
+          Matrix m(*this);
+          for(int i=1; i<exponent; i++){
+            toMult(m);
+          }
+        }else 
+          assert ( "Exponent < -1" == 0 ); 
         break;
     }
     return *this;

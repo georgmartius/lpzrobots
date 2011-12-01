@@ -908,13 +908,13 @@ GUIDE adding new sensors
 
     if(conf.useGripper){
       Gripper* g;
-      //      g = new Gripper(10,12, osgHandle.getColor("joint"), 0.19, false);
-      g = new Gripper(10,12, osgHandle.getColor("joint"), 0.15, true);
+      g = new Gripper(10,12, osgHandle.getColor("joint"), 0.19, false);
+      //      g = new Gripper(10,12, osgHandle.getColor("joint"), 0.15, true);
       g->attach(objects[Left_Hand]);
       grippers.push_back(g);
       addConfigurable(g);
-      //      g = new Gripper(10,12, osgHandle.getColor("joint"), 0.19, false);
-      g = new Gripper(10,12, osgHandle.getColor("joint"), 0.15, true);
+      g = new Gripper(10,12, osgHandle.getColor("joint"), 0.18, false);
+      //g = new Gripper(10,12, osgHandle.getColor("joint"), 0.15, true);
       g->attach(objects[Right_Hand]);
       grippers.push_back(g);
       addConfigurable(g);

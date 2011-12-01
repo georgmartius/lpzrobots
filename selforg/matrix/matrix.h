@@ -556,6 +556,7 @@ namespace matrix{
 	@param exponent -1 -> inverse; (matrix MUST be SQUARE and NONZERO)
                     0 -> Identity Matrix;
 	            1 -> itself;
+	            n -> n-th power;
 	            T -> Transpose
     */
     Matrix& toExp(int exponent);

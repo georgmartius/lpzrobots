@@ -79,14 +79,22 @@ void Sox::init(int sensornumber, int motornumber, RandGen* randGen){
   h.set(number_motors, 1);
   L.set(number_sensors, number_sensors);
   v_avg.set(number_sensors, 1);
+  A_native.set(number_sensors, number_motors);
+  C_native.set(number_motors, number_sensors);
 
   R.set(number_sensors, number_sensors);
 
   A.toId(); // set a to identity matrix;
   C.toId(); // set a to identity matrix;
   C*=init_feedback_strength;
-  //  double val=1;  
-  //  C.toMapsP(val,constant);
+
+  S.toId();
+  S*=0.05;
+
+  // if motor babbling is used then this is overwritten
+  A_native.toId();
+  C_native.toId();
+  C_native*=1.2;   
    
   y_teaching.set(number_motors, 1);
 
@@ -201,7 +209,8 @@ void Sox::motorBabblingStep(const sensor* x_, int number_sensors,
   const Matrix& delta   = (y_tm1 - yp) & g_prime;
   C += ((delta * (x_tm1^T)) * (epsC *factor)).mapP(0.1, clip) + (C *  -damping);
   h += (delta * (epsC *factor)).mapP(0.1, clip);
-  
+  C_native = C;
+  A_native = A;
   t++;
 }
 
@@ -255,7 +264,9 @@ void Sox::learn(){
     EE = .1/(v.norm_sqr() + .001); // logarithmic error (E = log(v^T v))
   }
   if(epsA > 0){
-    A   += (xi * (y_hat^T) * epsA + (A *  -damping)    ).mapP(0.1, clip);
+    A   += (xi * (y_hat^T) * epsA                      ).mapP(0.1, clip);
+    if(damping)
+      A += (((A_native-A).map(power3))*damping                   ).mapP(0.1, clip);
     if(useExtendedModel)
       S += (xi * (x^T)     * epsA + (S *  -damping*10) ).mapP(0.1, clip);
     b   += (xi             * epsA + (b *  -damping)    ).mapP(0.1, clip);
@@ -263,6 +274,8 @@ void Sox::learn(){
   if(epsC > 0){
     C += (( mu * (v_hat^T) 
             - (epsrel & y) * (x^T))   * (EE * epsC) ).mapP(.05, clip); 
+    if(damping)
+      C += (((C_native-C).map(power3))*damping                ).mapP(.05, clip);
     h += ((mu*harmony - (epsrel & y)) * (EE * epsC) ).mapP(.05, clip);
     
     if(intern_isTeaching && gamma > 0){    
@@ -272,8 +285,8 @@ void Sox::learn(){
       const Matrix& y      = y_buffer[(t-1)% buffersize];
       const Matrix& xsi    = y_teaching - y;
       const Matrix& delta  = xsi.multrowwise(g_prime);
-      C += (metric * delta*(x^T) ) * (gamma * epsC);
-      h += (metric * delta)        * (gamma * epsC);
+      C += ((metric * delta*(x^T) ) * (gamma * epsC)).mapP(.05, clip);
+      h += ((metric * delta)        * (gamma * epsC)).mapP(.05, clip);
       // after we applied teaching signal it is switched off until new signal is given
       intern_isTeaching    = false; 
     }  

@@ -90,6 +90,8 @@ protected:
   matrix::Matrix b; // Model Bias
   matrix::Matrix L; // Jacobi Matrix
   matrix::Matrix R; // 
+  matrix::Matrix C_native; // Controller Matrix obtained from motor babbling
+  matrix::Matrix A_native; // Model Matrix obtained from motor babbling
   matrix::Matrix y_buffer[buffersize]; // buffer needed for delay
   matrix::Matrix x_buffer[buffersize]; // buffer of sensor values 
   matrix::Matrix v_avg;
@@ -136,6 +138,11 @@ protected:
   {
     double k=tanh(z);
     return 1.0 - k*k;
+  };
+
+  static double power3(double x)
+  {    
+    return x*x*x;
   };
 
   /// function that clips the second argument to the interval [-first,first]
