@@ -129,12 +129,12 @@ public:
 
     int plattfuesse = 0; 
     int flatsnakes  = 0;
-    int snakes = 0;
+    int snakes = 2;
     int sphericalsIR = 0;
     int sphericalsXYZ = 0;
     int hurlings = 0;
     int cigars = 0;
-    int wheelies = 1;
+    int wheelies = 0;
 
 
     global.odeConfig.setParam("controlinterval",1);
@@ -780,7 +780,7 @@ public:
     for(int i=0; i < wheelies; i++) {      
       SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
       mySliderWheelieConf.segmNumber=12;
-      mySliderWheelieConf.jointLimit=M_PI/2;
+      //mySliderWheelieConf.jointLimit=M_PI/2;
       mySliderWheelieConf.motorPower=0.4;
       mySliderWheelieConf.frictionGround=0.8;
       mySliderWheelieConf.sliderLength=.8;

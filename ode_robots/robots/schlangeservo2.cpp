@@ -92,11 +92,7 @@ namespace lpzrobots {
 					     (p1 + p2)/2,
 					     Axis(0,0,1)* pose, Axis(0,1,0)* pose);
       j->init(odeHandle, osgHandle, true, conf.segmDia * 1.02);
-        
-      // setting stops at universal joints		
-      j->setParam(dParamLoStop, -conf.jointLimit*1.5);
-      j->setParam(dParamHiStop,  conf.jointLimit*1.5);
-    
+            
       // making stops bouncy
       //    j->setParam (dParamBounce, 0.9 );
       //    j->setParam (dParamBounce2, 0.9 ); // universal
