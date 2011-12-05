@@ -34,12 +34,14 @@
 namespace lpzrobots {
 
   AbstractGround::AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-				 bool createGround, double groundLength, double groundWidth, double wallThickness)
+				 bool createGround, double groundLength, 
+                                 double groundWidth, double wallThickness)
     : AbstractObstacle(odeHandle, osgHandle), 
       creategroundPlane(createGround), groundLength(groundLength), 
       groundWidth(groundWidth), wallThickness(wallThickness), 
       groundSubstance(odeHandle.substance) {
     groundPlane=0;
+    groundThickness = 0.1;
     setTexture(0,0,TextureDescr("Images/wall.jpg",-1.5,-3)); // was: wall.rgb 
     groundTextureFileName="Images/whiteground.jpg";
     groundColor=osgHandle.colorSchema()->color("arenaground");
@@ -114,16 +116,21 @@ namespace lpzrobots {
     // else std::cerr << "AbstractGround::setGroundSubstance() ground not created or no ground used!\n";
   }
 
+  void AbstractGround::setGroundThickness(double thickness) { 
+    assert(groundPlane=0 && "call setGroundThickness before creation of playground!");
+    groundThickness = thickness; 
+  }
 
   void AbstractGround::createGround() {
     if (creategroundPlane) {
       // now create the plane in the middle
-      groundPlane = new Box(groundLength+1.95*wallThickness, groundWidth+1.95*wallThickness, 10.0f);
+      groundPlane = new Box(groundLength+1.95*wallThickness, 
+                            groundWidth+1.95*wallThickness, groundThickness);
       groundPlane->setTexture(TextureDescr(groundTextureFileName,-5,-5));
       groundPlane->init(odeHandle, 0, osgHandle.changeColor(groundColor),
 			Primitive::Geom | Primitive::Draw);
       groundPlane->setSubstance(groundSubstance);
-      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,-5.0f+0.002f) * pose);
+      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,groundThickness/2.0-0.001f) * pose);
       obst.push_back(groundPlane);
     }
   }
