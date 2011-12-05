@@ -134,7 +134,7 @@ distclean :  clean-all
 ##!********* less common targets ***********
 
 .PHONY: conf
-##!conf		configure the installation prefix and installation type (to redo it)
+##!conf		configure the installation prefix and type (to reconfigure)
 conf: usage
 	-mv Makefile.conf Makefile.conf.bak
 # automatically creates Makefile.conf since it is included 

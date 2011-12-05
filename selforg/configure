@@ -71,6 +71,7 @@ if [ "$type"="DEVEL" -a -z "$srcprefix" ]; then
     exit 1
 fi
 
+
 if m4 -DPREFIX="$prefix" -DSRCPREFIX="$srcprefix" -D$system -D$type -DVERSION=$version $GSL $DIRNAME/$package-config.m4 > $DIRNAME/$package-config; then
    chmod u+x $DIRNAME/$package-config;
    echo "configuration done!"

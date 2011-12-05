@@ -32,6 +32,7 @@ changequote([[,]])
 prefix="PREFIX"
 srcprefix="SRCPREFIX"
 intern=
+type=DEVORUSER([[[[DEVEL]]]],[[[[USER]]]])
 
 LIBBASE=ode_robots
 
@@ -42,7 +43,7 @@ INTERNFLAGS="-g -O"
 LIBS="-lm -losgShadow -losgText -losgUtil -losgViewer -losgGA -losgDB -lOpenThreads -losg -lGL -lGLU -lglut -lpthread"
 
 usage="\
-Usage: ode_robots-config [--prefix[=DIR]] [--srcprefix[=DIR]] [--version] [--intern] [--static] [--opt|--dbg] [--cflags] [--libs] [--libfile] [--solibfile]"
+Usage: ode_robots-config [--prefix[=DIR]] [--srcprefix[=DIR]] [--version] [--intern] [--static] [--opt|--dbg] [--cflags] [--libs] [--libfile] [--solibfile] [--type]"
 
 if test $# -eq 0; then
       echo "${usage}" 1>&2
@@ -56,6 +57,10 @@ while test $# -gt 0; do
   esac
 
   case $1 in
+    --type)
+      echo $type
+      exit 0
+      ;;
     --prefix=*)
       prefix=$optarg
       ;;
