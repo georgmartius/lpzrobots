@@ -237,10 +237,13 @@ public:
     name += "_" + itos(num+1);        
     SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
     snakeConf.segmNumber   = 6+2*num;
+    snakeConf.motorPower   = 5;
+    snakeConf.useServoVel  = true;
+
     OdeRobot*    robot     = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, name);
     robot->place(pose); 
 
-    AbstractController* controller = new Sox(1.0);     
+    AbstractController* controller = new Sox(1.2);     
     AbstractWiring*     wiring     = new One2OneWiring(new ColorUniformNoise(0.1));
     OdeAgent*           agent      = new OdeAgent( global, PlotOption(NoPlot) );
     agent->init(controller, robot, wiring);
@@ -326,7 +329,7 @@ public:
 
     // like a bungee
     agent->addOperator(new PullToPointOperator(Pos(0,0,5),50,true, 
-                                               PullToPointOperator::XYZ, 
+                                               PullToPointOperator::Z, 
                                                0, 0.1));
     
     global.agents.push_back(agent);
@@ -347,6 +350,8 @@ public:
     mySliderWheelieConf.segmNumber         = 12;
     mySliderWheelieConf.segmLength         = .4;
     mySliderWheelieConf.segmDia            = .1; // thickness and width(*8) of segments
+    mySliderWheelieConf.segmLength         = .6;
+    mySliderWheelieConf.segmDia            = .2; // thickness and width(*8) of segments
     mySliderWheelieConf.jointLimitIn       = M_PI/3;
     mySliderWheelieConf.frictionGround     = 0.5;
     mySliderWheelieConf.motorPower         = 5;
@@ -489,14 +494,14 @@ public:
   }
 
   virtual void bindingDescription(osg::ApplicationUsage & au) const {
-    au.addKeyboardMouseBinding("Simulation: b/B","add/remove Spherical");
-    au.addKeyboardMouseBinding("Simulation: x/X","add/remove Hexapod");
-    au.addKeyboardMouseBinding("Simulation: s/S","add/remove Snake");
-    au.addKeyboardMouseBinding("Simulation: i/I","add/remove Snake in Pit");
-    au.addKeyboardMouseBinding("Simulation: u/U","add/remove Humanoid");
-    au.addKeyboardMouseBinding("Simulation: a/A","add/remove SliderArmband");
-    au.addKeyboardMouseBinding("Simulation: d/D","add/remove Dog");
-    au.addKeyboardMouseBinding("Simulation: l/L","add/remove LongVehicle");
+    au.addKeyboardMouseBinding("Sim: b/B","add/remove Spherical");
+    au.addKeyboardMouseBinding("Sim: x/X","add/remove Hexapod");
+    au.addKeyboardMouseBinding("Sim: s/S","add/remove Snake");
+    au.addKeyboardMouseBinding("Sim: i/I","add/remove Snake in Pit");
+    au.addKeyboardMouseBinding("Sim: u/U","add/remove Humanoid");
+    au.addKeyboardMouseBinding("Sim: a/A","add/remove SliderArmband");
+    au.addKeyboardMouseBinding("Sim: d/D","add/remove Dog");
+    au.addKeyboardMouseBinding("Sim: l/L","add/remove LongVehicle");
   }
 
 
