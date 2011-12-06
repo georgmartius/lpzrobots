@@ -7,6 +7,7 @@ Makefile.conf.bak
 doxygen.warn
 .settings
 log.settings
+video0*
 *.a
 *.o
 *.so
