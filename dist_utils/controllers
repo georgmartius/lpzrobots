@@ -16,11 +16,6 @@ elman.h
 feedforwardnn.h
 ffnncontroller.cpp
 ffnncontroller.h
-homeokinbase.h
-homeokinesis.h
-homeokinesis.cpp
-semox.h
-semox.cpp
 invertablemodel.h
 invertcontroller.h
 invertmotorcontroller.h
@@ -53,4 +48,14 @@ som.h
 teachable.h
 use_java_controller.cpp
 use_java_controller.h
+sos.cpp
+sos.h
+sox.cpp
+sox.h
+soml.cpp
+soml.h
+semox.h
+semox.cpp
+onecontrollerperchannel.h
+onecontrollerperchannel.cpp
 README

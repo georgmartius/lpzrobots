@@ -2,8 +2,8 @@ TAGS
 .project
 .cproject
 .history
-Makefile.conf
-Makefile.conf.bak
+/Makefile.conf
+/Makefile.conf.bak
 doxygen.warn
 .settings
 log.settings

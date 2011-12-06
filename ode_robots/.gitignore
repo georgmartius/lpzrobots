@@ -1,6 +1,5 @@
 Makefile.depend
 *.a
-*.conf
 install_prefix.confbak
 build_dbg
 build
