@@ -60,7 +60,7 @@
 
 #include "cameramanipulatorTV.h"
 #include "cameramanipulatorFollow.h"
-#include "cameramanipulatorRace.h"
+//#include "cameramanipulatorRace.h"
 #include "motionblurcallback.h"
 
 #include "randomobstacles.h"
@@ -371,14 +371,14 @@ namespace lpzrobots {
         new CameraManipulator(osgHandle.scene->scene, globalData, cameraHandle),
         new CameraManipulatorFollow(osgHandle.scene->scene, globalData, cameraHandle),
         new CameraManipulatorTV(osgHandle.scene->scene, globalData, cameraHandle),
-        new CameraManipulatorRace(osgHandle.scene->scene, globalData, cameraHandle)
+        //      new CameraManipulatorRace(osgHandle.scene->scene, globalData, cameraHandle)
       };
         
       keyswitchManipulator->addMatrixManipulator( '1', "Static", cm[0]);
       keyswitchManipulator->addMatrixManipulator( '2', "Follow", cm[1]);
       keyswitchManipulator->addMatrixManipulator( '3', "TV",     cm[2]);
-      keyswitchManipulator->addMatrixManipulator( '4', "Race",   cm[3]);          
-      for(int i=0; i< 4; i++){
+      //    keyswitchManipulator->addMatrixManipulator( '4', "Race",   cm[3]);          
+      for(int i=0; i< 3; i++){
         globalData.agents.addCallbackable(cm[i], OdeAgentList::BACKCALLER_VECTOR_MODIFIED);
       }
       
