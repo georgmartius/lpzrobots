@@ -117,7 +117,7 @@ namespace lpzrobots {
   }
 
   void AbstractGround::setGroundThickness(double thickness) { 
-    assert(groundPlane=0 && "call setGroundThickness before creation of playground!");
+    assert(groundPlane==0 || "call setGroundThickness before creation of playground!");
     groundThickness = thickness; 
   }
 
