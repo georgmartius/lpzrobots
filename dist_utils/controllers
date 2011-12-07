@@ -16,7 +16,6 @@ feedforwardnn.h
 ffnncontroller.cpp
 ffnncontroller.h
 homeokinbase.h
-homeokinesis.cpp
 invertablemodel.h
 invertcontroller.h
 invertmotorcontroller.h
