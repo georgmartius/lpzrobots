@@ -134,7 +134,7 @@ distclean :  clean-all
 ##!********* less common targets ***********
 
 .PHONY: conf
-##!conf		configure the installation prefix and installation type (to redo it)
+##!conf		configure the installation prefix and type (to reconfigure)
 conf: usage
 	-mv Makefile.conf Makefile.conf.bak
 # automatically creates Makefile.conf since it is included 
@@ -179,7 +179,7 @@ confsubmodules:
 	@if [ `uname -a | sed 's/\(\w*\).*/\1/'` = "Linux" ]; then \
 		System="LINUX"; else System="MAC"; fi; \
 	for Folder in selforg ode_robots configurator; do \
-	    CMD="$$Folder/configure --prefix=\"$(PREFIX)\" --system=$$System --type=$(TYPE)"; \
+	    CMD="$$Folder/configure --prefix=$(PREFIX) --system=$$System --type=$(TYPE)"; \
 	    echo "call $$CMD"; \
 	    if ! $$CMD; then  exit 1; fi \
 	done

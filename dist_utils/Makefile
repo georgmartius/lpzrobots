@@ -1,5 +1,7 @@
 # this is a makefile for creating a lpzrobots distribution 
 #  with packages and so on
+# you may need to update the ubuntu release names see vvvvvv below.
+#  
 ##! Copy this makefile to a folder where you want to create
 ##!  the release. Simply take an empty folder than things go smooth.
 ##!
@@ -11,11 +13,17 @@
 #### EDIT THE FOLLOWING LINES!
 # make sure that you create the directories on the webserver and change the "current" links
 #  if the major version changes
-VERSION=0.6.5  
+VERSION=0.7.0
 ODEVERSION=0.11.2
 
+SHELL=/bin/bash
+# make sure the right -config scripts are used 
+# /usr/local/bin is included for ccache (optional)
+export PATH=/usr/local/bin:/usr/bin:/bin
+
 ROBOTSERVER=martius@robotcvs.informatik.uni-leipzig.de
-export CVSROOT=:ext:martius@robotcvs.informatik.uni-leipzig.de:/home/robot/cvsroot
+GITROOT=/home/georg/local/lpzrobots/.git
+#GITROOT=git://github.com/georgmartius/lpzrobots.git
 export DEBEMAIL=Georg Martius <georg.martius@web.de>
 export GPGKEY=0CFA2813
 
@@ -37,8 +45,7 @@ DebFull=  # this can be set from the commandline
 help: 
 	@grep -E "^\#\#\!.*" Makefile | sed -e "s/##!/   /"
 
-
-##!createDist (1) fetches lpzrobots from the cvs and 
+##!createDist (1) fetches lpzrobots from the git and 
 ##!               creates the distribution folder and the tar files
 # this filter-out thing causes make to not use this dependency if the dir exists
 createDist: $(filter-out $(wildcard lpzrobots), lpzrobots) $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR))
@@ -47,6 +54,8 @@ createDist: $(filter-out $(wildcard lpzrobots), lpzrobots) $(filter-out $(wildca
 deb-packs: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) 
 	$(MAKE) guilogger-deb
 	$(MAKE) install-guilogger
+#	$(MAKE) lpzrobots-configurator-deb
+#	$(MAKE) install-lpzrobots-configurator
 	$(MAKE) selforg-deb 
 	$(MAKE) install-selforg
 	$(MAKE) ode-deb 
@@ -69,20 +78,22 @@ upload:
 
 ##!lpzrobots        fetches lpzrobots from the cvs
 lpzrobots: 
-	cvs "-d$(CVSROOT)" co lpzrobots;
-
+	git clone $(GITROOT) lpzrobots
 
 ##!dist             create distribution folder
 dist: $(DISTDIR)
 
 # lpzrobots-0.X    create distribution folder
 $(DISTDIR): $(filter-out $(wildcard lpzrobots), lpzrobots)
-	cd lpzrobots && cvs "-d$(CVSROOT)" update -dP 2> ../cvs.log
+	cd lpzrobots
 	cd lpzrobots/dist_utils && ./createDist.sh $(VERSION)
 # call make to config
-	cd $(DISTDIR) && rm -rf Makefile.conf && echo "/usr\nu\ny\n" | make
+	cd $(DISTDIR) && rm -rf Makefile.conf && echo -e "/usr\nu\ny\n" | \
+		make Makefile.conf confsubmodules
 # advance version numbers # also add lpzrobots/ga_tools 
-	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger; do pwd; echo $$dir; cd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; cd ../../; done
+	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger; \
+		do pushd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; \
+		popd; done
 	cd $(DISTDIR)/opende && $(DCH) -v $(ODEVERSION)-1 "New Release"
 
 
@@ -159,6 +170,11 @@ install-oderobots:
 ##!install-gatools        install the created gatools package
 install-gatools:
 	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/lpzrobots-gatools*$(VERSION)*.deb
+
+
+##!uninstall-all          uninstall all packages
+uninstall-all:
+	sudo dpkg -r guilogger lpzrobots-selforg libode-dbl libode-dbl-dev lpzrobots-oderobots
 
 ##!upload-lpzrobots       uploads master src tar-ball and documentation
 upload-lpzrobots:
@@ -284,7 +300,9 @@ create_deb_packages.sh: Makefile
 #>pushd `pwd`
 #>cd ${Folder}
 #>FIRST=""
-#>for Dist in karmic lucid maverick; do
+# vvvvvvvvvvvvvvvvv UBUNTU DISTRIBUTIONS here vvvvvvvvvvvvvvvvvvvvvvvvv
+#># ... precise
+#>for Dist in lucid maverick natty oneiric; do
 #>    # change changelog for all ubuntu distributions  
 #>    dch --increment -D $Dist "$Dist version"
 #>    # make only source package

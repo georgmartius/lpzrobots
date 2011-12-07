@@ -134,7 +134,7 @@ protected:
   paramint s4avg;          ///< # of steps the sensors are averaged (1 means no averaging)
   paramint s4delay;        ///< # of steps the motor values are delayed (1 means no delay)
   paramval biasnoise;        
-  //  parambool logaE;         ///< # use logarithmic error
+  parambool loga;          ///< # use logarithmic error
 
 
   

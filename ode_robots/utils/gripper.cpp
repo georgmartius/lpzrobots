@@ -34,16 +34,14 @@
 
 namespace lpzrobots {
 
-  Gripper::Gripper(double gripDuration, double releaseDuration,
-                   const Color& color, double size, bool drawAtContactPoint)
-    : gripDuration(gripDuration), releaseDuration(releaseDuration), 
-      color(color), size(size), drawAtContactPoint(drawAtContactPoint),
-      isAttached(false) 
-  {
-    gripStartTime= - releaseDuration - gripDuration;
-    addParameter("gripduration", &this->gripDuration, 0, 1000, 
+  Gripper::Gripper(const GripperConf& conf)
+    : Configurable(conf.name, "1.0"), conf(conf), isAttached(false)
+  {    
+    gripStartTime= - conf.releaseDuration - conf.gripDuration;
+    last=(dGeomID)1;
+    addParameter("gripduration", &this->conf.gripDuration, 0, 1000, 
                  "time the gripper grasps");
-    addParameter("releaseduration", &this->releaseDuration, 0, 1000, 
+    addParameter("releaseduration", &this->conf.releaseDuration, 0, 10, 
                  "time the gripper has to release before grasping again");
   }
   
@@ -88,24 +86,28 @@ namespace lpzrobots {
 
     Gripper* g = (Gripper*)(userdata);
     if(!g || numContacts < 1) return 1;
-    if(g->grippables.find(o2) != g->grippables.end()){ // collision with grippable object
-      if(globaldata.time > g->gripStartTime + g->gripDuration + g->releaseDuration) {
+    // collision with grippable object 
+    if( (!g->conf.forbitLastPrimitive || o2 != g->last) 
+        && (g->grippables.find(o2) != g->grippables.end())){ 
+      if(globaldata.time 
+         > g->gripStartTime + g->conf.gripDuration + g->conf.releaseDuration) {
         // fprintf(stderr, "grip:      %p, %i \t %p\n",g, g->grippables.size(), o2);
-
         Primitive* own   = dynamic_cast<Primitive*>((Primitive*)dGeomGetData (o1));
         Primitive* other = dynamic_cast<Primitive*>((Primitive*)dGeomGetData (o2));
         if(own && other){
           // get contact position
           Pos p;
-          if(g->drawAtContactPoint){
+          if(g->conf.drawAtContactPoint){
             p = Pos(contacts[0].geom.pos);
           }else{
             p = own->getPosition();
           }
 
           // create fixed joint
-          globaldata.addTmpObject(new TmpJoint(new FixedJoint(own, other, p), g->color, 
-                                               (g->size>0), g->size), g->gripDuration); 
+          globaldata.addTmpObject(new TmpJoint(new FixedJoint(own, other, p), 
+                                               g->conf.color, (g->conf.size>0), 
+                                               g->conf.size), g->conf.gripDuration); 
+          g->last = o2;
           g->gripStartTime=globaldata.time;
         }
 	return 0;

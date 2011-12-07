@@ -132,7 +132,7 @@ std::list< double > SimplePipeReader::getDataLine()
     if ( success ) tmp_list.push_back ( d );
     else {
       printf("Cant do string TO double!!!!!\r\n");
-      tmp_list.push_back ( 2. );
+      return std::list<double>();
     }
   }
   return tmp_list;

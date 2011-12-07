@@ -1,0 +1,16 @@
+Source: matrixviz
+Section: math
+Priority: optional
+Maintainer: Georg Martius <georg.martius@web.de>
+Build-Depends: debhelper (>= 7), 
+ libqt4-dev, qt4-qmake
+Standards-Version: 3.8.4
+Homepage: http://robot.informatik.uni-leipzig.de/software
+
+Package: matrixviz
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libqtgui4, libqt4-opengl
+Description: Displays variing matrices and vectors for monitoring 
+ A tool that allows to display multiple vectors or matrices in different
+ modes and color schemes. Very easy to use via pipe, such that
+ it can be integrated easily into your program.

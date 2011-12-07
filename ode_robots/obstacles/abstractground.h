@@ -84,6 +84,10 @@ public:
     /// size in y dimension
     virtual double getGroundWidth(){ return groundWidth; }
 
+    virtual double getGroundThickness(){ return groundThickness; }
+
+    virtual void   setGroundThickness(double thickness);
+
   protected:
 
     Primitive* groundPlane; // the groundplane
@@ -91,6 +95,7 @@ public:
     double groundLength;
     double groundWidth;
     double wallThickness;
+    double groundThickness;
     Substance groundSubstance;
     std::string wallTextureFileName;
     Color groundColor;

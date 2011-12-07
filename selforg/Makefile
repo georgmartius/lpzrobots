@@ -10,9 +10,9 @@ REVINCLUDEDIR=../..
 CFGOPTS=
 LIB := $(shell ./selforg-config $(CFGOPTS) --srcprefix="." --libfile)
 SHAREDLIB=$(shell ./selforg-config $(CFGOPTS) --srcprefix="." --solibfile)
+TYPE=$(shell ./selforg-config --type)
 
 STRIP=no
-TYPE=DEVEL
 
 SELFORG=.
 PREFIX=$(shell ./selforg-config $(CFGOPTS) --prefix)
@@ -22,7 +22,8 @@ PREFIX=$(DESTDIR)
 endif
 include Makefile.conf
 
-ifeq ($(shell uname -o),Msys)
+# was -o, see what it does in Msys
+ifeq ($(shell uname -s),Msys)
 REVINCLUDEDIR=.
 endif
 
@@ -46,7 +47,7 @@ CXX = g++
 # used for lib-packing 
 AR = ar -rcs
 
-.PHONY: lib opt dbg clean clean-all distclean todo depend tags install install_scripts
+.PHONY: lib opt dbg clean clean-all distclean todo depend tags install install_scripts install_lib uninstall uninstall_lib
 
 libs: lib opt dbg
 
@@ -64,7 +65,7 @@ shared:
 
 $(LIB): Makefile.depend $(OFILES)
 	$(AR) $(LIB) $(OFILES)
-	@if [ "$(STRIP)" = "yes" ]; then strip --strip-debug $(LIB); fi
+	@if [ "$(STRIP)" = "yes" ]; then strip -S $(LIB); fi
 
 
 ${BUILD_DIR}/%.o: %.cpp
@@ -78,22 +79,34 @@ $(SHAREDLIB): Makefile.depend $(OFILES)
 install_scripts:
 	@echo "*************** Install config script $(PREFIX)/bin *********************"
 	install -d $(PREFIX)/bin
-	install --mode 755 selforg-config $(PREFIX)/bin/	
+	install -m 755 selforg-config $(PREFIX)/bin/	
 
-install: Makefile.depend install_scripts lib opt dbg
+install_lib:
+	install -m 644 $(LIB) $(PREFIX)/lib/
+
+
+install: Makefile.depend install_scripts
 ifneq ($(TYPE),DEVEL)
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
 	install -d $(PREFIX)/lib/ $(PREFIX)/include/selforg $(PREFIX)/share/lpzrobots/selforg
-	install --mode 644 $(LIB) $(LIB_OPT) $(LIB_DBG) $(PREFIX)/lib/
-	install --mode 644 -t $(PREFIX)/include/selforg include/selforg/*.h
+	$(MAKE) lib install_lib
+	$(MAKE) CFGOPTS=--dbg dbg install_lib
+	$(MAKE) CFGOPTS=--opt opt install_lib
+	install -m 644 include/selforg/*.h $(PREFIX)/include/selforg
 	@echo "*************** Install example simulations ******************"
 	cp -RL simulations $(PREFIX)/share/lpzrobots/selforg/
 endif
 
+
+uninstall_lib:
+	-rm -f $(PREFIX)/lib/$(LIB)
+
 uninstall:
 	-rm -f $(PREFIX)/bin/selforg-config
 ifneq ($(TYPE),DEVEL)
-	-rm -f $(PREFIX)/lib/$(LIB) $(PREFIX)/lib/$(LIB_OPT) $(PREFIX)/lib/$(LIB_DBG)
+	$(MAKE) uninstall_lib
+	$(MAKE) CFGOPTS=--dbg uninstall_lib
+	$(MAKE) CFGOPTS=--opt uninstall_lib
 	-rm -rf $(PREFIX)/include/selforg
 	-rm -rf $(PREFIX)/share/lpzrobots/selforg/
 endif
@@ -146,5 +159,10 @@ clean:
 todo:
 	@grep -ni "Todo"  $(CPPFILES) $(HFILES)
 	@grep -ni "Fixme"  $(CPPFILES) $(HFILES)
+
+
+Makefile.conf.generated: 
+	@echo "run ./configure first!"
+	@exit 1;
 
 include Makefile.depend

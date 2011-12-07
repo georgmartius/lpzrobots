@@ -95,13 +95,15 @@ The enter the new directory $DIRNAME in the terminal window
 ------------------------
 FAQ and Troubleshooting:
 Q: The simulation aborts with a segmentation fault.
-A: try ./OutlineDemo -noshadow 
-   if this works you can try which shadow types work, see ./OutlineDemo -h
+A: try ./SIMNAME -noshadow 
+   where SIMNAME is the particular simulation if this works you can try 
+   which shadow types work, see ./SIMNAME -h and save later with 
+   ./SIMNAME -shadow X -savecfg
 
 Q: What options and which ways of interaction do I have? 
 A: press 'h' in the graphical window to get an overview. 
    Important are the mouse actions. Use the mouse buttons to move the camera. 
-   Try different camera modes (1,2,3,4). Press <Ctrl> plus mouse button to drag a robot.
+   Try different camera modes (1,2,3). Press <Ctrl> plus mouse button to drag a robot.
    The console can be entered by pressing <Ctrl>+C in the terminal. 
    Type 'help' there. 
 EOF

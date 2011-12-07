@@ -58,7 +58,7 @@ done
 # test for ode-dbl
 if ! type ode-dbl-config; then
     echo "could not find \"osg-dbl-config\" in PATH" 1>&2;
-    exit 1;
+# ignore for now to be able conf everything at the beginning    exit 1;
 fi
 
 if [ "$type"="DEVEL" -a -z "$srcprefix" ]; then

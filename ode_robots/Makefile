@@ -14,9 +14,9 @@ REVINCLUDEDIR=../..
 CFGOPTS=
 LIB := $(shell ./ode_robots-config $(CFGOPTS) --srcprefix="." --libfile)
 SHAREDLIB=$(shell ./ode_robots-config $(CFGOPTS) --srcprefix="." --solibfile)
+TYPE=$(shell ./ode_robots-config --type)
 
 STRIP=no
-TYPE=DEVEL
 # this can is overwritten from commandline
 PREFIX=$(shell ./ode_robots-config $(CFGOPTS) --prefix)
 # for debian auto-package installation
@@ -55,7 +55,7 @@ CXX = g++
 # used for lib-packing 
 AR = ar -rcs
 
-.PHONY: lib opt clean clean-all distclean todo depend tags search find findi install install_scripts
+.PHONY: lib opt clean clean-all distclean todo depend tags search find findi install install_scripts install_lib uninstall uninstall_lib
 
 libs: lib opt dbg
 
@@ -155,19 +155,23 @@ clean:
 install_scripts:
 	@echo "*************** Install binaries and scripts to $(PREFIX)/bin **********"
 	install -d $(PREFIX)/bin
-	install --mode 755 ode_robots-config $(PREFIX)/bin/
-	install --mode 755 utils/feedfile.pl $(PREFIX)/bin/
-	install --mode 755 utils/encodevideo.sh $(PREFIX)/bin/
-	install --mode 755 utils/writeTextToFrames.sh $(PREFIX)/bin/
-	install --mode 755 utils/selectcolumns.pl $(PREFIX)/bin/
+	install -m 755 ode_robots-config $(PREFIX)/bin/
+	install -m 755 utils/feedfile.pl $(PREFIX)/bin/
+	install -m 755 utils/encodevideo.sh $(PREFIX)/bin/
+	install -m 755 utils/writeTextToFrames.sh $(PREFIX)/bin/
+	install -m 755 utils/selectcolumns.pl $(PREFIX)/bin/
 
+install_lib:
+	install -m 644 $(LIB) $(PREFIX)/lib/
 
-install: Makefile.depend install_scripts lib opt dbg
+install: Makefile.depend install_scripts
 ifneq ($(TYPE),DEVEL)
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
 	install -d  $(PREFIX)/lib $(PREFIX)/include/ode_robots 
-	install --mode 644 $(LIB) $(LIB_OPT) $(LIB_DBG) $(PREFIX)/lib/
-	install --mode 644 -t $(PREFIX)/include/ode_robots include/ode_robots/*.h
+	$(MAKE) lib install_lib
+	$(MAKE) CFGOPTS=--dbg dbg install_lib
+	$(MAKE) CFGOPTS=--opt opt install_lib
+	install -m 644 include/ode_robots/*.h $(PREFIX)/include/ode_robots
 endif
 	install -d $(PREFIX)/share/lpzrobots $(PREFIX)/share/lpzrobots/ode_robots
 	cp -R osg/data $(PREFIX)/share/lpzrobots/
@@ -177,9 +181,14 @@ ifneq ($(TYPE),DEVEL)
 	chmod -R ugo+r $(PREFIX)/share/lpzrobots
 endif
 
+uninstall_lib:
+	-rm -f $(PREFIX)/lib/$(LIB)
+
 uninstall:
 ifneq ($(TYPE),DEVEL)
-	-rm -f $(PREFIX)/lib/$(LIB) $(PREFIX)/lib/$(LIB_OPT) $(PREFIX)/lib/$(LIB_DBG)
+	$(MAKE) uninstall_lib
+	$(MAKE) CFGOPTS=--dbg uninstall_lib
+	$(MAKE) CFGOPTS=--opt uninstall_lib
 	-rm -rf $(PREFIX)/include/ode_robots
 endif
 	-rm -rf $(PREFIX)/share/lpzrobots/ode_robots/

@@ -1,102 +1,10 @@
+The Makefile contains all the voodoo to create packages
 
-# Copy Makefile to where you want to do the packaging and stuff
-# then simply type make
+You need the following packages:
+sudo apt-get install debconf devscripts quilt docbook-to-man
+
 #
 # make sure your gpg-agent is running
 # eval $(gpg-agent --daemon)
 # ....
-
-
-# This file can be executed on the console 
-#  and all the distribution files are generated!
-
-VERSION=0.6
-MULTI="-j 2"
-
-set -e # exit if command fails
-
-# 1. to create a distribution/Release:
-# perform: 
-cvs co lpzrobots
-cd lpzrobots
-cvs update -dP
-cd dist_utils
-./createDist.sh $VERSION
-
-export DEBEMAIL="Georg Martius <georg.martius@web.de>"
-# 2. create deb.source
-cd ../../
-PACKDIR=lpzrobots-${VERSION}-packages
-cd lpzrobots-${VERSION}
-DISTUTILS=../lpzrobots/dist_utils/
-
-
-bash ${DISTUTILS}create_deb_packages \
- "../$PACKDIR" ode-dbl 0.11.1 opende
-
-
-
-# 2. for extra lib bundle:
-# just start ./createextraDist.sh
-
-# 3. for binary distribution:
-# take the prepared distribution from 1 and do
-cd ../../lpzrobots-${VERSION}
-echo -e "/usr/local\nu\ny" | make  # select /usr/local and user (u)
-make prepare
-make $MULTI libs
-make clean
-# rm Makefile.conf # the user must use the same conf (i.e. /usr/local and (u) user)
-pushd `pwd`
-cd ../
-tar -czf lpzrobots-${VERSION}-binary-lib-devel-`uname -s`-`uname -m`.tgz lpzrobots-${VERSION}
-popd
-
-# 4. RPM and DEB. 
-echo -e "/usr\nu\ny" | make conf  # select /usr and user (u)
-make prepare
-make $MULTI libs
-make doc # go and drink another cup of tee or two ;-)
-
-PACKAGEOPTS='--install=no --strip=no --backup=no --pkgname=lpzrobots --pkgversion=$VERSION --pkgarch=`uname -m` --pkglicense="GPL/CC-NC" --pkggroup="Robotics Group for Self-Organization of Control" --provides="" --pakdir=../ --requires=""';
-
-# rpm
-sudo checkinstall -R $PACKAGEOPTS make install
-
-# deb
-sudo checkinstall -D $PACKAGEOPTS --maintainer="georg.martius@web.de" make install
-
-
-#5. Create doc package
-cp -r doc lpzrobots-${VERSION}-doc
-tar -czf ../lpzrobots-${VERSION}-doc.tgz lpzrobots-${VERSION}-doc
-rm -r lpzrobots-${VERSION}-doc
-
-
-#6. to make all examples do that (not needed)
-#make install # to make the makefiles find the libs
-#cd ode_robots/simulations && make all 
-#cd ../../
-#cd ode_robots/examples/ && make all
-#cd ../../
-#cd selforg/simulations && make all
-#cd ../../
-#cd ga_tools/simulations && make all
-#cd ../../
-
-
-
-#7. create selforg Package
-echo -e "/usr/local\nd\ny" | make conf  # select /usr/local and devel (d)
-cd selforg ; make clean-all ; cd ../
-cp -r selforg selforg-${VERSION}
-tar -czf ../selforg-${VERSION}.tgz selforg-${VERSION}
-rm -r selforg-${VERSION}
-
-#8. create guilogger Package
-cd guilogger; make distclean; cd ../
-GLV=`grep VERSIONSTRING guilogger/src/guilogger.h | sed 's/.*VERSIONSTRING "\(.*\)"/\1/'`
-cp -r guilogger guilogger-${GLV}
-tar -czf ../guilogger-${GLV}.tgz guilogger-${GLV}
-rm -r guilogger-${GLV}
 

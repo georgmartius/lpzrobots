@@ -29,15 +29,14 @@ SoML::SoML(const SoMLConf& conf)
   addParameterDef("creativity",&creativity,0, 0, 100, "creativity term (0: disabled) ");
   addParameterDef("epsC", &epsC, 0.1, 0, 1, "learning rate of the controller");
   addParameterDef("epsA", &epsA, 0.1, 0, 1,"learning rate of the model");
-  addParameterDef("harmony", &harmony, 0.00001, 0, 100, "harmony term");
-  addParameterDef("s4avg", &s4avg, 1, 0, 1000, "number of steps to smooth the sensor values");
-  addParameterDef("s4delay", &s4delay, 1, 0, 1000,
+  addParameterDef("harmony", &harmony, 0.00001, 0, 1, "harmony term");
+  addParameterDef("s4avg", &s4avg, 1, 0, 20, "number of steps to smooth the sensor values");
+  addParameterDef("s4delay", &s4delay, 1, 0, 20,
                   "number of steps to delay motor values (delay in the loop)");
   addParameterDef("dampA", &dampA, 0.00001, 0, 1, "damping factor for model learning");
   if(conf.useS) addParameterDef("discountS", &discountS, 0.005, 0, 1, "discounting od the S term");
   addParameterDef("biasnoise", &biasnoise, 0.01, 0, 1, "noise for h terms");
-  //  addParameterDef("logaE", &logaE, false,  "use logarithmic error");
-
+  addParameterDef("Logarithmic", &loga, true, "whether to use logarithmic error");
 
   cNet=0;
 };
@@ -153,10 +152,8 @@ void SoML::stepNoLearning(const sensor* x_, int number_sensors,
 // performs control step (activates network and stores results in buffer and y_)
 void SoML::control(const Matrix& x, motor* y_, int number_motors){
   // averaging over the last s4avg values of x_buffer
-  // x_smooth += (x - x_smooth)*(1.0/max(s4avg,1));
-  // calculate controller values based on smoothed input values
-  //   Matrix y = (C*(x_smooth) + h).map(g);
-  //  const Matrix& y =   (C*(x + v_avg*creativity) + h).map(g);
+  x_smooth += (x - x_smooth)*(1.0/max(s4avg,1));
+
   cNet->process(x);
 
   // output is in the controller layer  + creativity
@@ -184,12 +181,12 @@ void SoML::learn(const Matrix& x, const Matrix& y){
   const Matrix& L = cNet->response();
   const Matrix& chi = (L.multMT().secureInverse()) * xi;
   const Matrix& v0   = (L^T)*chi;
-  E = v0.multTM().val(0,0);
+  E = v0.norm_sqr();
   
   cNet->forwardpropagation(v0, &v, &zeta);
   eta_avg = eta_avg*.9 + v[numControllerLayer]*.1;
 
-  // double factor = logaE ? 0.001/(E+0.000001) : 1.0; // logarithmic error does not work!
+  E = loga ? 0.1/(E+0.0001) : 1.0; 
   double factor = 1;
       
   Matrices mu;  
@@ -198,10 +195,10 @@ void SoML::learn(const Matrix& x, const Matrix& y){
   // learning rule
   // TODO: the effective y is not used here!
   for(unsigned int l=0; l < numControllerLayer; l++){    
-    const Matrix& epsl =  (mu[l] & zeta[l]) * epsC;
+    const Matrix& epsl =  (mu[l] & zeta[l]) * (epsC * E);
     const Matrix& y     = cNet->getLayerOutput(l);
     const Matrix& y_lm1 = l==0 ? x : cNet->getLayerOutput(l-1);
-    cNet->getWeights(l) += ((mu[l] * (v[l]^T) * epsC) 
+    cNet->getWeights(l) += ((mu[l] * (v[l]^T) * (epsC * E)) 
                             - ((y * (y_lm1^T)) & epsl * (2 * factor))).mapP(0.03, clip);
     cNet->getBias(l) += (y & epsl * (-2 * factor)).mapP(0.03, clip);
     if(epsC!=0){

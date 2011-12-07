@@ -21,7 +21,9 @@ INCLUDEPATH += . \
                src/InputReader \
                src/tools \
                src/visualisations
-CONFIG += qt debug
+CONFIG += qt
+#debug
+
 # Input
 HEADERS += src/AbstractRobotGUI.h \
            src/AbstractRobotSubWidget.h \
@@ -88,4 +90,5 @@ SOURCES += src/AbstractRobotGUI.cpp \
            src/visualisations/TextureVisualisation.cpp \
            src/visualisations/VectorPlotVisualisation.cpp \
            src/visualisations/BarVisualisation.cpp 
-QT+=opengl xml debug
+QT+=opengl xml
+# debug

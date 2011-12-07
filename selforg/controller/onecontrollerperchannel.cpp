@@ -107,3 +107,18 @@ void OneControllerPerChannel::stepNoLearning(const sensor* sensors , int sensorn
   }
 }
 
+bool OneControllerPerChannel::store(FILE* f) const {
+  bool rv=true;
+  FOREACHC(std::vector<AbstractController*>, ctrl, c){
+    rv &= (*c)->store(f);
+  }
+  return rv;
+}
+  
+bool OneControllerPerChannel::restore(FILE* f){
+  bool rv=true;
+  FOREACH(std::vector<AbstractController*>, ctrl, c){
+    rv &= (*c)->restore(f);
+  }
+  return rv;
+}

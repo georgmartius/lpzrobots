@@ -32,17 +32,25 @@ changequote([[,]])
 prefix="PREFIX"
 srcprefix="SRCPREFIX"
 intern=
+type=DEVORUSER([[[[DEVEL]]]],[[[[USER]]]])
 
 LIBBASE=ode_robots
 
 ## use -pg for profiling
-CBASEFLAGS="-pthread -I/usr/X11R6/include `ode-dbl-config --cflags` LINUXORMAC( ,-I/opt/local/include)" 
+if type ode-dbl-config >/dev/null 2>&1; then
+    ODEFLAGS=`ode-dbl-config --cflags`
+else
+    ODEFLAGS=
+fi
+
+CBASEFLAGS="-pthread -I/usr/X11R6/include $ODEFLAGS LINUXORMAC( ,-I/opt/local/include)" 
 CPPFLAGS="$CBASEFLAGS"
 INTERNFLAGS="-g -O"
 LIBS="-lm -losgShadow -losgText -losgUtil -losgViewer -losgGA -losgDB -lOpenThreads -losg -lGL -lGLU -lglut -lpthread"
 
+
 usage="\
-Usage: ode_robots-config [--prefix[=DIR]] [--srcprefix[=DIR]] [--version] [--intern] [--static] [--opt|--dbg] [--cflags] [--libs] [--libfile] [--solibfile]"
+Usage: ode_robots-config [--prefix[=DIR]] [--srcprefix[=DIR]] [--version] [--intern] [--static] [--opt|--dbg] [--cflags] [--libs] [--libfile] [--solibfile] [--type]"
 
 if test $# -eq 0; then
       echo "${usage}" 1>&2
@@ -56,6 +64,10 @@ while test $# -gt 0; do
   esac
 
   case $1 in
+    --type)
+      echo $type
+      exit 0
+      ;;
     --prefix=*)
       prefix=$optarg
       ;;

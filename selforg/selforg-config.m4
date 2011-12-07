@@ -34,6 +34,7 @@ changequote([[,]])
 prefix="PREFIX"
 srcprefix="SRCPREFIX"
 intern=
+type=DEVORUSER([[[[DEVEL]]]],[[[[USER]]]])
 
 LIBBASE=selforg
 
@@ -44,7 +45,7 @@ INTERNFLAGS="-g -O"
 LIBS="-lm -lreadline -lncurses -lpthread"
 
 usage="\
-Usage: selforg-config [--prefix[=DIR]] [--srcprefix[=DIR]] [--version] [--intern] [--static] [--opt|--dbg] [--cflags] [--libs] [--libfile] [--solibfile]"
+Usage: selforg-config [--prefix[=DIR]] [--srcprefix[=DIR]] [--version] [--intern] [--static] [--opt|--dbg] [--cflags] [--libs] [--libfile] [--solibfile] [--type]"
 
 if test $# -eq 0; then
       echo "${usage}" 1>&2
@@ -58,6 +59,10 @@ while test $# -gt 0; do
   esac
 
   case $1 in
+    --type)
+      echo $type
+      exit 0
+      ;;
     --prefix=*)
       prefix=$optarg
       ;;

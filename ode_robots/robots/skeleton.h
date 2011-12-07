@@ -83,13 +83,16 @@ namespace lpzrobots {
     double backVelocity; ///< velocity of back joint servo
     double backJointLimit; ///< angle range of back joint
 
-    double powerFactor; ///< scale factor for maximal forces of the servos
+    double powerFactor; ///< scale factor for maximal forces of the servos    
+    double relForce;    ///< factor between arm force and rest 
     double dampingFactor; ///< scale factor for damping of the servos
     
     double jointLimitFactor; ///< factor between servo range (XXXJointLimit, see above) and physical joint limit
 
 
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
+    bool onlyMainParameters; ///< true: only a few parameters are exported for configuration
+
     bool handsRotating; ///< hands are attached with a ball joint
     bool useGripper;        ///< hands have a gripper: use getGrippers and add grippables
     double gripDuration;    ///< time the gripper can grasp
@@ -150,8 +153,9 @@ namespace lpzrobots {
 
       c.useVelocityServos = false;
       c.powerFactor       = 1.0;
+      c.relForce          = 1.0;      
       c.dampingFactor     = 1.0;
-      c.jointLimitFactor  = 1.0;
+      c.jointLimitFactor  = 1.1; // factor between servo range and physical limit
 
       c.hipPower    = 20; 
       c.hipDamping  = 0.2;
@@ -202,6 +206,7 @@ namespace lpzrobots {
       c.neckJointLimit = M_PI/5;
       c.backJointLimit = M_PI/3;//4// // +- 60 degree (half of it to the back)
 
+      c.onlyMainParameters   = true;
       c.onlyPrimaryFunctions = false;
       c.handsRotating        = false;
       c.movableHead          = false;

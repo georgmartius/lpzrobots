@@ -118,12 +118,8 @@ public:
      // velocity servos
      RhoenradConf conf = Rhoenrad::getDefaultConfVelServos();
      conf.relWheelmass=4;
-     conf.powerfactor = .25;// .95;//.65;//5;
+     conf.powerFactor = .25;// .95;//.65;//5;
      conf.onlyPrimaryFunctions = false;
-     if (i==0)
-       conf.trunkColor=Color(0.1, 0.3, 0.8);
-     else	
-       conf.trunkColor=Color(0.75, 0.1, 0.1);
 
      conf.useOrientationSensor=false;
 

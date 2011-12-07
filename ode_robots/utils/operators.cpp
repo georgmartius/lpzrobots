@@ -127,6 +127,17 @@ namespace lpzrobots {
     return rv;
   }
 
+  void PullToPointOperator::notifyOnChange(const paramkey& key){
+    if(key=="point_x"){
+      point.x()=px;
+    }else     if(key=="point_y"){
+      point.y()=py;
+    }else     if(key=="point_z"){
+      point.z()=pz;
+    }
+  }
+
+
   Operator::ManipType BoxRingOperator::observe(OdeAgent* agent, GlobalData& global, 
                                                ManipDescr& descr){
     OdeRobot* r = agent->getRobot();

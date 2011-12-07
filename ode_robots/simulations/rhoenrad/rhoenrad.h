@@ -89,13 +89,16 @@ namespace lpzrobots {
     double backVelocity; ///< velocity of back joint servo
     double backJointLimit; ///< angle range of back joint
 
-    double powerfactor; ///< scale factor for maximal forces of the servos
-    double dampingfactor; ///< scale factor for damping of the servos
+    double powerFactor; ///< scale factor for maximal forces of the servos    
+    double relForce;    ///< factor between arm force and rest 
+    double dampingFactor; ///< scale factor for damping of the servos
     
     double jointLimitFactor; ///< factor between servo range (XXXJointLimit, see above) and physical joint limit
 
 
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
+    bool onlyMainParameters; ///< true: only a few parameters are exported for configuration
+
     bool handsRotating; ///< hands are attached with a ball joint
 
     bool movableHead;  ///< if false then no neck movement 
@@ -104,11 +107,11 @@ namespace lpzrobots {
 
     bool irSensors; ///< whether to use the irsensor eyes
 
-    Color headColor;
-    Color bodyColor;
-    Color trunkColor;
-    Color handColor;
-    Color wheelColor;
+    std::string headColor;
+    std::string bodyColor;
+    std::string trunkColor;
+    std::string handColor;
+    std::string wheelColor;
 
 
     std::string headTexture; // texture of the head
@@ -123,7 +126,7 @@ namespace lpzrobots {
   class Rhoenrad : public OdeRobot, public Inspectable {
   public:
 
-    enum SkelParts {Wheel, Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp, 
+    enum SkelParts {Wheel, Hip,Trunk_comp, Belly, Thorax, Neck, Head_comp, 
                     Left_Shoulder, Left_Forearm, Left_Hand,
                     Right_Shoulder, Right_Forearm, Right_Hand, 
                     Left_Thigh, Left_Shin, Left_Foot,
@@ -160,52 +163,54 @@ namespace lpzrobots {
 
 
       c.useVelocityServos = false;
-      c.powerfactor=1.0;
-      c.dampingfactor=1.0;
-      c.jointLimitFactor=1.0;
+      c.powerFactor       = 1.0;
+      c.relForce          = 1.0;      
+      c.dampingFactor     = 1.0;
+      c.jointLimitFactor  = 1.1; // factor between servo range and physical limit
 
-      c.hipPower=100;
+      c.hipPower    = 20; 
       c.hipDamping= 0.2;
       c.hipVelocity=20;
 
-      c.hip2Power=100;
+      c.hip2Power   = 20;
       c.hip2Damping=0.2;
 
-      c.neckPower=20;
+      c.neckPower    = 2;
       c.neckDamping=0.1;
       c.neckVelocity=20;
 
-      c.kneePower=60;
+      c.kneePower    = 10;
       c.kneeDamping=0.1;
       c.kneeVelocity=20;
 
-      c.anklePower=30;
+      c.anklePower    = 3;
       c.ankleDamping=0.1;
       c.ankleVelocity=20;
 
-      c.armPower=40;
+      c.armPower    = 8;
       c.armDamping=0.1;
       c.armVelocity=20;
 
-      c.elbowPower=30;
+      c.elbowPower    = 4;
       c.elbowDamping=0.1;
       c.elbowVelocity=20;
 
-      c.pelvisPower=200;
+      c.pelvisPower    = 20;
       c.pelvisDamping=0.2;
       c.pelvisVelocity=20;
 
-      c.backPower=200;
+      c.backPower    = 20;
       c.backDamping=0.1;
       c.backVelocity=20;
 
-      c.hipJointLimit = 2.2;
-      c.hip2JointLimit= 1.4;
-      c.kneeJointLimit = 2.8; // + 300, -20 degree
+      c.hipJointLimit  = 2.1;   //1.6;
+      c.hip2JointLimit = .8;    //
+
+      c.kneeJointLimit  = 2;    // 2.8; // + 300, -20 degree
       c.ankleJointLimit = M_PI/2; // - 90 + 45 degree
 
       c.armJointLimit = M_PI/2; // +- 90 degree
-      c.elbowJointLimit = 2.4;
+      c.elbowJointLimit = M_PI*2.0/3.0;
 
       c.hip2JointLimit = M_PI/30; // +- 6 degree
       c.pelvisJointLimit = M_PI/10; // +- 18 degree
@@ -213,6 +218,7 @@ namespace lpzrobots {
       c.neckJointLimit = M_PI/5;
       c.backJointLimit = M_PI/3;//4// // +- 60 degree (half of it to the back)
 
+      c.onlyMainParameters   = true;
       c.onlyPrimaryFunctions=false;
       c.handsRotating = true;
       c.movableHead   = false;
@@ -221,15 +227,14 @@ namespace lpzrobots {
 
       //      c.headTexture="Images/really_white.rgb";
       c.headTexture="Images/dusty.rgb";
-      c.headColor=Color(255/255.0, 219/255.0, 119/255.0, 1.0f);
+      c.headColor       = "robot4";  
       //  c.bodyTexture="Images/whitemetal_farbig_small.rgb";
       c.bodyTexture="Images/dusty.rgb";
-      c.bodyColor=Color(207/255.0, 199/255.0, 139/255.0, 1.0f);
+      c.bodyColor       = "robot2";
       c.trunkTexture="Images/dusty.rgb";//"Images/whitemetal_farbig_small.rgb";
-      c.trunkColor=Color(.1,.3,.8, 1.0f);
-      c.trunkColor=Color(177.0/255.0, 51.0/255.0, 29.0/255.0, 1.0f);
-      c.handColor=Color(247.0/255, 182.0/255,52.0/255, 1.0f);
-      c.wheelColor=Color(128.0/255, 128.0/255,128.0/255, .5);
+      c.trunkColor      = "robot1";
+      c.handColor       = "robot3";
+      c.wheelColor      = "Monaco";
       return c;
     }
 
@@ -237,17 +242,18 @@ namespace lpzrobots {
       RhoenradConf c = getDefaultConf();
 
       c.useVelocityServos = true;
-      c.dampingfactor=0.1; // softness 
       
-/*       c.hipDamping= 0.01; */
-/*       c.hip2Damping=0.01; */
-/*       c.neckDamping=0.01; */
-/*       c.kneeDamping=0.01; */
-/*       c.ankleDamping=0.01; */
-/*       c.armDamping=0.01; */
-/*       c.elbowDamping=0.01; */
-/*       c.pelvisDamping=0.01; */
-/*       c.backDamping=0.01; */
+      c.hipDamping    = 0.01;
+      c.hip2Damping   = 0.01;
+      c.neckDamping   = 0.01;
+      c.kneeDamping   = 0.01;
+      c.ankleDamping  = 0.01;
+      c.armDamping    = 0.01;
+      c.elbowDamping  = 0.01;
+      c.pelvisDamping = 0.01;
+      c.backDamping   = 0.01;
+
+      
       return c;
     }
 
@@ -283,12 +289,6 @@ namespace lpzrobots {
     /** returns number of motors
      */
     virtual int getMotorNumber();
-    /** checks for internal collisions and treats them. 
-     *  In case of a treatment return true (collision will be ignored by other objects 
-     *  and the default routine)  else false (collision is passed to other objects and 
-     *  (if not treated) to the default routine).
-     */
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) {return false;}
 
     /** this function is called in each timestep. It should perform robot-internal checks, 
 	like space-internal collision detection, sensor resets/update etc.
@@ -303,10 +303,7 @@ namespace lpzrobots {
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }
 
-    /** all parts of the robot */
-    virtual std::vector<Primitive*> getAllPrimitives() { return objects; }
-
-    /** returns the position of the head */
+        /** returns the position of the head */
     virtual Position getHeadPosition();
 
     /** returns the position of the trunk */
@@ -328,8 +325,6 @@ namespace lpzrobots {
 
     bool created;      // true if robot was created
 
-    std::vector<Primitive*>    objects;  // all the objects
-    std::vector<Joint*>        joints; // joints legs
     std::vector<TwoAxisServo*> hipservos; // motors
     std::vector<OneAxisServo*> kneeservos; // motors
     std::vector<OneAxisServo*> ankleservos; // motors
@@ -350,6 +345,7 @@ namespace lpzrobots {
     BallJoint*  hand_wheel[2];
     PID hand_pid[2];
     FixedJoint*  hip_wheel; // will be removed as soon as hands are connected
+    double realpowerfactor; // save value during fixation
 
   };
 

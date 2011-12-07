@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=${1:-0.5}
+VERSION=${1:-0.7}
 NAME=lpzrobots
 BASE=../..
 
@@ -22,12 +22,12 @@ echo "Copy guilogger";
 cp -r  $SRCDIR/guilogger $DIR/;
 echo "Copy javacontroller";
 cp -r  $SRCDIR/javacontroller $DIR/;
-echo "Copy neuronviz";
-cp -r  $SRCDIR/neuronviz $DIR/;
+echo "Copy matrixviz";
+cp -r  $SRCDIR/matrixviz $DIR/;
 echo "Copy soundman";
 cp -r  $SRCDIR/soundman $DIR/;
-echo "Copy webots projects";
-cp -r  $SRCDIR/webots $DIR/;
+echo "Copy configurator";
+cp -r  $SRCDIR/configurator $DIR/;
 echo "Copy doc folder";
 cp -r  $SRCDIR/doc $DIR/;
 
@@ -99,9 +99,8 @@ done
 echo "Removing Makefile.conf";
 rm -f $DIR/Makefile.conf
 
-echo "Removing CVS dirs";
-find $DIR/ -type d -name CVS | xargs rm -r;
-find $DIR/ -type f -name ".cvsignore" | xargs rm -r;
+echo "Removing git dirs";
+find $DIR/ -type f -name ".gitignore" | xargs rm -r;
 
 
 pushd `pwd`;

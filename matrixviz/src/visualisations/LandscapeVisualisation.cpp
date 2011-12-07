@@ -26,8 +26,6 @@
 #include "math.h"
 #include <iostream>
 #include <string>
-#include <GL/glut.h>    // Header File For The GLUT Library
-
 
 using namespace std;
 
@@ -98,7 +96,7 @@ void LandscapeVisualisation::paintGL(){
 
   for (int j = 0; j < maxY; j++) {
     for (int i = 0; i < maxX; i++) {
-      double p00, p01, p10, p11;
+      double p00, p01=0, p10=0, p11;
       VERTEX v1_00, v1_01, v1_10, v1_11, v2_00, v2_01, v3_00, v4_00, v4_10;
       p00 = clip(colorPalette->getScaledValue(channel->getValue(i, j)));
       //clipping:

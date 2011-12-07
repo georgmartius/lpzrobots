@@ -33,7 +33,28 @@
 
 namespace lpzrobots {
 
-  
+  /**
+     Configure object for Gripper
+   */
+  struct GripperConf {
+    std::string name; ///< name of gripper for configuration
+
+    double gripDuration; ///< time in seconds for how long the gripper grasps
+    /** releaseDuration time in seconds for how long the gripper 
+        cannot grasp after release */
+    double releaseDuration;
+    Color  color;
+    double size; ///< diameter of the drawn sphere (if 0 nothing is drawn)
+    /** sphere is drawn at contact point (true) 
+        or at center of attached primitive (false)
+    */
+    bool   drawAtContactPoint;     
+    /** if true the last grasped object cannot be directly grasped again
+     */
+    bool   forbitLastPrimitive; 
+    //     bool incOrExc; /// include (false) or exclude (true) grippables;
+  };
+
   /**
      A gripper can be attached to a primitive via its substance
      and implements gripping (a fixed joint) on collision with
@@ -54,8 +75,19 @@ namespace lpzrobots {
        @param drawAtContactPoint sphere is drawn at contact point (true) 
               or at center of attached primitive (false)
     */ 
-    Gripper(double gripDuration, double releaseDuration, 
-            const Color& color, double size, bool drawAtContactPoint = true);
+    Gripper(const GripperConf& conf = getDefaultConf());
+
+    static GripperConf getDefaultConf(){
+      GripperConf conf;
+      conf.name                = "Gripper";
+      conf.gripDuration        = 10;
+      conf.releaseDuration     = 1;
+      conf.color               = Color(1,1,1);
+      conf.size                = 0.2;
+      conf.drawAtContactPoint  = true;
+      conf.forbitLastPrimitive = true; 
+      return conf;
+    }
 
     /// call this to attach the gripper to the given primitive
     bool attach(Primitive* p);    
@@ -71,13 +103,10 @@ namespace lpzrobots {
 			   const Substance& s1, const Substance& s2);
 
   private:
-    double gripDuration;
-    double releaseDuration;
-    Color  color;
-    double size;
-    bool   drawAtContactPoint; 
+    GripperConf conf;
     bool   isAttached;
-    //     bool incOrExc; /// include (false) or exclude (true) grippables;
+
+    dGeomID last; 
     HashSet<dGeomID> grippables;
     double gripStartTime;
   };
