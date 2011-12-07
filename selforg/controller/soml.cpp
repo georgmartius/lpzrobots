@@ -80,16 +80,16 @@ void SoML::init(int sensornumber, int motornumber, RandGen* randGen){
 
   bool sIP = conf.someInternalParams;
   for(unsigned int l=0; l< numControllerLayer; l++){
-    addInspectableMatrix("C" + itos(l), &(cNet->getWeights(l)), sIP, 
+    addInspectableMatrix("C" + itos(l+1), &(cNet->getWeights(l)), sIP, 
                          "controller matrix of layer " +  itos(l) );
-    addInspectableMatrix("h" + itos(l), &(cNet->getBias(l)), sIP, 
+    addInspectableMatrix("h" + itos(l+1), &(cNet->getBias(l)), sIP, 
                          "controller bias of layer " +  itos(l));    
   }
   for(unsigned int l=numControllerLayer; l< cNet->getLayerNum(); l++){  
     int i = l-numControllerLayer;
-    addInspectableMatrix("A" + itos(i), &(cNet->getWeights(l)), sIP, 
+    addInspectableMatrix("A" + itos(i+1), &(cNet->getWeights(l)), sIP, 
                          "model matrix of layer " +  itos(i) );
-    addInspectableMatrix("b" + itos(i), &(cNet->getBias(l)), sIP, 
+    addInspectableMatrix("b" + itos(i+1), &(cNet->getBias(l)), sIP, 
                          "model bias of layer " +  itos(i));    
   }
   if(conf.useS){
@@ -110,7 +110,7 @@ void SoML::init(int sensornumber, int motornumber, RandGen* randGen){
     y_buffer[k].set(number_motors,1);
   }
   eta_avg.set(number_motors,1);
-  addInspectableMatrix("eta_avg", &eta_avg, sIP, "Average shift at motors");
+  //  addInspectableMatrix("eta_avg", &eta_avg, sIP, "Average shift at motors");
 
 }
 

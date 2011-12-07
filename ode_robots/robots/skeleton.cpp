@@ -1058,7 +1058,7 @@ GUIDE adding new sensors
 	(*i)->setDamping(conf.backDamping * conf.dampingFactor);
 	(*i)->setMaxVel(conf.backVelocity); 
         if(fst) //bend
-          (*i)->setMinMax(-0.5*conf.backJointLimit, 1.5*conf.backJointLimit);
+          (*i)->setMinMax(-0.9*conf.backJointLimit, 1.5*conf.backJointLimit);
         else // torsion
           (*i)->setMinMax(-conf.backJointLimit, conf.backJointLimit);
 	fst = false;
