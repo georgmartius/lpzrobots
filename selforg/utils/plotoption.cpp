@@ -139,7 +139,6 @@ void PlotOption::flush(long step){
       break;
     case GuiLogger:
     case GuiLogger_File:
-    case NeuronViz:
     case MatrixViz:
     case ECBRobotGUI:
     case SoundMan:{

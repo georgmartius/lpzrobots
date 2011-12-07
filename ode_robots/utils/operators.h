@@ -113,18 +113,35 @@ namespace lpzrobots {
     enum Dimensions { X = 1, Y = 2, Z = 4, XY = X | Y, XZ = X | Z, YZ = Y | Z, 
                       XYZ = X | Y | Z };
 
+    /**
+       @param dim dimensions along the force acts 
+        (also only these coordinates of point are considered)
+       @minDist threshold for distance below which no force acts
+       @damp damping factor for movement of the robot
+       @confPos whether to make the point configurable
+     */
     PullToPointOperator(const Pos& point, double force,
                         bool showPoint, Dimensions dim = XYZ, 
-                        double minDist = 0, double damp = 0)
+                        double minDist = 0, double damp = 0, bool confPos = false)
       : Operator("PullToPointOperator","1.0"), 
         point(point), force(force), showPoint(showPoint), dim(dim),
         minDist(minDist), damp(damp)
     {
       addParameter("force",    &this->force,   0, 100, "pull to point force");
       addParameter("damp",     &this->damp,   0, 1,   "pull to point damping");
+      if(confPos){
+        if(dim & X) 
+          addParameterDef("point_x", &px, point.x(), -100, 100,"pull to point x position");
+        if(dim & Y) 
+          addParameterDef("point_y", &py, point.y(), -100, 100,"pull to point y position");
+        if(dim & Z) 
+          addParameterDef("point_z", &pz, point.z(), -100, 100,"pull to point z position");
+      }
     }
 
     virtual ManipType observe(OdeAgent* agent, GlobalData& global, ManipDescr& descr);
+    
+    virtual void notifyOnChange(const paramkey& key);
 
   protected:
     Pos point;    
@@ -133,6 +150,7 @@ namespace lpzrobots {
     Dimensions dim;
     double minDist;
     double damp;
+    double px,py,pz; // used to configure position (are floats and not doubles)
   };
 
   /**
