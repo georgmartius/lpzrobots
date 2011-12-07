@@ -140,11 +140,6 @@ protected:
     return 1.0 - k*k;
   };
 
-  static double power3(double x)
-  {    
-    return x*x*x;
-  };
-
   /// function that clips the second argument to the interval [-first,first]
   static double clip(double r, double x){  
     return min(max(x,-r),r);

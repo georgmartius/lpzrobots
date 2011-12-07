@@ -25,6 +25,9 @@
 #include "forceboostwiring.h"
 #include <assert.h>
 #include <cstring>
+#include <selforg/matrix.h>commer
+#include <cmath>
+#include <selforg/controller_misc.h>
 
 using namespace matrix;
 
@@ -70,8 +73,8 @@ bool ForceBoostWiring::wireMotorsIntern(motor* rmotors, int rmotornumber,
   assert(cmotornumber == this->cmotornumber);
   ///
   Matrix mot(cmotornumber ,1,  cmotors);
-  error += (mot-sens)*boost - error*0.05;  
-  Matrix rmot = mot + error;
+  error += (mot-sens)*boost - (error.map(power3))*0.15;  
+  Matrix rmot = (mot + error).mapP(1,clip);
   rmot.convertToBuffer(rmotors, rmotornumber);
   //  memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
   return true;
