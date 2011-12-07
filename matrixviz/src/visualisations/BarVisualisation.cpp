@@ -26,8 +26,6 @@
 #include "math.h"
 #include <iostream>
 #include <string>
-#include <GL/glut.h>    // Header File For The GLUT Library
-
 
 using namespace std;
 

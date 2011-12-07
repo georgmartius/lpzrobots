@@ -1,8 +1,7 @@
 The Makefile contains all the voodoo to create packages
 
 You need the following packages:
-sudo apt-get install \ 
-     debconf devscripts
+sudo apt-get install debconf devscripts quilt
 
 #
 # make sure your gpg-agent is running

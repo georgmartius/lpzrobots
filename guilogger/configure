@@ -5,4 +5,4 @@ if [ `uname -s` = "Darwin" ]; then
     SPEC=-spec macx-g++
 fi
 
-qmake $SPEC guilogger.pro
+qmake -makefile $SPEC guilogger.pro
