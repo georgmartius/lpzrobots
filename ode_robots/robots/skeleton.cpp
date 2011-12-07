@@ -903,8 +903,8 @@ GUIDE adding new sensors
 
     if(conf.useGripper){
       GripperConf gc=Gripper::getDefaultConf();
-      gc.gripDuration=4;
-      gc.releaseDuration=0.5;
+      gc.gripDuration=conf.gripDuration;
+      gc.releaseDuration=conf.releaseDuration;
       gc.color=osgHandle.getColor("joint");
       gc.size=0.18; //0.19 //0.15
       gc.drawAtContactPoint=false; //true
@@ -1057,8 +1057,10 @@ GUIDE adding new sensors
 	(*i)->setPower(conf.backPower * conf.powerFactor);
 	(*i)->setDamping(conf.backDamping * conf.dampingFactor);
 	(*i)->setMaxVel(conf.backVelocity); 
-	(*i)->setMinMax(fst? -conf.backJointLimit : -conf.backJointLimit,
-			conf.backJointLimit);
+        if(fst) //bend
+          (*i)->setMinMax(-0.5*conf.backJointLimit, 1.5*conf.backJointLimit);
+        else // torsion
+          (*i)->setMinMax(-conf.backJointLimit, conf.backJointLimit);
 	fst = false;
       } 
     }

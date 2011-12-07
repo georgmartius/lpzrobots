@@ -14,7 +14,7 @@ arenaground     Bastgelb
 wall            Zartgrau
 # colors for manipulation by operators
 manipmove       Narzissengelb
-maniplimit      Koenigspurpur
+maniplimit      Silbergrau
 # Robot Set 1
 # robot1 is the salient color
 robot1          Blaucyan        0

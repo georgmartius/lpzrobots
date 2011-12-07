@@ -156,6 +156,10 @@ namespace lpzrobots {
     p = new Capsule(conf.segmDia * 0.8, conf.segmLength);     
     p->setTexture("Images/whitemetal_farbig_small.rgb");    
     p->init(odeHandle, conf.segmMass, osgHandle);         
+    if(index==0)
+      p->setColor(conf.headColor);
+    else
+      p->setColor(conf.bodyColor);
     return p;    
   }
 

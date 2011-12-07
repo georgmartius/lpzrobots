@@ -125,12 +125,12 @@ namespace lpzrobots {
     if (creategroundPlane) {
       // now create the plane in the middle
       groundPlane = new Box(groundLength+1.95*wallThickness, 
-                            groundWidth+1.95*wallThickness, groundThickness);
+                            groundWidth+1.95*wallThickness, groundThickness + 1.0);
       groundPlane->setTexture(TextureDescr(groundTextureFileName,-5,-5));
       groundPlane->init(odeHandle, 0, osgHandle.changeColor(groundColor),
 			Primitive::Geom | Primitive::Draw);
       groundPlane->setSubstance(groundSubstance);
-      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,groundThickness/2.0-0.001f) * pose);
+      groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,groundThickness/2.0-0.5) * pose);
       obst.push_back(groundPlane);
     }
   }

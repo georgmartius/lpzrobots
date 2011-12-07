@@ -56,6 +56,9 @@ public:
   double jointLimit;      ///< maximal angle for the joints (M_PI/4 = 45 degree)
   bool   useServoVel;     ///< if true the new Servos are used (only for schlangeservo)
   double velocity;        ///< maximal velocity of servos
+
+  std::string headColor;
+  std::string bodyColor;
 } SchlangeConf;
 
 
@@ -90,6 +93,8 @@ public:
     conf.jointLimit =  M_PI/4;
     conf.useServoVel = false;
     conf.velocity    = 20;     // maximal velocity of servos
+    conf.headColor   = "robot2";
+    conf.bodyColor   = "robot1";
     return conf;
   }
 

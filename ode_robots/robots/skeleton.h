@@ -213,8 +213,8 @@ namespace lpzrobots {
       c.useBackJoint         = true;
       c.irSensors            = false;
       c.useGripper           = false;
-      c.gripDuration         = 5;
-      c.releaseDuration      = 10;
+      c.gripDuration         = 30;
+      c.releaseDuration      = 1;
 
       //      c.headTexture = "Images/really_white.rgb";
       c.headTexture     = "Images/dusty.rgb";
