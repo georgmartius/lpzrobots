@@ -1,3 +1,8 @@
 #!/bin/sh
 
-qmake matrixviz.pro
+SPEC=
+if [ `uname -s` = "Darwin" ]; then 
+    SPEC=-spec macx-g++
+fi
+
+qmake $SPEC matrixviz.pro
