@@ -49,7 +49,8 @@ Sox::Sox(double init_feedback_strength, bool useExtendedModel, bool useTeaching 
   }
 
   addInspectableMatrix("A", &A, false, "model matrix");
-  addInspectableMatrix("S", &S, false, "model matrix (sensor branch)");
+  if(useExtendedModel)
+    addInspectableMatrix("S", &S, false, "model matrix (sensor branch)");
   addInspectableMatrix("C", &C, false, "controller matrix");
   addInspectableMatrix("L", &L, false, "Jacobi matrix");
   addInspectableMatrix("h", &h, false, "controller bias");
