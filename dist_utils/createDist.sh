@@ -23,7 +23,7 @@ cp -r  $SRCDIR/guilogger $DIR/;
 echo "Copy javacontroller";
 cp -r  $SRCDIR/javacontroller $DIR/;
 echo "Copy matrixviz";
-cp -r  $SRCDIR/neuronviz $DIR/;
+cp -r  $SRCDIR/matrixviz $DIR/;
 echo "Copy soundman";
 cp -r  $SRCDIR/soundman $DIR/;
 echo "Copy configurator";

@@ -4,8 +4,6 @@ abstractiafcontroller.cpp
 abstractiafcontroller.h
 abstractmodel.h
 abstractmulticontroller.h
-basiccontroller.cpp
-basiccontroller.h
 classicreinforce.cpp
 classicreinforce.h
 discretecontrolleradapter.cpp
