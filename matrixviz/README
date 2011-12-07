@@ -1,0 +1,53 @@
+/** \file 
+ * This file is used for the doxygen documentation. 
+ *  The online documentation can be found at robot.informatik.uni-leipzig.de/software
+ */
+
+/**
+\dir matrixviz
+
+A tool to monitor changing matrices and vectors on the fly. 
+
+\b Usage \n 
+It is intended to be used in a pipe.\n
+To feed in an exiting log file use: feedfile.pl 100 < filename.log | matrixviz</tt>
+where filename.log is the name of the logfile and 100 means 100ms delay between subsequent lines.
+
+\b Format \n 
+Here the BNF of the Logging Format:\n
+\code
+<STREAM>        := <LINE> <STREAM> | <LINE>
+<LINE>          := <CMDLINE> | <COMMENTLINE> | <DATALINE>
+<CMDLINE>       := #C <CHANNELLABEL>*<ENDLINE>
+                | #IN <STRING><ENDLINE>
+                | #I [<String>] D <CHANNELLABEL> <STRING><ENDLINE>
+                | #<CHAR> <STRING><ENDLINE>
+<COMMENT>       := # <STRING><ENDLINE>
+<CHANNELLABEL>  := <STRING_W/O_WHITESPACE>
+<DATALINE>      := <FLOAT> <FLOAT>*
+\endcode
+<tt>*</tt> means multiple occurences separated by space. 
+The number of Channellabels should be the same as the number of data values.
+The cmd lines starting with #I [XXX] D assign a description to each channel. 
+Vector or matrix channels should have the format name[i] or name[i,j]. To give
+ a discription to the entire matrix or vector channel use "name_" in the #I D line.
+
+Here one example:
+\code
+# This is a comment
+# the following lines are a command lines for other programs and are ignored by guilogger
+# the following lines attribute names to channels
+#IN MYRobot1
+#I [test] D x[0] first sensor
+#I [test] D y_ motor values
+#I [test] D eps learning rate
+# the following line defined our channels
+#C n1 x[0] y[0] y[1] eps 
+-0.3 0.424253 0.112 10e-5
+0.1 -1.2 0.231 0.00
+\endcode
+
+*/
+
+
+
