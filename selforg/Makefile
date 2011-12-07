@@ -23,7 +23,7 @@ endif
 include Makefile.conf
 
 # was -o, see what it does in Msys
-ifeq ($(shell uname -o),Msys)
+ifeq ($(shell uname -s),Msys)
 REVINCLUDEDIR=.
 endif
 
@@ -65,7 +65,7 @@ shared:
 
 $(LIB): Makefile.depend $(OFILES)
 	$(AR) $(LIB) $(OFILES)
-	@if [ "$(STRIP)" = "yes" ]; then strip --strip-debug $(LIB); fi
+	@if [ "$(STRIP)" = "yes" ]; then strip -S $(LIB); fi
 
 
 ${BUILD_DIR}/%.o: %.cpp
