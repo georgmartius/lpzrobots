@@ -55,6 +55,9 @@ double constant(double c, double);
 /// returns x the power c (as a double)
 double power(void* c, double x);
 
+/// power 3 for matrix::map
+double power3(double x); 
+
 /// creates random number from -1 to 1
 double random_minusone_to_one(double);
 

@@ -18,6 +18,11 @@ double power(void* c, double x){
   return pow(x,*((double*) c));
 }
 
+double power3(double x) {    
+    return x*x*x;
+};
+
+
 // creates random number from -1 to 1
 double random_minusone_to_one(double){
   return (((double)rand() / RAND_MAX) - 0.5) * 2.0;
