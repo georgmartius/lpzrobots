@@ -54,6 +54,8 @@ createDist: $(filter-out $(wildcard lpzrobots), lpzrobots) $(filter-out $(wildca
 deb-packs: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) 
 	$(MAKE) guilogger-deb
 	$(MAKE) install-guilogger
+	$(MAKE) matrixviz-deb
+	$(MAKE) install-matrixviz
 #	$(MAKE) lpzrobots-configurator-deb
 #	$(MAKE) install-lpzrobots-configurator
 	$(MAKE) selforg-deb 
@@ -67,8 +69,9 @@ deb-packs: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR))
 ##!              in order to give launchpad enough time to generate the packages
 upload: 
 	$(MAKE) upload-lpzrobots
-	$(MAKE) upload-selforg
 	-$(MAKE) upload-guilogger
+	-$(MAKE) upload-matrixviz
+	$(MAKE) upload-selforg
 	-$(MAKE) upload-ode
 	sleep 3600
 	$(MAKE) upload-oderobots
@@ -91,7 +94,7 @@ $(DISTDIR): $(filter-out $(wildcard lpzrobots), lpzrobots)
 	cd $(DISTDIR) && rm -rf Makefile.conf && echo -e "/usr\nu\ny\n" | \
 		make Makefile.conf confsubmodules
 # advance version numbers # also add lpzrobots/ga_tools 
-	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger; \
+	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger $(DISTDIR)/matrixviz; \
 		do pushd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; \
 		popd; done
 	cd $(DISTDIR)/opende && $(DCH) -v $(ODEVERSION)-1 "New Release"
@@ -132,6 +135,15 @@ guilogger-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packa
 	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
 	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
 
+##!matrixviz-deb        create debian and ubuntu packages for matrixviz
+.PHONY: matrixviz-deb
+matrixviz-deb: PackName=matrixviz
+matrixviz-deb: PackVersion=$(VERSION)
+matrixviz-deb: PackFolder=matrixviz
+matrixviz-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packages.sh
+	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
+	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
+
 ##!oderobots-deb        create debian and ubuntu packages for ode_robots
 .PHONY: oderobots-deb
 oderobots-deb: PackName=lpzrobots-oderobots
@@ -149,6 +161,10 @@ gatools-deb: PackFolder=ga_tools
 gatools-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packages.sh 
 	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
 	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
+
+##!install-matrixviz        install the created matrixviz package
+install-matrixviz:
+	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/matrixviz*$(VERSION)*.deb
 
 
 ##!install-guilogger        install the created guilogger package
@@ -186,6 +202,14 @@ upload-lpzrobots:
 upload-guilogger: STEM=guilogger
 upload-guilogger:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots guilogger*$(VERSION)*.changes
+	ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
+	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
+	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
+
+##!upload-matrixviz       uploads the matrixviz packages to launchpad
+upload-matrixviz: STEM=matrixviz
+upload-matrixviz:
+	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots matrixviz*$(VERSION)*.changes
 	ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/

@@ -39,7 +39,7 @@ LIBBASE=ode_robots
 ## use -pg for profiling
 if type ode-dbl-config >/dev/null 2>&1; then
     ODEFLAGS=`ode-dbl-config --cflags`
-else
+else #Todo print error to stderr
     ODEFLAGS=
 fi
 
