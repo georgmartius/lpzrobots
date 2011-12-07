@@ -1,5 +1,7 @@
 # this is a makefile for creating a lpzrobots distribution 
 #  with packages and so on
+# you may need to update the ubuntu release names see vvvvvv below.
+#  
 ##! Copy this makefile to a folder where you want to create
 ##!  the release. Simply take an empty folder than things go smooth.
 ##!
@@ -15,6 +17,9 @@ VERSION=0.7.0
 ODEVERSION=0.11.2
 
 SHELL=/bin/bash
+# make sure the right -config scripts are used 
+# /usr/local/bin is included for ccache (optional)
+export PATH=/usr/local/bin:/usr/bin:/bin
 
 ROBOTSERVER=martius@robotcvs.informatik.uni-leipzig.de
 GITROOT=/home/georg/local/lpzrobots/.git
@@ -40,7 +45,6 @@ DebFull=  # this can be set from the commandline
 help: 
 	@grep -E "^\#\#\!.*" Makefile | sed -e "s/##!/   /"
 
-
 ##!createDist (1) fetches lpzrobots from the git and 
 ##!               creates the distribution folder and the tar files
 # this filter-out thing causes make to not use this dependency if the dir exists
@@ -50,8 +54,8 @@ createDist: $(filter-out $(wildcard lpzrobots), lpzrobots) $(filter-out $(wildca
 deb-packs: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) 
 	$(MAKE) guilogger-deb
 	$(MAKE) install-guilogger
-#	$(MAKE) lpzconfigurator-deb
-#	$(MAKE) install-lpzconfigurator
+#	$(MAKE) lpzrobots-configurator-deb
+#	$(MAKE) install-lpzrobots-configurator
 	$(MAKE) selforg-deb 
 	$(MAKE) install-selforg
 	$(MAKE) ode-deb 
@@ -166,6 +170,11 @@ install-oderobots:
 ##!install-gatools        install the created gatools package
 install-gatools:
 	sudo dpkg -i $(PACKDIR)/debian-unstable-bin/lpzrobots-gatools*$(VERSION)*.deb
+
+
+##!uninstall-all          uninstall all packages
+uninstall-all:
+	sudo dpkg -r guilogger lpzrobots-selforg libode-dbl libode-dbl-dev lpzrobots-oderobots
 
 ##!upload-lpzrobots       uploads master src tar-ball and documentation
 upload-lpzrobots:
@@ -291,7 +300,9 @@ create_deb_packages.sh: Makefile
 #>pushd `pwd`
 #>cd ${Folder}
 #>FIRST=""
-#>for Dist in karmic lucid maverick; do
+# vvvvvvvvvvvvvvvvv UBUNTU DISTRIBUTIONS here vvvvvvvvvvvvvvvvvvvvvvvvv
+#># ... precise
+#>for Dist in lucid maverick natty oneiric; do
 #>    # change changelog for all ubuntu distributions  
 #>    dch --increment -D $Dist "$Dist version"
 #>    # make only source package

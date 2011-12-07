@@ -3,7 +3,8 @@ Section: misc
 Priority: optional
 Maintainer: Georg Martius <georg.martius@web.de>
 Build-Depends: debhelper (>= 7), quilt,
- libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, libglut3-dev, xutils-dev,
+ libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, 
+ libglut3-dev | freeglut3-dev, xutils-dev,
  lpzrobots-selforg, libode-dbl-dev, libopenscenegraph-dev, libreadline-dev 
 Standards-Version: 3.8.4
 Homepage: http://robot.informatik.uni-leipzig.de/software
@@ -12,7 +13,7 @@ Package: lpzrobots-oderobots
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
  libc6-dev | libc-dev, g++, make, xutils-dev,
- libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, libglut3-dev,
+ libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, libglut3-dev | freeglut3-dev,
  libopenscenegraph-dev, libreadline-dev,
  lpzrobots-selforg, libode-dbl-dev, libode-dbl
 Description: 3D physically realistic robot simulator
@@ -20,7 +21,7 @@ Description: 3D physically realistic robot simulator
  is implemented using the Open Dynamics Engine (www.opende.org) and
  the graphical rending is done with OpenSceneGraph. It has some 
  distrinct features like a physical material support, nice camera handling,
- online configuration and display of parameters.
+ life configuration and display of parameters.
  Many robots, sensors, motors and examples are included.  
  Experiment are expected to be programmed and compiled.
  
