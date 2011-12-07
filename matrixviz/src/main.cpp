@@ -46,7 +46,14 @@ void signal_handler_init(){
 
 int main(int argc, char *argv[])
 {
-  signal_handler_init();
+
+  if(argc>1 && (strcmp(argv[1],"--help")==0 || strcmp(argv[1],"-h")==0)){ 
+    printf("Usage: yourprog | %s [-noCtrlC]\n\t-noCtrlC will catch ctrlC and the program only terminates via the pipe\n",argv[0]);
+    return 0;
+  }
+
+  if(argc>1 && strcmp(argv[1],"-noCtrlC")==0)
+      signal_handler_init();
 
   QApplication app(argc, argv);
   MatrixVisualizer gui;

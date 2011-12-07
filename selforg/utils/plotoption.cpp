@@ -60,7 +60,7 @@ bool PlotOption::open(){
     pipe=popen(cmd,"w");
     break;
   case MatrixViz:
-    pipe=popen("matrixviz","w");
+    pipe=popen("matrixviz -noCtrlC","w");
     if (pipe) std::cout << "MatrixViz-Sream opened" << std::endl;
     else std::cout << "MatrixViz-Sream open failed" << std::endl;
     break;
@@ -68,9 +68,6 @@ bool PlotOption::open(){
     pipe=popen("SphericalRobotGUI","w");
     if (pipe)   std::cout << "open a SphericalRobotGUI-Stream " << std::endl;
     else   std::cout << "can't open SphericalRobotGUI-Stream " << std::endl;
-    break;
-  case NeuronViz:
-    pipe=popen("neuronviz > /dev/null 2> /dev/null","w");  // TODO: Platform dependent
     break;
   case SoundMan:
     sprintf(cmd,"soundMan %s",parameter.c_str());

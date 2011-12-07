@@ -47,8 +47,6 @@ enum PlotMode {
   GuiLogger_File,
   /// plotting with matrixVisualizer
   MatrixViz,
-  /// net visualiser
-  NeuronViz,
 
   /// Acustic output of robotic values via external SoundMan
   SoundMan,
