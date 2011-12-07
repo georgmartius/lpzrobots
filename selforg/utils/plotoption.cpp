@@ -104,14 +104,6 @@ void PlotOption::close(){
       pclose(pipe);
       std::cout << "guilogger pipe closing...SUCCESSFUL" << std::endl;
       break;
-    case NeuronViz:
-      //std::cout << "neuronviz pipe closing...maybe you must manually close the neuronviz first!"
-      //          << std::endl;
-      // send quit message to pipe
-      fprintf(pipe, "#QUIT\n");
-      pclose(pipe);
-      std::cout << "neuronviz pipe closing...SUCCESSFUL" << std::endl;
-      break;
     case MatrixViz:
     //       std::cout << "Try to close ECBRobotGUI pipe...";
       fprintf(pipe, "#QUIT\n");
