@@ -1,4 +1,9 @@
 The Makefile contains all the voodoo to create packages
+
+You need the following packages:
+sudo apt-get install \ 
+     debconf devscripts
+
 #
 # make sure your gpg-agent is running
 # eval $(gpg-agent --daemon)

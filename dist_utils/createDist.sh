@@ -100,7 +100,6 @@ echo "Removing Makefile.conf";
 rm -f $DIR/Makefile.conf
 
 echo "Removing git dirs";
-rm -r $DIR/.git
 find $DIR/ -type f -name ".gitignore" | xargs rm -r;
 
 

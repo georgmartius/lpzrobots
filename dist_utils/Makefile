@@ -11,11 +11,14 @@
 #### EDIT THE FOLLOWING LINES!
 # make sure that you create the directories on the webserver and change the "current" links
 #  if the major version changes
-VERSION=0.7.0  
+VERSION=0.7.0
 ODEVERSION=0.11.2
 
+SHELL=/bin/bash
+
 ROBOTSERVER=martius@robotcvs.informatik.uni-leipzig.de
-GITROOT=git://github.com/georgmartius/lpzrobots.git
+GITROOT=/home/georg/local/lpzrobots/.git
+#GITROOT=git://github.com/georgmartius/lpzrobots.git
 export DEBEMAIL=Georg Martius <georg.martius@web.de>
 export GPGKEY=0CFA2813
 
@@ -71,7 +74,7 @@ upload:
 
 ##!lpzrobots        fetches lpzrobots from the cvs
 lpzrobots: 
-	git clone $(GITROOT)
+	git clone $(GITROOT) lpzrobots
 
 ##!dist             create distribution folder
 dist: $(DISTDIR)
@@ -81,12 +84,12 @@ $(DISTDIR): $(filter-out $(wildcard lpzrobots), lpzrobots)
 	cd lpzrobots
 	cd lpzrobots/dist_utils && ./createDist.sh $(VERSION)
 # call make to config
-	cd $(DISTDIR) && rm -rf Makefile.conf && echo "/usr\nu\ny\n" | \
+	cd $(DISTDIR) && rm -rf Makefile.conf && echo -e "/usr\nu\ny\n" | \
 		make Makefile.conf confsubmodules
 # advance version numbers # also add lpzrobots/ga_tools 
 	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger; \
-		do pwd; echo $$dir; cd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; \
-		cd ../../; done
+		do pushd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; \
+		popd; done
 	cd $(DISTDIR)/opende && $(DCH) -v $(ODEVERSION)-1 "New Release"
 
 
