@@ -47,7 +47,7 @@ CXX = g++
 # used for lib-packing 
 AR = ar -rcs
 
-.PHONY: lib opt dbg clean clean-all distclean todo depend tags install install_scripts install_lib uninstall uninstall_lib
+.PHONY: lib opt dbg clean clean-all distclean todo depend tags install install_lib uninstall uninstall_lib
 
 libs: lib opt dbg
 

@@ -8,7 +8,7 @@ include Makefile.conf
 
 USAGE   = "Try 'make help' for more..."
 USAGE2  = "lpzrobots Makefile Targets:"
-USAGE3  = "Usually you do: \nmake all\nor step by step:\nmake prepare\nsudo make preinstall\nmake ode\t\t\# if not installed\nsudo make install_ode \t\# if not installed\nmake libs \t\t\# get a cup of tea\nsudo make install\n"
+USAGE3  = "Usually you do: \nmake all\n see the above description for a step by step process\n"
 
 ##!help		show this help text (default)
 help: 
@@ -18,45 +18,50 @@ help:
 	@echo -e  $(USAGE3)
 
 .PHONY: all
-##!all		does everyhing prepare, preinstall, ode, ode_install, libs and install
+##!all		does everyhing utils, selforg, ode, ode_robots and installs them
 ##!		 (sudo automatically)
 all:
 	@if [ -w $(PREFIX) ]; then $(MAKE) all_intern; else $(MAKE) SUDO=sudo all_intern; fi
 
 .PHONY: all_intern
 all_intern:
-	$(MAKE) prepare
-	$(SUDO) $(MAKE) preinstall
-	$(MAKE) ode                # if not installed
-	$(SUDO) $(MAKE) install_ode   # if not installed
-	$(MAKE) libs               # get a cup of tea
-	$(SUDO) $(MAKE) install
+	$(MAKE) utils
+	$(SUDO) $(MAKE) install_utils
+	$(MAKE) selforg                
+	$(SUDO) $(MAKE) install_selforg
+	$(MAKE) ode                
+	$(SUDO) $(MAKE) install_ode 
+	$(MAKE) ode_robots                
+	$(SUDO) $(MAKE) install_ode_robots
+	$(MAKE) ga_tools
+	$(SUDO) $(MAKE) install_ga_tools
 
+.PHONY: conf
+##!conf		reconfigure the installation prefix and type (done automatically at first call
+conf: usage
+	-mv Makefile.conf Makefile.conf.bak
+# automatically creates Makefile.conf since it is included 
+	$(MAKE) PREFIX=$(PREFIX) TYPE=$(TYPE) Makefile.conf
 
-
-.PHONY: prepare
-##!prepare	build tools and create dependency files (do that first)
-prepare: usage 
-	$(MAKE)  confsubmodules
+##!
+##!******* The following targets are called by "all" in this order ************
+.PHONY: utils
+##!utils	   build utilitytools and tags (do that first)
+utils: usage 
 	-$(MAKE) guilogger
 	-$(MAKE) matrixviz
 	-$(MAKE) soundman
 	-$(MAKE) javacontroller
-	cd selforg && $(MAKE) depend
-	cd ode_robots && $(MAKE) depend
-	cd ga_tools && $(MAKE) depend
 	-$(MAKE) configurator
 	-$(MAKE) tags
 	@echo "********************************************************************************"
 	@echo "Don't worry if you have seen a lot of errors above."
 	@echo "This is all optional stuff which is not stricly required."
-	@echo "Now do \"(sudo) make preinstall\" or type \"make\" to get help."
 
-.PHONY: preinstall
-##!preinstall   installs the utils and scripts. Do this before make libs!
-preinstall:
-	cd selforg && make install_scripts
-	cd ode_robots && make install_scripts
+
+.PHONY: install_utils
+##!install_utils   installs the utility tools and scripts
+install_utils:	
 	install -d $(PREFIX)/bin $(PREFIX)/lib/soundMan $(PREFIX)/share/lpzrobots $(PREFIX)/include 
 	-@if [ -d matrixviz/bin/matrixviz.app ]; then \
           cp matrixviz/bin/matrixviz.app/Contents/MacOS/matrixviz $(PREFIX)/bin/ && echo "===> copied matrixviz.app to $(PREFIX)/bin/"; \
@@ -76,49 +81,85 @@ preinstall:
 	-cp soundman/bin/soundMan $(PREFIX)/bin/soundMan
 	sed -i -e "s|PREFIX=.*|PREFIX=$(PREFIX)|" $(PREFIX)/bin/soundMan
 
+
+.PHONY: selforg
+##!selforg	   compile selforg libaries in optimized and debug version
+selforg: usage
+	@echo "*************** Configure selforg ***************"
+	$(MAKE) MODULE=selforg confsubmodule
+	@echo "*************** Compile selforg *****************"
+	cd selforg && $(MAKE) depend
+	cd selforg && $(MAKE) 
+
+
+.PHONY: install_selforg
+##!install_selforg install selforg
+install_selforg: usage
+	cd selforg && make install 
+
 .PHONY: ode
-##!ode		compile open dynamics engine in double precession (custom version)
+##!ode		   compile open dynamics engine in double precession (custom version)
 ode:
 	cd opende; sh autogen.sh && ./configure --disable-asserts --enable-double-precision --prefix=$(PREFIX) --disable-demos && $(MAKE) && echo "you probably want to run \"make install_ode\" now (possibly as root)"
 
 
 .PHONY: install_ode
-##!install_ode	install the customized ode library (libode_dbl)
+##!install_ode	   install the customized ode library (libode_dbl)
 install_ode:
 	@echo "*************** Install ode -double version**********"
 	cd opende && $(MAKE) install
 
-.PHONY: libs
-##!libs		compile our libaries in optimized and debug version
-libs: usage
-	@echo "*************** Compile selforg *****************"
-	cd selforg && $(MAKE) 
+.PHONY: ode_robots
+##!ode_robots	   compile ode_robots libaries in optimized and debug version
+ode_robots: usage
+	@echo "*************** Configure ode_robots ************"
+	$(MAKE) MODULE=ode_robots confsubmodule
+	cd ode_robots && make install_scripts
 	@echo "*************** Compile ode_robots **************"
+	cd ode_robots && $(MAKE) depend
 	cd ode_robots && $(MAKE)
+
+.PHONY: install_ode_robots
+##!install_ode_robots install ode_robots
+install_ode_robots: usage
+	cd ode_robots && make install 
+
+.PHONY: ga_tools
+##!ga_tools	   compile ga_tools libaries in optimized and debug version
+ga_tools: usage
+	@echo "*************** Configure ga_tools ************"
+	$(MAKE) MODULE=ga_tools confsubmodule
+	cd ga_tools && make install_scripts
 	@echo "*************** Compile ga_tools **************"
+	cd ga_tools && $(MAKE) depend
 	cd ga_tools && $(MAKE)
 
-.PHONY: install
-##!install	install
-install: usage preinstall install_libs
+.PHONY: install_ga_tools
+##!install_ga_tools install ga_tools
+install_ga_tools: usage
+	cd ga_tools && make install 
 
-.PHONY: uninstall
-##!uninstall	removes all the installed files again (except ode)
-uninstall: uninstall_intern
+##!  *** You can find example simulations in $(PREFIX)/share/lpzrobots/, but copy
+##!  *** them first to your home directory to work with them.
+##!
+##!****** UNINSTALL and CLEAN ************
 
-##!clean	removed the object files and libs
+##!clean	  removed the object files and libs
 clean: usage
 	cd guilogger && $(MAKE) clean
 	cd matrixviz && $(MAKE) clean
 	cd configurator && $(MAKE) clean
+	cd opende && $(MAKE) clean
 	cd ode_robots && $(MAKE) clean
 	cd selforg && $(MAKE) clean
 	cd ga_tools && $(MAKE) clean
 
 
-##!clean-all	like clean but also removes the libraries and clears simulations
+##!clean-all	  like clean but also removes the libraries and clears simulations
 clean-all: usage
 	cd guilogger && $(MAKE) distclean
+	cd matrixviz && $(MAKE) distclean
+	cd opende && $(MAKE) distclean
 	cd ode_robots && $(MAKE) clean-all
 	cd ode_robots/simulations && $(MAKE) clean
 	cd selforg && $(MAKE) clean-all
@@ -128,44 +169,12 @@ clean-all: usage
 	cd ga_tools/simulations && $(MAKE) clean
 	rm -f Makefile.conf
 
-##!distclean	see clean-all
+##!distclean	  see clean-all
 distclean :  clean-all
 
-##!********* less common targets ***********
-
-.PHONY: conf
-##!conf		configure the installation prefix and type (to reconfigure)
-conf: usage
-	-mv Makefile.conf Makefile.conf.bak
-# automatically creates Makefile.conf since it is included 
-	$(MAKE) PREFIX=$(PREFIX) TYPE=$(TYPE) Makefile.conf
-
-
-.PHONY: guilogger
-##!guilogger	compile guilogger
-guilogger:
-	cd guilogger && ./configure && $(MAKE)
-
-.PHONY: matrixviz
-##!matrixviz	compile matrixviz
-matrixviz:
-	cd matrixviz && ./configure && $(MAKE)
-
-.PHONY: configurator
-##!configurator	compile configurator
-configurator:
-	cd configurator && $(MAKE)
-
-.PHONY: javactrl
-##!javactrl	compile javacontroller (experimental)
-javactrl:
-	cd javacontroller/src && $(MAKE)
-
-.PHONY: soundman
-##!soundman	compile soundman (experimental)
-soundman:
-	cd soundman/src	&& javac -d ../class/ SoundMan.java SoundManipulation.java SoundManGUI.java
-
+.PHONY: uninstall
+##!uninstall	  removes all the installed files again (except ode)
+uninstall: uninstall_intern
 
 .PHONY: uninstall_ode
 ##!uninstall_ode  uninstall the customized ode library
@@ -173,30 +182,53 @@ uninstall_ode:
 	@echo "*************** uninstall ode -double version********"
 	cd opende && make uninstall
 
+##!****** less common targets ***********
 
-.PHONY: confsubmodules
-confsubmodules:	
+.PHONY: guilogger
+##!guilogger	  compile guilogger
+guilogger:
+	cd guilogger && ./configure && $(MAKE)
+
+.PHONY: matrixviz
+##!matrixviz	  compile matrixviz
+matrixviz:
+	cd matrixviz && ./configure && $(MAKE)
+
+.PHONY: configurator
+##!configurator	  compile configurator
+configurator:
+	cd configurator && $(MAKE)
+
+.PHONY: javactrl
+##!javactrl	  compile javacontroller (experimental)
+javactrl:
+	cd javacontroller/src && $(MAKE)
+
+.PHONY: soundman
+##!soundman	  compile soundman (experimental)
+soundman:
+	cd soundman/src	&& javac -d ../class/ SoundMan.java SoundManipulation.java SoundManGUI.java
+
+
+.PHONY: confsubmodule
+confsubmodule:	
 	@if [ `uname -a | sed 's/\(\w*\).*/\1/'` = "Linux" ]; then \
 		System="LINUX"; else System="MAC"; fi; \
-	for Folder in selforg ode_robots configurator; do \
-	    CMD="$$Folder/configure --prefix=$(PREFIX) --system=$$System --type=$(TYPE)"; \
+	if [ -n "$(MODULE)" ]; then \
+	    CMD="$(MODULE)/configure --prefix=$(PREFIX) --system=$$System --type=$(TYPE)"; \
 	    echo "call $$CMD"; \
-	    if ! $$CMD; then  exit 1; fi \
-	done
-
-
-	@if [ `uname -a | sed 's/\(\w*\).*/\1/'` = "Linux" ]; then \
-		System="LINUX"; else System="MAC"; fi; \
-	for Folder in ode_robots/simulations ode_robots/examples selforg/simulations selforg/examples ga_tools/simulations; do \
-	    CMD="m4 -D $$System -D $(TYPE) $$Folder/Makefile.4sim.m4"; \
-	    echo "call: $$CMD"; \
-	    if $$CMD > "$$Folder/Makefile.4sim"; then \
+	    if ! $$CMD; then  exit 1; fi; \
+            for Folder in $(MODULE)/simulations $(MODULE)/examples; do \
+		CMD="m4 -D $$System -D $(TYPE) $$Folder/Makefile.4sim.m4"; \
+	    	echo "call: $$CMD"; \
+	    	if $$CMD > "$$Folder/Makefile.4sim"; then \
 		for F in `find "$$Folder" -mindepth 2 -name Makefile.conf`; do \
 		   cp "$$Folder/Makefile.4sim" "$${F%.conf}"; done; \
-	    fi \
-	done
-
-
+	    	fi; \
+	    done; \
+	else \
+	    echo "confsubmodule called without MODULE"; exit 1;\
+	fi
 
 
 .PHONY: install_libs
@@ -248,7 +280,7 @@ Makefile.conf:
 
 
 .PHONY: tags
-##!tags		create TAGS file for emacs
+##!tags           create TAGS file for emacs
 tags: 
 	@if type etags; then $(MAKE) tags_internal ; else \
 	 echo "etags program not found. If you use emacs install emacs-common-bin" ; fi
@@ -261,7 +293,7 @@ tags_internal:
 	cd ga_tools && $(MAKE) tags
 
 .PHONY: doc
-##!doc 		generate doxygen documentation in html folder
+##!doc            generate doxygen documentation in html folder
 doc:
 	doxygen Doxyfile	
 
@@ -272,13 +304,9 @@ docintern:
 	find doc/html -type f | xargs chmod ug+rw
 	find doc/html -type f | xargs chmod o+r
 
-.PHONY: docwarn
-##!docwarn	show the warnings from doxygen
-docwarn:
-	cat doxygen.warn
 
-.PHONY: todo
-##!todo		show the marked todos in the sourcecode
+.PHONY: todo 
+##!todo           show the marked todos in the sourcecode
 todo:
 	cd ode_robots && make todo
 	cd selforg && make todo

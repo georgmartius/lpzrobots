@@ -1,5 +1,5 @@
 #!/bin/sh
-## File:     configure of ode_robots
+## File:     configure of ga_tools
 ## Author:   Georg Martius 
 ## Date:     Oct 2011
 
@@ -21,7 +21,7 @@ srcprefix=$DIRNAME
 system=LINUX
 type=USER
 version=`cat $DIRNAME/VERSION`;
-package=ode_robots
+package=ga_tools
 
 if test $# -eq 0; then
       echo "${usage}" 1>&2
@@ -58,12 +58,6 @@ done
 # test for selforg-config
 if ! type selforg-config; then
     echo "could not find \"selforg-config\" in PATH" 1>&2;
-    exit 1;
-fi
-
-# test for ode-dbl
-if ! type ode-dbl-config; then
-    echo "could not find \"osg-dbl-config\" in PATH" 1>&2;
     exit 1;
 fi
 
