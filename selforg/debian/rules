@@ -10,7 +10,7 @@
 configure: configure-stamp
 configure-stamp:
 #	QUILT_PATCHES=debian/patches quilt push -a || test $$? = 2
-	dh_auto_configure -- --type=USER --system=LINUX
+	sh ./configure --prefix=/usr --type=USER --system=LINUX
 	touch configure-stamp
 
 
