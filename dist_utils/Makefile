@@ -92,7 +92,7 @@ $(DISTDIR): $(filter-out $(wildcard lpzrobots), lpzrobots)
 	cd lpzrobots/dist_utils && ./createDist.sh $(VERSION)
 # call make to config
 	cd $(DISTDIR) && rm -rf Makefile.conf && echo -e "/usr\nu\ny\n" | \
-		make Makefile.conf confsubmodules
+		make Makefile.conf
 # advance version numbers # also add lpzrobots/ga_tools 
 	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger $(DISTDIR)/matrixviz; \
 		do pushd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; \

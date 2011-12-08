@@ -7,6 +7,13 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+configure: configure-stamp
+configure-stamp:
+#	QUILT_PATCHES=debian/patches quilt push -a || test $$? = 2
+	dh_auto_configure -- --type=USER --system=LINUX
+	touch configure-stamp
+
+
 build: build-stamp
 build-stamp:
 	dh_testdir
