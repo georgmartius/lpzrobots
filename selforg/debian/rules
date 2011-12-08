@@ -15,7 +15,7 @@ configure-stamp:
 
 
 build: build-stamp
-build-stamp:
+build-stamp: configure-stamp
 	dh_testdir
 
 	$(MAKE) -j 4 -l 2.5
