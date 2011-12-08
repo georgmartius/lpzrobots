@@ -328,7 +328,7 @@ create_deb_packages.sh: Makefile
 #># ... precise
 #>for Dist in lucid maverick natty oneiric; do
 #>    # change changelog for all ubuntu distributions  
-#>    dch --increment -D $Dist "$Dist version"
+#>    dch --increment --force-distribution -D $Dist "$Dist version"
 #>    # make only source package
 #>    if [ -z "$FIRST" ]; then
 #>        debuild -S -sa

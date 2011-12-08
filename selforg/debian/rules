@@ -37,7 +37,7 @@ install: build
 	dh_prep
 	dh_installdirs
 
-	$(MAKE) TYPE=USER PREFIX=`pwd`/debian/`dh_listpackages`/usr install
+	$(MAKE) PREFIX=`pwd`/debian/`dh_listpackages`/usr install
 
 # Build architecture-independent files here.
 binary-indep: build install

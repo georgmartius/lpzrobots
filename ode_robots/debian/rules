@@ -7,11 +7,18 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+configure: configure-stamp
+configure-stamp:
+#	QUILT_PATCHES=debian/patches quilt push -a || test $$? = 2
+	sh ./configure --prefix=/usr --type=USER --system=LINUX
+	touch configure-stamp
+
+
 build: build-stamp
-build-stamp:
+build-stamp: configure-stamp
 	dh_testdir
 
-	$(MAKE) -j 4 -l 2.5 SELFORG=/usr TYPE=user
+	$(MAKE) -j 4 -l 2.5
 
 	touch build-stamp
 
@@ -30,7 +37,7 @@ install: build
 	dh_prep
 	dh_installdirs
 
-	$(MAKE) SELFORG=/usr TYPE=USER PREFIX=`pwd`/debian/`dh_listpackages`/usr install
+	$(MAKE) PREFIX=`pwd`/debian/`dh_listpackages`/usr install
 
 # Build architecture-independent files here.
 binary-indep: build install
