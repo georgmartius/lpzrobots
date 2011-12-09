@@ -290,7 +290,7 @@ tags_internal:
 	rm -f TAGS
 	cd selforg && $(MAKE) tags
 	cd ode_robots && $(MAKE) tags
-	cd ga_tools && $(MAKE) tags
+#	cd ga_tools && $(MAKE) tags
 
 .PHONY: doc
 ##!doc            generate doxygen documentation in html folder

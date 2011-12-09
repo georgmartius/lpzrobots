@@ -123,8 +123,8 @@ depend:
 	make Makefile.depend
 
 tags:
-	etags ${CPPFILES} ${HFILES}
-	etags -a -o ../TAGS ${CPPFILES} ${HFILES} 
+	@etags -l c++ ${HFILES} ${CPPFILES}
+	@etags -l c++ -a -o ../TAGS ${HFILES} ${CPPFILES}
 
 
 
