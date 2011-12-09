@@ -39,7 +39,7 @@ namespace lpzrobots {
   PlattfussSchlange::~PlattfussSchlange() { }
 	
 
-  Primitive* PlattfussSchlange::createSegment(int index){
+  Primitive* PlattfussSchlange::createSegment(int index, const OdeHandle& odeHandle){
     Primitive* p;
 
     /////////// MIDDLE SEGMENT (BODY)
@@ -61,7 +61,7 @@ namespace lpzrobots {
       p->init(odeHandle, conf.segmMass*3, osgHandle);	      
     } /////// NORMAL SEGMENT
     else {	
-      p = SchlangeServo2::createSegment(index);
+      p = SchlangeServo2::createSegment(index, odeHandle);
     }  
     return p;
   }

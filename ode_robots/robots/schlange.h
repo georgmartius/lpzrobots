@@ -57,6 +57,8 @@ public:
   bool   useServoVel;     ///< if true the new Servos are used (only for schlangeservo)
   double velocity;        ///< maximal velocity of servos
 
+  bool useSpaces;        ///< if true the snake is divided into subspaces (performance)
+
   std::string headColor;
   std::string bodyColor;
 } SchlangeConf;
@@ -93,6 +95,7 @@ public:
     conf.jointLimit =  M_PI/4;
     conf.useServoVel = false;
     conf.velocity    = 20;     // maximal velocity of servos
+    conf.useSpaces   = true;
     conf.headColor   = "robot2";
     conf.bodyColor   = "robot1";
     return conf;
@@ -174,6 +177,7 @@ public:
 
 
 protected:
+  std::vector<OdeHandle> spaces;
 
   /** creates vehicle at desired pose
       @param pose 4x4 pose matrix
@@ -182,7 +186,7 @@ protected:
   /**
      creates and initialised the segment with the given index
    */
-  virtual Primitive* createSegment(int index); 
+  virtual Primitive* createSegment(int index, const OdeHandle& odeHandle); 
   virtual void destroy();
 };
 

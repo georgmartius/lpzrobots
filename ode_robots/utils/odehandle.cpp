@@ -33,7 +33,6 @@ namespace lpzrobots
 
   OdeHandle::OdeHandle()
   {
-    ignoredSpaces       = 0;
     ignoredPairs        = 0;
     spaces              = 0;
   }
@@ -43,7 +42,6 @@ namespace lpzrobots
     world               = _world;
     space               = _space;
     jointGroup          = _jointGroup;
-    ignoredSpaces       = 0;
     ignoredPairs        = 0;
     spaces              = 0;
   }
@@ -52,9 +50,6 @@ namespace lpzrobots
   {
     if (spaces)
       delete spaces;
-
-    if (ignoredSpaces)
-      delete ignoredSpaces;
 
     if (ignoredPairs)
       delete ignoredPairs;
@@ -74,7 +69,6 @@ namespace lpzrobots
     // the jointGroup is used for collision handling, 
     //  where a lot of joints are created every step
     jointGroup = dJointGroupCreate ( 1000000 );
-    ignoredSpaces = new HashSet<long>();
     ignoredPairs  = new HashSet<std::pair<long,long>,geomPairHash >();
 
   }
@@ -91,34 +85,22 @@ namespace lpzrobots
   void OdeHandle::createNewSimpleSpace(dSpaceID parentspace, bool ignore_inside_collisions){
     space = dSimpleSpaceCreate (parentspace);
     dSpaceSetCleanup (space, 0);
-    if(ignore_inside_collisions) 
-      addIgnoredSpace(space);
-    else 
+    if(!ignore_inside_collisions) 
+      addSpace(space);
+  }
+
+  void OdeHandle::createNewHashSpace(dSpaceID parentspace, bool ignore_inside_collisions){
+    space = dHashSpaceCreate (parentspace);
+    dSpaceSetCleanup (space, 0);
+    if(!ignore_inside_collisions) 
       addSpace(space);
   }
 
   void OdeHandle::deleteSpace(){
-    if(isIgnoredSpace(space))
-      removeIgnoredSpace(space);
-    else
-      removeSpace(space);
+    removeSpace(space);
     dSpaceDestroy(space);
   }
 
-  // sets of ignored geom pairs  and spaces
-  // adds a space to the list of ignored spaces for collision detection (i.e within this space there is no collision)
-  void OdeHandle::addIgnoredSpace(dSpaceID g)
-  {
-    if(ignoredSpaces)
-      ignoredSpaces->insert((long)g);
-  }
-  // removes a space from the list of ignored spaces for collision detection
-  void OdeHandle::removeIgnoredSpace(dSpaceID g)
-  {
-    if(ignoredSpaces)
-      ignoredSpaces->erase((long)g);
-  }
-  
 
   // adds a space to the list of spaces for collision detection (ignored spaces do not need to be insered)
   void OdeHandle::addSpace(dSpaceID g)
@@ -135,7 +117,7 @@ namespace lpzrobots
 
       std::vector<dSpaceID>::iterator i = std::find(spaces->begin(), spaces->end(),g);
       if(i!=spaces->end()){
-        spaces->erase(i);
+        spaces->erase(i);        
       }
   }
 

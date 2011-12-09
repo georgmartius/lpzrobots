@@ -45,7 +45,7 @@ namespace lpzrobots {
     virtual ~PlattfussSchlange();
 	
   private:
-    virtual Primitive* createSegment(int index); 
+    virtual Primitive* createSegment(int index, const OdeHandle& odeHandle); 
   };
 
 }

@@ -94,13 +94,26 @@ namespace lpzrobots {
     
     odeHandle.createNewSimpleSpace(parentspace,false);
     int half = conf.segmNumber/2;
+    int segperspace=5;
+    if(conf.useSpaces){
+      int spacenum=conf.segmNumber/segperspace+1;
+      spaces.resize(spacenum);
+      for(int i=0; i<spacenum; i++){
+        OdeHandle o(odeHandle);
+        o.createNewSimpleSpace(odeHandle.space,true);
+        spaces[i]=o;
+      }
+    }
 
     if(conf.frictionRatio != 1)
       odeHandle.substance.toAnisotropFriction(conf.frictionRatio, Axis(0,0,1));
 
     for ( int n = 0; n < conf.segmNumber; n++ ) {
       Primitive* p;
-      p = createSegment(n);
+      if(conf.useSpaces)
+        p = createSegment(n, spaces[n/segperspace]);
+      else
+        p = createSegment(n, odeHandle);
       p->setPose(p->getPose() * osg::Matrix::rotate(M_PI/2, 0, 1, 0)
 		 * osg::Matrix::translate((n-half)*conf.segmLength, 0 , conf.segmDia/2) * pose);
 
@@ -151,7 +164,7 @@ namespace lpzrobots {
     created=true;
   }; 
 
-  Primitive* Schlange::createSegment(int index){
+  Primitive* Schlange::createSegment(int index, const OdeHandle& odeHandle){
     Primitive* p;
     p = new Capsule(conf.segmDia * 0.8, conf.segmLength);     
     p->setTexture("Images/whitemetal_farbig_small.rgb");    

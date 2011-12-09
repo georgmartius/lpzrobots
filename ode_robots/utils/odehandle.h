@@ -66,22 +66,12 @@ public:
    */
   void createNewSimpleSpace(dSpaceID parentspace, bool ignore_inside_collisions);
 
+  /** like createNewSimpleSpace but with a HashSpace. More efficient for large objects
+   */
+  void createNewHashSpace(dSpaceID parentspace, bool ignore_inside_collisions);
+
   /// destroys the space and unregisters them in the global lists
   void deleteSpace();
-
-  /** adds a space to the list of ignored spaces for collision detection 
-    (i.e within this space there is no collision)
-  */
-  void addIgnoredSpace(dSpaceID g);
-  /// removes a space from the list of ignored spaces for collision detection
-  void removeIgnoredSpace(dSpaceID g);
-  /// checks whether the space is an ignored space for collision detection
-  inline bool isIgnoredSpace(dSpaceID g) const
-  {
-    if (ignoredSpaces)
-      return ignoredSpaces->find((long)g) != ignoredSpaces->end();
-    else return false;
-  }
 
   /** adds a space to the list of spaces for collision detection (ignored spaces do not need to be insered)*/
   void addSpace(dSpaceID g);

@@ -67,7 +67,9 @@
 
 // simple multithread api
 #include <selforg/quickmp.h> // moved to selforg/utils
-// simple profiling (only enabled if QPPOF is defined (Makefile))
+
+//#define QPROF
+// simple profiling (only enabled if QPPOF is defined (Makefile) or above)
 #ifdef QPROF
 #include "quickprof.h"
 #define QP(x) x
@@ -1180,16 +1182,8 @@ namespace lpzrobots {
     if (dGeomIsSpace (o1) || dGeomIsSpace (o2)) {
       // colliding a space with something
       dSpaceCollide2 (o1,o2,data,&nearCallback);
-      // collide all geoms internal to the space(s)
-      // FIXME: I (Georg) believe this is not necessary because we have list of spaces to check!
-      if (dGeomIsSpace (o1)) {
-	if(! me->odeHandle.isIgnoredSpace((dxSpace*)o1) )
-	  dSpaceCollide ((dxSpace*)o1,data,&nearCallback);
-      }
-      if (dGeomIsSpace (o2)) {
-	if(! me->odeHandle.isIgnoredSpace((dxSpace*)o2) )
-	  dSpaceCollide ((dxSpace*)o2,data,&nearCallback);
-      }
+      // The collision of the geoms internal to the space(s)
+      //  is done separately in odeStep() (for each space that is not ignored once)
     } else {
       // colliding two non-space geoms, so generate contact
       // points between o1 and o2
