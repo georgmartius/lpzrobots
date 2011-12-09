@@ -1,5 +1,6 @@
 Makefile.depend
 *.a
+*.so
 install_prefix.conf
 build_dbg
 build
