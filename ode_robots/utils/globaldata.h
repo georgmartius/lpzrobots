@@ -90,8 +90,10 @@ namespace lpzrobots {
       /// called by Simulation to update tmp objects
       virtual void updateTmpObjects(const OsgHandle& osgHandle);
 
-      /// called by Simulation to removes all expired sounds and temporary objects
-      virtual void removeExpiredObjects();
+      /** called by Simulation to removes all expired sounds and temporary objects.
+          Optionally a time can be specified otherwise the internal time is used.
+      */
+      virtual void removeExpiredObjects(double time = -1);
 
     private:
 

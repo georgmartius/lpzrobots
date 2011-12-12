@@ -59,8 +59,9 @@ namespace lpzrobots {
     }
   }
  
-  void GlobalData::removeExpiredObjects(){
+  void GlobalData::removeExpiredObjects(double time){    
     if(tmpObjects.size()>0){
+      if(time<0) time=this->time;
       TmpObjectMap::iterator i = tmpObjects.begin();
       while(i != tmpObjects.end()){
         if( i->first < time ){
