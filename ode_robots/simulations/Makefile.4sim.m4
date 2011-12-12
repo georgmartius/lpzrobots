@@ -40,10 +40,15 @@ BASELIBSSHARED := $(shell ode_robots-config $(CFGOPTS) --libs) $(shell selforg-c
 
 
 DEV(LIBSELFORG=$(shell selforg-config $(CFGOPTS) --libfile))
+DEV(LIBSELFORGSHARED:=$(shell selforg-config $(CFGOPTS) --solibfile))
 DEV(SELFORGSRCPREFIX=$(shell selforg-config $(CFGOPTS) --srcprefix))
 
 DEV(LIBODEROBOTS=$(shell ode_robots-config $(CFGOPTS) --libfile))
+DEV(LIBODEROBOTSSHARED:=$(shell ode_robots-config $(CFGOPTS) --solibfile))
 DEV(ODEROBOTSSRCPREFIX=$(shell ode_robots-config $(CFGOPTS) --srcprefix))
+
+
+
 
 LIBS  += $(BASELIBS) $(ADDITIONAL_LIBS)
 
@@ -60,7 +65,8 @@ opt:    DEV(libode_robots_opt)
 dbg:    DEV(libode_robots_dbg) 
 	$(MAKE) CFGOPTS=--dbg EXEC=$(EXEC)_dbg $(EXEC)_dbg
 shared:  DEV(libode_robots_shared) 
-	$(MAKE) BASELIBS="$(BASELIBSSHARED)" EXEC=$(EXEC)_shared $(EXEC)_shared
+	$(MAKE) BASELIBS="$(BASELIBSSHARED)" LIBSELFORG="$(LIBSELFORGSHARED)" \
+		LIBODEROBOTS="$(LIBODEROBOTSSHARED)" $(EXEC)
 
 $(EXEC): Makefile Makefile.depend $(OFILES) DEV($(LIBODEROBOTS) $(LIBSELFORG))
 	$(CXX) $(CPPFLAGS) $(OFILES) $(LIBS) -o $(EXEC)

@@ -38,6 +38,7 @@ LIBS   += $(shell selforg-config $(CFGOPTS) --static --libs)
 INC    += -I.
 
 DEV(LIBSELFORGLIB=$(shell selforg-config $(CFGOPTS) --libfile))
+DEV(LIBSELFORGSHARED:=$(shell selforg-config $(CFGOPTS) --solibfile))
 DEV(SRCPREFIX=$(shell selforg-config $(CFGOPTS) --srcprefix))
 
 ## use -pg for profiling
@@ -51,6 +52,8 @@ opt   : DEV(libselforg_opt)
 	$(MAKE) CFGOPTS=--opt EXEC=$(EXEC)_opt $(EXEC)
 dbg   : DEV(libselforg_dbg)
 	$(MAKE) CFGOPTS=--dbg EXEC=$(EXEC)_dbg $(EXEC)
+shared:  DEV(libode_selforg_shared) 
+	$(MAKE) BASELIBS="$(BASELIBSSHARED)" LIBSELFORG="$(LIBSELFORGSHARED)" $(EXEC)
 
 $(EXEC): Makefile.depend $(OFILES) DEV($(LIBSELFORGLIB))
 	$(CXX) $(OFILES) $(LIBS) -o $(EXEC)
@@ -64,6 +67,9 @@ libselforg_dbg:
 
 libselforg_opt: 
 	cd $(SRCPREFIX) && $(MAKE) opt
+
+libselforg_shared:
+	cd $(SRCPREFIX) && $(MAKE) shared
 )
 
 depend: 

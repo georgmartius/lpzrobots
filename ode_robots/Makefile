@@ -91,7 +91,7 @@ $(LIB): $(UTILS) Makefile.depend $(OFILES)
 	@if [ "$(STRIP)" = "yes" ]; then strip --strip-debug $(LIB); fi
 
 $(SHAREDLIB): Makefile.depend $(OFILES)
-	$(CXX) -shared -Wl,-soname,$(SHAREDLIB) -o $(SHAREDLIB) $(OFILES) 
+	$(CXX) -shared -Wl,-soname,`basename $(SHAREDLIB)` -o $(SHAREDLIB) $(OFILES) 
 
 ${BUILD_DIR}/%.o: %.cpp
 	@mkdir -p $(dir $@)
