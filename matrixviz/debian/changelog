@@ -1,3 +1,9 @@
+matrixviz (0.7.0-5) unstable; urgency=low
+
+  * New Release
+
+ -- Georg Martius <georg.martius@web.de>  Fri, 09 Dec 2011 16:16:27 +0100
+
 matrixviz (0.6-1) unstable; urgency=low
 
   * Initial release as package

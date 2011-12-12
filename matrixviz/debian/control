@@ -3,7 +3,7 @@ Section: math
 Priority: optional
 Maintainer: Georg Martius <georg.martius@web.de>
 Build-Depends: debhelper (>= 7), 
- libqt4-dev, qt4-qmake
+ libqt4-dev, libqt4-opengl-dev, qt4-qmake
 Standards-Version: 3.8.4
 Homepage: http://robot.informatik.uni-leipzig.de/software
 

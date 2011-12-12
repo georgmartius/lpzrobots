@@ -5,7 +5,7 @@ Maintainer: Georg Martius <georg.martius@web.de>
 Build-Depends: debhelper (>= 7), quilt,
  libglu1-mesa-dev | libglu-dev, libgl1-mesa-dev | libgl-dev, 
  libglut3-dev | freeglut3-dev, xutils-dev,
- lpzrobots-selforg, libode-dbl-dev, libopenscenegraph-dev, libreadline-dev 
+ lpzrobots-selforg, libode-dbl-dev, libopenscenegraph-dev, libreadline-dev, m4
 Standards-Version: 3.8.4
 Homepage: http://robot.informatik.uni-leipzig.de/software
 
