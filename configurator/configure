@@ -4,7 +4,7 @@
 ## Date:     Oct 2011
 
 usage="\
-Usage: configure [--prefix=DIR] [--system=LINUX|MAC] [--type=DEVEL|USER]"
+Usage: configure [--prefix=DIR] [--system=LINUX|MAC] [--type=DEVEL|USER] [--shared]"
 
 #get full qualified dirname
 DIRNAME=`dirname $0`;
@@ -20,6 +20,9 @@ fi
 prefix="/usr/local"
 version=`cat $DIRNAME/VERSION`;
 package=configurator
+
+QMAKEOPT="CONFIG+=staticlib"
+STATIC="-D STATIC"
 
 if test $# -eq 0; then
       echo "${usage}" 1>&2
@@ -40,6 +43,10 @@ while test $# -gt 0; do
     ;;
     --system=*)
       ;;
+    --shared)
+      QMAKEOPT="CONFIG+=dll"
+      STATIC=
+      ;;
     *)
       echo "${usage}" 1>&2
       exit 1
@@ -48,10 +55,10 @@ while test $# -gt 0; do
   shift
 done
 
-if m4 -DPREFIX="$prefix" -D$system -DVERSION=$version $DIRNAME/$package-config.m4 > $DIRNAME/$package-config; then
+if m4 -DPREFIX="$prefix" -D$system -DVERSION=$version $STATIC $DIRNAME/$package-config.m4 > $DIRNAME/$package-config; then
    chmod u+x $DIRNAME/$package-config;
    echo "configuration done!"
 fi
 
-cd $DIRNAME/ && qmake configurator.pro
+cd $DIRNAME/ && qmake $MAKEOPT configurator.pro
 

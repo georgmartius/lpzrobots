@@ -28,13 +28,14 @@ developed by the Robotics Group for Self-Organization of Control
 It consists of the following directories (click for details):
   - \ref selforg : controllers together with a small framework for using them,
 	developed in the robotic group of Leipzig university
-	yielding at self-organized behaviour for various kinds of machines. 
+	yielding at self-organized behavior for various kinds of machines. 
   - \ref ode_robots : physics simulator based on ODE 
 	(Open Dynamics Engine, see http://www.ode.org). 
-	This includes such as robots, obstacles, utils, stuff for visualization with OSG 
+	This includes such as robots, obstacles, utilities, 
+         stuff for visualization with OSG 
         (OpenSceneGraph, see http://www.openscenegraph.org) and so on.
   - \ref guilogger : application that coordinates multiple gnuplot 
-	windows and allows for an interactive display of data that is sent per pipe from another   - \ref matrixvix : application for intractive display of changing matrix and vector data
+	windows and allows for an interactive display of data that is sent per pipe from another   - \ref matrixvix : application for interactive display of changing matrix and vector data
   - \ref configurator : a library implementing a GUI to change the parameters interactively
         which is otherwise done on the console
   - \ref ga_tools : genetic algorithms framework that can be used to together with 
@@ -42,7 +43,7 @@ It consists of the following directories (click for details):
 program 
   - \ref opende : directory with a snapshot of the open dynamics engine (release 0.11.1)
                   renamed to ode-dbl in order to avoid conflicts with packaged single
-                  precission versions. It contains the capsule-box collision bugfix 
+                  precision versions. It contains the capsule-box collision bugfix 
                   which is upstream (in svn)
                   (please follow the link for installation hints)
 
@@ -51,7 +52,7 @@ program
 You have two different ways to get the simulator to work. 
 - A) Install a package for your distribution.
      This is the quick 'n' easy way if you have root permissions,  see \ref InstA.
-- B) Download the source tar ball and compile the simulator youself, see \ref InstB
+- B) Download the source tar ball and compile the simulator yourself, see \ref InstB
 
 \subsection InstA Way A: Package installation
 \subsubsection Ubuntu
@@ -68,7 +69,7 @@ sudo apt-get install guilogger lpzrobots-oderobots
 \endverbatim
 This will automatically install all other dependencies.
 
-That'it!
+That's it!
 
 Now you can copy the sample simulations from
   <tt>/usr/share/lpzrobots/</tt> to your home directory and 
@@ -85,7 +86,7 @@ make -f install_deb_source.makefile
 That will download the newest packages, compile them and install it.
 If something fails you can also redo parts of the process, see "make -f install_deb_source.makefile help".
 
-The packages are: guilogger, ode-dbl, lpzrobots-selforg, and lpzrobots-oderobots
+The packages are: guilogger, matrixviz, ode-dbl, lpzrobots-selforg, and lpzrobots-oderobots
 You can uninstall them later using the package manager (apt-get or synaptics)
 
 
@@ -147,7 +148,7 @@ This you have to repeat for each package (e.g. replace guilogger by ode-dbl, lpz
 cd ode_robots/simulations/template_sphererobot
 ./start 
 \endverbatim
-- for optimisation you can also use <tt>make opt</tt> which produces and <tt>start_opt</tt>. This is recommended to use after testing the code. 
+- for optimization you can also use <tt>make opt</tt> which produces and <tt>start_opt</tt>. This is recommended to use after testing the code. 
 - The following command line options are available 
   (type ./start -h for a full list of options): \n
 \verbatim
@@ -156,7 +157,7 @@ Usage: ./start [-g [interval]] [-f [interval]] [-r seed] [-x WxH] [-fs]
                  [-odethread] [-osgthread] [-savecfg]
         -g interval     use guilogger (default interval 1)
         -f interval     write logging file (default interval 5)
-        -n interval     use neuronviz (default interval 10)
+        -m interval     use matrixviz (default interval 10)
         -s "-disc|ampl|freq val"        use soundMan
         -r seed         random number seed
         -x WxH          * window size of width(W) x height(H) is used (default 640x480)
@@ -191,7 +192,7 @@ Usage: ./start [-g [interval]] [-f [interval]] [-r seed] [-x WxH] [-fs]
 \section Documentation
 
 - This manual can be found at http://robot.informatik.uni-leipzig.de/software
-- More informations on the used self-organization algorithm is available at  
+- More information on the used self-organization algorithm is available at  
   http://robot.informatik.uni-leipzig.de/research
 - The original ODE documentation can be found at http://opende.sourceforge.net/wiki/index.php/Main_Page
 - The OSG documentation can be found at http://www.openscenegraph.org/projects/osg/wiki/Support

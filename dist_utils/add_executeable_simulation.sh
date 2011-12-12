@@ -11,13 +11,13 @@ fi
 shopt -s extglob
 DIRNAME=$(ls -d *-`uname -m` | head -n 1)
 echo "$DIRNAME";
-if [ ! -e ${DIRNAME} ]; then
+if [ ! -e "${DIRNAME}" ]; then
     echo "cannot find binary dist directory: $DIRNAME"
     exit 1;
 fi
 
 SIMDIR=`dirname $1`
-if [ ! -e ${SIMDIR} ]; then
+if [ ! -e "${SIMDIR}" ]; then
     echo "cannot find simulation directory"
     exit 1;
 fi
@@ -33,7 +33,7 @@ if [ -e $SIMDIR/guilogger.cfg ]; then
 fi
 
 DESTSCRIPT=$DIRNAME/$DEST
-cat $DIRNAME/simulationtemplate | sed "s/mysim/$DEST/" > $DESTSCRIPT
+cp $DIRNAME/simulationtemplate $DESTSCRIPT
 
 chmod u+x $DESTSCRIPT
 

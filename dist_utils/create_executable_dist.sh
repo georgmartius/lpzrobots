@@ -8,7 +8,7 @@ fi
 if [ "$1" = "-h" ]; then
     echo "Usage: $0 [-h] [-n] [NameOfDist]"
     echo "       -h   help"
-    echo "       -n   use the exisiting traces (tracesim and traceguil)"
+    echo "       -n   use the exisiting traces (tracesim and traceguil tracematviz)"
     exit 0;
 fi
 
@@ -21,18 +21,21 @@ if [ ! "$1" = "-n" ]; then
     strace -e trace=open -o tracesim ./start
     
     strace -e trace=open -o traceguil  guilogger
+
+    echo "#C foo bar" | strace -e trace=open -o tracematviz  matrixviz
+
 else
     shift;
-    if [ -e tracesim -a -e traceguil ]; then
+    if [ -e tracesim -a -e traceguil -a -e tracematviz ]; then
         echo " I am useing the exising tracesim traceguil."
     else
-        echo " cannot find the trace files (strace -e trace=open ...) tracesim traceguil."
+        echo " cannot find the trace files (strace -e trace=open ...) tracesim traceguil tracematviz."
         exit -1;
     fi
 fi
 
 # get all so files that are loaded
-cat tracesim traceguil | grep ".*\.so" | grep -v "ENOENT" | grep -v "cache" | grep -v "nvidia" | sed "s/.*\"\(.*\)\".*/\1/" | sort | uniq > libs
+cat tracesim traceguil tracematviz | grep ".*\.so" | grep -v "ENOENT" | grep -v "cache" | grep -v "nvidia" | sed "s/.*\"\(.*\)\".*/\1/" | sort | uniq > libs
 
 BASENAME=lpzrobots
 if [ -n "$1" ]; then
@@ -58,14 +61,17 @@ fi
 
 mkdir $DIRNAME/bin
 GUILOGGER=`which guilogger`
+MATRIXVIZ=`which matrixviz`
 BINDIR=`dirname $GUILOGGER`
 PREFIX=${BINDIR%/bin}
 
 echo "Found guilogger here: ${GUILOGGER}."
+echo "Found matrixviz here: ${MATRIXVIZ}."
 echo "The binary directory is ${BINDIR}"
 echo " and the prefix is ${PREFIX}."
 
 cp ${GUILOGGER} $DIRNAME/bin/
+cp ${MATRIXVIZ} $DIRNAME/bin/
 for F in encodevideo.sh  feedfile.pl  selectcolumns.pl; do
     cp ${BINDIR}/$F $DIRNAME/bin/
 done
@@ -121,7 +127,7 @@ EOF
 (
 cat <<'EOF'
 #!/bin/bash
-SIM=simulations/mysim
+SIM=simulations/`basename $0`
 
 . ./setupenv.sh
 echo "Entering directory $SIM"
@@ -142,5 +148,3 @@ EOF
 
 
 mkdir $DIRNAME/simulations
-
-

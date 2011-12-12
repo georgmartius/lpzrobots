@@ -10,7 +10,7 @@ COMMENT(`There are defines for platform dependend stuff.
          LINUXORMAC outputs the first argument on linux and the second on mac.
          GSL outputs the first argument of GSL is used or second if not
          Call the m4 processor with -D PREFIX=... 
-                                    -D MAC|LINUX -D VERSION=...
+                                    -D MAC|LINUX -D STATIC -D VERSION=...
          The SRCPREFIX is only requried for DEVEL
          ')
 COMMENT(`Comment for processed file:')
@@ -21,6 +21,12 @@ ifdef(`MAC',
 ,
 `define(`LINUXORMAC', $1)'
 )
+ifdef(`STATIC', 
+`define(`LINKLIB', `-Wl,Bstatic $1 -Wl,Bdynamic')'
+,
+`define(`LINKLIB', $1)'
+)
+
 COMMENT(`change quote syntax to [[string]]')
 changequote([[,]]) 
 
@@ -62,7 +68,7 @@ while test $# -gt 0; do
       echo $CPPFLAGS -I"$prefix/include"
       ;;
     --libs)
-      echo -L"$prefix/lib" -l$LIBBASE $LIBS 
+      echo -L"$prefix/lib" LINKLIB(-l$LIBBASE) $LIBS 
       ;;
     *)
       echo "Syntax Error: $0 $@" 1>&2

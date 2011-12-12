@@ -75,7 +75,7 @@ install_utils:
 	   cp guilogger/src/bin/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
 	 else cp guilogger/bin/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
 	fi	
-	-@if [ -e configurator/libconfigurator.a ]; then install --mode 644 configurator/libconfigurator.a $(PREFIX)/lib/ && install --mode 755 configurator/configurator-config $(PREFIX)/bin/ && echo "===> copied libconfigurator.a  to $(PREFIX)/lib/"; fi
+	-@if [ -e configurator/libconfigurator.a -o -e configurator/libconfigurator.so ]; then install --mode 644 configurator/libconfigurator.* $(PREFIX)/lib/ && install --mode 755 configurator/configurator-config $(PREFIX)/bin/ && echo "===> copied libconfigurator to $(PREFIX)/lib/"; fi
 	-@cp -r configurator/include/configurator $(PREFIX)/include/ && echo "===> copied configurator includes to $(PREFIX)/include/"
 	-cp soundman/class/*.class $(PREFIX)/lib/soundMan/
 	-cp soundman/bin/soundMan $(PREFIX)/bin/soundMan
@@ -100,7 +100,7 @@ install_selforg: usage
 .PHONY: ode
 ##!ode		   compile open dynamics engine in double precession (custom version)
 ode:
-	cd opende; sh autogen.sh && ./configure --disable-asserts --enable-double-precision --prefix=$(PREFIX) --disable-demos && $(MAKE) && echo "you probably want to run \"make install_ode\" now (possibly as root)"
+	cd opende; sh autogen.sh && ./configure --disable-asserts --enable-shared --enable-double-precision --prefix=$(PREFIX) --disable-demos && $(MAKE) && echo "you probably want to run \"make install_ode\" now (possibly as root)"
 
 
 .PHONY: install_ode
@@ -216,15 +216,20 @@ confsubmodule:
 		System="LINUX"; else System="MAC"; fi; \
 	if [ -n "$(MODULE)" ]; then \
 	    CMD="$(MODULE)/configure --prefix=$(PREFIX) --system=$$System --type=$(TYPE)"; \
-	    echo "call $$CMD"; \
+	    echo "call: $$CMD"; \
 	    if ! $$CMD; then  exit 1; fi; \
             for Folder in $(MODULE)/simulations $(MODULE)/examples; do \
 		CMD="m4 -D $$System -D $(TYPE) $$Folder/Makefile.4sim.m4"; \
 	    	echo "call: $$CMD"; \
 	    	if $$CMD > "$$Folder/Makefile.4sim"; then \
+		echo -n "genenete Makefiles in: ";\
 		for F in `find "$$Folder" -mindepth 2 -name Makefile.conf`; do \
+		   echo -n "$$F "; \
 		   cp "$$Folder/Makefile.4sim" "$${F%.conf}"; done; \
+		else \
+		   echo "cannot write $$Folder/Makefile.4sim"; \
 	    	fi; \
+		echo "...Done"; \
 	    done; \
 	else \
 	    echo "confsubmodule called without MODULE"; exit 1;\

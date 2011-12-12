@@ -3,8 +3,11 @@ TARGET = configurator
 DEPENDPATH += . ./src/qconfigurable ./include/configurator
 INCLUDEPATH += . ./src/qconfigurable ../selforg/include ./include/configurator
 LIBS += -lselforg -L../selforg
-CONFIG += debug staticlib
+#CONFIG += debug
+
 QMAKE_CXXFLAGS += -Wno-deprecated -Wno-unused-parameter
+
+CONFIG -= lib_bundle
 
 OBJECTS_DIR = obj
 MOC_DIR = moc

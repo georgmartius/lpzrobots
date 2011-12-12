@@ -22,6 +22,7 @@ INCLUDEPATH += . \
                src/tools \
                src/visualisations
 CONFIG += qt
+CONFIG -= app_bundle
 #debug
 
 # Input
