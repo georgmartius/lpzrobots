@@ -32,6 +32,11 @@ if [ -e $SIMDIR/guilogger.cfg ]; then
     cp $SIMDIR/guilogger.cfg $DESTDIR/
 fi
 
+if ls $SIMDIR/*.txt; then
+    cp $SIMDIR/*.txt $DESTDIR/
+fi
+
+
 DESTSCRIPT=$DIRNAME/$DEST
 cp $DIRNAME/simulationtemplate $DESTSCRIPT
 
