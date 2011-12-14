@@ -631,9 +631,7 @@ namespace lpzrobots {
         
         FOREACHC(vector<Primitive*>, camHandle.watchingAgent->getRobot()->getAllPrimitives(), pi){
           Primitive* p = *pi;
-          // Damp both, rotation and velocity
-          p->applyTorque(p->getAngularVel()/globalData.odeConfig.simStepSize*-0.001);
-          p->applyForce(p->getVel()/globalData.odeConfig.simStepSize*-0.001);
+          // limit both, rotation and velocity
           bool limit=false;
           limit |= p->limitLinearVel(50);
           limit |= p->limitAngularVel(50);
