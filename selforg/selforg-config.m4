@@ -43,6 +43,7 @@ CBASEFLAGS="-pthread LINUXORMAC( ,-I/opt/local/include)"
 CPPFLAGS="$CBASEFLAGS"
 INTERNFLAGS="-g -O"
 LIBS="-lm -lreadline -lncurses -lpthread"
+STATIC=
 
 usage="\
 Usage: selforg-config [--prefix[=DIR]] [--srcprefix[=DIR]] [--version] [--intern] [--static] [--opt|--dbg] [--cflags] [--libs] [--libfile] [--solibfile] [--type]"
@@ -82,6 +83,7 @@ while test $# -gt 0; do
       intern=1
       ;;
     --static) ##force use static linking of lib
+      STATIC=--static
       STATICSTART=-Wl,-Bstatic
       STATICEND=-Wl,-Bdynamic
     ;;
@@ -98,7 +100,7 @@ while test $# -gt 0; do
     --cflags)
       if [ -z "$intern" ]; then INTERNFLAGS=; fi
       if type configurator-config >/dev/null 2>&1; then
-        CONFIGURATORCLAGS=`configurator-config --cflags`;
+        CONFIGURATORCLAGS=`configurator-config $STATIC --cflags`;
       else
         CONFIGURATORCLAGS=-DNOCONFIGURATOR
       fi                                     
@@ -106,7 +108,7 @@ while test $# -gt 0; do
       ;;
     --libs)
       if type configurator-config >/dev/null 2>&1; then
-        CONFIGURATORLIBS=`configurator-config --libs`;
+        CONFIGURATORLIBS=`configurator-config $STATIC --libs`;
       fi                                     
       echo $LIBS DEVORUSER(-L"$srcprefix/",-L"$prefix/lib") $STATICSTART -l$LIBBASE $STATICEND GSL(`gsl-config --libs`,) $CONFIGURATORLIBS
       ;;
