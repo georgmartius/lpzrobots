@@ -32,6 +32,7 @@
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/onecontrollerperchannel.h>
+#include <selforg/forceboostwiring.h>
 
 #include <selforg/sos.h>
 #include <selforg/sox.h>
@@ -177,31 +178,37 @@ public:
     name += "_" + itos(num+1);
 
     HexapodConf myHexapodConf        = Hexapod::getDefaultConf();
-    myHexapodConf.coxaPower          = .8;
-    myHexapodConf.tebiaPower         = .5;
+    myHexapodConf.coxaPower          = 1.5;
+    myHexapodConf.tebiaPower         = 0.8;
     myHexapodConf.coxaJointLimitV    = .9; // M_PI/8;  // angle range for vertical dir. of legs
     myHexapodConf.coxaJointLimitH    = 1.3; //M_PI/4;
     myHexapodConf.tebiaJointLimit    = 1.8; // M_PI/4; // +- 45 degree
     myHexapodConf.percentageBodyMass = .5;
-    myHexapodConf.useBigBox          = true;
+    myHexapodConf.useBigBox          = false;
     myHexapodConf.tarsus             = true;
     myHexapodConf.numTarsusSections  = 1;
     myHexapodConf.useTarsusJoints    = true;
     
 
+    OsgHandle rosgHandle=osgHandle.changeColorSet(num);
     OdeHandle rodeHandle = odeHandle;
     rodeHandle.substance.toRubber(20);    
-    OdeRobot* robot = new Hexapod(rodeHandle, osgHandle.changeColor(Color(1,1,1)), 
-                                  myHexapodConf, name);
+    OdeRobot* robot = new Hexapod(rodeHandle, rosgHandle, myHexapodConf, name);
     robot->place(osg::Matrix::rotate(M_PI*0,1,0,0)*pose);
     
     AbstractController* controller = new Sox(1.2, false);
     controller->setParam("epsC",0.3);
     controller->setParam("epsA",0.05);
     controller->setParam("Logarithmic",1);
-    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+    AbstractWiring* wiring = new ForceBoostWiring(new ColorUniformNoise(0.1),0.05);
+    //    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     OdeAgent*       agent  = new OdeAgent( global, PlotOption(NoPlot));
     agent->init(controller, robot, wiring);
+    
+    // add an operator to keep robot from falling over
+    agent->addOperator(new LimitOrientationOperator(Axis(0,0,1), Axis(0,0,1), 
+                                                    M_PI*0.5, 10));
+
     global.agents.push_back(agent);
     global.configs.push_back(agent);      
     return agent;

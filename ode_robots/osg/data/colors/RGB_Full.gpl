@@ -45,7 +45,7 @@ Columns: 1
 18	145	138	CP-1042   Guineablau
 0	137	154	CP-1043   Kobalttuerkis
 0	131	155	CP-1044   Meerblau
-0	136	159	CP-1045   Art_Déco-Blau
+0	136	159	CP-1045   Art_Deco-Blau
 76	141	160	CP-1046   Akademieblau
 22	143	168	CP-1047   Pfauenblau
 0	148	193	CP-1048   Dezentcyan
@@ -64,7 +64,7 @@ Columns: 1
 42	102	114	CP-1061   Spinelltuerkis
 62	110	118	CP-1062   Beintuerkis
 0	93	109	CP-1063   Grautuerkis
-31	104	126	CP-1064   Sèvresblau
+31	104	126	CP-1064   Sevresblau
 0	84	84	CP-1065   Sturmgrau
 0	92	89	CP-1066   Jungle
 0	74	77	CP-1067   Schwarztuerkis
@@ -303,7 +303,7 @@ Columns: 1
 243	170	190	CP-3012   Malvenrosa
 212	152	167	CP-3013   Old_English_Pink
 231	176	184	CP-3014   Flamingorosa
-243	166	178	CP-3015   Art_Déco-Rosa
+243	166	178	CP-3015   Art_Deco-Rosa
 241	144	155	CP-3016   Schweinchenrosa
 221	106	155	CP-3017   Columbine_Pink
 237	119	172	CP-3018   Hellmagenta
@@ -328,7 +328,7 @@ Columns: 1
 221	0	104	CP-3037   Vamprot
 228	0	108	CP-3038   Pink
 229	0	94	CP-3039   Camparirot
-208	84	95	CP-3040   Rosé
+208	84	95	CP-3040   Rose
 170	29	118	CP-3041   Koenigspurpur
 172	76	122	CP-3042   Blasslila
 193	26	121	CP-3043   Sofa-Pink

@@ -336,7 +336,9 @@ namespace lpzrobots {
    *  (if not treated) to the default routine).
    */
   bool Hexapod::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-
+    
+    // do that with a s contact sensor
+    if(conf.useContactSensors){ 
     const int NUM_CONTACTS = 8;
     dContact contacts[NUM_CONTACTS];
     int numCollisions = dCollide(o1, o2, NUM_CONTACTS, &contacts[0].geom, sizeof(dContact));
@@ -360,6 +362,7 @@ namespace lpzrobots {
 	if(legContactArray[5].bodyID == b1){conf.legContacts[5] = 6; }
 
       }
+    }
 
     /*
 
@@ -392,19 +395,27 @@ namespace lpzrobots {
     }
 
     odeHandle.createNewSimpleSpace(parentspace,true);
+    osgHandle = osgHandle.changeColor("robot2");
+
     // color of joint axis and whiskers
-    OsgHandle osgHandleJ = osgHandle.changeColor(Color(72./255.,16./255.,16./255.));
+    OsgHandle osgHandleJ(osgHandle.changeColor("joint"));
+    OsgHandle osgHLegs(osgHandle.changeColor("robot1"));
+    OsgHandle osgHTarsus(osgHandle.changeColor("robot3"));
+
     TwoAxisServoVel* servo;
     OneAxisServo* spring;
     OneAxisServo* spring2;
     FixedJoint* fixedJoint;
+
+    const string trunkTex("Images/stripes.rgb");
+    const string legTex("Images/whiteground.rgb");
     
     // create body
     double twidth = conf.size * conf.width ;// 1/1.5;
     double theight = conf.size * conf.height; // 1/4;
     trunk = new Box(conf.size, twidth, theight);
     // trunk = new Capsule(twidth,conf.size);
-    trunk->setTexture("Images/toy_fur3.jpg");
+    trunk->setTexture(trunkTex);
     trunk->init(odeHandle, conf.mass*conf.percentageBodyMass, osgHandle);
     osg::Matrix trunkPos = TRANSM(0,0,conf.legLength)*pose;
     trunk->setPose(trunkPos);
@@ -429,7 +440,7 @@ namespace lpzrobots {
       for(int i = -1; i < 2; i+=2){
 
 	irbox = new Box(0.1,0.1,0.1);
-	irbox->setTexture("Images/toy_fur3.jpg");
+	irbox->setTexture(trunkTex);
 	irbox->init(odeHandle, 0.00001, osgHandle);
 	irbox->setPose(ROTM(M_PI/4,0,0,1) * TRANSM(i*conf.size/2,0,theight/2)*trunkPos);
 	objects.push_back(irbox);
@@ -442,7 +453,7 @@ namespace lpzrobots {
       for(int i = -1; i < 2; i+=2){
 
 	irbox = new Box(0.1,0.1,0.15);
-	irbox->setTexture("Images/toy_fur3.jpg");
+	irbox->setTexture(trunkTex);
 	irbox->init(odeHandle, 0.00001, osgHandle);
 	irbox->setPose(TRANSM(0,i*twidth/2,theight/2 + 0.05)*trunkPos);
 	objects.push_back(irbox);
@@ -532,7 +543,7 @@ namespace lpzrobots {
       double len1 = conf.legLength*0.5;
       double rad1 = conf.legLength/15;
       double len2 = conf.legLength*0.5;
-      double rad2 = conf.legLength/15;
+      double rad2 = conf.legLength/16;
 
       // upper limp
       Primitive* coxaThorax;
@@ -542,7 +553,7 @@ namespace lpzrobots {
       
       osg::Matrix m = ROTM(M_PI/2,v%2==0 ? -1 : 1,0,0) * TRANSM(pos) * pose;
       coxaThorax = new Capsule(rad1, len1);
-      coxaThorax->setTexture("Images/toy_fur3.jpg");
+      coxaThorax->setTexture(legTex);
       coxaThorax->init(odeHandle, legmass, osgHandle);
 
       osg::Matrix m1 =  TRANSM(0,0,-len1/2) 
@@ -577,8 +588,8 @@ namespace lpzrobots {
       // lower leg
       Primitive* tibia;
       tibia = new Capsule(rad2, len2);
-      tibia->setTexture("Images/toy_fur3.jpg");
-      tibia->init(odeHandle, legmass, osgHandle);
+      tibia->setTexture(legTex);
+      tibia->init(odeHandle, legmass, osgHLegs);
       osg::Matrix m2 =   TRANSM(0,0,-len2/2) * ROTM(1.5,v%2==0 ? -1 : 1,0,0)
         * TRANSM(0,0,-len1/2) * m1;
       tibia->setPose(m2);
@@ -616,8 +627,8 @@ namespace lpzrobots {
         double length = len2/2;
         double mass = legmass/10;
         tarsus = new Capsule(radius,length);
-        tarsus->setTexture("Images/toy_fur3.jpg");
-        tarsus->init(odeHandle, mass, osgHandle);
+        tarsus->setTexture(legTex);
+        tarsus->init(odeHandle, mass, osgHTarsus);
 
         osg::Matrix m4;
         osg::Matrix m3 =
@@ -643,7 +654,7 @@ namespace lpzrobots {
           // springy joint
           HingeJoint* k = new HingeJoint(tibia, tarsus, Pos(0,0,-len2/2) * m2,
                                          Axis(v%2==0 ? -1 : 1,0,0) * m2);
-          k->init(odeHandle, osgHandleJ, true, rad1 * 2.1);
+          k->init(odeHandle, osgHandleJ, true, rad2 * 2.1);
           // servo used as a spring
           //          spring2 = new HingeServo(k, -1, 1, 1, 0.01,0); // parameters are set later
           spring2 = new OneAxisServoVel(odeHandle,k, -1, 1, 1, 0.01); // parameters are set later
@@ -652,7 +663,7 @@ namespace lpzrobots {
 
         }else{
           FixedJoint* k = new FixedJoint(tibia, tarsus);
-          k->init(odeHandle, osgHandleJ, true, rad1 * 2.1);
+          k->init(odeHandle, osgHandleJ, false);
           joints.push_back(k);
         }
 
@@ -663,8 +674,8 @@ namespace lpzrobots {
           double lengthS = length/1.5;
           double radiusS = radius/1.5;
           section = new Capsule(radiusS,lengthS);
-          section->setTexture("Images/toy_fur3.jpg");
-          section->init(odeHandle, mass/2, osgHandle);
+          section->setTexture(legTex);
+          section->init(odeHandle, mass/2, osgHTarsus);
 
           osg::Matrix m5;
 
@@ -727,7 +738,7 @@ namespace lpzrobots {
       
       osg::Matrix m = ROTM(M_PI/10, n,0,0) * ROTM(M_PI/2+M_PI/10, 0,-1,0) * TRANSM(pos) * pose;
       whisker = new Capsule(t1, l1);
-      whisker->init(odeHandle, legmass/10, osgHandleJ);
+      whisker->init(odeHandle, legmass/10, osgHTarsus);
       osg::Matrix m1 = TRANSM(0,0,-l1/2) * m;
       whisker->setPose(m1);
       objects.push_back(whisker);
@@ -745,7 +756,7 @@ namespace lpzrobots {
       
       Primitive* whisker2;
       whisker2 = new Capsule(t1/2, l1);
-      whisker2->init(odeHandle, legmass/10, osgHandleJ);
+      whisker2->init(odeHandle, legmass/10, osgHTarsus);
       osg::Matrix m2 = TRANSM(0,0,-l1/2) 
         * ROTM(M_PI/10, n,0,0) 
         * ROTM(M_PI/10, 0,1,0) * TRANSM(0,0,-l1/2) * m1; 

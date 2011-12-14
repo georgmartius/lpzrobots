@@ -69,6 +69,7 @@ namespace lpzrobots {
     double T; ///< T is the for the time for calculating the cost of transport over time
     double *v;
 
+    bool useContactSensors;
     matrix::Matrix m;
     int *legContacts;
     double irSensors;
@@ -133,6 +134,7 @@ namespace lpzrobots {
       c.useTarsusJoints=true;
       c.useBigBox=true;
 
+      c.useContactSensors=false;
       c.legContacts = new int[6];
       c.irSensors=false;
       c.irFront=false;

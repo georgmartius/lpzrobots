@@ -383,6 +383,9 @@ GUIDE adding new sensors
     
     odeHandle.createNewSimpleSpace(parentspace, false);
     osgHandle = osgHandle.changeColor(conf.bodyColor);
+    OsgHandle osgHTrousers(osgHandle.changeColor(conf.trouserColor));
+    OsgHandle osgHTrunk(osgHandle.changeColor(conf.trunkColor));
+    
 
     OdeHandle ignoreColSpace(odeHandle);
     ignoreColSpace.createNewSimpleSpace(odeHandle.space, true);
@@ -408,7 +411,7 @@ GUIDE adding new sensors
     // Hip    
     b = new Box(0.2,0.1,0.1);
     b->setTexture(conf.bodyTexture);
-    b->init(ignoreColSpace, 1,osgHandle.changeColor(conf.handColor));
+    b->init(ignoreColSpace, 1, osgHTrousers);
     b->setPose(osg::Matrix::translate(0, 1.131, 0.0052) * pose );
 //    b->setMass(/*16*/.61, 0, 0, 0, 0.0996, 0.1284, 0.1882, 0, 0, 0);
     b->setMass(.5*conf.massfactor);
@@ -418,7 +421,7 @@ GUIDE adding new sensors
     b = new Box(0.3,0.168,.19);
     //    b = new Box(0.3,0.45,.2);
     b->setTexture(conf.trunkTexture);
-    b->init(ignoreColSpace, 1,osgHandle.changeColor(conf.trunkColor));
+    b->init(ignoreColSpace, 1,osgHTrousers);
     b->setPose(osg::Matrix::translate(0, 1.177, 0.0201) * pose );
     //    b->setPose(osg::Matrix::translate(0, 1.39785, 0.0201) * pose );
 //     b->setMass(/*29*/.27, 0, 0, 0, 0.498, 0.285, 0.568, 0, 0, 0);
@@ -434,7 +437,7 @@ GUIDE adding new sensors
     b = new Box(0.3,0.14,.19);
     //    b = new Box(0.3,0.45,.2);
     b->setTexture(conf.trunkTexture);
-    b->init(ignoreColSpace, 1,osgHandle.changeColor(conf.trunkColor));
+    b->init(ignoreColSpace, 1,osgHTrunk);
     b->setPose(osg::Matrix::translate(0, 1.33, 0.0201) * pose );
     //    b->setPose(osg::Matrix::translate(0, 1.39785, 0.0201) * pose );
 //     b->setMass(/*29*/.27, 0, 0, 0, 0.498, 0.285, 0.568, 0, 0, 0);
@@ -448,7 +451,7 @@ GUIDE adding new sensors
     // Thorax
     b = new Box(0.33,0.33,0.21); //.235);
     b->setTexture(conf.trunkTexture);
-    b->init(ignoreColSpace, 1,osgHandle.changeColor(conf.trunkColor));
+    b->init(ignoreColSpace, 1,osgHTrunk);
     b->setPose(osg::Matrix::translate(0, 1.50, 0.03/*0.035*/) * pose );
     b->setMass(1.0*conf.massfactor);//.3
     objects[Thorax]=b;
@@ -458,7 +461,7 @@ GUIDE adding new sensors
     //  Neck
     b = new Capsule(0.05,0.03+headsize);
     b->setTexture(conf.bodyTexture);
-    b->init(ignoreColSpace, 1,osgHandle);
+    b->init(ignoreColSpace, 1, osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0, 1.6884+headsize/2, 0.0253) * pose );
 //     b->setMass(.1/*1*/, 0, 0, 0, 0.0003125, 0.0003125, 0.0003125, 0, 0, 0);
     b->setMass(.05*conf.massfactor);//.01
@@ -497,9 +500,8 @@ GUIDE adding new sensors
     // Left_Shoulder
     b = new Capsule(0.04,0.28);
     b->setTexture(conf.bodyTexture);
-    b->init(ignoreColSpace, 1,osgHandle);
+    b->init(ignoreColSpace, 1,osgHTrunk);
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(0.3094, 1.587, 0.0227) * pose );
-    b->setColor(conf.trunkColor);
 //     b->setMass(/*2*/.79, 0, 0, 0, 0.00056, 0.021, 0.021, 0, 0, 0);
     b->setMass(0.2*conf.massfactor);
     objects[Left_Shoulder]=b;
@@ -509,7 +511,6 @@ GUIDE adding new sensors
     b->setTexture(conf.bodyTexture);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(0.5798, 1.5909, 0.024) * pose );
-    b->setColor(conf.bodyColor);
 //     b->setMass(1.21, 0, 0, 0, 0.00055, 0.0076, 0.0076, 0, 0, 0);
     b->setMass(0.121*conf.massfactor);
     objects[Left_Forearm]=b;
@@ -518,9 +519,8 @@ GUIDE adding new sensors
     // b = new Cylinder(0.06,0.05);
     b = new Sphere(0.07);
     b->setTexture(conf.bodyTexture);
-    b->init(odeHandle, 1,osgHandle);
+    b->init(odeHandle, 1,osgHTrousers);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0.7826, 1.5948, 0.024) * pose );
-    b->setColor(conf.handColor);
 //     b->setMass(0.55, 0, 0, 0, 0.00053, 0.047, 0.0016, 0, 0, 0);
     b->setMass(0.1*conf.massfactor*conf.relArmmass);
     objects[Left_Hand]=b;
@@ -528,7 +528,7 @@ GUIDE adding new sensors
     // Right_Shoulder
     b = new Capsule(0.04,0.28);
     b->setTexture(conf.bodyTexture);
-    b->init(ignoreColSpace, 1,osgHandle);
+    b->init(ignoreColSpace, 1,osgHTrunk);
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(-0.3094, 1.587, 0.0227) * pose );
 //     b->setMass(/*2*/.79, 0, 0, 0, 0.00056, 0.021, 0.021, 0, 0, 0);
     b->setMass(0.2*conf.massfactor);
@@ -540,7 +540,6 @@ GUIDE adding new sensors
     b->setTexture(conf.bodyTexture);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(-0.5798, 1.5909, 0.024) * pose );
-    b->setColor(conf.bodyColor);
 //     b->setMass(1.21, 0, 0, 0, 0.00055, 0.0076, 0.0076, 0, 0, 0);
     b->setMass(0.121*conf.massfactor);
     objects[Right_Forearm]=b;
@@ -549,9 +548,9 @@ GUIDE adding new sensors
     // b = new Cylinder(0.06,0.05);
     b = new Sphere(0.07);
     b->setTexture(conf.bodyTexture);
-    b->init(odeHandle, 1,osgHandle);
+    b->init(odeHandle, 1,osgHTrousers);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(-0.7826, 1.5948, 0.024) * pose );
-    b->setColor(conf.handColor);
+    b->setColor(conf.trouserColor);
 //     b->setMass(0.55, 0, 0, 0, 0.00053, 0.047, 0.0016, 0, 0, 0);
     b->setMass(.1*conf.massfactor*conf.relArmmass);
     objects[Right_Hand]=b;
@@ -559,10 +558,9 @@ GUIDE adding new sensors
     // Left_Thigh
     b = new Capsule(0.07,0.43);
     b->setTexture(conf.bodyTexture);
-    b->init(ignoreColSpace, 1,osgHandle);
+    b->init(ignoreColSpace, 1,osgHTrousers);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0)* osg::Matrix::rotate(-M_PI/60,0,0,1) * 
 	       osg::Matrix::translate(0.0949, 0.8525, 0.0253) * pose );
-    b->setColor(conf.handColor);
 //     b->setMass(8.35, 0, 0, 0, 0.145, 0.0085, 0.145, 0, 0, 0);
     b->setMass(.5*conf.massfactor);
     objects[Left_Thigh]=b;
@@ -572,7 +570,6 @@ GUIDE adding new sensors
     b->setTexture(conf.bodyTexture);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0.0702, 0.3988, 0.0357) * pose );
-    b->setColor(conf.bodyColor);
     //    b->setMass(4.16, 0, 0, 0, 0.069, 0.0033, 0.069, 0, 0, 0);
     b->setMass(0.5*conf.massfactor);
     objects[Left_Shin]=b;
@@ -580,7 +577,7 @@ GUIDE adding new sensors
     // Left_Foot
     b = new Box(0.1,0.05,.3);
     b->setTexture(conf.bodyTexture);
-    b->init(odeHandle, 1, osgHandle.changeColor(conf.trunkColor));
+    b->init(odeHandle, 1, osgHTrunk);
     b->setPose(osg::Matrix::translate(0.0624, 0.1388, 0.0708) * pose );
     //    b->setMass(1.34, 0, 0, 0, 0.0056, 0.0056, 0.00036, 0, 0, 0);
     b->setMass(.5*conf.massfactor*conf.relFeetmass);
@@ -589,10 +586,9 @@ GUIDE adding new sensors
     // Right_Thigh
     b = new Capsule(0.07,0.43);
     b->setTexture(conf.bodyTexture);
-    b->init(ignoreColSpace, 1,osgHandle);
+    b->init(ignoreColSpace, 1,osgHTrousers);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0)* osg::Matrix::rotate(M_PI/60,0,0,1) * 
 	       osg::Matrix::translate(-0.0949, 0.8525, 0.0253) * pose );
-    b->setColor(conf.handColor);
     //    b->setMass(8.35, 0, 0, 0, 0.145, 0.0085, 0.145, 0, 0, 0);
     b->setMass(.5*conf.massfactor);
     objects[Right_Thigh]=b;
@@ -602,7 +598,6 @@ GUIDE adding new sensors
     b->setTexture(conf.bodyTexture);
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(-0.0702, 0.3988, 0.0357) * pose );
-    b->setColor(conf.bodyColor);
     //    b->setMass(4.16, 0, 0, 0, 0.069, 0.0033, 0.069, 0, 0, 0);
     b->setMass(0.5*conf.massfactor);
     objects[Right_Shin]=b;
@@ -610,7 +605,7 @@ GUIDE adding new sensors
     // Right_Foot
     b = new Box(0.1,0.05,.3);
     b->setTexture(conf.bodyTexture);
-    b->init(odeHandle, 1, osgHandle.changeColor(conf.trunkColor));
+    b->init(odeHandle, 1, osgHTrunk);
     b->setPose(osg::Matrix::translate(-0.0624, 0.1388, 0.0708) * pose );
     //    b->setMass(1.34, 0, 0, 0, 0.0056, 0.0056, 0.00036, 0, 0, 0);
     b->setMass(0.5*conf.massfactor*conf.relFeetmass);

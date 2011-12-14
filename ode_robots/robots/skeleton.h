@@ -104,10 +104,10 @@ namespace lpzrobots {
 
     bool irSensors; ///< whether to use the irsensor eyes
 
-    std::string headColor;
-    std::string bodyColor;
-    std::string trunkColor;
-    std::string handColor;
+    std::string headColor;   ///< special color of head (typically like body)
+    std::string bodyColor;   ///< color of skin
+    std::string trunkColor;  ///< color of upper body (pullover-color)
+    std::string trouserColor;///< color of upper legs and hands (trousers-color)
 
 
     std::string headTexture; // texture of the head
@@ -221,10 +221,10 @@ namespace lpzrobots {
       c.headColor       = "robot4";  
       //  c.bodyTexture = "Images/whitemetal_farbig_small.rgb";
       c.bodyTexture     = "Images/dusty.rgb";
-      c.bodyColor       = "robot2";
+      c.bodyColor       = "robot4";
       c.trunkTexture    = "Images/dusty.rgb"; //"Images/whitemetal_farbig_small.rgb";
       c.trunkColor      = "robot1";
-      c.handColor       = "robot3";
+      c.trouserColor    = "robot2";
       return c;
     }
 

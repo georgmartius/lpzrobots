@@ -54,7 +54,7 @@ public:
   Sox(const SoxConf& conf = getDefaultConf());
 
   /// constructor provided for convenience, use conf object to customize more
-  Sox(double init_feedback_strength = 1.0, bool useExtendedModel = true, 
+  Sox(double init_feedback_strength, bool useExtendedModel = true, 
       bool useTeaching = false );
 
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);

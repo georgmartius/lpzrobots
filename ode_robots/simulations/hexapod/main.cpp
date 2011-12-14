@@ -219,7 +219,6 @@ public:
     sox->setParam("epsC",0.105);
     sox->setParam("epsA",0.05);
     sox->setParam("Logarithmic",1);
-     sox->setParam("osceps",10);
 
 
     SeMoXConf cc = SeMoX::getDefaultConf();    
