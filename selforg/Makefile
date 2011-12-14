@@ -49,7 +49,7 @@ AR = ar -rcs
 
 .PHONY: lib opt dbg clean clean-all distclean todo depend tags install install_lib uninstall uninstall_lib
 
-libs: lib opt dbg
+libs: lib opt dbg shared
 
 lib: $(LIB)
 
@@ -89,9 +89,10 @@ install: Makefile.depend install_scripts
 ifneq ($(TYPE),DEVEL)
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
 	install -d $(PREFIX)/lib/ $(PREFIX)/include/selforg $(PREFIX)/share/lpzrobots/selforg
-	$(MAKE) lib install_lib
-	$(MAKE) CFGOPTS=--dbg dbg install_lib
-	$(MAKE) CFGOPTS=--opt opt install_lib
+	$(MAKE) install_lib
+	$(MAKE) CFGOPTS=--dbg install_lib
+	$(MAKE) CFGOPTS=--opt install_lib
+	$(MAKE) LIB=$(SHAREDLIB) install_lib
 	install -m 644 include/selforg/*.h $(PREFIX)/include/selforg
 	@echo "*************** Install example simulations ******************"
 	cp -RL simulations $(PREFIX)/share/lpzrobots/selforg/
@@ -107,6 +108,7 @@ ifneq ($(TYPE),DEVEL)
 	$(MAKE) uninstall_lib
 	$(MAKE) CFGOPTS=--dbg uninstall_lib
 	$(MAKE) CFGOPTS=--opt uninstall_lib
+	$(MAKE) LIB=$(SHAREDLIB) uninstall_lib
 	-rm -rf $(PREFIX)/include/selforg
 	-rm -rf $(PREFIX)/share/lpzrobots/selforg/
 endif

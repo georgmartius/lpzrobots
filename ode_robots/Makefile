@@ -57,7 +57,7 @@ AR = ar -rcs
 
 .PHONY: lib opt clean clean-all distclean todo depend tags search find findi install install_scripts install_lib uninstall uninstall_lib
 
-libs: lib opt dbg
+libs: lib opt dbg shared
 
 lib: $(UTILS) 
 ifeq ($(TYPE),DEVEL)
@@ -168,9 +168,10 @@ install: Makefile.depend install_scripts
 ifneq ($(TYPE),DEVEL)
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
 	install -d  $(PREFIX)/lib $(PREFIX)/include/ode_robots 
-	$(MAKE) lib install_lib
-	$(MAKE) CFGOPTS=--dbg dbg install_lib
-	$(MAKE) CFGOPTS=--opt opt install_lib
+	$(MAKE) install_lib
+	$(MAKE) CFGOPTS=--dbg install_lib
+	$(MAKE) CFGOPTS=--opt install_lib
+	$(MAKE) LIB=$(SHAREDLIB) install_lib
 	install -m 644 include/ode_robots/*.h $(PREFIX)/include/ode_robots
 endif
 	install -d $(PREFIX)/share/lpzrobots $(PREFIX)/share/lpzrobots/ode_robots
@@ -189,6 +190,7 @@ ifneq ($(TYPE),DEVEL)
 	$(MAKE) uninstall_lib
 	$(MAKE) CFGOPTS=--dbg uninstall_lib
 	$(MAKE) CFGOPTS=--opt uninstall_lib
+	$(MAKE) LIB=$(SHAREDLIB) uninstall_lib
 	-rm -rf $(PREFIX)/include/ode_robots
 endif
 	-rm -rf $(PREFIX)/share/lpzrobots/ode_robots/
