@@ -1,4 +1,4 @@
 Makefile
 configurator-config
-*.so
+*.so*
 *.a

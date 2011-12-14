@@ -76,7 +76,7 @@ install_utils:
 	 else cp guilogger/bin/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
 	fi	
 	-@if [ -e configurator/libconfigurator.a -o -e configurator/libconfigurator.so ]; then install --mode 644 configurator/libconfigurator.* $(PREFIX)/lib/ && install --mode 755 configurator/configurator-config $(PREFIX)/bin/ && echo "===> copied libconfigurator to $(PREFIX)/lib/"; fi
-	-@cp -r configurator/include/configurator $(PREFIX)/include/ && echo "===> copied configurator includes to $(PREFIX)/include/"
+	-@cp -r configurator/include/configurator $(PREFIX)/include/ && echo "===> copied configurator bins, includes and libs $(PREFIX)"
 	-cp soundman/class/*.class $(PREFIX)/lib/soundMan/
 	-cp soundman/bin/soundMan $(PREFIX)/bin/soundMan
 	sed -i -e "s|PREFIX=.*|PREFIX=$(PREFIX)|" $(PREFIX)/bin/soundMan
@@ -197,7 +197,10 @@ matrixviz:
 .PHONY: configurator
 ##!configurator	  compile configurator
 configurator:
-	cd configurator && $(MAKE)
+	configurator/configure --prefix=$(PREFIX) --system=$$System --type=$(TYPE) --static
+	$(MAKE) -C configurator
+	configurator/configure --prefix=$(PREFIX) --system=$$System --type=$(TYPE)
+	$(MAKE) -C configurator
 
 .PHONY: javactrl
 ##!javactrl	  compile javacontroller (experimental)
@@ -265,7 +268,7 @@ uninstall_intern:
 	@echo "*************** Uninstall ode_robots ******************"
 	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
 	-rm -f $(PREFIX)/bin/guilogger
-	-rm -f $(PREFIX)/lib/libconfigurator.a
+	-rm -f $(PREFIX)/lib/libconfigurator.*
 	-rm -fr $(PREFIX)/include/configurator
 	-rm -f $(PREFIX)/bin/matrixviz
 	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX) uninstall
