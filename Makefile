@@ -35,6 +35,7 @@ all_intern:
 	$(SUDO) $(MAKE) install_ode_robots
 	$(MAKE) ga_tools
 	$(SUDO) $(MAKE) install_ga_tools
+	@echo "**** Done, you can go and compile your simulations ****"
 
 .PHONY: conf
 ##!conf		reconfigure the installation prefix and type (done automatically at first call
@@ -114,7 +115,6 @@ install_ode:
 ode_robots: usage
 	@echo "*************** Configure ode_robots ************"
 	$(MAKE) MODULE=ode_robots confsubmodule
-	cd ode_robots && make install_scripts
 	@echo "*************** Compile ode_robots **************"
 	cd ode_robots && $(MAKE) depend
 	cd ode_robots && $(MAKE)
@@ -129,7 +129,6 @@ install_ode_robots: usage
 ga_tools: usage
 	@echo "*************** Configure ga_tools ************"
 	$(MAKE) MODULE=ga_tools confsubmodule
-	cd ga_tools && make install_scripts
 	@echo "*************** Compile ga_tools **************"
 	cd ga_tools && $(MAKE) depend
 	cd ga_tools && $(MAKE)
