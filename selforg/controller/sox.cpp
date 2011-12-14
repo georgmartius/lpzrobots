@@ -21,46 +21,65 @@
 using namespace matrix;
 using namespace std;
 
-Sox::Sox(double init_feedback_strength, bool useExtendedModel, bool useTeaching )  
-  : AbstractController("Sox", "0.8"), 
-    init_feedback_strength(init_feedback_strength),
-    useExtendedModel(useExtendedModel), useTeaching(useTeaching) {
-  t=0;
+Sox::Sox(const SoxConf& conf)
+  : AbstractController("Sox", "1.0"), 
+    conf(conf)
+{
+  constructor();
+}
 
+
+Sox::Sox(double init_feedback_strength, bool useExtendedModel, bool useTeaching )  
+  : AbstractController("Sox", "1.0"), 
+    conf(getDefaultConf()){
+  
+  conf.initFeedbackStrength = init_feedback_strength;
+  conf.useExtendedModel     = useExtendedModel;
+  conf.useTeaching          = useTeaching; 
+  constructor();
+}
+
+void Sox::constructor(){
+  t=0;
 
   addParameterDef("Logarithmic", &loga, false, "whether to use logarithmic error");
   addParameterDef("epsC", &epsC, 0.1,     0,5, "learning rate of the controller");
   addParameterDef("epsA", &epsA, 0.1,     0,5, "learning rate of the model");
-  addParameterDef("s4avg", &s4avg, 1,     1, buffersize-1, "smoothing (number of steps)");
-  addParameterDef("s4delay", &s4delay, 1, 1, buffersize-1, "delay  (number of steps)");
-  addParameterDef("sense",  &sense,    1, 0.2,5,           "sensibility");
-  addParameterDef("creativity", &creativity, 0, 0, 1,      "creativity term (0: disabled) ");
+  addParameterDef("sense",  &sense,    1, 0.2,5,      "sensibility");
+  addParameterDef("creativity", &creativity, 0, 0, 1, "creativity term (0: disabled) ");
   addParameterDef("damping",   &damping,     0.00001, 0,0.01, "forgetting term for model");
-  addParameterDef("causeaware", &causeaware, useExtendedModel ? 0.01 : 0 , 0,0.1, 
+  addParameterDef("causeaware", &causeaware, conf.useExtendedModel ? 0.01 : 0 , 0,0.1, 
                   "awarness of controller influences");
   addParameterDef("harmony",    &harmony,    0, 0,0.1,
                   "dynamical harmony between internal and external world");
   addParameterDef("pseudo",   &pseudo   , 0  , 
-       "type of pseudo inverse: 0 moore penrose, 1 sensor space, 2 motor space, 3 special");
+    "type of pseudo inverse: 0 moore penrose, 1 sensor space, 2 motor space, 3 special");
 
-  if(useTeaching){
-    addParameterDef("gamma",  &gamma,    0.01, 0, 1,           "guidance factor (teaching)");
+  if(!conf.onlyMainParameters){
+    addParameterDef("s4avg", &conf.steps4Averaging, 1,     1, buffersize-1, 
+                    "smoothing (number of steps)");
+    addParameterDef("s4delay", &conf.steps4Delay,   1,     1, buffersize-1, 
+                    "delay  (number of steps)");
+  }
+
+  gamma=0;
+  if(conf.useTeaching){
+    addParameterDef("gamma",  &gamma,    0.01, 0, 1, "guidance factor (teaching)");
     addInspectableMatrix("y_G", &y_teaching, "teaching signal at motor neurons");
   }
 
-  addInspectableMatrix("A", &A, false, "model matrix");
-  if(useExtendedModel)
-    addInspectableMatrix("S", &S, false, "model matrix (sensor branch)");
-  addInspectableMatrix("C", &C, false, "controller matrix");
-  addInspectableMatrix("L", &L, false, "Jacobi matrix");
-  addInspectableMatrix("h", &h, false, "controller bias");
-  addInspectableMatrix("b", &b, false, "model bias");
-  addInspectableMatrix("R", &R, false, "linear response matrix");
+  addInspectableMatrix("A", &A, conf.someInternalParams, "model matrix");
+  if(conf.useExtendedModel)
+    addInspectableMatrix("S", &S, conf.someInternalParams, "model matrix (sensor branch)");
+  addInspectableMatrix("C", &C, conf.someInternalParams, "controller matrix");
+  addInspectableMatrix("L", &L, conf.someInternalParams, "Jacobi matrix");
+  addInspectableMatrix("h", &h, conf.someInternalParams, "controller bias");
+  addInspectableMatrix("b", &b, conf.someInternalParams, "model bias");
+  addInspectableMatrix("R", &R, conf.someInternalParams, "linear response matrix");
 
   addInspectableMatrix("v_avg", &v_avg, "input shift (averaged)");
 
   intern_isTeaching = false;
-
 
 };
 
@@ -87,7 +106,7 @@ void Sox::init(int sensornumber, int motornumber, RandGen* randGen){
 
   A.toId(); // set a to identity matrix;
   C.toId(); // set a to identity matrix;
-  C*=init_feedback_strength;
+  C*=conf.initFeedbackStrength;
 
   S.toId();
   S*=0.05;
@@ -160,9 +179,9 @@ void Sox::stepNoLearning(const sensor* x_, int number_sensors,
   x.set(number_sensors,1,x_); // store sensor values
   
   // averaging over the last s4avg values of x_buffer
-  s4avg = ::clip(s4avg,1,buffersize-1);
-  if(s4avg > 1)
-    x_smooth += (x - x_smooth)*(1.0/s4avg);
+  conf.steps4Averaging = ::clip(conf.steps4Averaging,1,buffersize-1);
+  if(conf.steps4Averaging > 1)
+    x_smooth += (x - x_smooth)*(1.0/conf.steps4Averaging);
   else
     x_smooth = x;
   
@@ -200,7 +219,7 @@ void Sox::motorBabblingStep(const sensor* x_, int number_sensors,
   
   A += (xi * (y_tm1^T) * (epsA * factor) + (A *  -damping) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);
   b += (xi           * (epsA * factor) + (b *  -damping) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);
-  if(useExtendedModel)
+  if(conf.useExtendedModel)
     S += (xi * (x_tm1^T) * (epsA*factor) + (S *  -damping*10 ) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);
 
   // learn controller
@@ -232,7 +251,7 @@ void Sox::learn(){
 
 
   // the effective x/y is (actual-steps4delay) element of buffer  
-  s4delay = ::clip(s4delay,1,buffersize-1);
+  int s4delay = ::clip(conf.steps4Delay,1,buffersize-1);
   const Matrix& x       = x_buffer[(t - max(s4delay,1) + buffersize) % buffersize];
   const Matrix& y_creat = y_buffer[(t - max(s4delay,1) + buffersize) % buffersize];
   const Matrix& x_fut   = x_buffer[t% buffersize]; // future sensor (with respect to x,y)
@@ -268,7 +287,7 @@ void Sox::learn(){
     A   += (xi * (y_hat^T) * epsA                      ).mapP(0.1, clip);
     if(damping)
       A += (((A_native-A).map(power3))*damping         ).mapP(0.1, clip);
-    if(useExtendedModel)
+    if(conf.useExtendedModel)
       S += (xi * (x^T)     * epsA + (S *  -damping*10) ).mapP(0.1, clip);
     b   += (xi             * epsA + (b *  -damping)    ).mapP(0.1, clip);
   }

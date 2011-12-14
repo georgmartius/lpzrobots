@@ -28,17 +28,51 @@
 #include <selforg/matrix.h>
 #include <selforg/teachable.h>
 
+
+/// configuration object for Sox controller. Use Sox::getDefaultConf().
+struct SoxConf {
+  double initFeedbackStrength;  ///< initial strength of sensor to motor connection
+  bool   useExtendedModel;      ///< if true, the extended model (S matrix) is used
+  /// if true the controller can be taught see teachable interface
+  bool   useTeaching;              
+  /// # of steps the sensors are averaged (1 means no averaging)
+  int    steps4Averaging;         
+  /// # of steps the motor values are delayed (1 means no delay)
+  int    steps4Delay;             
+  bool   someInternalParams;    ///< if true only some internal parameters are exported
+  bool   onlyMainParameters;    ///< if true only some configurable parameters are exported
+};
+
+
 /**
  * This controller implements the standard algorihm described the Chapter 3 (Homeokinesis)
  */
 class Sox : public AbstractController, public Teachable {
 
 public:
+  /// constructor
+  Sox(const SoxConf& conf = getDefaultConf());
+
+  /// constructor provided for convenience, use conf object to customize more
   Sox(double init_feedback_strength = 1.0, bool useExtendedModel = true, 
       bool useTeaching = false );
+
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
 
   virtual ~Sox();
+
+  static SoxConf getDefaultConf(){
+    SoxConf conf;
+    conf.initFeedbackStrength = 1.0;
+    conf.useExtendedModel     = true;
+    conf.useTeaching          = false;              
+    conf.steps4Averaging      = 1;         
+    conf.steps4Delay          = 1;             
+    conf.someInternalParams   = false; 
+    conf.onlyMainParameters   = true;  
+    return conf;
+  }
+
 
   /// returns the number of sensors the controller was initialised with or 0 if not initialised
   virtual int getSensorNumber() const { return number_sensors; }
@@ -98,16 +132,13 @@ protected:
   matrix::Matrix x;        // current sensor value vector
   matrix::Matrix x_smooth; // time average of x values
   int t;
-  bool TLE;
+
   bool loga;
   
-  double init_feedback_strength;
-  bool useExtendedModel;     // use also the sensor branch of the model
+  SoxConf conf; ///< configuration objects
 
-  bool useTeaching;          // support teaching
   bool intern_isTeaching;    // teaching signal available?
   matrix::Matrix y_teaching; // motor teaching  signal
-
 
   paramval creativity;
   paramval sense;
@@ -117,9 +148,9 @@ protected:
   paramval epsC;
   paramval epsA;
   paramval damping;
-  paramint s4avg;          // # of steps the sensors are averaged (1 means no averaging)
-  paramint s4delay;        // # of steps the motor values are delayed (1 means no delay)
   paramval gamma;          // teaching strength
+
+  void constructor();
 
   // calculates the pseudo inverse of L in different ways, depending on pseudo
   matrix::Matrix pseudoInvL(const matrix::Matrix& L, const matrix::Matrix& A, const matrix::Matrix& C);
