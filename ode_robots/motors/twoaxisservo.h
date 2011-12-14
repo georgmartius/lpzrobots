@@ -275,6 +275,7 @@ namespace lpzrobots {
    *  that internally controls the velocity of the motor (much more stable)
    *  with centered zero position.
    *  The amount of body feeling can be adjusted by the damping parameter
+   *   which is understood as a stiffness parameter
    */
   class TwoAxisServoVel : public TwoAxisServoCentered {
   public:
@@ -282,10 +283,10 @@ namespace lpzrobots {
 	The zero position is (max-min)/2
         @param power is the maximal torque the servo can generate
         @param maxVel is understood as a speed parameter of the servo.
-        @param damping adjusts the power of the servo in dependence of the distance
-         to the set point. This regulates the damping and the body feeling
+        @param damp adjusts the power of the servo in dependence of the distance
+         to the set point. This regulates the stiffness and the body feeling
           0: the servo has no power at the set point (maximal body feeling);
-          1: is servo has full power at the set point: perfectly damped.
+          1: is servo has full power at the set point: perfectly damped and stiff.
     */
     TwoAxisServoVel(const OdeHandle& odeHandle, 
 		    TwoAxisJoint* joint, double _min1, double _max1, double power1, 
@@ -293,7 +294,8 @@ namespace lpzrobots {
 		    double damp=0.05, double maxVel=10.0, double jointLimit = 1.3)
       : TwoAxisServoCentered(joint, _min1, _max1, maxVel/2, _min2, _max2, maxVel/2,
 			     0, 0, 0, jointLimit), 
-        // don't wonder! It is correct to give maxVel as a power parameter.
+        // don't wonder! It is correct to give maxVel as a power parameter to the normal
+        //  servo (PID).
 	motor(odeHandle, joint, power1, power2),
         damp(clip(damp,0.0,1.0)), power1(power1), power2(power2)
     {

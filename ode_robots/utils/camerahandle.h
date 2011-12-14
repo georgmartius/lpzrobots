@@ -39,6 +39,7 @@ namespace osg
 {
   class Vec3f;
   typedef Vec3f Vec3;
+  class Camera;
 }
 
 namespace lpzrobots
@@ -52,7 +53,7 @@ namespace lpzrobots
   class CameraHandle
   {
   public:
-    enum ManipulationType { No, Translational, Rotational};
+    enum ManipulationType { No, Translational, TranslationalHorizontal , Rotational};
 
     osg::Vec3 eye;
     osg::Vec3 view;
@@ -69,6 +70,9 @@ namespace lpzrobots
     ManipulationType doManipulation;
     osg::Vec3 manipulationPoint;
     OSGPrimitive* manipulationViz;
+    double manipulationForce;
+
+    osg::Camera* cam;
 
     CameraHandle();
 

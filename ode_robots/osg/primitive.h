@@ -175,6 +175,9 @@ public:
   /// checks whether the object has higher velocity than maxVel and limits it in case
   bool limitLinearVel(double maxVel);
 
+  /// checks whether the object has higher velocity than maxVel and limits it in case
+  bool limitAngularVel(double maxVel);
+
   /** applies a force to the body to decellerate its linear and angular velocity with
       the given factors. (depends on stepwidth!)
    */

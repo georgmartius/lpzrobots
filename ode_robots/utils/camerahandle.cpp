@@ -27,9 +27,13 @@
 
 namespace lpzrobots
 {
-  CameraHandle::CameraHandle() : eye(0,0,0), home_eye(0,0,0), home_view(0,0,0), desiredEye(0,0,0), desiredView(0,0,0), home_externally_set(false),
-      watchingAgent(0), watchingAgentDefined(false), oldPositionOfAgent(0,0,0), oldPositionOfAgentDefined(false),
-      doManipulation(No), manipulationPoint(0,0,0), manipulationViz(0)
+  CameraHandle::CameraHandle() 
+    : eye(0,0,0), home_eye(0,0,0), home_view(0,0,0), desiredEye(0,0,0), 
+      desiredView(0,0,0), home_externally_set(false),
+      watchingAgent(0), watchingAgentDefined(false), 
+      oldPositionOfAgent(0,0,0), oldPositionOfAgentDefined(false),
+      doManipulation(No), manipulationPoint(0,0,0), manipulationViz(0), 
+      manipulationForce(0), cam(0)
   {
   }
 

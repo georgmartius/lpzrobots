@@ -179,10 +179,11 @@ namespace lpzrobots {
     
   };
 
-  /** general servo motor to achieve position control 
-   *  that that internally controls the velocity of the motor (much more stable)
+  /** general servo motor to achieve position control.
+   *  It internally controls the velocity of the motor (much more stable)
    *  with centered zero position.
    *  The amount of body feeling can be adjusted by the damping parameter
+   *   which is understood as a stiffness parameter
    */
   class OneAxisServoVel : public OneAxisServo {
   public:
@@ -190,17 +191,18 @@ namespace lpzrobots {
 	The zero position is (max-min)/2
         @param power is the maximal torque the servo can generate
         @param maxVel is understood as a speed parameter of the servo.
-        @param damping adjusts the power of the servo in dependence of the distance
-         to the set point. This regulates the damping and the body feeling
+        @param damp adjusts the power of the servo in dependence of the distance
+         to the set point. This regulates the stiffness and the body feeling
           0: the servo has no power at the set point (maximal body feeling);
           1: is servo has full power at the set point: perfectly damped.
 
     */
     OneAxisServoVel(const OdeHandle& odeHandle, 
 		    OneAxisJoint* joint, double _min, double _max, 
-		    double power, double damp=0.05, double maxVel=20, double jointLimit = 1.3)
+		    double power, double damp=0.05, double maxVel=20, 
+                    double jointLimit = 1.3)
       : OneAxisServo(joint, _min, _max, maxVel/2, 0, 0, 0, jointLimit, false),
-        // don't wonder! It is correct to give maxVel as a power parameter.
+        // don't wonder! It is correct to give maxVel as a power parameter to the parent.
         motor(odeHandle, joint, power), power(power), damp(clip(damp,0.0,1.0))
     {            
     }

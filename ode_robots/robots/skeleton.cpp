@@ -59,7 +59,13 @@ namespace lpzrobots {
     addParameter("powerfactor",    &conf.powerFactor,0,10, "global power factor for all motor"); 
     addParameter("relforce",    &conf.relForce,0,10, "factor for arm force"); 
 
-    addParameter("dampingfactor",  &conf.dampingFactor,0,10, "global damping factor for all motor");
+    if(conf.useVelocityServos){
+      addParameter("stiffnessfactor",  &conf.dampingFactor,0,100, 
+                   "global stiffness factor for all motor (0-100)");
+    }else{
+      addParameter("dampingfactor",  &conf.dampingFactor,0,10, 
+                   "global damping factor for all motor (0-10)");
+    }
  
     if(!conf.onlyMainParameters){
       addParameter("hippower",   &conf.hipPower                   ,0,10);

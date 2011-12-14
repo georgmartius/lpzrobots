@@ -369,6 +369,7 @@ namespace lpzrobots {
       keyswitchManipulator = new osgGA::KeySwitchMatrixManipulator;
 
       // setup the camera manipulators (make sure it is in agreement with the CameraMode enum)
+      cameraHandle.cam=viewer->getCamera();
       CameraManipulator* cm[] = {
         new CameraManipulator(osgHandle.scene->scene, globalData, cameraHandle),
         new CameraManipulatorFollow(osgHandle.scene->scene, globalData, cameraHandle),

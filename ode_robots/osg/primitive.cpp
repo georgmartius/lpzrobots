@@ -258,6 +258,23 @@ namespace lpzrobots{
       return false;
   }
 
+  bool Primitive::limitAngularVel(double maxVel){
+    // check for maximum speed:
+    if(!body) return false;
+    const double* vel = dBodyGetAngularVel( body );
+    double vellen = vel[0]*vel[0]+vel[1]*vel[1]+vel[2]*vel[2];
+    if(vellen > maxVel*maxVel){
+      fprintf(stderr, ".");
+      numVelocityViolations++;
+      globalNumVelocityViolations++;
+      double scaling = sqrt(vellen)/maxVel;
+      dBodySetAngularVel(body, vel[0]/scaling, vel[1]/scaling, vel[2]/scaling);
+      return true;
+    }else 
+      return false;
+  }
+
+
   void Primitive::decellerate(double factorLin, double factorAng){    
     if(!body) return;
     Pos vel;

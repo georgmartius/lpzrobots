@@ -203,7 +203,12 @@ namespace lpzrobots {
 
       /** manipulates Agent by forces. The given points are screen coords (-1 to 1) normalized.
       */
+      virtual void calcManipulationPointHorizontal(float x, float y);
+
+      virtual void calcManipulationPointVertical(float x, float y);
+
       virtual void calcManipulationPoint(float x, float y);
+
 
     };
 

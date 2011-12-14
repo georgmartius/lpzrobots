@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include <osg/Notify>
+#include <osg/Camera>
 #include "cameramanipulator.h"
 #include "osgprimitive.h"
 #include "odeagent.h"
@@ -128,11 +129,15 @@ namespace lpzrobots {
 	  {
 	    float x = ea.getXnormalized();
 	    float y = ea.getYnormalized();
-	    calcManipulationPoint(x,y);
 	    if(ea.getButtonMask() & GUIEventAdapter::RIGHT_MOUSE_BUTTON){
 	      camHandle.doManipulation = camHandle.Rotational;
-	    }else{
-	      camHandle.doManipulation = camHandle.Translational;
+              calcManipulationPoint(x,y);
+	    }else if(ea.getModKeyMask() & GUIEventAdapter::MODKEY_LEFT_SHIFT){
+	      camHandle.doManipulation = camHandle.TranslationalHorizontal;              
+              calcManipulationPointHorizontal(x,y);
+            }else{
+	      camHandle.doManipulation = camHandle.Translational;              
+              calcManipulationPointVertical(x,y);              
 	    }
 	    flushMouseEventStack();
 	    return true;
@@ -148,8 +153,20 @@ namespace lpzrobots {
 	    addMouseEvent(ea);
 	    us.requestContinuousUpdate(true);
 	    float x = ea.getXnormalized();
-	    float y = ea.getYnormalized();
-	    calcManipulationPoint(x,y);
+	    float y = ea.getYnormalized();            
+            switch(camHandle.doManipulation){
+            case CameraHandle::Rotational:
+              calcManipulationPoint(x,y);
+              break;
+            case CameraHandle::TranslationalHorizontal:
+              calcManipulationPointHorizontal(x,y);
+              break;
+            case CameraHandle::Translational:
+              calcManipulationPointVertical(x,y);              
+              break;
+            default:
+                break;
+	    }
 	    return true;
 	  }
 	default:
@@ -238,7 +255,7 @@ namespace lpzrobots {
     usage.addKeyboardMouseBinding("Cam: Left Mousebtn","Turn Camera (not in TV mode)");
     usage.addKeyboardMouseBinding("Cam: Middle M.btn","Move Camera up and down");
     usage.addKeyboardMouseBinding("Cam: Right M.btn","Move Camera along the plane");
-    usage.addKeyboardMouseBinding("Cam: Ctrl+Mouse","Drag watched Agent (Left:translation, Right:rotation)");
+    usage.addKeyboardMouseBinding("Cam: Ctrl+Mouse","Drag watched Agent (Left:translation, Left+Shift:horizontal translation, Right:rotation)");
   }
 
   void CameraManipulator::flushMouseEventStack(){
@@ -487,20 +504,75 @@ namespace lpzrobots {
   void CameraManipulator::calcManipulationPoint(float x, float y){
     if (!this->isWatchingAgentDefined()) return;
 
-    osg::Vec3 near_point = osg::Vec3(x, y, -1.0f) * pose;
-    osg::Vec3 far_point = osg::Vec3(x, y, 1.0f) * pose;
+    // screen to world
+    osg::Matrix S2W = osg::Matrix::inverse(camHandle.cam->getProjectionMatrix()) 
+      * getMatrix();
+    // world to screen
+    osg::Matrix W2S = osg::Matrix::inverse(S2W);
 
+    Pos p = camHandle.watchingAgent->getRobot()->getPosition();    
+    Pos robInCam = p * W2S;
+    Pos mousepos = ( Pos(x, y, robInCam.z()) )  * S2W;
+
+    camHandle.manipulationPoint = mousepos;
+  }
+
+  void CameraManipulator::calcManipulationPointVertical(float x, float y){
+    if (!this->isWatchingAgentDefined()) return;
+
+    // screen to world
+    osg::Matrix S2W = osg::Matrix::inverse(camHandle.cam->getProjectionMatrix()) 
+      * getMatrix();
+    // world to screen
+    osg::Matrix W2S = osg::Matrix::inverse(S2W);
+
+    // calc plane in which to operate
+    Pos near_point = osg::Vec3(x, y, -1.0f) * S2W;
+    Pos far_point = osg::Vec3(x, y, 1.0f)  * S2W;
     Pos n = (near_point-far_point);
-    // we put here a scale of 5 to make the distance larger
-    Pos mousepos = ( Pos(x, y, .0f)*3 )  * pose;
-    Pos p = camHandle.watchingAgent->getRobot()->getPosition();
-    // we have a plane through p normal to camera view
+    n.z()=0;
+    if(n.length()<0.0001) { 
+      camHandle.doManipulation=camHandle.No;
+      return;
+    }      
+
+    Pos p = camHandle.watchingAgent->getRobot()->getPosition();    
+    Pos robInCam = p * W2S;
+    Pos mousepos = ( Pos(x, y, robInCam.z()) )  * S2W;
+    // we have a plane through p in which we want to manipulate
     // we have the vector normal to the plane and intersect now plane and ray
     // the ray has parametric form (mousepos + k*n)
     double k = (n*p - n*mousepos)/(n*n);
     Pos lookat = mousepos + n*k;
-    camHandle.manipulationPoint = lookat;
+    camHandle.manipulationPoint = lookat;    
   }
+
+  void CameraManipulator::calcManipulationPointHorizontal(float x, float y){
+    if (!this->isWatchingAgentDefined()) return;
+
+    // screen to world
+    osg::Matrix S2W = osg::Matrix::inverse(camHandle.cam->getProjectionMatrix()) 
+      * getMatrix();
+    // world to screen
+    osg::Matrix W2S = osg::Matrix::inverse(S2W);
+
+    Pos near_point = osg::Vec3(x, y, -1.0f) * S2W;
+    Pos far_point = osg::Vec3(x, y, 1.0f)  * S2W;
+    // vector along the mouse pointer
+    Pos vec = (near_point-far_point);
+ 
+    Pos p = camHandle.watchingAgent->getRobot()->getPosition();    
+
+    Pos n(0,0,1);    
+    // we have a plane through p with normal n in which we want to manipulate
+    // we intersect the plane with a ray that is along the mouse pointer in z direction
+    // the ray has parametric form (near_point + k*vec)
+    double k = (n*p - n*near_point)/(n*vec);
+    Pos lookat = near_point + vec*k;
+    camHandle.manipulationPoint = lookat;    
+  }
+
+
 
   bool CameraManipulator::isWatchingAgentDefined()
   {
@@ -531,26 +603,45 @@ namespace lpzrobots {
     if(camHandle.doManipulation != camHandle.No){
       Primitive* body = camHandle.watchingAgent->getRobot()->getMainPrimitive();
       if(body && body->getBody()){
+        // increase Force
+        camHandle.manipulationForce=min(camHandle.manipulationForce+0.01, 10.0);
+
 	Pos p = camHandle.watchingAgent->getRobot()->getPosition();
-	camHandle.manipulationViz = new OSGSphere(0.1);
-	//camHandle.manipulationViz->init(osgHandle);
-        camHandle.manipulationViz->init(osgHandle.changeColor(camHandle.doManipulation==camHandle.Translational, camHandle.doManipulation==camHandle.Rotational,0));
-	camHandle.manipulationViz->setMatrix(osg::Matrix::translate(camHandle.manipulationPoint));
 	Pos force = (camHandle.manipulationPoint-p);
-	double factor = force.length()>10 ? 10/force.length() : 1;
-	if(camHandle.doManipulation==camHandle.Translational){
+
+	double factor = force.length()*camHandle.manipulationForce;
+        force.normalize();
+        if(factor>50) factor=50;
+	camHandle.manipulationViz = new OSGSphere(0.02+0.05*sqrt(camHandle.manipulationForce));
+        
+	//camHandle.manipulationViz->init(osgHandle);
+        Color c(camHandle.doManipulation==camHandle.Rotational ? 0 : 1, 
+                camHandle.doManipulation==camHandle.Rotational,0);
+        camHandle.manipulationViz->init(osgHandle.changeColor(c));
+	camHandle.manipulationViz->setMatrix(osg::Matrix::translate(camHandle.manipulationPoint));
+
+	if(camHandle.doManipulation==camHandle.Translational 
+           || camHandle.doManipulation==camHandle.TranslationalHorizontal){
 	  force *= factor/globalData.odeConfig.simStepSize;
 	  dBodyAddForce(body->getBody(),force.x(),force.y(),force.z());
 	} else {
 	  force *= 0.3*factor/globalData.odeConfig.simStepSize;
 	  dBodyAddTorque(body->getBody(),force.x(),force.y(),force.z());
 	}
-	// Damp both, rotation and speed
-	const double* vel = dBodyGetAngularVel( body->getBody());
-	dBodyAddTorque ( body->getBody() , -0.2*vel[0] , -0.2*vel[1] , -0.2*vel[2]);
-	vel = dBodyGetLinearVel( body->getBody());
-	dBodyAddForce ( body->getBody() , -0.2*vel[0] , -0.2*vel[1] , -0.2*vel[2]);
+        
+        FOREACHC(vector<Primitive*>, camHandle.watchingAgent->getRobot()->getAllPrimitives(), pi){
+          Primitive* p = *pi;
+          // Damp both, rotation and velocity
+          p->applyTorque(p->getAngularVel()/globalData.odeConfig.simStepSize*-0.001);
+          p->applyForce(p->getVel()/globalData.odeConfig.simStepSize*-0.001);
+          bool limit=false;
+          limit |= p->limitLinearVel(50);
+          limit |= p->limitAngularVel(50);
+          if (limit) camHandle.manipulationForce/=2;
+        }
       }
+    }else{
+      camHandle.manipulationForce=0;
     }
   }
 
