@@ -18,7 +18,8 @@ void Gnuplot::init(const QString& gnuplotcmd, int w,int h, int x, int y){
 
 bool Gnuplot::open(const QString& gnuplotcmd, int w,int h, int x, int y){
   char cmd[512];
-  setlocale(LC_NUMERIC,"en_US"); // set us type output
+  setlocale(LC_NUMERIC,"C"); // set us type output
+//  setlocale(LC_NUMERIC,"en_US"); // set us type output
 #if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__) \
         || defined (_WIN64) || defined(__CYGWIN__) || defined(__MINGW32__)
   sprintf(cmd, "%s", gnuplotcmd.latin1());
