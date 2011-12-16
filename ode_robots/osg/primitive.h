@@ -264,6 +264,8 @@ class Box : public Primitive {
 public:
 
   Box(float lengthX, float lengthY, float lengthZ);
+  Box(const osg::Vec3& dim);
+
   virtual ~Box();
 
   virtual void init(const OdeHandle& odeHandle, double mass,

@@ -58,13 +58,16 @@ void WiringSequence::addWiring(AbstractWiring* wiring){
 //  number of sensors and motors on controller side
 bool WiringSequence::initIntern(){
   assert(wirings.size());
+  int snum = rsensornumber;
+  int mnum = rmotornumber;
   FOREACH(vector<AbstractWiring*>, wirings, w){
     // initialize the wiring with the output of the last wiring
-    (*w)->init(csensornumber,cmotornumber, randGen);
-    csensornumber = (*w)->getControllerSensornumber();
-    cmotornumber  = (*w)->getControllerMotornumber();    
+    (*w)->init(snum,mnum, randGen);
+    snum  = (*w)->getControllerSensornumber();
+    mnum  = (*w)->getControllerMotornumber();    
   }
-
+  csensornumber = snum;
+  cmotornumber  = mnum;
   initialised=true;
   return true;
 }
@@ -120,27 +123,4 @@ bool WiringSequence::wireMotorsIntern(motor* rmotors, int rmotornumber,
   return true;
 
 }
-
-/** pass through of first wiring
- */
-Inspectable::iparamkeylist WiringSequence::getInternalParamNames() const{
-  int num = wirings.size();
-  if(num>0){
-    return wirings[0]->getInternalParamNames();
-  }else{
-    return AbstractWiring::getInternalParamNames();
-  }    
-}
-
-/** pass through of first wiring
- */
-Inspectable::iparamvallist WiringSequence::getInternalParams() const{
-  int num = wirings.size();
-  if(num>0){
-    return wirings[0]->getInternalParams();
-  }else{
-    return AbstractWiring::getInternalParams();
-  }
-}
-
 

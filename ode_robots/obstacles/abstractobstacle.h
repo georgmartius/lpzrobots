@@ -172,6 +172,7 @@ class AbstractObstacle{
 
   OdeHandle odeHandle;
   OsgHandle osgHandle; 
+  
 
   /// is called to destroy the object. The default implementation is to delete all primitives in "obst". 
   virtual void destroy();

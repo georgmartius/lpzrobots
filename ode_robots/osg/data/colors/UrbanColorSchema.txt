@@ -22,7 +22,8 @@ maniplimit      Silbergrau
 # robot4 is a pale color (skin color)
 # Robot Set 0
 robot1          Mandarin            0
-robot2          Imperial_Blue       0
+robot2          Capriblau           0
+#robot2          Imperial_Blue           0
 robot3          Gelbgruen           0
 robot4          Vanille             0
 joint           Zartgrau            0

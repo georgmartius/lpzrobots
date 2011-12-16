@@ -71,13 +71,16 @@ bool ForceBoostWiring::wireMotorsIntern(motor* rmotors, int rmotornumber,
 				     const motor* cmotors, int cmotornumber){
   assert(rmotornumber == this->rmotornumber);
   assert(cmotornumber == this->cmotornumber);
-  ///
-  Matrix mot(cmotornumber ,1,  cmotors);
-  //  error += (mot-sens)*boost - (error.map(power3))*0.15;
-  error += ((mot - sens).map(power3))*boost*4.0 - error*0.015;
-  Matrix rmot = (mot + error).mapP(1,clip);
-  rmot.convertToBuffer(rmotors, rmotornumber);
-  //  memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
+  if(boost>0){
+    ///
+    Matrix mot(cmotornumber ,1,  cmotors);
+    //  error += (mot-sens)*boost - (error.map(power3))*0.15;
+    error += ((mot - sens).map(power3))*boost*4.0 - error*0.015;
+    Matrix rmot = (mot + error).mapP(1,clip);
+    rmot.convertToBuffer(rmotors, rmotornumber);
+  }else{
+    memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
+  }
   return true;
 }
 

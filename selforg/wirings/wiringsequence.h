@@ -58,15 +58,7 @@ public:
   /** adds a wiring to the list of wirings*/
   virtual void addWiring(AbstractWiring* wiring);
 
-  
-  /** pass through of first wiring
-   */
-  virtual iparamkeylist getInternalParamNames() const;
-
-  /** pass through of first wiring
-  */
-  virtual iparamvallist getInternalParams() const;
-
+ 
 protected:
   std::vector<AbstractWiring*> wirings;
   bool initialised;

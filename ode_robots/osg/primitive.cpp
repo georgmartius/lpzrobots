@@ -404,6 +404,10 @@ namespace lpzrobots{
     osgbox = new OSGBoxTex(lengthX, lengthY, lengthZ);    
   }
 
+  Box::Box(const osg::Vec3& dim) {
+    osgbox = new OSGBoxTex(dim);    
+  }
+
   Box::~Box(){
     if(osgbox) delete osgbox; 
   }

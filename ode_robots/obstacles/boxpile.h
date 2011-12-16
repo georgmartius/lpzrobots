@@ -55,10 +55,10 @@ public:
    * @param boxsizevar  variance of boxes sizes
    */
   Boxpile(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-          const osg::Vec3& dimension = osg::Vec3(5.0, 5.0, 0.5), 
-          int num = 10, int seed = 0,
-          const osg::Vec3& boxsizemean = osg::Vec3(1.0, 1.0, 0.1), 
-          const osg::Vec3& boxsizevar = osg::Vec3(0.5, 0.5, 0.05) ) 
+          const osg::Vec3& dimension = osg::Vec3(5.0, 5.0, 0.3), 
+          int num = 30, int seed = 1,
+          const osg::Vec3& boxsizemean = osg::Vec3(1.0, 1.0, 0.2), 
+          const osg::Vec3& boxsizevar = osg::Vec3(0.5, 0.5, 0.1) ) 
     : AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), dimension(dimension),
       num(num), boxsizemean(boxsizemean), boxsizevar(boxsizevar) 
   {
@@ -84,7 +84,7 @@ public:
 protected:
   virtual void create(){
     OdeHandle oh(odeHandle);
-    oh.createNewSimpleSpace(odeHandle.space);
+    oh.createNewSimpleSpace(odeHandle.space,true);
     for(int i=0; i< num; i++){
       Box* b;
       Pos rand(randGen.rand()-0.5,randGen.rand()-0.5,randGen.rand()-0.5);
@@ -93,9 +93,9 @@ protected:
       b->setTextures(getTextures(i));
       b->init(oh, 0, osgHandle, Primitive::Geom | Primitive::Draw);
 
-      Pos pos = dim&Pos(randGen.rand()-0.5,randGen.rand()-0.5,randGen.rand())
-        + Pos(0,0,s.z()/2);
-      b->setPose(TRANSM(pos) * pose);
+      Pos pos = (dimension & Pos(randGen.rand()-0.5,randGen.rand()-0.5,randGen.rand()));
+      double angle = randGen.rand()*M_PI;
+      b->setPose(ROTM(angle, 0,0,1)*TRANSM(pos) * pose);
       obst.push_back(b);
     }    
     obstacle_exists=true;
