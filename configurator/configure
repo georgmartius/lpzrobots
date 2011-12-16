@@ -1,0 +1,62 @@
+#!/bin/sh 
+## File:     configure of configurator
+## Author:   Georg Martius 
+## Date:     Oct 2011
+
+usage="\
+Usage: configure [--prefix=DIR] [--system=LINUX|MAC] [--type=DEVEL|USER] [--static]"
+
+#get full qualified dirname
+DIRNAME=`dirname $0`;
+if [ -n "${DIRNAME%%/*}" ]; then
+    if [ $DIRNAME = '.' ]; then
+        DIRNAME=`pwd`
+    else
+        DIRNAME=`pwd`/$DIRNAME;
+    fi
+fi
+
+
+prefix="/usr/local"
+version=`cat $DIRNAME/VERSION`;
+package=configurator
+
+QMAKEOPT="CONFIG+=dll"
+
+if test $# -eq 0; then
+      echo "${usage}" 1>&2
+      exit 1
+fi
+
+while test $# -gt 0; do
+  case "$1" in
+  -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+  *) optarg= ;;
+  esac
+
+  case $1 in
+    --prefix=*)
+      prefix=$optarg
+      ;;
+    --type=*)
+      ;;
+    --system=*)
+      ;;
+    --static)
+      QMAKEOPT="CONFIG+=staticlib"
+      ;;
+    *)
+      echo "${usage}" 1>&2
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+if m4 -DPREFIX="$prefix" -D$system -DVERSION=$version $DIRNAME/$package-config.m4 > $DIRNAME/$package-config; then
+   chmod u+x $DIRNAME/$package-config;
+   echo "configuration done!"
+fi
+
+cd $DIRNAME/ && qmake $QMAKEOPT configurator.pro
+
