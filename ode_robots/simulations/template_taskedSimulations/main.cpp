@@ -167,7 +167,7 @@ public:
    */
   virtual bool restart(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global, SimulationTaskHandle& sTHandle, int taskId)
   {
-    ThisSimulationTaskHandle* simTaskHandle = static_cast<ThisSimulationTaskHandle*> (&sTHandle);
+    //ThisSimulationTaskHandle* simTaskHandle = static_cast<ThisSimulationTaskHandle*> (&sTHandle);
 
     return false; // don't restart, just quit
     // see template_cycledSimulation for more info about usage
@@ -181,7 +181,7 @@ public:
    */
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control, SimulationTaskHandle& sTHandle, int taskId)
   {
-    ThisSimulationTaskHandle* simTaskHandle = static_cast<ThisSimulationTaskHandle*> (&sTHandle);
+    //ThisSimulationTaskHandle* simTaskHandle = static_cast<ThisSimulationTaskHandle*> (&sTHandle);
     // for demonstration: set simsteps for one cycle to 60.000/currentCycle (10min/currentCycle)
     // if simulation_time_reached is set to true, the simulation cycle is finished
     if (globalData.sim_step>=(60000/this->currentCycle))
@@ -193,7 +193,7 @@ public:
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down, SimulationTaskHandle& sTHandle, int taskI)
   {
-    ThisSimulationTaskHandle* simTaskHandle = static_cast<ThisSimulationTaskHandle*> (&sTHandle);
+    //ThisSimulationTaskHandle* simTaskHandle = static_cast<ThisSimulationTaskHandle*> (&sTHandle);
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
 	{
@@ -258,12 +258,6 @@ int main (int argc, char **argv)
   // And now come on, start the tasks
   simTaskSupervisor->setSimTaskNameSuffix("taskpool 0");
   simTaskSupervisor->runSimTasks(&argc,argv);
-
-  // HINT: Every SimulationTask (and therefore the associated TaskedSimulation)
-  // gets a taskId at creation time of the SimulationTask:taskId= SimulationTaskHandle.simTaskList.size(),
-  // thus in ascending order. Therewith your simulation can access your stored
-  // data in the SimulationTaskHandle and get the proper ones.
-
 
   // just add another task pool and run this ones
   simTaskSupervisor->createSimTasks(10);

@@ -445,7 +445,7 @@ namespace lpzrobots {
 	irbox->setPose(ROTM(M_PI/4,0,0,1) * TRANSM(i*conf.size/2,0,theight/2)*trunkPos);
 	objects.push_back(irbox);
 	fixedJoint = new FixedJoint(trunk,irbox);
-	fixedJoint->init(odeHandle, osgHandleJ, true, 0.4);
+	fixedJoint->init(odeHandle, osgHandleJ, true, 0.04);
 	joints.push_back(fixedJoint);
 
       }
@@ -458,7 +458,7 @@ namespace lpzrobots {
 	irbox->setPose(TRANSM(0,i*twidth/2,theight/2 + 0.05)*trunkPos);
 	objects.push_back(irbox);
 	fixedJoint = new FixedJoint(trunk,irbox);
-	fixedJoint->init(odeHandle, osgHandleJ, true, 0.4);
+	fixedJoint->init(odeHandle, osgHandleJ, true, 0.04);
 	joints.push_back(fixedJoint);
 
       }
@@ -612,7 +612,7 @@ namespace lpzrobots {
       }else{
         // fixed knee joint
         FixedJoint* k = new FixedJoint(coxaThorax, tibia);
-        k->init(odeHandle, osgHandleJ, false, rad1 * 2.1);
+        k->init(odeHandle, osgHandleJ, false);
         joints.push_back(k);
       }
       // lower limp should not collide with body!
@@ -706,7 +706,7 @@ namespace lpzrobots {
 
 
           FixedJoint* fj = new FixedJoint(tarsusParts[i-1], tarsusParts[i]);
-          fj->init(odeHandle, osgHandleJ, true, rad1 * 2.1);
+          fj->init(odeHandle, osgHandleJ, false);
           joints.push_back(fj);
           m4 = m5;
 

@@ -38,7 +38,7 @@ all_intern:
 	@echo "**** Done, you can go and compile your simulations ****"
 
 .PHONY: conf
-##!conf		reconfigure the installation prefix and type (done automatically at first call
+##!conf		reconfigure the installation prefix and type (done automatically at first call)
 conf: usage
 	-mv Makefile.conf Makefile.conf.bak
 # automatically creates Makefile.conf since it is included 

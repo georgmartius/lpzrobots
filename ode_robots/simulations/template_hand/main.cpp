@@ -152,7 +152,7 @@ public:
     // create pointer to agent (plotoptions is provided by Simulation (generated from cmdline options)
     // initialize pointer with controller, robot and wiring
     // push agent in globel list of agents    
-    OdeAgent* agent = new OdeAgent ( plotoptions );
+    OdeAgent* agent = new OdeAgent (global );
     agent->init ( controller , hand , wiring );
     global.agents.push_back ( agent );
       

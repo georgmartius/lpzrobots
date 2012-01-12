@@ -9,10 +9,10 @@
 #include <selforg/agent.h>
 #include <selforg/abstractrobot.h>
 #include <selforg/invertnchannelcontroller.h>
-#include <selforg/homeokinesis.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/motorbabbler.h>
+#include <selforg/sox.h>
 //#include <selforg/semox.h>
 //#include <selforg/crossmotorcoupling.h>
 //#include <selforg/universalcontroller.h>
@@ -239,7 +239,7 @@ int main(int argc, char** argv){
     plotoptions.push_back(PlotOption(GuiLogger, atoi(argv[index])));
   }
   if(contains(argv,argc,"-f")!=0) plotoptions.push_back(PlotOption(File));
-  if(contains(argv,argc,"-n")!=0) plotoptions.push_back(PlotOption(NeuronViz));
+  if(contains(argv,argc,"-n")!=0) plotoptions.push_back(PlotOption(MatrixViz));
   index = contains(argv,argc,"-m");
   if(index >0 && argc>index) {
     modestr = argv[index];
@@ -296,14 +296,11 @@ int main(int argc, char** argv){
 //   controller->setParam("epsDyn",     0);
 
 
-//  AbstractController* controller = new InvertMotorSpace(10,1.2);
-
-//  AbstractController* controller = new InvertNChannelController(10,false);
-
 //   AbstractController* controller = new SineController();
-  //AbstractController* controller = new Homeokinesis();
+
+  AbstractController* controller = new Sox();
   
-  AbstractController* controller = new MotorBabbler();
+  // AbstractController* controller = new MotorBabbler();
 
 
   controller->setParam("epsC",     0.1);

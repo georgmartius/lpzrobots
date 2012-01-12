@@ -96,6 +96,7 @@ $(DISTDIR): $(filter-out $(wildcard lpzrobots), lpzrobots)
 # call make to config
 	cd $(DISTDIR) && rm -rf Makefile.conf && echo -e "/usr\nu\ny\n" | \
 		make Makefile.conf
+	cd $(DISTDIR) && make MODULE=selforg confsubmodule && make MODULE=ode_robots confsubmodule && make MODULE=ga_tools confsubmodule
 # advance version numbers # also add lpzrobots/ga_tools 
 	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger $(DISTDIR)/matrixviz; \
 		do pushd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; \

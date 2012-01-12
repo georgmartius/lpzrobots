@@ -101,6 +101,7 @@
 #include <selforg/invertmotornstep.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/invertnchannelcontroller.h>
+#include <selforg/sox.h>
 
 using namespace lpzrobots;
 
@@ -114,10 +115,11 @@ public:
   virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     // initial camera position and viewpoint
-    setCameraHomePos(Pos(-0.0707104, 0.092873, 3.64943),  Pos(89.9208, -85.8472, 0));
+    setCameraHomePos(Pos(0.602703, -0.643497, 1.96501),  Pos(52.2474, -56.2528, 0));
+    setCameraMode(Static);
     // initialization
     global.odeConfig.noise=0.1;
-
+    
 
     // passive sphere 
     // setPosition does not work anymore 
@@ -137,7 +139,7 @@ public:
     arm = new MuscledArm(odeHandle, osgHandle, conf, "Arm");
     // set muscled arm parameters
     //arm->setParam("damping",20);
-    //arm->setParam("factorMotors",5);
+    arm->setParam("factorMotors",5);
 
 
     ((OdeRobot*)arm)->place(Position(0,0,0));
@@ -145,11 +147,16 @@ public:
 
     // create pointer to controller
     // push controller in global list of configurables
-    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-    cc.buffersize=30;
+    //    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+    //    cc.buffersize=30;
     //AbstractController *controller = new InvertMotorNStep(cc);
-    AbstractController *controller = new InvertNChannelController(30);
-    //AbstractController *controller = new   SineController();
+    // AbstractController *controller = new InvertNChannelController(30);
+
+    AbstractController *controller = new Sox(1.0);
+
+    // AbstractController *controller = new   SineController(1);
+    // controller->setParam("period",200);
+    // controller->setParam("phaseshift",1);
     global.configs.push_back(controller);
   
     // create pointer to one2onewiring
@@ -161,7 +168,8 @@ public:
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, arm, wiring);
     agent->setTrackOptions(TrackRobot(false, false, false, true, "55" ,50));
-    agent->init_tracing(10000, 0.003);
+    agent->setTraceLength(10000);
+    agent->setTraceThickness(0.003);
     global.agents.push_back(agent);
     //-------------------------
 

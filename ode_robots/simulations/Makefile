@@ -16,7 +16,7 @@ depend:
 	for dir in $(SIMULATIONS); do \
 		$(MAKE) -C $$dir depend; \
 	done
-    
+
 
 clean: 
 	for dir in $(SIMULATIONS); do \

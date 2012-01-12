@@ -96,6 +96,7 @@ u *   Revision 1.8  2011/05/30 21:57:16  martius
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
 #include <ode_robots/operators.h>
+#include <ode_robots/boxpile.h>
 
 #include <selforg/invertmotornstep.h>
 #include <selforg/semox.h>
@@ -135,26 +136,36 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(-0.0114359, 6.66848, 0.922832),  Pos(178.866, -7.43884, 0));
+    setCameraHomePos(Pos(-6.32561, 5.12705, 3.17278),  Pos(-130.771, -17.7744, 0));
+
 
     global.odeConfig.setParam("noise", 0.05);
     global.odeConfig.setParam("controlinterval", 2);
     global.odeConfig.setParam("cameraspeed", 250);
     global.odeConfig.setParam("gravity", -4);
     setParam("UseQMPThread", false);
-    //setupPlaygrounds(odeHandle, osgHandle, global,  Normal);
+
     // use Playground as boundary:
-    //    playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
+    AbstractGround* playground = 
+      new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
     //     // playground->setColor(Color(0,0,0,0.8)); 
-    //     playground->setGroundColor(Color(2,2,2,1)); 
-    //     playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
+    playground->setGroundColor(Color(2,2,2,1)); 
+    playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
+    global.obstacles.push_back(playground);
+ 
+    Boxpile* boxpile = new Boxpile(odeHandle, osgHandle);
+    boxpile->setColor("wall"); 
+    boxpile->setPose(ROTM(M_PI/5.0,0,0,1)*TRANSM(0, 0,0.2));
+    global.obstacles.push_back(boxpile);
+    
+
     //     global.obstacles.push_back(playground); 
-    double diam = .90;
-    OctaPlayground* playground3 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/4.0*diam, 5,/*Height*/ .3), 12, 
-                                                     false);
-    //  playground3->setColor(Color(.0,0.2,1.0,1));
-    playground3->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-    global.obstacles.push_back(playground3);
+    // double diam = .90;
+    // OctaPlayground* playground3 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/4.0*diam, 5,/*Height*/ .3), 12, 
+    //                                                  false);
+    // //  playground3->setColor(Color(.0,0.2,1.0,1));
+    // playground3->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    // global.obstacles.push_back(playground3);
    
     controller=0;
 
@@ -193,7 +204,7 @@ public:
 			  myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
 
     // on the top
-    vehicle->place(osg::Matrix::rotate(M_PI*1,1,0,0)*osg::Matrix::translate(0,0,1+ 2*ii));
+    vehicle->place(osg::Matrix::rotate(M_PI*1,1,0,0)*osg::Matrix::translate(0,0,1.5+ 2*ii));
     // normal position
     //    vehicle->place(osg::Matrix::translate(0,0,0));
 
