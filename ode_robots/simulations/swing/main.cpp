@@ -32,7 +32,8 @@
 #include <selforg/sos.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/derinf.h>
-#include "sox.h"
+#include <selforg/sox.h>
+#include <selforg/soml.h>
 
 #include <selforg/motorbabbler.h>
 #include <selforg/derlininvert.h>
@@ -161,16 +162,16 @@ public:
        fixator->init(odeHandle, osgHandle);
      }
 
-     SoXConf sc = SoX::getDefaultConf();
+     SoMLConf sc = SoML::getDefaultConf();
      sc.useHiddenContr=false;
      sc.useHiddenModel=false;
      sc.someInternalParams=true;
      sc.useS=false;
-     AbstractController* sox = new SoX(sc);
-     sox->setParam("epsC",0.05);
-     sox->setParam("epsA",0.05555555);
-     sox->setParam("harmony",0.0);
-     sox->setParam("s4avg",5.0);
+     AbstractController* soml = new SoML(sc);
+     soml->setParam("epsC",0.05);
+     soml->setParam("epsA",0.05555555);
+     soml->setParam("harmony",0.0);
+     soml->setParam("s4avg",5.0);
 
      AbstractController* sos = new Sos(1.0);
      sos->setParam("epsC",0.01);

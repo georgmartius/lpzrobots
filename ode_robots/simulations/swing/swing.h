@@ -312,9 +312,6 @@ namespace lpzrobots {
 
     /** returns the position of the trunk */
     virtual Position getTrunkPosition();
-    
-    /** all parts of the robot */
-    virtual std::vector<Primitive*> getAllPrimitives() { return objects; }
 
   protected:
 

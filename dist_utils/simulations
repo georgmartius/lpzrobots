@@ -1,5 +1,4 @@
 hurling_snake
-muscled_arm
 nimm2_arena
 schlangeservo
 short_circuit
@@ -8,5 +7,13 @@ template_onerobot
 template_schlange
 template_schlangeforce
 template_sphererobot
+template_taskedSimulations
+robodrom
+swing
+rhoenrad
+soxworld
 vierbeiner
+wheelie
 zoo
+tests/materials
+tests/collisions
