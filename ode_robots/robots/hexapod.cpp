@@ -394,7 +394,7 @@ namespace lpzrobots {
       destroy();
     }
 
-    odeHandle.createNewSimpleSpace(parentspace,true);
+    odeHandle.createNewSimpleSpace(parentspace, conf.ignoreInternalCollisions); 
     osgHandle = osgHandle.changeColor("robot2");
 
     // color of joint axis and whiskers

@@ -22,7 +22,7 @@ using namespace matrix;
 using namespace std;
 
 Sox::Sox(const SoxConf& conf)
-  : AbstractController("Sox", "1.0"), 
+  : AbstractController("Sox", "1.1"), 
     conf(conf)
 {
   constructor();
