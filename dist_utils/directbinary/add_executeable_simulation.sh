@@ -23,13 +23,7 @@ if [ ! -e "${SIMDIR}" ]; then
 fi
 
 DEST=$2
-DESTSIMDIR=`cat $DIRNAME/simulationsdir`
-if [ ! -e "$DIRNAME/$DESTSIMDIR" ]; then
-    echo "Simulations dir $DIRNAME/$DESTSIMDIR does not exist"
-    exit 1;
-fi
-
-DESTDIR=$DIRNAME/$DESTSIMDIR/$DEST
+DESTDIR=$DIRNAME/simulations/$DEST
 mkdir -p $DESTDIR
 
 cp $1 $DESTDIR/
@@ -38,7 +32,7 @@ if [ -e $SIMDIR/guilogger.cfg ]; then
     cp $SIMDIR/guilogger.cfg $DESTDIR/
 fi
 
-if ls $SIMDIR/*.txt 2>/dev/null; then
+if ls $SIMDIR/*.txt; then
     cp $SIMDIR/*.txt $DESTDIR/
 fi
 

@@ -1,4 +1,11 @@
-The Makefile contains all the voodoo to create packages
+Two things can be done here:
+create packages for debian and ubuntu: use the Makefile
+ it contains all the voodoo to create packages, see below
+create a binary executable bundle: use create_executable_dist.sh
+  to add a simulation to the bundle use add_executeable_simulation.sh
+
+To create Packages:
+copy the Makefile somewhere on the computer where you want to create packages and type make for further help
 
 You need the following packages:
 sudo apt-get install debconf devscripts quilt docbook-to-man
