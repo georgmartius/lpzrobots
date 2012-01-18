@@ -14,7 +14,7 @@
 # make sure that you create the directories on the webserver and change the "current" links
 #  if the major version changes
 MAJOR=0.7
-VERSION=$(MAJOR).0.1
+VERSION=$(MAJOR).0.2
 
 ODEVERSION=0.11.3
 
@@ -175,7 +175,7 @@ doc: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR))
 	mv $(DISTDIR)/doc lpzrobots-$(MAJOR)-doc
 	mv $(DISTDIR)/doc.orig $(DISTDIR)/doc
 	tar -czf lpzrobots-$(MAJOR)-doc.tgz lpzrobots-$(MAJOR)-doc
-	rm lpzrobots-$(MAJOR)-doc
+	rm -r lpzrobots-$(MAJOR)-doc
 
 
 ##!install-matrixviz        install the created matrixviz package
