@@ -8,35 +8,34 @@ fi
 if [ "$1" = "-h" ]; then
     echo "Usage: $0 [-h] [-n] [NameOfDist]"
     echo "       -h   help"
-    echo "       -n   use the exisiting package"
+    echo "       -n   use the exisiting traces (tracesim and traceguil tracematviz)"
     exit 0;
 fi
 
-THISSIM=$(basename `pwd`)
-
 if [ ! "$1" = "-n" ]; then
-  #check for cde
-  if ! type -p cde; then
-    echo "cde not in path. Go to http://www.stanford.edu/~pgbovine/cde.html and install it"
-    exit 1;
-  fi
+    echo "The simulation in this directory is started now. Close it manually."
+    echo "Afterwards the guilogger opens, also close it. Press Enter to continue."
+    read TEST
+    
+# trace all open calls
+    strace -e trace=open -o tracesim ./start
+    
+    strace -e trace=open -o traceguil  guilogger
 
-  echo "The simulation in this directory is started now. Start also the guilogger and"
-  echo " the matrixviz (Ctrl+G and Ctrl+M) (make sure gnuplot is opened) and close all."
-  echo " Press Enter to continue."
-  read TEST
-
-  cde ./start
+    echo "#C foo bar" | strace -e trace=open -o tracematviz  matrixviz
 
 else
     shift;
-    if [ -e cde-package ]; then
-        echo " I am useing the exising cde-package."
+    if [ -e tracesim -a -e traceguil -a -e tracematviz ]; then
+        echo " I am useing the exising tracesim traceguil."
     else
-        echo " cannot find the cde-package. run without -n!"
+        echo " cannot find the trace files (strace -e trace=open ...) tracesim traceguil tracematviz."
         exit -1;
     fi
 fi
+
+# get all so files that are loaded
+cat tracesim traceguil tracematviz | grep ".*\.so" | grep -v "ENOENT" | grep -v "cache" | grep -v "nvidia" | sed "s/.*\"\(.*\)\".*/\1/" | sort | uniq > libs
 
 BASENAME=lpzrobots
 if [ -n "$1" ]; then
@@ -45,38 +44,39 @@ fi
 
 DIRNAME=$BASENAME-`uname -m`
 if [ -d $DIRNAME ]; then rm -r $DIRNAME; fi
-cp -r cde-package $DIRNAME
-
+mkdir $DIRNAME
+mkdir $DIRNAME/lib
+for F in `grep -v "osgPlugins" libs`; do 
+    cp -v $F $DIRNAME/lib/
+done
 
 # does not work because pkg information is wrong
 #OSGLIBPATH=`pkg-config --libs openscenegraph | sed "s/.*-L\([^ ]*\) .*/\1/"`
-OSGPLUGINGPATH=$(find $DIRNAME -type d -name "osgPlugin*" | head -n 1)
+OSGPLUGINGPATH=$(dirname $(grep osgPlugins libs | head -n 1))
 if [ -n "$OSGPLUGINGPATH" ]; then
-    SYSP=${OSGPLUGINGPATH#$DIRNAME/cde-root}; 
-#all   
-#    cp -r -v $SYSP $OSGPLUGINGPATH
-# select some
-    for F in osgdb_gif.so osgdb_jpeg.so osgdb_osgshadow.so osgdb_3ds.so osgdb_lwo.so osgdb_osg.so osgdb_osgterrain.so osgdb_png.so osgdb_bmp.so osgdb_osga.so osgdb_osgtext.so osgdb_pnm.so osgdb_rgb.so osgdb_tiff.so osgdb_freetype.so osgdb_osgviewer.so osgdb_cfg.so osgdb_scale.so; do
-        cp -v $SYSP/$F $OSGPLUGINGPATH/$F;
-    done
+    cp -v -r $OSGPLUGINGPATH $DIRNAME/lib/
 else
     echo "Cannot find osgPlugins!"
 fi
 
+mkdir $DIRNAME/bin
 GUILOGGER=`which guilogger`
+MATRIXVIZ=`which matrixviz`
 BINDIR=`dirname $GUILOGGER`
 PREFIX=${BINDIR%/bin}
 
 echo "Found guilogger here: ${GUILOGGER}."
+echo "Found matrixviz here: ${MATRIXVIZ}."
 echo "The binary directory is ${BINDIR}"
 echo " and the prefix is ${PREFIX}."
 
+cp ${GUILOGGER} $DIRNAME/bin/
+cp ${MATRIXVIZ} $DIRNAME/bin/
 for F in encodevideo.sh  feedfile.pl  selectcolumns.pl; do
-    cp -v ${BINDIR}/$F $DIRNAME/cde-root${BINDIR}/
+    cp ${BINDIR}/$F $DIRNAME/bin/
 done
-
 if [ -e ${PREFIX}/share/lpzrobots/data ]; then
-   cp -r ${PREFIX}/share/lpzrobots/data $DIRNAME/cde-root${PREFIX}/share/lpzrobots/
+   cp -r ${PREFIX}/share/lpzrobots/data $DIRNAME/
 else
    echo "could not find DATA in ${PREFIX}/share/lpzrobots/data"
 fi
@@ -115,39 +115,36 @@ A: press 'h' in the graphical window to get an overview.
 EOF
 ) > $DIRNAME/README
 
-
-pushd -n `pwd`
-cd ../
-SIMPATHS=`pwd`;
-popd;
-
-echo "cde-root$SIMPATHS" > $DIRNAME/simulationsdir
+(
+cat <<'EOF'
+export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
+export PATH=`pwd`/bin:$PATH
+export ODEROBOTSDATA=`pwd`/data
+export OSG_LIBRARY_PATH=`pwd`/lib
+EOF
+) > $DIRNAME/setupenv.sh
 
 (
-cat <<EOF
+cat <<'EOF'
 #!/bin/bash
-HERE="\$(dirname "\$(readlink -f "\${0}")")"
+SIM=simulations/`basename $0`
 
-SIM=cde-root$SIMPATHS/\`basename \$0\`
-
-echo "Entering directory \$SIM"
-cd \$SIM && \${HERE}/cde-exec ./start \$@
+. ./setupenv.sh
+echo "Entering directory $SIM"
+cd $SIM && ./start $@
 EOF
 ) > $DIRNAME/simulationtemplate
 
-cp $DIRNAME/simulationtemplate $DIRNAME/$THISSIM
-chmod u+x $DIRNAME/$THISSIM
-
 # add also template for call from browser
 (
-cat <<EOF
+cat <<'EOF'
 #!/bin/bash
-HERE="\$(dirname "\$(readlink -f "\${0}")")"
-
-SIM=cde-root$SIMPATHS/\`basename \$0\`
-
-echo "Entering directory \$SIM"
-cd \$SIM && xterm -geom 100x50 -e \${HERE}/cde-exec ./start \$@
+SIM=mysim
+DIR=`dirname $0`
+cd $DIR;
+xterm -geom 100x50 -e ./$SIM
 EOF
 ) > $DIRNAME/simulationbrowsertemplate
 
+
+mkdir $DIRNAME/simulations
