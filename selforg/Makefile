@@ -49,8 +49,10 @@ AR = ar -rcs
 
 .PHONY: lib opt dbg clean clean-all distclean todo depend tags install install_lib uninstall uninstall_lib
 
-libs: lib opt dbg shared
-
+libs: lib opt dbg
+	$(MAKE) shared
+# the shared lib cannot be done as a dependency because with -j 2 it collides with the lib target
+    
 lib: $(LIB)
 
 opt: 

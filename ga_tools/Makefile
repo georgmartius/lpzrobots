@@ -59,6 +59,8 @@ AR = ar -rcs
 .PHONY: lib opt clean clean-all distclean todo depend tags search find findi install install_scripts install_lib uninstall uninstall_lib
 
 libs: lib opt dbg
+	$(MAKE) shared
+# the shared lib cannot be done as a dependency because with -j 2 it collides with the lib target
 
 lib: $(UTILS) 
 ifeq ($(TYPE),DEVEL)
