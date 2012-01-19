@@ -221,10 +221,10 @@ confsubmodule:
 	    echo "call: $$CMD"; \
 	    if ! $$CMD; then  exit 1; fi; \
             for Folder in $(MODULE)/simulations $(MODULE)/examples; do \
-		CMD="m4 -D $$System -D $(TYPE) $$Folder/Makefile.4sim.m4"; \
-	    	echo "call: $$CMD"; \
-	    	if $$CMD > "$$Folder/Makefile.4sim"; then \
-		echo -n "genenete Makefiles in: ";\
+	        CMD="m4 -D $$System -D $(TYPE) $$Folder/Makefile.4sim.m4"; \
+	        echo "call: $$CMD"; \
+	        if $$CMD > "$$Folder/Makefile.4sim"; then \
+	        echo -n "genenete Makefiles in: ";\
 		for F in `find "$$Folder" -mindepth 2 -name Makefile.conf`; do \
 		   echo -n "$$F "; \
 		   cp "$$Folder/Makefile.4sim" "$${F%.conf}"; done; \
