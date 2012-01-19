@@ -268,6 +268,7 @@ uninstall_intern:
 	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
 	-rm -f $(PREFIX)/bin/guilogger
 	-rm -f $(PREFIX)/lib/libconfigurator.*
+	-rm -f $(PREFIX)/bin/configurator-config
 	-rm -fr $(PREFIX)/include/configurator
 	-rm -f $(PREFIX)/bin/matrixviz
 	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX) uninstall
