@@ -266,6 +266,8 @@ uninstall_intern:
 	cd selforg/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
 	@echo "*************** Uninstall ode_robots ******************"
 	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
+	@echo "*************** Uninstall ga_tools ******************"
+	cd ga_tools/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
 	-rm -f $(PREFIX)/bin/guilogger
 	-rm -f $(PREFIX)/lib/libconfigurator.*
 	-rm -fr $(PREFIX)/include/configurator
@@ -274,12 +276,9 @@ uninstall_intern:
 	-rm -f $(PREFIX)/lib/soundMan/SoundMan*.class
 	-rm -f $(PREFIX)/bin/soundMan
 ifeq ($(TYPE),user)
-	-rm -f $(PREFIX)/lib/libga_tools.a 
-# $(PREFIX)lib/libga_tools_opt.a
-	-rm -rf $(PREFIX)/include/ga_tools
 	-rm -rf $(PREFIX)/share/lpzrobots
 endif
-
+	$(MAKE) uninstall_ode
 
 
 Makefile.conf:	

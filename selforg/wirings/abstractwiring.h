@@ -118,6 +118,8 @@ public:
    */
   virtual int getControllerMotornumber() {return cmotornumber;}
 
+  /// reset internal state
+  virtual void reset() {}
 
 protected:
   /** to be overloaded by subclasses

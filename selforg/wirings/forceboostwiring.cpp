@@ -34,7 +34,7 @@ using namespace matrix;
 /// constructor
 ForceBoostWiring::ForceBoostWiring(NoiseGenerator* noise, double boost, int plotMode, 
                                    const std::string& name)
-  : AbstractWiring(noise, plotMode, name), Configurable(name,"1.0"), boost(boost){
+  : AbstractWiring(noise, plotMode, name), Configurable(name,"1.1"), boost(boost){
 
   addParameter("booster",&this->boost, 0, 1, "force boosting rate");
   addInspectableMatrix("errorForce",&error,false,"ForceBoosting error");
@@ -85,4 +85,9 @@ bool ForceBoostWiring::wireMotorsIntern(motor* rmotors, int rmotornumber,
   return true;
 }
 
+
+void ForceBoostWiring::reset(){
+  error.toZero();
+  sens.toZero();
+}
 
