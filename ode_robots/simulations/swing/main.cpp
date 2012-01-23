@@ -31,13 +31,13 @@
 // controller
 #include <selforg/sos.h>
 #include <selforg/sinecontroller.h>
-#include <selforg/derinf.h>
+//#include <selforg/derinf.h>
 #include <selforg/sox.h>
 #include <selforg/soml.h>
 
 #include <selforg/motorbabbler.h>
-#include <selforg/derlininvert.h>
-#include <selforg/dercontroller.h>
+//#include <selforg/derlininvert.h>
+//#include <selforg/dercontroller.h>
 
 // used wiring
 #include <selforg/one2onewiring.h>
@@ -179,10 +179,10 @@ public:
      sos->setParam("harmony",0.0);
      sos->setParam("s4avg",2.0);
 
-     DerInfConf dc = DerInf::getDefaultConf();
-     AbstractController* derinf = new DerInf(dc);
-     derinf->setParam("epsC",0.1);
-     derinf->setParam("epsA",0.03);
+     // DerInfConf dc = DerInf::getDefaultConf();
+     // AbstractController* derinf = new DerInf(dc);
+     // derinf->setParam("epsC",0.1);
+     // derinf->setParam("epsA",0.03);
 
      //     AbstractController* controller = new BasicController(cc);
      //   AbstractController* controller = new SineController(1<<14); // only motor 14

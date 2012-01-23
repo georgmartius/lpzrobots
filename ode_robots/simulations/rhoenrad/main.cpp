@@ -32,8 +32,8 @@
 #include "sox.h"
 
 #include <selforg/motorbabbler.h>
-#include <selforg/derlininvert.h>
-#include <selforg/dercontroller.h>
+//#include <selforg/derlininvert.h>
+//#include <selforg/dercontroller.h>
 
 // used wiring
 #include <selforg/one2onewiring.h>
