@@ -78,6 +78,7 @@ upload:
 	-$(MAKE) upload-ode
 	sleep 3600
 	$(MAKE) upload-oderobots
+	$(MAKE) changepermissions
 
 ##! ------ fine grain targets, which are called by the above targets ----
 
@@ -213,13 +214,12 @@ uninstall-all:
 upload-lpzrobots:
 	scp lpzrobots-*.tgz $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 	-ssh $(ROBOTSERVER) "cd /home/robot/htdocs/software/packages/src/current/ && rm -rf lpzrobots-$(MAJOR)-doc && tar -xzf lpzrobots-$(MAJOR)-doc.tgz"
-	-ssh $(ROBOTSERVER) "mkdir -p /home/robot/htdocs/software/packages/src/current/submodules"
 
 ##!upload-guilogger       uploads the guilogger packages to launchpad
 upload-guilogger: STEM=guilogger
 upload-guilogger:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots guilogger*$(VERSION)*.changes
-	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/submodules/$(STEM)*;"
+	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
@@ -227,7 +227,7 @@ upload-guilogger:
 upload-matrixviz: STEM=matrixviz
 upload-matrixviz:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots matrixviz*$(VERSION)*.changes
-	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/submodules/$(STEM)*;"
+	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
@@ -235,7 +235,7 @@ upload-matrixviz:
 upload-ode: STEM=ode-dbl
 upload-ode:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots ode-dbl*$(ODEVERSION)*.changes
-	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/submodules/$(STEM)*;"
+	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
@@ -243,7 +243,7 @@ upload-ode:
 upload-selforg: STEM=lpzrobots-selforg
 upload-selforg:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots lpzrobots-selforg*$(VERSION)*.changes
-	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/submodules/$(STEM)*;"
+	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
@@ -252,7 +252,13 @@ upload-selforg:
 upload-oderobots: STEM=lpzrobots-oderobots
 upload-oderobots:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots lpzrobots-oderobots*$(VERSION)*.changes
-	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/submodules/$(STEM)*;"
+	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
+	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
+	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
+
+##!upload-oderobots       uploads the oderobots packages to launchpad
+changepermissions: 
+	-ssh $(ROBOTSERVER) "chmod -R g+r /home/robot/htdocs/software/packages/deb/;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
