@@ -9,7 +9,9 @@ if [ -z "$1" -o  -z "$2" -o "$1" = "-h" ]; then
 fi
 
 shopt -s extglob
-DIRNAME=$(ls -d *-`uname -m` | head -n 1)
+MACHINE=`uname -m`
+KERNEL=`uname -r`
+DIRNAME=$(ls -dt1 *-${MACHINE}-kernel-${KERNEL%%.*} | head -n 1)
 echo "$DIRNAME";
 if [ ! -e "${DIRNAME}" ]; then
     echo "cannot find binary dist directory: $DIRNAME"
@@ -40,6 +42,14 @@ fi
 
 if ls $SIMDIR/*.txt 2>/dev/null; then
     cp $SIMDIR/*.txt $DESTDIR/
+fi
+
+if ls $SIMDIR/*.fig 2>/dev/null; then
+    cp $SIMDIR/*.fig $DESTDIR/
+fi
+
+if ls $SIMDIR/*.xml 2>/dev/null; then
+    cp $SIMDIR/*.xml $DESTDIR/
 fi
 
 

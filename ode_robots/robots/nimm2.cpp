@@ -61,8 +61,8 @@ namespace lpzrobots {
     width=conf.size/2;  // radius of body
     radius=(width/2) * conf.wheelSize;  //radius of wheels
     wheelthickness=conf.size/10; // thickness of the wheels (if cylinder used, no spheres)
-    cmass=4*conf.size;    // mass of body
-    wmass=conf.size/5.0;  // mass of wheels
+    cmass=4.0*conf.size*conf.massFactor;    // mass of body
+    wmass=conf.size*conf.massFactor/5.0;  // mass of wheels
     if(conf.singleMotor){ //-> one dimensional robot
       sensorno=1;
       motorno=1;
@@ -76,7 +76,6 @@ namespace lpzrobots {
       wheeloffset= -length/4.0+radius+.1;  // wheels at the end of the cylinder, and the opposite endas the bumper
       // was wheeloffset= -length/4
       number_bumpers=2;        // if wheels not at center only one bumper
-      cmass=4*conf.size;
       max_force   = 2*conf.force*conf.size*conf.size;
     }
     else{
@@ -228,6 +227,7 @@ namespace lpzrobots {
 
     OdeHandle wheelHandle(odeHandle);
     wheelHandle.substance.toRubber(40);
+    wheelHandle.substance.slip=conf.wheelSlip;
 
     // create body
     // - create cylinder for main body (with radius and length)

@@ -114,6 +114,8 @@ namespace lpzrobots {
     addParameterDef("UseQMPThread",&useQMPThreads,true);
     addParameterDef("inTaskedMode",&inTaskedMode,false);
 
+    addParameterDef("DefaultFPS",&defaultFPS,25);
+
     //     nextLeakAnnounce = 20;
     //     leakAnnCounter = 1;
 
@@ -278,6 +280,7 @@ namespace lpzrobots {
     }
     // process cmdline (possibly overwrite values from cfg file
     if(!processCmdLine(argc, argv)) return false;    
+    globalData.odeConfig.fps=defaultFPS;
 
     osgHandle.setup(windowWidth, windowHeight);
 
@@ -1095,12 +1098,18 @@ namespace lpzrobots {
 
     index = contains(argv, argc, "-shadowsize");
     if(index && argc > index) {
-      shadowTexSize = atoi(argv[index]);
+      shadowTexSize = min(max(atoi(argv[index]),32),1<<14);
       printf("shadowTexSize=%i\n",shadowTexSize);
     }
     if(contains(argv, argc, "-noshadow")!=0) {
       osgHandle.cfg->shadowType=0;
       printf("using no shadow\n");
+    }
+
+    index = contains(argv, argc, "-fps");
+    if(index && argc > index) {
+      defaultFPS = min(max(atoi(argv[index]),1),1000);
+      printf("defaultFPS=%i\n",defaultFPS);
     }
 
     useKeyHandler = contains(argv, argc, "-allkeys")!=0;
@@ -1326,6 +1335,7 @@ namespace lpzrobots {
     printf("    -s \"-disc|ampl|freq val\"\n    \t\t\tuse soundMan \n");
     printf("    -r seed\t\trandom number seed\n");
     printf("    -x WxH\t\t* window size of width(W) x height(H) is used (default 800x600)\n");
+    printf("    -fps rate\t\t*framerate in 1/s\n");
     printf("    -fs\t\t\tfullscreen mode\n");
     printf("    -pause \t\tstart in pause mode\n");
     printf("    -rtf factor\t\treal time factor: ratio between simulation speed and real time\n\

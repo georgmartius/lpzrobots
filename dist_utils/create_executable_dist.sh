@@ -43,7 +43,9 @@ if [ -n "$1" ]; then
     BASENAME=$1
 fi
 
-DIRNAME=$BASENAME-`uname -m`
+MACHINE=`uname -m`
+KERNEL=`uname -r`
+DIRNAME=$BASENAME-${MACHINE}-kernel-${KERNEL%%.*}
 if [ -d $DIRNAME ]; then rm -r $DIRNAME; fi
 cp -r cde-package $DIRNAME
 
