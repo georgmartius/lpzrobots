@@ -300,7 +300,7 @@ namespace lpzrobots {
     {
       manageAgents(1);
     }
-    if (!this->isWatchingAgentDefined() || camHandle.doManipulation != camHandle.No){
+    if (camHandle.doManipulation != camHandle.No){
       return;
     }
 
@@ -341,8 +341,10 @@ namespace lpzrobots {
     }
 
     // now set the current robots-position
-    camHandle.oldPositionOfAgent = camHandle.watchingAgent->getRobot()->getPosition();
-    camHandle.oldPositionOfAgentDefined=true;
+    if(this->isWatchingAgentDefined()){
+      camHandle.oldPositionOfAgent = camHandle.watchingAgent->getRobot()->getPosition();
+      camHandle.oldPositionOfAgentDefined=true;
+    }
     computeMatrix();
   }
 
