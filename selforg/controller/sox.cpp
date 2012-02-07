@@ -30,7 +30,7 @@ Sox::Sox(const SoxConf& conf)
 
 
 Sox::Sox(double init_feedback_strength, bool useExtendedModel, bool useTeaching )  
-  : AbstractController("Sox", "1.0"), 
+  : AbstractController("Sox", "1.1"), 
     conf(getDefaultConf()){
   
   conf.initFeedbackStrength = init_feedback_strength;

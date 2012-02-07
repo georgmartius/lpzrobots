@@ -28,7 +28,8 @@
 #include <selforg/matrix.h>
 
 /**
- * This controller implements the standard algorihm described the Chapter 3 (Homeokinesis)
+ * This controller implements the standard algorihm described the Chapter 5 (Homeokinesis)
+ *  of book "The Playful Machine"
  */
 class Sos : public AbstractController {
 
