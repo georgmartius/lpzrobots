@@ -19,73 +19,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.14  2011-11-11 15:43:06  martius
- *   color schemas (palettes and aliases) supported
- *   small compile error removed
- *   DUNITTEST removed in selforg-config and oderobots-config
  *
- *   Revision 1.13  2011/11/10 16:28:48  der
- *   liftup operator
- *
- *   Revision 1.12  2011/11/07 16:46:31  martius
- *   added support for operators that observe robots and manipulates them
- *    if required (for example to flip back if fallen over)
- *
- *   Revision 1.11  2011/11/02 09:11:49  martius
- *   capcolbug patch added
- *   use proper include pathes for user installation and library compilation
- *
- *   Revision 1.10  2011/10/27 12:11:18  der
- *   sox added
- *   sox added
- *
- *   Revision 1.9  2011/10/12 13:41:04  der
- *   *** empty log message ***
- *
-u *   Revision 1.8  2011/05/30 21:57:16  martius
-*   store and restore from console improved
-*   console width automatically adapted
-*
-*   Revision 1.7  2011/05/30 13:56:42  martius
-*   clean up: moved old code to oldstuff
-*   configable changed: notifyOnChanges is now used
-*    getParam,setParam, getParamList is not to be overloaded anymore
-*
-*   Revision 1.6  2011/01/31 11:31:10  martius
-*   renamed sox to soml
-*
-*   Revision 1.5  2010/11/05 13:54:05  martius
-*   store and restore for robots implemented
-*
-*   Revision 1.4  2010/10/20 13:18:38  martius
-*   parameters changed,
-*   motor babbling added
-*
-*   Revision 1.3  2010/10/13 12:41:44  martius
-*   changed to new version of hexapod now which is in lpzrobots
-*
-*   Revision 1.2  2010/08/03 12:51:17  martius
-*   hexapod adapted Velocity servos
-*
-*   Revision 1.1  2010/07/06 08:36:30  martius
-*   hexapod of Guillaume improved and included
-*
-*   Revision 1.4  2010/07/05 16:45:55  martius
-*   hexapod tuned
-*
-*   Revision 1.3  2010/07/02 15:54:26  martius
-*   robot tuned
-*   parameters for guidance experimented
-*
-*   Revision 1.2  2010/07/02 06:39:21  martius
-*   *** empty log message ***
-*
-*   Revision 1.1  2010/07/02 06:12:55  martius
-*   initial version with hexapod made by Guillaume
-*
-*
-***************************************************************************/
+ ***************************************************************************/
 
 #include <ode_robots/simulation.h>
 
