@@ -338,7 +338,7 @@ int main(int argc, char** argv){
   globaldata.configs.push_back(robot);
   globaldata.configs.push_back(controller);
 
-  if(dim==2) initSO2(controller, 30, 1.2);
+  // if(dim==2) initSO2(controller, 30, 1.2);
  
   
   showParams(globaldata.configs);
