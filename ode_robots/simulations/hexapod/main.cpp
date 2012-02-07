@@ -106,6 +106,7 @@ u *   Revision 1.8  2011/05/30 21:57:16  martius
 #include <selforg/feedbackwiring.h>
 #include <selforg/stl_adds.h>
 #include <selforg/soml.h>
+
 #include <selforg/derinf.h>
 
 #include "sox.h"
@@ -142,7 +143,7 @@ public:
     global.odeConfig.setParam("noise", 0.05);
     global.odeConfig.setParam("controlinterval", 2);
     global.odeConfig.setParam("cameraspeed", 250);
-    global.odeConfig.setParam("gravity", -4);
+    global.odeConfig.setParam("gravity", -6);
     setParam("UseQMPThread", false);
 
     // use Playground as boundary:
@@ -183,18 +184,18 @@ public:
     int numhexapods = 1; 
     for ( int ii = 0; ii< numhexapods; ii++){
 
-    HexapodConf myHexapodConf = Hexapod::getDefaultConf();
-    myHexapodConf.coxaPower= .8;//1.0;//1.3;//2.0;
-    myHexapodConf.tebiaPower= .5;//1.2;//1.6;
-    myHexapodConf.coxaJointLimitV =.6;// M_PI/8;  ///< angle range for vertical direction of legs
-    myHexapodConf.coxaJointLimitH = 1;//M_PI/4;
-    myHexapodConf.tebiaJointLimit = 1.5;// M_PI/4; // +- 45 degree
-    myHexapodConf.percentageBodyMass=.5;
-    // if ( ii =0 )
-    myHexapodConf.useBigBox=false;
-    myHexapodConf.tarsus=true;
-    myHexapodConf.numTarsusSections = 2;
-    myHexapodConf.useTarsusJoints = true;
+    HexapodConf myHexapodConf        = Hexapod::getDefaultConf();
+    myHexapodConf.coxaPower          = 1.5;
+    myHexapodConf.tebiaPower         = 0.8;
+    myHexapodConf.coxaJointLimitV    = .9; // M_PI/8;  // angle range for vertical dir. of legs
+    myHexapodConf.coxaJointLimitH    = 1.3; //M_PI/4;
+    myHexapodConf.tebiaJointLimit    = 1.8; // M_PI/4; // +- 45 degree
+    myHexapodConf.percentageBodyMass = .5;
+    myHexapodConf.useBigBox          = false;
+    myHexapodConf.tarsus             = true;
+    myHexapodConf.numTarsusSections  = 1;
+    myHexapodConf.useTarsusJoints    = true;
+    //    myHexapodConf.numTarsusSections = 2;
 
     OdeHandle rodeHandle = odeHandle;
     rodeHandle.substance.toRubber(20);
@@ -226,7 +227,7 @@ public:
     soml->setParam("epsC",0.105);
     soml->setParam("epsA",0.05);
 
-     Sox* sox = new Sox(1.2, false);
+    Sox* sox = new Sox(1.2, false);
     sox->setParam("epsC",0.105);
     sox->setParam("epsA",0.05);
     sox->setParam("Logarithmic",1);
@@ -264,11 +265,12 @@ public:
 
     semox->setParam("gamma_teach", teacher);
 
+
     if(useSineController){
       controller = sine;
     }else{
       //      controller = semox;
-     controller = sox;
+      controller = sox;
      //  controller = soml;
       // controller = derinf; 
     }
@@ -281,7 +283,7 @@ public:
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     // add an operator to keep robot from falling over
-    agent->addOperator(new LimitOrientationOperator(Axis(0,0,1), Axis(0,0,1), M_PI*0.5, 10));
+    agent->addOperator(new LimitOrientationOperator(Axis(0,0,1), Axis(0,0,1), M_PI*0.5, 30));
     if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, ""));
     global.agents.push_back(agent);
     global.configs.push_back(agent);

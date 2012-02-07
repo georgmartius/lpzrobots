@@ -43,6 +43,7 @@
 
 #include <selforg/soml.h>
 #include <selforg/sox.h>
+#include <selforg/pimax.h>
 #include <selforg/remotecontrolled.h>
 //#include "sox.h"
 
@@ -267,7 +268,10 @@ public:
          sc.useS = false;
          controller = new SoML(sc); 
        }else{
-         controller = new Sox(cInit, useExtendedModel);
+         //         controller = new Sox(cInit, useExtendedModel);
+         PiMaxConf pc = PiMax::getDefaultConf();
+         pc.onlyMainParameters = false;
+         controller = new PiMax(pc);
          //       controller = new SineController();
        }
      }
@@ -275,8 +279,7 @@ public:
      controller->setParam("epsC",0.05);
      controller->setParam("epsA",0.01);
      controller->setParam("s4avg",1);
-     controller->setParam("s4delay",1);
-     
+     controller->setParam("s4delay",1);     
      
      wiring->setParam("booster", 0);
      switch(type){
@@ -303,6 +306,10 @@ public:
        global.odeConfig.setParam("noise",0.0);
        break;
      }
+     
+     // pimax
+     controller->setParam("epsC",0.0002);
+
 
      
      // create pointer to agent

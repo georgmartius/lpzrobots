@@ -220,6 +220,12 @@ protected:
 protected:
   static double regularizedInverse(double v);
 
+  // if x (sensor value) is zero then we do not learn -> xsi=0;
+  static double _checkZero(double xsi, double x){
+    if(x==0) return 0;
+    else return xsi;
+  }
+
 
 };
 

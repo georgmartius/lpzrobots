@@ -110,9 +110,11 @@ namespace lpzrobots {
         @see CameraSensor for further parameter explanation.
         @param values sensor values to compute (@see PositionCameraSensor::ValueTypes)
         @param dims dimensions to return the position (X means horizonal, Y vertical)
+        @param border if >0 then the size and sizechange are zero if position is that far (border) away from 
+        image border
      */
-    PositionCameraSensor(Values values = Position, Dimensions dims = XY )
-      : dims(dims), values(values), oldsize(0) {
+    PositionCameraSensor(Values values = Position, Dimensions dims = XY, double border=0)
+      : dims(dims), values(values), border(border), oldsize(0) {
       num = (bool(dims & X) + bool(dims & Y))*bool(values & Position) +
         bool(values & Size) + bool(values & SizeChange);
       data = new sensor[num]; 
@@ -143,10 +145,20 @@ namespace lpzrobots {
       if(values & Position){
         if(dims & X) data[k++] = x;
         if(dims & Y) data[k++] = y;
+      }      
+      double sizeChange = (size - oldsize)*10;
+      oldsize = size;
+
+      // check border effects
+      if(border>0){
+        if(((dims & X) && (fabs(x) > (1-border))) || 
+           ((dims & Y) && (fabs(y) > (border<1))) ){
+          size=0;
+          sizeChange=0;
+        }
       }
       if(values & Size) data[k++] = size;
-      if(values & SizeChange) data[k++] = (size - oldsize)*10;
-      oldsize = size;
+      if(values & SizeChange) data[k++] = sizeChange;
       return true;
     }
 
@@ -199,9 +211,30 @@ namespace lpzrobots {
     int num;
     Dimensions dims;
     Values values;
+    double border;
     sensor* data;
     double oldsize;
   }; 
+
+
+  struct MotionCameraSensorConf {    
+    /// averaging time window (1: no averaging)
+    int        avg      ; 
+    /// values additional sensor values, @see PositionCameraSensor::Values
+    PositionCameraSensor::Values     values	; 
+    /// dims dimensions to return the position (X means horizonal, Y vertical)
+    Sensor::Dimensions dims	; 
+    /// factor for measured velocity (velocity is in framesize/frame
+    double     factor	; 
+    /// window whether to apply a windowing function to avoid edge effects
+    bool       window	; 
+    /// clipsize value at which the values are clipped, e.g. [-1.5,1.5] 
+    double     clipsize	;    
+    /** if >0 then the size and sizechange are zero if position is that far (border) away from 
+        @see PositionCameraSensor */ 
+    double     border   ;          
+  };
+  
 
   /** This CameraSensor calculates the global optical flow of the camera image
       using the center of gravity method. It requires objects to be bright on black ground.
@@ -221,16 +254,27 @@ namespace lpzrobots {
 	@param window whether to apply a windowing function to avoid edge effects
 	@param clipsize value at which the values are clipped, e.g. [-1.5,1.5] 
      */
-    MotionCameraSensor(int avg = 2, Values values=None, Dimensions dims = X, 
-                       double factor = 5.0, bool window = true, double clipsize = 1.5)
-      : PositionCameraSensor(values, dims), factor(factor), 
-	window(true), clipsize(clipsize), last(false), lastX(0), lastY(0)
+    MotionCameraSensor(const MotionCameraSensorConf& conf = getDefaultConf())
+      : PositionCameraSensor(conf.values, conf.dims, conf.border), conf(conf),
+        last(false), lastX(0), lastY(0)
     {
-      lambda = 1/(double)avg;
-      num += bool(dims & X) + bool(dims & Y);
+      lambda = 1/(double)conf.avg;
+      num += bool(conf.dims & X) + bool(conf.dims & Y);
       delete[] data;
       data = new sensor[num]; 
       memset(data,0,sizeof(sensor)*num); 
+    }
+
+    static MotionCameraSensorConf getDefaultConf(){
+      MotionCameraSensorConf c;
+      c.avg      = 2;
+      c.values   = None;
+      c.dims     = X;
+      c.factor   = 5.0;
+      c.window	 = true;
+      c.clipsize = 1.5;
+      c.border	 = 0;
+      return c;
     }
 
     virtual ~MotionCameraSensor(){
@@ -244,32 +288,45 @@ namespace lpzrobots {
       double size;      
       bool success = calcImgCOG(img, x, y, size);
       int k=0;
+
+      double sizeChange = (size - oldsize)*10;
+      oldsize = size;
+
+      // check border effects
+      if(border>0){
+        if(((dims & X) && (fabs(x) > (1-border))) || 
+           ((dims & Y) && (fabs(y) > (border<1))) ){
+          size=0;
+          sizeChange=0;
+        }
+      }
+
       if(last && success){
         // check if the apparent shift is infeasible, then leave the old sensor value.
         if(fabs(x - lastX) < 0.4 && fabs(y - lastY) < 0.4) {
-          if(dims & X) { 
-            data[k] = lambda*(x - lastX)*factor* (window ? windowfunc(x) : 1) 
+          if(conf.dims & X) { 
+            data[k] = lambda*(x - lastX)*conf.factor* (conf.window ? windowfunc(x) : 1) 
 	      + (1- lambda)*data[k]; k++; 
           }
-          if(dims & Y) { 
-            data[k] = lambda*(y - lastY)*factor* (window ? windowfunc(y) : 1)
+          if(conf.dims & Y) { 
+            data[k] = lambda*(y - lastY)*conf.factor* (conf.window ? windowfunc(y) : 1)
 	      + (1- lambda)*data[k]; k++; 
           }
         }
       }else{
-	if(dims & X) data[k++] = 0;
-	if(dims & Y) data[k++] = 0;	
+	if(conf.dims & X) data[k++] = 0;
+	if(conf.dims & Y) data[k++] = 0;	
       }
-      if(values & Position){
-        if(dims & X) data[k++] = x;
-        if(dims & Y) data[k++] = y;
+      if(conf.values & Position){
+        if(conf.dims & X) data[k++] = x;
+        if(conf.dims & Y) data[k++] = y;
       }
-      if(values & Size) data[k++] = size;	
-      if(values & SizeChange) data[k++] = (size - oldsize)*10;
+      if(conf.values & Size) data[k++] = size;
+      if(conf.values & SizeChange) data[k++] = sizeChange;
         
-      if(clipsize!=0){
+      if(conf.clipsize!=0){
 	for(int i=0; i<num; i++){
-	  data[i] = clip(data[i],-clipsize,clipsize);
+	  data[i] = clip(data[i],-conf.clipsize,conf.clipsize);
 	}
       }
 	
@@ -288,10 +345,8 @@ namespace lpzrobots {
     }
 
   protected:
-    double factor;
+    MotionCameraSensorConf conf;
     double lambda;
-    bool window;
-    double clipsize;
     bool   last;  ///< whether last image had a valid position 
     double lastX;
     double lastY;
