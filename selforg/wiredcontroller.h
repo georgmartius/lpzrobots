@@ -103,6 +103,8 @@ public:
   virtual void startMotorBabblingMode (int steps, AbstractController* babblecontroller = 0, 
 				       bool fixRobot = true);
 
+  virtual AbstractController* getMotorBabbler() { return motorBabbler; }
+
   /** stops the motor babbling mode. */
   virtual void stopMotorBabblingMode () { motorBabblingSteps = 0; }
   /// returns true if in motorbabbling mode

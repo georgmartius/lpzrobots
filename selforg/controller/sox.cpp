@@ -56,10 +56,14 @@ void Sox::constructor(){
     "type of pseudo inverse: 0 moore penrose, 1 sensor space, 2 motor space, 3 special");
 
   if(!conf.onlyMainParameters){
-    addParameterDef("s4avg", &conf.steps4Averaging, 1,     1, buffersize-1, 
+    addParameter("s4avg", &conf.steps4Averaging, 1, buffersize-1, 
                     "smoothing (number of steps)");
-    addParameterDef("s4delay", &conf.steps4Delay,   1,     1, buffersize-1, 
+    addParameter("s4delay", &conf.steps4Delay,   1, buffersize-1, 
                     "delay  (number of steps)");
+    addParameter("factorS", &conf.factorS,  0, 2, 
+                    "factor for learning rate for S");
+    addParameter("factorb", &conf.factorb,  0, 2, 
+                    "factor for learning rate for b");
   }
 
   gamma=0;
@@ -217,10 +221,12 @@ void Sox::motorBabblingStep(const sensor* x_, int number_sensors,
   const Matrix& xp    = (A * y_tm1+ b + S * x_tm1);
   const Matrix& xi   = x - xp;
   
+  double epsS=epsA*conf.factorS;
+  double epsb=epsA*conf.factorb;
   A += (xi * (y_tm1^T) * (epsA * factor) + (A *  -damping) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);
-  b += (xi           * (epsA * factor) + (b *  -damping) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);
+  b += (xi           * (epsb * factor) + (b *  -damping) * ( epsb > 0 ? 1 : 0)).mapP(0.1, clip);
   if(conf.useExtendedModel)
-    S += (xi * (x_tm1^T) * (epsA*factor) + (S *  -damping*10 ) * ( epsA > 0 ? 1 : 0)).mapP(0.1, clip);
+    S += (xi * (x_tm1^T) * (epsS*factor) + (S *  -damping*10 ) * ( epsS > 0 ? 1 : 0)).mapP(0.1, clip);
 
   // learn controller
   const Matrix& z       = (C * (x_tm1) + h); // here no creativity 
@@ -284,12 +290,14 @@ void Sox::learn(){
     EE = .1/(v.norm_sqr() + .001); // logarithmic error (E = log(v^T v))
   }
   if(epsA > 0){
+    double epsS=epsA*conf.factorS;
+    double epsb=epsA*conf.factorb;
     A   += (xi * (y_hat^T) * epsA                      ).mapP(0.1, clip);
     if(damping)
       A += (((A_native-A).map(power3))*damping         ).mapP(0.1, clip);
     if(conf.useExtendedModel)
-      S += (xi * (x^T)     * epsA + (S *  -damping*10) ).mapP(0.1, clip);
-    b   += (xi             * epsA + (b *  -damping)    ).mapP(0.1, clip);
+      S += (xi * (x^T)     * (epsS)+ (S *  -damping*10) ).mapP(0.1, clip);
+    b   += (xi             * (epsb) + (b *  -damping)    ).mapP(0.1, clip);
   }
   if(epsC > 0){
     C += (( mu * (v_hat^T) 

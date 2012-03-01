@@ -41,6 +41,9 @@ struct SoxConf {
   int    steps4Delay;             
   bool   someInternalParams;    ///< if true only some internal parameters are exported
   bool   onlyMainParameters;    ///< if true only some configurable parameters are exported
+
+  double factorS;             ///< factor for learning rate of S
+  double factorb;             ///< factor for learning rate of b
 };
 
 
@@ -70,6 +73,9 @@ public:
     conf.steps4Delay          = 1;             
     conf.someInternalParams   = false; 
     conf.onlyMainParameters   = true;  
+
+    conf.factorS              = 1;
+    conf.factorb              = 1;
     return conf;
   }
 

@@ -8,14 +8,12 @@
 
 #include <selforg/agent.h>
 #include <selforg/abstractrobot.h>
-#include <selforg/invertnchannelcontroller.h>
-#include <selforg/homeokinesis.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/motorbabbler.h>
-//#include <selforg/semox.h>
+#include <selforg/sox.h>
+#include <selforg/semox.h>
 //#include <selforg/crossmotorcoupling.h>
-//#include <selforg/universalcontroller.h>
 
 
 #include "cmdline.h"
@@ -239,7 +237,7 @@ int main(int argc, char** argv){
     plotoptions.push_back(PlotOption(GuiLogger, atoi(argv[index])));
   }
   if(contains(argv,argc,"-f")!=0) plotoptions.push_back(PlotOption(File));
-  if(contains(argv,argc,"-n")!=0) plotoptions.push_back(PlotOption(NeuronViz));
+  if(contains(argv,argc,"-n")!=0) plotoptions.push_back(PlotOption(MatrixViz));
   index = contains(argv,argc,"-m");
   if(index >0 && argc>index) {
     modestr = argv[index];
@@ -254,7 +252,7 @@ int main(int argc, char** argv){
   if(contains(argv,argc,"-h")!=0) {
     printf("Usage: %s [-g N] [-f] [-n] [-m MODE] [d DIM]\n",argv[0]);
     printf("\t-g N\tstart guilogger with interval N\n\t-f\twrite logfile\n");
-    printf("\t-n\tstart neuronviz\n");
+    printf("\t-n\tstart matrixviz\n");
     printf("\t-m MODE\t system properties: normal (def), swing, extrasine\n");
     printf("\t-d DIM\t dimensionality, default 2\n");
     printf("\t-h\tdisplay this help\n");
@@ -301,9 +299,10 @@ int main(int argc, char** argv){
 //  AbstractController* controller = new InvertNChannelController(10,false);
 
 //   AbstractController* controller = new SineController();
-  //AbstractController* controller = new Homeokinesis();
+    
+  AbstractController* controller = new Sox(0.95);
   
-  AbstractController* controller = new MotorBabbler();
+  //AbstractController* controller = new MotorBabbler();
 
 
   controller->setParam("epsC",     0.1);
