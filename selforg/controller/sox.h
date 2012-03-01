@@ -48,7 +48,8 @@ struct SoxConf {
 
 
 /**
- * This controller implements the standard algorihm described the Chapter 3 (Homeokinesis)
+ * This controller implements the standard algorihm described the the Chapter 5 (Homeokinesis)
+ *  with extensions of Chapter 15 of book "The Playful Machine"
  */
 class Sox : public AbstractController, public Teachable {
 

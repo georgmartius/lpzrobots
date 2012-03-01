@@ -14,7 +14,7 @@
 # make sure that you create the directories on the webserver and change the "current" links
 #  if the major version changes
 MAJOR=0.7
-VERSION=$(MAJOR).0.1
+VERSION=$(MAJOR).0.2
 
 ODEVERSION=0.11.3
 
@@ -78,6 +78,7 @@ upload:
 	-$(MAKE) upload-ode
 	sleep 3600
 	$(MAKE) upload-oderobots
+	$(MAKE) changepermissions
 
 ##! ------ fine grain targets, which are called by the above targets ----
 
@@ -96,6 +97,7 @@ $(DISTDIR): $(filter-out $(wildcard lpzrobots), lpzrobots)
 # call make to config
 	cd $(DISTDIR) && rm -rf Makefile.conf && echo -e "/usr\nu\ny\n" | \
 		make Makefile.conf
+	cd $(DISTDIR) && make MODULE=selforg confsubmodule && make MODULE=ode_robots confsubmodule && make MODULE=ga_tools confsubmodule
 # advance version numbers # also add lpzrobots/ga_tools 
 	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger $(DISTDIR)/matrixviz; \
 		do pushd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; \
@@ -174,7 +176,7 @@ doc: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR))
 	mv $(DISTDIR)/doc lpzrobots-$(MAJOR)-doc
 	mv $(DISTDIR)/doc.orig $(DISTDIR)/doc
 	tar -czf lpzrobots-$(MAJOR)-doc.tgz lpzrobots-$(MAJOR)-doc
-	rm lpzrobots-$(MAJOR)-doc
+	rm -r lpzrobots-$(MAJOR)-doc
 
 
 ##!install-matrixviz        install the created matrixviz package
@@ -212,13 +214,12 @@ uninstall-all:
 upload-lpzrobots:
 	scp lpzrobots-*.tgz $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 	-ssh $(ROBOTSERVER) "cd /home/robot/htdocs/software/packages/src/current/ && rm -rf lpzrobots-$(MAJOR)-doc && tar -xzf lpzrobots-$(MAJOR)-doc.tgz"
-	-ssh $(ROBOTSERVER) "mkdir -p /home/robot/htdocs/software/packages/src/current/submodules"
 
 ##!upload-guilogger       uploads the guilogger packages to launchpad
 upload-guilogger: STEM=guilogger
 upload-guilogger:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots guilogger*$(VERSION)*.changes
-	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/submodules/$(STEM)*;"
+	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
@@ -226,7 +227,7 @@ upload-guilogger:
 upload-matrixviz: STEM=matrixviz
 upload-matrixviz:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots matrixviz*$(VERSION)*.changes
-	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/submodules/$(STEM)*;"
+	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
@@ -234,7 +235,7 @@ upload-matrixviz:
 upload-ode: STEM=ode-dbl
 upload-ode:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots ode-dbl*$(ODEVERSION)*.changes
-	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/submodules/$(STEM)*;"
+	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
@@ -242,7 +243,7 @@ upload-ode:
 upload-selforg: STEM=lpzrobots-selforg
 upload-selforg:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots lpzrobots-selforg*$(VERSION)*.changes
-	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/submodules/$(STEM)*;"
+	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 
@@ -251,7 +252,13 @@ upload-selforg:
 upload-oderobots: STEM=lpzrobots-oderobots
 upload-oderobots:
 	cd $(PACKDIR)/ubuntu && dput -f ppa:georg-martius/lpzrobots lpzrobots-oderobots*$(VERSION)*.changes
-	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/submodules/$(STEM)*;"
+	-ssh $(ROBOTSERVER) "rm /home/robot/htdocs/software/packages/deb/current/$(STEM)*;"
+	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
+	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
+
+##!upload-oderobots       uploads the oderobots packages to launchpad
+changepermissions: 
+	-ssh $(ROBOTSERVER) "chmod -R g+r /home/robot/htdocs/software/packages/deb/;"
 	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
 	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
 

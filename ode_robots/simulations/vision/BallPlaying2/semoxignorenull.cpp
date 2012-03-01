@@ -205,13 +205,6 @@ void SeMoXIgnoreNull::fillBuffersAndControl(const sensor* x_, int number_sensors
   y.convertToBuffer(y_, number_motors);
 }
 
-
-// if x (sensor value) is zero then we do not learn -> xsi=0;
-double _checkZero(double xsi, double x){
-  if(x==0) return 0;
-  else return xsi;
-}
-
 // calculates xsi for the current time step using the delayed y values
 //  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop 
 // NEW: does not learn if sensor value is zero
@@ -219,7 +212,7 @@ void SeMoXIgnoreNull::calcXsi(int delay){
   const Matrix& x     = x_buffer[t% buffersize];
   const Matrix& y     = y_buffer[(t - 1 - delay) % buffersize];
   xsi = x -  model(x_buffer, 1 , y);
-  xsi = Matrix::map2(_checkZero, xsi, x);
+  xsi = Matrix::map2(checkZero, xsi, x);
   xsi_norm = matrixNorm1(xsi);
   xsi_norm_avg = xsi_norm_avg*0.999 + xsi_norm*0.001; // calc longterm average
 

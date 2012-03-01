@@ -1,6 +1,8 @@
 # Makefile to download and install debian source packages of lpzrobots
 
-##! all		check for empty directory
+MAKEFILE:=$(lastword $(MAKEFILE_LIST))
+
+##! all		check for empty directory, deps (dependencies), download alldeps (packages)
 all: checkemptydir deps download alldebs
 
 checkemptydir:
@@ -25,23 +27,32 @@ alldebs: guilogger_ ode-dbl_ lpzrobots-selforg_ lpzrobots-oderobots_ #lpzrobots-
 
 ##! guilogger_ 
 guilogger_: 
-	$(MAKE) P=guilogger guilogger
+	$(MAKE) -f $(MAKEFILE) P=guilogger guilogger
+
+##! matrixviz_ 
+matrixviz_: 
+	$(MAKE) -f $(MAKEFILE) P=matrixviz matrixviz
+
+
 ##! ode-dbl_
 ode-dbl_: 
-	$(MAKE) P=ode-dbl ode-dbl
+	$(MAKE) -f $(MAKEFILE) P=ode-dbl ode-dbl
 
 ##! lpzrobots-selforg_
 lpzrobots-selforg_: 
-	$(MAKE) P=lpzrobots-selforg lpzrobots-selforg
+	$(MAKE) -f $(MAKEFILE) P=lpzrobots-selforg lpzrobots-selforg
 
 ##! lpzrobots-oderobots_
 lpzrobots-oderobots_: 
-	$(MAKE) P=lpzrobots-oderobots lpzrobots-oderobots
+	$(MAKE) -f $(MAKEFILE) P=lpzrobots-oderobots lpzrobots-oderobots
+
+test:
+	echo $(lastword $(wildcard guilogger*.dsc))
+	
 
 $(P): 
 #check for multiple version
-	NUM=`echo $(P)*.dsc | wc -w`; \
- NEWEST=`echo $(P)*.dsc | cut -d " " -f $$NUM`; \
+	NEWEST=$(lastword $(wildcard $(P)*.dsc)); \
  dpkg-source -x $$NEWEST
 	cd `find -type d -name "$(P)*"` && dpkg-buildpackage -rfakeroot -b -uc
 #make sure that we are root

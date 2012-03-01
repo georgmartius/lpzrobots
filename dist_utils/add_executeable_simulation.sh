@@ -9,7 +9,9 @@ if [ -z "$1" -o  -z "$2" -o "$1" = "-h" ]; then
 fi
 
 shopt -s extglob
-DIRNAME=$(ls -d *-`uname -m` | head -n 1)
+MACHINE=`uname -m`
+KERNEL=`uname -r`
+DIRNAME=$(ls -dt1 *-${MACHINE}-kernel-${KERNEL%%.*} | head -n 1)
 echo "$DIRNAME";
 if [ ! -e "${DIRNAME}" ]; then
     echo "cannot find binary dist directory: $DIRNAME"
@@ -23,7 +25,13 @@ if [ ! -e "${SIMDIR}" ]; then
 fi
 
 DEST=$2
-DESTDIR=$DIRNAME/simulations/$DEST
+DESTSIMDIR=`cat $DIRNAME/simulationsdir`
+if [ ! -e "$DIRNAME/$DESTSIMDIR" ]; then
+    echo "Simulations dir $DIRNAME/$DESTSIMDIR does not exist"
+    exit 1;
+fi
+
+DESTDIR=$DIRNAME/$DESTSIMDIR/$DEST
 mkdir -p $DESTDIR
 
 cp $1 $DESTDIR/
@@ -32,8 +40,16 @@ if [ -e $SIMDIR/guilogger.cfg ]; then
     cp $SIMDIR/guilogger.cfg $DESTDIR/
 fi
 
-if ls $SIMDIR/*.txt; then
+if ls $SIMDIR/*.txt 2>/dev/null; then
     cp $SIMDIR/*.txt $DESTDIR/
+fi
+
+if ls $SIMDIR/*.fig 2>/dev/null; then
+    cp $SIMDIR/*.fig $DESTDIR/
+fi
+
+if ls $SIMDIR/*.xml 2>/dev/null; then
+    cp $SIMDIR/*.xml $DESTDIR/
 fi
 
 

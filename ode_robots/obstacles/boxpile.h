@@ -48,14 +48,14 @@ public:
   /**
    * Constructor
    * a random boxpile is fixed to the world
-   * @param dimension size of pile
+   * @param dimension size of pile (height is always 1, use boxsize and boxvar)
    * @param num number of boxes
    * @param seed seed for random generator (it is fixed to generate deterministic piles)
    * @param boxsizemean mean size of boxes
    * @param boxsizevar  variance of boxes sizes
    */
   Boxpile(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-          const osg::Vec3& dimension = osg::Vec3(5.0, 5.0, 0.3), 
+          const osg::Vec3& dimension = osg::Vec3(5.0, 5.0, 1.0), 
           int num = 30, int seed = 1,
           const osg::Vec3& boxsizemean = osg::Vec3(1.0, 1.0, 0.2), 
           const osg::Vec3& boxsizevar = osg::Vec3(0.5, 0.5, 0.1) ) 
@@ -64,7 +64,7 @@ public:
   {
     setTexture("Images/wood_sw.jpg");
     randGen.init(seed);
-
+    this->dimension.z()=1;
     obstacle_exists=false;    
   };
 
@@ -85,16 +85,26 @@ protected:
   virtual void create(){
     OdeHandle oh(odeHandle);
     oh.createNewSimpleSpace(odeHandle.space,true);
+    double size=dimension.length();
     for(int i=0; i< num; i++){
       Box* b;
       Pos rand(randGen.rand()-0.5,randGen.rand()-0.5,randGen.rand()-0.5);
       Pos s = boxsizemean + ((rand*2) & boxsizevar); // & component wise mult
+      Pos pos = (dimension & Pos(randGen.rand()-0.5,randGen.rand()-0.5,0));
+      double angle = randGen.rand()*M_PI;
+
+      // make sure box has positive dimensions
+      s.x()=fabs(s.x());
+      s.y()=fabs(s.y());
+      s.z()=fabs(s.z());
+      // make pile round
+      s.z()*=fabs((size-pos.length())/size); // linear ramping of heights
+      
+      pos.z() = s.z()/2.0;
       b = new Box(s);
       b->setTextures(getTextures(i));
       b->init(oh, 0, osgHandle, Primitive::Geom | Primitive::Draw);
 
-      Pos pos = (dimension & Pos(randGen.rand()-0.5,randGen.rand()-0.5,randGen.rand()));
-      double angle = randGen.rand()*M_PI;
       b->setPose(ROTM(angle, 0,0,1)*TRANSM(pos) * pose);
       obst.push_back(b);
     }    

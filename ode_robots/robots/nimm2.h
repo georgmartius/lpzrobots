@@ -44,8 +44,10 @@ typedef struct {
   double size;
   double force;
   double speed;
+  double massFactor;
   bool sphereWheels;
   double wheelSize; ///< size of the wheels in body diameters
+  double wheelSlip; 
   std::string wheelTexture;
   bool bumper;
   bool cigarMode;
@@ -62,6 +64,10 @@ typedef struct {
 
 /** Robot that looks like a Nimm 2 Bonbon :-)
     2 wheels and a cylinder like body
+
+    wheel order: left, right
+    IR order: front left, front right, right front, right rear, 
+              rear right, rear left, left rear, left front
 */
 class Nimm2 : public OdeRobot /*, public Inspectable*/ {
 public:
@@ -74,8 +80,10 @@ public:
     conf.size=1;
     conf.force=5;
     conf.speed=12;
+    conf.massFactor=1;
     conf.sphereWheels=true;
     conf.wheelSize=1;
+    conf.wheelSlip=0;
     conf.bumper=false;
     conf.cigarMode=false;
     conf.cigarLength=2.0;

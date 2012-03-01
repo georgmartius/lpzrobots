@@ -19,73 +19,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.14  2011-11-11 15:43:06  martius
- *   color schemas (palettes and aliases) supported
- *   small compile error removed
- *   DUNITTEST removed in selforg-config and oderobots-config
  *
- *   Revision 1.13  2011/11/10 16:28:48  der
- *   liftup operator
- *
- *   Revision 1.12  2011/11/07 16:46:31  martius
- *   added support for operators that observe robots and manipulates them
- *    if required (for example to flip back if fallen over)
- *
- *   Revision 1.11  2011/11/02 09:11:49  martius
- *   capcolbug patch added
- *   use proper include pathes for user installation and library compilation
- *
- *   Revision 1.10  2011/10/27 12:11:18  der
- *   sox added
- *   sox added
- *
- *   Revision 1.9  2011/10/12 13:41:04  der
- *   *** empty log message ***
- *
-u *   Revision 1.8  2011/05/30 21:57:16  martius
-*   store and restore from console improved
-*   console width automatically adapted
-*
-*   Revision 1.7  2011/05/30 13:56:42  martius
-*   clean up: moved old code to oldstuff
-*   configable changed: notifyOnChanges is now used
-*    getParam,setParam, getParamList is not to be overloaded anymore
-*
-*   Revision 1.6  2011/01/31 11:31:10  martius
-*   renamed sox to soml
-*
-*   Revision 1.5  2010/11/05 13:54:05  martius
-*   store and restore for robots implemented
-*
-*   Revision 1.4  2010/10/20 13:18:38  martius
-*   parameters changed,
-*   motor babbling added
-*
-*   Revision 1.3  2010/10/13 12:41:44  martius
-*   changed to new version of hexapod now which is in lpzrobots
-*
-*   Revision 1.2  2010/08/03 12:51:17  martius
-*   hexapod adapted Velocity servos
-*
-*   Revision 1.1  2010/07/06 08:36:30  martius
-*   hexapod of Guillaume improved and included
-*
-*   Revision 1.4  2010/07/05 16:45:55  martius
-*   hexapod tuned
-*
-*   Revision 1.3  2010/07/02 15:54:26  martius
-*   robot tuned
-*   parameters for guidance experimented
-*
-*   Revision 1.2  2010/07/02 06:39:21  martius
-*   *** empty log message ***
-*
-*   Revision 1.1  2010/07/02 06:12:55  martius
-*   initial version with hexapod made by Guillaume
-*
-*
-***************************************************************************/
+ ***************************************************************************/
 
 #include <ode_robots/simulation.h>
 
@@ -96,6 +31,7 @@ u *   Revision 1.8  2011/05/30 21:57:16  martius
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
 #include <ode_robots/operators.h>
+#include <ode_robots/boxpile.h>
 
 #include <selforg/invertmotornstep.h>
 #include <selforg/semox.h>
@@ -105,6 +41,7 @@ u *   Revision 1.8  2011/05/30 21:57:16  martius
 #include <selforg/feedbackwiring.h>
 #include <selforg/stl_adds.h>
 #include <selforg/soml.h>
+
 #include <selforg/derinf.h>
 
 #include "sox.h"
@@ -135,26 +72,36 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
-    setCameraHomePos(Pos(-0.0114359, 6.66848, 0.922832),  Pos(178.866, -7.43884, 0));
+    setCameraHomePos(Pos(-6.32561, 5.12705, 3.17278),  Pos(-130.771, -17.7744, 0));
+
 
     global.odeConfig.setParam("noise", 0.05);
     global.odeConfig.setParam("controlinterval", 2);
     global.odeConfig.setParam("cameraspeed", 250);
-    global.odeConfig.setParam("gravity", -4);
+    global.odeConfig.setParam("gravity", -6);
     setParam("UseQMPThread", false);
-    //setupPlaygrounds(odeHandle, osgHandle, global,  Normal);
+
     // use Playground as boundary:
-    //    playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
+    AbstractGround* playground = 
+      new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
     //     // playground->setColor(Color(0,0,0,0.8)); 
-    //     playground->setGroundColor(Color(2,2,2,1)); 
-    //     playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
+    playground->setGroundColor(Color(2,2,2,1)); 
+    playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
+    global.obstacles.push_back(playground);
+ 
+    Boxpile* boxpile = new Boxpile(odeHandle, osgHandle);
+    boxpile->setColor("wall"); 
+    boxpile->setPose(ROTM(M_PI/5.0,0,0,1)*TRANSM(0, 0,0.2));
+    global.obstacles.push_back(boxpile);
+    
+
     //     global.obstacles.push_back(playground); 
-    double diam = .90;
-    OctaPlayground* playground3 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/4.0*diam, 5,/*Height*/ .3), 12, 
-                                                     false);
-    //  playground3->setColor(Color(.0,0.2,1.0,1));
-    playground3->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
-    global.obstacles.push_back(playground3);
+    // double diam = .90;
+    // OctaPlayground* playground3 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/4.0*diam, 5,/*Height*/ .3), 12, 
+    //                                                  false);
+    // //  playground3->setColor(Color(.0,0.2,1.0,1));
+    // playground3->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    // global.obstacles.push_back(playground3);
    
     controller=0;
 
@@ -172,18 +119,18 @@ public:
     int numhexapods = 1; 
     for ( int ii = 0; ii< numhexapods; ii++){
 
-    HexapodConf myHexapodConf = Hexapod::getDefaultConf();
-    myHexapodConf.coxaPower= .8;//1.0;//1.3;//2.0;
-    myHexapodConf.tebiaPower= .5;//1.2;//1.6;
-    myHexapodConf.coxaJointLimitV =.6;// M_PI/8;  ///< angle range for vertical direction of legs
-    myHexapodConf.coxaJointLimitH = 1;//M_PI/4;
-    myHexapodConf.tebiaJointLimit = 1.5;// M_PI/4; // +- 45 degree
-    myHexapodConf.percentageBodyMass=.5;
-    // if ( ii =0 )
-    myHexapodConf.useBigBox=false;
-    myHexapodConf.tarsus=true;
-    myHexapodConf.numTarsusSections = 2;
-    myHexapodConf.useTarsusJoints = true;
+    HexapodConf myHexapodConf        = Hexapod::getDefaultConf();
+    myHexapodConf.coxaPower          = 1.5;
+    myHexapodConf.tebiaPower         = 0.8;
+    myHexapodConf.coxaJointLimitV    = .9; // M_PI/8;  // angle range for vertical dir. of legs
+    myHexapodConf.coxaJointLimitH    = 1.3; //M_PI/4;
+    myHexapodConf.tebiaJointLimit    = 1.8; // M_PI/4; // +- 45 degree
+    myHexapodConf.percentageBodyMass = .5;
+    myHexapodConf.useBigBox          = false;
+    myHexapodConf.tarsus             = true;
+    myHexapodConf.numTarsusSections  = 1;
+    myHexapodConf.useTarsusJoints    = true;
+    //    myHexapodConf.numTarsusSections = 2;
 
     OdeHandle rodeHandle = odeHandle;
     rodeHandle.substance.toRubber(20);
@@ -193,7 +140,7 @@ public:
 			  myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
 
     // on the top
-    vehicle->place(osg::Matrix::rotate(M_PI*1,1,0,0)*osg::Matrix::translate(0,0,1+ 2*ii));
+    vehicle->place(osg::Matrix::rotate(M_PI*1,1,0,0)*osg::Matrix::translate(0,0,1.5+ 2*ii));
     // normal position
     //    vehicle->place(osg::Matrix::translate(0,0,0));
 
@@ -215,7 +162,7 @@ public:
     soml->setParam("epsC",0.105);
     soml->setParam("epsA",0.05);
 
-     Sox* sox = new Sox(1.2, false);
+    Sox* sox = new Sox(1.2, false);
     sox->setParam("epsC",0.105);
     sox->setParam("epsA",0.05);
     sox->setParam("Logarithmic",1);
@@ -253,11 +200,12 @@ public:
 
     semox->setParam("gamma_teach", teacher);
 
+
     if(useSineController){
       controller = sine;
     }else{
       //      controller = semox;
-     controller = sox;
+      controller = sox;
      //  controller = soml;
       // controller = derinf; 
     }
@@ -270,7 +218,7 @@ public:
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     // add an operator to keep robot from falling over
-    agent->addOperator(new LimitOrientationOperator(Axis(0,0,1), Axis(0,0,1), M_PI*0.5, 10));
+    agent->addOperator(new LimitOrientationOperator(Axis(0,0,1), Axis(0,0,1), M_PI*0.5, 30));
     if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, ""));
     global.agents.push_back(agent);
     global.configs.push_back(agent);

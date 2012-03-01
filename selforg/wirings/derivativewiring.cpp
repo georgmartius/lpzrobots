@@ -154,6 +154,12 @@ bool DerivativeWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumb
   return true;
 }
 
+void DerivativeWiring::reset(){
+  for(int i=0 ; i<buffersize; i++){
+    if(sensorbuffer[i]) memset(sensorbuffer[i],0,sizeof(sensor) * this->rsensornumber);
+  }
+}
+
 
 /// Realizes wiring from controller motor outputs to robot motors. 
 //   @param rmotors pointer to array of motorvalues for robot 

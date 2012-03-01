@@ -300,6 +300,10 @@ namespace lpzrobots {
     {
       manageAgents(1);
     }
+    if (camHandle.doManipulation != camHandle.No){
+      return;
+    }
+
     // the call from simulation.cpp works, but is made for ALL cameramanipulators!
     // which is now neccessary for the smoothness for the mouse interactions
 
@@ -329,7 +333,7 @@ namespace lpzrobots {
 	      camHandle.eye[i]= lengthSmoothness * updateFactor * camHandle.desiredEye[i]
 	  + (1.0 - lengthSmoothness * updateFactor) * camHandle.eye[i];
 
-      // if out of bounds then just go the to disired position
+      // if out of bounds then just go the to desired position
       if(fabs(camHandle.eye[i])+fabs(camHandle.view[i])>20000) {
         camHandle.eye[i]=camHandle.desiredEye[i];
         camHandle.view[i]=camHandle.desiredView[i];
@@ -337,8 +341,7 @@ namespace lpzrobots {
     }
 
     // now set the current robots-position
-    if (this->isWatchingAgentDefined())
-    {
+    if(this->isWatchingAgentDefined()){
       camHandle.oldPositionOfAgent = camHandle.watchingAgent->getRobot()->getPosition();
       camHandle.oldPositionOfAgentDefined=true;
     }

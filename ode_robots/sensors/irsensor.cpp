@@ -128,14 +128,12 @@ namespace lpzrobots {
   }; 
 
   void IRSensor::reset(){
-    value = 0;
-    lastvalue=-1;
-    len   = range;
+    setLength(range);
   }  
   
   void IRSensor::setLength(float len){
     this->len = len;
-    value = characteritic(len);
+    value     = characteritic(len);
     ray->setLength(len);
     // printf("len= %f, value: %f, \n",len, value);
   }
@@ -149,13 +147,18 @@ namespace lpzrobots {
   }
 
   void IRSensor::update(){  
-    if(value!=lastvalue)
+    if(value!=lastvalue){
       ray->setColor(Color(value*1.5, 0.0, 0.0));
+      if(sensorBody) {    
+        sensorBody->setColor(Color(value*2.0, 0.0, 0.0));
+      }
+      lastvalue=value;
+    }
     ray->update();
   
     if(sensorBody) {    
-      sensorBody->setMatrix(osg::Matrix::translate(0,0,0.005) * ray->getPose() * transform->getPose());
-      sensorBody->setColor(Color(value*2.0, 0.0, 0.0));
+      sensorBody->setMatrix(osg::Matrix::translate(0,0,0.005) * 
+                            ray->getPose() * transform->getPose());
     }
 
   }

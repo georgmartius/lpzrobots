@@ -19,112 +19,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.5  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.4  2010/03/16 19:00:40  martius
- *   axisshift -> axesShift
- *
- *   Revision 1.3  2009/12/08 13:54:28  der
- *   guettler: default axisShift=0
- *
- *   Revision 1.2  2009/12/08 13:52:43  der
- *   new parameter axisShift is used
- *
- *   Revision 1.1  2009/12/01 15:57:31  martius
- *   barrel simulation
- *
- *   Revision 1.1  2008/09/12 15:15:09  martius
- *   simulation
- *
- *   Revision 1.24  2008/05/01 22:03:56  martius
- *   build system expanded to allow system wide installation
- *   that implies  <ode_robots/> for headers in simulations
- *
- *   Revision 1.23  2008/04/22 15:22:56  martius
- *   removed test lib and inc paths from makefiles
- *
- *   Revision 1.22  2007/09/06 18:50:10  martius
- *   *** empty log message ***
- *
- *   Revision 1.21  2007/08/24 12:00:46  martius
- *   cleaned up a bit
- *
- *   Revision 1.20  2007/07/31 08:33:55  martius
- *   modified reinforment for one-axis-rolling
- *
- *   Revision 1.19  2007/07/03 13:06:18  martius
- *   *** empty log message ***
- *
- *   Revision 1.18  2007/05/22 08:31:46  martius
- *   *** empty log message ***
- *
- *   Revision 1.17  2007/04/20 12:31:55  martius
- *   fixed controller test
- *
- *   Revision 1.16  2007/04/05 15:12:56  martius
- *   structured
- *
- *   Revision 1.15  2007/04/03 16:26:47  der
- *   labyrint
- *
- *   Revision 1.14  2007/03/26 13:15:51  martius
- *   new makefile with readline support
- *
- *   Revision 1.13  2007/02/23 19:36:42  martius
- *   useSD
- *
- *   Revision 1.12  2007/02/23 15:14:17  martius
- *   *** empty log message ***
- *
- *   Revision 1.11  2007/01/26 12:07:08  martius
- *   orientationsensor added
- *
- *   Revision 1.10  2006/12/21 11:43:05  martius
- *   commenting style for doxygen //< -> ///<
- *   new sensors for spherical robots
- *
- *   Revision 1.9  2006/12/01 16:19:05  martius
- *   barrel in use
- *
- *   Revision 1.8  2006/11/29 09:16:09  martius
- *   modell stuff
- *
- *   Revision 1.7  2006/07/14 12:23:52  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.6.4.6  2006/05/15 13:11:29  robot3
- *   -handling of starting guilogger moved to simulation.cpp
- *    (is in internal simulation routine now)
- *   -CTRL-F now toggles logging to the file (controller stuff) on/off
- *   -CTRL-G now restarts the GuiLogger
- *
- *   Revision 1.6.4.5  2006/05/15 12:29:43  robot3
- *   handling of starting the guilogger moved to simulation.cpp
- *   (is in internal simulation routine now)
- *
- *   Revision 1.6.4.4  2006/03/29 15:10:22  martius
- *   *** empty log message ***
- *
- *   Revision 1.6.4.3  2006/02/17 16:47:55  martius
- *   moved to new system
- *
- *   Revision 1.15.4.3  2006/01/12 15:17:39  martius
- *   *** empty log message ***
- *
- *   Revision 1.15.4.2  2006/01/10 20:33:50  martius
- *   moved to osg
- *
- *   Revision 1.15.4.1  2005/11/15 12:30:17  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.15  2005/11/09 14:54:46  fhesse
- *   nchannelcontroller used
- *
- *   Revision 1.14  2005/11/09 13:41:25  martius
- *   GPL'ised
  *
  ***************************************************************************/
 
@@ -136,11 +30,12 @@
 #include <ode_robots/passivesphere.h>
 #include <ode_robots/passivebox.h>
 
+//#include <selforg/pimax.h>
+#include <selforg/sox.h>
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorspace.h>
 #include <selforg/sinecontroller.h>
-#include <selforg/universalcontroller.h>
 #include <selforg/ffnncontroller.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/one2onewiring.h>
@@ -164,6 +59,8 @@ public:
   int useReinforcement;
   Sensor* sensor;
 
+  double friction;
+
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
   {
@@ -171,8 +68,9 @@ public:
     int num_barrels_test=0;
 
     sensor=0;
+    setCameraMode(Follow);
 
-    bool normalplayground=true;
+    bool normalplayground=false;
 
     //    setCameraHomePos(Pos(-0.497163, 11.6358, 3.67419),  Pos(-179.213, -11.6718, 0));
     setCameraHomePos(Pos(-2.60384, 13.1299, 2.64348),  Pos(-179.063, -9.7594, 0));
@@ -182,13 +80,16 @@ public:
     global.odeConfig.setParam("controlinterval",4);
     global.odeConfig.setParam("realtimefactor",5);
 
+    // add a new parameter to be configured on the console
+    global.odeConfig.addParameterDef("friction", &friction, 0.1, "rolling friction coefficient");
+
+
     if(normalplayground){
       Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(20, 0.01, 0.01 ), 1);
       playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
       playground->setGroundTexture("Images/really_white.rgb");    
       playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
       playground->setPosition(osg::Vec3(0,0,0.05));
-      playground->setTexture("");
       global.obstacles.push_back(playground);
     }
 
@@ -196,34 +97,41 @@ public:
     /* * * * BARRELS * * * */
     for(int i=0; i< num_barrels; i++){
       //****************
-      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.15; 
-      conf.motorpowerfactor  = 150; 
+      Sphererobot3MassesConf conf = Barrel2Masses::getDefaultConf();  
+      conf.pendularrange  = 0.3;//0.15; 
+      conf.motorpowerfactor  = 200;//150; 
       conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection, Sensor::X | Sensor::Y));
+      conf.spheremass   = 1;
+
       conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
       conf.irAxis1=false;
       conf.irAxis2=false;
       conf.irAxis3=false;
-      conf.spheremass   = 1;
       conf.axesShift = 0;
       // conf.axesShift = conf.diameter/2 - conf.pendularrange/2;
       sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
 				    conf, "Barrel1", 0.4); 
+
       sphere1->place (osg::Matrix::rotate(M_PI/2, 1,0,0)*osg::Matrix::translate(0,0,0.2));
 
-      InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-      cc.cInit=1;
-      //    cc.useSD=true;
-      controller = new InvertMotorNStep(cc);    
+      // InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+      // cc.cInit=1;
+      // //    cc.useSD=true;
+      // controller = new InvertMotorNStep(cc);    
 
-      controller->setParam("steps", 2);    
-      controller->setParam("adaptrate", 0.0);    
-      controller->setParam("nomupdate", 0.00);    
-      controller->setParam("epsC", 0.03);    
-      controller->setParam("epsA", 0.05);    
-      controller->setParam("rootE", 0);    
-      controller->setParam("logaE", 0);    
+      // controller->setParam("steps", 2);    
+      // controller->setParam("adaptrate", 0.0);    
+      // controller->setParam("nomupdate", 0.00);    
+      // controller->setParam("epsC", 0.03);    
+      // controller->setParam("epsA", 0.05);    
+      // controller->setParam("rootE", 0);    
+      // controller->setParam("logaE", 0);    
+      //controller = new PiMax();
+      //controller->setParam("epsC", 0.001);    
+
+      controller = new Sox();
+      controller->setParam("epsC", 0.5);    
 
       AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
       //      OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
@@ -267,11 +175,17 @@ public:
     }
 
 
-      
-    
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+    if(!pause){
+      if(friction>0){
+        OdeRobot* robot = globalData.agents[0]->getRobot();
+        Pos vel = robot->getMainPrimitive()->getAngularVel();
+        robot->getMainPrimitive()->applyTorque(-vel*friction);
+      }
+    }  
   }
   
   // add own key handling stuff here, just insert some case values

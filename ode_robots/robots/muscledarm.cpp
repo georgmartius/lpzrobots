@@ -333,7 +333,7 @@ namespace lpzrobots{
 				(-(base_width/2+upperArm_length+lowerArm_width/2+2*joint_offset), 
 				 lowerArm_length/4 + lowerArm_length/2,0) * pose);
     joint[FJ_lAH] = new FixedJoint(object[lowerArm], object[hand]);
-    joint[FJ_lAH]->init(odeHandle, osgHandle);
+    joint[FJ_lAH]->init(odeHandle, osgHandle, false);
 
 
     osg::Vec3 pos;      

@@ -86,6 +86,8 @@ public:
     return c;
   };
 
+  virtual void reset();
+
 protected:
 
   virtual bool initIntern();

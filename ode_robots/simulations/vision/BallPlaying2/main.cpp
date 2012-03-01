@@ -33,7 +33,7 @@
 #include <selforg/selectivenoisewiring.h>
 #include <selforg/semox.h>
 
-#include "semoxignorenull.h"
+#include "soxignorenull.h"
 
 // include simulation environment stuff
 #include <ode_robots/simulation.h>
@@ -292,9 +292,14 @@ public:
       camcfg.processors.push_back(new ColorFilterImgProc(true, .5, 
                                   HSVImgProc::Yellow-10, HSVImgProc::Yellow+10,100));
       Camera* cam = new Camera(camcfg);
-      CameraSensor* camSensor = new MotionCameraSensor(2, MotionCameraSensor::Position | 
-                                                       MotionCameraSensor::Size | 
-                                                       MotionCameraSensor::SizeChange);
+      MotionCameraSensorConf mc = MotionCameraSensor::getDefaultConf();
+      mc.values = MotionCameraSensor::Position | 
+        MotionCameraSensor::Size | MotionCameraSensor::SizeChange;
+      mc.avg    = 1;
+      mc.window = false;
+      mc.border = 0.8;
+
+      CameraSensor* camSensor = new MotionCameraSensor(mc);
       addInspectableDescription("x[2]","Vision: Motion");
       addInspectableDescription("x[3]","Vision: Pos");
       addInspectableDescription("x[4]","Vision: Size");
@@ -325,16 +330,18 @@ public:
                        * osg::Matrix::translate(3,-4+2*i,0.3));
 
       
-      SeMoXIgnoreNullConf cc = SeMoXIgnoreNull::getDefaultConf();
-      cc.modelExt = true;
-      SeMoXIgnoreNull *semox = new SeMoXIgnoreNull(cc);
-      controller = semox;
+      SoxIgnoreNullConf cc = SoxIgnoreNull::getDefaultConf();
+      cc.useExtendedModel = false;
+      cc.useTeaching      = true;
+      SoxIgnoreNull *sox = new SoxIgnoreNull(cc);
+      controller = sox;
 //       controller = new SineController();
-      controller->setParam("gamma_teach", teaching);
+      controller->setParam("gamma", teaching);
       //  controller->setParam("rootE",3);
       controller->setParam("epsC",learningrate);
       controller->setParam("epsA",learningrate);
-      controller->setParam("dampController",0.0001);
+      controller->setParam("damping",0.0001);
+      //    controller->setParam("causeaware",0.1);
 
       
       double noise[] = {1,1};      
@@ -342,7 +349,11 @@ public:
                                                         mkVector(noise,2));
       
       //    AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
-      OdeAgent* agent = new OdeAgent( i==0 ? plotoptions : std::list<PlotOption>());
+      OdeAgent* agent;
+      if(i==0)
+        agent = new OdeAgent( global);
+      else 
+        agent = new OdeAgent( global, NoPlot);
       agent->addInspectable(this);
       agent->init(controller, vehicle, wiring);
       global.configs.push_back(controller);
@@ -371,7 +382,7 @@ public:
       controller->setParam("gamma_teach",0.003);
 
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      OdeAgent* agent = new OdeAgent();
+      OdeAgent* agent = new OdeAgent(global);
       agent->init(controller, vehicle, wiring);
       global.agents.push_back(agent);
     }
@@ -381,20 +392,20 @@ public:
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(control){
-      SeMoXIgnoreNull* semox = dynamic_cast<SeMoXIgnoreNull*>(controller);
-      if(semox){
-        matrix::Matrix desired = semox->getLastSensorValues();
-        // // size: \dot size = -(size - 2.0) // set point is 2.0
-        // desired.val(5,0) += - (desired.val(4,0)-sizeSetPoint)* sizefactor;
-        // // position: \dot pos = -(pos) // set point is 0
-        // desired.val(2,0) += - (desired.val(3,0)) * posfactor;
+      SoxIgnoreNull* sox = dynamic_cast<SoxIgnoreNull*>(controller);
+      if(sox){
+        matrix::Matrix desired = sox->getLastSensorValues();
         if(desired.val(4,0)==0){
           // no teaching if no input        
         }else{
-          desired.val(5,0) = sizeSetPoint;
-          desired.val(3,0) = 0;
+          // size: \dot size = -(size - 2.0) // set point is 2.0
+          desired.val(5,0) += - (desired.val(4,0)-sizeSetPoint)* sizefactor;
+          // position: \dot pos = -(pos) // set point is 0
+          desired.val(2,0) += - (desired.val(3,0)) * posfactor;
+          //        desired.val(5,0) = sizeSetPoint;
+          //        desired.val(3,0) = 0;
         }        
-        semox->setSensorTeaching(desired);
+        sox->setSensorTeaching(desired);
       }
     }
 

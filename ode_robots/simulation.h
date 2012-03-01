@@ -218,6 +218,8 @@ namespace lpzrobots {
     paramint windowWidth;
     paramint windowHeight;
 
+    paramint defaultFPS;      // default framerate
+
     bool pause;
     bool simulation_time_reached;
     long int simulation_time;

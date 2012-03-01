@@ -38,7 +38,7 @@ all_intern:
 	@echo "**** Done, you can go and compile your simulations ****"
 
 .PHONY: conf
-##!conf		reconfigure the installation prefix and type (done automatically at first call
+##!conf		reconfigure the installation prefix and type (done automatically at first call)
 conf: usage
 	-mv Makefile.conf Makefile.conf.bak
 # automatically creates Makefile.conf since it is included 
@@ -221,10 +221,10 @@ confsubmodule:
 	    echo "call: $$CMD"; \
 	    if ! $$CMD; then  exit 1; fi; \
             for Folder in $(MODULE)/simulations $(MODULE)/examples; do \
-		CMD="m4 -D $$System -D $(TYPE) $$Folder/Makefile.4sim.m4"; \
-	    	echo "call: $$CMD"; \
-	    	if $$CMD > "$$Folder/Makefile.4sim"; then \
-		echo -n "genenete Makefiles in: ";\
+	        CMD="m4 -D $$System -D $(TYPE) $$Folder/Makefile.4sim.m4"; \
+	        echo "call: $$CMD"; \
+	        if $$CMD > "$$Folder/Makefile.4sim"; then \
+	        echo -n "genenete Makefiles in: ";\
 		for F in `find "$$Folder" -mindepth 2 -name Makefile.conf`; do \
 		   echo -n "$$F "; \
 		   cp "$$Folder/Makefile.4sim" "$${F%.conf}"; done; \
@@ -266,20 +266,20 @@ uninstall_intern:
 	cd selforg/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
 	@echo "*************** Uninstall ode_robots ******************"
 	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
+	@echo "*************** Uninstall ga_tools ******************"
+	cd ga_tools/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
 	-rm -f $(PREFIX)/bin/guilogger
 	-rm -f $(PREFIX)/lib/libconfigurator.*
+	-rm -f $(PREFIX)/bin/configurator-config
 	-rm -fr $(PREFIX)/include/configurator
 	-rm -f $(PREFIX)/bin/matrixviz
 	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX) uninstall
 	-rm -f $(PREFIX)/lib/soundMan/SoundMan*.class
 	-rm -f $(PREFIX)/bin/soundMan
 ifeq ($(TYPE),user)
-	-rm -f $(PREFIX)/lib/libga_tools.a 
-# $(PREFIX)lib/libga_tools_opt.a
-	-rm -rf $(PREFIX)/include/ga_tools
 	-rm -rf $(PREFIX)/share/lpzrobots
 endif
-
+	$(MAKE) uninstall_ode
 
 
 Makefile.conf:	

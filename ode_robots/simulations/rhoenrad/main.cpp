@@ -32,8 +32,8 @@
 #include "sox.h"
 
 #include <selforg/motorbabbler.h>
-#include <selforg/derlininvert.h>
-#include <selforg/dercontroller.h>
+//#include <selforg/derlininvert.h>
+//#include <selforg/dercontroller.h>
 
 // used wiring
 #include <selforg/one2onewiring.h>
@@ -172,7 +172,7 @@ public:
      // c.useFirstD = false;
      // DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(.2) );            
 
-     OdeAgent* agent = new OdeAgent(i==0 ? plotoptions : list<PlotOption>());
+     OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, human, wiring);
      //agent->startMotorBabblingMode(5000);
      //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps

@@ -906,7 +906,7 @@ GUIDE adding new sensors
       GripperConf gc=Gripper::getDefaultConf();
       gc.gripDuration=conf.gripDuration;
       gc.releaseDuration=conf.releaseDuration;
-      gc.color=osgHandle.getColor("joint");
+      gc.color=osgHandle.getColor("Inforot");
       gc.size=0.18; //0.19 //0.15
       gc.drawAtContactPoint=false; //true
       gc.forbitLastPrimitive=true;      

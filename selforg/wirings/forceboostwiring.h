@@ -47,6 +47,7 @@ public:
    */
   virtual ~ForceBoostWiring();
 
+  virtual void reset(); 
 protected:
 
   /** initializes the number of sensors and motors on robot side, calculate

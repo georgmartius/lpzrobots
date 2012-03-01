@@ -28,7 +28,7 @@ robot3          Gelbgruen           0
 robot4          Vanille             0
 joint           Zartgrau            0
 # Robot Set 1
-robot1          Capriblau           1
+robot1          Ledersofablau       1
 robot2          Narzissengelb       1
 robot3          Milchblau           1
 robot4          Vanille             1

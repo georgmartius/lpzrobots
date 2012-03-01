@@ -347,10 +347,10 @@ public:
       // get rid of the image processing
       delete twc.camcfg.processors.back();
       twc.camcfg.processors.pop_back();
-            
-      twc.camSensor     = new MotionCameraSensor(2, MotionCameraSensor::Position | 
-                                                       MotionCameraSensor::Size | 
-                                                       MotionCameraSensor::SizeChange);
+      MotionCameraSensorConf mc = MotionCameraSensor::getDefaultConf();
+      mc.values = MotionCameraSensor::Position | 
+        MotionCameraSensor::Size | MotionCameraSensor::SizeChange;            
+      twc.camSensor     = new MotionCameraSensor(mc);
       /// TWOWHEELED
       OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, 
                                          "CamRobotTwo_" + itos(i));
@@ -394,9 +394,9 @@ public:
       camcfg.processors.push_back(new ColorFilterImgProc(true, .5, 
                                   HSVImgProc::Yellow-10, HSVImgProc::Yellow+10,100));
       Camera* cam = new Camera(camcfg);
-      CameraSensor* camSensor = new MotionCameraSensor(2, MotionCameraSensor::Position | 
-                                                       MotionCameraSensor::Size | 
-                                                       MotionCameraSensor::SizeChange);
+      mc.values = MotionCameraSensor::Position | 
+        MotionCameraSensor::Size | MotionCameraSensor::SizeChange;            
+      CameraSensor* camSensor = new MotionCameraSensor(mc);
       camSensor->setInitData(cam, odeHandle, osgHandle, osg::Matrix::rotate(-M_PI/2,0,0,1)
 			     * osg::Matrix::translate(0.2,0, 0.40) );
       std::list<Sensor*> sensors;

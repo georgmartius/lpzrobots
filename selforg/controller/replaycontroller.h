@@ -32,7 +32,7 @@
 class ReplayController : public AbstractController {
 public:
   ReplayController(const char* filename, bool repeat=false)
-    : AbstractController("ReplayController", "$Id$"), 
+    : AbstractController("ReplayController", "1.0"), 
       filename(filename), repeat(repeat) {
     
     f=fopen(filename,"r");

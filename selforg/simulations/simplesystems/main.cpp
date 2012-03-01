@@ -24,7 +24,7 @@ using namespace std;
 
 bool stop=0;
 double noise=.1;
-double realtimefactor=1;
+double realtimefactor=10;
 
 enum Mode {NORMAL, SWING, EXTRASINE};
 
@@ -226,6 +226,22 @@ int contains(char **list, int len,  const char *str){
   return 0;
 }
 
+void initSO2(AbstractController* controller, double rot, double factor){
+  double phi=rot*M_PI/180;
+  matrix::Matrix M(2,2);
+  M.val(0,0) = cos(phi)*factor;
+  M.val(0,1) = sin(phi)*factor;
+  M.val(1,0) = -sin(phi)*factor;
+  M.val(1,1) = cos(phi)*factor;
+  matrix::Matrix h(2,1);
+  if(dynamic_cast<Sox*>(controller)){
+    dynamic_cast<Sox*>(controller)->setC(M);
+    dynamic_cast<Sox*>(controller)->seth(h);
+  }      
+}
+
+
+
 int main(int argc, char** argv){
   list<PlotOption> plotoptions;
   Mode mode  = NORMAL;
@@ -294,24 +310,30 @@ int main(int argc, char** argv){
 //   controller->setParam("epsDyn",     0);
 
 
-//  AbstractController* controller = new InvertMotorSpace(10,1.2);
-
-//  AbstractController* controller = new InvertNChannelController(10,false);
-
 //   AbstractController* controller = new SineController();
+<<<<<<< HEAD
     
   AbstractController* controller = new Sox(0.95);
   
   //AbstractController* controller = new MotorBabbler();
+=======
+>>>>>>> b65e213a4ae8365a0eb3324c4f8c7b60137282b7
 
+  AbstractController* controller = new Sox();
 
-  controller->setParam("epsC",     0.1);
+  // AbstractController* controller = new MotorBabbler();
+
+  // PiMaxConf pc = PiMax::getDefaultConf();
+  // pc.onlyMainParameters=false;
+  // AbstractController* controller = new PiMax(pc);
+  // controller->setParam("epsC",     0.001);
+  // controller->setParam("epsSigma", 0.001);
   
   robot         = new MyRobot(string("Robot_") + string(modestr), mode, dim);
   agent         = new Agent(plotoptions);
   AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.2), 
-					     AbstractWiring::Controller | AbstractWiring::Noise);  
-  // AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise(),true);  
+  					     AbstractWiring::Controller | AbstractWiring::Noise);  
+  //  AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());  
   agent->init(controller, robot, wiring);
   // if you like, you can keep track of the robot with the following line. 
   //  this assumes that you robot returns its position, speed and orientation. 
@@ -320,6 +342,8 @@ int main(int argc, char** argv){
   globaldata.agents.push_back(agent);
   globaldata.configs.push_back(robot);
   globaldata.configs.push_back(controller);
+
+  // if(dim==2) initSO2(controller, 30, 1.2);
  
   
   showParams(globaldata.configs);
