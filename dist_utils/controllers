@@ -4,6 +4,7 @@ abstractiafcontroller.cpp
 abstractiafcontroller.h
 abstractmodel.h
 abstractmulticontroller.h
+abstractmulticontroller.cpp
 braitenberg.h
 classicreinforce.cpp
 classicreinforce.h
