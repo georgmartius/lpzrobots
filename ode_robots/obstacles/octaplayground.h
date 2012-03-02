@@ -50,7 +50,7 @@ namespace lpzrobots {
 
     number_elements=numberCorners;
     angle= 2*M_PI/number_elements;    
-    obst.resize(number_elements);
+    //    obst.resize(number_elements);
 
     calcBoxLength();
   };

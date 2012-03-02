@@ -188,7 +188,7 @@ namespace lpzrobots {
     
   void RobotCameraManager::getUsage (osg::ApplicationUsage& au) const {
     au.addKeyboardMouseBinding("Overlay: Ctrl-o","Robot camera overlay on/off");
-    au.addKeyboardMouseBinding("Overlay: Ctrl-+/-","Increase/decrease overlay deisplay");
+    au.addKeyboardMouseBinding("Overlay: ()","Decrease/increase overlay display");
   }
 
 

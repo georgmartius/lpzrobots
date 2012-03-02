@@ -39,7 +39,8 @@ namespace lpzrobots {
     double speed;
     bool sphereWheels;
     bool useBumper;
-    bool twoWheelMode; /// < if true then the robot emulates 2 wheels
+    bool useButton; ///< use yellow Button at the back
+    bool twoWheelMode; ///< if true then the robot emulates 2 wheels
     bool irFront;
     bool irBack;
     bool irSide;
@@ -72,6 +73,7 @@ namespace lpzrobots {
       conf.sphereWheels = true;
       conf.twoWheelMode = false;
       conf.useBumper    = true;
+      conf.useButton    = false;
       conf.irFront      = false;
       conf.irBack       = false;
       conf.irSide       = false;

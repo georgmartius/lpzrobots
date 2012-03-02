@@ -46,6 +46,20 @@ namespace lpzrobots {
     if(camera) delete camera;
   }  
 
+  /// changes the relative pose of the camera
+  void CameraSensor::setPose(const osg::Matrix& pose){
+    if(camera)
+      camera->setPose(pose);
+  }
+  
+  /// returns the relative pose of the camera
+  osg::Matrix CameraSensor::getPose(){
+    if(camera)
+      return camera->getPose();
+    else
+      return osg::Matrix();
+  }
+  
   std::list<sensor> CameraSensor::CameraSensor::get() const {
     int num = getSensorNumber();
     sensor* s = new sensor[num];

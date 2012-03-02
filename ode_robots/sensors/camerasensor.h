@@ -57,6 +57,12 @@ namespace lpzrobots {
     virtual void setInitData(Camera* camera, const OdeHandle& odeHandle, 
                              const OsgHandle& osgHandle, const osg::Matrix& pose);
 
+    /// changes the relative pose of the camera
+    virtual void setPose(const osg::Matrix& pose);
+
+    /// relative pose of the camera
+    virtual osg::Matrix getPose();
+
     /// this function initialized the camera (no need to overload) (Sensor interface)
     virtual void init(Primitive* own);
 

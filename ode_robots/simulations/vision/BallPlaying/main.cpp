@@ -476,16 +476,18 @@ public:
     
   }
 
-  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
+  virtual void addCallback(GlobalData& global, bool draw, bool pause, bool control) {
     if(control){
-      SeMoXHebMod* semox = dynamic_cast<SeMoXHebMod*>(controller);
-      if(semox){
-        matrix::Matrix desired = semox->getLastSensorValues();
-        // size: \dot size = -(size - 2.0) // set point is 2.0
-        desired.val(5,0) += - (desired.val(4,0)-sizeSetPoint)* sizefactor;
-        // position: \dot pos = -(pos) // set point is 0
-        desired.val(2,0) += - (desired.val(3,0)) * posfactor;
-        semox->setSensorTeaching(desired);
+      FOREACH(OdeAgentList, global.agents, a){        
+        SeMoXHebMod* semox = dynamic_cast<SeMoXHebMod*>((*a)->getController());
+        if(semox){
+          matrix::Matrix desired = semox->getLastSensorValues();
+          // size: \dot size = -(size - 2.0) // set point is 2.0
+          desired.val(5,0) += - (desired.val(4,0)-sizeSetPoint)* sizefactor;
+          // position: \dot pos = -(pos) // set point is 0
+          desired.val(2,0) += - (desired.val(3,0)) * posfactor;
+          semox->setSensorTeaching(desired);
+        }
       }
     }
 

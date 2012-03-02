@@ -123,6 +123,12 @@ namespace lpzrobots {
 		      const OsgHandle& osgHandle, 
 		      Primitive* body, 
 		      const osg::Matrix& pose);
+
+    /// changes the relative pose of the camera
+    virtual void setPose(const osg::Matrix& pose);
+
+    /// relative pose of the camera
+    virtual osg::Matrix getPose();
   
     // virtual bool sense(const GlobalData& globaldata);
 

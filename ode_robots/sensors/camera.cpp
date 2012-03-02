@@ -132,6 +132,16 @@ namespace lpzrobots {
 //     return ccd->data();    
 //   };  
 
+  /// changes the relative pose of the camera
+  void Camera::setPose(const osg::Matrix& pose){
+    this->pose=pose;
+  }
+
+  /// returns the relative pose of the camera
+  osg::Matrix Camera::getPose(){
+    return this->pose;
+  }
+
   void Camera::update(){  
     osg::Matrix p = pose * body->getPose();
     if(sensorBody1) {          

@@ -77,6 +77,10 @@ namespace lpzrobots {
     virtual int getMotorNumber();
     virtual void setMotors(const motor* motors_, int motornumber);
 
+    virtual std::list<Sensor*> getAttachedSensors(){
+      return sensors;
+    }
+    
     void sense(GlobalData& globalData);
     void doInternalStuff(GlobalData& globalData);
 

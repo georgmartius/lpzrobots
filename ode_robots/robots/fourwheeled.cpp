@@ -106,7 +106,7 @@ namespace lpzrobots {
 
   void FourWheeled::update(){
     Nimm4::update();
-    if(conf.useBumper)
+    if(conf.useBumper || conf.useButton)
       bumpertrans->update();
     // update sensorbank with infrared sensors
     irSensorBank.update();
@@ -131,6 +131,12 @@ namespace lpzrobots {
                                   Matrix::translate(width*0.6-radius, 0, 0));
       bumpertrans->init(odeHandle, 0, osgHandle);      
       
+    }else if(conf.useButton){
+      bumper = new Box(width*0.6 , width*0.7, 0.1);
+      bumper->setTexture("Images/wood.rgb");
+      bumpertrans = new Transform(objects[0], bumper,				
+                                  Matrix::translate(0,0, -length*0.9));
+      bumpertrans->init(odeHandle, 0, osgHandle.changeColor(1,1,0));      
     }
 
     
