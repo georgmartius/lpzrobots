@@ -14,7 +14,7 @@
 # make sure that you create the directories on the webserver and change the "current" links
 #  if the major version changes
 MAJOR=0.7
-VERSION=$(MAJOR).0.2
+VERSION=$(MAJOR).0.4
 
 ODEVERSION=0.11.3
 

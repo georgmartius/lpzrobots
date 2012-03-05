@@ -13,3 +13,9 @@ export DEB_BUILD_OPTIONS=nocheck
 
 %:
 	dh  $@
+
+override_dh_auto_configure:
+	qmake -Wall
+
+override_dh_auto_test:
+

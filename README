@@ -95,7 +95,7 @@ You can do it step by step as follows:
 Download all files from http://robot.informatik.uni-leipzig.de/software/packages/deb/current/ \n
 Then do
 \verbatim
-# here you need (should not) be root
+# here you should not be root
  dpkg-source -x guilogger-0.*.dsc
  cd guilogger-0.* 
  dpkg-buildpackage -rfakeroot -b -uc
