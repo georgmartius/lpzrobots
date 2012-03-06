@@ -296,7 +296,7 @@ public:
       //      conf.spheremass   = 1;
       // conf.irRing=true;
       // conf.irSide=true;
-      conf.drawIRs=false;
+      conf.drawIRs=RaySensor::drawSensor;
       OdeHandle h1 = odeHandle;
       h1.substance.toFoam(10);
 	

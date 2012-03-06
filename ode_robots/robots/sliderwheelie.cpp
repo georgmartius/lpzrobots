@@ -145,6 +145,9 @@ namespace lpzrobots {
       if(n%2==0 && conf.sliderLength > 0){ // slider segment
 	
 	Primitive* p1 = new Box(conf.segmDia/2, conf.segmDia*4*2, conf.segmLength/2);
+        if(!conf.texture.empty()){
+          p1->setTexture(conf.texture);
+        }
 	// p1->setTexture("Images/wood.rgb");
 	p1->init(odeHandle, conf.segmMass/2 , osgHandle);
 	p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
@@ -153,6 +156,9 @@ namespace lpzrobots {
 	objects.push_back(p1);
 
 	Primitive* p2 = new Box(conf.segmDia/2, conf.segmDia*4*2, conf.segmLength/2);
+        if(!conf.texture.empty()){
+          p2->setTexture(conf.texture);
+        }
 	// p2->setTexture("Images/dusty.rgb");
 	p2->init(odeHandle, conf.segmMass/2 , osgHandle);
 	p2->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
@@ -179,7 +185,9 @@ namespace lpzrobots {
 				/* conf.segmDia*4*( (n+1)%4 ==0 ? 3 : (n%2 ==0 ? 2 : 1)), */
 				conf.segmDia*8,
 				conf.segmLength-conf.segmDia/2);
-	// p1->setTexture("Images/whitemetal_farbig_small.rgb");
+        if(!conf.texture.empty()){
+          p1->setTexture(conf.texture);
+        }
 	p1->init(odeHandle, conf.segmMass * ( (n+1)%4 ==0 ? 1.0 : 1), osgHandle);
 	p1->setPose(osg::Matrix::rotate(M_PI*0.5, 0, 1, 0) *
 		    osg::Matrix::translate(0,0,-0.5*conf.segmLength*conf.segmNumber/M_PI) * m );	
@@ -202,7 +210,7 @@ namespace lpzrobots {
 				     Axis(0,1,0)*pose);
       Color c;
       if(n==0) c = Color(0.85,0.88,0.88);
-      else if(n == conf.segmNumber/2) c = Color(0.6,0.56,0); 
+      //      else if(n == conf.segmNumber/2) c = Color(0.6,0.56,0); 
       else c = osgHandle.color;
       j->init(odeHandle, osgHandle.changeColor(c), true, conf.segmDia*4);      
       joints.push_back(j);

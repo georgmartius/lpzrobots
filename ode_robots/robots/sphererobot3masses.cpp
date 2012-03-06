@@ -264,7 +264,7 @@ namespace lpzrobots {
     objects[Pendular3] = pendular[2]; 
 
     double sensorrange = conf.irsensorscale * conf.diameter;
-    RaySensor::rayDrawMode drawMode = conf.drawIRs ? RaySensor::drawAll : RaySensor::drawSensor;
+    RaySensor::rayDrawMode drawMode = conf.drawIRs;
     double sensors_inside=0.02;
     if(conf.irSensorTempl==0){
       conf.irSensorTempl=new IRSensor(conf.irCharacter);

@@ -89,7 +89,7 @@ public:
     c.irAxis1=false;
     c.irAxis2=false;
     c.irAxis3=false;
-    c.drawIRs=true;
+    c.drawIRs=RaySensor::drawAll;
     c.irsensorscale=1.5;
     c.irCharacter=1;  
     return c;

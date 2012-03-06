@@ -49,7 +49,7 @@ public:
   bool irAxis3;
   bool irRing;            ///< IR sensors in a ring in x,z plane (collides with irAxis1 and irAxis3)
   bool irSide;            ///< 4 IR senors to both side in y direction (collides with irAxis2)
-  bool drawIRs;
+  RaySensor::rayDrawMode drawIRs;
   double irsensorscale; ///< range of the ir sensors in units of diameter
   double irCharacter;   ///< characteristics of sensor (\f[ x^c \f] where x is the range-distance)
   RaySensor* irSensorTempl;  ///< template for creation of the other ir sensors (if 0 then IRSensor(irCharacter))
@@ -122,7 +122,7 @@ public:
     c.irAxis3=false;
     c.irRing=false;
     c.irSide=false;
-    c.drawIRs=true;
+    c.drawIRs=RaySensor::drawAll;
     c.irsensorscale=1.5;
     c.irCharacter=1;  
     c.irSensorTempl=0;

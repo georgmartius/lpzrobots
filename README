@@ -80,15 +80,14 @@ There is an install makefile located here:
 http://robot.informatik.uni-leipzig.de/software/packages/deb/install_deb_source.makefile .
 Save it on you disk in an empty directory and run on the console
 \verbatim
+su -c apt-get install make
 make -f install_deb_source.makefile
 \endverbatim
-(if you don't have gnu make installed call "su -c apt-get install make")
 That will download the newest packages, compile them and install it.
 If something fails you can also redo parts of the process, see "make -f install_deb_source.makefile help".
 
 The packages are: guilogger, matrixviz, ode-dbl, lpzrobots-selforg, and lpzrobots-oderobots
 You can uninstall them later using the package manager (apt-get or synaptics)
-
 
 \subsubsection Alternatively: Creating your own packages
 You can do it step by step as follows:

@@ -32,12 +32,12 @@
 using namespace matrix;
 
 /// constructor
-ForceBoostWiring::ForceBoostWiring(NoiseGenerator* noise, double boost, int plotMode, 
-                                   const std::string& name)
+ForceBoostWiring::ForceBoostWiring(NoiseGenerator* noise, double boost, bool exportBoostError, int plotMode, const std::string& name)
   : AbstractWiring(noise, plotMode, name), Configurable(name,"1.1"), boost(boost){
 
   addParameter("booster",&this->boost, 0, 1, "force boosting rate");
-  addInspectableMatrix("errorForce",&error,false,"ForceBoosting error");
+  if(exportBoostError)
+    addInspectableMatrix("errorForce",&error,false,"ForceBoosting error");
 }
 
 ForceBoostWiring::~ForceBoostWiring(){

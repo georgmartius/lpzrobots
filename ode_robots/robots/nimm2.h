@@ -66,8 +66,8 @@ typedef struct {
     2 wheels and a cylinder like body
 
     wheel order: left, right
-    IR order: front left, front right, right front, right rear, 
-              rear right, rear left, left rear, left front
+    IR order: front left, front right, right, right rear, 
+              rear right, rear left, left rear, left
 */
 class Nimm2 : public OdeRobot /*, public Inspectable*/ {
 public:

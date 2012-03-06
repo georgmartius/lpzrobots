@@ -145,7 +145,7 @@ namespace lpzrobots {
       // nimm2conf.boxWidth = 1.5;
       nimm2conf.massFactor  = conf.massFactor;
       nimm2conf.wheelSlip   = conf.wheelSlip;
-      nimm2conf.irRange     = 2*conf.size;
+      nimm2conf.irRange     = 3*conf.size;
       if(conf.useIR && j==0){
         nimm2conf.irFront = true;
       }

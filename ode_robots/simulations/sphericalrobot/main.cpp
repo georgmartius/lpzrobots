@@ -396,7 +396,6 @@ public:
       //      conf.spheremass   = 1;
       // conf.irRing=true;
       // conf.irSide=true;
-      //       conf.drawIRs=false;
       //      sphere1 = new Sphererobot3Masses ( sphereOdeHandle, 
       sphere1 = new MySphere ( sphereOdeHandle, 
                                          //					 osgHandle.changeColor(Color(2,0.0,0.0)), 

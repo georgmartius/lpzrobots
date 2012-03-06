@@ -56,6 +56,8 @@ namespace lpzrobots {
     double sliderLength;  ///< length of the slider in segmLength (0 for no sliders)
     MotorType motorType;  ///< whether to use servos or angular motors
     bool   showCenter;    ///< whether to show the virtual center
+    
+    std::string texture;  ///< texture for segments
   } SliderWheelieConf;
   
 
@@ -101,6 +103,7 @@ namespace lpzrobots {
       conf.sliderLength    =  1;  
       conf.motorType       = SliderWheelieConf::CenteredServo; // use centered servos
       conf.showCenter      = false;
+      conf.texture         = "";
       return conf;
     }
 

@@ -119,7 +119,6 @@ public:
     conf.irRing=false;
     conf.irSide=false;
     conf.pendularrange  = .4;
-    conf.drawIRs=true; 
 
 	
 

@@ -39,9 +39,11 @@ public:
       @param noise NoiseGenerator that is used for adding noise to sensor values  
       @param plotMode see AbstractWiring 
       @param boost factor for mismatch integration
+      @param exportBoostError whether to export force boost error to inspectables 
+        (guilogger)
    */
-  ForceBoostWiring(NoiseGenerator* noise, double boost=0, int plotMode=Controller, 
-                   const std::string& name = "ForceBoostWiring");
+  ForceBoostWiring(NoiseGenerator* noise, double boost=0, bool exportBoostError=false, 
+                   int plotMode=Controller, const std::string& name = "ForceBoostWiring");
 
   /** destructor
    */
