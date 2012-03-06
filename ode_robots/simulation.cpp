@@ -52,6 +52,7 @@
 #include <osgShadow/ShadowedScene>
 
 #include "lpzviewer.h"
+#include "lpzhelphandler.h"
 
 #include "primitive.h"
 #include "abstractobstacle.h"
@@ -321,7 +322,8 @@ namespace lpzrobots {
 
       // add the ourself that we can react on keys and mouse
       viewer->addEventHandler(this);
-      viewer->addEventHandler(new osgViewer::HelpHandler(arguments->getApplicationUsage()));
+      //     viewer->addEventHandler(new osgViewer::HelpHandler(arguments->getApplicationUsage()));
+      viewer->addEventHandler(new LpzHelpHandler(arguments->getApplicationUsage()));
       viewer->addEventHandler(new osgViewer::WindowSizeHandler);
       viewer->addEventHandler(osgHandle.scene->robotCamManager); // resizing of video inlets
 
