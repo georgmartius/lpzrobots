@@ -54,7 +54,9 @@ $(P):
 #check for multiple version
 	NEWEST=$(lastword $(wildcard $(P)*.dsc)); \
  dpkg-source -x $$NEWEST
-	cd `find -type d -name "$(P)*"` && dpkg-buildpackage -rfakeroot -b -uc
+# we have to remove some variables because dpgk-buildpackage calls make and then they get confused
+	export -n MAKEFLAGS; export -n MFLAGS;  export -n MAKELEVEL; \
+ cd `find -type d -name "$(P)*"` && dpkg-buildpackage -rfakeroot -b -uc
 #make sure that we are root
 	if [ ! $(USER) = "root" ]; then su -c "dpkg -i *$(P)*.deb"; else dpkg -i $P*.deb;        fi
 
