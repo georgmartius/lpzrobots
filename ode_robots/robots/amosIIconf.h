@@ -250,19 +250,19 @@ public:
     // length of whisker (currently not implemented
     double whiskerLength;
 
-    //Added by Dennis for IR sensor
-    // @todo initialize those values
-    // angle of the x axis
-    double irAngleX;
-    // angle of the y axis
-    double irAngleY;
-    // @todo find out what this is
-    double irParallel;
-
-    // range of the front ultrasonic sensors
+    /**
+     * configure the front ultrasonic sensors
+     */
+    /** angle versus x axis */
+    double usAngleX;
+    /** angle versus y axis */
+    double usAngleY;
+    /** choose between parallel or antiparallel front ultrasonic sensors true
+     *  means parallel */
+    bool usParallel;
+    /** range of the front ultrasonic sensors */
     double usRangeFront;
-
-    // range of the infrared sensors at the legs
+    /** range of the infrared sensors at the legs */
     double irRangeLeg;
 
     // path to texture for trunks and legs

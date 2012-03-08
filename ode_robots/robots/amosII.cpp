@@ -677,7 +677,7 @@ namespace lpzrobots {
         irSensorBank.registerSensor(
                 usSensorFrontRight,
                 front,
-                ROTM( M_PI/2, conf.irAngleX, conf.irAngleY, 0)
+                ROTM( M_PI/2, conf.usAngleX, conf.usAngleY, 0)
                     * TRANSM( 0.5 * (conf.useBack?conf.frontLength:conf.size),
                              -0.25 * conf.width,
                              -0.45*conf.height),
@@ -688,7 +688,7 @@ namespace lpzrobots {
         irSensorBank.registerSensor(
                 usSensorFrontLeft,
                 front,
-                ROTM(M_PI/2, conf.irParallel * conf.irAngleX, conf.irAngleY,0) *
+                ROTM(M_PI/2, (conf.usParallel?1:-1) * conf.usAngleX, conf.usAngleY,0) *
                     TRANSM(
                             0.5* (conf.useBack?conf.frontLength:conf.size),
                             0.25 * conf.width ,

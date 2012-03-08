@@ -248,9 +248,9 @@ namespace lpzrobots {
 
         //Values by Dennis
         // 1 is parallel, -1 is antiparallel
-        c.irParallel        = -1;
-        c.irAngleX          = 0.5;
-        c.irAngleY          = 1;
+        c.usParallel        = false;
+        c.usAngleX          = 0.5;
+        c.usAngleY          = 1;
 
         c.texture="textures/toy_fur3.jpg";
 
@@ -422,9 +422,9 @@ namespace lpzrobots {
 
         //Values by Dennis
         // 1 is parallel, -1 is antiparallel
-        c.irParallel        = -1;
-        c.irAngleX          = 0.5;
-        c.irAngleY          = 1;
+        c.usParallel        = false;
+        c.usAngleX          = 0.5;
+        c.usAngleY          = 1;
 
         c.texture           = "textures/toy_fur3.jpg";
 
@@ -592,9 +592,9 @@ namespace lpzrobots {
 
         //Values by Dennis
         // 1 is parallel, -1 is antiparallel
-        c.irParallel        = -1;
-        c.irAngleX          = 0.5;
-        c.irAngleY          = 1;
+        c.usParallel        = false;
+        c.usAngleX          = 0.5;
+        c.usAngleY          = 1;
 
 
         return c;
@@ -757,9 +757,9 @@ namespace lpzrobots {
 
         //Values by Dennis
         // 1 is parallel, -1 is antiparallel
-        c.irParallel        = -1;
-        c.irAngleX          = 0.5;
-        c.irAngleY          = 1;
+        c.usParallel        = -1;
+        c.usAngleX          = 0.5;
+        c.usAngleY          = 1;
 
 
         c.texture="textures/toy_fur3.jpg";
