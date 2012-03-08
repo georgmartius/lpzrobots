@@ -259,11 +259,6 @@ public:
     // @todo find out what this is
     double irParallel;
 
-    bool irSensors;
-    bool irFront;
-    bool irBack;
-    bool irLeft;
-    bool irRight;
     double irRangeFront;
     double irRangeBack;
     double irRangeLeft;

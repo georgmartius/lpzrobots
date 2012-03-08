@@ -243,11 +243,6 @@ namespace lpzrobots {
 
         c.whiskerLength     = 4.0/43.0 * c.size;
 
-        c.irSensors         = false;
-        c.irFront           = false;
-        c.irBack            = false;
-        c.irLeft            = false;
-        c.irRight           = false;
         c.irRangeFront      = 3;
         c.irRangeBack       = 2;
         c.irRangeLeft       = 2;
@@ -423,11 +418,6 @@ namespace lpzrobots {
 
         c.whiskerLength     = 4.0/43.0 * c.size;
 
-        c.irSensors         = false;
-        c.irFront           = false;
-        c.irBack            = false;
-        c.irLeft            = false;
-        c.irRight           = false;
         c.irRangeFront      = 3;
         c.irRangeBack       = 2;
         c.irRangeLeft       = 2;
@@ -600,11 +590,6 @@ namespace lpzrobots {
 
         c.whiskerLength     = 4.0/43.0 * c.size;
 
-        c.irSensors         = false;
-        c.irFront           = false;
-        c.irBack            = false;
-        c.irLeft            = false;
-        c.irRight           = false;
         c.irRangeFront      = 3;
         c.irRangeBack       = 2;
         c.irRangeLeft       = 2;
@@ -772,11 +757,6 @@ namespace lpzrobots {
 
         c.whiskerLength     = 4.0/43.0 * c.size;
 
-        c.irSensors         = false;
-        c.irFront           = false;
-        c.irBack            = false;
-        c.irLeft            = false;
-        c.irRight           = false;
         c.irRangeFront      = 3;
         c.irRangeBack       = 2;
         c.irRangeLeft       = 2;
