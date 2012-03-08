@@ -243,10 +243,9 @@ namespace lpzrobots {
 
         c.whiskerLength     = 4.0/43.0 * c.size;
 
-        c.irRangeFront      = 3;
-        c.irRangeBack       = 2;
-        c.irRangeLeft       = 2;
-        c.irRangeRight      = 2;
+        c.usRangeFront      = 0.15*c.size;
+        c.irRangeLeg        = 0.07*c.size;
+
         //Values by Dennis
         // 1 is parallel, -1 is antiparallel
         c.irParallel        = -1;
@@ -418,10 +417,8 @@ namespace lpzrobots {
 
         c.whiskerLength     = 4.0/43.0 * c.size;
 
-        c.irRangeFront      = 3;
-        c.irRangeBack       = 2;
-        c.irRangeLeft       = 2;
-        c.irRangeRight      = 2;
+        c.usRangeFront      = 0.15*c.size;
+        c.irRangeLeg        = 0.07*c.size;
 
         //Values by Dennis
         // 1 is parallel, -1 is antiparallel
@@ -590,10 +587,8 @@ namespace lpzrobots {
 
         c.whiskerLength     = 4.0/43.0 * c.size;
 
-        c.irRangeFront      = 3;
-        c.irRangeBack       = 2;
-        c.irRangeLeft       = 2;
-        c.irRangeRight      = 2;
+        c.usRangeFront      = 0.15*c.size;
+        c.irRangeLeg        = 0.07*c.size;
 
         //Values by Dennis
         // 1 is parallel, -1 is antiparallel
@@ -757,10 +752,8 @@ namespace lpzrobots {
 
         c.whiskerLength     = 4.0/43.0 * c.size;
 
-        c.irRangeFront      = 3;
-        c.irRangeBack       = 2;
-        c.irRangeLeft       = 2;
-        c.irRangeRight      = 2;
+        c.usRangeFront      = 0.15*c.size;
+        c.irRangeLeg        = 0.07*c.size;
 
         //Values by Dennis
         // 1 is parallel, -1 is antiparallel

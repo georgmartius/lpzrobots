@@ -681,7 +681,7 @@ namespace lpzrobots {
                     * TRANSM( 0.5 * (conf.useBack?conf.frontLength:conf.size),
                              -0.25 * conf.width,
                              -0.45*conf.height),
-                conf.irRangeFront*0.05,
+                conf.usRangeFront,
                 RaySensor::drawRay);
 
         usSensorFrontLeft = new IRSensor();
@@ -693,7 +693,7 @@ namespace lpzrobots {
                             0.5* (conf.useBack?conf.frontLength:conf.size),
                             0.25 * conf.width ,
                             -0.45*conf.height),
-                conf.irRangeFront*0.05,
+                conf.usRangeFront,
                 RaySensor::drawRay);
 
         /************************************
@@ -960,7 +960,7 @@ namespace lpzrobots {
                         tebia,
                         ROTM(M_PI/2, 0,1,0) *
                             TRANSM(1.01*t3,0,-0.2*conf.tebiaLength),
-                        conf.irRangeFront*0.035,
+                        conf.irRangeLeg,
                         RaySensor::drawRay);
                 irLegSensors[leg] = sensor;
 

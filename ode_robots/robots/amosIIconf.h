@@ -259,10 +259,13 @@ public:
     // @todo find out what this is
     double irParallel;
 
-    double irRangeFront;
-    double irRangeBack;
-    double irRangeLeft;
-    double irRangeRight;
+    // range of the front ultrasonic sensors
+    double usRangeFront;
+
+    // range of the infrared sensors at the legs
+    double irRangeLeg;
+
+    // path to texture for trunks and legs
     std::string texture;
   };
 
