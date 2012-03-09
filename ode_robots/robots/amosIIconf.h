@@ -169,18 +169,26 @@ public:
      */
     /**@{*/
     double legLength;
+    /** length of the shoulder limbs (if used) */
     double shoulderLength;
+    /** radius of the shoulder limbs (if used) */
     double shoulderRadius;
+    /** length of the coxa limbs */
     double coxaLength;
+    /** radius of the coxa limbs */
     double coxaRadius;
+    /** length of the second limbs */
     double secondLength;
+    /** radius of the second limbs */
     double secondRadius;
-    /** length of tebia including  fully extended foot spring (if used) */
+    /** length of the tebia limbs including fully extended foot spring
+     *  (if used) */
     double tebiaLength;
+    /** radius of the tebia limbs */
     double tebiaRadius;
-    /** range of the "foot" spring */
+    /** range of the foot spring */
     double footRange;
-    /** choose different from tebiaRadius */
+    /** radius of the foot capsules, choose different from tebiaRadius */
     double footRadius;
     /**@}*/
 
@@ -191,59 +199,79 @@ public:
      * set limits for each joint
      */
     /**{*/
-    /** smaller limit, positive is down */
+    /** smaller limit of the backbone joint, positive is down */
     double backJointLimitD;
+    /** upper limit of the backbone joint, positive is down */
     double backJointLimitU;
-    /** forward limit, negative is forward (zero was specified above) */
+    /** forward limit of the front TC joints, negative is forward
+     *  (zero specified by fcoxazero) */
     double fcoxaJointLimitF;
-    /** backward limit */
+    /** backward limit of the front TC joints, negative is forward
+     *  (zero specified by fcoxaZero) */
     double fcoxaJointLimitB;
-    /** forward limit, negative is forward (zero was specified above) */
+    /** forward limit of the middle TC joints, negative is forward
+     *  (zero specified by fcoxaZero) */
     double mcoxaJointLimitF;
-    /** backward limit */
+    /** backward limit of the middle TC joints, negative is forward
+     *  (zero specified by fcoxaZero) */
     double mcoxaJointLimitB;
-    /** forward limit, negative is forward (zero was specified above) */
+    /** forward limit of the rear TC joints, negative is forward
+     *  (zero specified by fcoxaZero) */
     double rcoxaJointLimitF;
-    /** backward limit */
+    /** backward limit of the rear TC joints, negative is forward
+     *  (zero specified by fcoxaZero) */
     double rcoxaJointLimitB;
-    /** lower limit, positive is down */
+    /** lower limit of the CTr joints, positive is down */
     double secondJointLimitD;
-    /** upper limit */
+    /** upper limit of the CTr joints, positive is down */
     double secondJointLimitU;
-    /** lower limit, positive is down */
+    /** lower limit of the FTi joints, positive is down */
     double tebiaJointLimitD;
+    /** upper limit of the FTi joints, positive is down */
     double tebiaJointLimitU;
     /**}*/
 
 
-    /** preload spring */
+    /** preload of the foot spring */
     double footSpringPreload;
-    /** upper limit negative is up */
+    /** upper limit of the foot spring = maximum value
+     *  (negative is downwards (spring extends)) */
     double footSpringLimitU;
+    /** lower limit of the foot spring = minimum value
+     *  (negative is downwards (spring extends)) */
     double footSpringLimitD;
 
-
+    /** maximal force of the backbone joint */
     double backPower;
-    /** maximal force for at hip joint motors */
+    /** maximal force of the TC joint servos */
     double coxaPower;
+    /** maximal force of the CTr joint servos */
     double secondPower;
-    /** spring strength in the knees */
+    /** maximal force of the FTi joint servos */
     double tebiaPower;
+    /** maximal force of the foot spring servos */
     double footPower;
 
+    /** damping of the backbone joint servo */
     double backDamping;
-    /** damping of hip joint servos */
+    /** damping of the TC joint servos */
     double coxaDamping;
+    /** damping of the CTr joint servo */
     double secondDamping;
-    /** damping in the knees */
+    /** damping of the FTi joint servo */
     double tebiaDamping;
+    /** damping of the foot spring servo */
     double footDamping;
 
+    /** maximal velocity of the backbone joint servo */
     double backMaxVel;
-    /** speed of the hip servo */
+    /** maximal velocity of the TC joint servo */
     double coxaMaxVel;
+    /** maximal velocity of the CTr joint servo */
     double secondMaxVel;
+    /** maximal velocity of the FTi joint servo */
     double tebiaMaxVel;
+    /** maximal velocity of the foot spring servo */
     double footMaxVel;
 
     /**
