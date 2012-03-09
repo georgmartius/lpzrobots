@@ -863,9 +863,7 @@ namespace lpzrobots {
 
                 // m1 is the position where the center of mass of the first limb
                 // capsule is placed
-                osg::Matrix m1 = TRANSM(0,0,-l1/2)
-                                 * ROTM(conf.fcoxaZero,0,1,0)
-                                 * c1;
+                osg::Matrix m1 = TRANSM(0,0,-l1/2) * c1;
 
                 // calculate anchor of the first joint
                 const osg::Vec3 anchor1 = nullpos * c1;
@@ -876,17 +874,13 @@ namespace lpzrobots {
                 // proceed along the leg (and the respective z-axis) for second
                 // limb
                 osg::Matrix c2 = TRANSM(0,0,-l1/2) * m1;
-                osg::Matrix m2 = TRANSM(0,0,-l2/2)
-                               * ROTM(conf.fsecondZero,pmrl,0,0)
-                               * c2;
+                osg::Matrix m2 = TRANSM(0,0,-l2/2) * c2;
                 const osg::Vec3 anchor2 = nullpos * c2;
                 const Axis axis2 = Axis(pmrl,0,0) * c2;
 
                 //and third
                 osg::Matrix c3 = TRANSM(0,0,-l2/2) * m2;
-                osg::Matrix m3 = TRANSM(0,0,-l3/2)
-                                 * ROTM(conf.ftebiaZero,pmrl,0,0)
-                                 * c3;
+                osg::Matrix m3 = TRANSM(0,0,-l3/2) * c3;
                 const osg::Vec3 anchor3 = nullpos * c3;
                 const Axis axis3 = Axis(pmrl,0,0) * c3;
 

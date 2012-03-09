@@ -145,24 +145,6 @@ public:
     /**@}*/
 
     /**
-     * @name zero position of joints
-     *
-     * the zero position of the joints depends on the placement of the two
-     * bodies at the time of initialisation. specify in the following at which
-     * angle the leg part should extend from the previous leg part (in rad).
-     * this sets the 0 angle!
-     */
-    /**@{*/
-    /** front, negative is forward */
-    double fcoxaZero;
-    /** positive is down */
-    double fsecondZero;
-    /** positive is down */
-    double ftebiaZero;
-    /**@}*/
-
-
-    /**
      * @name leg part dimensions
      *
      * the lengths and radii of the individual leg parts

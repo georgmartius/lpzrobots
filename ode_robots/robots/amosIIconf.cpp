@@ -122,19 +122,6 @@ namespace lpzrobots {
         // => till
         c.rLegRotAngle      = 0.0;
 
-        // the zero position of the joints depends on the placement of the two
-        // bodies at the time of initialisation. specify in the following at which
-        // angle the leg part should extend from the previous leg part (in rad).
-        // this sets the 0 angle! don't use this, it is usually not necessary and
-        // might be removed. it was intended to talk to ode's servo motors directly
-        // instead of using lpzrobots set motor functions
-        // front, negative is forward /
-        c.fcoxaZero         = 0.0;
-        // positive is down
-        c.fsecondZero       = 0.0;
-        // positive is down
-        c.ftebiaZero        = 0.0;
-
         // be careful changing the following dimension, they may break the
         // simulation!! (they shouldn't but they do)
         const double shoulderLength_cm = 4.5;
@@ -330,20 +317,6 @@ namespace lpzrobots {
         c.rLegTrunkAngleH   = 0.0;
         c.rLegRotAngle      = 0.0;
 
-        // the zero position of the joints depends on the placement of the two
-        // bodies at the time of initialisation. specify in the following at
-        // which angle the leg part should extend from the previous leg part
-        // (in rad). this sets the 0 angle! don't use this, it is usually not
-        // necessary and might be removed. it was intended to talk to ode's
-        // servo motors directly instead of using lpzrobots set motor functions
-
-        //front, negative is forward
-        c.fcoxaZero         = 0.0;
-        //positive is down
-        c.fsecondZero       = 0.0;
-        //positive is down
-        c.ftebiaZero        = 0.0;
-
         //be careful changing the following dimension, they may break the
         // simulation!! (they shouldn't but they do)
 
@@ -495,20 +468,6 @@ namespace lpzrobots {
         c.rLegTrunkAngleH   = 0.0;
         c.rLegRotAngle      = 0.0;
 
-        // the zero position of the joints depends on the placement of the two
-        // bodies at the time of initialisation. specify in the following at
-        // which angle the leg part should extend from the previous leg part
-        // (in rad). this sets the 0 angle! don't use this, it is usually not
-        // necessary and might be removed. it was intended to talk to ode's
-        // servo motors directly instead of using lpzrobots set motor functions
-
-        // front, negative is forward
-        c.fcoxaZero         = 0.0;
-        // positive is down
-        c.fsecondZero       = 0.0;
-        // positive is down
-        c.ftebiaZero        = 0.0;
-
         // be careful changing the following dimension, they may break the
         // simulation!! (they shouldn't but they do)
 
@@ -654,21 +613,6 @@ namespace lpzrobots {
         c.rLegTrunkAngleV   = 0.0;
         c.rLegTrunkAngleH   = 0.0;
         c.rLegRotAngle      = 0.0;
-
-        // the zero position of the joints depends on the placement of the two
-        // bodies at the time of initialisation. specify in the following at
-        // which angle the leg part should extend from the previous leg part
-        // (in rad). this sets the 0 angle!
-        // don't use this, it is usually not necessary and might be removed. it
-        // was intended to talk to ode's servo motors directly instead of using
-        // lpzrobots set motor functions
-
-        // front, negative is forward
-        c.fcoxaZero         = 0.0;
-        // positive is down
-        c.fsecondZero       = 0.0;
-        // positive is down
-        c.ftebiaZero        = 0.0;
 
         // be careful changing the following dimension, they may break the
         // simulation!! (they shouldn't but they do)
