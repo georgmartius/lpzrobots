@@ -238,8 +238,8 @@ namespace lpzrobots {
         c.tebiaMaxVel       = 1.961 * M_PI;
         c.footMaxVel        = 1.961 * M_PI;
 
-        c.usRangeFront      = 0.15*c.size;
-        c.irRangeLeg        = 0.07*c.size;
+        c.usRangeFront      = 0.3*c.size;
+        c.irRangeLeg        = 0.2*c.size;
 
         //Values by Dennis
         // 1 is parallel, -1 is antiparallel
@@ -733,7 +733,7 @@ namespace lpzrobots {
         c.footMaxVel        = 1.961 * M_PI;
 
         c.usRangeFront      = 0.15*c.size;
-        c.irRangeLeg        = 0.07*c.size;
+        c.irRangeLeg        = 0.105*c.size;
 
         //Values by Dennis
         // 1 is parallel, -1 is antiparallel
