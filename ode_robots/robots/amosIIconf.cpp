@@ -56,9 +56,6 @@ namespace lpzrobots {
         //trunk height
         c.height            = 6.5/43.0 * c.size;
         c.frontLength       = 12.0/43.0 * c.size;
-        // length of upper and lower limb combined without the tip (will be
-        // scaled by c.size)
-        c.legLength         = 1.0/2.2;
         // we use as density the original trunk weight divided by the original
         // volume
         c.density           =  2.2/(0.43 * 0.07 * 0.065);
@@ -291,9 +288,6 @@ namespace lpzrobots {
         // trunk height
         c.height            = 6.5/43.0 * c.size;
         c.frontLength       = 12.0/43.0 * c.size;
-        // length of upper and lower limb combined without the tip (will be
-        // scaled by c.size)
-        c.legLength         = 1.0/2.2;
         // we use as density the original trunk weight divided by the original
         // volume
         c.density           =  2.2/(0.43 * 0.07 * 0.065)/(pow(_scale,3));
@@ -461,9 +455,6 @@ namespace lpzrobots {
         // trunk height
         c.height            = 7.0/43.0 * c.size;
         c.frontLength       = 10.0/43.0;
-        // length of upper and lower limb combined without the tip (will be
-        // scaled by c.size)
-        c.legLength         = 1.0/2.2;
         // we use as density the original trunk dimension divided by its volume
         c.density           = 2.2/(c.size * c.width * c.height);
         c.trunkMass         = c.density * c.size * c.width * c.height;
@@ -622,9 +613,6 @@ namespace lpzrobots {
         // trunk height
         c.height            = 6.5/43.0 * c.size;
         c.frontLength       = 12.0/43.0 * c.size;
-        // length of upper and lower limb combined without the tip (will be
-        // scaled by c.size)
-        c.legLength         = 1.0/2.2;
         // we use as density the original trunk weight divided by the original
         // volume
         c.density           =  2.2/(0.43 * 0.07 * 0.065)/(pow(_scale,3));

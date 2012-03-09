@@ -168,7 +168,6 @@ public:
      * the lengths and radii of the individual leg parts
      */
     /**@{*/
-    double legLength;
     /** length of the shoulder limbs (if used) */
     double shoulderLength;
     /** radius of the shoulder limbs (if used) */

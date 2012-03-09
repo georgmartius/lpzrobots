@@ -447,8 +447,12 @@ namespace lpzrobots {
         // the position of the robot is the center of the body
         // to set the vehicle on the ground when the z component of the position
         // is 0
-        // Matrix p2 = pose * ROTM(0, 0, conf.legLength + conf.legLength/8);
-        create(pose);
+        //Matrix p2 = pose * ROTM(0, 0, conf.legLength + conf.legLength/8);
+        osg::Matrix p = pose * TRANSM(
+            0,
+            0,
+            conf.tebiaLength-conf.shoulderHeight+2*conf.tebiaRadius+conf.footRadius);
+        create(p);
     #ifdef VERBOSE
         std::cerr << "AmosII::place END\n";
     #endif
@@ -609,7 +613,7 @@ namespace lpzrobots {
         /**********************************************************************/
 
         /** central position of the trunk */
-        const osg::Matrix trunkPos = TRANSM(0,0,conf.legLength)*pose;
+        const osg::Matrix trunkPos = pose;
 
         if (conf.useBack) {
             front = new Box(conf.frontLength, conf.width, conf.height);
@@ -735,7 +739,7 @@ namespace lpzrobots {
                     lr * conf.width/2,
                     // height of leg fixation to trunk (trunk bottom sits at
                     // total legLength)
-                    conf.legLength - conf.height/2 + conf.shoulderHeight);
+                    - conf.height/2 + conf.shoulderHeight);
 
             // get a coordinate system at the position pos by rotating such that
             // z-axis points toward trunk, pose is where the robot will be
@@ -752,11 +756,10 @@ namespace lpzrobots {
                             conf.frontLength/2.0
                                 -(leg==L0||leg==R0)*conf.size/2.0,
                             0,
-                            -conf.legLength)
+                            0)
                         * TRANSM(pos);
             else
                 shouldertrunkconnections[leg] = ROTM(M_PI/2,lr,0,0)
-                        * TRANSM(0,0,-conf.legLength)
                         * TRANSM(pos);
         }
 
