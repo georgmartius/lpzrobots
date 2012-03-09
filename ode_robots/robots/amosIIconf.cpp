@@ -241,8 +241,6 @@ namespace lpzrobots {
         c.tebiaMaxVel       = 1.961 * M_PI;
         c.footMaxVel        = 1.961 * M_PI;
 
-        c.whiskerLength     = 4.0/43.0 * c.size;
-
         c.usRangeFront      = 0.15*c.size;
         c.irRangeLeg        = 0.07*c.size;
 
@@ -415,8 +413,6 @@ namespace lpzrobots {
         c.tebiaMaxVel       = 1.961 * M_PI;
         c.footMaxVel        = 1.961 * M_PI;
 
-        c.whiskerLength     = 4.0/43.0 * c.size;
-
         c.usRangeFront      = 0.15*c.size;
         c.irRangeLeg        = 0.07*c.size;
 
@@ -585,8 +581,6 @@ namespace lpzrobots {
         c.tebiaMaxVel       = 1.961 * M_PI;
         c.footMaxVel        = 1.961 * M_PI;
 
-        c.whiskerLength     = 4.0/43.0 * c.size;
-
         c.usRangeFront      = 0.15*c.size;
         c.irRangeLeg        = 0.07*c.size;
 
@@ -749,8 +743,6 @@ namespace lpzrobots {
         c.secondMaxVel      = 1.961 * M_PI;
         c.tebiaMaxVel       = 1.961 * M_PI;
         c.footMaxVel        = 1.961 * M_PI;
-
-        c.whiskerLength     = 4.0/43.0 * c.size;
 
         c.usRangeFront      = 0.15*c.size;
         c.irRangeLeg        = 0.07*c.size;

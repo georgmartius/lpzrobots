@@ -246,10 +246,6 @@ public:
     double tebiaMaxVel;
     double footMaxVel;
 
-
-    // length of whisker (currently not implemented
-    double whiskerLength;
-
     /**
      * configure the front ultrasonic sensors
      */
