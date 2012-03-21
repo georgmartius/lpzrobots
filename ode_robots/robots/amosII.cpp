@@ -1524,11 +1524,6 @@ namespace lpzrobots {
 
         c.texture="Images/toy_fur3.jpg";
 
-        std::cout << "trunkMass    " << c.trunkMass << "\n";
-        std::cout << "Mass         " << mass << "\n";
-        std::cout << "shoulderMass " << c.shoulderMass << "\n";
-        std::cout << "footMass     " << c.footMass << "\n";
-        std::cout << "backPower    " << c.backPower << "\n";
         return c;
     }
 
@@ -1674,12 +1669,6 @@ namespace lpzrobots {
         c.usAngleY          = 1;
 
         c.texture           = "Images/toy_fur3.jpg";
-
-        std::cout << "trunkMass    " << c.trunkMass << "\n";
-        std::cout << "Mass         " << mass << "\n";
-        std::cout << "shoulderMass " << c.shoulderMass << "\n";
-        std::cout << "footMass     " << c.footMass << "\n";
-        std::cout << "backPower    " << c.backPower << "\n";
 
         return c;
     }
@@ -1965,14 +1954,7 @@ namespace lpzrobots {
         c.usAngleX          = 0.5;
         c.usAngleY          = 1;
 
-
         c.texture="Images/toy_fur3.jpg";
-
-        std::cout << "trunkMass    " << c.trunkMass << "\n";
-        std::cout << "Mass         " << mass << "\n";
-        std::cout << "shoulderMass " << c.shoulderMass << "\n";
-        std::cout << "footMass     " << c.footMass << "\n";
-        std::cout << "backPower    " << c.backPower << "\n";
 
         return c;
     }
