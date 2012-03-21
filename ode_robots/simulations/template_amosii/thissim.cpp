@@ -23,9 +23,6 @@ ThisSim::ThisSim() {
 // starting function (executed once at the beginning of the simulation loop)
 void ThisSim::start(const lpzrobots::OdeHandle& odeHandle, const lpzrobots::OsgHandle& osgHandle,
     lpzrobots::GlobalData& global) {
-#ifdef VERBOSE
-  std::cerr << "ThisSim::start called\n";
-#endif
   /** set initial camera position */
   setCameraHomePos(lpzrobots::Pos(-0.0114359, 6.66848, 0.922832), lpzrobots::Pos(178.866, -7.43884, 0));
 
@@ -41,25 +38,23 @@ void ThisSim::start(const lpzrobots::OdeHandle& odeHandle, const lpzrobots::OsgH
    */
   lpzrobots::Substance RobotSubstance(3.0, 0.0, 50.0, 0.8);
   lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf();
-  myAmosIIConf.texture = "textures/gray-texture-128x128.jpg";
-  myAmosIIConf.useLocalVelSensor = true;
   lpzrobots::OdeHandle rodeHandle = odeHandle;
   rodeHandle.substance = RobotSubstance;
 
-  //myAmosIIConf.coxaPower *= 0.01;
+  lpzrobots::AmosII * amos = new lpzrobots::AmosII(
+      rodeHandle,
+      osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
+      myAmosIIConf,
+      "AmosII");
 
-  lpzrobots::AmosII * amos = new lpzrobots::AmosII(rodeHandle, osgHandle.changeColor(lpzrobots::Color(1, 1, 1)),
-      myAmosIIConf, "AmosII");
-
-  /*
    amos->setLegPosUsage(amos->L0, amos->WHEEL);
    amos->setLegPosUsage(amos->L1, amos->LEG);
    amos->setLegPosUsage(amos->L2, amos->WHEEL);
    amos->setLegPosUsage(amos->R0, amos->WHEEL);
    amos->setLegPosUsage(amos->R1, amos->UNUSED);
    amos->setLegPosUsage(amos->R2, amos->WHEEL);
-   */
-  robot = amos;
+
+   robot = amos;
 
   robot->place(osg::Matrix::rotate(0, 0, 0, 1) * osg::Matrix::translate(.0, .0, 0.01));
 

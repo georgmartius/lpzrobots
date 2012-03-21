@@ -277,7 +277,7 @@ namespace lpzrobots {
             MotorName      const name  = it->first;
             OneAxisServo * const servo = it->second;
             //We multiple with -1 to map to real hexapod
-            servo->set( -motors[name] );
+            if (servo) servo->set( -motors[name] );
         }
     #ifdef VERBOSE
         std::cerr << "AmosII::setMotors END\n";
@@ -295,39 +295,6 @@ namespace lpzrobots {
         return AMOSII_SENSOR_MAX;
     };
 
-    /**
-     * Returns the current position value of the given servo motor. If
-     * the motor is not existent 0 is returned.
-     *
-     * @param MotorName name of the servo motor
-     * @return current position value of the motor or 0 if motor does not
-     *         exist
-     */
-    double AmosII::getServoPos(MotorName servoName)
-    {
-    #ifdef VERBOSE
-        std::cerr << "AmosII::getServoPos BEGIN\n";
-    #endif
-        MotorMap::iterator it = servos.find(servoName);
-        if (it == servos.end()) {
-    #ifdef VERBOSE
-            std::cerr << "AmosII::getServoPos END on exit 1\n";
-    #endif
-            return 0.0;
-        }
-        OneAxisServo *const servo = it->second;
-        if (servo==0) {
-    #ifdef VERBOSE
-            std::cerr << "AmosII::getServoPos END on exit 2\n";
-    #endif
-            return  0.0;
-        }
-    #ifdef VERBOSE
-        std::cerr << "AmosII::getServoPos END on exit 3\n";
-    #endif
-        return servo->get();
-    }
-
     /* returns actual sensorvalues
          @param sensors sensors scaled to [-1,1] (more or less)
          @param sensornumber length of the sensor array
@@ -342,25 +309,25 @@ namespace lpzrobots {
 
         // angle sensors
         //We multiple with -1 to map to real hexapod
-        sensors[TR0_as] = -getServoPos(TR0_m);
-        sensors[TR1_as] = -getServoPos(TR1_m);
-        sensors[TR2_as] = -getServoPos(TR2_m);
-        sensors[TL0_as] = -getServoPos(TL0_m);
-        sensors[TL1_as] = -getServoPos(TL1_m);
-        sensors[TL2_as] = -getServoPos(TL2_m);
-        sensors[CR0_as] = -getServoPos(CR0_m);
-        sensors[CR1_as] = -getServoPos(CR1_m);
-        sensors[CR2_as] = -getServoPos(CR2_m);
-        sensors[CL0_as] = -getServoPos(CL0_m);
-        sensors[CL1_as] = -getServoPos(CL1_m);
-        sensors[CL2_as] = -getServoPos(CL2_m);
-        sensors[FR0_as] = -getServoPos(FR0_m);
-        sensors[FR1_as] = -getServoPos(FR1_m);
-        sensors[FR2_as] = -getServoPos(FR2_m);
-        sensors[FL0_as] = -getServoPos(FL0_m);
-        sensors[FL1_as] = -getServoPos(FL1_m);
-        sensors[FL2_as] = -getServoPos(FL2_m);
-        sensors[BJ_as]  = -getServoPos(BJ_m);
+        sensors[TR0_as] = servos[TR0_m] ? -servos[TR0_m]->get() : 0;
+        sensors[TR1_as] = servos[TR1_m] ? -servos[TR1_m]->get() : 0;
+        sensors[TR2_as] = servos[TR2_m] ? -servos[TR2_m]->get() : 0;
+        sensors[TL0_as] = servos[TL0_m] ? -servos[TL0_m]->get() : 0;
+        sensors[TL1_as] = servos[TL1_m] ? -servos[TL1_m]->get() : 0;
+        sensors[TL2_as] = servos[TL2_m] ? -servos[TL2_m]->get() : 0;
+        sensors[CR0_as] = servos[CR0_m] ? -servos[CR0_m]->get() : 0;
+        sensors[CR1_as] = servos[CR1_m] ? -servos[CR1_m]->get() : 0;
+        sensors[CR2_as] = servos[CR2_m] ? -servos[CR2_m]->get() : 0;
+        sensors[CL0_as] = servos[CL0_m] ? -servos[CL0_m]->get() : 0;
+        sensors[CL1_as] = servos[CL1_m] ? -servos[CL1_m]->get() : 0;
+        sensors[CL2_as] = servos[CL2_m] ? -servos[CL2_m]->get() : 0;
+        sensors[FR0_as] = servos[FR0_m] ? -servos[FR0_m]->get() : 0;
+        sensors[FR1_as] = servos[FR1_m] ? -servos[FR1_m]->get() : 0;
+        sensors[FR2_as] = servos[FR2_m] ? -servos[FR2_m]->get() : 0;
+        sensors[FL0_as] = servos[FL0_m] ? -servos[FL0_m]->get() : 0;
+        sensors[FL1_as] = servos[FL1_m] ? -servos[FL1_m]->get() : 0;
+        sensors[FL2_as] = servos[FL2_m] ? -servos[FL2_m]->get() : 0;
+        sensors[BJ_as]  = servos[BJ_m]  ? -servos[BJ_m] ->get() : 0;
 
         // foot contact sensors
         sensors[R0_fs] = legContact[R0];

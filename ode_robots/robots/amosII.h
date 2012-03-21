@@ -232,16 +232,6 @@ namespace lpzrobots {
         virtual void destroy();
 
         /**
-         * Returns the current position value of the given servo motor. If
-         * the motor is not existent 0 is returned.
-         *
-         * @param MotorName name of the servo motor
-         * @return current position value of the motor or 0 if motor does not
-         *         exist
-         */
-        double getServoPos(MotorName);
-
-        /**
          * Assign a human readable name to a motor. This name is used for the
          * associated inspectable value as used e.g. in guilogger.
          *
