@@ -43,7 +43,6 @@ namespace lpzrobots {
         c.useFoot           = _useFoot;
         //create a joint in the back
         c.useBack           = _useBack;
-        c.useWhiskers       = 0;
         c.rubberFeet        = false;
         c.useLocalVelSensor = 0;
 
@@ -262,7 +261,6 @@ namespace lpzrobots {
         c.useFoot           = _useFoot;
         //create a joint in the back
         c.useBack           = _useBack;
-        c.useWhiskers       = 0;
         c.rubberFeet        = false;
         c.useLocalVelSensor = 1;
 
@@ -414,7 +412,6 @@ namespace lpzrobots {
         c.useFoot           = _useFoot;
         //create a joint in the back
         c.useBack           = _useBack;
-        c.useWhiskers       = 0;
         c.rubberFeet        = false;
         c.useLocalVelSensor = 0;
 
@@ -557,7 +554,6 @@ namespace lpzrobots {
         c.useFoot           = _useFoot;
         //create a joint in the back
         c.useBack           = _useBack;
-        c.useWhiskers       = 0;
         c.rubberFeet        = false;
         c.useLocalVelSensor = 0;
 

@@ -75,7 +75,6 @@ public:
     bool useFoot;
     /** use the hinge joint in the back */
     bool useBack;
-    bool useWhiskers;
     /**
      * if true, rubber substance is used for feet instead of the substance used
      * for the rest of the robot
