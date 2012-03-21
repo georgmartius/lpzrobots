@@ -49,8 +49,8 @@ class ThisSim : public lpzrobots::Simulation {
           lpzrobots::Pos(178.866, -7.43884, 0));
 
       // set simulation parameters
-      global.odeConfig.setParam("controlinterval", 10); //was 10
-      global.odeConfig.setParam("simstepsize", 0.01); //was 0.01 (martin)
+      global.odeConfig.setParam("controlinterval", 10);
+      global.odeConfig.setParam("simstepsize", 0.01);
 
       // Add amosII robot
       lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf();
