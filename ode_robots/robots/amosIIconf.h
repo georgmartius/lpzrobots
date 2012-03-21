@@ -103,11 +103,17 @@ public:
 
     /** trunk mass */
     double trunkMass;
+    /** mass of the front part of the robot (if backboine joint is used) */
     double frontMass;
+    /** mass of the shoulders (if used) */
     double shoulderMass;
+    /** mass of the coxa limbs */
     double coxaMass;
+    /** mass of the second limbs */
     double secondMass;
+    /** mass of the tebia limbs */
     double tebiaMass;
+    /** mass of the feet */
     double footMass;
 
     /** fix legs to trunk at this distance from bottom of trunk */
