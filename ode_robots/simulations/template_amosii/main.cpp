@@ -30,9 +30,9 @@
 // simple wiring
 #include <selforg/one2onewiring.h>
 // the robot
-#include "ode_robots/amosII.h"
+#include <ode_robots/amosII.h>
 // the controller
-#include "mycontroller.h"
+#include <selforg/sinecontroller.h>
 
 class ThisSim : public lpzrobots::Simulation {
 
@@ -49,7 +49,7 @@ class ThisSim : public lpzrobots::Simulation {
           lpzrobots::Pos(178.866, -7.43884, 0));
 
       // set simulation parameters
-      global.odeConfig.setParam("controlinterval", 10);
+      //global.odeConfig.setParam("controlinterval", 10);
       global.odeConfig.setParam("simstepsize", 0.01);
 
       // Add amosII robot
@@ -73,7 +73,13 @@ class ThisSim : public lpzrobots::Simulation {
       amos->place(osg::Matrix::translate(.0, .0, 1));
 
       // create a simple example controller
-      controller = new MyController();
+      //controller = new MyController();
+      SineController* sine = new SineController();
+      // //     // //     // motorpower 20
+      sine->setParam("period", 200);
+      sine->setParam("phaseshift", 5./6.);
+      sine->setParam("amplitude",  0.3);
+      controller = sine;
 
       // create wiring
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
