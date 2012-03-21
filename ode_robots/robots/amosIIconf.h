@@ -128,19 +128,27 @@ public:
      *  case)
      */
     /**@{*/
-    /** angle in rad around vertical axis at leg-trunk fixation 0: perpendicular
-     */
+    /** angle in rad around vertical axis at leg-trunk fixation for front legs*/
     double fLegTrunkAngleV;
-    /** angle around horizontal axis at leg-trunk fixation 0: perpendicular */
+    /** angle in rad around horizontal axis at leg-trunk fixation for front legs
+     * */
     double fLegTrunkAngleH;
-    /** rotation of leg around own axis 0: first joint axis is vertical */
+    /** rotation of front legs around own axis */
     double fLegRotAngle;
-    /** middle legs and so on */
+    /** angle in rad around vertical axis at leg-trunk fixation for middle legs
+     * */
     double mLegTrunkAngleV;
+    /** angle in rad around horizontal axis at leg-trunk fixation for middle
+     * legs */
     double mLegTrunkAngleH;
+    /** rotation of middle legs around own axis */
     double mLegRotAngle;
+    /** angle in rad around vertical axis at leg-trunk fixation for rear legs*/
     double rLegTrunkAngleV;
+    /** angle in rad around horizontal axis at leg-trunk fixation for rear legs
+     * */
     double rLegTrunkAngleH;
+    /** rotation of rear legs around own axis */
     double rLegRotAngle;
     /**@}*/
 
