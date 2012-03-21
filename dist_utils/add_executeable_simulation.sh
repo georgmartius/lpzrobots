@@ -48,9 +48,9 @@ if ls $SIMDIR/*.fig 2>/dev/null; then
     cp $SIMDIR/*.fig $DESTDIR/
 fi
 
-if ls $SIMDIR/*.xml 2>/dev/null; then
-    cp $SIMDIR/*.xml $DESTDIR/
-fi
+#if ls $SIMDIR/*.xml 2>/dev/null; then
+#    cp $SIMDIR/*.xml $DESTDIR/
+#fi
 
 
 DESTSCRIPT=$DIRNAME/$DEST

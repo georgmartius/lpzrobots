@@ -155,7 +155,7 @@ namespace lpzrobots{
     stateset->setMode(GL_DEPTH_TEST,osg::StateAttribute::OFF);
     stateset->setAttribute(new osg::PolygonMode(), osg::StateAttribute::PROTECTED);
 
-    std::string font("fonts/arial.ttf");
+    std::string font("fonts/arial.ttf"); //fonts/fudd.ttf
 
     if (!_applicationUsage) setApplicationUsage(new osg::ApplicationUsage());
 
@@ -166,7 +166,8 @@ namespace lpzrobots{
     float characterSize = 30.0f;
 
     osg::Vec3 pos(leftPos,1024.0f,0.0f);
-    osg::Vec4 color(1.0f,1.0f,1.0f,1.0f);
+    //    osg::Vec4 color(1.0f,1.0f,1.0f,1.0f);
+    osg::Vec4 color(.0f,.0f,.0f,1.0f);
 
     osg::Geode* geode = new osg::Geode();
     _switch->addChild(geode, true);
@@ -179,7 +180,7 @@ namespace lpzrobots{
         geode->addDrawable( label.get() );
 
         label->setColor(color);
-        label->setBackdropType(osgText::Text::OUTLINE);
+        //        label->setBackdropType(osgText::Text::OUTLINE);
         label->setFont(font);
         label->setCharacterSize(characterSize);
         label->setPosition(pos);
@@ -200,7 +201,7 @@ namespace lpzrobots{
         osg::ref_ptr<osgText::Text> key = new osgText::Text;
         geode->addDrawable( key.get() );
         key->setColor(color);
-        key->setBackdropType(osgText::Text::OUTLINE);
+        //        key->setBackdropType(osgText::Text::OUTLINE);
         key->setFont(font);
         key->setCharacterSize(characterSize);
         key->setPosition(pos);
@@ -211,7 +212,7 @@ namespace lpzrobots{
         osg::ref_ptr<osgText::Text> description = new osgText::Text;
         geode->addDrawable( description.get() );
         description->setColor(color);
-        description->setBackdropType(osgText::Text::OUTLINE);
+        //description->setBackdropType(osgText::Text::OUTLINE);
         description->setFont(font);
         description->setCharacterSize(characterSize);
         description->setPosition(pos);
@@ -229,12 +230,12 @@ namespace lpzrobots{
         float height = bb.yMax() - bb.yMin();
         float ratio = 1.0;
         if (width > 1200.0f) ratio = 1200.0f/width;
-        if (height*ratio > 980.0f) ratio = 980.0f/height;
+        if (height*ratio > 950.0f) ratio = 950.0f/height;
         printf("ratio %f\n", ratio);
         
         _camera->setViewMatrix(osg::Matrix::translate(-bb.center()) * 
                                osg::Matrix::scale(ratio,ratio,ratio) * 
-                               osg::Matrix::translate(osg::Vec3(640.0f, 520.0f, 0.0f)));
+                               osg::Matrix::translate(osg::Vec3(640.0f, 540.0f, 0.0f)));
       }
   }
 

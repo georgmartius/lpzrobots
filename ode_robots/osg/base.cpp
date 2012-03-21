@@ -284,7 +284,7 @@ namespace lpzrobots {
     osgText::Font* font = osgText::readFontFile("fonts/fudd.ttf");
 
     Color textColor = config.cs->color("text");
-    int fontsize=12;
+    int fontsize=11;
 
     // caption (right)
     osg::Vec3 position(500.0f,9.0f,0.0f);
@@ -300,7 +300,7 @@ namespace lpzrobots {
     }
 
     // title (center)
-    position = osg::Vec3(250.0f,9.0f,0.0f);
+    position = osg::Vec3(255.0f,9.0f,0.0f);
     {
       titleline = new  osgText::Text;
       geode->addDrawable( titleline );
@@ -312,6 +312,7 @@ namespace lpzrobots {
       titleline->setText(title.c_str());
     }
 
+    fontsize=12;
     // timing (left)
     position=osg::Vec3(12.0f,9.0f,0.0f);
     {

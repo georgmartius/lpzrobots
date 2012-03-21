@@ -124,6 +124,9 @@ std::list< double > SimplePipeReader::getDataLine()
   bool success;
   QString s;
 
+  if(currentDataLine.startsWith("#")){
+      return std::list<double>();
+  }
   QStringList string_list = currentDataLine.split ( ' ' );
   for ( int i = 0;i < string_list.size();i++ ) {
     s = string_list.at ( i );

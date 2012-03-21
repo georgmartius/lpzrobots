@@ -66,7 +66,7 @@ namespace lpzrobots {
       cfg->tesselhints[i]->ref();
     }
     cfg->tesselhints[0]->setDetailRatio(0.1f); // Low
-    cfg->tesselhints[1]->setDetailRatio(1.0f); // Middle
+    cfg->tesselhints[1]->setDetailRatio(1.0f); // Middle // maybe use 0.5 here
     cfg->tesselhints[2]->setDetailRatio(3.0f); // High
 
     scene = new OsgScene();     

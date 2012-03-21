@@ -692,8 +692,10 @@ namespace lpzrobots {
     // simulation speed (calculate more precisely again if not pause or max speed)
     if(!pause) truerealtimefactor = (globalData.time*1000.0 - simtimeoffset)/(elapsed+1);
     if(globalData.odeConfig.realTimeFactor==0.0){
-      // get refresh rate of fps/2 frames in full speed
-      globalData.odeConfig.calcAndSetDrawInterval(globalData.odeConfig.fps/2,truerealtimefactor);
+      // get refresh rate of fps/2 frames in full speed 
+      //  (add a bit speed to it to converge quicker)
+      globalData.odeConfig.calcAndSetDrawInterval(globalData.odeConfig.fps/2,
+                                                  truerealtimefactor+0.5);
     }
     if(globalData.odeConfig.realTimeFactor!=0.0 && !pause) {
       // difference between actual time and current time in milliseconds
@@ -704,8 +706,12 @@ namespace lpzrobots {
       }else {
 	if(diff > 4) { // if less the 3 milliseconds we don't call usleep since it needs time
 	  usleep((diff-2)*1000);
+          //printf("sleep\t\t %li \t, el %li\n", diff, elapsed );
 	  //	  nextLeakAnnounce=100;
-	}
+	}else{
+          //printf("don't sleep\t %li \t\n", diff, elapsed );
+	
+        }
       }
       // the video steam should look perfectly syncronised
       if(videostream->isOpen())
