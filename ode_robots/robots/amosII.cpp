@@ -1522,7 +1522,7 @@ namespace lpzrobots {
         c.usAngleX          = 0.5;
         c.usAngleY          = 1;
 
-        c.texture="textures/toy_fur3.jpg";
+        c.texture="Images/toy_fur3.jpg";
 
         std::cout << "trunkMass    " << c.trunkMass << "\n";
         std::cout << "Mass         " << mass << "\n";
@@ -1673,7 +1673,7 @@ namespace lpzrobots {
         c.usAngleX          = 0.5;
         c.usAngleY          = 1;
 
-        c.texture           = "textures/toy_fur3.jpg";
+        c.texture           = "Images/toy_fur3.jpg";
 
         std::cout << "trunkMass    " << c.trunkMass << "\n";
         std::cout << "Mass         " << mass << "\n";
@@ -1966,7 +1966,7 @@ namespace lpzrobots {
         c.usAngleY          = 1;
 
 
-        c.texture="textures/toy_fur3.jpg";
+        c.texture="Images/toy_fur3.jpg";
 
         std::cout << "trunkMass    " << c.trunkMass << "\n";
         std::cout << "Mass         " << mass << "\n";

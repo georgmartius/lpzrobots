@@ -28,6 +28,7 @@
 int main (int argc, char **argv)
 {
     ThisSim sim;
+    sim.setGroundTexture("Images/greenground.rgb");
     return sim.run(argc, argv) ? 0 :  1;
 }
 
