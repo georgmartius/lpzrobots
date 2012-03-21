@@ -40,7 +40,7 @@ void ThisSim::start(const lpzrobots::OdeHandle& odeHandle, const lpzrobots::OsgH
    * Add A M O S II robot
    */
   lpzrobots::Substance RobotSubstance(3.0, 0.0, 50.0, 0.8);
-  lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosIIConf::getDefaultConf();
+  lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf();
   myAmosIIConf.texture = "textures/gray-texture-128x128.jpg";
   myAmosIIConf.useLocalVelSensor = true;
   lpzrobots::OdeHandle rodeHandle = odeHandle;

@@ -52,6 +52,33 @@ namespace lpzrobots {
     class AmosII : public OdeRobot, public Inspectable {
     public:
   
+        static AmosIIConf getDefaultConf(
+                double _scale = 1.0,
+                bool _useShoulder = 1,
+                bool _useFoot = 1,
+                bool _useBack = 0);
+
+        /**
+         * joint limits differ, density is reduced with scale
+         */
+        static AmosIIConf getExperimentConf(
+                double _scale = 1.0,
+                bool _useShoulder = 1,
+                bool _useFoot = 1,
+                bool _useBack = 0);
+
+        static AmosIIConf getFixedConf(
+                double _scale = 1.0,
+                bool _useShoulder = 1,
+                bool _useFoot = 1,
+                bool _useBack = 0);
+
+        static AmosIIConf getFranksDefaultConf(
+                double _scale = 5.0,
+                bool _useShoulder = 1,
+                bool _useFoot = 1,
+                bool _useBack = 0);
+
         enum LegPos {L0, L1, L2, R0, R1, R2, LEG_POS_MAX};
         enum LegPosUsage {LEG, WHEEL, UNUSED};
         enum LegJointType {
@@ -68,8 +95,6 @@ namespace lpzrobots {
             };
         typedef AmosIIMotorNames MotorName;
         typedef AmosIISensorNames SensorName;
-
-
 
         /**
          * constructor of VierBeiner robot

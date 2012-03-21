@@ -31,36 +31,6 @@
 namespace lpzrobots{
 
 struct AmosIIConf{
-public:
-
-    static AmosIIConf getDefaultConf(
-            double _scale = 1.0,
-            bool _useShoulder = 1,
-            bool _useFoot = 1,
-            bool _useBack = 0);
-
-    /**
-     * joint limits differ, density is reduced with scale
-     */
-    static AmosIIConf getExperimentConf(
-            double _scale = 1.0,
-            bool _useShoulder = 1,
-            bool _useFoot = 1,
-            bool _useBack = 0);
-
-    static AmosIIConf getFixedConf(
-            double _scale = 1.0,
-            bool _useShoulder = 1,
-            bool _useFoot = 1,
-            bool _useBack = 0);
-
-    static AmosIIConf getFranksDefaultConf(
-            double _scale = 5.0,
-            bool _useShoulder = 1,
-            bool _useFoot = 1,
-            bool _useBack = 0);
-
-
     /**
      * @name flags
      *
