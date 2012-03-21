@@ -265,8 +265,11 @@ public:
     double footMaxVel;
 
     /**
+     * @name front ultrasonic sensors
+     *
      * configure the front ultrasonic sensors
      */
+    /**{*/
     /** angle versus x axis */
     double usAngleX;
     /** angle versus y axis */
@@ -276,10 +279,12 @@ public:
     bool usParallel;
     /** range of the front ultrasonic sensors */
     double usRangeFront;
+    /**}*/
+
     /** range of the infrared sensors at the legs */
     double irRangeLeg;
 
-    // path to texture for trunks and legs
+    /** path to texture for trunks and legs */
     std::string texture;
   };
 
