@@ -81,9 +81,9 @@ public:
      * for the rest of the robot
      */
     bool rubberFeet;
-    /** use foot contact sensors */
-    bool useContactSensors;
-    /** get velocity vector in local coordinates and pass it as sensorvalues */
+    /** decide whether you wand to use a local velocity sensors.
+     *  If yes it gets velocity vector in local coordinates and pass it as
+     *  sensorvalues */
     bool useLocalVelSensor;
     /**@}*/
 

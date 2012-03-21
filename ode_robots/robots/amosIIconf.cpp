@@ -45,7 +45,6 @@ namespace lpzrobots {
         c.useBack           = _useBack;
         c.useWhiskers       = 0;
         c.rubberFeet        = false;
-        c.useContactSensors = 0;
         c.useLocalVelSensor = 0;
 
         // the trunk length. this scales the whole robot! all parts' sizes,
@@ -265,7 +264,6 @@ namespace lpzrobots {
         c.useBack           = _useBack;
         c.useWhiskers       = 0;
         c.rubberFeet        = false;
-        c.useContactSensors = 1;
         c.useLocalVelSensor = 1;
 
         // the trunk length. this scales the whole robot! all parts' sizes,
@@ -418,7 +416,6 @@ namespace lpzrobots {
         c.useBack           = _useBack;
         c.useWhiskers       = 0;
         c.rubberFeet        = false;
-        c.useContactSensors = 0;
         c.useLocalVelSensor = 0;
 
         // the trunk length. this scales the whole robot! all parts' sizes will
@@ -562,7 +559,6 @@ namespace lpzrobots {
         c.useBack           = _useBack;
         c.useWhiskers       = 0;
         c.rubberFeet        = false;
-        c.useContactSensors = 0;
         c.useLocalVelSensor = 0;
 
         // the trunk length. this scales the whole robot! all parts' sizes,
