@@ -98,8 +98,6 @@ public:
     double frontLength;
     /** homogenous density used to scale the whole robot */
     double density;
-    /** total mass */
-    double mass;
 
     /** trunk mass */
     double trunkMass;

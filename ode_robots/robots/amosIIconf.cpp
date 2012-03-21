@@ -62,10 +62,10 @@ namespace lpzrobots {
 
         c.trunkMass         = c.density * c.size * c.width * c.height;
         // use the original trunk to total mass ratio
-        c.mass              = 5.758/2.2 * c.trunkMass;
+        const double mass   = 5.758/2.2 * c.trunkMass;
         c.frontMass         = c.trunkMass * c.frontLength/c.size;
         // distribute the rest of the weight like this for now */
-        c.shoulderMass      = (c.mass - c.trunkMass)
+        c.shoulderMass      = (mass - c.trunkMass)
                               / (6*(3.0 + c.useShoulder))
                               * (20.0 - c.useFoot)
                               / 20.0;
@@ -74,7 +74,7 @@ namespace lpzrobots {
         c.tebiaMass         = c.shoulderMass;
         // foot gets 3 or 4 times 1/20 of shoulderMass (divide and multiply by
         // 3 or 4)
-        c.footMass          = (c.mass - c.trunkMass) / 6 * c.useFoot/20.0;
+        c.footMass          = (mass - c.trunkMass) / 6 * c.useFoot/20.0;
 
         //As real robot!!
         const double shoulderHeight_cm = 6.5;
@@ -237,7 +237,7 @@ namespace lpzrobots {
         c.texture="textures/toy_fur3.jpg";
 
         std::cout << "trunkMass    " << c.trunkMass << "\n";
-        std::cout << "Mass         " << c.mass << "\n";
+        std::cout << "Mass         " << mass << "\n";
         std::cout << "shoulderMass " << c.shoulderMass << "\n";
         std::cout << "footMass     " << c.footMass << "\n";
         std::cout << "backPower    " << c.backPower << "\n";
@@ -280,10 +280,10 @@ namespace lpzrobots {
         c.density           =  2.2/(0.43 * 0.07 * 0.065)/(pow(_scale,3));
         c.trunkMass         = c.density * c.size * c.width * c.height;
         //use the original trunk to total mass ratio
-        c.mass              = 5.758/2.2 * c.trunkMass;
+        const double mass   = 5.758/2.2 * c.trunkMass;
         c.frontMass         = c.trunkMass * c.frontLength/c.size;
         //distribute the rest of the weight like this for now
-        c.shoulderMass      = (c.mass - c.trunkMass)
+        c.shoulderMass      = (mass - c.trunkMass)
                               / (6*(3.0 + c.useShoulder))
                               * (20.0 - c.useFoot)/20.0;
         c.coxaMass          = c.shoulderMass;
@@ -291,7 +291,7 @@ namespace lpzrobots {
         c.tebiaMass         = c.shoulderMass;
         // foot gets 3 or 4 times 1/20 of shoulderMass (divide and multiply by
         // 3 or 4)
-        c.footMass          = (c.mass - c.trunkMass) / 6 * c.useFoot/20.0;
+        c.footMass          = (mass - c.trunkMass) / 6 * c.useFoot/20.0;
 
         c.shoulderHeight    = 4.5 / 6.5 * c.height;
         //distance between hindlegs and middle legs
@@ -392,7 +392,7 @@ namespace lpzrobots {
         c.texture           = "textures/toy_fur3.jpg";
 
         std::cout << "trunkMass    " << c.trunkMass << "\n";
-        std::cout << "Mass         " << c.mass << "\n";
+        std::cout << "Mass         " << mass << "\n";
         std::cout << "shoulderMass " << c.shoulderMass << "\n";
         std::cout << "footMass     " << c.footMass << "\n";
         std::cout << "backPower    " << c.backPower << "\n";
@@ -432,10 +432,10 @@ namespace lpzrobots {
         c.density           = 2.2/(c.size * c.width * c.height);
         c.trunkMass         = c.density * c.size * c.width * c.height;
         // use the original trunk to total mass ratio
-        c.mass              = 5.758/2.2 * c.trunkMass;
+        const double mass   = 5.758/2.2 * c.trunkMass;
         c.frontMass         = c.trunkMass * c.frontLength/c.size;
         // distribute the rest of the weight like this for now
-        c.shoulderMass      = (c.mass - c.trunkMass)
+        c.shoulderMass      = (mass - c.trunkMass)
                               / (6*(3.0 + c.useShoulder))
                               * (20.0 - c.useFoot)/20.0;
         c.coxaMass          = c.shoulderMass;
@@ -443,7 +443,7 @@ namespace lpzrobots {
         c.tebiaMass         = c.shoulderMass;
         // foot gets 3 or 4 times 1/20 of shoulderMass (divide and multiply by
         // 3 or 4)
-        c.footMass          = (c.mass - c.trunkMass) / 6 * c.useFoot/20.0;
+        c.footMass          = (mass - c.trunkMass) / 6 * c.useFoot/20.0;
         c.shoulderHeight    = 4.5 / 6.5 * c.height;
         // distance between hindlegs and middle legs
         c.legdist1          = 19.0/43.0 * c.size;
@@ -577,10 +577,10 @@ namespace lpzrobots {
         c.density           =  2.2/(0.43 * 0.07 * 0.065)/(pow(_scale,3));
         c.trunkMass         = c.density * c.size * c.width * c.height;
         // use the original trunk to total mass ratio
-        c.mass              = 5.758/2.2 * c.trunkMass;
+        const double mass   = 5.758/2.2 * c.trunkMass;
         c.frontMass         = c.trunkMass * c.frontLength/c.size;
         // distribute the rest of the weight like this for now
-        c.shoulderMass      = (c.mass - c.trunkMass)
+        c.shoulderMass      = (mass - c.trunkMass)
                               / (6*(3.0 + c.useShoulder))
                               * (20.0 - c.useFoot) / 20.0;
         c.coxaMass          = c.shoulderMass;
@@ -588,7 +588,7 @@ namespace lpzrobots {
         c.tebiaMass         = c.shoulderMass;
         // foot gets 3 or 4 times 1/20 of shoulderMass (divide and multiply by
         // 3 or 4)
-        c.footMass          = (c.mass - c.trunkMass) / 6 * c.useFoot/20.0;
+        c.footMass          = (mass - c.trunkMass) / 6 * c.useFoot/20.0;
 
         c.shoulderHeight    = 4.5 / 6.5 * c.height;
         // distance between hindlegs and middle legs
@@ -689,7 +689,7 @@ namespace lpzrobots {
         c.texture="textures/toy_fur3.jpg";
 
         std::cout << "trunkMass    " << c.trunkMass << "\n";
-        std::cout << "Mass         " << c.mass << "\n";
+        std::cout << "Mass         " << mass << "\n";
         std::cout << "shoulderMass " << c.shoulderMass << "\n";
         std::cout << "footMass     " << c.footMass << "\n";
         std::cout << "backPower    " << c.backPower << "\n";
