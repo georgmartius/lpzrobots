@@ -22,7 +22,7 @@
  *                                                                         *
  **************************************************************************/
 
-#define VERBOSE
+//#define VERBOSE
 
 #include <cmath>
 #include <assert.h>
