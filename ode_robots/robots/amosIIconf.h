@@ -96,8 +96,6 @@ public:
     double height;
     /** length of the front of the body (if back joint is used) */
     double frontLength;
-    /** homogenous density used to scale the whole robot */
-    double density;
 
     /** trunk mass */
     double trunkMass;

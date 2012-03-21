@@ -58,9 +58,10 @@ namespace lpzrobots {
         c.frontLength       = 12.0/43.0 * c.size;
         // we use as density the original trunk weight divided by the original
         // volume
-        c.density           =  2.2/(0.43 * 0.07 * 0.065);
 
-        c.trunkMass         = c.density * c.size * c.width * c.height;
+        const double density=  2.2/(0.43 * 0.07 * 0.065);
+
+        c.trunkMass         = density * c.size * c.width * c.height;
         // use the original trunk to total mass ratio
         const double mass   = 5.758/2.2 * c.trunkMass;
         c.frontMass         = c.trunkMass * c.frontLength/c.size;
@@ -277,8 +278,8 @@ namespace lpzrobots {
         c.frontLength       = 12.0/43.0 * c.size;
         // we use as density the original trunk weight divided by the original
         // volume
-        c.density           =  2.2/(0.43 * 0.07 * 0.065)/(pow(_scale,3));
-        c.trunkMass         = c.density * c.size * c.width * c.height;
+        const double density= 2.2/(0.43 * 0.07 * 0.065)/(pow(_scale,3));
+        c.trunkMass         = density * c.size * c.width * c.height;
         //use the original trunk to total mass ratio
         const double mass   = 5.758/2.2 * c.trunkMass;
         c.frontMass         = c.trunkMass * c.frontLength/c.size;
@@ -429,8 +430,8 @@ namespace lpzrobots {
         c.height            = 7.0/43.0 * c.size;
         c.frontLength       = 10.0/43.0;
         // we use as density the original trunk dimension divided by its volume
-        c.density           = 2.2/(c.size * c.width * c.height);
-        c.trunkMass         = c.density * c.size * c.width * c.height;
+        const double density= 2.2/(c.size * c.width * c.height);
+        c.trunkMass         = density * c.size * c.width * c.height;
         // use the original trunk to total mass ratio
         const double mass   = 5.758/2.2 * c.trunkMass;
         c.frontMass         = c.trunkMass * c.frontLength/c.size;
@@ -574,8 +575,8 @@ namespace lpzrobots {
         c.frontLength       = 12.0/43.0 * c.size;
         // we use as density the original trunk weight divided by the original
         // volume
-        c.density           =  2.2/(0.43 * 0.07 * 0.065)/(pow(_scale,3));
-        c.trunkMass         = c.density * c.size * c.width * c.height;
+        const double density= 2.2/(0.43 * 0.07 * 0.065)/(pow(_scale,3));
+        c.trunkMass         = density * c.size * c.width * c.height;
         // use the original trunk to total mass ratio
         const double mass   = 5.758/2.2 * c.trunkMass;
         c.frontMass         = c.trunkMass * c.frontLength/c.size;
