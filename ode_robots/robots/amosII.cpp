@@ -22,7 +22,7 @@
  *                                                                         *
  **************************************************************************/
 
-//#define VERBOSE
+#define VERBOSE
 
 #include <cmath>
 #include <assert.h>
@@ -375,12 +375,12 @@ namespace lpzrobots {
         sensors[FL_us]  = usSensorFrontLeft->get();
 
         // IR sensors at the legs
-        sensors[R0_irs] = irLegSensors[R0]->get();
-        sensors[R1_irs] = irLegSensors[R1]->get();
-        sensors[R2_irs] = irLegSensors[R2]->get();
-        sensors[L0_irs] = irLegSensors[L0]->get();
-        sensors[L1_irs] = irLegSensors[L1]->get();
-        sensors[L2_irs] = irLegSensors[L2]->get();
+        sensors[R0_irs] = irLegSensors[R0] ? irLegSensors[R0]->get() : 0;
+        sensors[R1_irs] = irLegSensors[R1] ? irLegSensors[R1]->get() : 0;
+        sensors[R2_irs] = irLegSensors[R2] ? irLegSensors[R2]->get() : 0;
+        sensors[L0_irs] = irLegSensors[L0] ? irLegSensors[L0]->get() : 0;
+        sensors[L1_irs] = irLegSensors[L1] ? irLegSensors[L1]->get() : 0;
+        sensors[L2_irs] = irLegSensors[L2] ? irLegSensors[L2]->get() : 0;
 
         // Reflex ultrasonic sensors at front, middle and rear legs
         sensors[R0_us] = 0;
