@@ -14,7 +14,7 @@
 # make sure that you create the directories on the webserver and change the "current" links
 #  if the major version changes
 MAJOR=0.7
-VERSION=$(MAJOR).0.4
+VERSION=$(MAJOR).0.5
 
 ODEVERSION=0.11.3
 
@@ -259,9 +259,6 @@ upload-oderobots:
 ##!upload-oderobots       uploads the oderobots packages to launchpad
 changepermissions: 
 	-ssh $(ROBOTSERVER) "chmod -R g+r /home/robot/htdocs/software/packages/deb/;"
-	scp $(PACKDIR)/debian-unstable/$(STEM)*.gz $(PACKDIR)/debian-unstable/$(STEM)*.dsc $(ROBOTSERVER):/home/robot/htdocs/software/packages/deb/current/
-	scp $(PACKDIR)/$(STEM)*.tar.gz  $(ROBOTSERVER):/home/robot/htdocs/software/packages/src/current/
-
 
 ##### helper targets, not to be used from outside
 
