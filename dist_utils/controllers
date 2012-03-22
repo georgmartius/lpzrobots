@@ -10,6 +10,8 @@ classicreinforce.cpp
 classicreinforce.h
 controllernet.cpp
 controllernet.h
+crossmotorcoupling.cpp
+crossmotorcoupling.h
 discretecontrolleradapter.cpp
 discretecontrolleradapter.h
 discretesizable.h
