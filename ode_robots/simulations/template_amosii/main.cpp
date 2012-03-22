@@ -48,10 +48,6 @@ class ThisSim : public lpzrobots::Simulation {
           lpzrobots::Pos(-0.0114359, 6.66848, 0.922832),
           lpzrobots::Pos(178.866, -7.43884, 0));
 
-      // set simulation parameters
-      //global.odeConfig.setParam("controlinterval", 10);
-      global.odeConfig.setParam("simstepsize", 0.01);
-
       // Add amosII robot
       lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf();
       lpzrobots::OdeHandle rodeHandle = odeHandle;
@@ -73,9 +69,7 @@ class ThisSim : public lpzrobots::Simulation {
       amos->place(osg::Matrix::translate(.0, .0, 1));
 
       // create a simple example controller
-      //controller = new MyController();
       SineController* sine = new SineController();
-      // //     // //     // motorpower 20
       sine->setParam("period", 200);
       sine->setParam("phaseshift", 5./6.);
       sine->setParam("amplitude",  0.3);
