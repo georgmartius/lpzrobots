@@ -26,8 +26,8 @@
 #ifndef __AMOSII_H
 #define __AMOSII_H
 
-#include <selforg/inspectable.h>
 #include <ode_robots/oderobot.h>
+#include <selforg/inspectable.h>
 #include <selforg/amosiisensormotordefinition.h>
 
 /**
@@ -35,15 +35,15 @@
  */
 namespace lpzrobots {
     class HingeJoint;
-    class SliderJoint;
-    class Primitive;
+    class IRSensor;
     class Joint;
     class OneAxisServo;
-    class TwoAxisServo;
-    class Spring;
-    class IRSensor;
-    class SpeedSensor;
+    class Primitive;
     class RaySensorBank;
+    class SliderJoint;
+    class SpeedSensor;
+    class Spring;
+    class TwoAxisServo;
 }
 
 namespace lpzrobots {
