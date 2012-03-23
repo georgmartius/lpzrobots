@@ -32,7 +32,7 @@
 // the robot
 #include <ode_robots/amosII.h>
 // the controller
-#include <selforg/sinecontroller.h>
+#include "tripodgait18dof.h"
 // joint needed for fixation of the robot in the beginning
 #include <ode_robots/joint.h>
 
@@ -50,6 +50,10 @@ class ThisSim : public lpzrobots::Simulation {
       setCameraHomePos(
           lpzrobots::Pos(-0.0114359, 6.66848, 0.922832),
           lpzrobots::Pos(178.866, -7.43884, 0));
+
+      // set simulation parameters
+      global.odeConfig.setParam("controlinterval", 10);
+      global.odeConfig.setParam("simstepsize", 0.01);
 
       // Add amosII robot
       lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf();
@@ -72,12 +76,14 @@ class ThisSim : public lpzrobots::Simulation {
       amos->place(osg::Matrix::translate(.0, .0, 1));
 
       // create a simple example controller
+      /*
       SineController* sine = new SineController();
       sine->setParam("period", 200);
       sine->setParam("phaseshift", 5./6.);
       sine->setParam("amplitude",  0.3);
       controller = sine;
-
+  */
+      controller = new TripodGait18DOF();
       // create wiring
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
 
