@@ -34,6 +34,7 @@
 #include <ode_robots/primitive.h>
 
 // include sensors
+#include <ode_robots/raysensorbank.h>
 #include <ode_robots/irsensor.h>
 #include <ode_robots/speedsensor.h>
 
@@ -446,7 +447,7 @@ namespace lpzrobots {
             if(*i) (*i)->update();
         }
         // update the graphical representation of the sensorbank
-        irSensorBank.update();
+        irSensorBank->update();
     #ifdef VERBOSE
         std::cerr << "AmosII::update END\n";
     #endif
@@ -485,7 +486,7 @@ namespace lpzrobots {
         for (int i=0; i<LEG_POS_MAX; i++) legContact[LegPos(i)] = 0;
 
         // reset ir sensors to maximum value
-        irSensorBank.reset();
+        irSensorBank->reset();
 
         // passive servos have to be set to zero in every time step so they work
         // as springs
@@ -642,11 +643,12 @@ namespace lpzrobots {
         }
 
         // initialize the infrared sensors
-        irSensorBank.init(odeHandle, osgHandle);
+        irSensorBank = new RaySensorBank();
+        irSensorBank->init(odeHandle, osgHandle);
 
         // ultrasonic sensors at Front part
         usSensorFrontRight = new IRSensor();
-        irSensorBank.registerSensor(
+        irSensorBank->registerSensor(
                 usSensorFrontRight,
                 front,
                 ROTM( M_PI/2, conf.usAngleX, conf.usAngleY, 0)
@@ -657,7 +659,7 @@ namespace lpzrobots {
                 RaySensor::drawRay);
 
         usSensorFrontLeft = new IRSensor();
-        irSensorBank.registerSensor(
+        irSensorBank->registerSensor(
                 usSensorFrontLeft,
                 front,
                 ROTM(M_PI/2, (conf.usParallel?1:-1) * conf.usAngleX, conf.usAngleY,0) *
@@ -920,7 +922,7 @@ namespace lpzrobots {
 
                 // IR sensor at each leg
                 IRSensor* sensor = new IRSensor();
-                irSensorBank.registerSensor(
+                irSensorBank->registerSensor(
                         sensor,
                         tebia,
                         ROTM(M_PI/2, 0,1,0) *
@@ -1062,7 +1064,8 @@ namespace lpzrobots {
 
             }
 
-            irSensorBank.clear();
+            irSensorBank->clear();
+            delete irSensorBank;
 
             if (speedsensor)
             {

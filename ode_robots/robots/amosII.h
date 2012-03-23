@@ -28,9 +28,7 @@
 
 #include <selforg/inspectable.h>
 #include <ode_robots/oderobot.h>
-#include <ode_robots/raysensorbank.h>
 #include <selforg/amosiisensormotordefinition.h>
-
 
 /**
  * forward declarations
@@ -45,6 +43,7 @@ namespace lpzrobots {
     class Spring;
     class IRSensor;
     class SpeedSensor;
+    class RaySensorBank;
 }
 
 namespace lpzrobots {
@@ -497,7 +496,7 @@ namespace lpzrobots {
         bool created;      // true if robot was created
 
         /** a collection of ir sensors **/
-        RaySensorBank irSensorBank;
+        RaySensorBank * irSensorBank;
 
         /** speed sensor */
         /** @todo implement speed sensor */
