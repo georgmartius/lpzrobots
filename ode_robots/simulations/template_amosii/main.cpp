@@ -33,6 +33,9 @@
 #include <ode_robots/amosII.h>
 // the controller
 #include <selforg/sinecontroller.h>
+// joint needed for fixation of the robot in the beginning
+#include <ode_robots/joint.h>
+
 
 class ThisSim : public lpzrobots::Simulation {
 

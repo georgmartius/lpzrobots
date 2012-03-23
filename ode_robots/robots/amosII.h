@@ -29,7 +29,6 @@
 #include <selforg/inspectable.h>
 #include <ode_robots/oderobot.h>
 #include <ode_robots/raysensorbank.h>
-#include <ode_robots/spring.h>
 #include <selforg/amosiisensormotordefinition.h>
 
 
@@ -37,6 +36,8 @@
  * forward declarations
  */
 namespace lpzrobots {
+    class HingeJoint;
+    class SliderJoint;
     class Primitive;
     class Joint;
     class OneAxisServo;

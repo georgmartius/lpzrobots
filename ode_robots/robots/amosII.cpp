@@ -41,6 +41,7 @@
 #include <ode_robots/joint.h>
 #include <ode_robots/oneaxisservo.h>
 #include <ode_robots/twoaxisservo.h>
+#include <ode_robots/spring.h>
 
 #include <ode_robots/mathutils.h>
 
