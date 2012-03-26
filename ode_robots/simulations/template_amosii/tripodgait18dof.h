@@ -61,20 +61,24 @@ class TripodGait18DOF : public AbstractController {
     virtual paramkey getName() const {
       return name;
     }
-    /// returns the number of sensors the controller was initialised with or 0 if not initialised
+    /// returns the number of sensors the controller was initialised with or 0
+    /// if not initialised
     virtual int getSensorNumber() const {
       return number_channels;
     }
-    /// returns the mumber of motors the controller was initialised with or 0 if not initialised
+    /// returns the mumber of motors the controller was initialised with or 0 if
+    // not initialised
     virtual int getMotorNumber() const {
       return number_channels;
     }
 
     /// performs one step (includes learning).
     /// Calulates motor commands from sensor inputs.
-    virtual void step(const sensor*, int number_sensors, motor*, int number_motors);
+    virtual void step(const sensor*, int number_sensors, motor*,
+        int number_motors);
 
-    /// performs one step without learning. Calulates motor commands from sensor inputs.
+    /// performs one step without learning. Calulates motor commands from sensor
+    /// inputs.
     virtual void stepNoLearning(const sensor*, int number_sensors,
         motor*, int number_motors);
 
@@ -149,13 +153,20 @@ class TripodGait18DOF : public AbstractController {
 
     virtual paramlist getParamList() const {
       paramlist list;
-      list.push_back(std::pair<paramkey, paramval>("WeightH1_H1", conf.WeightH1_H1));
-      list.push_back(std::pair<paramkey, paramval>("WeightH2_H2", conf.WeightH2_H2));
-      list.push_back(std::pair<paramkey, paramval>("WeightH1_H2", conf.WeightH1_H2));
-      list.push_back(std::pair<paramkey, paramval>("WeightH2_H1", conf.WeightH2_H1));
-      list.push_back(std::pair<paramkey, paramval>("fact", conf.fact));
-      list.push_back(std::pair<paramkey, paramval>("direction", conf.direction));
-      list.push_back(std::pair<paramkey, paramval>("bias", conf.bias));
+      list.push_back(
+          std::pair<paramkey, paramval>("WeightH1_H1", conf.WeightH1_H1));
+      list.push_back(
+          std::pair<paramkey, paramval>("WeightH2_H2", conf.WeightH2_H2));
+      list.push_back(
+          std::pair<paramkey, paramval>("WeightH1_H2", conf.WeightH1_H2));
+      list.push_back(
+          std::pair<paramkey, paramval>("WeightH2_H1", conf.WeightH2_H1));
+      list.push_back(
+          std::pair<paramkey, paramval>("fact", conf.fact));
+      list.push_back(
+          std::pair<paramkey, paramval>("direction", conf.direction));
+      list.push_back(
+          std::pair<paramkey, paramval>("bias", conf.bias));
       return list;
     }
 };
