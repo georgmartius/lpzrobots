@@ -324,29 +324,34 @@ namespace lpzrobots {
        */
       virtual void update();
 
-      /** sets the pose of the vehicle
-       @param pose desired pose matrix
+      /**
+       * sets the pose of the vehicle
+       * @param pose desired pose matrix
        */
       virtual void place(const osg::Matrix& pose);
 
-      /** returns actual sensorvalues
-       @param sensors sensors scaled to [-1,1]
-       @param sensornumbAmosII::getDefaultConf()er length of the sensor array
-       @return number of actually written sensors
+      /**
+       * returns actual sensorvalues
+       * @param sensors sensor array with sensors scaled to [-1,1]
+       * @param sensornumber length of the sensor array
+       * @return number of actually written sensors
        */
       virtual int getSensors(sensor* sensors, int sensornumber);
 
-      /** sets actual motorcommands
-       @param motors motors scaled to [-1,1]
-       @param motornumber length of the motor array
+      /**
+       * sets actual motorcommands
+       * @param motors motors scaled to [-1,1]
+       * @param motornumber length of the motor array
        */
       virtual void setMotors(const motor* motors, int motornumber);
 
-      /** returns number of sensors
+      /**
+       * returns number of sensors
        */
       virtual int getSensorNumber();
 
-      /** returns number of motors
+      /**
+       * returns number of motors
        */
       virtual int getMotorNumber();
       /**
@@ -373,8 +378,10 @@ namespace lpzrobots {
       // Configurable Interface
       virtual bool setParam(const paramkey& key, paramval val);
 
-      /** the main object of the robot, which is used for position and speed
-       *  tracking */
+      /**
+       * the main object of the robot, which is used for position and speed
+       * tracking
+       */
       virtual Primitive* getMainPrimitive() const;
 
       /**
