@@ -297,19 +297,6 @@ namespace lpzrobots {
       typedef AmosIISensorNames SensorName;
 
       /**
-       * constructor of VierBeiner robot
-       * @param odeHandle data structure for accessing ODE
-       * @param osgHandle ata structure for accessing OSG
-       * @param conf configuration object
-       */
-      AmosII(const OdeHandle& odeHandle,
-          const OsgHandle& osgHandle,
-          const AmosIIConf& conf,
-          const std::string& name);
-
-      virtual ~AmosII();
-
-      /**
        * Returns the default configuration values
        */
       static AmosIIConf getDefaultConf(
@@ -317,6 +304,20 @@ namespace lpzrobots {
           bool _useShoulder = 1,
           bool _useFoot = 1,
           bool _useBack = 0);
+
+      /**
+       * constructor
+       * @param odeHandle data structure for accessing ODE
+       * @param osgHandle ata structure for accessing OSG
+       * @param conf configuration object
+       * @param name name to display for this robot
+       */
+      AmosII(const OdeHandle& odeHandle,
+          const OsgHandle& osgHandle,
+          const AmosIIConf& conf = getDefaultConf(),
+          const std::string& name = "AmosII robot");
+
+      virtual ~AmosII();
 
       /**
        * updates the OSG nodes of the vehicle
