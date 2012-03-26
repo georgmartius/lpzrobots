@@ -16,7 +16,7 @@ configure-stamp:
 	sh ./autogen.sh
 	dh_testdir
 #	QUILT_PATCHES=debian/patches quilt push -a || test $$? = 2
-	dh_auto_configure -- --disable-demos --enable-shared
+	dh_auto_configure -- --disable-asserts --disable-demos --enable-shared
 	touch configure-stamp
 
 build: build-stamp
