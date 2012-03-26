@@ -35,10 +35,6 @@
 
 #include <selforg/matrix.h>
 
-
-
-
-
 typedef struct TripodGait18DOFConf {
   double WeightH1_H1;
   double WeightH2_H2;
@@ -48,9 +44,6 @@ typedef struct TripodGait18DOFConf {
   double direction;
   double bias;
 } TripodGait18DOFConf;
-
-
-
 
 /**
  *
@@ -101,9 +94,6 @@ public:
    
     return c;
   }
- 
-
-
 
 protected:
   unsigned short number_channels;
@@ -117,7 +107,6 @@ protected:
   
 
 public:
-   
  virtual paramval getParam(const paramkey& key) const{
     if(key == "WeightH1_H1") return conf.WeightH1_H1; 
     else if(key == "WeightH2_H2") return conf.WeightH2_H2; 
@@ -137,7 +126,7 @@ public:
     else if(key == "fact") conf.fact=val;
     else if(key == "direction") conf.direction=val;
     else if(key == "bias") conf.bias=val;
-    else return false; //AbstractController::setParam(key, val);  //nutzt ja keine Parameter davon
+    else return false;
     return true;
   }
 
@@ -152,8 +141,6 @@ public:
     list.push_back(std::pair<paramkey, paramval> ("bias", conf.bias));
     return list;
   }
-
-
 };
 
 #endif

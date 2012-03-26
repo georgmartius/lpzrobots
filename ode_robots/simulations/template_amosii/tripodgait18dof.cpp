@@ -67,29 +67,6 @@ void TripodGait18DOF::stepNoLearning(const sensor* x_, int number_sensors,
   outputH1 = tanh(activityH1);
   outputH2 = tanh(activityH2); 
   
-//  //old ordering
-//  // generate motor commands
-//  y_[0] = outputH2 * conf.fact + conf.bias; //right rear coxa (knee) forward-backward joint (back is positive)
-//  y_[1] = outputH1 * conf.fact * conf.direction;
-//  y_[2] = -y_[1];
-//  y_[3] =-outputH2 * conf.fact + conf.bias; //left rear coxa (knee) forward-backward joint
-//  y_[4] =-outputH1 * conf.fact * conf.direction;
-//  y_[5] = -y_[4];
-//  y_[6] =-outputH2 * conf.fact + conf.bias; //right middle coxa (knee) forward-backward joint
-//  y_[7] =-outputH1 * conf.fact * conf.direction;
-//  y_[8] = -y_[7];
-//  y_[9] = outputH2 * conf.fact + conf.bias; //left middle coxa (knee) forward-backward joint
-//  y_[10] = outputH1 * conf.fact * conf.direction;
-//  y_[11] = -y_[10];
-//  y_[12] = outputH2 * conf.fact + conf.bias; //right front coxa (knee) forward-backward joint
-//  y_[13] = outputH1 * conf.fact * conf.direction;
-//  y_[14] = -y_[13];
-//  y_[15]=-outputH2 * conf.fact + conf.bias; //left front coxa (knee) forward-backward joint
-//  y_[16]=-outputH1 * conf.fact * conf.direction;
-//  y_[17] = -y_[16];
-
-
-  //new ordering
   // generate motor commands      
   y_[TR2_m] = outputH2 * conf.fact + conf.bias; //right rear coxa (knee) forward-backward joint (back is positive)
   y_[CR2_m] = outputH1 * conf.fact * conf.direction;
@@ -110,30 +87,16 @@ void TripodGait18DOF::stepNoLearning(const sensor* x_, int number_sensors,
   y_[CL0_m]=-outputH1 * conf.fact * conf.direction;
   y_[FL0_m] = -y_[16];
 
-
-
-	//std::cout<<y_[16]<<"   ";
-	//std::cout<<"in trip.: "<<y_[17]<<"   ";
-
-
   // update step counter
   t++;
 };
-  
-      
-  
 
 /** stores the controller values to a given file. */
 bool TripodGait18DOF::store(FILE* f) const{  
   return true;
 }
 
-
 /** loads the controller values from a given file. */
 bool TripodGait18DOF::restore(FILE* f){
   return true;
 }
-
-
-
-  
