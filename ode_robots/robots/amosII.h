@@ -81,6 +81,12 @@ namespace lpzrobots {
       double height;
       /** length of the front of the body (if back joint is used) */
       double frontLength;
+      /** radius of a wheel */
+      double wheel_radius;
+      /** width of a wheel */
+      double wheel_width;
+      /** mass of a wheel */
+      double wheel_mass;
 
       /** trunk mass */
       double trunkMass;

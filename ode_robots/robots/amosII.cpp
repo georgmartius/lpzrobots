@@ -989,19 +989,14 @@ namespace lpzrobots {
           odeHandle.addIgnoredPair(secondThorax, foot);
         }
       }
-      else if (legPosUsage[leg] == WHEEL)
-          {
-        double radius = 0.10 * conf.size;
-        double width = 0.04 * conf.size;
-        std::string wtexture = "textures/wood.rgb";
-
+      else if (legPosUsage[leg] == WHEEL) {
         //Sphere* sph = new Sphere(radius);
-        Cylinder* wheel = new Cylinder(radius, width);
-        wheel->setTexture(wtexture);
+        Cylinder* wheel = new Cylinder(conf.wheel_radius, conf.wheel_width);
+        wheel->setTexture(conf.texture);
         OsgHandle bosghandle = osgHandle;
         wheel->init(
             odeHandle,
-            0.5, // mass
+            conf.wheel_mass, // mass
             bosghandle.changeColor(Color(0.8, 0.8, 0.8, 1.0f)));
         const double pmlr =
             (leg == L0 || leg == L1 || leg == L2)
@@ -1016,7 +1011,7 @@ namespace lpzrobots {
             // switch left or right side of trunk for each leg
             pmlr * conf.width,
             // height of wheel fixation to trunk
-            -0.7 * conf.height + radius);
+            -0.7 * conf.height + conf.wheel_radius);
 
         wheel->setPose(
             ROTM(0.5 * M_PI, 1, 0, 0) *
@@ -1030,7 +1025,7 @@ namespace lpzrobots {
             wheel,
             anchor,
             Axis(0, 1, 0) * trunkPos);
-        wheeljoint->init(odeHandle, osgHandleJoint, true, 1.1 * width);
+        wheeljoint->init(odeHandle, osgHandleJoint, true, 1.1 * conf.wheel_width);
         joints.push_back(wheeljoint);
       }
     }
@@ -1394,6 +1389,12 @@ namespace lpzrobots {
     c.legdist1 = 19.0 / 43.0 * c.size;
     // distance between middle legs and front legs
     c.legdist2 = 15.0 / 43.0 * c.size;
+
+    // configure the wheels (if used). They don't have any counterpart in
+    // reality, so the chosen values are arbitrary
+    c.wheel_radius = 0.10 * c.size;
+    c.wheel_width  = 0.04 * c.size;
+    c.wheel_mass   = (mass-c.trunkMass) / 6.0;
 
     // -----------------------
     // 1) Biomechanics
