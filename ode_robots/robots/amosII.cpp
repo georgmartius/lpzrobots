@@ -811,8 +811,8 @@ namespace lpzrobots {
 
         osg::Matrix c1;
 
-        // m0 is the position where the center of mass of the zeroth
-        // limb capsule is placed
+        // m0 is the position where the center of mass of the zeroth limb
+        // capsule is placed
         osg::Matrix m0;
 
         if (conf.useShoulder)
@@ -823,10 +823,8 @@ namespace lpzrobots {
           Primitive * should = new Capsule(t0, l0);
           should->setTexture(conf.texture);
           // add shoulder to trunk body
-          // the shoulder's pose has to be given relative to the
-          // trunk's pose
-          // add the first four shoulders to center the other two to
-          // front
+          // the shoulder's pose has to be given relative to the trunk's pose
+          // add the first four shoulders to center the other two to front
           Primitive * trans = new Transform(
               (leg == L0 || leg == R0) ? front : center,
               should,
