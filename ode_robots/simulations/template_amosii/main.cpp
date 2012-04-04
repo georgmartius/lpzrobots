@@ -75,14 +75,6 @@ class ThisSim : public lpzrobots::Simulation {
       // put amos a little bit in the air
       amos->place(osg::Matrix::translate(.0, .0, 1));
 
-      // create a simple example controller
-      /*
-      SineController* sine = new SineController();
-      sine->setParam("period", 200);
-      sine->setParam("phaseshift", 5./6.);
-      sine->setParam("amplitude",  0.3);
-      controller = sine;
-  */
       controller = new TripodGait18DOF();
       // create wiring
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise());
