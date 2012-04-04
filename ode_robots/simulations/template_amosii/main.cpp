@@ -121,8 +121,11 @@ class ThisSim : public lpzrobots::Simulation {
       if (down) { // only when key is pressed, not when released
         switch (char(key)) {
           case 'x':
-            std::cout << "dropping robot" << std::endl;
-            delete robotfixator;
+            if (robotfixator) {
+              std::cout << "dropping robot" << std::endl;
+              delete robotfixator;
+              robotfixator = NULL;
+            }
             break;
           default:
             return false;
