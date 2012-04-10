@@ -52,14 +52,14 @@ public:
 
   typedef std::string iparamkey;
   typedef double iparamval;
-  typedef std::pair<iparamkey,iparamval*> iparampair;
+  typedef std::pair<iparamkey,iparamval const*> iparampair;
 
   // the bool says whether  only 4x4AndDiag is used
   typedef std::pair<iparamkey,std::pair< const matrix::Matrix*, bool > > imatrixpair; 
   typedef std::list<iparamkey> iparamkeylist;
   typedef std::list<std::string> infoLinesList;
   typedef std::list<iparamval> iparamvallist;
-  typedef std::list<iparamval*> iparamvalptrlist;
+  typedef std::list<iparamval const *> iparamvalptrlist;
   typedef std::list<iparampair> iparampairlist;
   typedef std::list<imatrixpair> imatrixpairlist;
 
@@ -149,7 +149,7 @@ public:
    * @param val the address of the value to inspect
    * @param descr description string to be exported (using infolines)
    */
-  virtual void addInspectableValue(const iparamkey& key, iparamval* val, 
+  virtual void addInspectableValue(const iparamkey& key, iparamval const * val,
                                    const std::string& descr = std::string());
 
 
