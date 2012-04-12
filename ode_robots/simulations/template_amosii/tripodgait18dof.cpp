@@ -21,7 +21,7 @@
  ***************************************************************************/
 
 #include <selforg/controller_misc.h>
-#include <selforg/amosiisensormotordefinition.h>
+#include <ode_robots/amosiisensormotordefinition.h>
 #include "tripodgait18dof.h"
 using namespace matrix;
 using namespace std;

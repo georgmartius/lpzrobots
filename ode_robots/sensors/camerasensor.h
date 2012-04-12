@@ -30,7 +30,7 @@
 namespace lpzrobots {
 
 
-  /** This to connect a Camera as a sensor to a robot. 
+  /** Class to connect a Camera as a sensor to a robot. 
       Essentially it implements the conversion from the 2D image 
       to a list of double sensor values. 
       The initialization is a bit confusing: use the contructor (of a inherited class)

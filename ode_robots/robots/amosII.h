@@ -27,7 +27,7 @@
 
 #include <ode_robots/oderobot.h>
 #include <selforg/inspectable.h>
-#include <selforg/amosiisensormotordefinition.h>
+#include <ode_robots/amosiisensormotordefinition.h>
 
 /**
  * forward declarations
