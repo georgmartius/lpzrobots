@@ -27,6 +27,7 @@
 
 #include <ode_robots/oderobot.h>
 #include <selforg/inspectable.h>
+#include <ode_robots/contactsensor.h>
 #include <ode_robots/amosiisensormotordefinition.h>
 
 /**
@@ -360,13 +361,6 @@ namespace lpzrobots {
        * returns number of motors
        */
       virtual int getMotorNumber();
-      /**
-       * checks for internal collisions and treats them.
-       * In case of a treatment return true (collision will be ignored by other
-       * objects and the default routine)  else false (collision is passed to
-       * other objects and (if not treated) to the default routine).
-       */
-      virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
       /**
        * this function is called in each timestep. It should perform
@@ -480,6 +474,7 @@ namespace lpzrobots {
       /** typedefs */
       typedef std::map<LegPos, HingeJoint*> HingeJointMap;
       typedef std::map<LegPos, Leg> LegMap;
+      typedef std::map<LegPos, ContactSensor*> LegContactMap;
       typedef std::map<MotorName, OneAxisServo*> MotorMap;
       typedef std::map<LegPos, LegPosUsage> LegPosUsageMap;
       typedef std::map<LegPos, IRSensor*> LegIRSensorMap;
@@ -513,7 +508,8 @@ namespace lpzrobots {
       /**
        * used for detection of leg contacts
        */
-      LegMap mylegContactArray;
+      LegContactMap legContactSensors;
+    
 
       // this map knows which IR sensor to find at which leg
       LegIRSensorMap irLegSensors;
@@ -548,7 +544,6 @@ namespace lpzrobots {
 
       // contains all active servos
       MotorMap servos;
-      std::map<LegPos, bool> legContact;
   };
 }
 

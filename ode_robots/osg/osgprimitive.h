@@ -86,6 +86,8 @@ namespace lpzrobots {
     virtual void setColor(const Color& color);
     /// sets the color using the colorschema of osgHandle
     virtual void setColor(const std::string& color);
+    /// returns the current color
+    virtual Color getColor();
 
     /// returns a osg transformation object;
     virtual osg::Transform* getTransform();

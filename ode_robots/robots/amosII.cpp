@@ -87,10 +87,13 @@ namespace lpzrobots {
     legPosUsage[R0] = LEG;
     legPosUsage[R1] = LEG;
     legPosUsage[R2] = LEG;
-
-    // set leg contacts to zero
-    for (int i = 0; i < LEG_POS_MAX; i++)
-      legContact[LegPos(i)] = 0;
+    
+    for (int i = 0; i < LEG_POS_MAX; i++){
+      // binary sensor (switch)
+      // legContactSensors[LegPos(i)] = new ContactSensor(true);
+      // force sensor
+      legContactSensors[LegPos(i)] = new ContactSensor(false,50);
+    }
 
     // robot is not created till now
     created = false;
@@ -336,12 +339,12 @@ namespace lpzrobots {
     sensors[BJ_as] = servos[BJ_m] ? -servos[BJ_m]->get() : 0;
 
     // foot contact sensors
-    sensors[R0_fs] = legContact[R0];
-    sensors[R1_fs] = legContact[R1];
-    sensors[R2_fs] = legContact[R2];
-    sensors[L0_fs] = legContact[L0];
-    sensors[L1_fs] = legContact[L1];
-    sensors[L2_fs] = legContact[L2];
+    sensors[R0_fs] = legContactSensors[R0]->get();
+    sensors[R1_fs] = legContactSensors[R1]->get();
+    sensors[R2_fs] = legContactSensors[R2]->get();
+    sensors[L0_fs] = legContactSensors[L0]->get();
+    sensors[L1_fs] = legContactSensors[L1]->get();
+    sensors[L2_fs] = legContactSensors[L2]->get();
 
     // Front Ultrasonic sensors (right and left)
     sensors[FR_us] = usSensorFrontRight->get();
@@ -457,6 +460,12 @@ namespace lpzrobots {
     }
     // update the graphical representation of the sensorbank
     irSensorBank->update();
+    
+    for (int i = 0; i < LEG_POS_MAX; i++){
+      legContactSensors[LegPos(i)]->update();
+    }      
+
+
 #ifdef VERBOSE
     std::cerr << "AmosII::update END\n";
 #endif
@@ -492,9 +501,10 @@ namespace lpzrobots {
     // update statistics
     position = getPosition();
 
-    // set leg contacts to zero
-    for (int i = 0; i < LEG_POS_MAX; i++)
-      legContact[LegPos(i)] = 0;
+    // reset contact sensors
+    for (int i = 0; i < LEG_POS_MAX; i++){
+      legContactSensors[LegPos(i)]->reset();
+    }
 
     // reset ir sensors to maximum value
     irSensorBank->reset();
@@ -514,47 +524,6 @@ namespace lpzrobots {
 
   Primitive* AmosII::getMainPrimitive() const {
     return center;
-  }
-
-  /**
-   * checks for internal collisions and treats them.
-   * In case of a treatment return true (collision will be ignored by other
-   * objects and the default routine)  else false (collision is passed to
-   * other objects and (if not treated) to the default routine).
-   */
-  bool AmosII::collisionCallback(void *data, dGeomID o1, dGeomID o2) {
-#ifdef VERBOSE
-    std::cerr << "AmosII::collisionCallback BEGIN\n";
-#endif
-    const int NUM_CONTACTS = 20; //8;
-    dContact contacts[NUM_CONTACTS];
-    int numCollisions = dCollide(
-        o1,
-        o2,
-        NUM_CONTACTS,
-        &contacts[0].geom,
-        sizeof(dContact));
-
-    for (int i = 0; i < numCollisions; i++) {
-      const dBodyID b1 = dGeomGetBody(contacts[i].geom.g1);
-      const dBodyID b2 = dGeomGetBody(contacts[i].geom.g2);
-      for (LegMap::iterator it = legs.begin(); it != legs.end(); it++)
-      {
-        // if feet are used they should be used for collision detection,
-        // otherwise the tibia joint is used
-        const dBodyID legId = conf.useFoot
-                              ? it->second.foot->getBody()
-                                  : it->second.tibia->getBody();
-        if (legId == b1 || legId == b2)
-            {
-          legContact[it->first] = true;
-        }
-      }
-    }
-#ifdef VERBOSE
-    std::cerr << "AmosII::collisionCallback END\n";
-#endif
-    return false;
   }
 
   /**
@@ -1027,6 +996,10 @@ namespace lpzrobots {
         joints.push_back(wheeljoint);
       }
     }
+    // initialize contact sensors      
+    for (int i = 0; i < LEG_POS_MAX; i++){
+      legContactSensors[LegPos(i)]->init(odeHandle, osgHandle, legs[LegPos(i)].foot, false);
+    }      
 
     setParam("dummy", 0); // apply all parameters.
 
@@ -1044,6 +1017,12 @@ namespace lpzrobots {
 #ifdef VERBOSE
       std::cerr << "begin AmosII::destroy\n";
 #endif
+      // delete contact sensors
+      for (int i = 0; i < LEG_POS_MAX; i++){
+        if(legContactSensors[LegPos(i)]) delete legContactSensors[LegPos(i)];
+      }      
+      legContactSensors.clear();
+      
       // remove all ignored pairs (brute force method)
       for (PrimitiveList::iterator i = objects.begin(); i != objects.end();
           i++)
@@ -1105,8 +1084,6 @@ namespace lpzrobots {
 
       //should all be empty as objects were cleared:
       legs.clear();
-
-      //delete[] legContactArray;
 
       odeHandle.deleteSpace();
 #ifdef VERBOSE

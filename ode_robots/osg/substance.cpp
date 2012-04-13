@@ -45,7 +45,6 @@ namespace lpzrobots {
   }
 
   void Substance::setCollisionCallback(CollisionCallback func, void* userdata_){
-    assert(func);
     callback = func;
     userdata=userdata_;
   }
