@@ -276,8 +276,10 @@ namespace lpzrobots {
       /** range of the infrared sensors at the legs */
       double irRangeLeg;
 
-      /** path to texture for trunks and legs */
+      /** path to texture for legs */
       std::string texture;
+      /** path to texture for trunk */
+      std::string bodyTexture;
   };
   
   class AmosII : public OdeRobot, public Inspectable {

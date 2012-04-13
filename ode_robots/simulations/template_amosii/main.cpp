@@ -27,6 +27,8 @@
 #include <ode_robots/simulation.h>
 // include agent (class for holding a robot, a controller and a wiring)
 #include <ode_robots/odeagent.h>
+// playground
+#include <ode_robots/playground.h>
 // simple wiring
 #include <selforg/one2onewiring.h>
 // the robot
@@ -38,8 +40,18 @@
 
 
 class ThisSim : public lpzrobots::Simulation {
-
   public:
+
+  ThisSim(){
+    addPaletteFile("colors/UrbanExtraColors.gpl");
+    addColorAliasFile("colors/UrbanColorSchema.txt");
+    // you can replace color mappings in your own file, see colors/UrbanColorSchema.txt
+    // addColorAliasFile("myColorSchema.txt");
+    setGroundTexture("Images/whiteground.jpg"); // gets its color from the schema
+    //setTitle("centered text");
+    //setCaption("right aligned text");
+  }
+
     /**
      * starting function (executed once at the beginning of the simulation loop)
      */
@@ -54,6 +66,14 @@ class ThisSim : public lpzrobots::Simulation {
       // set simulation parameters
       global.odeConfig.setParam("controlinterval", 10);
       global.odeConfig.setParam("simstepsize", 0.01);
+
+      // add playground
+      lpzrobots::Playground* playground 
+        = new lpzrobots::Playground(odeHandle, osgHandle, 
+                                    osg::Vec3(10, 0.2, 0.3)); 
+      playground->setTexture(0,0,lpzrobots::TextureDescr("Images/wall_bw.jpg",-1.5,-3));
+      playground->setPosition(osg::Vec3(0,0,.0));
+      global.obstacles.push_back(playground);
 
       // Add amosII robot
       lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf();
@@ -73,7 +93,7 @@ class ThisSim : public lpzrobots::Simulation {
       amos->setLegPosUsage(amos->R2, amos->LEG);
 
       // put amos a little bit in the air
-      amos->place(osg::Matrix::translate(.0, .0, 1));
+      amos->place(osg::Matrix::translate(.0, .0, 0.5));
 
       controller = new TripodGait18DOF();
       // create wiring

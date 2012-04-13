@@ -543,9 +543,12 @@ namespace lpzrobots {
     // flag to "false".
     odeHandle.createNewSimpleSpace(parentspace, false);
 
+    // color of robot
+    osgHandle = osgHandle.changeColor("robot1");
+
     // color of joint axis
-    OsgHandle osgHandleJoint = osgHandle.changeColor(
-        Color(72. / 255., 16. / 255., 16. / 255.));
+    OsgHandle osgHandleJoint = osgHandle.changeColor("joint");
+    
 
     // change Material substance
     OdeHandle odeHandleBody = odeHandle;
@@ -563,8 +566,8 @@ namespace lpzrobots {
 
     if (conf.useBack) {
       front = new Box(conf.frontLength, conf.width, conf.height);
-      front->setTexture(conf.texture);
-      front->init(odeHandleBody, conf.frontMass, osgHandle);
+      front->setTexture(conf.bodyTexture);
+      front->init(odeHandleBody, conf.frontMass, osgHandle.changeColor("robot2"));
       osg::Matrix frontPos =
           TRANSM(conf.size / 2 - conf.frontLength / 2, 0, 0)
           * trunkPos;
@@ -575,11 +578,11 @@ namespace lpzrobots {
           conf.size - conf.frontLength,
           conf.width,
           conf.height);
-      center->setTexture(conf.texture);
+      center->setTexture(conf.bodyTexture);
       center->init(
           odeHandleBody,
           conf.trunkMass - conf.frontMass,
-          osgHandle);
+          osgHandle.changeColor("robot2"));
       osg::Matrix centerPos =
           TRANSM(-conf.size / 2 + (conf.size - conf.frontLength) / 2,
               0,
@@ -601,8 +604,8 @@ namespace lpzrobots {
       backboneServo = servo;
     } else {
       trunk = new Box(conf.size, conf.width, conf.height);
-      trunk->setTexture(conf.texture);
-      trunk->init(odeHandleBody, conf.trunkMass, osgHandle);
+      trunk->setTexture(conf.bodyTexture);
+      trunk->init(odeHandleBody, conf.trunkMass, osgHandle.changeColor("robot2"));
       trunk->setPose(trunkPos);
       objects.push_back(trunk);
       front = trunk;
@@ -964,7 +967,7 @@ namespace lpzrobots {
         wheel->init(
             odeHandle,
             conf.wheel_mass, // mass
-            bosghandle.changeColor(Color(0.8, 0.8, 0.8, 1.0f)));
+            bosghandle.changeColor("robot2"));
         const double pmlr =
             (leg == L0 || leg == L1 || leg == L2)
             - (leg == R0 || leg == R1 || leg == R2);
@@ -1517,7 +1520,8 @@ namespace lpzrobots {
     c.usAngleX = 0.5;
     c.usAngleY = 1;
 
-    c.texture = "Images/toy_fur3.jpg";
+    c.texture = "Images/whiteground.rbg";
+    c.bodyTexture = "Images/stripes.rgb";
 
     return c;
   }
