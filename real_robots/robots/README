@@ -1,0 +1,10 @@
+
+/**
+\dir real_robots/robots 
+
+The interfaces to real robots "live" in this directory.
+The interfaces are derived from the class \ref AbstractRobot, which provides the interface fulfilled
+by all the robots.
+*/	
+
+
