@@ -87,13 +87,6 @@ namespace lpzrobots {
     legPosUsage[R0] = LEG;
     legPosUsage[R1] = LEG;
     legPosUsage[R2] = LEG;
-    
-    for (int i = 0; i < LEG_POS_MAX; i++){
-      // binary sensor (switch)
-      // legContactSensors[LegPos(i)] = new ContactSensor(true);
-      // force sensor
-      legContactSensors[LegPos(i)] = new ContactSensor(false,50);
-    }
 
     // robot is not created till now
     created = false;
@@ -339,12 +332,12 @@ namespace lpzrobots {
     sensors[BJ_as] = servos[BJ_m] ? -servos[BJ_m]->get() : 0;
 
     // foot contact sensors
-    sensors[R0_fs] = legContactSensors[R0]->get();
-    sensors[R1_fs] = legContactSensors[R1]->get();
-    sensors[R2_fs] = legContactSensors[R2]->get();
-    sensors[L0_fs] = legContactSensors[L0]->get();
-    sensors[L1_fs] = legContactSensors[L1]->get();
-    sensors[L2_fs] = legContactSensors[L2]->get();
+    sensors[R0_fs] = legContactSensors[R0] ? legContactSensors[R0]->get() : 0;
+    sensors[R1_fs] = legContactSensors[R1] ? legContactSensors[R1]->get() : 0;
+    sensors[R2_fs] = legContactSensors[R2] ? legContactSensors[R2]->get() : 0;
+    sensors[L0_fs] = legContactSensors[L0] ? legContactSensors[L0]->get() : 0;
+    sensors[L1_fs] = legContactSensors[L1] ? legContactSensors[L1]->get() : 0;
+    sensors[L2_fs] = legContactSensors[L2] ? legContactSensors[L2]->get() : 0;
 
     // Front Ultrasonic sensors (right and left)
     sensors[FR_us] = usSensorFrontRight->get();
@@ -462,7 +455,7 @@ namespace lpzrobots {
     irSensorBank->update();
     
     for (int i = 0; i < LEG_POS_MAX; i++){
-      legContactSensors[LegPos(i)]->update();
+      if (legContactSensors[LegPos(i)]) legContactSensors[LegPos(i)]->update();
     }      
 
 
@@ -503,7 +496,7 @@ namespace lpzrobots {
 
     // reset contact sensors
     for (int i = 0; i < LEG_POS_MAX; i++){
-      legContactSensors[LegPos(i)]->reset();
+      if (legContactSensors[LegPos(i)]) legContactSensors[LegPos(i)]->reset();
     }
 
     // reset ir sensors to maximum value
@@ -957,6 +950,17 @@ namespace lpzrobots {
           legs[leg].footSpring = spring;
           passiveServos.push_back(spring);
           odeHandle.addIgnoredPair(secondThorax, foot);
+
+          // leg contact sensor
+          if (conf.legContactSensorIsBinary) {
+            // binary sensor (switch)
+            legContactSensors[LegPos(i)] = new ContactSensor(true);
+          } else {
+            // force sensor
+            legContactSensors[LegPos(i)] = new ContactSensor(false,50);
+          }
+          legContactSensors[LegPos(i)]->init(odeHandle, osgHandle,
+              legs[LegPos(i)].foot, false);
         }
       }
       else if (legPosUsage[leg] == WHEEL) {
@@ -999,10 +1003,6 @@ namespace lpzrobots {
         joints.push_back(wheeljoint);
       }
     }
-    // initialize contact sensors      
-    for (int i = 0; i < LEG_POS_MAX; i++){
-      legContactSensors[LegPos(i)]->init(odeHandle, osgHandle, legs[LegPos(i)].foot, false);
-    }      
 
     setParam("dummy", 0); // apply all parameters.
 
@@ -1328,6 +1328,7 @@ namespace lpzrobots {
     c.useBack = _useBack;
     c.rubberFeet = false;
     c.useLocalVelSensor = 0;
+    c.legContactSensorIsBinary = false;
 
     // the trunk length. this scales the whole robot! all parts' sizes,
     // masses, and forces will be adapted!!
