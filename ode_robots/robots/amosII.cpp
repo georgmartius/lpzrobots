@@ -952,10 +952,13 @@ namespace lpzrobots {
           odeHandle.addIgnoredPair(secondThorax, foot);
 
           // leg contact sensor
-          // binary sensor (switch)
-          // legContactSensors[LegPos(i)] = new ContactSensor(true);
-          // force sensor
-          legContactSensors[LegPos(i)] = new ContactSensor(false,50);
+          if (conf.legContactSensorIsBinary) {
+            // binary sensor (switch)
+            legContactSensors[LegPos(i)] = new ContactSensor(true);
+          } else {
+            // force sensor
+            legContactSensors[LegPos(i)] = new ContactSensor(false,50);
+          }
           legContactSensors[LegPos(i)]->init(odeHandle, osgHandle,
               legs[LegPos(i)].foot, false);
         }
@@ -1325,6 +1328,7 @@ namespace lpzrobots {
     c.useBack = _useBack;
     c.rubberFeet = false;
     c.useLocalVelSensor = 0;
+    c.legContactSensorIsBinary = false;
 
     // the trunk length. this scales the whole robot! all parts' sizes,
     // masses, and forces will be adapted!!

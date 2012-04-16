@@ -72,6 +72,8 @@ namespace lpzrobots {
        *  If yes it gets velocity vector in local coordinates and pass it as
        *  sensorvalues */
       bool useLocalVelSensor;
+      /** Use binary leg contact sensors. If false, a force sensor is used. */
+      bool legContactSensorIsBinary;
       /**@}*/
 
       /** scaling factor for robot (length of body) */
