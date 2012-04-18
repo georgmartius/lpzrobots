@@ -1521,7 +1521,7 @@ namespace lpzrobots {
     c.usAngleX = 0.5;
     c.usAngleY = 1;
 
-    c.texture = "Images/whiteground.rbg";
+    c.texture = "Images/whiteground.rgb";
     c.bodyTexture = "Images/stripes.rgb";
 
     return c;
