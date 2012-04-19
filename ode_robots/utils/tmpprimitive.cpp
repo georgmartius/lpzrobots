@@ -74,8 +74,8 @@ namespace lpzrobots {
   // ////////////////// TmpDisplayItem //////////////////// //
 
   TmpDisplayItem::TmpDisplayItem(OSGPrimitive* p, const Pose& pose,
-                                 const Color& color)
-    : item(p), pose(pose), color(color), initialized(false) 
+                                 const Color& color, OSGPrimitive::Quality quality)
+    : item(p), pose(pose), color(color), quality(quality), initialized(false) 
   {
     useColorName=false;
     if(!item) 
@@ -83,8 +83,9 @@ namespace lpzrobots {
   }
 
   TmpDisplayItem::TmpDisplayItem(OSGPrimitive* p, const Pose& pose,
-                                 const std::string& colorname, float alpha)
-    : item(p), pose(pose), colorname(colorname), alpha(alpha),
+                                 const std::string& colorname, float alpha, 
+                                 OSGPrimitive::Quality quality)
+    : item(p), pose(pose), colorname(colorname), alpha(alpha), quality(quality),
       initialized(false) 
   {
     useColorName=true;
@@ -98,7 +99,7 @@ namespace lpzrobots {
       mcolor = osgHandle.getColor(colorname);
       mcolor.alpha() = alpha;
     }
-    item->init(osgHandle.changeColor(mcolor));   
+    item->init(osgHandle.changeColor(mcolor), quality);   
     item->setMatrix(pose);      
     initialized=true;
   }

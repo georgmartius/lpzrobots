@@ -29,12 +29,12 @@
 #include "abstractrobot.h"
 #include "matrix.h"
 
-bool TrackRobot::open(const AbstractRobot* robot){
+bool TrackRobot::open(const Trackable* robot){
 
   if(!robot)
     return false;
 
-  if(trackPos || trackSpeed || trackOrientation)
+  if(isTrackingSomething() && conf.writeFile)
   {
 
     if(file){
@@ -45,45 +45,47 @@ bool TrackRobot::open(const AbstractRobot* robot){
     char filename[256];
     time_t t = time(0);
     strftime(date, 128, "%F_%H-%M-%S", localtime(&t));
-    sprintf(filename, "%s_track_%s_%s.log", robot->getName().c_str(), scene, date);
+    if(conf.id>=0)
+      sprintf(filename, "%s_track_%s_%i_%s.log", 
+              robot->getTrackableName().c_str(), conf.scene.c_str(), conf.id, date);
+    else
+      sprintf(filename, "%s_track_%s_%s.log", 
+              robot->getTrackableName().c_str(), conf.scene.c_str(), date);
 
     file = fopen(filename, "w");
 
     if(!file)
       return false;
 
-    // copy filename for later reuse
-    strncpy(this->filename, filename, 256);
-
     fprintf(file, "#C t");
-    if(trackPos)   fprintf(file, " x y z");
-    if(trackSpeed) fprintf(file, " vx vy vz wx wy wz");
-    if( trackOrientation)  fprintf(file, " o11 o12 o13 o21 o22 o23 o31 o32 o33");
+    if(conf.trackPos)   fprintf(file, " x y z");
+    if(conf.trackSpeed) fprintf(file, " vx vy vz wx wy wz");
+    if(conf.trackOrientation)  fprintf(file, " o11 o12 o13 o21 o22 o23 o31 o32 o33");
     fprintf(file,"\n");
-    fprintf(file,"# Recorded every %ith time step\n", interval);
+    fprintf(file,"# Recorded every %ith time step\n", conf.interval);
   }
   return true;
 }
 
-void TrackRobot::track(AbstractRobot* robot, double time)
+void TrackRobot::track(const Trackable* robot, double time)
 {
   if(!file || !robot)
     return;
 
-  if(cnt % interval==0){
+  if(cnt % conf.interval==0){
     //   fprintf(file, "%li ", cnt);
     fprintf(file, "%f", time);
-    if(trackPos){
+    if(conf.trackPos){
       Position p = robot->getPosition();
       fprintf(file, " %g %g %g", p.x, p.y, p.z);
     }
-    if(trackSpeed){
+    if(conf.trackSpeed){
       Position s = robot->getSpeed();
       fprintf(file, " %g %g %g", s.x, s.y, s.z);
       s = robot->getAngularSpeed();
       fprintf(file, " %g %g %g", s.x, s.y, s.z);
     }
-    if( trackOrientation){
+    if( conf.trackOrientation){
       const matrix::Matrix& o = robot->getOrientation();
       for(int i=0; i<3; i++){
 	for(int j=0; j<3; j++){
@@ -103,27 +105,13 @@ void TrackRobot::close()
   file = 0;
 }
 
-void TrackRobot::deepcopy (TrackRobot &lhs, const TrackRobot &rhs)
-{
-  lhs.trackPos         = rhs.trackPos;
-  lhs.trackSpeed       = rhs.trackSpeed;
-  lhs.trackOrientation = rhs.trackOrientation;
-  lhs.displayTrace     = rhs.displayTrace;
-  lhs.interval         = rhs.interval;
-  lhs.scene            = strdup(rhs.scene);
-  lhs.cnt              = rhs.cnt;
-
-  // TODO: we can't reuse the file pointer, open again for appendig -> right?
-  if ( strlen(rhs.filename) > 0 )
-  {
-    strncpy(lhs.filename, rhs.filename, 256);
-    lhs.file = fopen("lhs.filename", "a");
-  } else
-  {
-    lhs.file = 0;
-  }
-
-}
+// void TrackRobot::deepcopy (TrackRobot &lhs, const TrackRobot &rhs)
+// {
+//   lhs.conf          = rhs.conf;
+//   lhs.cnt           = rhs.cnt;
+//   lhs.conf.id       = rhs.conf.id+100;
+//   lhs.file          = 0;
+// }
 
 
 

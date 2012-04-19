@@ -25,10 +25,10 @@
 #define __TMPPRIMITIVE_H
 
 #include "tmpobject.h"
+#include <ode_robots/osgprimitive.h>
 
 namespace lpzrobots {
 
-  class OSGPrimitive;
   class Primitive;
   class Joint;
   
@@ -71,11 +71,13 @@ namespace lpzrobots {
     /** creates a new item from the given primitives and initializes it.
         The lifetime is set when adding it to globalData
      */
-    TmpDisplayItem(OSGPrimitive* p, const Pose& pose, const Color& color);
+    TmpDisplayItem(OSGPrimitive* p, const Pose& pose, const Color& color, 
+                   OSGPrimitive::Quality quality = OSGPrimitive::Middle);
 
     /// provided for convenience to supply color as name and alpha independently
     TmpDisplayItem(OSGPrimitive* p, const Pose& pose, 
-                   const std::string& colorname, float alpha = 1.0);
+                   const std::string& colorname, float alpha = 1.0, 
+                   OSGPrimitive::Quality quality = OSGPrimitive::Middle);
     
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle);
 
@@ -89,6 +91,7 @@ namespace lpzrobots {
     std::string colorname;
     bool useColorName;
     float alpha;
+    OSGPrimitive::Quality quality;
     bool initialized;
   };
 

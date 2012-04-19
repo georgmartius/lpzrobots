@@ -39,7 +39,10 @@ namespace std {
     return rv;
   }
 
+  /// integer to string with default formating
   string itos(int i);  
+  /// integer to string with printf formating string
+  string itos(int i, const char *);  
 
   template<typename Col, typename T> 
   bool removeElement(Col& col, const T& elem){
