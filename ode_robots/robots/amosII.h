@@ -316,6 +316,11 @@ namespace lpzrobots {
           bool _useFoot = 1,
           bool _useBack = 0);
 
+      static AmosIIConf getAmosIIv1Conf(
+          double _scale = 1.0,
+          bool _useShoulder = 1,
+          bool _useFoot = 1,
+          bool _useBack = 0);
       /**
        * constructor
        * @param odeHandle data structure for accessing ODE
