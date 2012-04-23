@@ -86,19 +86,19 @@ namespace lpzrobots {
       Indices* indices = new Indices[(cols-1)*(rows-1)*2];
 
       for(int i=0; i<rows; i++){
-	for(int j=0; j<cols; j++){
-	  vertices[i*cols+j] = Vertex(f->getVertex(i,j));
-	  //  normales[i*cols+j] = Vertex(f->getNormal(i,j));
-	}
+        for(int j=0; j<cols; j++){
+          vertices[i*cols+j] = Vertex(f->getVertex(j,i));
+          //  normales[i*cols+j] = Vertex(f->getNormal(i,j));
+        }
       }
       int k=0;
       for(int i=0; i<rows-1; i++){
-	for(int j=0; j<cols-1; j++){
-	  indices[k] = Indices((i+1)*cols+j, i*cols+j+1, i*cols+j);
-	  k++;
-	  indices[k] = Indices((i+1)*cols+j, (i+1)*cols+j+1, i*cols+j+1);
-	  k++;
-	}
+        for(int j=0; j<cols-1; j++){
+          indices[k] = Indices(i*cols+j, i*cols+j+1, (i+1)*cols+j);
+          k++;
+          indices[k] = Indices(i*cols+j+1, (i+1)*cols+j+1, (i+1)*cols+j);
+          k++;
+        }
       }
       assert(k==(cols-1)*(rows-1)*2);
       data = dGeomTriMeshDataCreate();
