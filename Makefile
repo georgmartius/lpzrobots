@@ -214,7 +214,7 @@ soundman:
 
 .PHONY: confsubmodule
 confsubmodule:	
-	@if [ `uname -a | sed 's/\(\w*\).*/\1/'` = "Linux" ]; then \
+	@if [ `uname` = "Linux" ]; then \
 		System="LINUX"; else System="MAC"; fi; \
 	if [ -n "$(MODULE)" ]; then \
 	    CMD="$(MODULE)/configure --prefix=$(PREFIX) --system=$$System --type=$(TYPE)"; \
