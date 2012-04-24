@@ -1707,11 +1707,11 @@ namespace lpzrobots {
            c.rcoxaJointLimitB = M_PI / 180.0 * 45.0;
 
 
-
            // 30 deg; downward (+) MIN --> normal walking range 65 deg MIN
            c.secondJointLimitD = M_PI / 180.0 * 30.0;
            // 100 deg upward (-) MAX --> normal walking range 115 deg MAX
            c.secondJointLimitU = -M_PI / 180.0 * 100.0;
+
 
            //140 deg downward; (+) MIN --> normal walking range 140 deg MIN
            c.tebiaJointLimitD = M_PI / 180.0 * 140.0;
