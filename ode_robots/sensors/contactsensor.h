@@ -72,8 +72,9 @@ namespace lpzrobots {
     
     // set measued depth (used internally) (stores the maximum until next reset)
     virtual void setDepth(float depth);
-
     
+    Transform* getTransformObject();
+
   protected:
     bool   binary;              ///< if contact sensor is a switch
     double forcescale; 

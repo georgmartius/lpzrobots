@@ -115,6 +115,10 @@ namespace lpzrobots {
     return value;
   }
 
+  Transform* ContactSensor::getTransformObject() {
+    return transform;
+  }
+
   void ContactSensor::update(){  
     if(value!=lastvalue){
       if(colorObject){
