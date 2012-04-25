@@ -1308,6 +1308,14 @@ namespace lpzrobots {
   }
 
   AmosIIConf AmosII::getDefaultConf(
+     double _scale,
+     bool _useShoulder,
+     bool _useFoot,
+     bool _useBack)
+     {
+  	    return getAmosIIv2Conf (_scale, _useShoulder,_useFoot,_useBack);
+      }
+  AmosIIConf AmosII::getAmosIIv2Conf(
       double _scale,
       bool _useShoulder,
       bool _useFoot,
@@ -1326,7 +1334,7 @@ namespace lpzrobots {
     c.useLocalVelSensor = 0;
     c.legContactSensorIsBinary = false;
 
-    // the trunk length. this scales the whole robot! all parts' sizes,
+    // the trunk lenAmosIIConf c;gth. this scales the whole robot! all parts' sizes,
     // masses, and forces will be adapted!!
     c.size = 0.43 * _scale;
     //trunk width
@@ -1525,68 +1533,72 @@ namespace lpzrobots {
 
 
   AmosIIConf AmosII::getAmosIIv1Conf(
-        double _scale,
-        bool _useShoulder,
-        bool _useFoot,
-        bool _useBack)
-        {
-      AmosIIConf c;
+                double _scale,
+                bool _useShoulder,
+                bool _useFoot,
+                bool _useBack)
+                {
+        	  AmosIIConf c= getAmosIIv2Conf(_scale, _useShoulder,_useFoot,_useBack);
 
-      // use shoulder (fixed joint between legs and trunk)
-      c.useShoulder = _useShoulder;
-      c.useTebiaJoints = 0;
-      //create springs at the end of the legs
-      c.useFoot = _useFoot;
-      //create a joint in the back
-      c.useBack = _useBack;
-      c.rubberFeet = false;
-      c.useLocalVelSensor = 0;
 
-      // the trunk length. this scales the whole robot! all parts' sizes,
-      // masses, and forces will be adapted!!
-      c.size = 0.43 * _scale;
-      //trunk width
-      c.width = 7.0 / 43.0 * c.size;
-      //trunk height
+//      AmosIIConf c;
+//
+//      // use shoulder (fixed joint between legs and trunk)
+//      c.useShoulder = _useShoulder;
+//      c.useTebiaJoints = 0;
+//      //create springs at the end of the legs
+//      c.useFoot = _useFoot;
+//      //create a joint in the back
+//      c.useBack = _useBack;
+//      c.rubberFeet = false;
+//      c.useLocalVelSensor = 0;
+//      c.legContactSensorIsBinary = false;
+//
+//      // the trunk length. this scales the whole robot! all parts' sizes,
+//      // masses, and forces will be adapted!!
+//      c.size = 0.43 * _scale;
+//      //trunk width
+//      c.width = 7.0 / 43.0 * c.size;
+//      //trunk height
       c.height = /*6.5*/ 8.5/ 43.0 * c.size;//---------------------------------------------------AMOSIIv1
-      c.frontLength = 12.0 / 43.0 * c.size;
-      // we use as density the original trunk weight divided by the original
-      // volume
-
-      const double density = 2.2 / (0.43 * 0.07 * 0.065);
-
-      c.trunkMass = density * c.size * c.width * c.height;
-      // use the original trunk to total mass ratio
-      const double mass = 5.758 / 2.2 * c.trunkMass;
-      c.frontMass = c.trunkMass * c.frontLength / c.size;
-      // distribute the rest of the weight like this for now */
-      c.shoulderMass = (mass - c.trunkMass)
-          / (6 * (3.0 + c.useShoulder))
-          * (20.0 - c.useFoot)
-          / 20.0;
-      c.coxaMass = c.shoulderMass;
-      c.secondMass = c.shoulderMass;
-      c.tebiaMass = c.shoulderMass;
-      // foot gets 3 or 4 times 1/20 of shoulderMass (divide and multiply by
-      // 3 or 4)
-      c.footMass = (mass - c.trunkMass) / 6 * c.useFoot / 20.0;
-
-      //As real robot!!
-      const double shoulderHeight_cm = 6.5;
-      //shoulder height "4.5 wrong" --> correct=6.5 cm from rotating point
-      c.shoulderHeight = shoulderHeight_cm / 6.5 * c.height;
-
-      // distance between hindlegs and middle legs
-      c.legdist1 = 19.0 / 43.0 * c.size;
-      // distance between middle legs and front legs
-      c.legdist2 = 15.0 / 43.0 * c.size;
-
-      // configure the wheels (if used). They don't have any counterpart in
-      // reality, so the chosen values are arbitrary
-      c.wheel_radius = 0.10 * c.size;
-      c.wheel_width  = 0.04 * c.size;
-      c.wheel_mass   = (mass-c.trunkMass) / 6.0;
-
+//      c.frontLength = 12.0 / 43.0 * c.size;
+//      // we use as density the original trunk weight divided by the original
+//      // volume
+//
+//      const double density = 2.2 / (0.43 * 0.07 * 0.065);
+//
+//      c.trunkMass = density * c.size * c.width * c.height;
+//      // use the original trunk to total mass ratio
+//      const double mass = 5.758 / 2.2 * c.trunkMass;
+//      c.frontMass = c.trunkMass * c.frontLength / c.size;
+//      // distribute the rest of the weight like this for now */
+//      c.shoulderMass = (mass - c.trunkMass)
+//          / (6 * (3.0 + c.useShoulder))
+//          * (20.0 - c.useFoot)
+//          / 20.0;
+//      c.coxaMass = c.shoulderMass;
+//      c.secondMass = c.shoulderMass;
+//      c.tebiaMass = c.shoulderMass;
+//      // foot gets 3 or 4 times 1/20 of shoulderMass (divide and multiply by
+//      // 3 or 4)
+//      c.footMass = (mass - c.trunkMass) / 6 * c.useFoot / 20.0;
+//
+//      //As real robot!!
+//      const double shoulderHeight_cm = 6.5;
+//      //shoulder height "4.5 wrong" --> correct=6.5 cm from rotating point
+//      c.shoulderHeight = shoulderHeight_cm / 6.5 * c.height;
+//
+//      // distance between hindlegs and middle legs
+//      c.legdist1 = 19.0 / 43.0 * c.size;
+//      // distance between middle legs and front legs
+//      c.legdist2 = 15.0 / 43.0 * c.size;
+//
+//      // configure the wheels (if used). They don't have any counterpart in
+//      // reality, so the chosen values are arbitrary
+//      c.wheel_radius = 0.10 * c.size;
+//      c.wheel_width  = 0.04 * c.size;
+//      c.wheel_mass   = (mass-c.trunkMass) / 6.0;
+//
       // -----------------------
       // 1) Biomechanics
       // Manual setting adjustable joint positions at the body
@@ -1622,30 +1634,30 @@ namespace lpzrobots {
       c.rLegTrunkAngleH = 3.1416/6;//---------------------------------------------------AMOSIIv1
       // => till
       c.rLegRotAngle = 0.0;
-
-
-      // be careful changing the following dimension, they may break the
-      // simulation!! (they shouldn't but they do)
-      const double shoulderLength_cm = 4.5;
-      c.shoulderLength = shoulderLength_cm / 43.0 * c.size;
-      c.shoulderRadius = .03 * c.size;
-
-      const double coxaLength_cm = 3.5;
-      c.coxaLength = coxaLength_cm / 43.0 * c.size;
-      c.coxaRadius = .04 * c.size;
-
-      const double secondLength_cm = 6.0;
-      c.secondLength = secondLength_cm / 43.0 * c.size;
-      c.secondRadius = .03 * c.size;
-      c.tebiaRadius = 1.3 / 43.0 * c.size;
-
-      const double tebiaLength_cm = 11.5; // 3)
-      c.tebiaLength = tebiaLength_cm / 43.0 * c.size;
-
-      // this determines the limit of the footspring
-      c.footRange = .2 / 43.0 * c.size;
-      c.footRadius = 1.5 / 43.0 * c.size;
-
+//
+//
+//      // be careful changing the following dimension, they may break the
+//      // simulation!! (they shouldn't but they do)
+//      const double shoulderLength_cm = 4.5;
+//      c.shoulderLength = shoulderLength_cm / 43.0 * c.size;
+//      c.shoulderRadius = .03 * c.size;
+//
+//      const double coxaLength_cm = 3.5;
+//      c.coxaLength = coxaLength_cm / 43.0 * c.size;
+//      c.coxaRadius = .04 * c.size;
+//
+//      const double secondLength_cm = 6.0;
+//      c.secondLength = secondLength_cm / 43.0 * c.size;
+//      c.secondRadius = .03 * c.size;
+//      c.tebiaRadius = 1.3 / 43.0 * c.size;
+//
+//      const double tebiaLength_cm = 11.5; // 3)
+//      c.tebiaLength = tebiaLength_cm / 43.0 * c.size;
+//
+//      // this determines the limit of the footspring
+//      c.footRange = .2 / 43.0 * c.size;
+//      c.footRadius = 1.5 / 43.0 * c.size;
+//
       // -----------------------
       // 2) Joint Limits
       // Setting Max, Min of each joint with respect to real
@@ -1683,62 +1695,63 @@ namespace lpzrobots {
       c.tebiaJointLimitD = M_PI / 180.0 * 140.0;
       //15 deg  downward; (+) MAX --> normal walking range 120 deg MAX
       c.tebiaJointLimitU = M_PI / 180.0 * 15.0;
-
-
-
-      // -----------------------
-      // 3) Motors
-      // Motor power and joint stiffness
-      // -----------------------
-
-      c.footSpringPreload = 8.0 / 43.0 * c.size;
-      // negative is downwards (spring extends)
-      c.footSpringLimitD = c.footSpringPreload;
-      c.footSpringLimitU = c.footSpringPreload + c.footRange;
-
-      const double backPower_scale = 30.0;
-      const double coxaPower_scale = 10.0;
-      const double springstiffness = 350.0;
-
-      // use an original radius and mass and scale original torque by their
-      // new values to keep acceleration constant
-      c.backPower = backPower_scale * (1.962 / (0.035 * 2.2))
-          * c.coxaLength * c.trunkMass;
-      // torque in Nm
-      c.coxaPower = coxaPower_scale * (1.962 / (0.035 * 2.2))
-          * c.coxaLength * c.trunkMass;
-      c.secondPower = c.coxaPower;
-      c.tebiaPower = c.coxaPower;
-      // this is the spring constant. To keep  acceleration for the body
-      // constant, we use the above unscaled preload of 0.08 and original
-      // trunkMass to and then multiply by the new ones
-      c.footPower = (springstiffness * 0.08 / 2.2)
-          * c.trunkMass / c.footSpringPreload;
-
-      c.backDamping = 0.0;
-      // Georg: no damping required for new servos
-      c.coxaDamping = 0.0;
-      c.secondDamping = 0.0;
-      c.tebiaDamping = 0.01;
-      c.footDamping = 0.05; // a spring has no damping??
-
-      c.backMaxVel = 1.961 * M_PI;
-      // The speed calculates how it works
-      c.coxaMaxVel = 1.961 * M_PI;
-      c.secondMaxVel = 1.961 * M_PI;
-      c.tebiaMaxVel = 1.961 * M_PI;
-      c.footMaxVel = 1.961 * M_PI;
-
-      c.usRangeFront = 0.3 * c.size;
-      c.irRangeLeg = 0.2 * c.size;
-
-      //Values by Dennis
-      // 1 is parallel, -1 is antiparallel
-      c.usParallel = false;
-      c.usAngleX = 0.5;
-      c.usAngleY = 1;
-
-      c.texture = "Images/toy_fur3.jpg";
+//
+//
+//
+//      // -----------------------
+//      // 3) Motors
+//      // Motor power and joint stiffness
+//      // -----------------------
+//
+//      c.footSpringPreload = 8.0 / 43.0 * c.size;
+//      // negative is downwards (spring extends)
+//      c.footSpringLimitD = c.footSpringPreload;
+//      c.footSpringLimitU = c.footSpringPreload + c.footRange;
+//
+//      const double backPower_scale = 30.0;
+//      const double coxaPower_scale = 10.0;
+//      const double springstiffness = 350.0;
+//
+//      // use an original radius and mass and scale original torque by their
+//      // new values to keep acceleration constant
+//      c.backPower = backPower_scale * (1.962 / (0.035 * 2.2))
+//          * c.coxaLength * c.trunkMass;
+//      // torque in Nm
+//      c.coxaPower = coxaPower_scale * (1.962 / (0.035 * 2.2))
+//          * c.coxaLength * c.trunkMass;
+//      c.secondPower = c.coxaPower;
+//      c.tebiaPower = c.coxaPower;
+//      // this is the spring constant. To keep  acceleration for the body
+//      // constant, we use the above unscaled preload of 0.08 and original
+//      // trunkMass to and then multiply by the new ones
+//      c.footPower = (springstiffness * 0.08 / 2.2)
+//          * c.trunkMass / c.footSpringPreload;
+//
+//      c.backDamping = 0.0;
+//      // Georg: no damping required for new servos
+//      c.coxaDamping = 0.0;
+//      c.secondDamping = 0.0;
+//      c.tebiaDamping = 0.01;
+//      c.footDamping = 0.05; // a spring has no damping??
+//
+//      c.backMaxVel = 1.961 * M_PI;
+//      // The speed calculates how it works
+//      c.coxaMaxVel = 1.961 * M_PI;
+//      c.secondMaxVel = 1.961 * M_PI;
+//      c.tebiaMaxVel = 1.961 * M_PI;
+//      c.footMaxVel = 1.961 * M_PI;
+//
+//      c.usRangeFront = 0.3 * c.size;
+//      c.irRangeLeg = 0.2 * c.size;
+//
+//      //Values by Dennis
+//      // 1 is parallel, -1 is antiparallel
+//      c.usParallel = false;
+//      c.usAngleX = 0.5;
+//      c.usAngleY = 1;
+//
+//      c.texture = "Images/whiteground.rgb";
+//      c.bodyTexture = "Images/stripes.rgb";
 
       return c;
     }
