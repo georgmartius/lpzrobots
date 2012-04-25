@@ -79,7 +79,7 @@ namespace lpzrobots {
       const AmosIIConf& c, const std::string& name)
   :
       OdeRobot(odeHandle, osgHandle, name, "AMOSII 0.1"),
-          conf(c)
+      conf(c)
   {
     legPosUsage[L0] = LEG;
     legPosUsage[L1] = LEG;
@@ -232,7 +232,7 @@ namespace lpzrobots {
    * @param name human readable name for the sensor
    */
   void AmosII::nameSensor(const int sensorNo, const char* name)
-      {
+  {
 #ifdef VERBOSE
     std::cerr << "AmosII::nameSensor BEGIN\n";
 #endif
@@ -251,7 +251,7 @@ namespace lpzrobots {
    * @param name human readable name for the motor
    */
   void AmosII::nameMotor(const int motorNo, const char* name)
-      {
+  {
 #ifdef VERBOSE
     std::cerr << "AmosII::nameMotor BEGIN\n";
 #endif
@@ -422,7 +422,7 @@ namespace lpzrobots {
         0,
         0,
         conf.tebiaLength - conf.shoulderHeight + 2 * conf.tebiaRadius
-          + conf.footRadius);
+        + conf.footRadius);
     create(p);
 #ifdef VERBOSE
     std::cerr << "AmosII::place END\n";
@@ -442,7 +442,7 @@ namespace lpzrobots {
 
     for (PrimitiveList::iterator i = objects.begin(); i != objects.end();
         i++)
-        {
+    {
       if (*i)
         (*i)->update();
     }
@@ -506,7 +506,7 @@ namespace lpzrobots {
     // as springs
     for (ServoList::iterator it = passiveServos.begin();
         it != passiveServos.end(); it++)
-        {
+    {
       (*it)->set(0.0);
     }
 
@@ -580,7 +580,7 @@ namespace lpzrobots {
           TRANSM(-conf.size / 2 + (conf.size - conf.frontLength) / 2,
               0,
               0)
-          * trunkPos;
+              * trunkPos;
       center->setPose(centerPos);
       objects.push_back(center);
       const Axis axis = Axis(0, 1, 0) * frontPos;
@@ -624,25 +624,25 @@ namespace lpzrobots {
     irSensorBank->registerSensor(
         usSensorFrontRight,
         front,
-            ROTM(M_PI / 2, conf.usAngleX, conf.usAngleY, 0)
-            * TRANSM(0.5 * (conf.useBack ? conf.frontLength : conf.size),
-                -0.25 * conf.width,
-                -0.45 * conf.height),
-        conf.usRangeFront,
-        RaySensor::drawRay);
+        ROTM(M_PI / 2, conf.usAngleX, conf.usAngleY, 0)
+        * TRANSM(0.5 * (conf.useBack ? conf.frontLength : conf.size),
+            -0.25 * conf.width,
+            -0.45 * conf.height),
+            conf.usRangeFront,
+            RaySensor::drawRay);
 
     usSensorFrontLeft = new IRSensor();
     irSensorBank->registerSensor(
         usSensorFrontLeft,
         front,
-            ROTM(M_PI / 2, (conf.usParallel ? 1 : -1) * conf.usAngleX,
-                conf.usAngleY, 0) *
+        ROTM(M_PI / 2, (conf.usParallel ? 1 : -1) * conf.usAngleX,
+            conf.usAngleY, 0) *
             TRANSM(
                 0.5 * (conf.useBack ? conf.frontLength : conf.size),
                 0.25 * conf.width,
                 -0.45 * conf.height),
-        conf.usRangeFront,
-        RaySensor::drawRay);
+                conf.usRangeFront,
+                RaySensor::drawRay);
 
     /************************************
      * LEGS
@@ -677,9 +677,9 @@ namespace lpzrobots {
           // from (0,0,0) we go down x-axis, make two legs then up
           // legdist1 and so on
           -conf.size * 16.5 / 43.0
-              + (leg == L2 || leg == R2) * 0
-              + (leg == L1 || leg == R1) * conf.legdist1
-              + (leg == L0 || leg == R0) * (conf.legdist1 + conf.legdist2),
+          + (leg == L2 || leg == R2) * 0
+          + (leg == L1 || leg == R1) * conf.legdist1
+          + (leg == L0 || leg == R0) * (conf.legdist1 + conf.legdist2),
           // switch left or right side of trunk for each leg
           lr * conf.width / 2,
           // height of leg fixation to trunk (trunk bottom sits at
@@ -697,75 +697,75 @@ namespace lpzrobots {
       // to the trunk to create one body including the shoulders
       if (conf.useBack)
         shouldertrunkconnections[leg] = ROTM(M_PI / 2, lr, 0, 0)
-            * TRANSM(
-                conf.frontLength / 2.0
-                    - (leg == L0 || leg == R0) * conf.size / 2.0,
-                0,
-                0)
+        * TRANSM(
+            conf.frontLength / 2.0
+            - (leg == L0 || leg == R0) * conf.size / 2.0,
+            0,
+            0)
             * TRANSM(pos);
       else
         shouldertrunkconnections[leg] = ROTM(M_PI / 2, lr, 0, 0)
-            * TRANSM(pos);
+        * TRANSM(pos);
     }
 
     // if wanted, leg trunk connections are rotated here:
     legtrunkconnections[R2] = ROTM(conf.rLegRotAngle, 0, 0, 1)
-        * ROTM(conf.rLegTrunkAngleH, 1, 0, 0)
-        * ROTM(conf.rLegTrunkAngleV, 0, 1, 0)
-        * legtrunkconnections[R2];
+            * ROTM(conf.rLegTrunkAngleH, 1, 0, 0)
+            * ROTM(conf.rLegTrunkAngleV, 0, 1, 0)
+            * legtrunkconnections[R2];
     legtrunkconnections[L2] = ROTM(conf.rLegRotAngle, 0, 0, -1)
-        * ROTM(conf.rLegTrunkAngleH, -1, 0, 0)
-        * ROTM(conf.rLegTrunkAngleV, 0, 1, 0)
-        * legtrunkconnections[L2];
+            * ROTM(conf.rLegTrunkAngleH, -1, 0, 0)
+            * ROTM(conf.rLegTrunkAngleV, 0, 1, 0)
+            * legtrunkconnections[L2];
     legtrunkconnections[R1] = ROTM(conf.mLegRotAngle, 0, 0, 1)
-        * ROTM(conf.mLegTrunkAngleH, 1, 0, 0)
-        * ROTM(conf.mLegTrunkAngleV, 0, 1, 0)
-        * legtrunkconnections[R1];
+            * ROTM(conf.mLegTrunkAngleH, 1, 0, 0)
+            * ROTM(conf.mLegTrunkAngleV, 0, 1, 0)
+            * legtrunkconnections[R1];
     legtrunkconnections[L1] = ROTM(conf.mLegRotAngle, 0, 0, -1)
-        * ROTM(conf.mLegTrunkAngleH, -1, 0, 0)
-        * ROTM(conf.mLegTrunkAngleV, 0, 1, 0)
-        * legtrunkconnections[L1];
+            * ROTM(conf.mLegTrunkAngleH, -1, 0, 0)
+            * ROTM(conf.mLegTrunkAngleV, 0, 1, 0)
+            * legtrunkconnections[L1];
     legtrunkconnections[R0] = ROTM(conf.fLegRotAngle, 0, 0, 1)
-        * ROTM(conf.fLegTrunkAngleH, 1, 0, 0)
-        * ROTM(conf.fLegTrunkAngleV, 0, 1, 0)
-        * legtrunkconnections[R0];
+            * ROTM(conf.fLegTrunkAngleH, 1, 0, 0)
+            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0)
+            * legtrunkconnections[R0];
     legtrunkconnections[L0] = ROTM(conf.fLegRotAngle, 0, 0, -1)
-        * ROTM(conf.fLegTrunkAngleH, -1, 0, 0)
-        * ROTM(conf.fLegTrunkAngleV, 0, 1, 0)
-        * legtrunkconnections[L0];
+            * ROTM(conf.fLegTrunkAngleH, -1, 0, 0)
+            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0)
+            * legtrunkconnections[L0];
 
     // also the relative coordinates for the shoulders
     shouldertrunkconnections[R2] = ROTM(conf.rLegRotAngle, 0, 0, 1)
-        * ROTM(conf.rLegTrunkAngleH, 1, 0, 0)
-        * ROTM(conf.rLegTrunkAngleV, 0, 1, 0)
-        * shouldertrunkconnections[R2];
+            * ROTM(conf.rLegTrunkAngleH, 1, 0, 0)
+            * ROTM(conf.rLegTrunkAngleV, 0, 1, 0)
+            * shouldertrunkconnections[R2];
     shouldertrunkconnections[L2] = ROTM(conf.rLegRotAngle, 0, 0, -1)
-        * ROTM(conf.rLegTrunkAngleH, -1, 0, 0)
-        * ROTM(conf.rLegTrunkAngleV, 0, 1, 0)
-        * shouldertrunkconnections[L2];
+            * ROTM(conf.rLegTrunkAngleH, -1, 0, 0)
+            * ROTM(conf.rLegTrunkAngleV, 0, 1, 0)
+            * shouldertrunkconnections[L2];
     shouldertrunkconnections[R1] = ROTM(conf.mLegRotAngle, 0, 0, 1)
-        * ROTM(conf.mLegTrunkAngleH, 1, 0, 0)
-        * ROTM(conf.mLegTrunkAngleV, 0, 1, 0)
-        * shouldertrunkconnections[R1];
+            * ROTM(conf.mLegTrunkAngleH, 1, 0, 0)
+            * ROTM(conf.mLegTrunkAngleV, 0, 1, 0)
+            * shouldertrunkconnections[R1];
     shouldertrunkconnections[L1] = ROTM(conf.mLegRotAngle, 0, 0, -1)
-        * ROTM(conf.mLegTrunkAngleH, -1, 0, 0)
-        * ROTM(conf.mLegTrunkAngleV, 0, 1, 0)
-        * shouldertrunkconnections[L1];
+            * ROTM(conf.mLegTrunkAngleH, -1, 0, 0)
+            * ROTM(conf.mLegTrunkAngleV, 0, 1, 0)
+            * shouldertrunkconnections[L1];
     shouldertrunkconnections[R0] = ROTM(conf.fLegRotAngle, 0, 0, 1)
-        * ROTM(conf.fLegTrunkAngleH, 1, 0, 0)
-        * ROTM(conf.fLegTrunkAngleV, 0, 1, 0)
-        * shouldertrunkconnections[R0];
+            * ROTM(conf.fLegTrunkAngleH, 1, 0, 0)
+            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0)
+            * shouldertrunkconnections[R0];
     shouldertrunkconnections[L0] = ROTM(conf.fLegRotAngle, 0, 0, -1)
-        * ROTM(conf.fLegTrunkAngleH, -1, 0, 0)
-        * ROTM(conf.fLegTrunkAngleV, 0, 1, 0)
-        * shouldertrunkconnections[L0];
+            * ROTM(conf.fLegTrunkAngleH, -1, 0, 0)
+            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0)
+            * shouldertrunkconnections[L0];
 
     // create the legs
     for (int i = 0; i < LEG_POS_MAX; i++)
     {
       LegPos leg = LegPos(i);
       if (legPosUsage[leg] == LEG)
-          {
+      {
         // get a representation of the origin
         const Pos nullpos(0, 0, 0);
 
@@ -792,7 +792,7 @@ namespace lpzrobots {
           // add the first four shoulders to center the other two to front
           Primitive * trans = new Transform(
               (leg == L0 || leg == R0) ? front : center,
-              should,
+                  should,
                   TRANSM(0, 0, -l0 / 2) * shouldertrunkconnections[leg]);
           trans->init(odeHandle, conf.shoulderMass, osgHandle);
           legs[leg].shoulder = trans;
@@ -845,8 +845,8 @@ namespace lpzrobots {
         // powered hip joint of trunk to first limb
         HingeJoint* j = new HingeJoint(
             (leg == L0 || leg == R0) ? front : center,
-            coxaThorax, anchor1,
-            -axis1);
+                coxaThorax, anchor1,
+                -axis1);
         j->init(odeHandle, osgHandleJoint, true, t1 * 2.1);
         joints.push_back(j);
         // create motor, overwrite the jointLimit argument with 1.0
@@ -895,8 +895,8 @@ namespace lpzrobots {
         irSensorBank->registerSensor(
             sensor,
             tebia,
-                ROTM(M_PI / 2, 0, 1, 0) *
-                TRANSM(1.01 * t3, 0, -0.2 * conf.tebiaLength),
+            ROTM(M_PI / 2, 0, 1, 0) *
+            TRANSM(1.01 * t3, 0, -0.2 * conf.tebiaLength),
             conf.irRangeLeg,
             RaySensor::drawRay);
         irLegSensors[leg] = sensor;
@@ -919,7 +919,7 @@ namespace lpzrobots {
           osg::Matrix c4 =
               TRANSM(0, 0, -l3 / 2 - 2 * conf.tebiaRadius - conf.footRange
                   + conf.footRadius)
-              * m3;
+                  * m3;
           osg::Matrix m4 = TRANSM(0, 0, -conf.footSpringPreload) * c4;
 
           const osg::Vec3 anchor4 = nullpos * m4;
@@ -975,9 +975,9 @@ namespace lpzrobots {
             // from (0,0,0) we go down x-axis, make two legs then up
             // legdist1 and so on
             -conf.size * 16.5 / 43.0
-                + (leg == L2 || leg == R2) * 0
-                + (leg == L1 || leg == R1) * conf.legdist1
-                + (leg == L0 || leg == R0) * (conf.legdist1 + conf.legdist2),
+            + (leg == L2 || leg == R2) * 0
+            + (leg == L1 || leg == R1) * conf.legdist1
+            + (leg == L0 || leg == R0) * (conf.legdist1 + conf.legdist2),
             // switch left or right side of trunk for each leg
             pmlr * conf.width,
             // height of wheel fixation to trunk
@@ -1025,14 +1025,14 @@ namespace lpzrobots {
       // remove all ignored pairs (brute force method)
       for (PrimitiveList::iterator i = objects.begin(); i != objects.end();
           i++)
-          {
+      {
         for (PrimitiveList::iterator j = objects.begin();
             j != objects.end(); j++)
-            {
+        {
           if (odeHandle.isIgnoredPair(
               (*i)->getGeom(),
               (*j)->getGeom()))
-              {
+          {
             odeHandle.removeIgnoredPair(
                 (*i)->getGeom(),
                 (*j)->getGeom());
@@ -1052,7 +1052,7 @@ namespace lpzrobots {
 
       for (MotorMap::iterator it = servos.begin(); it != servos.end();
           it++)
-          {
+      {
         if (it->second)
           delete (it->second);
       }
@@ -1060,7 +1060,7 @@ namespace lpzrobots {
 
       for (ServoList::iterator it = passiveServos.begin();
           it != passiveServos.end(); it++)
-          {
+      {
         if (*it)
           delete (*it);
       }
@@ -1075,7 +1075,7 @@ namespace lpzrobots {
 
       for (PrimitiveList::iterator i = objects.begin(); i != objects.end();
           i++)
-          {
+      {
         if (*i)
           delete *i;
       }
@@ -1175,7 +1175,7 @@ namespace lpzrobots {
    *         invalid
    */
   AmosII::MotorName AmosII::getMotorName(LegPos leg, LegJointType joint)
-      {
+  {
     if (leg == L0 && joint == TC)
       return TL0_m;
     if (leg == L0 && joint == CTR)
@@ -1225,7 +1225,7 @@ namespace lpzrobots {
    *         MotorName is invalid
    */
   AmosII::LegJointType AmosII::getLegJointType(MotorName name)
-      {
+  {
     assert(name!=AMOSII_MOTOR_MAX);
     switch (name)
     {
@@ -1252,7 +1252,7 @@ namespace lpzrobots {
         return FTI;
       default:
         std::cerr << "WARNING: point in AmosII::getMotorJointType reached "
-            << "that should not" << std::endl;
+        << "that should not" << std::endl;
         return LEG_JOINT_TYPE_MAX;
     }
   }
@@ -1267,7 +1267,7 @@ namespace lpzrobots {
    *         MotorName is invalid
    */
   AmosII::LegPos AmosII::getMotorLegPos(MotorName name)
-      {
+  {
     assert(name!=AMOSII_MOTOR_MAX);
     switch (name)
     {
@@ -1297,30 +1297,32 @@ namespace lpzrobots {
         return L2;
       default:
         std::cerr << "WARNING: point in AmosII::getMotorLegPos reached "
-            << "that should not" << std::endl;
+        << "that should not" << std::endl;
         return LEG_POS_MAX;
     }
   }
 
   void AmosII::setLegPosUsage(LegPos leg, LegPosUsage usage)
-      {
+  {
     legPosUsage[leg] = usage;
   }
 
   AmosIIConf AmosII::getDefaultConf(
-     double _scale,
-     bool _useShoulder,
-     bool _useFoot,
-     bool _useBack)
-     {
-  	    return getAmosIIv2Conf (_scale, _useShoulder,_useFoot,_useBack);
-      }
+      double _scale,
+      bool _useShoulder,
+      bool _useFoot,
+      bool _useBack)
+  {
+    return getAmosIIv2Conf (_scale, _useShoulder,_useFoot,_useBack);
+  }
+
+
   AmosIIConf AmosII::getAmosIIv2Conf(
       double _scale,
       bool _useShoulder,
       bool _useFoot,
       bool _useBack)
-      {
+  {
     AmosIIConf c;
 
     // use shoulder (fixed joint between legs and trunk)
@@ -1334,7 +1336,7 @@ namespace lpzrobots {
     c.useLocalVelSensor = 0;
     c.legContactSensorIsBinary = false;
 
-    // the trunk lenAmosIIConf c;gth. this scales the whole robot! all parts' sizes,
+    // the trunk length. this scales the whole robot! all parts' sizes,
     // masses, and forces will be adapted!!
     c.size = 0.43 * _scale;
     //trunk width
@@ -1353,9 +1355,9 @@ namespace lpzrobots {
     c.frontMass = c.trunkMass * c.frontLength / c.size;
     // distribute the rest of the weight like this for now */
     c.shoulderMass = (mass - c.trunkMass)
-        / (6 * (3.0 + c.useShoulder))
-        * (20.0 - c.useFoot)
-        / 20.0;
+            / (6 * (3.0 + c.useShoulder))
+            * (20.0 - c.useFoot)
+            / 20.0;
     c.coxaMass = c.shoulderMass;
     c.secondMass = c.shoulderMass;
     c.tebiaMass = c.shoulderMass;
@@ -1490,17 +1492,17 @@ namespace lpzrobots {
     // use an original radius and mass and scale original torque by their
     // new values to keep acceleration constant
     c.backPower = backPower_scale * (1.962 / (0.035 * 2.2))
-        * c.coxaLength * c.trunkMass;
+            * c.coxaLength * c.trunkMass;
     // torque in Nm
     c.coxaPower = coxaPower_scale * (1.962 / (0.035 * 2.2))
-        * c.coxaLength * c.trunkMass;
+            * c.coxaLength * c.trunkMass;
     c.secondPower = c.coxaPower;
     c.tebiaPower = c.coxaPower;
     // this is the spring constant. To keep  acceleration for the body
     // constant, we use the above unscaled preload of 0.08 and original
     // trunkMass to and then multiply by the new ones
     c.footPower = (springstiffness * 0.08 / 2.2)
-        * c.trunkMass / c.footSpringPreload;
+            * c.trunkMass / c.footSpringPreload;
 
     c.backDamping = 0.0;
     // Georg: no damping required for new servos
@@ -1533,226 +1535,93 @@ namespace lpzrobots {
 
 
   AmosIIConf AmosII::getAmosIIv1Conf(
-                double _scale,
-                bool _useShoulder,
-                bool _useFoot,
-                bool _useBack)
-                {
-        	  AmosIIConf c= getAmosIIv2Conf(_scale, _useShoulder,_useFoot,_useBack);
+      double _scale,
+      bool _useShoulder,
+      bool _useFoot,
+      bool _useBack)
+  {
+    // Take basic configuration from amosiiv2
+    // and then make necessarz changes
+    AmosIIConf c= getAmosIIv2Conf(_scale, _useShoulder,_useFoot,_useBack);
+
+    //trunk height
+    c.height = /*6.5*/ 8.5/ 43.0 * c.size;//---------------------------------------------------AMOSIIv1
+    // -----------------------
+    // 1) Biomechanics
+    // Manual setting adjustable joint positions at the body
+    // -----------------------
+
+    // amosII has a fixed but adjustable joint that decides how the legs
+    // extend from the trunk. Here you can adjust these joints
+
+    // ------------- Front legs -------------
+    // angle (in rad) around vertical axis at leg-trunk fixation 0:
+    // perpendicular
+    // => forward/backward
+    c.fLegTrunkAngleV = 0.0;
+    // angle around horizontal axis at leg-trunk fixation 0: perpendicular
+    // => upward/downward
+    c.fLegTrunkAngleH = 3.1416/6;//---------------------------------------------------AMOSIIv1
+    // rotation of leg around own axis 0: first joint axis is vertical
+    // => till
+    c.fLegRotAngle = 0.0;
+
+    // ------------- Middle legs ----------------
+    // => forward/backward
+    c.mLegTrunkAngleV = 0.0;
+    // => upward/downward
+    c.mLegTrunkAngleH = 3.1416/6;//---------------------------------------------------AMOSIIv1
+    // => till
+    c.mLegRotAngle = 0.0;
+
+    // ------------- Rear legs ------------------
+    // => forward/backward
+    c.rLegTrunkAngleV = 0.0;
+    // => upward/downward
+    c.rLegTrunkAngleH = 3.1416/6;//---------------------------------------------------AMOSIIv1
+    // => till
+    c.rLegRotAngle = 0.0;
 
 
-//      AmosIIConf c;
-//
-//      // use shoulder (fixed joint between legs and trunk)
-//      c.useShoulder = _useShoulder;
-//      c.useTebiaJoints = 0;
-//      //create springs at the end of the legs
-//      c.useFoot = _useFoot;
-//      //create a joint in the back
-//      c.useBack = _useBack;
-//      c.rubberFeet = false;
-//      c.useLocalVelSensor = 0;
-//      c.legContactSensorIsBinary = false;
-//
-//      // the trunk length. this scales the whole robot! all parts' sizes,
-//      // masses, and forces will be adapted!!
-//      c.size = 0.43 * _scale;
-//      //trunk width
-//      c.width = 7.0 / 43.0 * c.size;
-//      //trunk height
-      c.height = /*6.5*/ 8.5/ 43.0 * c.size;//---------------------------------------------------AMOSIIv1
-//      c.frontLength = 12.0 / 43.0 * c.size;
-//      // we use as density the original trunk weight divided by the original
-//      // volume
-//
-//      const double density = 2.2 / (0.43 * 0.07 * 0.065);
-//
-//      c.trunkMass = density * c.size * c.width * c.height;
-//      // use the original trunk to total mass ratio
-//      const double mass = 5.758 / 2.2 * c.trunkMass;
-//      c.frontMass = c.trunkMass * c.frontLength / c.size;
-//      // distribute the rest of the weight like this for now */
-//      c.shoulderMass = (mass - c.trunkMass)
-//          / (6 * (3.0 + c.useShoulder))
-//          * (20.0 - c.useFoot)
-//          / 20.0;
-//      c.coxaMass = c.shoulderMass;
-//      c.secondMass = c.shoulderMass;
-//      c.tebiaMass = c.shoulderMass;
-//      // foot gets 3 or 4 times 1/20 of shoulderMass (divide and multiply by
-//      // 3 or 4)
-//      c.footMass = (mass - c.trunkMass) / 6 * c.useFoot / 20.0;
-//
-//      //As real robot!!
-//      const double shoulderHeight_cm = 6.5;
-//      //shoulder height "4.5 wrong" --> correct=6.5 cm from rotating point
-//      c.shoulderHeight = shoulderHeight_cm / 6.5 * c.height;
-//
-//      // distance between hindlegs and middle legs
-//      c.legdist1 = 19.0 / 43.0 * c.size;
-//      // distance between middle legs and front legs
-//      c.legdist2 = 15.0 / 43.0 * c.size;
-//
-//      // configure the wheels (if used). They don't have any counterpart in
-//      // reality, so the chosen values are arbitrary
-//      c.wheel_radius = 0.10 * c.size;
-//      c.wheel_width  = 0.04 * c.size;
-//      c.wheel_mass   = (mass-c.trunkMass) / 6.0;
-//
-      // -----------------------
-      // 1) Biomechanics
-      // Manual setting adjustable joint positions at the body
-      // -----------------------
+    // -----------------------
+    // 2) Joint Limits
+    // Setting Max, Min of each joint with respect to real
+    // -----------------------
+    //
+    //Similar to real robot
+    //-45 deg; downward (+) MIN
+    c.backJointLimitD = M_PI / 180 * 45.0; //---------------------------------------------------AMOSIIv1
+    // 45 deg; upward (-) MAX
+    c.backJointLimitU = -M_PI / 180 * 45.0;
 
-      // amosII has a fixed but adjustable joint that decides how the legs
-      // extend from the trunk. Here you can adjust these joints
+    // 45 deg; forward (-) MAX --> normal walking range 25 deg MAX
+    c.fcoxaJointLimitF = -M_PI / 180.0 * 45.0;
+    //-45 deg; backward (+) MIN --> normal walking range -30 deg MIN
+    c.fcoxaJointLimitB = M_PI / 180.0 * 45.0;
 
-      // ------------- Front legs -------------
-      // angle (in rad) around vertical axis at leg-trunk fixation 0:
-      // perpendicular
-      // => forward/backward
-      c.fLegTrunkAngleV = 0.0;
-      // angle around horizontal axis at leg-trunk fixation 0: perpendicular
-      // => upward/downward
-      c.fLegTrunkAngleH = 3.1416/6;//---------------------------------------------------AMOSIIv1
-      // rotation of leg around own axis 0: first joint axis is vertical
-      // => till
-      c.fLegRotAngle = 0.0;
+    //45 deg; forward (-) MAX --> normal walking range 25 deg MAX
+    c.mcoxaJointLimitF = -M_PI / 180.0 * 45.0;
+    //45 deg; backward (+) MIN --> normal walking range -30 deg MIN
+    c.mcoxaJointLimitB = M_PI / 180 * 45.0;
 
-      // ------------- Middle legs ----------------
-      // => forward/backward
-      c.mLegTrunkAngleV = 0.0;
-      // => upward/downward
-      c.mLegTrunkAngleH = 3.1416/6;//---------------------------------------------------AMOSIIv1
-      // => till
-      c.mLegRotAngle = 0.0;
-
-      // ------------- Rear legs ------------------
-      // => forward/backward
-      c.rLegTrunkAngleV = 0.0;
-      // => upward/downward
-      c.rLegTrunkAngleH = 3.1416/6;//---------------------------------------------------AMOSIIv1
-      // => till
-      c.rLegRotAngle = 0.0;
-//
-//
-//      // be careful changing the following dimension, they may break the
-//      // simulation!! (they shouldn't but they do)
-//      const double shoulderLength_cm = 4.5;
-//      c.shoulderLength = shoulderLength_cm / 43.0 * c.size;
-//      c.shoulderRadius = .03 * c.size;
-//
-//      const double coxaLength_cm = 3.5;
-//      c.coxaLength = coxaLength_cm / 43.0 * c.size;
-//      c.coxaRadius = .04 * c.size;
-//
-//      const double secondLength_cm = 6.0;
-//      c.secondLength = secondLength_cm / 43.0 * c.size;
-//      c.secondRadius = .03 * c.size;
-//      c.tebiaRadius = 1.3 / 43.0 * c.size;
-//
-//      const double tebiaLength_cm = 11.5; // 3)
-//      c.tebiaLength = tebiaLength_cm / 43.0 * c.size;
-//
-//      // this determines the limit of the footspring
-//      c.footRange = .2 / 43.0 * c.size;
-//      c.footRadius = 1.5 / 43.0 * c.size;
-//
-      // -----------------------
-      // 2) Joint Limits
-      // Setting Max, Min of each joint with respect to real
-      // -----------------------
-      //
-      //Similar to real robot
-      //-45 deg; downward (+) MIN
-      c.backJointLimitD = M_PI / 180 * 45.0; //---------------------------------------------------AMOSIIv1
-      // 45 deg; upward (-) MAX
-      c.backJointLimitU = -M_PI / 180 * 45.0;
-
-      // 45 deg; forward (-) MAX --> normal walking range 25 deg MAX
-      c.fcoxaJointLimitF = -M_PI / 180.0 * 45.0;
-      //-45 deg; backward (+) MIN --> normal walking range -30 deg MIN
-      c.fcoxaJointLimitB = M_PI / 180.0 * 45.0;
-
-      //45 deg; forward (-) MAX --> normal walking range 25 deg MAX
-      c.mcoxaJointLimitF = -M_PI / 180.0 * 45.0;
-      //45 deg; backward (+) MIN --> normal walking range -30 deg MIN
-      c.mcoxaJointLimitB = M_PI / 180 * 45.0;
-
-      //45 deg; forward (-) MAX --> normal walking range 25 deg MAX
-      c.rcoxaJointLimitF = -M_PI / 180.0 * 45.0;
-      //45 deg; backward (+) MIN --> normal walking range -30 deg MIN
-      c.rcoxaJointLimitB = M_PI / 180.0 * 45.0;
+    //45 deg; forward (-) MAX --> normal walking range 25 deg MAX
+    c.rcoxaJointLimitF = -M_PI / 180.0 * 45.0;
+    //45 deg; backward (+) MIN --> normal walking range -30 deg MIN
+    c.rcoxaJointLimitB = M_PI / 180.0 * 45.0;
 
 
-      // 30 deg; downward (+) MIN --> normal walking range 65 deg MIN
-      c.secondJointLimitD = M_PI / 180.0 * 30.0;
-      // 100 deg upward (-) MAX --> normal walking range 115 deg MAX
-      c.secondJointLimitU = -M_PI / 180.0 * 100.0;
+    // 30 deg; downward (+) MIN --> normal walking range 65 deg MIN
+    c.secondJointLimitD = M_PI / 180.0 * 30.0;
+    // 100 deg upward (-) MAX --> normal walking range 115 deg MAX
+    c.secondJointLimitU = -M_PI / 180.0 * 100.0;
 
 
-      //140 deg downward; (+) MIN --> normal walking range 140 deg MIN
-      c.tebiaJointLimitD = M_PI / 180.0 * 140.0;
-      //15 deg  downward; (+) MAX --> normal walking range 120 deg MAX
-      c.tebiaJointLimitU = M_PI / 180.0 * 15.0;
-//
-//
-//
-//      // -----------------------
-//      // 3) Motors
-//      // Motor power and joint stiffness
-//      // -----------------------
-//
-//      c.footSpringPreload = 8.0 / 43.0 * c.size;
-//      // negative is downwards (spring extends)
-//      c.footSpringLimitD = c.footSpringPreload;
-//      c.footSpringLimitU = c.footSpringPreload + c.footRange;
-//
-//      const double backPower_scale = 30.0;
-//      const double coxaPower_scale = 10.0;
-//      const double springstiffness = 350.0;
-//
-//      // use an original radius and mass and scale original torque by their
-//      // new values to keep acceleration constant
-//      c.backPower = backPower_scale * (1.962 / (0.035 * 2.2))
-//          * c.coxaLength * c.trunkMass;
-//      // torque in Nm
-//      c.coxaPower = coxaPower_scale * (1.962 / (0.035 * 2.2))
-//          * c.coxaLength * c.trunkMass;
-//      c.secondPower = c.coxaPower;
-//      c.tebiaPower = c.coxaPower;
-//      // this is the spring constant. To keep  acceleration for the body
-//      // constant, we use the above unscaled preload of 0.08 and original
-//      // trunkMass to and then multiply by the new ones
-//      c.footPower = (springstiffness * 0.08 / 2.2)
-//          * c.trunkMass / c.footSpringPreload;
-//
-//      c.backDamping = 0.0;
-//      // Georg: no damping required for new servos
-//      c.coxaDamping = 0.0;
-//      c.secondDamping = 0.0;
-//      c.tebiaDamping = 0.01;
-//      c.footDamping = 0.05; // a spring has no damping??
-//
-//      c.backMaxVel = 1.961 * M_PI;
-//      // The speed calculates how it works
-//      c.coxaMaxVel = 1.961 * M_PI;
-//      c.secondMaxVel = 1.961 * M_PI;
-//      c.tebiaMaxVel = 1.961 * M_PI;
-//      c.footMaxVel = 1.961 * M_PI;
-//
-//      c.usRangeFront = 0.3 * c.size;
-//      c.irRangeLeg = 0.2 * c.size;
-//
-//      //Values by Dennis
-//      // 1 is parallel, -1 is antiparallel
-//      c.usParallel = false;
-//      c.usAngleX = 0.5;
-//      c.usAngleY = 1;
-//
-//      c.texture = "Images/whiteground.rgb";
-//      c.bodyTexture = "Images/stripes.rgb";
+    //140 deg downward; (+) MIN --> normal walking range 140 deg MIN
+    c.tebiaJointLimitD = M_PI / 180.0 * 140.0;
+    //15 deg  downward; (+) MAX --> normal walking range 120 deg MAX
+    c.tebiaJointLimitU = M_PI / 180.0 * 15.0;
 
-      return c;
-    }
+
+    return c;
+  }
 }
