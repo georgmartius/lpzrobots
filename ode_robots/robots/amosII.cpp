@@ -951,16 +951,12 @@ namespace lpzrobots {
           passiveServos.push_back(spring);
           odeHandle.addIgnoredPair(secondThorax, foot);
 
-          // leg contact sensor
-          if (conf.legContactSensorIsBinary) {
-            // binary sensor (switch)
-            legContactSensors[LegPos(i)] = new ContactSensor(true);
-          } else {
-            // force sensor
-            legContactSensors[LegPos(i)] = new ContactSensor(false,50);
-          }
-          legContactSensors[LegPos(i)]->init(odeHandle, osgHandle,
-              legs[LegPos(i)].foot, false);
+          legContactSensors[LegPos(i)] = new ContactSensor(
+              conf.legContactSensorIsBinary,50,1.01*t4);
+          legContactSensors[LegPos(i)]->init(odeHandle, osgHandle, foot, true,
+              TRANSM(0,0,-0.5*l4));
+          odeHandle.addIgnoredPair(tebia,
+              legContactSensors[LegPos(i)]->getTransformObject());
         }
       }
       else if (legPosUsage[leg] == WHEEL) {
