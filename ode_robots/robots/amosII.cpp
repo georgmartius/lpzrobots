@@ -1657,66 +1657,32 @@ namespace lpzrobots {
       // 45 deg; upward (-) MAX
       c.backJointLimitU = -M_PI / 180 * 45.0;
 
+      // 45 deg; forward (-) MAX --> normal walking range 25 deg MAX
+      c.fcoxaJointLimitF = -M_PI / 180.0 * 45.0;
+      //-45 deg; backward (+) MIN --> normal walking range -30 deg MIN
+      c.fcoxaJointLimitB = M_PI / 180.0 * 45.0;
 
-      //Setup 1
+      //45 deg; forward (-) MAX --> normal walking range 25 deg MAX
+      c.mcoxaJointLimitF = -M_PI / 180.0 * 45.0;
+      //45 deg; backward (+) MIN --> normal walking range -30 deg MIN
+      c.mcoxaJointLimitB = M_PI / 180 * 45.0;
 
-//      // 45 deg; forward (-) MAX --> normal walking range 25 deg MAX
-//      c.fcoxaJointLimitF = -M_PI / 180.0 * 25.0;//45.0;
-//      //-45 deg; backward (+) MIN --> normal walking range -30 deg MIN
-//      c.fcoxaJointLimitB = M_PI / 180.0 * 30.0;//45.0;
-//
-//      //45 deg; forward (-) MAX --> normal walking range 25 deg MAX
-//      c.mcoxaJointLimitF = -M_PI / 180.0 * 25.0;//45.0;
-//      //45 deg; backward (+) MIN --> normal walking range -30 deg MIN
-//      c.mcoxaJointLimitB = M_PI / 180 * 30.0;//45.0;
-//
-//      //45 deg; forward (-) MAX --> normal walking range 25 deg MAX
-//      c.rcoxaJointLimitF = -M_PI / 180.0 * 25.0;//45.0;
-//      //45 deg; backward (+) MIN --> normal walking range -30 deg MIN
-//      c.rcoxaJointLimitB = M_PI / 180.0 * 30.0;//45.0;
-//
-//
-//
-//      // 30 deg; downward (+) MIN --> normal walking range 65 deg MIN
-//      c.secondJointLimitD = M_PI / 180.0 * -65.0;//30.0;
-//      // 100 deg upward (-) MAX --> normal walking range 115 deg MAX
-//      c.secondJointLimitU = -M_PI / 180.0 * 115.0;//100.0;
-//
-//      //140 deg downward; (+) MIN --> normal walking range 140 deg MIN
-//      c.tebiaJointLimitD = M_PI / 180.0 * 140.0;//140.0;
-//      //15 deg  downward; (+) MAX --> normal walking range 120 deg MAX
-//      c.tebiaJointLimitU = M_PI / 180.0 * 120.0;//15.0;
+      //45 deg; forward (-) MAX --> normal walking range 25 deg MAX
+      c.rcoxaJointLimitF = -M_PI / 180.0 * 45.0;
+      //45 deg; backward (+) MIN --> normal walking range -30 deg MIN
+      c.rcoxaJointLimitB = M_PI / 180.0 * 45.0;
 
 
-
-      //Setup 2
-
-           // 45 deg; forward (-) MAX --> normal walking range 25 deg MAX
-           c.fcoxaJointLimitF = -M_PI / 180.0 * 45.0;
-           //-45 deg; backward (+) MIN --> normal walking range -30 deg MIN
-           c.fcoxaJointLimitB = M_PI / 180.0 * 45.0;
-
-           //45 deg; forward (-) MAX --> normal walking range 25 deg MAX
-           c.mcoxaJointLimitF = -M_PI / 180.0 * 45.0;
-           //45 deg; backward (+) MIN --> normal walking range -30 deg MIN
-           c.mcoxaJointLimitB = M_PI / 180 * 45.0;
-
-           //45 deg; forward (-) MAX --> normal walking range 25 deg MAX
-           c.rcoxaJointLimitF = -M_PI / 180.0 * 45.0;
-           //45 deg; backward (+) MIN --> normal walking range -30 deg MIN
-           c.rcoxaJointLimitB = M_PI / 180.0 * 45.0;
+      // 30 deg; downward (+) MIN --> normal walking range 65 deg MIN
+      c.secondJointLimitD = M_PI / 180.0 * 30.0;
+      // 100 deg upward (-) MAX --> normal walking range 115 deg MAX
+      c.secondJointLimitU = -M_PI / 180.0 * 100.0;
 
 
-           // 30 deg; downward (+) MIN --> normal walking range 65 deg MIN
-           c.secondJointLimitD = M_PI / 180.0 * 30.0;
-           // 100 deg upward (-) MAX --> normal walking range 115 deg MAX
-           c.secondJointLimitU = -M_PI / 180.0 * 100.0;
-
-
-           //140 deg downward; (+) MIN --> normal walking range 140 deg MIN
-           c.tebiaJointLimitD = M_PI / 180.0 * 140.0;
-           //15 deg  downward; (+) MAX --> normal walking range 120 deg MAX
-           c.tebiaJointLimitU = M_PI / 180.0 * 15.0;
+      //140 deg downward; (+) MIN --> normal walking range 140 deg MIN
+      c.tebiaJointLimitD = M_PI / 180.0 * 140.0;
+      //15 deg  downward; (+) MAX --> normal walking range 120 deg MAX
+      c.tebiaJointLimitU = M_PI / 180.0 * 15.0;
 
 
 
