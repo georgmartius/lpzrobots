@@ -65,7 +65,6 @@ namespace lpzrobots {
     } else {
       reference->substance.setCollisionCallback(0,this); // remove collision callback
     }
-    if(sensorBody) delete sensorBody;        
   }
 
 
