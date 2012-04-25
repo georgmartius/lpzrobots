@@ -49,7 +49,7 @@ namespace lpzrobots {
 
 
   ContactSensor::ContactSensor(bool binary /*=true*/,
-                               double forcescale /*= 1*/, double size /*= 0.05*/)
+                               double forcescale /*= 1*/, double radius /*= 0.05*/)
     : binary(binary), forcescale(forcescale), size(size) {
     reference = 0;
     value = 0;  
@@ -72,7 +72,7 @@ namespace lpzrobots {
   void ContactSensor::init(const OdeHandle& odeHandle,
                            const OsgHandle& osgHandle, 
                            Primitive* reference, 
-                           bool createBox,
+                           bool createSphere,
                            const osg::Matrix pose, 
                            bool colorObject){
     assert(reference);
@@ -81,8 +81,8 @@ namespace lpzrobots {
     
     value = 0;
     lastvalue = -1;
-    if(createBox){
-      sensorBody = new Box(size,size,size);
+    if(createSphere){
+      sensorBody = new Sphere(size);
       transform = new Transform(reference, sensorBody, pose);
       origColor = osgHandle.getColor("joint");
       transform->init(odeHandle, 0, osgHandle.changeColor(origColor));

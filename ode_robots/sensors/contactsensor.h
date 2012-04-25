@@ -28,7 +28,7 @@
 
 namespace lpzrobots {
 
-  class Box;
+  class Sphere;
   class Transform;
 
   /** Class for a contact sensor. 
@@ -49,16 +49,16 @@ namespace lpzrobots {
        @param forcescale scale of the measured collision force (default: 1)
        @param size size of little box representing the sensor (if it has an own body) (default: 0.05)
     */
-    ContactSensor(bool binary=true, double forcescale = 1, double size = 0.05);
+    ContactSensor(bool binary=true, double forcescale = 1, double radius = 0.05);
 
     virtual ~ContactSensor();
 
     virtual void init(const OdeHandle& odeHandle,
-		      const OsgHandle& osgHandle, 
-		      Primitive* reference, 
-                      bool createBox = false,
-		      const osg::Matrix pose = osg::Matrix(), 
-		      bool colorObject = true);
+          const OsgHandle& osgHandle,
+          Primitive* reference,
+          bool createSphere = false,
+          const osg::Matrix pose = osg::Matrix(),
+          bool colorObject = true);
 
     virtual void reset();  
  
@@ -82,7 +82,7 @@ namespace lpzrobots {
     double size;                ///< size of graphical sensor
 
     Primitive* reference;       ///< primitive to which the sensor is bound
-    Box* sensorBody;
+    Sphere* sensorBody;
     Transform* transform;
 
     bool colorObject;
