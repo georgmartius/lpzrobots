@@ -50,7 +50,7 @@ namespace lpzrobots {
 
   ContactSensor::ContactSensor(bool binary /*=true*/,
                                double forcescale /*= 1*/, double radius /*= 0.05*/)
-    : binary(binary), forcescale(forcescale), size(size) {
+    : binary(binary), forcescale(forcescale), size(radius) {
     reference = 0;
     value = 0;  
     lastvalue=-1;
