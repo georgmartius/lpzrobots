@@ -89,7 +89,6 @@
 
 	  BJ_ts= 55,
 
-
 	  BX_acs= 56, // 3D Accelerometer (x,y,z) at body
 	  BY_acs= 57,
 	  BZ_acs= 58,
@@ -98,7 +97,7 @@
 	  M_ps = 60,
 	  R_ps = 61,
 
-	  G0x_s=62, // goal orientation sensors (relative position to reference object)
+	  G0x_s=62, // goal orientation sensors (relative position to reference object 1, e.g. camera)
 	  G0y_s=63,
 	  G0z_s=64,
 
@@ -108,32 +107,66 @@
 	  BY_spd= 67,
 	  BZ_spd= 68,
 
-
-
 	  //---Adding more sensors**
+	  G0angleroll_s=69, // goal orientation sensors (relative angle to reference object 1, e.g. camera)
+	  G0anglepitch_s=70,
+	  G0angleyaw_s=71,
 
+	  G1x_s=72, // goal orientation sensors (relative position to reference object 2, e.g. camera)
+	  G1y_s=73,
+	  G1z_s=74,
 
-//	  BX_acs= 56, // 3D Accelerometer (x,y,z) at body
-//	  BY_acs= 57,
-//	  //BZ_acs= 57,
-//
-//	  L_ps = 58,  //photo (light) sensors Left, Middle and Right
-//	  M_ps = 59,
-//	  R_ps = 60,
-//
-//	  //---Adding more sensors**
-//
-//	  G0x_s=61, // goal orientation sensors (relative position to reference object)
-//	  G0y_s=62,
-//	  G0z_s=62,
-//
-//	  A_cs = 63, //average current sensor
+	  G1angleroll_s=75, // goal orientation sensors (relative angle to reference object 2, e.g. camera)
+	  G1anglepitch_s=76,
+	  G1angleyaw_s=77,
 
+	  G2x_s=78, // goal orientation sensors (relative position to reference object 3, e.g. camera)
+	  G2y_s=79,
+	  G2z_s=80,
 
+	  G2angleroll_s=81, // goal orientation sensors (relative angle to reference object 3, e.g. camera)
+	  G2anglepitch_s=82,
+	  G2angleyaw_s=83,
 
+	  Laserx_s = 84,
+	  Lasery_s = 85,
+	  Laserz_s = 86,
+
+	  Poti_s = 87,
+
+	  Compassx_s = 88,
+	  Compassy_s = 89,
+
+	  R0X_acs= 90, // 3D Accelerometer (x,y,z) at RO
+	  R0Y_acs= 91,
+	  R0Z_acs= 92,
+
+	  R1X_acs= 93, // 3D Accelerometer (x,y,z) at R1
+	  R1Y_acs= 94,
+	  R1Z_acs= 95,
+
+	  R2X_acs= 96, // 3D Accelerometer (x,y,z) at R2
+	  R2Y_acs= 97,
+	  R2Z_acs= 98,
+
+	  L0X_acs= 99, // 3D Accelerometer (x,y,z) at L0
+	  L0Y_acs= 100,
+	  L0Z_acs= 101,
+
+	  L1X_acs= 102, // 3D Accelerometer (x,y,z) at L1
+	  L1Y_acs= 103,
+	  L1Z_acs= 104,
+
+	  L2X_acs= 105, // 3D Accelerometer (x,y,z) at L2
+	  L2Y_acs= 106,
+	  L2Z_acs= 107,
+
+	  Microphone0_s= 108, // Microphone 0
+	  Microphone1_s= 109, // Microphone 1
+	  Microphone2_s= 110, // Microphone 2
 
 	  //Changing according to the maximum sensor number
-	  AMOSII_SENSOR_MAX = 69,
+	  AMOSII_SENSOR_MAX = 111,
   };
 
 
