@@ -77,6 +77,7 @@ class ThisSim : public lpzrobots::Simulation {
 
       // Add amosII robot
       lpzrobots::AmosIIConf myAmosIIConf = lpzrobots::AmosII::getDefaultConf();
+      myAmosIIConf.rubberFeet = true;
       lpzrobots::OdeHandle rodeHandle = odeHandle;
       rodeHandle.substance = lpzrobots::Substance(3.0, 0.0, 50.0, 0.8);
       amos = new lpzrobots::AmosII(
