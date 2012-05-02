@@ -270,7 +270,7 @@ namespace lpzrobots {
     		/*local_coordinates*/
     		rpos_sens_tmp.setReference(*it);
     		rpos_sensor.push_back(rpos_sens_tmp);
-    		//sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot
+    		//sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot, have been declared in sensormotordefinition
     	}
     	rpos_sensing_active = true;
     }
@@ -1066,6 +1066,17 @@ namespace lpzrobots {
         joints.push_back(wheeljoint);
       }
     }
+
+    // --------------Add Goal Sensor by Ren -------------------
+    // Relative position sensor
+    if (rpos_sensing_active)
+    {
+    	for(std::vector<RelativePositionSensor>::iterator it = rpos_sensor.begin(); it<rpos_sensor.end();it++)
+    	{
+    		it->init(trunk); // connect sensor to main body
+    	}
+    }
+    // --------------Add Goal Sensor by Ren -------------------
 
     setParam("dummy", 0); // apply all parameters.
 
