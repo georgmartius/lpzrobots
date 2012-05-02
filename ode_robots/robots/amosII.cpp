@@ -1185,6 +1185,10 @@ namespace lpzrobots {
       //should all be empty as objects were cleared:
       legs.clear();
 
+      //------------------ delete GoalSensor here by Ren--------------------
+      rpos_sensor.clear();
+      //------------------ delete GoalSensor here by Ren--------------------
+
       odeHandle.deleteSpace();
 #ifdef VERBOSE
       std::cerr << "end AmosII::destroy\n";
