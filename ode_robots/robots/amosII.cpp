@@ -254,6 +254,31 @@ namespace lpzrobots {
     addInspectableValue("posX", &position.x, "x Position of robot");
     addInspectableValue("posY", &position.y, "y Position of robot");
     addInspectableValue("posZ", &position.z, "z Position of robot");
+
+    //-----------------add GoalSensor by Ren------------------------
+    if (conf.rpos_sensor_references.size()>0)
+    {
+    	// Relative position sensor
+    	for (std::vector<Primitive*>::iterator it = conf.rpos_sensor_references.begin(); it<conf.rpos_sensor_references.end();it++)
+    	{
+
+    		RelativePositionSensor rpos_sens_tmp(1, 1,Sensor::X|Sensor::Y|Sensor::Z, true);
+    		/*max distance for normalization*/
+    		/*exponent for sensor characteristic*/
+    		/*dimensions to sense*/
+    		//use Z as x-coordinate ( robot was created with vertical capsule or something like that)
+    		/*local_coordinates*/
+    		rpos_sens_tmp.setReference(*it);
+    		rpos_sensor.push_back(rpos_sens_tmp);
+    		//sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot
+    	}
+    	rpos_sensing_active = true;
+    }
+    else
+    {
+    	rpos_sensing_active =false;
+    }
+    //----------------------Goal Sensor by Ren-----------------------
   }
   ;
 
@@ -592,7 +617,6 @@ namespace lpzrobots {
 
     //get a representation of the origin
     const Pos nullpos(0, 0, 0);
-
     /**********************************************************************/
     /*  create body                                                       */
     /**********************************************************************/
@@ -1572,6 +1596,10 @@ namespace lpzrobots {
 
     c.texture = "Images/whiteground.rgb";
     c.bodyTexture = "Images/stripes.rgb";
+
+    //----------------Add GoalSensor by Ren------------------
+    c.rpos_sensor_references.clear(); //enforce empty vector -> no relative position sensing
+    //----------------Add GoalSensor by Ren------------------
 
     return c;
   }

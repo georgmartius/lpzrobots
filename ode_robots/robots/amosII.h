@@ -28,6 +28,8 @@
 #include <ode_robots/oderobot.h>
 #include <selforg/inspectable.h>
 #include <ode_robots/contactsensor.h>
+//-------------Add by Ren relativepositionsensor.h-------
+#include <ode_robots/relativepositionsensor.h>
 #include <ode_robots/amosiisensormotordefinition.h>
 
 /**
@@ -282,6 +284,10 @@ namespace lpzrobots {
       std::string texture;
       /** path to texture for trunk */
       std::string bodyTexture;
+
+      //-----------Add GoalSensor by Ren------------------------
+      std::vector<Primitive*> rpos_sensor_references;
+      //-----------Add GoalSensor by Ren------------------------
   };
   
   class AmosII : public OdeRobot, public Inspectable {
@@ -561,6 +567,11 @@ namespace lpzrobots {
 
       // contains all active servos
       MotorMap servos;
+
+      //---------------Add GoalSensor by Ren---------------
+      std::vector<RelativePositionSensor> rpos_sensor;  // Relative position sensors
+      bool rpos_sensing_active;
+      //---------------Add GoalSensor by Ren---------------
   };
 }
 
