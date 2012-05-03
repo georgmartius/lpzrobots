@@ -274,7 +274,6 @@ namespace lpzrobots {
     		rpos_sens_tmp.setReference(*it);
     		rpos_sensor.push_back(rpos_sens_tmp);
     		//sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot, have been declared in sensormotordefinition
-    		cout<<"dddddddddddddddddddddddddddddddddddddddddddd"<<*it<<endl;
     	}
     	rpos_sensing_active = true;
     }
@@ -1096,7 +1095,7 @@ namespace lpzrobots {
     {
     	for(std::vector<RelativePositionSensor>::iterator it = rpos_sensor.begin(); it<rpos_sensor.end();it++)
     	{
-    		it->init(trunk); // connect sensor to main body
+    		it->init(front); // connect sensor to main body
     	}
     }
     // --------------Add Goal Sensor by Ren -------------------
