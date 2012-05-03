@@ -48,9 +48,6 @@
 // include header file
 #include "amosII.h"
 
-#include <iostream>
-using namespace std;
-
 // rotation and translation matrixes (to make the code shorter)
 #define ROTM osg::Matrix::rotate
 #define TRANSM osg::Matrix::translate
