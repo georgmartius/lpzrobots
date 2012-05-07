@@ -474,6 +474,7 @@ namespace lpzrobots {
     //------------------------Add GoalSensor by Ren-------------------
     if (rpos_sensing_active)
     {
+    	//the first goal
    		std::vector<RelativePositionSensor>::iterator it = rpos_sensor.begin(); //we only use one goal sensor
    		std::list<sensor> rps_val = it->get();
    		sensors[G0z_s] = rps_val.back();
@@ -481,6 +482,26 @@ namespace lpzrobots {
    		sensors[G0y_s] = rps_val.back();
    		rps_val.pop_back();
    		sensors[G0x_s] = rps_val.back();
+   		rps_val.pop_back();
+
+   		//the second goal
+   		it++;
+   		rps_val = it->get();
+   		sensors[G1z_s] = rps_val.back();
+   		rps_val.pop_back();
+   		sensors[G1y_s] = rps_val.back();
+   		rps_val.pop_back();
+   		sensors[G1x_s] = rps_val.back();
+   		rps_val.pop_back();
+
+   		//the third goal
+   		it++;
+   		rps_val = it->get();
+   		sensors[G2z_s] = rps_val.back();
+   		rps_val.pop_back();
+   		sensors[G2y_s] = rps_val.back();
+   		rps_val.pop_back();
+   		sensors[G2x_s] = rps_val.back();
    		rps_val.pop_back();
      }
     //------------------------Add GoalSensor by Ren-------------------
