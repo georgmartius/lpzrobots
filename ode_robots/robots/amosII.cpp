@@ -254,6 +254,31 @@ namespace lpzrobots {
     addInspectableValue("posX", &position.x, "x Position of robot");
     addInspectableValue("posY", &position.y, "y Position of robot");
     addInspectableValue("posZ", &position.z, "z Position of robot");
+
+    //-----------------add GoalSensor by Ren------------------------
+    if (conf.GoalSensor_references.size()>0)
+    {
+    	// Relative position sensor
+    	for (std::vector<Primitive*>::iterator it = conf.GoalSensor_references.begin(); it<conf.GoalSensor_references.end();it++)
+    	{
+
+    		RelativePositionSensor GoalSensor_tmp(1, 1,Sensor::X|Sensor::Y|Sensor::Z, true);
+    		/*max distance for normalization*/
+    		/*exponent for sensor characteristic*/
+    		/*dimensions to sense*/
+    		//use Z as x-coordinate ( robot was created with vertical capsule or something like that)
+    		/*local_coordinates*/
+    		GoalSensor_tmp.setReference(*it);
+    		GoalSensor.push_back(GoalSensor_tmp);
+    		//sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot, have been declared in sensormotordefinition
+    	}
+    	GoalSensor_active = true;
+    }
+    else
+    {
+    	GoalSensor_active =false;
+    }
+    //----------------------Goal Sensor by Ren-----------------------
   }
   ;
 
@@ -446,6 +471,41 @@ namespace lpzrobots {
     sensors[BY_spd] = speedsens[1];
     sensors[BZ_spd] = speedsens[2];
 
+    //------------------------Add GoalSensor by Ren-------------------
+    if (GoalSensor_active)
+    {
+    	//the first goal
+   		std::vector<RelativePositionSensor>::iterator it = GoalSensor.begin(); //we only use one goal sensor
+   		std::list<sensor> gls_val = it->get();
+   		sensors[G0z_s] = gls_val.back();
+   		gls_val.pop_back();
+   		sensors[G0y_s] = gls_val.back();
+   		gls_val.pop_back();
+   		sensors[G0x_s] = gls_val.back();
+   		gls_val.pop_back();
+
+   		//the second goal
+   		it++;
+   		gls_val = it->get();
+   		sensors[G1z_s] = gls_val.back();
+   		gls_val.pop_back();
+   		sensors[G1y_s] = gls_val.back();
+   		gls_val.pop_back();
+   		sensors[G1x_s] = gls_val.back();
+   		gls_val.pop_back();
+
+   		//the third goal
+   		it++;
+   		gls_val = it->get();
+   		sensors[G2z_s] = gls_val.back();
+   		gls_val.pop_back();
+   		sensors[G2y_s] = gls_val.back();
+   		gls_val.pop_back();
+   		sensors[G2x_s] = gls_val.back();
+   		gls_val.pop_back();
+     }
+    //------------------------Add GoalSensor by Ren-------------------
+
 #ifdef VERBOSE
     std::cerr << "AmosII::getSensors END\n";
 #endif
@@ -592,7 +652,6 @@ namespace lpzrobots {
 
     //get a representation of the origin
     const Pos nullpos(0, 0, 0);
-
     /**********************************************************************/
     /*  create body                                                       */
     /**********************************************************************/
@@ -1043,6 +1102,17 @@ namespace lpzrobots {
       }
     }
 
+    // --------------Add Goal Sensor by Ren -------------------
+    // Relative position sensor
+    if (GoalSensor_active)
+    {
+    	for(std::vector<RelativePositionSensor>::iterator it = GoalSensor.begin(); it<GoalSensor.end();it++)
+    	{
+    		it->init(front); // connect sensor to main body
+    	}
+    }
+    // --------------Add Goal Sensor by Ren -------------------
+
     setParam("dummy", 0); // apply all parameters.
 
     created = true;
@@ -1126,6 +1196,10 @@ namespace lpzrobots {
 
       //should all be empty as objects were cleared:
       legs.clear();
+
+      //------------------ delete GoalSensor here by Ren--------------------
+      GoalSensor.clear();
+      //------------------ delete GoalSensor here by Ren--------------------
 
       odeHandle.deleteSpace();
 #ifdef VERBOSE
@@ -1572,6 +1646,10 @@ namespace lpzrobots {
 
     c.texture = "Images/whiteground.rgb";
     c.bodyTexture = "Images/stripes.rgb";
+
+    //----------------Add GoalSensor by Ren------------------
+    c.GoalSensor_references.clear(); //enforce empty vector -> no relative position sensing
+    //----------------Add GoalSensor by Ren------------------
 
     return c;
   }
