@@ -286,7 +286,7 @@ namespace lpzrobots {
       std::string bodyTexture;
 
       //-----------Add GoalSensor by Ren------------------------
-      std::vector<Primitive*> rpos_sensor_references;
+      std::vector<Primitive*> GoalSensor_references;
       //-----------Add GoalSensor by Ren------------------------
   };
   
@@ -569,8 +569,8 @@ namespace lpzrobots {
       MotorMap servos;
 
       //---------------Add GoalSensor by Ren---------------
-      std::vector<RelativePositionSensor> rpos_sensor;  // Relative position sensors
-      bool rpos_sensing_active;
+      std::vector<RelativePositionSensor> GoalSensor;  // Relative position sensors
+      bool GoalSensor_active;
       //---------------Add GoalSensor by Ren---------------
   };
 }
