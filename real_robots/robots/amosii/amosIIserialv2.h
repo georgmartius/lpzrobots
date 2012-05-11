@@ -153,41 +153,35 @@ private:
 
 	 /*Add more sensors here according to the port of the MBoard*/
 
-	  // Foot contact sensors
-	  R0_fs_real= 10,
-	  R1_fs_real= 15,
-	  R2_fs_real= 17,
-	  L0_fs_real= 13,
-	  L1_fs_real= 16,
-	  L2_fs_real= 9,
 
-	  //US sensor at front
-	  FR_us_real= 5,
-	  FL_us_real= 3,
+		// Foot contact sensors
+		R0_fs_real= 13,
+		R1_fs_real= 11,
+		R2_fs_real= 9,
+		L0_fs_real= 14,
+		L1_fs_real= 12,
+		L2_fs_real= 10,
 
-	  //Reflex ir sensors at leg
-	  R0_irs_real=22,
-	  R1_irs_real=23,
-	  R2_irs_real=18,
+		//US sensor at front
+		FR_us_real= 1,
+		FL_us_real= 2,
 
-	  L0_irs_real=21,
-	  L1_irs_real=20,
-	  L2_irs_real=19,
+		//Reflex ir sensors at leg
+		R0_irs_real=27,
+		R1_irs_real=28,
+		R2_irs_real=30,
 
-	  //light sensors
-	  M_ps_real=14,
-	  R_ps_real=12,
-	  L_ps_real=11,
+		L0_irs_real=25,
+		L1_irs_real=26,
+		L2_irs_real=29,
 
-	  //Current sensor
-	  A_cs_real=16,
+		//light sensors
+		M_ps_real=23,
+		R_ps_real=15,
+		L_ps_real=32,
 
-	  //Inclinometer sensors
-	  BX_cs_real=25,
-	  BY_cs_real=26,
-
-	  //Poti sensor
-	  BZ_cs_real=29,
+		//Current sensor
+		A_cs_real=16,
 
   };
 
