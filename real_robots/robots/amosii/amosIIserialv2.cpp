@@ -285,7 +285,7 @@ void AmosIISerialV2::setMotors(const motor* motors, int motornumber){
 	double walkingheigh2 = 0.0;//10.0;//20;
 
 	//FR0_m
-	servoPosMin[12] = 187;
+	servoPosMin[12] = 180;//187;
 	servoPosMax[12] = 10+walkingheigh2;
 	//FR1_m
 	servoPosMin[13] = 61;
@@ -295,7 +295,7 @@ void AmosIISerialV2::setMotors(const motor* motors, int motornumber){
 	servoPosMax[14] = 243-walkingheigh2;
 
 	//FL0_m
-	servoPosMin[15] = 63;
+	servoPosMin[15] = 75;//73 63;
 	servoPosMax[15] = 245-walkingheigh2;
 	//FL1_m
 	servoPosMin[16] = 186;
