@@ -250,29 +250,7 @@ namespace lpzrobots {
     addInspectableValue("posY", &position.y, "y Position of robot");
     addInspectableValue("posZ", &position.z, "z Position of robot");
 
-    //-----------------add GoalSensor by Ren------------------------
-    if (conf.GoalSensor_references.size() > 0) {
-      // Relative position sensor
-      for (std::vector<Primitive*>::iterator it = conf.GoalSensor_references.begin();
-          it < conf.GoalSensor_references.end(); it++) {
-
-        RelativePositionSensor GoalSensor_tmp(1, 1, Sensor::X | Sensor::Y | Sensor::Z, true);
-        /*max distance for normalization*/
-        /*exponent for sensor characteristic*/
-        /*dimensions to sense*/
-        //use Z as x-coordinate ( robot was created with vertical capsule or something like that)
-        /*local_coordinates*/
-        GoalSensor_tmp.setReference(*it);
-        GoalSensor.push_back(GoalSensor_tmp);
-        //sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot, have been declared in sensormotordefinition
-      }
-      GoalSensor_active = true;
-    } else {
-      GoalSensor_active = false;
-    }
-    //----------------------Goal Sensor by Ren-----------------------
   }
-  ;
 
   AmosII::~AmosII() {
     destroy();
@@ -1025,6 +1003,31 @@ namespace lpzrobots {
         joints.push_back(wheeljoint);
       }
     }
+
+    //-----------------add GoalSensor by Ren------------------------
+    if (conf.GoalSensor_references.size()>0)
+    {
+    	// Relative position sensor
+    	for (std::vector<Primitive*>::iterator it = conf.GoalSensor_references.begin(); it<conf.GoalSensor_references.end();it++)
+    	{
+
+    		RelativePositionSensor GoalSensor_tmp(1, 1,Sensor::X|Sensor::Y|Sensor::Z, true);
+    		//max distance for normalization
+    		//exponent for sensor characteristic
+    		//dimensions to sense
+    		//use Z as x-coordinate ( robot was created with vertical capsule or something like that)
+    		//local_coordinates
+    		GoalSensor_tmp.setReference(*it);
+    		GoalSensor.push_back(GoalSensor_tmp);
+    		//sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot, have been declared in sensormotordefinition
+    	}
+    	GoalSensor_active = true;
+    }
+    else
+    {
+    	GoalSensor_active =false;
+    }
+    //----------------------Goal Sensor by Ren-----------------------
 
     // --------------Add Goal Sensor by Ren -------------------
     // Relative position sensor
