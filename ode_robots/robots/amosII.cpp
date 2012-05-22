@@ -400,12 +400,56 @@ namespace lpzrobots {
     sensors[BJ_as] = servos[BJ_m] ? -servos[BJ_m]->get() : 0;
 
     // foot contact sensors
-    sensors[R0_fs] = legContactSensors[R0] ? legContactSensors[R0]->get() : 0;
-    sensors[R1_fs] = legContactSensors[R1] ? legContactSensors[R1]->get() : 0;
-    sensors[R2_fs] = legContactSensors[R2] ? legContactSensors[R2]->get() : 0;
-    sensors[L0_fs] = legContactSensors[L0] ? legContactSensors[L0]->get() : 0;
-    sensors[L1_fs] = legContactSensors[L1] ? legContactSensors[L1]->get() : 0;
-    sensors[L2_fs] = legContactSensors[L2] ? legContactSensors[L2]->get() : 0;
+    if(conf.legContactSensorIsBinary){ // No scaling since binary signals are already in the range of [0,..,1]
+      sensors[R0_fs] = legContactSensors[R0] ? legContactSensors[R0]->get() : 0;
+      sensors[R1_fs] = legContactSensors[R1] ? legContactSensors[R1]->get() : 0;
+      sensors[R2_fs] = legContactSensors[R2] ? legContactSensors[R2]->get() : 0;
+      sensors[L0_fs] = legContactSensors[L0] ? legContactSensors[L0]->get() : 0;
+      sensors[L1_fs] = legContactSensors[L1] ? legContactSensors[L1]->get() : 0;
+      sensors[L2_fs] = legContactSensors[L2] ? legContactSensors[L2]->get() : 0;
+    }
+    else{ // Scaling since analog signals are used then we scale them to the range of [0,..,1]
+      std::vector<double> max, min;
+      if(conf.amos_version == 2){
+        max.push_back(0.16);
+        max.push_back(0.20);
+        max.push_back(0.14);
+        max.push_back(0.24);
+        max.push_back(0.20);
+        max.push_back(0.14);
+        max.push_back(0.0);
+        max.push_back(0.0);
+        max.push_back(0.0);
+        max.push_back(0.0);
+        max.push_back(0.0);
+        max.push_back(0.0);
+      } else{
+        //TODO: need to be recalibrated for amos version 1
+        max.push_back(0.22);
+        max.push_back(0.22);
+        max.push_back(0.22);
+        max.push_back(0.22);
+        max.push_back(0.22);
+        max.push_back(0.22);
+        max.push_back(0.0);
+        max.push_back(0.0);
+        max.push_back(0.0);
+        max.push_back(0.0);
+        max.push_back(0.0);
+        max.push_back(0.0);
+      }
+      sensors[R0_fs] = legContactSensors[R0] ? ((legContactSensors[R0]->get()- min.at(0))/(max.at(0)-min.at(0)) ): 0;
+      sensors[R1_fs] = legContactSensors[R1] ? ((legContactSensors[R1]->get()- min.at(1))/(max.at(1)-min.at(1)) ) : 0;
+      sensors[R2_fs] = legContactSensors[R2] ? ((legContactSensors[R2]->get()- min.at(2))/(max.at(2)-min.at(2)) ) : 0;
+      sensors[L0_fs] = legContactSensors[L0] ? ((legContactSensors[L0]->get()- min.at(3))/(max.at(3)-min.at(3)) ) : 0;
+      sensors[L1_fs] = legContactSensors[L1] ? ((legContactSensors[L1]->get()- min.at(4))/(max.at(4)-min.at(4)) ) : 0;
+      sensors[L2_fs] = legContactSensors[L2] ? ((legContactSensors[L2]->get()- min.at(5))/(max.at(5)-min.at(5)) ) : 0;
+      for(int i = R0_fs; i<= L2_fs; i++){
+        if(sensors[i]>1.0)
+          sensors[i] = 1.0;
+      }
+
+    }
 
     // Front Ultrasonic sensors (right and left)
     sensors[FR_us] = usSensorFrontRight->get();
@@ -1442,6 +1486,9 @@ namespace lpzrobots {
   {
     AmosIIConf c;
 
+    // "Internal" variable storing the currently used version
+    c.amos_version = 2;
+
     // use shoulder (fixed joint between legs and trunk)
     c.useShoulder = _useShoulder;
     c.useTebiaJoints = 0;
@@ -1464,7 +1511,8 @@ namespace lpzrobots {
     // we use as density the original trunk weight divided by the original
     // volume
 
-    const double density = 2.2 / (0.43 * 0.07 * 0.065);
+    //Change mass by KOH to 3.0
+    const double density = 3.0 / (0.43 * 0.07 * 0.065);//2.2 / (0.43 * 0.07 * 0.065);
 
     c.trunkMass = density * c.size * c.width * c.height;
     // use the original trunk to total mass ratio
@@ -1628,12 +1676,13 @@ namespace lpzrobots {
     c.tebiaDamping = 0.01;
     c.footDamping = 0.05; // a spring has no damping??
 
-    c.backMaxVel = 1.961 * M_PI;
+    //Decreasing MaxVel by KOH
+    c.backMaxVel = 1.7*1.961 * M_PI;
     // The speed calculates how it works
-    c.coxaMaxVel = 1.961 * M_PI;
-    c.secondMaxVel = 1.961 * M_PI;
-    c.tebiaMaxVel = 1.961 * M_PI;
-    c.footMaxVel = 1.961 * M_PI;
+    c.coxaMaxVel = 1.7*1.961 * M_PI;
+    c.secondMaxVel = 1.7*1.961 * M_PI;
+    c.tebiaMaxVel = 1.7*1.961 * M_PI;
+    c.footMaxVel = 1.7*1.961 * M_PI;
 
     c.usRangeFront = 0.3 * c.size;
     c.irRangeLeg = 0.2 * c.size;
@@ -1662,8 +1711,11 @@ namespace lpzrobots {
       bool _useBack)
   {
     // Take basic configuration from amosiiv2
-    // and then make necessarz changes
+    // and then make necessary changes
     AmosIIConf c= getAmosIIv2Conf(_scale, _useShoulder,_useFoot,_useBack);
+
+    // "Internal" variable storing the currently used version
+    c.amos_version = 1;
 
     //trunk height
     c.height = /*6.5*/ 8.5/ 43.0 * c.size;//---------------------------------------------------AMOSIIv1

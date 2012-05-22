@@ -288,6 +288,9 @@ namespace lpzrobots {
       //-----------Add GoalSensor by Ren------------------------
       std::vector<Primitive*> GoalSensor_references;
       //-----------Add GoalSensor by Ren------------------------
+
+      // Internal variable storing the currently used version
+        int amos_version;
   };
   
   class AmosII : public OdeRobot, public Inspectable {
@@ -572,6 +575,7 @@ namespace lpzrobots {
       std::vector<RelativePositionSensor> GoalSensor;  // Relative position sensors
       bool GoalSensor_active;
       //---------------Add GoalSensor by Ren---------------
+
   };
 }
 
