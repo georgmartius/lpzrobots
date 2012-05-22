@@ -1,8 +1,8 @@
 /***************************************************************************
  *   Copyright (C) 2012 by Robot Group Goettingen                          *
- *                                    									   *
- *    fhesse@physik3.gwdg.de     			                               *
- *    xiong@physik3.gwdg.de                  	                           *
+ *                                    									                   *
+ *    fhesse@physik3.gwdg.de     			                                     *
+ *    xiong@physik3.gwdg.de                  	                             *
  *    poramate@physik3.gwdg.de                                             *
  *   LICENSE:                                                              *
  *   This work is licensed under the Creative Commons                      *
@@ -190,12 +190,21 @@ int AmosIISerialV2::getSensors(sensor* sensors, int sensornumber){
 void AmosIISerialV2::processSensors(sensor* psensors){
 
 	//Foot sensor (FS, Group 1): Scaling to 0 (off ground),..,1 (on ground)
-	psensors[R0_fs]= ((psensors[R0_fs]-7)/(207-7));   //[min = 7 (off ground), max =  207 (on ground)]
-	psensors[R1_fs]= ((psensors[R1_fs]-15)/(196-15)); //[min = 15 (off ground), max = 196 (on ground)]
-	psensors[R2_fs]= ((psensors[R2_fs]-20)/(200-20)); //[min = 20 (off ground), max = 200 (on ground)]
-	psensors[L0_fs]= ((psensors[L0_fs]-28)/(196-28)); //[min = 28 (off ground), max = 196 (on ground)]
-	psensors[L1_fs]= ((psensors[L1_fs]-27)/(195-27)); //[min = 27 (off ground), max = 195 (on ground)]
-	psensors[L2_fs]= ((psensors[L2_fs]-20)/(200-20)); //[min = 20 (off ground), max = 200 (on ground)]
+
+  psensors[R0_fs]= ((psensors[R0_fs]-15)/(90-15));  //[min = 7 (off ground), max =  207 (on ground)]
+  psensors[R1_fs]= ((psensors[R1_fs]-60)/(120-60)); //[min = 15 (off ground), max = 196 (on ground)]
+  psensors[R2_fs]= ((psensors[R2_fs]-30)/(110-30)); // [min = 20 (off ground), max = 200 (on ground)]
+  psensors[L0_fs]= ((psensors[L0_fs]-40)/(100-40)); //[min = 28 (off ground), max = 196 (on ground)]
+  psensors[L1_fs]= ((psensors[L1_fs]-30)/(130-30)); //[min = 27 (off ground), max = 195 (on ground)]
+  psensors[L2_fs]= ((psensors[L2_fs]-40)/(110-40)); //[min = 20 (off ground), max = 200 (on ground)]
+
+  //Clipping foot signals
+  for(int i = R0_fs; i<= L2_fs; i++){
+  if(psensors[i]>1.0)
+    psensors[i] = 1.0;
+  if(psensors[i]<0.0)
+    psensors[i] = 0.0;
+  }
 
 	//US sensor (US, Group 2) // UNDK30U6112 range = 6 cm-40cm : Scaling to 0 (not detect),...,1 (detect obstacles)
 	psensors[FR_us]=((psensors[FR_us]-135)/(1-135));//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
