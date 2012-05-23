@@ -290,7 +290,8 @@ namespace lpzrobots {
       //-----------Add GoalSensor by Ren------------------------
 
       // Internal variable storing the currently used version
-        int amos_version;
+      int amos_version;
+
   };
   
   class AmosII : public OdeRobot, public Inspectable {
@@ -319,24 +320,14 @@ namespace lpzrobots {
       /**
        * Returns the default configuration values
        */
-      static AmosIIConf getDefaultConf(
-          double _scale = 1.0,
-          bool _useShoulder = 1,
-          bool _useFoot = 1,
+      static AmosIIConf getDefaultConf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,
           bool _useBack = 0);
 
-      static AmosIIConf getAmosIIv1Conf(
-          double _scale = 1.0,
-          bool _useShoulder = 1,
-          bool _useFoot = 1,
+      static AmosIIConf getAmosIIv1Conf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,
           bool _useBack = 0);
 
-      static AmosIIConf getAmosIIv2Conf(
-          double _scale = 1.0,
-          bool _useShoulder = 1,
-          bool _useFoot = 1,
+      static AmosIIConf getAmosIIv2Conf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,
           bool _useBack = 0);
-
 
       /**
        * constructor
@@ -345,9 +336,7 @@ namespace lpzrobots {
        * @param conf configuration object
        * @param name name to display for this robot
        */
-      AmosII(const OdeHandle& odeHandle,
-          const OsgHandle& osgHandle,
-          const AmosIIConf& conf = getDefaultConf(),
+      AmosII(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const AmosIIConf& conf = getDefaultConf(),
           const std::string& name = "AmosII robot");
 
       virtual ~AmosII();
@@ -396,7 +385,7 @@ namespace lpzrobots {
        *                   simulation environment
        */
       virtual void doInternalStuff(GlobalData& globalData);
-      
+
       virtual double getMassOfRobot();
 
       void setLegPosUsage(LegPos leg, LegPosUsage usage);
@@ -535,7 +524,6 @@ namespace lpzrobots {
        * used for detection of leg contacts
        */
       LegContactMap legContactSensors;
-    
 
       // this map knows which IR sensor to find at which leg
       LegIRSensorMap irLegSensors;
@@ -572,7 +560,7 @@ namespace lpzrobots {
       MotorMap servos;
 
       //---------------Add GoalSensor by Ren---------------
-      std::vector<RelativePositionSensor> GoalSensor;  // Relative position sensors
+      std::vector<RelativePositionSensor> GoalSensor; // Relative position sensors
       bool GoalSensor_active;
       //---------------Add GoalSensor by Ren---------------
 
