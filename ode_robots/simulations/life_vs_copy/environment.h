@@ -39,7 +39,7 @@ using namespace std;
 
 class Env : public Configurable {
 public:
-  enum EnvType { None, Normal, Octa, Pit, OpenPit, Uterus, Stacked };
+  enum EnvType { None, Normal, Octa, Pit, Pit2, OpenPit, Uterus, Stacked };
 
   Env(EnvType t = None) : Configurable("Environment","1.0") {
     type         = t;
@@ -101,6 +101,7 @@ public:
   double hardness;
 
   Pos pitPosition;
+  Pos pit2Position;
   
   int    numgrounds;
   double distance;
@@ -164,6 +165,7 @@ public:
         playgrounds.push_back(playground);
       }
       break;
+    case Pit2:
     case Pit:
       {
         Substance soft = Substance::getPlastic(2);
@@ -183,8 +185,27 @@ public:
         playground->setPosition(pitPosition); // playground positionieren und generieren
         global.obstacles.push_back(playground);
         playgrounds.push_back(playground);
-        break;
-      }        
+      }       
+      if(type==Pit2){
+        Substance soft = Substance::getPlastic(2);
+        soft.roughness = roughness;
+        soft.hardness  = hardness;
+        OdeHandle myHandle = odeHandle;
+        myHandle.substance = soft;
+        playground = new Playground(myHandle, osgHandle, 
+                                    osg::Vec3(pitsize, thickness, height),
+                                    1, true); 
+        playground->setTexture("Images/really_white.rgb");
+        playground->setGroundSubstance(soft);
+        
+        Color c = osgHandle.getColor("Monaco");
+        c.alpha()=0.15;
+        playground->setColor(c);
+        playground->setPosition(pit2Position); // playground positionieren und generieren
+        global.obstacles.push_back(playground);
+        playgrounds.push_back(playground);
+      }      
+      break;                
     case OpenPit:
     case Uterus:
       {

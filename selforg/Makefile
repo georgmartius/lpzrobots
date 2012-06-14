@@ -52,7 +52,7 @@ AR = ar -rcs
 libs: lib opt dbg
 	$(MAKE) shared
 # the shared lib cannot be done as a dependency because with -j 2 it collides with the lib target
-    
+
 lib: $(LIB)
 
 opt: 
