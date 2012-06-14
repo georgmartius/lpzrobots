@@ -26,14 +26,14 @@
 
 
 
-bool AbstractWiring::init(int robotsensornumber, int robotmotornumber, RandGen* _randGen){    
+bool AbstractWiring::init(int robotsensornumber, int robotmotornumber, RandGen* _randGen){
   rsensornumber = robotsensornumber;
   rmotornumber  = robotmotornumber;
   noisenumber   = rsensornumber;
   randGen       = _randGen;
-  bool rv= initIntern();    
-  assert(noisenumber>=rsensornumber);
-  
+  noisenumber   = rsensornumber;
+  bool rv= initIntern();
+
   mNoise.set(noisenumber,1);
   noisevals = (double*) mNoise.unsafeGetData(); // hack! we let the noiseval pointer point to the internal memory of the noisematrix.
 
@@ -52,7 +52,7 @@ bool AbstractWiring::init(int robotsensornumber, int robotmotornumber, RandGen* 
     addInspectableMatrix("x_R", &mRsensors, false, "bare sensor values");
     addInspectableMatrix("y_R", &mRmotors,  false, "motor values (as send to robot)");
   }
-  if(plotMode & Noise) {    
+  if(plotMode & Noise) {
     addInspectableMatrix("n", &mNoise, false, "sensor noise");
   }
 
@@ -65,9 +65,9 @@ bool AbstractWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 				 double noiseStrength){
   assert(initialised);
   if(noiseGenerator) {
-    memset(noisevals, 0 , sizeof(sensor) * noisenumber);    
-    noiseGenerator->add(noisevals, noiseStrength);  
-  } 
+    memset(noisevals, 0 , sizeof(sensor) * noisenumber);
+    noiseGenerator->add(noisevals, noiseStrength);
+  }
   bool rv = wireSensorsIntern(rsensors, rsensornumber, csensors, csensornumber, noiseStrength);
   mRsensors.set(rsensors);
   mCsensors.set(csensors);
