@@ -3,192 +3,8 @@
                              -------------------
     email                : georg.martius@web.de
 ***************************************************************************/
-//
-// $Log$
-// Revision 1.33  2010-10-20 12:52:59  martius
-// pseudoinverse uses lambda only on demand
-// secure inverse for square matrices added
-//
-// Revision 1.32  2010/07/11 22:04:13  martius
-// ported to MinGW/Msys
-//
-// Revision 1.31  2010/02/22 17:52:41  martius
-// added square norm function and default value for plusLambdaI
-//
-// Revision 1.30  2010/01/26 09:45:55  martius
-// added map2P functions with Double parameter
-//
-// Revision 1.29  2009/08/05 18:28:32  martius
-// added isVector
-// mapP and toMapP support double parameters
-//
-// Revision 1.28  2009/07/29 14:19:49  jhoffmann
-// Various bugfixing, remove memory leaks (with valgrind->memcheck / alleyoop)
-//
-// Revision 1.27  2009/02/02 15:21:37  martius
-// added pseudoinverse
-//
-// Revision 1.26  2009/01/05 08:45:00  martius
-// exp again as function
-//
-// Revision 1.25  2008/12/22 14:40:47  martius
-// added & operator for multrowwise
-//
-// Revision 1.24  2008/11/14 09:15:29  martius
-// tried some autovectorization but without success
-// moved some function to CPP file
-//
-// Revision 1.23  2008/07/01 12:54:53  martius
-// cosmetics
-//
-// Revision 1.22  2008/06/18 13:46:20  martius
-// beside and toBeside added
-// addColumns and addRows is now based on toAbove and toBeside
-// bug fix in removeColumns
-//
-// Revision 1.21  2008/05/30 11:58:08  martius
-// equals method and cmath
-//
-// Revision 1.20  2008/05/07 16:45:52  martius
-// code cosmetics and documentation
-//
-// Revision 1.19  2008/04/30 14:54:14  guettler
-// -indextype of matrices is now unsigned int (bigger matrices than
-//  256x256 can be used now, if not AVR defined)
-// -code cleaned up
-//
-// Revision 1.18  2008/04/30 13:06:34  guettler
-// assertions to addRows and addColumns added
-//
-// Revision 1.17  2008/04/29 11:01:32  guettler
-// -added toMap2 and toMap2P
-// -removed operator + for scalar (use add or toSum instead)
-//
-// Revision 1.16  2008/04/28 15:24:14  guettler
-// -added deleteRows and deleteColumns
-// -fixed memory leak in addColumns
-//
-// Revision 1.15  2008/04/28 10:33:04  guettler
-// -added operator + and += for adding a scalar to each element of the matrix
-// -added add function and toSum for adding a scalar to each element
-// -added addRows and addColumns for adding new rows or colums to the matrix
-//
-// Revision 1.14  2007/11/07 13:38:40  martius
-// speed up in rows
-//
-// Revision 1.13  2007/09/06 18:52:26  martius
-// write changed (ascii store)
-//
-// Revision 1.12  2007/08/22 08:27:58  martius
-// contrains for reshape relaxed
-//
-// Revision 1.11  2007/06/21 16:29:27  martius
-// added map2P
-// map2 into cpp
-//
-// Revision 1.10  2007/05/22 13:52:46  martius
-// inplace operators return *this which makes them more useable for temporary matrices
-//
-// Revision 1.9  2007/04/03 09:57:44  martius
-// speedup in nonoptimised mode through use of VAL macro
-//
-// Revision 1.8  2007/04/03 07:11:56  der
-// plus lambdaI
-//
-// Revision 1.7  2007/02/05 12:31:21  martius
-// reshape
-//
-// Revision 1.6  2006/11/29 09:57:53  martius
-// bugfix in rows!
-//
-// Revision 1.5  2006/08/04 15:16:13  martius
-// documentation
-//
-// Revision 1.4  2006/07/20 17:14:35  martius
-// removed std namespace from matrix.h
-// storable interface
-// abstract model and invertablemodel as superclasses for networks
-//
-// Revision 1.3  2006/07/19 09:26:28  martius
-// namespace std removed from header
-// store and restore
-// read and write
-// columns accessor
-//
-// Revision 1.2  2006/07/14 12:24:01  martius
-// selforg becomes HEAD
-//
-// Revision 1.1.2.2  2006/07/14 08:57:40  der
-// New function isNullTimesNull
-//
-// Revision 1.1.2.1  2006/07/10 12:01:01  martius
-// Matrixlib moved to selforg
-//
-// Revision 1.23.6.1  2006/03/29 15:12:46  martius
-// column accessor function added
-//
-// Revision 1.23  2005/10/21 11:58:25  martius
-// map2 (similar to map but for 2 matrices)
-// changed naming of functions to be more consistent.
-//  Functions with "to" in front indicate the change of this. (Still not consistent with add, mult ...)
-//
-// Revision 1.22  2005/10/06 17:10:06  martius
-// convertToList
-// above and toAbove
-//
-// Revision 1.21  2005/09/21 08:42:53  martius
-// convertToBuffer is const
-//
-// Revision 1.20  2005/08/06 20:47:36  martius
-// Commented
-//
-// Revision 1.19  2005/07/21 15:13:36  martius
-// mapP addid (mapping with additional parameter)
-//
-// Revision 1.18  2005/07/07 10:26:59  martius
-// exp(1x1) matrix implemented
-//
-// Revision 1.17  2005/06/21 15:35:21  martius
-// hide invert3x3 and invert_nonzero for AVR to minimize binary size
-//
-// Revision 1.16  2005/06/19 23:00:30  martius
-// AVR
-//
-// Revision 1.15  2005/06/17 15:19:03  martius
-// version workes with avr
-//
-// Revision 1.14  2005/06/10 08:21:59  martius
-// mult???wise are copy operations now!
-// toMult???wise are inplace instead
-//
-// Revision 1.13  2005/06/10 07:50:47  martius
-// multMT and multTM are const!
-//
-// Revision 1.12  2005/06/09 11:52:03  martius
-// multMT (M * M^T) and multTM (M^T * M)
-//
-// Revision 1.11  2005/06/02 22:48:48  martius
-// copy is inline and works correct now
-//
-// Revision 1.10  2005/06/02 08:49:08  martius
-// mult_row/column_wise
-// convertToBuffer
-// Matrix comparison uses epsilon instead of plain ==
-//
-// Revision 1.9  2005/05/30 22:40:56  martius
-// map becomes toMap and the new map returns a new matrix
-// exp becomes toExp
-//
-// Revision 1.7  2005/05/30 17:21:41  martius
-// added zero
-// set() and constructor(m,n,0) initialise with zero
-// id returns void (more consistent)
-//
-// Revision 1.6  2005/05/30 16:43:12  martius
-// map function included (component-wise function application)
-//
-// Revision 1.5  2005/05/30 10:15:36  martius
-// proper log entry in header
+// provides Matrix class with convinient operators
+//  and fast inversion for nonzero square matrixes
 //
 /***************************************************************************/
 
@@ -569,8 +385,8 @@ namespace matrix {
           for(int i=1; i<exponent; i++){
             toMult(m);
           }
-        }else 
-          assert ( "Exponent < -1" == 0 ); 
+        }else
+          assert ( "Exponent < -1" == 0 );
         break;
     }
     return *this;
@@ -580,7 +396,7 @@ namespace matrix {
     for(I i=0; i < m*n; i++){
       if(!std::isnormal(data[i])) return false;
     }
-    return true;    
+    return true;
   }
 
   Matrix Matrix::secureInverse() const {
@@ -591,7 +407,7 @@ namespace matrix {
       return Rinv;
     }else{
       return pseudoInverse(0.000001);
-    }      
+    }
   }
 
 
@@ -601,7 +417,7 @@ namespace matrix {
       R = this->multTM();
     else
       R = this->multMT();
-    
+
     // try first without lambda
     Matrix Rinv = R^(-1);
     // if it has NAN or INF entries then regularize
@@ -695,7 +511,7 @@ namespace matrix {
   Matrix Matrix::map2P( D param, D (*fun)(D, D,D), const Matrix& a, const Matrix& b){
     Matrix result (a);
     result.toMap2P(param,fun,b );
-    return result;    
+    return result;
   }
 
   Matrix Matrix::map2P ( void* param, D ( *fun ) ( void*, D, D ), const Matrix& a, const Matrix& b ) {
@@ -734,19 +550,19 @@ namespace matrix {
 
   Matrix& Matrix::toBeside ( const Matrix& a ) {
     assert ( a.m == this->m);
-    
+
     D* oldData = data;
     I oldN= this->n;
     this->n += a.n;
     buffersize=this->m*this->n;
     data = ( D* ) malloc(sizeof ( D ) * buffersize );
     assert ( data );
-    if ( oldData ) { // copy old values      
+    if ( oldData ) { // copy old values
       for ( I i=0;i<this->m * oldN;i++ ) {
 	  data[ (i/oldN)*this->n + ( i%oldN) ]=oldData[i];
       }
       free ( oldData );
-    }    
+    }
     if ( a.data ) { // copy new values for the new rows
       for ( I i = 0;i < m;i++ ) {
         for ( I j=0;j< a.n;j++ ) {
@@ -769,7 +585,7 @@ namespace matrix {
   Matrix& Matrix::reshape ( I _m, I _n) {
     assert(_m*_n <= m*n);
     m = _m;
-    n = _n;     
+    n = _n;
     return *this;
   }
 
@@ -890,7 +706,7 @@ namespace matrix {
   Matrix& Matrix::addColumns ( I numberColumns, const D* _data /*=0*/ ) {
     return toBeside(Matrix(m, numberColumns, _data));
   }
-  
+
   Matrix& Matrix::addColumns ( I numberColumns, const Matrix& dataMatrix ) {
     return toBeside(dataMatrix);
   }
