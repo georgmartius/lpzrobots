@@ -206,17 +206,46 @@ void AmosIISerialV2::processSensors(sensor* psensors){
     psensors[i] = 0.0;
   }
 
-	//US sensor (US, Group 2) // UNDK30U6112 range = 6 cm-40cm : Scaling to 0 (not detect),...,1 (detect obstacles)
-	psensors[FR_us]=((psensors[FR_us]-135)/(1-135));//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
-	psensors[FL_us]=((psensors[FL_us]-135)/(1-135));//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
 
-	//Reflex ir psensors at leg (IRS, Group 3) : Scaling to 0 (not detect),...,1 (detect obstacles)
-	psensors[R0_irs]=((psensors[R0_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-	psensors[R1_irs]=((psensors[R1_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-	psensors[R2_irs]=((psensors[R2_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-	psensors[L0_irs]=((psensors[L0_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-	psensors[L1_irs]=((psensors[L1_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	//US sensor (US, Group 2) // UNDK30U6112 range = 6 cm-40cm : Scaling to 0 (not detect),...,1 (detect obstacles)
+	//eduard
+	//scales the us sensor from 0 to 1. 40cm is 0 and 0cm is 1
+	if((psensors[FR_us]<132)||(psensors[FL_us]<132)){
+	psensors[FR_us]=((psensors[FR_us]-132)/(1-132));//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
+	psensors[FL_us]=((psensors[FL_us]-132)/(1-132));//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
+	}
+	else{
+		psensors[FR_us]=0;//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
+		psensors[FL_us]=0;//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
+	}
+	if(psensors[FR_us]<0)psensors[FR_us]=0;
+	if(psensors[FL_us]<0)psensors[FL_us]=0;
+
+
+	//eduard
+	//scales ir sensors from 0 ...1 . 0 is no object and 1 is very close to sensor, about 3mm
+	psensors[R0_irs]=((psensors[R0_irs]-5)/(50-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	psensors[R1_irs]=((psensors[R1_irs]-40)/(55-40));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	psensors[R2_irs]=((psensors[R2_irs]-40)/(55-40));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	psensors[L0_irs]=((psensors[L0_irs]-5)/(50-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	psensors[L1_irs]=((psensors[L1_irs]-20)/(55-20));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
 	psensors[L2_irs]=((psensors[L2_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+
+	if(psensors[R0_irs]>1)psensors[R0_irs]=1;
+	if(psensors[R1_irs]>1)psensors[R1_irs]=1;
+	if(psensors[R2_irs]>1)psensors[R2_irs]=1;
+	if(psensors[L0_irs]>1)psensors[L0_irs]=1;
+	if(psensors[L1_irs]>1)psensors[L1_irs]=1;
+	if(psensors[L2_irs]>1)psensors[L2_irs]=1;
+
+	if(psensors[R0_irs]<0)psensors[R0_irs]=0;
+	if(psensors[R1_irs]<0)psensors[R1_irs]=0;
+	if(psensors[R2_irs]<0)psensors[R2_irs]=0;
+	if(psensors[L0_irs]<0)psensors[L0_irs]=0;
+	if(psensors[L1_irs]<0)psensors[L1_irs]=0;
+	if(psensors[L2_irs]<0)psensors[L2_irs]=0;
+//end eduard
+
 
 	//Photo psensors (PS, group 4) : Scaling to 0 (dark),..,1 (bright)
 	psensors[M_ps]=((psensors[M_ps]-1)/(250-1));//[min = 1 (very dark), max 250 (detect light (very bright))
