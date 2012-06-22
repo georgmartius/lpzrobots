@@ -224,12 +224,19 @@ void AmosIISerialV2::processSensors(sensor* psensors){
 
 	//eduard
 	//scales ir sensors from 0 ...1 . 0 is no object and 1 is very close to sensor, about 3mm
-	psensors[R0_irs]=((psensors[R0_irs]-5)/(50-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-	psensors[R1_irs]=((psensors[R1_irs]-40)/(55-40));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-	psensors[R2_irs]=((psensors[R2_irs]-40)/(55-40));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-	psensors[L0_irs]=((psensors[L0_irs]-5)/(50-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-	psensors[L1_irs]=((psensors[L1_irs]-20)/(55-20));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-	psensors[L2_irs]=((psensors[L2_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+//	psensors[R0_irs]=((psensors[R0_irs]-5)/(50-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+//	psensors[R1_irs]=((psensors[R1_irs]-40)/(55-40));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+//	psensors[R2_irs]=((psensors[R2_irs]-40)/(55-40));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+//	psensors[L0_irs]=((psensors[L0_irs]-5)/(50-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+//	psensors[L1_irs]=((psensors[L1_irs]-20)/(55-20));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+//	psensors[L2_irs]=((psensors[L2_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+
+  psensors[R0_irs]=((psensors[R0_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+  psensors[R1_irs]=((psensors[R1_irs]-5)/(55-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+  psensors[R2_irs]=((psensors[R2_irs]-1)/(55-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+  psensors[L0_irs]=((psensors[L0_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+  psensors[L1_irs]=((psensors[L1_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+  psensors[L2_irs]=((psensors[L2_irs]-1)/(55-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
 
 	if(psensors[R0_irs]>1)psensors[R0_irs]=1;
 	if(psensors[R1_irs]>1)psensors[R1_irs]=1;
