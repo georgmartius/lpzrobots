@@ -714,13 +714,13 @@ namespace lpzrobots {
     usSensorFrontRight = new IRSensor();
     irSensorBank->registerSensor(usSensorFrontRight, front,
         ROTM(M_PI / 2, conf.usAngleX, conf.usAngleY, 0)
-        * TRANSM(0.5 * (conf.useBack ? conf.frontLength : conf.size), -0.25 * conf.width, -0.45 * conf.height),
+        * TRANSM(0.5 * (conf.useBack ? conf.frontLength : conf.size), -0.25 * conf.width, -0.115 * conf.height),
         conf.usRangeFront, RaySensor::drawRay);
 
     usSensorFrontLeft = new IRSensor();
     irSensorBank->registerSensor(usSensorFrontLeft, front,
         ROTM(M_PI / 2, (conf.usParallel ? 1 : -1) * conf.usAngleX, conf.usAngleY, 0)
-        * TRANSM(0.5 * (conf.useBack ? conf.frontLength : conf.size), 0.25 * conf.width, -0.45 * conf.height),
+        * TRANSM(0.5 * (conf.useBack ? conf.frontLength : conf.size), 0.25 * conf.width, -0.115 * conf.height),
         conf.usRangeFront, RaySensor::drawRay);
 
     /************************************
@@ -924,28 +924,28 @@ namespace lpzrobots {
         if (pmrl == 1) {
           if (leg == R0) {
             irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, M_PI / 180 * 25, 1, 0) * TRANSM(
-                t3 /*+ 0.0045*/, -0.8 * t3, -0.4 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
+                t3 /*+ 0.0045*/, -0.8 * t3, -0.175 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
           }
           if (leg == R1) {
             irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, M_PI / 180 * 5, 1, 0) * TRANSM(
-                t3 /*+ 0.0045*/, -0.8 * t3, -0.4 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
+                t3 /*+ 0.0045*/, -0.8 * t3, -0.175 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
           }
           if (leg == R2) {
             irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, M_PI / 180 * (-15), 1, 0) * TRANSM(
-                t3 /*+ 0.0045*/, -0.8 * t3, -0.4 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
+                t3 /*+ 0.0045*/, -0.8 * t3, -0.175 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
           }
         } else {
           if (leg == L0) {
             irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, -M_PI / 180 * 25, 1, 0) * TRANSM(
-                t3 /*+ 0.0045*/, 0.8 * t3, -0.4 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
+                t3 /*+ 0.0045*/, 0.8 * t3, -0.175 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
           }
           if (leg == L1) {
             irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 2, -M_PI / 180 * 5, 1, 0) * TRANSM(t3 /*+ 0.0045*/,
-                0.8 * t3, -0.4 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
+                0.8 * t3, -0.175 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
           }
           if (leg == L2) {
             irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, -M_PI / 180 * (-15), 1, 0) * TRANSM(
-                t3 /*+ 0.0045*/, 0.8 * t3, -0.4 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
+                t3 /*+ 0.0045*/, 0.8 * t3, -0.175 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
           }
         }
         irLegSensors[leg] = sensor;
@@ -1540,7 +1540,7 @@ namespace lpzrobots {
     c.tebiaMaxVel = 1.7 * 1.961 * M_PI;
     c.footMaxVel = 1.7 * 1.961 * M_PI;
 
-    c.usRangeFront = 0.9 * c.size;
+    c.usRangeFront = 0.93 * c.size;
     c.irRangeLeg = 0.03 * c.size;
 
     //Values by Dennis
