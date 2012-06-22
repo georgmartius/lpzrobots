@@ -921,9 +921,33 @@ namespace lpzrobots {
 
         // IR sensor at each leg
         IRSensor* sensor = new IRSensor();
-        irSensorBank->registerSensor(sensor, tebia,
-            ROTM(M_PI / 2, 0, 1, 0) * TRANSM(1.01 * t3, 0, -0.2 * conf.tebiaLength), conf.irRangeLeg,
-            RaySensor::drawRay);
+        if (pmrl == 1) {
+          if (leg == R0) {
+            irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, M_PI / 180 * 25, 1, 0) * TRANSM(
+                t3 /*+ 0.0045*/, -0.8 * t3, -0.4 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
+          }
+          if (leg == R1) {
+            irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, M_PI / 180 * 5, 1, 0) * TRANSM(
+                t3 /*+ 0.0045*/, -0.8 * t3, -0.4 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
+          }
+          if (leg == R2) {
+            irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, M_PI / 180 * (-15), 1, 0) * TRANSM(
+                t3 /*+ 0.0045*/, -0.8 * t3, -0.4 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
+          }
+        } else {
+          if (leg == L0) {
+            irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, -M_PI / 180 * 25, 1, 0) * TRANSM(
+                t3 /*+ 0.0045*/, 0.8 * t3, -0.4 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
+          }
+          if (leg == L1) {
+            irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 2, -M_PI / 180 * 5, 1, 0) * TRANSM(t3 /*+ 0.0045*/,
+                0.8 * t3, -0.4 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
+          }
+          if (leg == L2) {
+            irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, -M_PI / 180 * (-15), 1, 0) * TRANSM(
+                t3 /*+ 0.0045*/, 0.8 * t3, -0.4 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
+          }
+        }
         irLegSensors[leg] = sensor;
 
         // springy knee joint
@@ -1516,13 +1540,13 @@ namespace lpzrobots {
     c.tebiaMaxVel = 1.7 * 1.961 * M_PI;
     c.footMaxVel = 1.7 * 1.961 * M_PI;
 
-    c.usRangeFront = 0.3 * c.size;
-    c.irRangeLeg = 0.2 * c.size;
+    c.usRangeFront = 0.9 * c.size;
+    c.irRangeLeg = 0.03 * c.size;
 
     //Values by Dennis
     // 1 is parallel, -1 is antiparallel
     c.usParallel = false;
-    c.usAngleX = 0.5;
+    c.usAngleX = 0.25;
     c.usAngleY = 1;
 
     c.texture = "Images/whiteground.rgb";
