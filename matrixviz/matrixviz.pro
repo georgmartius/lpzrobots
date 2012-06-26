@@ -25,6 +25,8 @@ CONFIG += qt
 CONFIG -= app_bundle
 #debug
 
+LIBS += -lGLU
+
 # Input
 HEADERS += src/AbstractRobotGUI.h \
            src/AbstractRobotSubWidget.h \
