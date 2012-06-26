@@ -26,6 +26,7 @@
 #include "math.h"
 #include <iostream>
 #include <string>
+#include <GL/glu.h>
 
 using namespace std;
 
