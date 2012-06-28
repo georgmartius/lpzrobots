@@ -52,7 +52,7 @@ AR = ar -rcs
 libs: lib opt dbg
 	$(MAKE) shared
 # the shared lib cannot be done as a dependency because with -j 2 it collides with the lib target
-    
+
 lib: $(LIB)
 
 opt: 
@@ -126,9 +126,13 @@ depend:
 	rm Makefile.depend
 	make Makefile.depend
 
+# Workaroud for bug in etags: filenames should not have leading ./
+CPPFILESNoDot := $(subst ./,,$(CPPFILES))
+HFILESNoDot   := $(subst ./,,$(HFILES))
+##!'tags'           		creates tags file for emacs
 tags:
-	@etags -l c++ ${HFILES} ${CPPFILES}
-	@etags -l c++ -a -o ../TAGS ${HFILES} ${CPPFILES}
+	@etags -l c++ $(HFILESNoDot) $(CPPFILESNoDot)
+	@etags -l c++ -a -o ../TAGS ${HFILESNoDot} ${CPPFILESNoDot}
 
 
 

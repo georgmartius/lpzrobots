@@ -56,10 +56,10 @@ namespace lpzrobots {
 
   // constructor:
   // - give handle for ODE and OSG stuff
-  Hexapod::Hexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+  Hexapod::Hexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		   const HexapodConf& c, const std::string& name)
     : OdeRobot(odeHandle, osgHandle, name, "HexaPod 0.9"), Inspectable(name), conf(c)
-  { 
+  {
     // robot is not created till now
     t = 0;
     massOfobject = new dMass();
@@ -88,27 +88,34 @@ namespace lpzrobots {
     addParameter("coxaJointLimitH", &conf.coxaJointLimitH);
     addParameter("coxaJointLimitV", &conf.coxaJointLimitV);
     addParameter("coxaSpeed", &conf.coxaSpeed);
-    
+
     if(conf.useTebiaJoints){
       addParameter("tebiaPower",      &conf.tebiaPower);
       addParameter("tebiaDamp",       &conf.tebiaDamping);
       addParameter("tebiaJointLimit", &conf.tebiaJointLimit);
+      addParameter("tebiaOffset",     &conf.tebiaOffset);
     }
 
     // name the sensors
-    for(int n=0; n<conf.legNumber; n++){      
+    for(int n=0; n<conf.legNumber; n++){
       addInspectableDescription("x[" + itos (n*2) + "]",
-                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left") 
+                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
                                 + " up/down");
       addInspectableDescription("x[" + itos (n*2+1) + "]",
-                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left") 
+                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
                                 + " front/back");
+      addInspectableDescription("x_R[" + itos (n*2) + "]",
+                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
+                                + " up/down (raw)");
+      addInspectableDescription("x_R[" + itos (n*2+1) + "]",
+                                " leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
+                                + " front/back (raw)");
     }
 
     // Georg: you can also add inspectables here to see them in the logfile/guilogger
     // e.g.
     addInspectableValue("Energy", &E_t, "Energy over several timesteps");
-    
+
   };
 
 
@@ -117,7 +124,7 @@ namespace lpzrobots {
   };
 
   /* sets actual motorcommands
-     @param motors motors scaled to [-1,1] 
+     @param motors motors scaled to [-1,1]
      @param motornumber length of the motor array
   */
   void Hexapod::setMotors(const motor* motors, int motornumber){
@@ -129,13 +136,13 @@ namespace lpzrobots {
     }
 
     FOREACH(vector<OneAxisServo*>, tebiasprings, i){
-      if(*i) (*i)->set(0); 
+      if(*i) (*i)->set(0);
     }
     FOREACH(vector<OneAxisServo*>, tarsussprings, i){
       if(*i) (*i)->set(0);
     }
     FOREACH(vector<OneAxisServo*>, whiskersprings, i){
-      if(*i) (*i)->set(0); 
+      if(*i) (*i)->set(0);
     }
 
 
@@ -176,7 +183,7 @@ namespace lpzrobots {
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position is 0
     //    Matrix p2;
-    //    p2 = pose * Matrix::translate(Vec3(0, 0, conf.legLength + conf.legLength/8)); 
+    //    p2 = pose * Matrix::translate(Vec3(0, 0, conf.legLength + conf.legLength/8));
     create(pose);
   };
 
@@ -186,7 +193,7 @@ namespace lpzrobots {
    */
   void Hexapod::update(){
     assert(created); // robot must exist
-  
+
     for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
       if(*i) (*i)->update();
     }
@@ -215,7 +222,7 @@ namespace lpzrobots {
   double Hexapod::energyConsumpThroughtHeatLoss(const dReal *torques){
     // Georg: This should be sqr(torques[0]) + sqr(torques[1]) + ..
     // torque can be negative!
-    return pow(torques[0] + torques[1] + torques[2],2); 
+    return pow(torques[0] + torques[1] + torques[2],2);
   }
 
   double Hexapod::energyConsumption(){
@@ -253,11 +260,11 @@ namespace lpzrobots {
     return  ceil( ( num * pow( 10,x ) ) - 0.49 ) / pow( 10,x );
 
   }
-  /** this function is called in each timestep. It should perform robot-internal checks, 
+  /** this function is called in each timestep. It should perform robot-internal checks,
       like space-internal collision detection, sensor resets/update etc.
       @param global structure that contains global data from the simulation environment
   */
-  void Hexapod::doInternalStuff(GlobalData& global){     
+  void Hexapod::doInternalStuff(GlobalData& global){
     irSensorBank.reset();
 
 
@@ -330,15 +337,15 @@ namespace lpzrobots {
 
   }
 
-  /** checks for internal collisions and treats them. 
-   *  In case of a treatment return true (collision will be ignored by other objects 
-   *  and the default routine)  else false (collision is passed to other objects and 
+  /** checks for internal collisions and treats them.
+   *  In case of a treatment return true (collision will be ignored by other objects
+   *  and the default routine)  else false (collision is passed to other objects and
    *  (if not treated) to the default routine).
    */
   bool Hexapod::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-    
+
     // do that with a s contact sensor
-    if(conf.useContactSensors){ 
+    if(conf.useContactSensors){
     const int NUM_CONTACTS = 8;
     dContact contacts[NUM_CONTACTS];
     int numCollisions = dCollide(o1, o2, NUM_CONTACTS, &contacts[0].geom, sizeof(dContact));
@@ -386,7 +393,7 @@ namespace lpzrobots {
   }
 
 
-  /** creates vehicle at desired position 
+  /** creates vehicle at desired position
       @param pos struct Position with desired position
   */
   void Hexapod::create( const osg::Matrix& pose ){
@@ -394,7 +401,7 @@ namespace lpzrobots {
       destroy();
     }
 
-    odeHandle.createNewSimpleSpace(parentspace, conf.ignoreInternalCollisions); 
+    odeHandle.createNewSimpleSpace(parentspace, conf.ignoreInternalCollisions);
     osgHandle = osgHandle.changeColor("robot2");
 
     // color of joint axis and whiskers
@@ -409,7 +416,7 @@ namespace lpzrobots {
 
     const string trunkTex("Images/stripes.rgb");
     const string legTex("Images/whiteground.rgb");
-    
+
     // create body
     double twidth = conf.size * conf.width ;// 1/1.5;
     double theight = conf.size * conf.height; // 1/4;
@@ -547,19 +554,19 @@ namespace lpzrobots {
 
       // upper limp
       Primitive* coxaThorax;
-      Pos pos = Pos(-conf.size/(2+0.2) + ((int)n/2) * legdist, 
-                    n%2==0 ? - twidth/2 : twidth/2, 
+      Pos pos = Pos(-conf.size/(2+0.2) + ((int)n/2) * legdist,
+                    n%2==0 ? - twidth/2 : twidth/2,
                     conf.legLength - theight/3);
-      
-      osg::Matrix m = ROTM(M_PI/2,v%2==0 ? -1 : 1,0,0) * TRANSM(pos) * pose;
+
+      osg::Matrix m = ROTM(conf.legSpreading*(-v/2+1),0,1,0) // leg spreading to front or back
+        * ROTM(M_PI/2,v%2==0 ? -1 : 1,0,0) * TRANSM(pos) * pose;
       coxaThorax = new Capsule(rad1, len1);
       coxaThorax->setTexture(legTex);
       coxaThorax->init(odeHandle, legmass, osgHandle);
 
-      osg::Matrix m1 =  TRANSM(0,0,-len1/2) 
-        * ROTM(M_PI,0,0,v%2==0 ? -1 : 1) 
-        * ROTM(2*M_PI,0,v%2==0 ? -1 : 1,0) * m;
-      
+      osg::Matrix m1 =  TRANSM(0,0,-len1/2)
+        * ROTM(M_PI,0,0,v%2==0 ? -1 : 1) * m; // legs down
+
       coxaThorax->setPose(m1);
       thoraxPos.push_back(coxaThorax->getPosition());
 
@@ -570,8 +577,8 @@ namespace lpzrobots {
       // powered hip joint
       Pos nullpos(0,0,0);
 
-      UniversalJoint* j 
-        = new UniversalJoint(trunk, coxaThorax, nullpos * m, 
+      UniversalJoint* j
+        = new UniversalJoint(trunk, coxaThorax, nullpos * m,
                              ROTM(M_PI,0,0,v%2==0 ? -1 : 1) * Axis(v%2==0 ? -1 : 1,0,0) * m,
                              ROTM(M_PI,0,0,v%2==0 ? -1 : 1) * Axis(0,1,0) * m);
 
@@ -581,8 +588,8 @@ namespace lpzrobots {
       legContactArray[n].joint = j->getJoint();
 
       // values will be set in setParam later
-      servo =  new TwoAxisServoVel(odeHandle, j,-1,1, 1, -1,1,1,0 );  
-      //     servo =  new UniversalServo(j,-1,1, 1, -1,1,1,0); 
+      servo =  new TwoAxisServoVel(odeHandle, j,-1,1, 1, -1,1,1,0 );
+      //     servo =  new UniversalServo(j,-1,1, 1, -1,1,1,0);
       hipservos.push_back(servo);
 
       // lower leg
@@ -732,10 +739,10 @@ namespace lpzrobots {
       double t1 = conf.legLength/30;
 
       Primitive* whisker;
-      Pos pos = Pos(conf.size/(2)+t1, 
-                    n*twidth/4, 
+      Pos pos = Pos(conf.size/(2)+t1,
+                    n*twidth/4,
                     conf.legLength + theight/5);
-      
+
       osg::Matrix m = ROTM(M_PI/10, n,0,0) * ROTM(M_PI/2+M_PI/10, 0,-1,0) * TRANSM(pos) * pose;
       whisker = new Capsule(t1, l1);
       whisker->init(odeHandle, legmass/10, osgHTarsus);
@@ -746,39 +753,39 @@ namespace lpzrobots {
 
       //FixedJoint* k = new FixedJoint(trunk, whisker);
       //k->init(odeHandle, osgHandle, false, 0);
-      HingeJoint* k = new HingeJoint(trunk, whisker, Pos(0,0,0) * m, 
+      HingeJoint* k = new HingeJoint(trunk, whisker, Pos(0,0,0) * m,
                                      Axis(1,0,0) * m);
       k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
       // servo used as a spring
       spring = new HingeServo(k, -M_PI/6, M_PI/6, .1, 0.01,0);
-      whiskersprings.push_back(spring);            
+      whiskersprings.push_back(spring);
       joints.push_back(k);
-      
+
       Primitive* whisker2;
       whisker2 = new Capsule(t1/2, l1);
       whisker2->init(odeHandle, legmass/10, osgHTarsus);
-      osg::Matrix m2 = TRANSM(0,0,-l1/2) 
-        * ROTM(M_PI/10, n,0,0) 
-        * ROTM(M_PI/10, 0,1,0) * TRANSM(0,0,-l1/2) * m1; 
+      osg::Matrix m2 = TRANSM(0,0,-l1/2)
+        * ROTM(M_PI/10, n,0,0)
+        * ROTM(M_PI/10, 0,1,0) * TRANSM(0,0,-l1/2) * m1;
       whisker2->setPose(m2);
       objects.push_back(whisker2);
 
 
       //      k = new FixedJoint(whisker, whisker2);
-      //      k->init(odeHandle, osgHandleJ, false, 0);      
-      k = new HingeJoint(whisker, whisker2, Pos(0,0,-l1/2) * m1, 
+      //      k->init(odeHandle, osgHandleJ, false, 0);
+      k = new HingeJoint(whisker, whisker2, Pos(0,0,-l1/2) * m1,
                          Axis(0,1,0) * m1);
       k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
       // servo used as a spring
       spring = new HingeServo(k, -M_PI/6, M_PI/6, .05, 0.01,0);
-      whiskersprings.push_back(spring);            
+      whiskersprings.push_back(spring);
       joints.push_back(k);
-      
+
 
     }
 
     notifyOnChange("dummy"); // apply all parameters.
-    
+
     created=true;
   };
 
@@ -827,7 +834,7 @@ namespace lpzrobots {
     }
   }
   /////////
-  void Hexapod::notifyOnChange(const paramkey& key){    
+  void Hexapod::notifyOnChange(const paramkey& key){
     // we simply set all parameters here
     FOREACH(vector<TwoAxisServo*>, hipservos, i){
       if(*i){
@@ -844,9 +851,9 @@ namespace lpzrobots {
       if(*i){
         (*i)->setPower(conf.tebiaPower);
         (*i)->setDamping(conf.tebiaDamping);
-        (*i)->setMinMax(-conf.tebiaJointLimit,+conf.tebiaJointLimit);
+        (*i)->setMinMax(-conf.tebiaJointLimit+conf.tebiaOffset,+conf.tebiaJointLimit+conf.tebiaOffset);
       }
-    }    
+    }
     FOREACH(vector<OneAxisServo*>, tarsussprings, i){
       if(*i){
         (*i)->setPower(conf.tebiaPower);

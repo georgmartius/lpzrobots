@@ -29,8 +29,46 @@
 #include "pos.h"
 #include "tmpprimitive.h"
 #include <assert.h>
+#include <selforg/matrix.h>
 
 namespace lpzrobots {
+
+  void TraceDrawer::init(){   
+    assert(obj);
+    lastpos = obj->getPosition();
+    initialized=true;
+  }
+
+  void TraceDrawer::close(){   
+    if(initialized)
+      tracker.close();
+    initialized=false;
+  }
+
+  void TraceDrawer::track(double time){   
+    if (initialized){
+      tracker.track(obj, time);
+    }
+  }
+
+  void TraceDrawer::drawTrace(GlobalData& global){   
+    if (initialized && tracker.isDisplayTrace()){
+      Position pos(obj->getPosition());      
+      /* draw cylinder only when length between actual
+         and last point is larger then a specific value
+      */
+      double len = (pos - lastpos).length();
+      if(len > 2*tracker.conf.displayTraceThickness) {
+        global.addTmpObject(new TmpDisplayItem(new OSGCylinder(tracker.conf.displayTraceThickness,
+                                                               len*1.2), 
+                                               ROTM(osg::Vec3(0,0,1), Pos(pos - lastpos)) *
+                                               TRANSM(Pos(lastpos)+Pos(pos - lastpos)/2), 
+                                               color),
+                            tracker.conf.displayTraceDur);
+        lastpos = pos;
+      }
+    }    
+  }
 
 
   OdeAgent::OdeAgent(const PlotOption& plotOption, double noisefactor, const std::string& name, const std::string& revision)
@@ -62,14 +100,15 @@ namespace lpzrobots {
   
   OdeAgent::~OdeAgent(){
     removeOperators();
+    FOREACH(TraceDrawerList, segmentTracking, td){
+      td->close();
+    }
+
   }
   
   void OdeAgent::constructor_helper(const GlobalData* globalData){
     fixateRobot         = false;
     fixedJoint          = 0;
-    tracing_initialized = false;
-    trace_length        = 1000;
-    trace_thickness     = 0.05;
     if(globalData){
       FOREACHC(std::list<Configurable*>, globalData->globalconfigurables, c){
         plotEngine.addConfigurable(*c);
@@ -77,42 +116,23 @@ namespace lpzrobots {
     }
   }
 
-
-  bool OdeAgent::setTraceLength(int tracelength){
-    if(tracing_initialized==true || tracelength < 1){
-      return false;
-    }else{
-      this->trace_length = tracelength;
-      return true;
-    }
-  }
-
-  void OdeAgent::init_tracing(){
-
-    segments = (OSGPrimitive**) malloc(sizeof(OSGPrimitive*) * trace_length);
-    for (int i=0; i<trace_length; i++){
-      segments[i]=0;
-    }
-    // init lastpos with position of robot to follow
-    Pos pos(robot->getPosition());
-    lastpos=pos;
-
-    counter=0;
-
-    tracing_initialized=true;
-  }
-
-
-
   void OdeAgent::step(double noise, double time){
     Agent::step(noise, time);
-    trace();
+    // for the main trace we do not call track, this in done in agent
+    // track the segments
+    FOREACH(TraceDrawerList, segmentTracking, td){
+      td->track(time);
+    }    
+
     if(fixateRobot && !fixedJoint) tryFixateRobot();
   }
 
   void OdeAgent::beforeStep(GlobalData& global){
     OdeRobot* r = getRobot();
     r->sense(global);
+  
+    trace(global);
+
     Operator::ManipDescr d;
     Operator::ManipType m;    
     FOREACH(OperatorList, operators, i){
@@ -143,32 +163,71 @@ namespace lpzrobots {
 
   void OdeAgent::stepOnlyWiredController(double noise, double time) {
     WiredController::step(rsensors,rsensornumber, rmotors, rmotornumber, noise, time);
-    trackrobot.track(robot, time); // we have to do this here because we agent.step is not called
-    trace();
+    trackrobot.track(robot, time); // we have to do this here because agent.step is not called
+    // track the segments
+    FOREACH(TraceDrawerList, segmentTracking, td){
+      td->track(time);
+    }    
+
   }
 
-  void OdeAgent::trace(){
-    if (trackrobot.isDisplayTrace() && t%10==0){
-      if (!tracing_initialized) {
-	init_tracing();
-      }
-      Pos pos(robot->getPosition());
-      /* draw cylinder only when length between actual
-	 and last point is larger then a specific value
-      */
-      double len = (pos - lastpos).length();
-      if(len > trace_thickness) {      
-	if(segments[counter%trace_length]) delete segments[counter%trace_length];
-	OSGPrimitive* s = new OSGCylinder(trace_thickness, len*1.2);
-	s->init(((OdeRobot*)robot)->osgHandle, OSGPrimitive::Low);	
-	s->setMatrix(osg::Matrix::rotate(osg::Vec3(0,0,1), (pos - lastpos)) *
-		     osg::Matrix::translate(lastpos+(pos - lastpos)/2));
-	segments[counter%trace_length] = s;
-	lastpos = pos;
-	counter++;
-      }
+  void OdeAgent::trace(GlobalData& global){
+    mainTrace.drawTrace(global);
+    FOREACH(TraceDrawerList, segmentTracking, td){
+      td->drawTrace(global);
     }
   }
+
+  void OdeAgent::setTrackOptions(const TrackRobot& trackrobot){
+    Agent::setTrackOptions(trackrobot);
+    if (trackrobot.isDisplayTrace()){
+      mainTrace.obj=robot;
+      mainTrace.tracker = trackrobot;
+      mainTrace.color = ((OdeRobot*)robot)->osgHandle.color;
+      mainTrace.init();
+    }
+  }
+
+  class TrackablePrimitive : public Trackable {
+  public:
+    TrackablePrimitive(Primitive* p, const std::string name) 
+      : p(p), name(name) { }
+    virtual std::string getTrackableName() const { return name; };
+    virtual Position getPosition() const  { return p->getPosition().toPosition(); };
+    virtual Position getSpeed() const     { return p->getVel().toPosition(); };
+    virtual Position getAngularSpeed() const { return p->getAngularVel().toPosition(); };
+    virtual matrix::Matrix getOrientation() const { 
+      fprintf(stderr, "TrackablePrimitive:: getOrientation(): not implemented\n");
+      return matrix::Matrix(3,3); 
+    };
+    
+  protected:
+    Primitive* p;
+    std::string name;
+  };
+
+  /// adds tracking for individual primitives
+  void OdeAgent::addTracking(unsigned int primitiveIndex,const TrackRobot& trackrobot, 
+                             const Color& color){
+    assert(robot);
+    TraceDrawer td;
+    Primitives ps = ((OdeRobot*)robot)->getAllPrimitives();
+    if(primitiveIndex >= ps.size()){
+      fprintf(stderr, "OdeAgent::addTracking(): primitive index out of bounds %i", primitiveIndex);
+      return;
+    }
+    td.obj=new TrackablePrimitive(ps[primitiveIndex],
+                                  ((OdeRobot*)robot)->getName() + "segm_" + std::itos(primitiveIndex));
+    td.tracker = trackrobot;
+    td.tracker.conf.id=primitiveIndex;
+    td.color = color;
+    td.init();
+    if(!td.tracker.open(robot)){
+      fprintf(stderr, "OdeAgent.cpp() ERROR: could not open trackfile! <<<<<<<<<<<<<\n");
+    }    
+    segmentTracking.push_back(td);
+  }
+
 
   void OdeAgent::setMotorsGetSensors() {
     robot->setMotors(rmotors, rmotornumber);

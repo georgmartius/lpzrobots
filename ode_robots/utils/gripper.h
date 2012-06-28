@@ -40,29 +40,30 @@ namespace lpzrobots {
     std::string name; ///< name of gripper for configuration
 
     double gripDuration; ///< time in seconds for how long the gripper grasps
-    /** releaseDuration time in seconds for how long the gripper 
+    /** releaseDuration time in seconds for how long the gripper
         cannot grasp after release */
     double releaseDuration;
     Color  color;
     double size; ///< diameter of the drawn sphere (if 0 nothing is drawn)
-    /** sphere is drawn at contact point (true) 
+    /** sphere is drawn at contact point (true)
         or at center of attached primitive (false)
     */
-    bool   drawAtContactPoint;     
+    bool   drawAtContactPoint;
     /** if true the last grasped object cannot be directly grasped again
      */
-    bool   forbitLastPrimitive; 
-    //     bool incOrExc; /// include (false) or exclude (true) grippables;
+    bool   forbitLastPrimitive;
+    //     bool incOrExc; ///< include (false) or exclude (true) grippables;
+    bool   fixedOrBallJoint; ///< use fixed joint (true) or ball joint (false)
   };
 
   /**
      A gripper can be attached to a primitive via its substance
      and implements gripping (a fixed joint) on collision with
      specified objects.
-     Usage: in your robot, create a Gripper object and attach 
-      it to the primitive that grips (e.g. hand). Then you 
+     Usage: in your robot, create a Gripper object and attach
+      it to the primitive that grips (e.g. hand). Then you
       need make the gripper(s) available to you simulation
-      in order to set call the addGrippables from there 
+      in order to set call the addGrippables from there
       (e.g. with otherrobot->getAllPrimitives()), see Skeleton.
    */
   class Gripper : public Configurable {
@@ -72,9 +73,9 @@ namespace lpzrobots {
        @param releaseDuration time in seconds for how long the gripper cannot grasp
         after release
        @param size diameter of the drawn sphere (if 0 nothing is drawn)
-       @param drawAtContactPoint sphere is drawn at contact point (true) 
+       @param drawAtContactPoint sphere is drawn at contact point (true)
               or at center of attached primitive (false)
-    */ 
+    */
     Gripper(const GripperConf& conf = getDefaultConf());
 
     static GripperConf getDefaultConf(){
@@ -85,34 +86,35 @@ namespace lpzrobots {
       conf.color               = Color(1,1,1);
       conf.size                = 0.2;
       conf.drawAtContactPoint  = true;
-      conf.forbitLastPrimitive = true; 
+      conf.forbitLastPrimitive = true;
+      conf.fixedOrBallJoint    = true;
       return conf;
     }
 
     /// call this to attach the gripper to the given primitive
-    bool attach(Primitive* p);    
-    
+    bool attach(Primitive* p);
+
     virtual void addGrippables(const std::vector<Primitive*>& ps);
     virtual void removeGrippables(const std::vector<Primitive*>& ps);
     virtual void removeAllGrippables();
 
-    static int onCollision(dSurfaceParameters& params, GlobalData& globaldata, 
-			   void *userdata, 
+    static int onCollision(dSurfaceParameters& params, GlobalData& globaldata,
+			   void *userdata,
 			   dContact* contacts, int numContacts,
-			   dGeomID o1, dGeomID o2, 
+			   dGeomID o1, dGeomID o2,
 			   const Substance& s1, const Substance& s2);
 
   private:
     GripperConf conf;
     bool   isAttached;
 
-    dGeomID last; 
+    dGeomID last;
     HashSet<dGeomID> grippables;
     double gripStartTime;
   };
-  
+
   typedef std::vector<Gripper*> GripperList;
-  
+
 }
 
 #endif

@@ -82,7 +82,7 @@ Inspectable::iconnectionlist Inspectable::getStructuralConnections() const {
   return std::list<IConnection>();
 }
 
-void Inspectable::addInspectableValue(const iparamkey& key, iparamval* val, 
+void Inspectable::addInspectableValue(const iparamkey& key, iparamval const* val,
                                       const std::string& descr) {
   mapOfValues+=iparampair(key,val);
   if(!descr.empty())

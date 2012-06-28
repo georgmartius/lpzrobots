@@ -43,9 +43,9 @@
 
 #include <selforg/soml.h>
 #include <selforg/sox.h>
-#include <selforg/pimax.h>
+//#include <selforg/pimax.h>
 #include <selforg/remotecontrolled.h>
-//#include "sox.h"
+#include "pimax.h"
 
 #include "environment.h"
 
@@ -56,12 +56,31 @@ using namespace std;
 #define ROBOTSTOREFILE "humanoid_initial.rob"
 
 enum SimType { Normal, Rescue, Fight, Reck, Bungee, Copy };
+string typeToString(SimType t){
+  switch(t){
+  case Normal:
+    return "Normal";
+  case Reck:
+    return "Reck";
+  case Rescue:
+    return "Rescue";
+  case Bungee:
+    return "Bungee";
+  case Fight:
+    return "Fight";
+  case Copy:
+    return "Copy";
+  }  
+  return "unknown";
+}
+double noise=0.01;
+double cInit=1.0;
+string name="";
 
 class ThisSim : public Simulation {
 public:
   SimType type;
   Env env;
-  double somlRatio;
 
   Joint* fixator;
   Joint* reckLeft;
@@ -72,8 +91,8 @@ public:
   double hardness;
   Substance s;
 
-  ThisSim(SimType type, double somlRatio)
-    : type(type), somlRatio(somlRatio) {
+  ThisSim(SimType type)
+    : type(type){
     addPaletteFile("colors/UrbanExtraColors.gpl");
     addColorAliasFile("colors/UrbanColorSchema.txt");
     if(type==Rescue)
@@ -93,7 +112,7 @@ public:
 
     bool fixedInAir = false;
     env.type=Env::Normal;
-    global.odeConfig.setParam("noise",0.01); //for more variety 
+    global.odeConfig.setParam("noise",noise); //for more variety 
     global.odeConfig.setParam("realtimefactor",1);
     global.odeConfig.setParam("simstepsize",0.01);
     global.odeConfig.setParam("controlinterval",2);
@@ -111,11 +130,18 @@ public:
     case Reck:
       env.height=2.0;
       break;
+    case Copy:
+      humanoids       = 2;
     case Rescue:
       global.odeConfig.setParam("controlinterval",2);
       setCameraHomePos (Pos(1.97075, 4.99419, 2.03904),  Pos(159.579, -13.598, 0));
       //  env.type       = Env::OpenPit;
-      env.type       = Env::Pit;
+      if(type==Copy){
+        env.type          = Env::Pit2;
+        env.pit2Position  = Pos(2,0,0);
+      } else {
+        env.type       = Env::Pit;
+      }
       env.pitsize    = 1.0;//.9;
       env.thickness  = .1;
       env.height     = 1.4; 
@@ -129,12 +155,10 @@ public:
       //                     , 60);
 
       break;
-    case Copy:
     case Fight:
       env.type        = Env::Normal;
       global.odeConfig.setParam("controlinterval",3);
       global.odeConfig.setParam("gravity", -4);
-      //      global.odeConfig.setParam("noise",0.0);
       env.widthground = 5;
       env.height      = 0.5;
       env.roughness   = 3;
@@ -167,7 +191,6 @@ public:
      SkeletonConf conf = Skeleton::getDefaultConfVelServos();
            
      OsgHandle skelOsgHandle=osgHandle.changeColorSet((type==Copy && i==1) ? 5 : i);
-     double cInit = 0.8;
      double initHeight=0.8;
 
      conf.useBackJoint = true;
@@ -188,17 +211,16 @@ public:
        initHeight = 0.45;
        //       conf.armPower = 30;     
        break;
+     case Copy:
      case Rescue:
        conf.powerFactor = 1.25;
        conf.dampingFactor = .0;
-       cInit = 0.99;
        break;
      case Bungee:
        conf.powerFactor = .2;
        conf.dampingFactor = .0;       
        break;
      case Fight:
-     case Copy:
        conf.powerFactor = 1.0;
        conf.useGripper=true;
        conf.dampingFactor = .0;
@@ -213,7 +235,8 @@ public:
      // skelHandle.substance.toRubber(5.00);//TEST sonst 40
 
 
-     Skeleton* human0 = new Skeleton(skelHandle, skelOsgHandle,conf, "Humanoid" + itos(i)); 
+     Skeleton* human0 = new Skeleton(skelHandle, skelOsgHandle,conf, 
+                                     "Humanoid" + itos(i) + "_" + typeToString(type) + "_" + ::name); 
      // to add sensors use these lines
      //std::list<Sensor*> sensors;
      // additional sensor
@@ -222,10 +245,15 @@ public:
      //     new AddSensors2RobotAdapter(skelHandle, osgHandle, human0, sensors);
      
      OdeRobot* human = human0; 
-     human->place( ROTM(M_PI_2,1,0,0)*ROTM( i%2==0 ? M_PI : 0,0,0,1)
-		  //*TRANSM(.2*i,2*i,.841/*7*/ +2*i));
-                   * TRANSM(1*i, 0.10*i, initHeight));
-      
+     if(type==Copy){
+       human->place( ROTM(M_PI_2,1,0,0) * ROTM( i%2==0 ? M_PI/5 : 0,0,0,1)
+                     * TRANSM(2*i, 0, initHeight));
+     }else{
+       human->place( ROTM(M_PI_2,1,0,0)*ROTM( i%2==0 ? M_PI : 0,0,0,1)
+                     //*TRANSM(.2*i,2*i,.841/*7*/ +2*i));
+                     * TRANSM(1*i, 0.10*i, initHeight));
+     }
+       
      if( fixedInAir){
        Primitive* trunk = human->getMainPrimitive();
       
@@ -250,66 +278,43 @@ public:
      }
      
      // create pointer to one2onewiring
-     //     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-     ForceBoostWiring* wiring = new ForceBoostWiring(new ColorUniformNoise(0.1), 0.0);
+     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+     //ForceBoostWiring* wiring = new ForceBoostWiring(new ColorUniformNoise(0.1), 0.0);
  
       
-     // use soml depending 
      AbstractController* controller;
      if(type==Copy && i>0){ // second robot gets remote controlled
        controller = new RemoteControlled();
      }else{
-       if(somlRatio>0){
-         SoMLConf sc = SoML::getDefaultConf();
-         sc.useHiddenModel = true;
-         sc.useHiddenContr = true;
-         sc.hiddenContrUnitsRatio = somlRatio;
-         sc.hiddenModelUnitsRatio = somlRatio;
-         sc.useS = false;
-         controller = new SoML(sc); 
-       }else{
-         //         controller = new Sox(cInit, useExtendedModel);
-         PiMaxConf pc = PiMax::getDefaultConf();
-         pc.onlyMainParameters = false;
-         controller = new PiMax(pc);
-         //       controller = new SineController();
-       }
+       //         controller = new Sox(cInit, useExtendedModel);
+       PiMaxConf pc = PiMax::getDefaultConf();
+       pc.onlyMainParameters = false;
+       pc.initFeedbackStrength=cInit;
+       controller = new PiMax(pc);         
+       //       controller = new SineController();
      }
-     controller->setParam("Logarithmic",1);
-     controller->setParam("epsC",0.05);
-     controller->setParam("epsA",0.01);
+     // pimax
+     controller->setParam("matrics",1);
+     controller->setParam("epsC",0.02);
+     controller->setParam("sense",2);
      controller->setParam("s4avg",1);
      controller->setParam("s4delay",1);     
      
-     wiring->setParam("booster", 0);
      switch(type){
      case Normal:
-       controller->setParam("epsC",0.1);
-       wiring->setParam("booster",0.075);
        break;
      case Reck:
-       wiring->setParam("booster",0.05);
-       controller->setParam("damping",0.0001);
        break;
      case Rescue:
-       wiring->setParam("booster",0.02);
        break;
      case Bungee:
-       wiring->setParam("booster",0.01);
        break;
      case Fight:
-       wiring->setParam("booster",0.07);
      case Copy:
-       wiring->setParam("booster",0.0);
        controller->setParam("damping",0.0003);
-       controller->setParam("epsC",0.1  );
-       global.odeConfig.setParam("noise",0.0);
        break;
      }
      
-     // pimax
-     controller->setParam("epsC",0.0002);
-
 
      
      // create pointer to agent
@@ -326,6 +331,7 @@ public:
        break;
      case Reck:
        break;
+     case Copy:
      case Rescue:
        break;
      case Bungee:
@@ -333,7 +339,6 @@ public:
                                                   PullToPointOperator::Z, 
                                                   0, 0.1, true));
        break;
-     case Copy:
      case Fight:
        //agent->addOperator(new BoxRingOperator(Pos(0,0,2), 1.5, 0.2, 200, true));
        agent->addOperator(new BoxRingOperator(Pos(0,0,1.2), env.widthground/2.0, 
@@ -355,7 +360,7 @@ public:
    }// Several humans end
 
    // connect grippers
-   if(type==Fight || type==Copy ){
+   if(type==Fight ){
      Skeleton* h1 = dynamic_cast<Skeleton*>(global.agents[0]->getRobot());
      Skeleton* h2 = dynamic_cast<Skeleton*>(global.agents[1]->getRobot());
      if(h1 && h2){
@@ -468,7 +473,9 @@ public:
     printf("\t-fight\ttwo humanoid in a fighting arena\n");
     printf("\t-bungee\ta weak humanoid attached to bungee\n");
     printf("\t-copy\tfight situation where one robot gets remoted controlled\n");
-    printf("\t-soml ratio\tuse multiplayer controller with ratio hidden units\n");
+    printf("\t-noise strength\tnoise strength (def: 0.01)\n");
+    printf("\t-cInit strength\tinitial value for Controller diagonal (def: 1.0)\n");
+    printf("\t-name NAME\tname of experiment (def: )\n");
   };
 
 };
@@ -476,7 +483,6 @@ public:
 int main (int argc, char **argv)
 { 
   SimType type=Normal;
-  double somlRatio=0;
   if (Simulation::contains(argv, argc, "-rescue")) {
     type= Rescue;
   }
@@ -492,13 +498,26 @@ int main (int argc, char **argv)
   if (Simulation::contains(argv, argc, "-copy")) {
     type= Copy;
   }
-  int index = Simulation::contains(argv, argc, "-soml");
+  int index = Simulation::contains(argv, argc, "-noise");
   if (index>0 && index<argc) {
-    somlRatio=atof(argv[index]);
+    noise=atof(argv[index]);
+  }
+  index = Simulation::contains(argv, argc, "-cInit");
+  if (index>0 && index<argc) {
+    cInit=atof(argv[index]);
+  }
+  index = Simulation::contains(argv, argc, "-name");
+  if (index>0 && index<argc) {
+    name=string(argv[index]);
   }
 
-  ThisSim sim(type, somlRatio);
+  ThisSim sim(type);
   return sim.run(argc, argv) ? 0 : 1;
 
 }
  
+
+// ./start -r 1111 -noise 0.01 -cInit 0.95 -f 100 ntst -simtime 10 -name "control"
+// ./start -r 2222 -noise 0.01 -cInit 0.95 -f 100 ntst -simtime 10 -name "differentseed"
+// ./start -r 1111 -noise 0.01 -cInit 0.95 -f 100 ntst -simtime 10 -name "" -rescue
+// ./start -r 2222 -noise 0.01 -cInit 0.95 -f 100 ntst -simtime 10 -name "differentseed" -rescue

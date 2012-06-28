@@ -37,7 +37,7 @@ TextureVisualisation::TextureVisualisation(MatrixPlotChannel *channel, ColorPale
   if(debug) cout << "TextureVisualisation Konstruktor" << endl;
   this->channel = channel;
   this->colorPalette = colorPalette;
-  object = NULL;
+  object = 0;
   maxX = channel->getDimension(0);
   maxY = channel->getDimension(1);
   //setUpdatesEnabled(true);

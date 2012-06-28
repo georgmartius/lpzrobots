@@ -114,7 +114,7 @@ void Agent::setTrackOptions(const TrackRobot& trackrobot){
   if(!robot){
     fprintf(stderr, "Agent.cpp: call setTrackOptions after init! <<<<<<<<<<<<<\n");
   }
-  if (trackrobot.trackPos || trackrobot.trackSpeed || trackrobot.trackOrientation){
+  if (trackrobot.isTrackingSomething()){
     if(!this->trackrobot.open(robot)){
       fprintf(stderr, "Agent.cpp() ERROR: could not open trackfile! <<<<<<<<<<<<<\n");
     }else{

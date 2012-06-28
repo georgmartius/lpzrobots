@@ -1,0 +1,9 @@
+
+/**
+\dir real_robots/utils 
+
+Utilities which can be used by several real robot interfaces are placed in this directory,
+e.g. camera utilities.
+*/	
+
+

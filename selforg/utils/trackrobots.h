@@ -25,14 +25,31 @@
 #define __TRACKROBOTS_H
 
 #include <stdio.h>
-#include <string.h>
+#include <string>
+
+#include <selforg/trackable.h>
 
 class AbstractRobot;
 class Agent;
 
 namespace lpzrobots {
   class OdeAgent;
+  class TraceDrawer;
 }
+
+struct TrackRobotConf {
+  bool   trackPos;
+  bool   trackSpeed;
+  bool   trackOrientation;
+  bool   displayTrace;
+  double displayTraceDur;       ///< duration in second to display the trace
+  double displayTraceThickness;
+  bool   writeFile;             ///< whether to write a log file
+
+  int interval;
+  std::string scene;  
+  int id;
+};
 
 /**
    This class provides tracking possibilies of a robot.
@@ -44,21 +61,31 @@ public:
 
   friend class Agent;
   friend class lpzrobots::OdeAgent;
+  friend class lpzrobots::TraceDrawer;
 
   /// constructor for no tracking at all
-  TrackRobot()
+  TrackRobot(TrackRobotConf conf = getDefaultConf())
+    : conf(conf)
   {
-    trackPos          = false;
-    trackSpeed        = false;
-    trackOrientation  = false;
-    displayTrace      = false;
-    interval          = 1;
-    scene             = 0;
     file              = 0;
     cnt               = 1;
-    memset(filename, 0, 256);
-
   }
+
+  static TrackRobotConf getDefaultConf(){
+    TrackRobotConf conf;
+    conf.trackPos              = true;
+    conf.trackSpeed            = false;
+    conf.trackOrientation      = false;
+    conf.displayTrace          = false;
+    conf.displayTraceDur       = 60; 
+    conf.displayTraceThickness = 0.05;
+    conf.interval              = 1;
+    conf.writeFile             = true;
+    //    conf.scene           = "";
+    conf.id                    = -1; // disabled
+    return conf;
+  }
+
 
   /** Constructor that allows individial setting of tracking options.
       The tracked data is written into a file with the current date and time appended by a name given by scene.
@@ -72,75 +99,65 @@ public:
   TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, bool displayTrace,
 	     const char* scene = "", int interval = 1)
   {
-    this->trackPos         = trackPos;
-    this->trackSpeed       = trackSpeed;
-    this->trackOrientation = trackOrientation;
-    this->displayTrace     = displayTrace;
-    this->interval         = interval;
-    this->scene            = strdup(scene);
+    conf = getDefaultConf();
+    conf.trackPos         = trackPos;
+    conf.trackSpeed	  = trackSpeed;
+    conf.trackOrientation = trackOrientation;
+    conf.displayTrace     = displayTrace;
+    conf.interval	  = interval;
+    conf.scene            = scene;
+    conf.id               = 0;
     file = 0;
     cnt  = 1;
-    memset(filename, 0, 256);
   }
 
+  // TrackRobot(const TrackRobot &rhs)
+  // {    
+  //   deepcopy(*this, rhs);
+  // }
 
-  TrackRobot(const TrackRobot &rhs)
-  {
-    deepcopy(*this, rhs);
-  }
+  // const TrackRobot& operator=(const TrackRobot &rhs)
+  // {
+  //   if ( this != &rhs )
+  //   {
+  //     if (file)
+  //       fclose(file);
+  //     file=0;
 
-  const TrackRobot& operator=(const TrackRobot &rhs)
-  {
-    if ( this != &rhs )
-    {
-      if (scene)
-        free(scene);
-      scene = 0;
+  //     deepcopy(*this, rhs);
+  //   }
 
-      if (file)
-        fclose(file);
-      file=0;
-
-      deepcopy(*this, rhs);
-    }
-
-    return *this;
-  }
+  //   return *this;
+  // }
 
   ~TrackRobot()
   {
-    if (file)
-      fclose(file);
-    file = 0;
-
-    //Something goes wrong here, but what? -> also with copy constructor no improvement, see above
-    if (scene)
-      free(scene);
-    scene = 0;
+    // if (file)
+    //   fclose(file);
+    // file = 0;    
   }
 
   /// returns whether tracing is activated
-  bool isDisplayTrace() const {return displayTrace;};
+  bool isDisplayTrace() const {return conf.displayTrace;};
+
+  /// returns whether something is to be tracked
+  bool isTrackingSomething() const {
+    return conf.trackPos || conf.trackOrientation || conf.trackSpeed;
+  };
+
+  TrackRobotConf conf;
 
  protected:
-  bool open(const AbstractRobot* robot);
-  void track(AbstractRobot* robot, double time);
+  bool open(const Trackable* robot);
+  void track(const Trackable* robot, double time);
   void close();
 
  protected:
-  bool trackPos;
-  bool trackSpeed;
-  bool trackOrientation;
-  bool displayTrace;
-
-  int interval;
   FILE* file;
-  char* scene;
   long cnt;
 
- private:
-   char filename[256];
-   static void deepcopy (TrackRobot &lhs, const TrackRobot &rhs);
+ // private:
+ //   static void deepcopy (TrackRobot &lhs, const TrackRobot &rhs);
 
 };
 

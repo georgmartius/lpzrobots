@@ -33,9 +33,28 @@
 
 namespace lpzrobots {
   class Joint;
-  
+
+  class TraceDrawer {
+  public:
+    TraceDrawer() : obj(0){}
+    Position lastpos;
+    Trackable* obj;
+    TrackRobot tracker;    
+    Color color;
+    void init();
+    void close();
+    /// actually write the log files and stuff
+    void track(double time);
+    /// draw the trace
+    void drawTrace(GlobalData& global);
+  protected:
+    bool initialized;
+  };
+
+ 
   typedef std::list<PlotOption> PlotOptionList;
   typedef std::list<Operator*> OperatorList;
+  typedef std::list<TraceDrawer> TraceDrawerList;
   
   /** Specialised agent for ode robots
    */
@@ -111,20 +130,19 @@ namespace lpzrobots {
      */
     virtual const OdeRobot* getRobot() const { return (OdeRobot*)robot;}
 
-    /// gives the number of past robot positions shown as trace in the graphical rendering
-    virtual int getTraceLength(){return trace_length;}
+    /** @deprecated use TrackRobot parameters */
+    virtual int getTraceLength(){return 0;}
 
-    /** sets the number of past robot positions shown as trace in the graphical rendering.
-        Has to be called before the tracing is initialized (otherwise returns false).
-     */
-    virtual bool setTraceLength(int tracelength);
+    /** @deprecated use TrackRobot parameters */
+    virtual bool setTraceLength(int tracelength) {return true;}
 
-    /// sets the thickness of the tube representing the trace in the graphical rendering
-    virtual void setTraceThickness(int tracethickness){
-      this->trace_thickness = tracethickness;
-    }
-
-
+    /** @deprecated use TrackRobot parameters */
+    virtual void setTraceThickness(int tracethickness){ }
+    
+    /// adds tracking for individual primitives
+    virtual void addTracking(unsigned int primitiveIndex,const TrackRobot& trackrobot, 
+                             const Color& color);
+    virtual void setTrackOptions(const TrackRobot& trackrobot);
 
     /****** STOREABLE **********/
     virtual bool store(FILE* f) const;
@@ -143,20 +161,11 @@ namespace lpzrobots {
     virtual void removeOperators();    
 
   protected:
-    void internInit(){
-      trace_length=0; // number of past robot positions shown in osg
-    }
-    
-    /**
-     * initialize tracing in ode
-     */
-    virtual void init_tracing();
-
-    
+ 
     /**
      * continues the trace by one segment
      */
-    virtual void trace();
+    virtual void trace(GlobalData& global);
 
     /** tries to fixate the robot at fixatingPos */
     virtual void tryFixateRobot();
@@ -164,19 +173,14 @@ namespace lpzrobots {
   private:
     void constructor_helper(const GlobalData* globalData);
 
-    int trace_length;
-    double trace_thickness;
-    int counter;
-    bool tracing_initialized;
-
-    OSGPrimitive** segments; // stores segments(cylinders) of the trace
-    osg::Vec3 lastpos;
-
+    TraceDrawer mainTrace;
     Pos fixatingPos; 
     bool fixateRobot;
     Joint* fixedJoint;
 
     OperatorList operators; 
+
+    TraceDrawerList segmentTracking;
   };
 
 }

@@ -72,7 +72,7 @@ public:
   */
   virtual int getMotorNumber()=0;
 
-  
+  virtual std::string getTrackableName() const {return getName();}
 
 };
 

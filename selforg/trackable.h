@@ -47,6 +47,10 @@ public:
 
   virtual ~Trackable() {};
 
+  /** returns name of trackable
+   */
+  virtual std::string getTrackableName() const =0;
+
   /** returns position of the object
       @return vector of position (x,y,z)
    */

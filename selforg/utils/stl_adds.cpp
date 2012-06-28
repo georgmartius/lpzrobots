@@ -33,4 +33,10 @@ namespace std {
     return string(str);
   }
 
+  string itos(int i, const char* format){
+    char str[128];
+    sprintf(str,format, i);
+    return string(str);
+  }
+
 }

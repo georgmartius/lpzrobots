@@ -51,11 +51,13 @@
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
-const int segmnum = 13;
-double teacher = 0;
-bool track = false;
-int k=0;
-int bars=0;
+
+const int segmnum   = 13;
+double    teacher   = 0;
+bool      track     = false;
+bool      tracksegm = false;
+int       k         = 0;
+int       bars      = 0;
 
 //bool useSineController = true;
 bool useSineController = false;
@@ -219,7 +221,27 @@ public:
     agent->init(controller, vehicle, wiring);
     // add an operator to keep robot from falling over
     agent->addOperator(new LimitOrientationOperator(Axis(0,0,1), Axis(0,0,1), M_PI*0.5, 30));
-    if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, ""));
+    if(track){
+      TrackRobotConf c = TrackRobot::getDefaultConf();
+      c.displayTrace = true;
+      c.scene        = "";
+      c.interval     = 1;
+      c.trackSpeed   = false;
+      c.displayTraceThickness = 0.01;
+      agent->setTrackOptions(TrackRobot(c));
+    }
+    if(tracksegm){
+      TrackRobotConf c   = TrackRobot::getDefaultConf();
+      Color      col = osgHandle.getColor("joint");
+      c.displayTrace = true;
+      c.scene        = "segm";
+      c.interval     = 1;
+      c.displayTraceThickness = 0.02;
+      col.alpha()    = 0.5;
+      agent->addTracking(5, TrackRobot(c), col);
+      agent->addTracking(8, TrackRobot(c), col);
+    }
+
     global.agents.push_back(agent);
     global.configs.push_back(agent);
     //agent->startMotorBabblingMode(5000);
@@ -268,6 +290,7 @@ int main (int argc, char **argv)
     bars=atoi(argv[index]); 
   }
   track = Simulation::contains(argv,argc,"-track") != 0;
+  tracksegm = Simulation::contains(argv,argc,"-tracksegm") != 0;
 
   ThisSim sim;
   sim.setGroundTexture("Images/green_velour_wb.rgb");

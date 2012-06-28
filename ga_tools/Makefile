@@ -118,9 +118,13 @@ depend:
 	make Makefile.depend
 
 
+# Workaroud for bug in etags: filenames should not have leading ./
+CPPFILESNoDot := $(subst ./,,$(CPPFILES))
+HFILESNoDot   := $(subst ./,,$(HFILES))
+##!'tags'           		creates tags file for emacs
 tags:
-	etags ${CPPFILES} ${HFILES}
-	etags -a -o ../TAGS ${CPPFILES} ${HFILES} 
+	@etags -l c++ $(HFILESNoDot) $(CPPFILESNoDot)
+	@etags -l c++ -a -o ../TAGS ${HFILESNoDot} ${CPPFILESNoDot}
 
 ##!'search'           		ask for a search string and scans all tex files
 search:

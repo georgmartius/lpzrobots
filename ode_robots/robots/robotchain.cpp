@@ -36,10 +36,10 @@ namespace lpzrobots {
 
   // constructor:
   // - give handle for ODE and OSG stuff
-  RobotChain::RobotChain(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+  RobotChain::RobotChain(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 	   const RobotChainConf& c, const std::string& name)
     : OdeRobot(odeHandle, osgHandle, name, "1.0"), conf(c)
-  { 
+  {
     created=false;
   };
 
@@ -47,15 +47,15 @@ namespace lpzrobots {
     int num=0;
     FOREACH(vector<OdeRobot*>, robots, r){
       if(*r) num+=(*r)->getMotorNumber();
-    }          
-    return num;    
+    }
+    return num;
   }
 
   void RobotChain::setMotors(const motor* motors, int motornumber){
     assert(created); // robot must exist
     int index=0;
     FOREACH(vector<OdeRobot*>, robots, r){
-      int len = (*r)->getMotorNumber();      
+      int len = (*r)->getMotorNumber();
       assert(index+len<=motornumber);
       (*r)->setMotors(motors+index,len);
       index+=len;
@@ -67,21 +67,21 @@ namespace lpzrobots {
     int num=0;
     FOREACH(vector<OdeRobot*>, robots, r){
       if(*r) num+=(*r)->getSensorNumber();
-    }          
+    }
     return num;
   }
 
   int RobotChain::getSensors(sensor* sensors, int sensornumber){
     assert(created);
     int index=0;
-    sensor buf[10]; 
+    sensor buf[10];
     vector<sensor> irvals;
     int j=0;
     FOREACH(vector<OdeRobot*>, robots, r){
-      int len = (*r)->getSensorNumber();      
+      int len = (*r)->getSensorNumber();
       assert(index+len<=sensornumber);
       if(conf.useIR && (j==0 || j==conf.numRobots-1)){
-       (*r)->getSensors(buf,len);     
+       (*r)->getSensors(buf,len);
        // store motors
        sensors[index]   = buf[0];
        sensors[index+1] = buf[1];
@@ -91,7 +91,7 @@ namespace lpzrobots {
          irvals.push_back(buf[i]);
        }
       }else{
-        (*r)->getSensors(sensors+index,len);        
+        (*r)->getSensors(sensors+index,len);
         index+=len;
       }
       j++;
@@ -101,13 +101,13 @@ namespace lpzrobots {
       sensors[index]=*v;
       index++;
     }
-    if(conf.useIR) {assert(irvals.size()==getIRSensorNum());}
+    if(conf.useIR) { assert((signed)irvals.size() == getIRSensorNum());}
     return index;
   };
 
 
   void RobotChain::place(const osg::Matrix& pose){
-    create(pose);    
+    create(pose);
   };
 
 
@@ -118,13 +118,13 @@ namespace lpzrobots {
     }
     for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
       if(*i) (*i)->update();
-    }          
+    }
   };
 
   void RobotChain::doInternalStuff(GlobalData& global){
     FOREACH(vector<OdeRobot*>, robots, r){
       if(*r) (*r)->doInternalStuff(global);
-    }          
+    }
   }
 
   void RobotChain::create( const osg::Matrix& pose ){
@@ -132,7 +132,7 @@ namespace lpzrobots {
       destroy();
     }
     for (int j=0; j<conf.numRobots; j++) {
-      
+
       Nimm2Conf nimm2conf   = Nimm2::getDefaultConf();
       nimm2conf.size        = conf.size;
       nimm2conf.force       = conf.force;
@@ -153,13 +153,13 @@ namespace lpzrobots {
         nimm2conf.irBack = true;
       }
 
-      OdeRobot* nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, getName() + "_" + itos(j)); 
+      OdeRobot* nimm2 = new Nimm2(odeHandle, osgHandle, nimm2conf, getName() + "_" + itos(j));
       if(j==0)
-        nimm2->setColor(osgHandle.getColor("robot1"));        
+        nimm2->setColor(osgHandle.getColor("robot1"));
       else
-        nimm2->setColor(osgHandle.getColor(conf.color));        
-      
-      ((OdeRobot*)nimm2)->place(TRANSM(j*(-conf.distance),0,0.11)*pose);	 
+        nimm2->setColor(osgHandle.getColor(conf.color));
+
+      ((OdeRobot*)nimm2)->place(TRANSM(j*(-conf.distance),0,0.11)*pose);
       robots.push_back(nimm2);
     }
     for(int j=0; j<conf.numRobots-1; j++) {
@@ -171,13 +171,13 @@ namespace lpzrobots {
                                         );
       joint->init(odeHandle,osgHandle,true,conf.size/6);
       joints.push_back(joint);
-    }    
-    
-    created=true;
-  }; 
+    }
 
-  int RobotChain::getIRSensorNum(){    
-    return conf.useIR ? 4 : 0;            
+    created=true;
+  };
+
+  int RobotChain::getIRSensorNum(){
+    return conf.useIR ? 4 : 0;
   }
 
 
@@ -187,7 +187,7 @@ namespace lpzrobots {
     if (created){
       FOREACH(vector<OdeRobot*>, robots, r){
 	if(*r) delete *r;
-      }      
+      }
       robots.clear();
       cleanup();
     }
@@ -197,11 +197,11 @@ namespace lpzrobots {
   Primitive* RobotChain::getMainPrimitive() const {
     if((signed int)robots.size()>conf.numRobots/2){
       return robots[conf.numRobots/2]->getMainPrimitive();
-    }else return 0;    
+    }else return 0;
   }
 
-  void  RobotChain::notifyOnChange(const paramkey& key){    
-    
+  void  RobotChain::notifyOnChange(const paramkey& key){
+
   }
 
 }

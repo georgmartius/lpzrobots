@@ -77,8 +77,8 @@ namespace lpzrobots {
     field->setXInterval(x_size/(float)(cols-1));
     field->setYInterval(y_size/(float)(rows-1));
     // scale the height // Todo: find out maximum, currently 1 is assumed
-    for(int i=0; i< rows; i++){
-      for(int j=0; j< cols; j++){
+    for(int i=0; i< cols; i++){
+      for(int j=0; j< rows; j++){
 	field->setHeight(i,j, field->getHeight(i,j) * height);  
       }
     }
@@ -153,8 +153,8 @@ namespace lpzrobots {
     
     // copy and convert the image from RGB chars to double heights
     unsigned char* data = image.data();
-    for(int j=0; j< cols; j++){
-      for(int i=0; i< rows; i++){
+    for(int j=0; j< rows; j++){
+      for(int i=0; i< cols; i++){
 	// use the coding to get the height value and scale it with height
 	field->setHeight(i,j, coding(codingMode, data) * height);  
 	data+=3;

@@ -34,9 +34,9 @@ InspectableProxy::InspectableProxy(const std::list<Inspectable*>& list, const ip
 	for(std::list<Inspectable*>::const_iterator iter = list.begin(); iter!=list.end(); iter++) {
 		//m_list.push_back(*iter);
 		std::list<std::string> names = (*iter)->getInternalParamNames();
-		std::list<double*> values = (*iter)->getInternalParamsPtr();
+		std::list<double const*> values = (*iter)->getInternalParamsPtr();
 		std::list<std::string>::iterator namesIter = names.begin();
-		std::list<double*>::iterator valuesIter = values.begin();
+		std::list<double const*>::iterator valuesIter = values.begin();
 		unsigned int num = names.size();
 
 		for(unsigned int i = 0; i < num; i++) {
@@ -95,8 +95,8 @@ bool InspectableProxy::replaceList(const std::list<Inspectable*>& list) {
 
 	FOREACHC(std::list<Inspectable*>,list,i) {
 		std::list<std::string> names = (*i)->getInternalParamNames();
-		std::list<double*> values = (*i)->getInternalParamsPtr();
-		std::list<double*>::iterator l = values.begin();
+		std::list<double const *> values = (*i)->getInternalParamsPtr();
+		std::list<double const*>::iterator l = values.begin();
 
 		FOREACH(std::list<std::string>,names,j) {
 			FOREACH(Inspectable::iparampairlist,mapOfValues,k) {
