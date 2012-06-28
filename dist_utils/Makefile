@@ -14,9 +14,16 @@
 # make sure that you create the directories on the webserver and change the "current" links
 #  if the major version changes
 MAJOR=0.7
-VERSION=$(MAJOR).0.5
+VERSION=$(MAJOR).2
 
-ODEVERSION=0.11.3
+ODEVERSION=0.11.3.2
+
+# comment out if not wanted:
+BUILDODE=1
+BUILDGUILOGGER=1
+BUILDMATRIXVIZ=1
+
+#### END of Editing ################################
 
 SHELL=/bin/bash
 # make sure the right -config scripts are used 
@@ -54,16 +61,22 @@ createDist: $(filter-out $(wildcard lpzrobots), lpzrobots) $(filter-out $(wildca
 
 ##!deb-packs  (2) create debian and ubuntu packages
 deb-packs: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) 
+ifdef BUILDGUILOGGER
 	$(MAKE) guilogger-deb
 	$(MAKE) install-guilogger
+endif
+ifdef BUILDMATRIXVIZ
 	$(MAKE) matrixviz-deb
 	$(MAKE) install-matrixviz
+endif
 #	$(MAKE) lpzrobots-configurator-deb
 #	$(MAKE) install-lpzrobots-configurator
 	$(MAKE) selforg-deb 
 	$(MAKE) install-selforg
+ifdef BUILDODE
 	$(MAKE) ode-deb 
 	$(MAKE) install-ode
+endif
 	$(MAKE) oderobots-deb 
 	$(MAKE) install-oderobots
 	$(MAKE) doc
@@ -72,10 +85,16 @@ deb-packs: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR))
 ##!              in order to give launchpad enough time to generate the packages
 upload: 
 	$(MAKE) upload-lpzrobots
+ifdef BUILDGUILOGGER
 	-$(MAKE) upload-guilogger
+endif
+ifdef BUILDMATRIXVIZ
 	-$(MAKE) upload-matrixviz
+endif
 	$(MAKE) upload-selforg
+ifdef BUILDODE
 	-$(MAKE) upload-ode
+endif
 	sleep 3600
 	$(MAKE) upload-oderobots
 	$(MAKE) changepermissions
@@ -97,7 +116,7 @@ $(DISTDIR): $(filter-out $(wildcard lpzrobots), lpzrobots)
 # call make to config
 	cd $(DISTDIR) && rm -rf Makefile.conf && echo -e "/usr\nu\ny\n" | \
 		make Makefile.conf
-	cd $(DISTDIR) && make MODULE=selforg confsubmodule && make MODULE=ode_robots confsubmodule && make MODULE=ga_tools confsubmodule
+	cd $(DISTDIR) && make MODULE=selforg confsubmodule && make PATH=selforg:$$PATH MODULE=ode_robots confsubmodule && make PATH=selforg:ode_robots:$$PATH MODULE=ga_tools confsubmodule
 # advance version numbers # also add lpzrobots/ga_tools 
 	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger $(DISTDIR)/matrixviz; \
 		do pushd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; \
@@ -346,7 +365,7 @@ create_deb_packages.sh: Makefile
 #>FIRST=""
 # vvvvvvvvvvvvvvvvv UBUNTU DISTRIBUTIONS here vvvvvvvvvvvvvvvvvvvvvvvvv
 #># ... precise
-#>for Dist in lucid maverick natty oneiric; do
+#>for Dist in lucid maverick natty oneiric precise quantal; do
 #>    # change changelog for all ubuntu distributions  
 #>    dch --increment --force-distribution -D $Dist "$Dist version"
 #>    # make only source package
