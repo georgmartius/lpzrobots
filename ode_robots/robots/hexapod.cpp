@@ -120,7 +120,7 @@ namespace lpzrobots {
 
 
   int Hexapod::getMotorNumber(){
-    return  2*hipservos.size();
+    return  2*hipservos.size() + (conf.useTebiaMotors ? tebiasprings.size() : 0);
   };
 
   /* sets actual motorcommands
@@ -129,14 +129,19 @@ namespace lpzrobots {
   */
   void Hexapod::setMotors(const motor* motors, int motornumber){
     assert(created); // robot must exist
-    int len = min(motornumber, getMotorNumber())/2;
-
-    for(int i = 0; i < len; i++){
-      hipservos[i]->set(motors[2*i],motors[2*i+1]);
-    }
-
-    FOREACH(vector<OneAxisServo*>, tebiasprings, i){
-      if(*i) (*i)->set(0);
+    int n=0;
+    FOREACH(vector<TwoAxisServo*>, hipservos, s){
+      if(*s) (*s)->set(motors[n],motors[n+1]);
+      n+=2;
+    }    
+    if(conf.useTebiaMotors){
+      FOREACH(vector<OneAxisServo*>, tebiasprings, i){
+        if(*i) (*i)->set(motors[n++]);
+      }
+    }else{
+      FOREACH(vector<OneAxisServo*>, tebiasprings, i){
+        if(*i) (*i)->set(0);
+      }
     }
     FOREACH(vector<OneAxisServo*>, tarsussprings, i){
       if(*i) (*i)->set(0);
@@ -145,12 +150,10 @@ namespace lpzrobots {
       if(*i) (*i)->set(0);
     }
 
-
-
   };
 
   int Hexapod::getSensorNumber(){
-    return 2*hipservos.size() + irSensorBank.size();
+    return 2*hipservos.size() + irSensorBank.size() + (conf.useTebiaMotors ? tebiasprings.size() : 0);
   };
 
   /* returns actual sensorvalues
@@ -160,22 +163,25 @@ namespace lpzrobots {
   */
   int Hexapod::getSensors(sensor* sensors, int sensornumber){
     assert(created);
-    int len = min(sensornumber, getSensorNumber() - irSensorBank.size())/2;
-
-    for(int i = 0; i < len; i++){
-      sensors[2*i]   = hipservos[i]->get1();
-      sensors[2*i+1] = hipservos[i]->get2();
+    int n=0;
+    FOREACH(vector<TwoAxisServo*>, hipservos, s){
+      if(*s) {
+        sensors[n++] = (*s)->get1();
+        sensors[n++] = (*s)->get2();
+      }
+    }  
+    if(conf.useTebiaMotors){
+      FOREACH(vector<OneAxisServo*>, tebiasprings, s){
+        if(*s) sensors[n++] = (*s)->get();
+      }
     }
-
-    len = 2*len;
-
-
+   
 
     if (conf.irFront || conf.irBack){
-      len += irSensorBank.get(sensors+len, sensornumber-len);
+      n += irSensorBank.get(sensors+n, sensornumber-n);
     }
 
-    return len;
+    return n;
   };
 
 
