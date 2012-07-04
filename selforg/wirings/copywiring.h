@@ -26,14 +26,13 @@
 
 #include <selforg/abstractwiring.h>
 #include <selforg/matrix.h>
-#include <selforg/configurable.h>
 #include <list>
 #include <vector>
 
 /** Implements a wiring where the motors are copied to several motors
     and the sensors are fusioned.
  */
-class CopyWiring: public AbstractWiring, public Configurable {
+class CopyWiring: public AbstractWiring {
 public:
   typedef std::vector < std::list<int> > Assignment;
 

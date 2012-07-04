@@ -35,7 +35,7 @@ using namespace matrix;
 CopyWiring::CopyWiring(const Assignment& sensor_assignment,
                        const Assignment& motor_assignment,
                        NoiseGenerator* noise, int plotMode, const std::string& name)
-  : AbstractWiring(noise, plotMode, name), Configurable(name,"1.0"),
+  : AbstractWiring(noise, plotMode, name),
     s_assign(sensor_assignment),m_assign(motor_assignment){
 
 }
@@ -57,10 +57,16 @@ CopyWiring::Assignment CopyWiring::motorFromSensorAssignment(const Assignment& s
 
 bool CopyWiring::initIntern(){
   csensornumber = s_assign.size();
-  cmotornumber  = csensornumber;
+  //maximal motor index
+  int maxidx=0;
+  FOREACHC(Assignment, m_assign, ma) {
+    FOREACHC(std::list<int>, *ma, m) {
+      maxidx = max(maxidx,*m);
+    }
+  }
+  cmotornumber  = maxidx+1;
   assert((signed int)m_assign.size() <= rmotornumber);
   noisenumber   = csensornumber;
-  assert(cmotornumber<=csensornumber);
   return true;
 }
 
