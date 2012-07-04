@@ -545,12 +545,15 @@ namespace lpzrobots {
     double legdist = conf.size*0.9 / (conf.legNumber/2-1);
     for ( int n = 0; n < conf.legNumber; n++ ) {
 
-      int v = n;
+      int vm = n;
+      double len= conf.legLength;
+      if(n < 2)
+        len=conf.legLength*conf.backLegFactor;
 
-      double len1 = conf.legLength*0.5;
-      double rad1 = conf.legLength/15;
-      double len2 = conf.legLength*0.5;
-      double rad2 = conf.legLength/16;
+      double len1 = len*0.5;
+      double rad1 = len/15;
+      double len2 = len*0.5;
+      double rad2 = len/16;
 
       // upper limp
       Primitive* coxaThorax;
@@ -558,14 +561,14 @@ namespace lpzrobots {
                     n%2==0 ? - twidth/2 : twidth/2,
                     conf.legLength - theight/3);
 
-      osg::Matrix m = ROTM(conf.legSpreading*(-v/2+1),0,1,0) // leg spreading to front or back
-        * ROTM(M_PI/2,v%2==0 ? -1 : 1,0,0) * TRANSM(pos) * pose;
+      osg::Matrix m = ROTM(conf.legSpreading*(-n/2+1),0,1,0) // leg spreading to front or back
+        * ROTM(M_PI/2,n%2==0 ? -1 : 1,0,0) * TRANSM(pos) * pose;
       coxaThorax = new Capsule(rad1, len1);
       coxaThorax->setTexture(legTex);
       coxaThorax->init(odeHandle, legmass, osgHandle);
 
       osg::Matrix m1 =  TRANSM(0,0,-len1/2)
-        * ROTM(M_PI,0,0,v%2==0 ? -1 : 1) * m; // legs down
+        * ROTM(M_PI,0,0,n%2==0 ? -1 : 1) * m; // legs down
 
       coxaThorax->setPose(m1);
       thoraxPos.push_back(coxaThorax->getPosition());
@@ -579,8 +582,8 @@ namespace lpzrobots {
 
       UniversalJoint* j
         = new UniversalJoint(trunk, coxaThorax, nullpos * m,
-                             ROTM(M_PI,0,0,v%2==0 ? -1 : 1) * Axis(v%2==0 ? -1 : 1,0,0) * m,
-                             ROTM(M_PI,0,0,v%2==0 ? -1 : 1) * Axis(0,1,0) * m);
+                             ROTM(M_PI,0,0,n%2==0 ? -1 : 1) * Axis(n%2==0 ? -1 : 1,0,0) * m,
+                             ROTM(M_PI,0,0,n%2==0 ? -1 : 1) * Axis(0,1,0) * m);
 
       j->init(odeHandle, osgHandleJ, true, rad1 * 2.1);
       joints.push_back(j);
@@ -597,7 +600,7 @@ namespace lpzrobots {
       tibia = new Capsule(rad2, len2);
       tibia->setTexture(legTex);
       tibia->init(odeHandle, legmass, osgHLegs);
-      osg::Matrix m2 =   TRANSM(0,0,-len2/2) * ROTM(1.5,v%2==0 ? -1 : 1,0,0)
+      osg::Matrix m2 =   TRANSM(0,0,-len2/2) * ROTM(1.5,n%2==0 ? -1 : 1,0,0)
         * TRANSM(0,0,-len1/2) * m1;
       tibia->setPose(m2);
       objects.push_back(tibia);
@@ -610,7 +613,7 @@ namespace lpzrobots {
       if(conf.useTebiaJoints){
         // springy knee joint
         HingeJoint* k = new HingeJoint(coxaThorax, tibia, Pos(0,0,-len1/2) * m1,
-                                       Axis(v%2==0 ? -1 : 1,0,0) * m1);
+                                       Axis(n%2==0 ? -1 : 1,0,0) * m1);
         k->init(odeHandle, osgHandleJ, true, rad1 * 2.1);
         // servo used as a spring
         spring = new HingeServo(k, -1, 1, 1, 0.01,0); // parameters are set later
@@ -639,14 +642,14 @@ namespace lpzrobots {
 
         osg::Matrix m4;
         osg::Matrix m3 =
-          ROTM(-angle,v%2==0 ? -1 : 1,0,0) *
+          ROTM(-angle,n%2==0 ? -1 : 1,0,0) *
           TRANSM(0,0,-len2/2) *
           m2;
 
-        if(v < 2){
-          m4 = ROTM(v%2==0 ? angle : -angle,0,v%2==0 ? -1 : 1,0) * m3;
-        }else if( v > 3){
-          m4 = ROTM(v%2==0 ? -angle : angle,0,v%2==0 ? -1 : 1,0) * m3;
+        if(n < 2){
+          m4 = ROTM(n%2==0 ? angle : -angle,0,n%2==0 ? -1 : 1,0) * m3;
+        }else if( n > 3){
+          m4 = ROTM(n%2==0 ? -angle : angle,0,n%2==0 ? -1 : 1,0) * m3;
         }else{
           m4 = m3;
         }
@@ -660,7 +663,7 @@ namespace lpzrobots {
         if(conf.useTarsusJoints){
           // springy joint
           HingeJoint* k = new HingeJoint(tibia, tarsus, Pos(0,0,-len2/2) * m2,
-                                         Axis(v%2==0 ? -1 : 1,0,0) * m2);
+                                         Axis(n%2==0 ? -1 : 1,0,0) * m2);
           k->init(odeHandle, osgHandleJ, true, rad2 * 2.1);
           // servo used as a spring
           //          spring2 = new HingeServo(k, -1, 1, 1, 0.01,0); // parameters are set later
@@ -686,22 +689,22 @@ namespace lpzrobots {
 
           osg::Matrix m5;
 
-          if(v < 2){
+          if(n < 2){
             m5 =  	        TRANSM(0,0,-lengthS/2) *
-              ROTM(v%2==0 ? angle : -angle,0,v%2==0 ? -1 : 1,0) *
-              ROTM(v%2==0 ? angle : -angle,1,0,0) *
+              ROTM(n%2==0 ? angle : -angle,0,n%2==0 ? -1 : 1,0) *
+              ROTM(n%2==0 ? angle : -angle,1,0,0) *
               TRANSM(0,0,-length/2) *
               m4;
-          }else if(v > 3){
+          }else if(n > 3){
             m5 =  		     TRANSM(0,0,-lengthS/2) *
-              ROTM(v%2==0 ? -angle : angle,0,v%2==0 ? -1 : 1,0) *
-              ROTM(v%2==0 ? angle : -angle,1,0,0) *
+              ROTM(n%2==0 ? -angle : angle,0,n%2==0 ? -1 : 1,0) *
+              ROTM(n%2==0 ? angle : -angle,1,0,0) *
               TRANSM(0,0,-length/2) *
               m4;
 
           }else{
             m5 = 			    TRANSM(0,0,-lengthS/2) *
-              ROTM(v%2==0 ? angle : -angle,1,0,0) *
+              ROTM(n%2==0 ? angle : -angle,1,0,0) *
               TRANSM(0,0,-length/2) *
               m4;
           }

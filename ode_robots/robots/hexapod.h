@@ -63,6 +63,7 @@ namespace lpzrobots {
     double tebiaDamping; ///< damping in the knees
 
     double legSpreading;   ///< angle at which legs are spread to the front and back
+    double backLegFactor;   ///< size factor for back legs
 
     bool tarsus;		  ///< whether to use a tarsus or not
     int numTarsusSections; ///< the number of sections in the tarsus
@@ -130,6 +131,7 @@ namespace lpzrobots {
       c.T = 1.0;
 
       c.legSpreading=M_PI/12.0;
+      c.backLegFactor=1.0;
 
       c.useTebiaJoints = true;
       c.tebiaPower = 1.2;
