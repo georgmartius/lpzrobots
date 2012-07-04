@@ -56,7 +56,8 @@ namespace lpzrobots {
     double coxaDamping;     ///< damping of hip joint servos
     double coxaSpeed;       ///< speed of the hip servo
 
-    bool useTebiaJoints;    /// whether to use joints at the knees
+    bool useTebiaJoints;    ///< whether to use joints at the knees
+    bool useTebiaMotors;    ///< if true tebia joints are actuated, otherwise springs
     double tebiaPower;       ///< spring strength in the knees
     double tebiaJointLimit;  ///< angle range for knees
     double tebiaOffset;      ///< angle offset for knees
@@ -134,6 +135,7 @@ namespace lpzrobots {
       c.backLegFactor=1.0;
 
       c.useTebiaJoints = true;
+      c.useTebiaMotors = false;
       c.tebiaPower = 1.2;
       c.tebiaJointLimit = M_PI/4; // +- 45 degree
       c.tebiaDamping = 0.01; // Georg: the damping reduces the swinging of the system
