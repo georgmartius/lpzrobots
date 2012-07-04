@@ -40,23 +40,26 @@ namespace lpzrobots {
     double      wheelSlip;      ///< @see Nimm2Conf
     std::string color;          ///< color of robots
     bool        useIR;          ///< use infrared sensors?
+    int         mainRobot;      ///< robot index that is returned by getMainPrimitive() (-1 for middle robot, then massFactorMain and forceMain is ignored)
+    double      massFactorMain; ///< massfactor of main robot @see Nimm2Conf
+    double      forceMain;      ///< factor of main robot @see Nimm2Conf
   } RobotChainConf;
 
 
-  /** Chain of robots 
+  /** Chain of robots
    */
   class RobotChain : public OdeRobot {
   public:
-  
+
     /**
      * constructor of uwo robot
      * @param odeHandle data structure for accessing ODE
      * @param osgHandle ata structure for accessing OSG
      * @param size scaling of robot
      * @param force maximal used force to realize motorcommand
-     * @param radialLegs switches between cartensian and radial leg joints 
+     * @param radialLegs switches between cartensian and radial leg joints
      */
-    RobotChain(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+    RobotChain(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
                const RobotChainConf& conf, const std::string& name);
 
     virtual ~RobotChain(){ destroy(); };
@@ -72,6 +75,9 @@ namespace lpzrobots {
       c.wheelSlip  = 0.02;
       c.color      = "robot3";
       c.useIR      = false;
+      c.mainRobot  = -1;
+      c.massFactorMain  = c.massFactor;
+      c.forceMain  = c.force;
       return c;
     }
 
@@ -105,14 +111,14 @@ namespace lpzrobots {
   protected:
     virtual Primitive* getMainPrimitive() const;
 
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     virtual void destroy();
 
-    RobotChainConf conf; 
-    
+    RobotChainConf conf;
+
     bool created;
-       
+
     std::vector <OdeRobot*> robots;
   };
 

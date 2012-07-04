@@ -132,10 +132,9 @@ namespace lpzrobots {
       destroy();
     }
     for (int j=0; j<conf.numRobots; j++) {
-
       Nimm2Conf nimm2conf   = Nimm2::getDefaultConf();
       nimm2conf.size        = conf.size;
-      nimm2conf.force       = conf.force;
+      nimm2conf.force       = j==conf.mainRobot ? conf.forceMain : conf.force;
       nimm2conf.speed       = conf.speed;
       nimm2conf.cigarMode   = true;
       nimm2conf.singleMotor = false;
@@ -143,8 +142,9 @@ namespace lpzrobots {
       nimm2conf.visForce    = true;
       nimm2conf.bumper      = true;
       // nimm2conf.boxWidth = 1.5;
-      nimm2conf.massFactor  = conf.massFactor;
+      nimm2conf.massFactor  = j==conf.mainRobot ? conf.massFactorMain : conf.massFactor;
       nimm2conf.wheelSlip   = conf.wheelSlip;
+      nimm2conf.wheelTexture="Images/tire_stripe.rgb";
       nimm2conf.irRange     = 3*conf.size;
       if(conf.useIR && j==0){
         nimm2conf.irFront = true;
@@ -195,8 +195,11 @@ namespace lpzrobots {
   }
 
   Primitive* RobotChain::getMainPrimitive() const {
-    if((signed int)robots.size()>conf.numRobots/2){
-      return robots[conf.numRobots/2]->getMainPrimitive();
+    int idx=conf.numRobots/2;
+    if(conf.mainRobot>=0)
+      idx=conf.mainRobot;
+    if((signed int)robots.size()>idx){
+      return robots[idx]->getMainPrimitive();
     }else return 0;
   }
 
