@@ -73,6 +73,7 @@
 //#include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotornstep.h>
 #include <selforg/sinecontroller.h>
+#include <selforg/sox.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
@@ -82,7 +83,7 @@ class ThisSim : public Simulation {
 public:
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(3.86108, 2.98414, 0.288729),  Pos(155.662, -3.02655, 0));
     // initialization
@@ -94,9 +95,9 @@ public:
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
+    // - setting geometry for each wall of playground:
     //   setGeometry(double length, double width, double	height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
@@ -105,9 +106,9 @@ public:
     global.obstacles.push_back(playground);
 
     // add passive spheres as obstacles
-    // - create pointer to sphere (with odehandle, osghandle and 
+    // - create pointer to sphere (with odehandle, osghandle and
     //   optional parameters radius and mass,where the latter is not used here) )
-    // - set Pose(Position) of sphere 
+    // - set Pose(Position) of sphere
     // - set a texture for the sphere
     // - add sphere to list of obstacles
     for (int i=0; i<= 1/*2*/; i+=2){
@@ -121,7 +122,7 @@ public:
     conf.frictionGround = 1;
     conf.motorPower = 1;
     conf.legNumber = 6;
-    Uwo* vehicle = new Uwo(odeHandle, osgHandle,conf, "Uwo1");    
+    Uwo* vehicle = new Uwo(odeHandle, osgHandle,conf, "Uwo1");
     vehicle->place(osg::Matrix::translate(2,0,0));
     global.configs.push_back(vehicle);
 
@@ -134,9 +135,12 @@ public:
     // create pointer to controller
     // push controller in global list of configurables
     //AbstractController *controller = new SineController();
-    AbstractController *controller = new InvertMotorNStep();  
+    SoxConf sc = Sox::getDefaultConf();
+    sc.useExtendedModel=false;
+    AbstractController *controller = new Sox(sc);
+    //AbstractController *controller = new InvertMotorNStep();
     global.configs.push_back(controller);
-  
+
     // create pointer to one2onewiring
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
@@ -146,8 +150,8 @@ public:
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
-  
-    
+
+
   }
 
   // add own key handling stuff here, just insert some case values
@@ -170,9 +174,9 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
+
