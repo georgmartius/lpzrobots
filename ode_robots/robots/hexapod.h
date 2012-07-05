@@ -71,6 +71,8 @@ namespace lpzrobots {
     bool useTarsusJoints; ///< whether to use joints on the tarsus
     bool useBigBox;       ///< whether to use a big invisible box on the back of the robot
 
+    double whiskerSpread;   ///< angle by which the wiskers are spread
+
     double T; ///< T is the for the time for calculating the cost of transport over time
     double *v;
 
@@ -145,6 +147,8 @@ namespace lpzrobots {
       c.numTarsusSections = 2;
       c.useTarsusJoints=true;
       c.useBigBox=true;
+
+      c.whiskerSpread=M_PI/10.0;
 
       c.ignoreInternalCollisions=true;
 

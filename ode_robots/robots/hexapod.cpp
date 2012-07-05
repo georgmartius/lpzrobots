@@ -133,7 +133,7 @@ namespace lpzrobots {
     FOREACH(vector<TwoAxisServo*>, hipservos, s){
       if(*s) (*s)->set(motors[n],motors[n+1]);
       n+=2;
-    }    
+    }
     if(conf.useTebiaMotors){
       FOREACH(vector<OneAxisServo*>, tebiasprings, i){
         if(*i) (*i)->set(motors[n++]);
@@ -169,13 +169,13 @@ namespace lpzrobots {
         sensors[n++] = (*s)->get1();
         sensors[n++] = (*s)->get2();
       }
-    }  
+    }
     if(conf.useTebiaMotors){
       FOREACH(vector<OneAxisServo*>, tebiasprings, s){
         if(*s) sensors[n++] = (*s)->get();
       }
     }
-   
+
 
     if (conf.irFront || conf.irBack){
       n += irSensorBank.get(sensors+n, sensornumber-n);
@@ -551,7 +551,6 @@ namespace lpzrobots {
     double legdist = conf.size*0.9 / (conf.legNumber/2-1);
     for ( int n = 0; n < conf.legNumber; n++ ) {
 
-      int vm = n;
       double len= conf.legLength;
       if(n < 2)
         len=conf.legLength*conf.backLegFactor;
@@ -752,7 +751,7 @@ namespace lpzrobots {
                     n*twidth/4,
                     conf.legLength + theight/5);
 
-      osg::Matrix m = ROTM(M_PI/10, n,0,0) * ROTM(M_PI/2+M_PI/10, 0,-1,0) * TRANSM(pos) * pose;
+      osg::Matrix m = ROTM(conf.whiskerSpread, n,0,0) * ROTM(M_PI/2+M_PI/10, 0,-1,0) * TRANSM(pos) * pose;
       whisker = new Capsule(t1, l1);
       whisker->init(odeHandle, legmass/10, osgHTarsus);
       osg::Matrix m1 = TRANSM(0,0,-l1/2) * m;
