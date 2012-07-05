@@ -30,14 +30,14 @@
 
 namespace lpzrobots {
 
-  class Primitive; 
+  class Primitive;
 
   // abstract class for any playground
   class AbstractGround : public AbstractObstacle {
 
 public:
 
-    AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+    AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
 		   bool createGround, double groundLength, double groundWidth, double wallThickness);
 
     virtual ~AbstractGround();
@@ -50,7 +50,7 @@ public:
     virtual Primitive* getMainPrimitive() const;
 
     virtual void changeGeometry(double length, double width, double height, double factorxy);
-    
+
     /// prints the contour of the boxes into the file
     virtual void printContours(FILE* f);
 
@@ -67,12 +67,12 @@ public:
     virtual void setGroundColor(const Color& color);
 
     /**
-     * sets the substance of the ground. 
+     * sets the substance of the ground.
      * @param substance description of the substance
      */
     virtual void setGroundSubstance(const Substance& substance);
-    
-    
+
+
     /**
      * returns the corner points of the groundplane
      * @return list of the cornerpoints
@@ -97,7 +97,6 @@ public:
     double wallThickness;
     double groundThickness;
     Substance groundSubstance;
-    std::string wallTextureFileName;
     Color groundColor;
     std::string groundTextureFileName;
 

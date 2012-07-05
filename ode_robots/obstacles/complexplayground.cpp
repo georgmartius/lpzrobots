@@ -37,8 +37,8 @@ namespace lpzrobots {
   int PolyLine::parse(std::list<char*> lines){
     int pen_color, fill_color;
     list<char*>::iterator l = lines.begin();
-    if(lines.size()<2) return 1;    
-    int r = sscanf(*l,"%i %i %i %i %i %i %i", &object_code, &sub_type,&line_style, &thickness, 
+    if(lines.size()<2) return 1;
+    int r = sscanf(*l,"%i %i %i %i %i %i %i", &object_code, &sub_type,&line_style, &thickness,
 		   &pen_color, &fill_color, &depth);
     int i=0;
     int dat[2];
@@ -51,7 +51,7 @@ namespace lpzrobots {
 	  char* p;
 	  p=strtok(line+1," ");
 	  if(!p) return false;
-	  dat[i] = atoi(p);    
+	  dat[i] = atoi(p);
 	  i++;
 	  while((p=strtok(NULL," "))!=NULL )  {
 	    dat[i] = atoi(p);
@@ -66,7 +66,7 @@ namespace lpzrobots {
 	linecnt++;
       }
       return linecnt;
-    }else return 1;    
+    }else return 1;
   }
 
   void PolyLine::print(){
@@ -79,30 +79,30 @@ namespace lpzrobots {
 
 
 
-  
-  ComplexPlayground::ComplexPlayground(const OdeHandle& odeHandle, 
-				       const OsgHandle& osgHandle , 
+
+  ComplexPlayground::ComplexPlayground(const OdeHandle& odeHandle,
+				       const OsgHandle& osgHandle ,
 				       const std::string filename,
 				       double factor, double heightfactor, bool createGround)
-    : AbstractGround(odeHandle, osgHandle, createGround, 1,1,0.1), 
+    : AbstractGround(odeHandle, osgHandle, createGround, 1,1,0.1),
       filename(filename), factor(factor), heightfactor(heightfactor) {
-    
+
     FILE* f=fopen(filename.c_str(),"r");
     if(!f){
       fprintf(stderr,"Cannot open file: %s!\n",filename.c_str());
       exit(1);
     }
-    list<char*> lines;    
+    list<char*> lines;
     char* buffer = (char*)malloc(sizeof(char)*4096);
     while(fgets(buffer, 4096, f)){
       lines.push_back(buffer);
       buffer = (char*)malloc(sizeof(char)*4096);
     }
     while(lines.size()>0){
-      PolyLine p;     
+      PolyLine p;
       int consumed = p.parse(lines);
-      if(consumed>1){	
-	polylines.push_back(p);	
+      if(consumed>1){
+	polylines.push_back(p);
       }
       for(int i=0; i<consumed; i++){
 	free(*lines.begin());
@@ -138,17 +138,17 @@ namespace lpzrobots {
       double ysize = max(ys.map(fabs));
       groundLength = 2*xsize*factor;
       groundWidth  = 2*ysize*factor;
-    }    
+    }
     createGround();
-    
+
     FOREACH(list<PolyLine>, polylines, p){
       if(p->depth>0){
 	createPolyline(*p);
       }
-    }        
+    }
     obstacle_exists=true;
   };
-  
+
   void ComplexPlayground::createPolyline(const PolyLine& polyline){
     typedef list<pair<Pos,Pos> > pospairs;
     pospairs pairs;
@@ -161,17 +161,19 @@ namespace lpzrobots {
       }
       i++;
     }
+    i=0;
     FOREACHC(pospairs, pairs, p){
       Pos size = p->second - p->first;
       double length = sqrt(size.x()*size.x()+size.y()*size.y());
       Pos offset = (p->second + p->first)/2;
       Box* box = new Box( length, polyline.thickness*.03175*factor , polyline.depth*heightfactor);
       // Todo: use getTexture...
-      box->setTexture(TextureDescr(wallTextureFileName,-1,-1));
+      box->setTexture(getTexture(i,0));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       double angle = atan2(size.y(),size.x());
       box->setPose(osg::Matrix::rotate(angle,Pos(0,0,1)) *  osg::Matrix::translate(offset) * pose);
       obst.push_back(box);
+      i++;
     }
   }
 }
