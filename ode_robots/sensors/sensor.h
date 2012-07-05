@@ -33,23 +33,23 @@
 
 namespace lpzrobots {
 
-  // forward declaration 
+  // forward declaration
   class Primitive;
 
   /** Abstract class for sensors that can be plugged into a robot
   */
   class Sensor {
-  public:  
+  public:
     /// defines which dimensions should be sensed. The meaning is sensor specific.
     enum Dimensions { X = 1, Y = 2, Z = 4, XY = X | Y, XZ = X | Z, YZ = Y | Z, XYZ = X | Y | Z };
 
     Sensor() {}
     virtual ~Sensor() {}
-  
+
     /** initialises sensor with body of robot. This is usually done by the robot itself.
     */
-    virtual void init(Primitive* own) = 0;  
-  
+    virtual void init(Primitive* own) = 0;
+
     /** performs sense action
      */
     virtual bool sense(const GlobalData& globaldata) = 0;
@@ -63,11 +63,11 @@ namespace lpzrobots {
      */
     virtual std::list<sensor> get() const  = 0;
 
-    /** to update any visual appearance       
+    /** to update any visual appearance
      */
     virtual void update() {};
 
-    /** writes the sensor values (usually in the range [0,1] ) 
+    /** writes the sensor values (usually in the range [0,1] )
 	into the given sensor array and returns the number of sensors written.
 	A default implementation based on get() is provided. Only of performance
 	matters overwrite this function.
@@ -81,24 +81,24 @@ namespace lpzrobots {
       int n=0;
       FOREACHC(std::list<sensor>,l,s)
 	sensors[n++] = *s;
-      return l.size();      
+      return l.size();
     };
 
     /// selects the rows specified by dimensions (X->0, Y->1, Z->2)
     static std::list<sensor> selectrows(const matrix::Matrix& m, short dimensions) {
       std::list<sensor> l;
-      for(int i=0; i<2; i++){
+      for(int i=0; i<3; i++){
 	if(( 1 <<i ) & dimensions) l += m.row(i).convertToList();
-      } 
+      }
       return l;
     }
     /// selects the rows specified by dimensions (X->0, Y->1, Z->2)
     static int selectrows(sensor* sensors, int length, const matrix::Matrix& m, short dimensions) {
       int len=0;
       for(int i=0; i<3; i++){
-	if(( 1 << i) & dimensions) 
-	  len+=m.row(i).convertToBuffer(sensors+len, length-len);	
-      } 
+	if(( 1 << i) & dimensions)
+	  len+=m.row(i).convertToBuffer(sensors+len, length-len);
+      }
       return len;
     }
 
