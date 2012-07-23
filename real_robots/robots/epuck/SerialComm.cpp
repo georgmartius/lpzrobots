@@ -35,11 +35,14 @@ SerialComm::~SerialComm() {
 }
 
 int SerialComm::connect(char *path) {
+
     int err = 0;
     speed_t baud_rate = B115200;
 
     // open the USB stream
     fd = open(path, O_RDWR | O_NONBLOCK | O_NDELAY);
+   //puts(strerror(errno));
+
     if(fd==-1){
         return -1;
     }

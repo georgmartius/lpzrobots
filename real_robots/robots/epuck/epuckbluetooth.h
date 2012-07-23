@@ -14,6 +14,7 @@
 #include <QThread>
 #include <QTime>
 #include <iostream>
+#include <string>
 
 #include "SerialComm.h"
 
@@ -83,16 +84,16 @@ namespace lpzrobots{
   }; //end Struct MotorNumbers
   
   typedef struct {
-      char* port;
+      std::string port;	//serial port address. In Linux per example /dev/rfcomm0
       
-      bool SENSOR_STATE;
-      bool MIC_STATE;
-      bool CAM_STATE;
+      bool SENSOR_STATE; //enables IR AMBIENT_LIGHT ACC and GROUND
+      bool MIC_STATE; //enables all 3 microphones
+      bool CAM_STATE; //enables CAMERA. connection will become very slow
 
-      bool CAM_TYPE;
-      int CAM_HEIGHT;
-      int CAM_WIDTH;
-      int CAM_ZOOM;
+      bool CAM_TYPE;  //color or black&white
+      int CAM_HEIGHT; 
+      int CAM_WIDTH; //maximum of Pixels is 3200
+      int CAM_ZOOM; //1 2 4 8 or 16
   } EPuckConf;
       
   typedef double sensor;
@@ -108,8 +109,9 @@ namespace lpzrobots{
     ~EPuckBluetooth();
     static EPuckConf getDefaultConfig();
     static int getRecommendConnectionSpeed(EPuckConf);
-    
-    
+    void disconnectConnection();
+    void init();
+
     virtual int getSensors(sensor* sensors, int _sensorCount);
     virtual void setMotors(const motor* motors, int _motorCount);
     virtual int getSensorNumber(){ return sensorCount; } /** returns number of sensors */
@@ -122,16 +124,17 @@ namespace lpzrobots{
     virtual void processSensors(sensor* pSensor){};/*Default sensors processing*/
     virtual void processSensorsKOH(sensor* pSensor){};/*Your own sensors processing*/
     
-    
+    char camCharBuffer[CAM_CHAR_BUFFER_NUM];
+
     double connectionSpeedHz;
     void getNumOfMotSens(SensorNumbers&, int&, MotorNumbers&, int&);
     bool isRunning(){return abortThread;}
   private:
     void run();
     bool abortThread;
-    void init();
-    void initConnection(char*);
-    void disconnectConnection();
+
+    void initConnection(std::string);
+
     
     EPuckConf conf;
     SerialComm *comm;
@@ -140,8 +143,9 @@ namespace lpzrobots{
     char command[COMMAND_BUFFER_NUM];
     char RxBuffer[45];
     char msg[20];
+
+    unsigned int e_last_mic_scan_id;
     char micCharBuffer[MIC_CHAR_BUFFER_NUM];
-    char camCharBuffer[CAM_CHAR_BUFFER_NUM];
     int camPixNum;
     
     void receiveSensors();
@@ -155,6 +159,7 @@ namespace lpzrobots{
     unsigned int motorCount;
     unsigned int sensorCount;
     
+
     bool *arrUpdateMotor;
     int *arrMotor;
     int *arrSensor;
