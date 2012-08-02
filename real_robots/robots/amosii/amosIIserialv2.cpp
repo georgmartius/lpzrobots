@@ -260,7 +260,8 @@ void AmosIISerialV2::processSensors(sensor* psensors){
 	psensors[L_ps]=((psensors[L_ps]-1)/(250-1));//[min = 1 (very dark), max 250 (detect light (very bright))
 
 	//Average Current sensor (ACS, group 5) : Scaling to 0 (low power),..,1 (high power)
-	psensors[A_cs]=((psensors[A_cs]-15)/(250-15));// [min = 15 (wave gait in the air), max 250]
+	//psensors[A_cs]=((psensors[A_cs]-15)/(250-15));// [min = 15 (wave gait in the air), max 250]
+
 	//wave gait ~38 with belly on ground (0.03)
 	//tetrapod gait ~45 w with belly on ground (0.14)
 	//tripod gait ~40 w with belly on ground (0.18)

@@ -173,7 +173,7 @@ private:
 
 		L0_irs_real=25,
 		L1_irs_real=26,
-		L2_irs_real=29,
+		L2_irs_real=18,
 
 		//light sensors
 		M_ps_real=23,
@@ -181,7 +181,12 @@ private:
 		L_ps_real=32,
 
 		//Current sensor
-		A_cs_real=16,
+		A_cs_real=24,//16,
+		A_cs_board_real=29,//16,
+
+		//Inclinometer sensor
+		In_x_real=8,
+		In_y_real=9,
 
   };
 
