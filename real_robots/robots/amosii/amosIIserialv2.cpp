@@ -161,6 +161,7 @@ int AmosIISerialV2::getSensors(sensor* sensors, int sensornumber){
 
 	//Average Current sensor (ACS, group 5)
 	sensors[A_cs]=potValue[A_cs_real];// [min = 15 (wave gait in the air), max 250]
+	sensors[A_cs_board]=potValue[A_cs_board_real];// [min = 15 (wave gait in the air), max 250]
 
 	//Conversion to positive range [0,..,255]
 	for(int i=0; i<=AMOSII_SENSOR_MAX;i++){

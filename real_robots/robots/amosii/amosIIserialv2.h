@@ -181,16 +181,17 @@ private:
 		L_ps_real=32,
 
 		//Current sensor
-		A_cs_real=8,////24,//16,
-		A_cs_board_real=29,//16,
+		A_cs_real= 24,
+		A_cs_board_real= 29,
 
-		//8 I m sensor out
-		//24 I m sensor in
+		//8 Inclinometer x NOT yet
+		//24 I m sensor out
 		//29 I baord
+		//7 Inclinometer y NOT yet
 
 		//Inclinometer sensor
 		In_x_real=8,
-		In_y_real=9,
+		In_y_real=7,
 
   };
 

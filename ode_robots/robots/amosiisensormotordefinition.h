@@ -102,6 +102,8 @@
 	  G0z_s=64,
 
 	  A_cs = 65, //average current sensor
+	  A_cs_board = 111, // KOH adding!!!!
+
 
 	  BX_spd= 66, //Body speed sensors
 	  BY_spd= 67,
@@ -166,7 +168,7 @@
 	  Microphone2_s= 110, // Microphone 2
 
 	  //Changing according to the maximum sensor number
-	  AMOSII_SENSOR_MAX = 111,
+	  AMOSII_SENSOR_MAX = 112, // KOH changing from 111 to 112
   };
 
 
