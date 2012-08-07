@@ -141,7 +141,6 @@ int AmosIISerialV2::getSensors(sensor* sensors, int sensornumber){
 	sensors[L1_fs]=potValue[L1_fs_real]; //[min = 27 (off ground), max = 195 (touch ground)]
 	sensors[L2_fs]=potValue[L2_fs_real]; //[min = 20 (off ground), max = 200 (touch ground)]
 
-
 	//US sensor (US, Group 2) // UNDK30U6112 range = 6 cm-40cm
 	sensors[FR_us]=potValue[FR_us_real];//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
 	sensors[FL_us]=potValue[FL_us_real];//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
@@ -159,9 +158,13 @@ int AmosIISerialV2::getSensors(sensor* sensors, int sensornumber){
 	sensors[R_ps]=potValue[R_ps_real];//[min = 1 (very dark), max 250 (detect light (very bright))
 	sensors[L_ps]=potValue[L_ps_real];//[min = 1 (very dark), max 250 (detect light (very bright))
 
-	//Average Current sensor (ACS, group 5)
-	sensors[A_cs]=potValue[A_cs_real];// [min = 15 (wave gait in the air), max 250]
-	sensors[A_cs_board]=potValue[A_cs_board_real];// [min = 15 (wave gait in the air), max 250]
+	//Average current sensors (ACS, group 5)
+	sensors[A_cs]=potValue[A_cs_real];// [LTS 6-NP sensor, return voltage ~ current Ip, conversion => 0.0195312*sensors[A_cs] = volt output=> I = (volt output-2.5)*6/0.625, P = I*V = I*6 v, Joule = P*t(second)]
+	sensors[A_cs_board]=potValue[A_cs_board_real];// [ZAP 25]
+
+	//Inclinometer sensors (INS, group 6)
+	sensors[In_x]=potValue[In_x_real]; //around x axis (forward walking direction)
+	sensors[In_y]=potValue[In_y_real]; //around y axis (sideward walking direction)
 
 	//Conversion to positive range [0,..,255]
 	for(int i=0; i<=AMOSII_SENSOR_MAX;i++){
@@ -206,7 +209,6 @@ void AmosIISerialV2::processSensors(sensor* psensors){
   if(psensors[i]<0.0)
     psensors[i] = 0.0;
   }
-
 
 	//US sensor (US, Group 2) // UNDK30U6112 range = 6 cm-40cm : Scaling to 0 (not detect),...,1 (detect obstacles)
 	//eduard

@@ -177,7 +177,7 @@ namespace lpzrobots {
     nameSensor(G0x_s, "goal0 orientation x");
     nameSensor(G0y_s, "goal0 orientation y");
     nameSensor(G0z_s, "goal0 orientation z");
-    nameSensor(A_cs, "average current sensor");
+    nameSensor(A_cs, "average motor current sensor");
     nameSensor(BX_spd, "body speed sensor x");
     nameSensor(BY_spd, "body speed sensor y");
     nameSensor(BZ_spd, "body speed sensor z");
@@ -196,9 +196,11 @@ namespace lpzrobots {
     nameSensor(G2angleroll_s, "goal2 angle roll (x)");
     nameSensor(G2anglepitch_s, "goal2 angle pitch (y)");
     nameSensor(G2angleyaw_s, "goal2 angle roll (z)");
-    nameSensor(Laserx_s, "laser scanner x");
-    nameSensor(Lasery_s, "laser scanner y");
-    nameSensor(Laserz_s, "laser scanner z");
+    nameSensor(LaserNmbEdge_s, "laser scanner number of edges");
+    nameSensor(LaserHeight_s, "laser scanner average height");
+    nameSensor(LaserRough_s, "laser scanner roughness");
+    nameSensor(LaserMaxHeight_s, "laser scanner maximum height in data");
+    nameSensor(LaserMinHeight_s, "laser scanner minimum height in data");
     nameSensor(Poti_s, "potentiometer sensor");
     nameSensor(Compassx_s, "compass sensor x");
     nameSensor(Compassy_s, "compass sensor y");
@@ -223,6 +225,9 @@ namespace lpzrobots {
     nameSensor(Microphone0_s, "microphone 0");
     nameSensor(Microphone1_s, "microphone 1");
     nameSensor(Microphone2_s, "microphone 2");
+    nameSensor(A_cs_board, "average current sensor of board and all sensors");
+    nameSensor(In_x, "inclinometer x");
+    nameSensor(In_y, "inclinometer y");
 
     // name the motors
     nameMotor(TR0_m, "TR0 motor");

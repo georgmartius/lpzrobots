@@ -184,14 +184,14 @@ private:
 		A_cs_real= 24,
 		A_cs_board_real= 29,
 
-		//8 Inclinometer x NOT yet
-		//24 I m sensor out
-		//29 I baord
-		//7 Inclinometer y NOT yet
-
 		//Inclinometer sensor
 		In_x_real=8,
 		In_y_real=7,
+
+    //8 Inclinometer x NOT yet
+    //24 I motor sensor out
+    //29 I board
+    //7 Inclinometer y NOT yet
 
   };
 
