@@ -28,7 +28,7 @@
 #include <osgViewer/View>
 #include <osgViewer/Renderer>
 
-#include <osgUtil/Statistics>                   
+#include <osgUtil/Statistics>
 
 namespace lpzrobots {
 
@@ -60,8 +60,18 @@ namespace lpzrobots {
     offScreenGroup = 0;
   }
 
+  void LPZViewer::setUpThreading(){
+    Viewer::setUpThreading();
+    OpenThreads::SetProcessorAffinityOfCurrentThread(0xFFFF);
+  }
+  void LPZViewer::startThreading(){
+    Viewer::startThreading();
+    OpenThreads::SetProcessorAffinityOfCurrentThread(0xFFFF);
+  }
+
+
   bool LPZViewer::needForOffScreenRendering(){
-    return !_done && offScreenGroup && offScreenGroup->getNumChildren() != 0; 
+    return !_done && offScreenGroup && offScreenGroup->getNumChildren() != 0;
   }
 
 
@@ -73,7 +83,7 @@ namespace lpzrobots {
     osg::Camera::DrawCallback* origFDC = _camera->getFinalDrawCallback();
     _camera->setFinalDrawCallback(0);
 
-    // printf("offscreen rendering \n");    
+    // printf("offscreen rendering \n");
     updateTraversal(); // we don't need that (simulationTime of OSG is anyway to updated)
     offScreenRenderingTraversals();
     _camera->setChild(0,origNode);
@@ -83,37 +93,37 @@ namespace lpzrobots {
 
 
   void LPZViewer::offScreenRenderingTraversals()
-  {        
- 
-    /*** This is copied from ViewerBase::renderingTraversals() and 
-         statistics and swapbuffer and so on is removed.       
+  {
+
+    /*** This is copied from ViewerBase::renderingTraversals() and
+         statistics and swapbuffer and so on is removed.
     */
 
     if (_done) return;
- 
-    // might not need it because our nodes are also in the main scenegraph 
+
+    // might not need it because our nodes are also in the main scenegraph
     //  (however, this might not be rendered very often)
     for(unsigned int i=0; i< _camera->getNumChildren(); i++){
       _camera->getChild(i)->getBound();
     }
 
     // osg::notify(osg::NOTICE)<<std::endl<<"Start frame"<<std::endl;
-    
+
     Contexts contexts;
     getContexts(contexts);
 
     Cameras cameras;
     getCameras(cameras);
-    
+
     Contexts::iterator itr;
-    
+
     bool doneMakeCurrentInThisThread = false;
 
     if (_endDynamicDrawBlock.valid())
       {
         _endDynamicDrawBlock->reset();
       }
-    
+
     // dispatch the rendering threads
     if (_startRenderingBarrier.valid()) _startRenderingBarrier->block();
 
@@ -131,7 +141,7 @@ namespace lpzrobots {
                 renderer->cull();
               }
           }
-                 
+
       }
 
     for(itr = contexts.begin();
@@ -141,28 +151,28 @@ namespace lpzrobots {
         if (_done) return;
         if (!((*itr)->getGraphicsThread()) && (*itr)->valid())
           {
-            doneMakeCurrentInThisThread = true; 
+            doneMakeCurrentInThisThread = true;
             makeCurrent(*itr);
             (*itr)->runOperations();
           }
       }
 
- 
+
     // wait till the rendering dispatch is done.
     if (_endRenderingDispatchBarrier.valid()) _endRenderingDispatchBarrier->block();
 
     // wait till the dynamic draw is complete.
-    if (_endDynamicDrawBlock.valid()) 
+    if (_endDynamicDrawBlock.valid())
       {
         _endDynamicDrawBlock->block();
       }
-    
+
     if (_releaseContextAtEndOfFrameHint && doneMakeCurrentInThisThread)
       {
         //osg::notify(osg::NOTICE)<<"Doing release context"<<std::endl;
         releaseContext();
       }
-    
+
   }
 
 }

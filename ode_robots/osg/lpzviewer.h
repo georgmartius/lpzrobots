@@ -27,13 +27,13 @@
 
 namespace lpzrobots {
 
-  /** Viewer holds a single view on to a single scene 
+  /** Viewer holds a single view on to a single scene
       that supports the rendering of offscreen RRT (render to texture) cameras
       at any time (without sync)
   */
   class LPZViewer : public osgViewer::Viewer {
   public:
-    
+
     LPZViewer();
 
     LPZViewer(osg::ArgumentParser& arguments);
@@ -42,11 +42,16 @@ namespace lpzrobots {
 
     virtual ~LPZViewer();
 
+    ///overwritten to set cpu affinity back
+    void setUpThreading();
+    ///overwritten to set cpu affinity back
+    void startThreading();
+
     /// is there a need to do an offscreen rendering?
     bool needForOffScreenRendering();
 
     /** call this function to render the off screen scene.
-        If no off screen nodes are supplied than nothing is done      
+        If no off screen nodes are supplied than nothing is done
     */
     virtual void renderOffScreen();
 
@@ -55,7 +60,7 @@ namespace lpzrobots {
         is done in renderOffscreen();
      */
     virtual void setOffScreenData(osg::Group* offscreen);
-    
+
   protected:
     virtual void offScreenRenderingTraversals();
     osg::Group* offScreenGroup;
