@@ -151,6 +151,10 @@ namespace lpzrobots {
       return pid2.KD;
     };
 
+    virtual TwoAxisJoint* getJoint() {
+      return joint;
+    }
+
     /** sets the damping of the servo (axis 1) */
     virtual void setDamping1(double damp) { 
       pid1.KD = damp;
