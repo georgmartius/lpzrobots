@@ -225,7 +225,6 @@ namespace lpzrobots {
     nameSensor(Microphone0_s, "microphone 0");
     nameSensor(Microphone1_s, "microphone 1");
     nameSensor(Microphone2_s, "microphone 2");
-    nameSensor(A_cs_board, "average current sensor of board and all sensors");
     nameSensor(In_x, "inclinometer x");
     nameSensor(In_y, "inclinometer y");
 

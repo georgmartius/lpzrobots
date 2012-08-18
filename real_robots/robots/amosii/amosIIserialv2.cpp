@@ -1,8 +1,8 @@
 /***************************************************************************
  *   Copyright (C) 2012 by Robot Group Goettingen                          *
- *                                    									                   *
- *    fhesse@physik3.gwdg.de     			                                     *
- *    xiong@physik3.gwdg.de                  	                             *
+ *                                    									   *
+ *    fhesse@physik3.gwdg.de     			                               *
+ *    xiong@physik3.gwdg.de                  	                           *
  *    poramate@physik3.gwdg.de                                             *
  *   LICENSE:                                                              *
  *   This work is licensed under the Creative Commons                      *
@@ -102,7 +102,7 @@ int AmosIISerialV2::getSensors(sensor* sensors, int sensornumber){
 	assert(sensornumber >= this->sensornumber);
 
 	for(int i=0; i<=AMOSII_SENSOR_MAX;i++){
-			sensors[i]=0;
+		sensors[i]=0;
 	}
 
 	comByte=2;
@@ -159,8 +159,9 @@ int AmosIISerialV2::getSensors(sensor* sensors, int sensornumber){
 	sensors[L_ps]=potValue[L_ps_real];//[min = 1 (very dark), max 250 (detect light (very bright))
 
 	//Average current sensors (ACS, group 5)
-	sensors[A_cs]=potValue[A_cs_real];// [LTS 6-NP sensor, return voltage ~ current Ip, conversion => 0.0195312*sensors[A_cs] = volt output=> I = (volt output-2.5)*6/0.625, P = I*V = I*6 v, Joule = P*t(second)]
-	sensors[A_cs_board]=potValue[A_cs_board_real];// [ZAP 25]
+	//[LTS 6-NP sensor, return voltage ~ current Ip, conversion => 0.0195312*sensors[A_cs] = volt output=> I = (volt output-2.5)*6/0.625, P = I*V = I*5 v, Joule = P*t(second)]
+	//[ZAP 25] (ac_board*(5.0/256)-2.5)/0.037
+	sensors[A_cs]=potValue[A_cs_real];// [ZAP 25]
 
 	//Inclinometer sensors (INS, group 6)
 	sensors[In_x]=potValue[In_x_real]; //around x axis (forward walking direction)
@@ -182,7 +183,7 @@ int AmosIISerialV2::getSensors(sensor* sensors, int sensornumber){
 	//Your own,e.g.,
 	bool koh_preprocessing = false;
 	if (koh_preprocessing){
-	processSensorsKOH(sensors);
+		processSensorsKOH(sensors);
 	}
 
 
@@ -195,27 +196,27 @@ void AmosIISerialV2::processSensors(sensor* psensors){
 
 	//Foot sensor (FS, Group 1): Scaling to 0 (off ground),..,1 (on ground)
 
-  psensors[R0_fs]= ((psensors[R0_fs]-15)/(90-15));  //[min = 7 (off ground), max =  207 (on ground)]
-  psensors[R1_fs]= ((psensors[R1_fs]-60)/(120-60)); //[min = 15 (off ground), max = 196 (on ground)]
-  psensors[R2_fs]= ((psensors[R2_fs]-30)/(110-30)); // [min = 20 (off ground), max = 200 (on ground)]
-  psensors[L0_fs]= ((psensors[L0_fs]-40)/(100-40)); //[min = 28 (off ground), max = 196 (on ground)]
-  psensors[L1_fs]= ((psensors[L1_fs]-30)/(130-30)); //[min = 27 (off ground), max = 195 (on ground)]
-  psensors[L2_fs]= ((psensors[L2_fs]-40)/(110-40)); //[min = 20 (off ground), max = 200 (on ground)]
+	psensors[R0_fs]= ((psensors[R0_fs]-15)/(90-15));  //[min = 7 (off ground), max =  207 (on ground)]
+	psensors[R1_fs]= ((psensors[R1_fs]-60)/(120-60)); //[min = 15 (off ground), max = 196 (on ground)]
+	psensors[R2_fs]= ((psensors[R2_fs]-30)/(110-30)); // [min = 20 (off ground), max = 200 (on ground)]
+	psensors[L0_fs]= ((psensors[L0_fs]-40)/(100-40)); //[min = 28 (off ground), max = 196 (on ground)]
+	psensors[L1_fs]= ((psensors[L1_fs]-30)/(130-30)); //[min = 27 (off ground), max = 195 (on ground)]
+	psensors[L2_fs]= ((psensors[L2_fs]-40)/(110-40)); //[min = 20 (off ground), max = 200 (on ground)]
 
-  //Clipping foot signals
-  for(int i = R0_fs; i<= L2_fs; i++){
-  if(psensors[i]>1.0)
-    psensors[i] = 1.0;
-  if(psensors[i]<0.0)
-    psensors[i] = 0.0;
-  }
+	//Clipping foot signals
+	for(int i = R0_fs; i<= L2_fs; i++){
+		if(psensors[i]>1.0)
+			psensors[i] = 1.0;
+		if(psensors[i]<0.0)
+			psensors[i] = 0.0;
+	}
 
 	//US sensor (US, Group 2) // UNDK30U6112 range = 6 cm-40cm : Scaling to 0 (not detect),...,1 (detect obstacles)
 	//eduard
 	//scales the us sensor from 0 to 1. 40cm is 0 and 0cm is 1
 	if((psensors[FR_us]<132)||(psensors[FL_us]<132)){
-	psensors[FR_us]=((psensors[FR_us]-132)/(1-132));//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
-	psensors[FL_us]=((psensors[FL_us]-132)/(1-132));//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
+		psensors[FR_us]=((psensors[FR_us]-132)/(1-132));//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
+		psensors[FL_us]=((psensors[FL_us]-132)/(1-132));//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
 	}
 	else{
 		psensors[FR_us]=0;//[min = 1 (detect object ~ 6 cm at front), max 135 (detect object at 40 cm),max 220 (detect object at 62 cm), max = 255 (not detect very close object)]
@@ -227,19 +228,19 @@ void AmosIISerialV2::processSensors(sensor* psensors){
 
 	//eduard
 	//scales ir sensors from 0 ...1 . 0 is no object and 1 is very close to sensor, about 3mm
-//	psensors[R0_irs]=((psensors[R0_irs]-5)/(50-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-//	psensors[R1_irs]=((psensors[R1_irs]-40)/(55-40));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-//	psensors[R2_irs]=((psensors[R2_irs]-40)/(55-40));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-//	psensors[L0_irs]=((psensors[L0_irs]-5)/(50-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-//	psensors[L1_irs]=((psensors[L1_irs]-20)/(55-20));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-//	psensors[L2_irs]=((psensors[L2_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	//	psensors[R0_irs]=((psensors[R0_irs]-5)/(50-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	//	psensors[R1_irs]=((psensors[R1_irs]-40)/(55-40));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	//	psensors[R2_irs]=((psensors[R2_irs]-40)/(55-40));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	//	psensors[L0_irs]=((psensors[L0_irs]-5)/(50-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	//	psensors[L1_irs]=((psensors[L1_irs]-20)/(55-20));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	//	psensors[L2_irs]=((psensors[L2_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
 
-  psensors[R0_irs]=((psensors[R0_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-  psensors[R1_irs]=((psensors[R1_irs]-5)/(55-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-  psensors[R2_irs]=((psensors[R2_irs]-1)/(55-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-  psensors[L0_irs]=((psensors[L0_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-  psensors[L1_irs]=((psensors[L1_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
-  psensors[L2_irs]=((psensors[L2_irs]-1)/(55-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	psensors[R0_irs]=((psensors[R0_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	psensors[R1_irs]=((psensors[R1_irs]-5)/(55-5));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	psensors[R2_irs]=((psensors[R2_irs]-1)/(55-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	psensors[L0_irs]=((psensors[L0_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	psensors[L1_irs]=((psensors[L1_irs]-1)/(80-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
+	psensors[L2_irs]=((psensors[L2_irs]-1)/(55-1));//[min = 2 (not detect object), max 75 (detect object ~ 3mm at front)
 
 	if(psensors[R0_irs]>1)psensors[R0_irs]=1;
 	if(psensors[R1_irs]>1)psensors[R1_irs]=1;
@@ -254,7 +255,7 @@ void AmosIISerialV2::processSensors(sensor* psensors){
 	if(psensors[L0_irs]<0)psensors[L0_irs]=0;
 	if(psensors[L1_irs]<0)psensors[L1_irs]=0;
 	if(psensors[L2_irs]<0)psensors[L2_irs]=0;
-//end eduard
+	//end eduard
 
 
 	//Photo psensors (PS, group 4) : Scaling to 0 (dark),..,1 (bright)
@@ -262,12 +263,6 @@ void AmosIISerialV2::processSensors(sensor* psensors){
 	psensors[R_ps]=((psensors[R_ps]-1)/(250-1));//[min = 1 (very dark), max 250 (detect light (very bright))
 	psensors[L_ps]=((psensors[L_ps]-1)/(250-1));//[min = 1 (very dark), max 250 (detect light (very bright))
 
-	//Average Current sensor (ACS, group 5) : Scaling to 0 (low power),..,1 (high power)
-	//psensors[A_cs]=((psensors[A_cs]-15)/(250-15));// [min = 15 (wave gait in the air), max 250]
-
-	//wave gait ~38 with belly on ground (0.03)
-	//tetrapod gait ~45 w with belly on ground (0.14)
-	//tripod gait ~40 w with belly on ground (0.18)
 
 }
 

@@ -108,7 +108,7 @@ enum AmosIISensorNames{
         G0y_s=63,
         G0z_s=64,
 
-        //average current sensor of motors (LTS 6-NP, AMOSIIv2)
+        //average current sensor of motors (ZAP 25, AMOSIIv2)
         A_cs = 65,
 
         //Body speed sensors (only simulation)
@@ -199,15 +199,12 @@ enum AmosIISensorNames{
         Microphone1_s= 111, // Microphone 1
         Microphone2_s= 112, // Microphone 2
 
-        //Average current sensor of electronic boards and all sensors (ZAP 25, AMOSIIv2)
-        A_cs_board = 113,
-
         // Inclinometer sensors of the AMOSIIv1 and v2 body
-        In_x = 114, //around x axis (forward walking direction)
-        In_y = 115, //around y axis (sideward walking direction)
+        In_x = 113, //around x axis (forward walking direction)
+        In_y = 114, //around y axis (sideward walking direction)
 
         //Changing according to the maximum sensor number
-        AMOSII_SENSOR_MAX = 116,
+        AMOSII_SENSOR_MAX = 115,
 
 };
 
