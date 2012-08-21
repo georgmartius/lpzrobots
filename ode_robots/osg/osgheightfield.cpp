@@ -130,7 +130,7 @@ namespace lpzrobots {
       return (data[0] + data[1] + data[2])/(3*256.0);
       break;
     case LowMidHigh:
-      return ((long(data[0])  << 16) + (long(data[1]) << 8) + data[2])/65536.0;
+      return ((long(data[0])  << 16) + (long(data[1]) << 8) + data[2])/16777216.0;
       break;
     default:
       return 0;
