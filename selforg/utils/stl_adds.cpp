@@ -26,7 +26,7 @@
 #include "stl_adds.h"
 
 namespace std {
-  
+
   string itos(int i){
     char str[10];
     sprintf(str,"%i", i);
@@ -34,6 +34,18 @@ namespace std {
   }
 
   string itos(int i, const char* format){
+    char str[128];
+    sprintf(str,format, i);
+    return string(str);
+  }
+
+  string ftos(double i){
+    char str[10];
+    sprintf(str,"%lf", i);
+    return string(str);
+  }
+
+  string ftos(double i, const char* format){
     char str[128];
     sprintf(str,format, i);
     return string(str);

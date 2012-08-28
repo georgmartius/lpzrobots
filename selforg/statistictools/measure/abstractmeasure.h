@@ -40,7 +40,8 @@ class AbstractMeasure : public IMeasure
 
 public:
 
-  AbstractMeasure(const char* measureName) : name(measureName), value(0.0), actualStep(0), stepSize(1) {}
+  AbstractMeasure(const char* measureName)
+    : name(measureName), value(0.0), actualStep(0), stepSize(1), displayPrecision(6) {}
 
   virtual ~AbstractMeasure() {}
 
@@ -57,6 +58,10 @@ public:
 
   virtual long getActualStep() const { return actualStep; }
 
+  virtual void setDisplayPrecision(int digits){ displayPrecision=digits; }
+
+  virtual int getDisplayPrecision() const { return displayPrecision; }
+
 
 protected:
   std::string name;
@@ -64,6 +69,7 @@ protected:
 
   long actualStep; // actual step
   int stepSize;
+  int displayPrecision;
 };
 
 #endif

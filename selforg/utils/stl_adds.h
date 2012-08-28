@@ -45,10 +45,34 @@ namespace std {
     return rv;
   }
 
+  /// returns a list with a single element
+  template <typename T>
+  std::list<T> _1tolist(T a){ std::list<T> l; l.push_back(a); return l; }
+
+  /// returns a list with two elements
+  template <typename T>
+  std::list<T> _2tolist(T a1,T a2){ std::list<T> l; l.push_back(a1); l.push_back(a2); return l; }
+  /// returns a list with tree elements
+  template <typename T>
+  std::list<T> _3tolist(T a1,T a2,T a3){
+    std::list<T> l; l.push_back(a1); l.push_back(a2); l.push_back(a3); return l;
+  }
+  /// returns a list with four elements
+  template <typename T>
+  std::list<T> _4tolist(T a1,T a2,T a3, T a4){
+    std::list<T> l; l.push_back(a1); l.push_back(a2); l.push_back(a3); l.push_back(a4); return l;
+  }
+
+
   /// integer to string with default formating
   string itos(int i);
   /// integer to string with printf formating string
   string itos(int i, const char *);
+  /// integer to string with default formating
+  string ftos(double i);
+  /// integer to string with printf formating string
+  string ftos(double i, const char *);
+
 
   template<typename Col, typename T>
   bool removeElement(Col& col, const T& elem){

@@ -52,6 +52,15 @@ namespace lpzrobots
       virtual bool computeWorldToLocalMatrix(osg::Matrix& matrix, osg::NodeVisitor* nv) const;
   };
 
+  struct StatLineProperties {
+    StatLineProperties(int fontSizeTime, int fontSizeText, const std::string& fontColor)
+      :fontSizeTime(fontSizeTime), fontSizeText(fontSizeText), fontColor(fontColor) {
+    }
+    int fontSizeTime;
+    int fontSizeText;
+    std::string fontColor;
+  };
+
   class Base : public Configurable
   {
   public:
@@ -61,14 +70,14 @@ namespace lpzrobots
     static const int GRAPHICS_CALLBACKABLE = 2; //!< called each osg/draw step
 
     /// create the ground plane
-    virtual void makePhysicsScene(); 
+    virtual void makePhysicsScene();
     /** creates the base scene graph with world, sky and floor and shadow and HUD
         and stores it in scene
      */
     virtual void makeScene(OsgScene* scene, const OsgConfig& config);
     virtual osg::Node* makeSky(const OsgConfig& config);
     virtual osg::Node* makeGround(const OsgConfig& config);
-    /** creates hud and is supposed to return the camera to it and 
+    /** creates hud and is supposed to return the camera to it and
         adds the geode of the hud to the scene */
     virtual osg::Node* createHUD(OsgScene* scene, const OsgConfig& config);
     virtual void createHUDManager(osg::Geode* geode, osgText::Font* font);
@@ -93,6 +102,12 @@ namespace lpzrobots
 
     /// sets the title that is printed in the center of the status line
     virtual void setTitle(const std::string& title);
+
+    virtual StatLineProperties getStatLineProperties() { return statlineprop; }
+    /// sets the properties of the status line, do it before the scene is initialized
+    virtual void setStatLineProperties(const StatLineProperties& statlineprop){
+      this->statlineprop = statlineprop;
+    }
 
     /**
      * Create HUDStatisticsManager and register it for being called back every step.
@@ -139,6 +154,7 @@ namespace lpzrobots
     osgText::Text* timestats;
     osgText::Text* captionline;
     osgText::Text* titleline;
+    StatLineProperties statlineprop;
 
     Primitive* plane;
 

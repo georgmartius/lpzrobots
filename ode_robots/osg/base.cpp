@@ -101,10 +101,11 @@ namespace lpzrobots {
   "}\n";
 
      Base::Base(const std::string& caption)
-       : Configurable("lpzrobots-ode_robots", "0.7"), ground(0), 
+       : Configurable("lpzrobots-ode_robots", "0.7"), ground(0),
          caption(caption), title(""),
          groundTexture("Images/greenground.rgb"),
          dummy(0), hud(0), timestats(0), captionline(0), titleline(0),
+         statlineprop(11,12,"text"),
          plane(0), hUDStatisticsManager(0), ReceivesShadowTraversalMask(0x1),
          CastsShadowTraversalMask(0x2), shadowTexSize(2048), useNVidia(1)
      {
@@ -124,7 +125,7 @@ namespace lpzrobots {
   }
 
 
-  /** Shadow types: 1 - LightSpacePerspectiveShadowMap 
+  /** Shadow types: 1 - LightSpacePerspectiveShadowMap
    * 2 - ShadowTextue 3 - ParallelSplitShadowMap
    * 4 - SoftShadowMap 5 - ShadowMap
    */
@@ -160,7 +161,7 @@ namespace lpzrobots {
   switch(shadowType) {
 //   case 1: /// LightSpacePerspectiveShadowMap
 //     {
-//       osg::ref_ptr<osgShadow::MinimalShadowMap> sm = 
+//       osg::ref_ptr<osgShadow::MinimalShadowMap> sm =
 //         new osgShadow::LightSpacePerspectiveShadowMapDB();
 //       shadowedScene->setShadowTechnique( sm.get() );
 //       float minLightMargin = 10.f;
@@ -173,9 +174,9 @@ namespace lpzrobots {
 //       sm->setShadowTextureCoordIndex( shadowTexUnit );
 //       sm->setShadowTextureUnit( shadowTexUnit );
 //       sm->setBaseTextureCoordIndex( baseTexUnit );
-//       sm->setBaseTextureUnit( baseTexUnit );      
+//       sm->setBaseTextureUnit( baseTexUnit );
 
-//     } 
+//     }
   case 1: /// ShadowVolume
     {
       // hint to tell viewer to request stencil buffer when setting up windows
@@ -215,10 +216,10 @@ namespace lpzrobots {
         	int moveVCamFactor = 0;
             pssm->setMoveVCamBehindRCamFactor(moveVCamFactor);
         }
-        
+
         if (useNVidia!=0)
-          // pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f));     
-        //        pssm->setPolygonOffset(osg::Vec2(1.0f,4.0f)); 
+          // pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f));
+        //        pssm->setPolygonOffset(osg::Vec2(1.0f,4.0f));
 /*        double polyoffsetfactor = pssm->getPolygonOffset().x();
         double polyoffsetunit   = pssm->getPolygonOffset().y();
         while (arguments.read("--PolyOffset-Factor", polyoffsetfactor));
@@ -283,8 +284,8 @@ namespace lpzrobots {
     stateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
     osgText::Font* font = osgText::readFontFile("fonts/fudd.ttf");
 
-    Color textColor = config.cs->color("text");
-    int fontsize=11;
+    Color textColor = config.cs->color(statlineprop.fontColor);
+    int fontsize=statlineprop.fontSizeText;
 
     // caption (right)
     osg::Vec3 position(500.0f,9.0f,0.0f);
@@ -312,7 +313,8 @@ namespace lpzrobots {
       titleline->setText(title.c_str());
     }
 
-    fontsize=12;
+    fontsize=statlineprop.fontSizeTime;
+
     // timing (left)
     position=osg::Vec3(12.0f,9.0f,0.0f);
     {
@@ -332,7 +334,7 @@ namespace lpzrobots {
       double xMin=6;
       double xMax=506;
       double yMin=6;
-      double yMax=22;
+      double yMax=yMin+4+std::max(statlineprop.fontSizeTime, statlineprop.fontSizeText);
       double depth=-0.1;
       vertices->push_back(osg::Vec3(xMin,yMax,depth));
       vertices->push_back(osg::Vec3(xMin,yMin,depth));
@@ -389,10 +391,24 @@ namespace lpzrobots {
   }
 
   void  Base::createHUDManager(osg::Geode* geode, osgText::Font* font){
-    hUDStatisticsManager = new HUDStatisticsManager(geode,font);
+    hUDStatisticsManager = new HUDStatisticsManager(geode,font,
+                                                    15+std::max(statlineprop.fontSizeTime, statlineprop.fontSizeText));
     this->addCallbackable(hUDStatisticsManager->getStatisticTools(), Base::PHYSICS_CALLBACKABLE);
     this->addCallbackable(hUDStatisticsManager, Base::GRAPHICS_CALLBACKABLE);
   }
+
+
+  HUDStatisticsManager* Base::getHUDSM()
+  {
+    if (hUDStatisticsManager==0)
+      {
+        // create HUDStatisticsManager and register it for being called back every step
+        // but do not display if the system is initialised with -nographics
+        createHUDManager(new osg::Geode(),osgText::readFontFile("fonts/fudd.ttf"));
+      }
+    return hUDStatisticsManager;
+  }
+
 
   void Base::setTimeStats(double time, double realtimefactor,
 			  double truerealtimefactor, bool pause){
@@ -452,7 +468,7 @@ namespace lpzrobots {
     // this node or any other branch above this transform.
     scene->worldtransform->setCullingActive(false);
     // add the sky and base layer.
-    scene->world->addChild(clearNode);    
+    scene->world->addChild(clearNode);
 
     // do the same clearnote and transform for world_noshadow
     ClearNode* clearNodeNS = new ClearNode;
@@ -461,26 +477,26 @@ namespace lpzrobots {
     transformNS->setCullingActive(false);
 
     // add the sky and base layer.
-    scene->world_noshadow->addChild(clearNodeNS);    
-    
-  
+    scene->world_noshadow->addChild(clearNodeNS);
+
+
     osg::Node* sky = makeSky(config);
     scene->worldtransform->addChild(sky); // bin number -2 so drawn first.
     transformNS->addChild(sky);          // bin number -2 so drawn first.
 
     scene->groundScene = makeGround(config);
-    // add it  to the noshadow world 
+    // add it  to the noshadow world
     // for the shadow we have to distinguish between different modes
-    transformNS->addChild(scene->groundScene);     
-   
+    transformNS->addChild(scene->groundScene);
+
 
     // scene->lightSource = makeLights(scene->world->getOrCreateStateSet());
-    // scene->worldtransform->addChild(scene->lightSource);    
-    // transformNS->addChild(makeLights(transformNS->getOrCreateStateSet()));    
+    // scene->worldtransform->addChild(scene->lightSource);
+    // transformNS->addChild(makeLights(transformNS->getOrCreateStateSet()));
     makeLights(scene->worldtransform, config);
     makeLights(transformNS, config);
-    
-    
+
+
     int shadowType=(int)osgHandle.cfg->shadowType;
     if(shadowType){
       // create root of shadowedScene
@@ -491,10 +507,10 @@ namespace lpzrobots {
 
       // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
       if (shadowType==3)
-      	scene->shadowedSceneRoot->addChild(scene->groundScene); // bin number -1 so draw second.      
-      else 
+      	scene->shadowedSceneRoot->addChild(scene->groundScene); // bin number -1 so draw second.
+      else
         scene->worldtransform->addChild(scene->groundScene); // bin number -1 so draw second.
-    
+
 
       scene->root->addChild(scene->world);
     }else {
@@ -502,19 +518,19 @@ namespace lpzrobots {
     }
 
     // add the shadowed scene to the world
-    scene->worldtransform->addChild(scene->shadowedScene);    
-    // scene->world->addChild(scene->shadowedScene);    
+    scene->worldtransform->addChild(scene->shadowedScene);
+    // scene->world->addChild(scene->shadowedScene);
     // add the normal scene to the root
-    //scene->world_noshadow->addChild(scene->scene);    
-    transformNS->addChild(scene->scene);    
-    
+    //scene->world_noshadow->addChild(scene->scene);
+    transformNS->addChild(scene->scene);
+
     dummy=new osg::Group; // we uses this hack to prevent the nodes from being deleted
     dummy->addChild(scene->world);
     dummy->addChild(scene->world_noshadow);
 
 
     hud = createHUD(scene, config);
-    if(hud) scene->root->addChild(hud);    
+    if(hud) scene->root->addChild(hud);
   }
 
   Node* Base::makeSky(const OsgConfig& config) {
@@ -542,7 +558,7 @@ namespace lpzrobots {
         config.cs->color("sky6"),
         config.cs->color("sky7"), // zenit
       };
-    
+
     int ci = 0;
 
     for( i = 0; i < nlev; i++ )
@@ -740,17 +756,17 @@ namespace lpzrobots {
 
     // create a directional diffuse light for shadowing (infinite distance place at 45 degrees)
     osg::Light* myLight1 = new osg::Light();
-    myLight1->setLightNum(0); 
+    myLight1->setLightNum(0);
     myLight1->setPosition(osg::Vec4(1.0,1.0,1.0,0.0f));
     myLight1->setDirection(osg::Vec3(-1.0, -1.0, -1.0));
     myLight1->setAmbient(osg::Vec4(0.f,0.f,0.f,0.f));
     myLight1->setSpecular(osg::Vec4(0.f,0.f,0.f,0.f));
     myLight1->setDiffuse(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
-  
+
     osg::LightSource* lightS1 = new osg::LightSource();
     lightS1->setLight(myLight1);
     // lightS->setLocalStateSetModes(osg::StateAttribute::ON);
-    node->addChild(lightS1); 
+    node->addChild(lightS1);
     lightS1->setStateSetModes(*(node->getOrCreateStateSet()),osg::StateAttribute::ON);
 
    //  //       /*
@@ -830,9 +846,9 @@ namespace lpzrobots {
       scene->shadowedSceneRoot = new osg::Group;
       scene->shadowedSceneRoot->addChild(scene->groundScene);
       scene->shadowedSceneRoot->addChild(scene->scene);
-                 
+
       scene->shadowedScene = createShadowedScene(scene->shadowedSceneRoot,
-                                                 scene->lightSource, 
+                                                 scene->lightSource,
                                                  shadowType);
       scene->world->addChild(scene->shadowedScene);
       // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
@@ -853,7 +869,7 @@ namespace lpzrobots {
       // add the shadowed scene to the root
       scene->world->addChild(scene->shadowedScene);
       shadowName = std::string("ShadowMap (simple)");
-      break; 
+      break;
     default:
       shadowName = std::string("NoShadow");
       break;
@@ -871,17 +887,6 @@ int Base::contains(char **list, int len,  const char *str) {
   return 0;
 }
 
-
-HUDStatisticsManager* Base::getHUDSM()
-{
-  if (hUDStatisticsManager==0)
-  {
-    // create HUDStatisticsManager and register it for being called back every step
-    // but do not display if the system is initialised with -nographics
-    createHUDManager(new osg::Geode(),osgText::readFontFile("fonts/fudd.ttf"));
-  }
-  return hUDStatisticsManager;
-}
 
 
 }

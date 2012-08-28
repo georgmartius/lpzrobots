@@ -74,7 +74,7 @@ namespace lpzrobots {
     // the following function have to be overloaded.
 
     /// start() is called at the first start of the cycles and should create all the object (obstacles, agents...).
-    virtual void start(const OdeHandle&, const OsgHandle&, GlobalData& globalData) = 0;    
+    virtual void start(const OdeHandle&, const OsgHandle&, GlobalData& globalData) = 0;
 
     // the following functions have dummy default implementations
 
@@ -128,7 +128,7 @@ namespace lpzrobots {
      */
     virtual void addPaletteFile(const std::string& filename, bool verbose = false);
     /** adds a color alias file to be loaded at initialization time
-        Call this before run()!                
+        Call this before run()!
      */
     virtual void addColorAliasFile(const std::string& filename, bool verbose = false);
 
@@ -136,7 +136,7 @@ namespace lpzrobots {
 
     virtual void osgStep();
 
-  protected:    
+  protected:
     // GUIEventHandler
     virtual bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&);
     virtual void getUsage (osg::ApplicationUsage & au) const;
@@ -153,9 +153,14 @@ namespace lpzrobots {
 
     /**
      * Sets the mode of the camera, the numbers are the same like the keys
-     * @param mode see CameraMode 
+     * @param mode see CameraMode
      */
     void setCameraMode(CameraMode mode);
+
+    /// start video recording (write frames to name(XXX) folder)
+    bool startVideoRecording(const char* name);
+    /// stop video recording
+    bool stopVideoRecording();
 
     /**
      * Sets the agent to be watched with the camera.
@@ -187,7 +192,7 @@ namespace lpzrobots {
 
   protected:
     /// returns false if the program is to exit
-    virtual bool processCmdLine(int argc, char** argv); 
+    virtual bool processCmdLine(int argc, char** argv);
     void resetSyncTimer();
     long timeOfDayinMS();
 
@@ -247,7 +252,7 @@ namespace lpzrobots {
     parambool useOsgThread;
     parambool useQMPThreads; // decides if quick mp is used in this simulation
     parambool inTaskedMode;
-    
+
     std::string windowName;
 
   protected:
@@ -275,7 +280,7 @@ namespace lpzrobots {
 
   };
 
-  /** creates a new directory with the stem base, which is not yet there 
+  /** creates a new directory with the stem base, which is not yet there
       (using subsequent numbers)  and returns its name in newdir */
   void createNewDir(const char* base, char *newdir);
 }

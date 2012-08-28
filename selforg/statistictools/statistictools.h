@@ -30,6 +30,8 @@ class StatisticMeasure;
 class ComplexMeasure;
 // end forward declarations
 
+#include <string>
+
 #include "inspectable.h"
 #include "callbackable.h"
 #include "measuremodes.h"
@@ -68,6 +70,8 @@ public:
    */
   virtual StatisticMeasure* getMeasure(double& observedValue,const char* measureName, MeasureMode mode, long stepSpan, double additionalParam=0);
 
+  /** returns a measure that is already in the pool (or 0 if not found) */
+  virtual AbstractMeasure* getMeasure(const std::string & measureName) const;
 
   /**
    * You can add another abstract measure you like. in some cases (e.g. complex

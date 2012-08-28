@@ -23,6 +23,8 @@
 #ifndef QUICK_MP_H
 #define QUICK_MP_H
 
+#include <stdint.h>
+
 // QuickMP (Quick Multi-Processing) is a simple cross-platform C++ API for
 // generating parallel for loops in shared-memory programs, similar to
 // OpenMP.  It provides automatic scalable performance based on the number of
@@ -403,7 +405,7 @@ namespace qmp_internal
 		// We cast to an unsigned long ints here because a void* on 64-bit
 		// machines is 64 bits long, and gcc won't cast a 64-bit void*
 		// directly to a 32-bit unsigned int.
-		unsigned int myIndex = (unsigned int)((unsigned long int)threadIndex);
+		unsigned int myIndex = (unsigned int)((uintptr_t)threadIndex);
 
 		// Loop until this thread is canceled by the main thread, which only
 		// occurs when the program exits.
@@ -575,7 +577,7 @@ namespace qmp_internal
 
 			mPlatform->threads = new pthread_t[numThreads];
 			mPlatform->threads[0] = pthread_self();
-			for (unsigned int threadIndex = 1; threadIndex <= numWorkerThreads; ++threadIndex)
+			for (uintptr_t threadIndex = 1; threadIndex <= numWorkerThreads; ++threadIndex)
 			{
 				returnCode = pthread_create(&mPlatform->threads[threadIndex],
 					&threadAttributes, threadRoutine, (void*)threadIndex);

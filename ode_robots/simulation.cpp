@@ -192,7 +192,7 @@ namespace lpzrobots {
     verboseColorLoading=verbose;
   }
   void Simulation::addColorAliasFile(const std::string& filename, bool verbose){
-    colorAliasFiles.push_back(filename);    
+    colorAliasFiles.push_back(filename);
     verboseColorLoading=verbose;
   }
 
@@ -228,7 +228,7 @@ namespace lpzrobots {
 
     osgDB::FilePathList l = osgDB::getDataFilePathList();
     l.push_back("data");
-    
+
     l.push_back("../../osg/data");
     const char* oderobotsdata = getenv("ODEROBOTSDATA");
     if(oderobotsdata){
@@ -238,26 +238,26 @@ namespace lpzrobots {
     l.push_back(PREFIX+string("/share/lpzrobots/data"));// installation path
 #endif
     osgDB::setDataFilePathList(l);
-       
+
     osgHandle.init();
     addParameter("Shadow",&(osgHandle.cfg->shadowType));
     osgHandle.cfg->noGraphics = noGraphics;
     FOREACH(std::list<std::string>, paletteFiles, f){
-      int rv = osgHandle.colorSchema()->loadPalette(*f);      
+      int rv = osgHandle.colorSchema()->loadPalette(*f);
       if(rv<=0){
-	cerr << "Error with palette file " << *f << ": " 
+	cerr << "Error with palette file " << *f << ": "
              << osgHandle.colorSchema()->getLoadErrorString(rv) << endl;
       }else if(verboseColorLoading){
-        cerr << "Loaded " << rv << " colors from Palette " << *f << endl; 
+        cerr << "Loaded " << rv << " colors from Palette " << *f << endl;
       }
     }
     FOREACH(std::list<std::string>, colorAliasFiles, f){
       int rv = osgHandle.colorSchema()->loadAliases(*f);
       if(rv<=0){
-	cerr << "Error with alias file " << *f << ": " 
+	cerr << "Error with alias file " << *f << ": "
              << osgHandle.colorSchema()->getLoadErrorString(rv) << endl;
       }else if(verboseColorLoading){
-        cerr << "Loaded " << rv << " alias definitions " << *f << endl; 
+        cerr << "Loaded " << rv << " alias definitions " << *f << endl;
       }
     }
 
@@ -280,7 +280,7 @@ namespace lpzrobots {
       }
     }
     // process cmdline (possibly overwrite values from cfg file
-    if(!processCmdLine(argc, argv)) return false;    
+    if(!processCmdLine(argc, argv)) return false;
     globalData.odeConfig.fps=defaultFPS;
 
     osgHandle.setup(windowWidth, windowHeight);
@@ -329,7 +329,7 @@ namespace lpzrobots {
 
       if(useKeyHandler){
         // add the state manipulator
-        viewer->addEventHandler( new osgGA::StateSetManipulator(viewer->getCamera()->getOrCreateStateSet()) );     
+        viewer->addEventHandler( new osgGA::StateSetManipulator(viewer->getCamera()->getOrCreateStateSet()) );
         viewer->addEventHandler(new osgViewer::ThreadingHandler);
         viewer->addEventHandler(new osgViewer::StatsHandler);
         viewer->addEventHandler(new osgViewer::RecordCameraPathHandler);
@@ -367,7 +367,7 @@ namespace lpzrobots {
       if (!osgHandle.scene->scene)
 	return false;
       osgHandle.parent=osgHandle.scene->scene;
-      
+
       // add the display node to show what the robot cameras see
       osgHandle.scene->root->addChild(osgHandle.scene->robotCamManager->getDisplay());
 
@@ -381,15 +381,15 @@ namespace lpzrobots {
         new CameraManipulatorTV(osgHandle.scene->scene, globalData, cameraHandle),
         //      new CameraManipulatorRace(osgHandle.scene->scene, globalData, cameraHandle)
       };
-        
+
       keyswitchManipulator->addMatrixManipulator( '1', "Static", cm[0]);
       keyswitchManipulator->addMatrixManipulator( '2', "Follow", cm[1]);
       keyswitchManipulator->addMatrixManipulator( '3', "TV",     cm[2]);
-      //    keyswitchManipulator->addMatrixManipulator( '4', "Race",   cm[3]);          
+      //    keyswitchManipulator->addMatrixManipulator( '4', "Race",   cm[3]);
       for(int i=0; i< 3; i++){
         globalData.agents.addCallbackable(cm[i], OdeAgentList::BACKCALLER_VECTOR_MODIFIED);
       }
-      
+
 
       // select TV mode as default.
       keyswitchManipulator->selectMatrixManipulator(TV);
@@ -402,7 +402,7 @@ namespace lpzrobots {
     state=initialised;
     //    QMP_END_CRITICAL(20);
     // we created a new argv pointer in insertCmdLineOption
-    if(orig_argv != argv) free(argv);     
+    if(orig_argv != argv) free(argv);
     return true;
   }
 
@@ -438,7 +438,7 @@ namespace lpzrobots {
 
       // add model to viewer.
       viewer->setSceneData(osgHandle.scene->root);
-      
+
       // add overlay from cameras
       viewer->setOffScreenData(osgHandle.scene->robotCamManager->getOffScreen());
 
@@ -642,7 +642,7 @@ namespace lpzrobots {
         else
           callBack(Base::PHYSICS_CALLBACKABLE);
         QP(PROFILER.endBlock("physicsCB                    "));
-        
+
 	// remove old sound signal and TmpObjects
 	globalData.removeExpiredObjects();
       }
@@ -692,7 +692,7 @@ namespace lpzrobots {
     // simulation speed (calculate more precisely again if not pause or max speed)
     if(!pause) truerealtimefactor = (globalData.time*1000.0 - simtimeoffset)/(elapsed+1);
     if(globalData.odeConfig.realTimeFactor==0.0){
-      // get refresh rate of fps/2 frames in full speed 
+      // get refresh rate of fps/2 frames in full speed
       //  (add a bit speed to it to converge quicker)
       globalData.odeConfig.calcAndSetDrawInterval(globalData.odeConfig.fps/2,
                                                   truerealtimefactor+0.5);
@@ -710,7 +710,7 @@ namespace lpzrobots {
 	  //	  nextLeakAnnounce=100;
 	}else{
           //printf("don't sleep\t %li \t\n", diff, elapsed );
-	
+
         }
       }
       // the video steam should look perfectly syncronised
@@ -732,7 +732,7 @@ namespace lpzrobots {
 
 
   void Simulation::updateGraphics(){
-    /************************** Update the scene ***********************/    
+    /************************** Update the scene ***********************/
     FOREACH(ObstacleList, globalData.obstacles, i) {
       (*i)->update();
     }
@@ -850,20 +850,10 @@ namespace lpzrobots {
 	}
 	break;
       case 18:  // Ctrl - r
-	if(videostream->isOpen()) {
-	  printf("Stop video recording!\n");
-	  videostream->close();
-	  //	    printf("Switching back to 50fps!\n");
-	  globalData.odeConfig.videoRecordingMode=false;
+	if(globalData.odeConfig.videoRecordingMode){
+          stopVideoRecording();
 	} else {
-	  //	    printf("For video recording the simulation now switches to 25fps!\n");
-	  globalData.odeConfig.videoRecordingMode=true;
-	  char dir[128];
-	  char filename[140];
-	  createNewDir("video", dir);
-	  printf("Start video recording in %s!\n", dir);
-	  sprintf(filename, "%s/frame", dir);
-	  videostream->open(filename);
+          startVideoRecording("video");
 	}
 	handled=true;
 	break;
@@ -884,7 +874,7 @@ namespace lpzrobots {
             RandomObstacles* ro = dynamic_cast<RandomObstacles*>(*o);
             if(ro){
               ro->spawn();
-              handled=true;            
+              handled=true;
             }
           }
           if(!handled){
@@ -896,7 +886,7 @@ namespace lpzrobots {
               ag = dynamic_cast<AbstractGround*>(*o);
               break;
             }
-            RandomObstacles* ro = new RandomObstacles(odeHandle, osgHandle, 
+            RandomObstacles* ro = new RandomObstacles(odeHandle, osgHandle,
                                                       RandomObstacles::getDefaultConf(ag));
             globalData.obstacles.push_back(ro);
             ro->spawn();
@@ -948,6 +938,34 @@ namespace lpzrobots {
     v.visit(*this);
   }
 
+  bool Simulation::startVideoRecording(const char* name){
+    if(videostream->isOpen()) {
+      printf("Video recording in progress, stop before start again!\n");
+      return false;
+    } else{
+      globalData.odeConfig.videoRecordingMode=true;
+      char dir[1024];
+      char filename[2048];
+      createNewDir(name, dir);
+      printf("Start video recording in %s!\n", dir);
+      sprintf(filename, "%s/frame", dir);
+      videostream->open(filename);
+      return true;
+    }
+  }
+
+  bool Simulation::stopVideoRecording(){
+    if(videostream->isOpen()) {
+      printf("Stop video recording!\n");
+      videostream->close();
+      globalData.odeConfig.videoRecordingMode=false;
+      return true;
+    }else{
+      printf("No Video recording in progress, cannot stop!\n");
+      return false;
+    }
+  }
+
 
   /// clears obstacle and agents lists and delete entries
   void Simulation::tidyUp(GlobalData& global) {
@@ -964,7 +982,7 @@ namespace lpzrobots {
     if(!noGraphics && viewer)    // delete viewer;
       viewer->getEventHandlers().clear();
     //        viewer->getEventHandlerList().clear();
-    
+
     // clear obstacles list
     for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++) {
       delete (*i);
@@ -979,13 +997,13 @@ namespace lpzrobots {
       delete global.environment;
       global.environment=0;
     }
-    
+
     global.agents.clear();
     global.removeConfigurator();
-    
+
     osgHandle.close();
     odeHandle.close();
-    
+
     base_close();
   }
 
@@ -1006,7 +1024,7 @@ namespace lpzrobots {
     nargv[argc++]=(char*)"-1";
     nargv[argc++]=strdup(itos(windowWidth).c_str());
     nargv[argc++]=strdup(itos(windowHeight).c_str());
-    argc=nargc; 
+    argc=nargc;
     argv=nargv; // this is definite memory loss
   }
 
@@ -1094,7 +1112,7 @@ namespace lpzrobots {
     noGraphics = contains(argv, argc, "-nographics")!=0;
     // inform osg relevant stuff that no graphics is used
     osgHandle.cfg->noGraphics=noGraphics;
-    if(noGraphics) 
+    if(noGraphics)
       globalData.odeConfig.realTimeFactor=0;
     pause = contains(argv, argc, "-pause")!=0;
 
@@ -1132,11 +1150,14 @@ namespace lpzrobots {
 
     // read intended simulation time
     index = contains(argv, argc, "-simtime");
-    if (index) {
-      if(argc > index){
-	simulation_time=atol(argv[index]);
-	printf("simtime=%li\n",simulation_time);
-      }
+    if (index && (argc > index)){
+      simulation_time=atol(argv[index]);
+      printf("simtime=%li\n",simulation_time);
+    }
+
+    index = contains(argv, argc, "-video");
+    if(index && (argc > index)) {
+      startVideoRecording(argv[index]);
     }
 
     // initialize QuickMP with the number of processors
@@ -1357,6 +1378,7 @@ namespace lpzrobots {
     printf("    -shadowsize N\t* sets the size of the shadow texture (default 2048)\n");
     printf("    -drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
     printf("    -simtime min\tlimited simulation time in minutes\n");
+    printf("    -video NAME\tstart video recording with given name\n");
     printf("    -savecfg\t\tsafe the configuration file with the values given by the cmd line\n");
     printf("    -threads N\t\tnumber of threads to use (0: number of processors (default))\n");
     printf("    -odethread\t\t* if given the ODE runs in its own thread. -> Sensors are delayed by 1\n");
@@ -1399,7 +1421,10 @@ namespace lpzrobots {
   void createNewDir(const char* base, char *newdir) {
     struct stat s;
     for(int i=0; i<1000; i++) {
-      sprintf(newdir,"%s%03i", base, i);
+      if(i==0)
+        sprintf(newdir,"%s", base);
+      else
+        sprintf(newdir,"%s%03i", base, i);
       if(stat(newdir,&s)!=0) { // file/dir does not exist -> take it
 	mkdir(newdir, S_IREAD | S_IWRITE | S_IEXEC | S_IRGRP | S_IXGRP );
 	return;

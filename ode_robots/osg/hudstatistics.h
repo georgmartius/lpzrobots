@@ -85,7 +85,7 @@ public:
    * creates the HUDStatisticsManager, normally done by class Base.
    * @param geode this is the graphical node at wich the text objects are hooked in.
    */
-  HUDStatisticsManager(osg::Geode* geode, osgText::Font* font);
+  HUDStatisticsManager(osg::Geode* geode, osgText::Font* font, int ypos);
 
   virtual ~HUDStatisticsManager();
 
@@ -128,14 +128,14 @@ public:
   	 * @see StatisticMeasure
 	 */
   virtual double& addMeasure( double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam =0);
-  
+
     /**
    * You can add another abstract measure you like. in some cases (e.g. complex
    * measures) it is better to let the measure decide how it likes to be initialized
    * @param measure the measure to add
    */
   virtual double& addMeasure(AbstractMeasure* measure);
-  
+
   /**
    * You can add another abstract measure you like. in some cases (e.g. complex
    * measures) it is better to let the measure decide how it likes to be initialized
@@ -151,8 +151,8 @@ public:
    * @param measureList the list of measures to add
    */
   virtual double& addMeasureList(std::list<ComplexMeasure*> measureList);
-  
-  
+
+
       /**
    * You can add another abstract measure you like. in some cases (e.g. complex
    * measures) it is better to let the measure decide how it likes to be initialized
@@ -160,8 +160,8 @@ public:
    * @param measureList the list of measures to add
    */
   virtual double& addMeasureList(std::list<StatisticMeasure*> measureList);
-  
-  
+
+
   	/**
 	 * starts the measure at a specific time. This is useful if there are
 	 * values that have to be ignored at simulation start.
@@ -188,13 +188,13 @@ public:
 
   /** searches for the measure with the given name and returns it windowstatistics
       (measure and graphics together)
-      @return 0 if not measure was found 
+      @return 0 if not measure was found
    */
   virtual WindowStatistic* getMeasureWS(const std::string& measureName);
 
 
   virtual void setColor(const Color& color){ textColor = color;}
-  virtual void setFontsize(int size){fontsize = size;}
+  virtual void setFontsize(int size){fontsize = size, yOffset = 1.2*size;}
 
 protected:
 

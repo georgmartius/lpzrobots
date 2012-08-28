@@ -42,17 +42,17 @@
 using namespace osg;
 
 namespace lpzrobots {
-  
-  HUDStatisticsManager::HUDStatisticsManager(osg::Geode* geode, osgText::Font* font) : geode(geode), font(font), textColor(0.0,0.0,0.2,1.0)
+
+  HUDStatisticsManager::HUDStatisticsManager(osg::Geode* geode, osgText::Font* font, int ypos) : geode(geode), font(font), textColor(0.0,0.0,0.2,1.0)
   {
     xInitPosition = 500.0f;
-    yInitPosition = 27.0f;
+    yInitPosition = ypos;
     zInitPosition = 0.0f;
-    yOffset = 18.0f;
     fontsize=12;
+    yOffset = fontsize + 4;
     statTool = new StatisticTools();
   }
-  
+
   HUDStatisticsManager::~HUDStatisticsManager() {
     delete(statTool);
   }
@@ -135,7 +135,7 @@ double& HUDStatisticsManager::addMeasureList(std::list<StatisticMeasure*> measur
 }
 
 HUDStatisticsManager::WindowStatistic* HUDStatisticsManager::getMeasureWS(const std::string& measureName){
-  FOREACH(std::list<WindowStatistic*>, windowStatisticList, i) {    
+  FOREACH(std::list<WindowStatistic*>, windowStatisticList, i) {
     if((*i)->getMeasure()->getName() == measureName){
       return *i;
     }
@@ -147,9 +147,12 @@ HUDStatisticsManager::WindowStatistic* HUDStatisticsManager::getMeasureWS(const 
 void HUDStatisticsManager::doOnCallBack(BackCaller* source, BackCaller::CallbackableType /* = BackCaller::DEFAULT_CALLBACKABLE_TYPE */) {
   // go through WindowStatictList and update the graphical text, that should be all!
   if (statTool->measureStarted())
-    FOREACHC(std::list<WindowStatistic*>, windowStatisticList, i) {    
+    FOREACHC(std::list<WindowStatistic*>, windowStatisticList, i) {
       char valueBuf[100];
-      sprintf(valueBuf,":  %f",(*i)->getMeasure()->getValue());
+      char printstr[24];
+      sprintf(printstr, ": %%.%if", (*i)->getMeasure()->getDisplayPrecision());
+
+      sprintf(valueBuf,printstr,(*i)->getMeasure()->getValue());
 
       std::string buffer((*i)->getMeasure()->getName());
       buffer.append(valueBuf);

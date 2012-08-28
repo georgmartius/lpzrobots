@@ -49,6 +49,15 @@ StatisticMeasure* StatisticTools::getMeasure(double& observedValue, const char* 
   return newMeasure;
 }
 
+AbstractMeasure* StatisticTools::getMeasure(const std::string& measureName) const{
+  FOREACHC(std::list<AbstractMeasure*>,activeMeasures, m){
+    if((*m)->getName()==measureName){
+      return (*m);
+    }
+  }
+  return 0;
+}
+
 double& StatisticTools::addMeasure(AbstractMeasure* measure) {
   this->activeMeasures.push_back(measure);
   addInspectableValue(measure->getName(),&measure->getValueAddress(), "measure registered at "+ getNameOfInspectable());
