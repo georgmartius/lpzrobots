@@ -203,8 +203,13 @@ enum AmosIISensorNames{
         In_x = 113, //around x axis (forward walking direction)
         In_y = 114, //around y axis (sideward walking direction)
 
+        //Body position sensors (only simulation)
+        BX_pos = 115, //(forward walking direction)
+        BY_pos = 116, //(sideward walking direction)
+        BZ_pos = 117, //(vertical direction)
+
         //Changing according to the maximum sensor number
-        AMOSII_SENSOR_MAX = 115,
+        AMOSII_SENSOR_MAX = 118,
 
 };
 

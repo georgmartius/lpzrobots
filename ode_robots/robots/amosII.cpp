@@ -227,6 +227,9 @@ namespace lpzrobots {
     nameSensor(Microphone2_s, "microphone 2");
     nameSensor(In_x, "inclinometer x");
     nameSensor(In_y, "inclinometer y");
+    nameSensor(BX_pos, "body position sensor x");
+    nameSensor(BY_pos, "body position sensor y");
+    nameSensor(BZ_pos, "body position sensor z");
 
     // name the motors
     nameMotor(TR0_m, "TR0 motor");
@@ -250,9 +253,9 @@ namespace lpzrobots {
     nameMotor(BJ_m, "BJ motor");
 
     // add further inspectables
-    addInspectableValue("posX", &position.x, "x Position of robot");
-    addInspectableValue("posY", &position.y, "y Position of robot");
-    addInspectableValue("posZ", &position.z, "z Position of robot");
+//    addInspectableValue("posX", &position.x, "x Position of robot");
+//    addInspectableValue("posY", &position.y, "y Position of robot");
+//    addInspectableValue("posZ", &position.z, "z Position of robot");
 
   }
 
@@ -491,7 +494,13 @@ namespace lpzrobots {
     sensors[BY_spd] = speedsens[1];
     sensors[BZ_spd] = speedsens[2];
 
-    //------------------------Add GoalSensor by Ren-------------------
+
+    // Body position sensors
+    sensors[BX_pos] = position.x;
+    sensors[BY_pos] = position.y;
+    sensors[BZ_pos] = position.z;
+
+//------------------------Add GoalSensor by Ren-------------------
     if (GoalSensor_active) {
       //the first goal
       std::vector<RelativePositionSensor>::iterator it = GoalSensor.begin(); //we only use one goal sensor
