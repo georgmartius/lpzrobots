@@ -365,64 +365,6 @@ namespace lpzrobots {
 
   }
 
-  /** checks for internal collisions and treats them.
-   *  In case of a treatment return true (collision will be ignored by other objects
-   *  and the default routine)  else false (collision is passed to other objects and
-   *  (if not treated) to the default routine).
-   */
-  bool Hexapod::collisionCallback(void *data, dGeomID o1, dGeomID o2){
-
-    // do that with a s contact sensor
-    if(conf.useContactSensors){
-
-
-    const int NUM_CONTACTS = 8;
-    dContact contacts[NUM_CONTACTS];
-    int numCollisions = dCollide(o1, o2, NUM_CONTACTS, &contacts[0].geom, sizeof(dContact));
-    // Georg: this would also be possible by a special substance with callback.
-    //  I will maybe implement a contact sensor anyway...
-
-    //set all contacts to zero
-    for(int j = 0; j < 6; j++) {
-      conf.legContacts[j] = 0;
-    }
-
-    for(int i = 0; i < numCollisions; ++i)
-      {
-	dBodyID b1 =  dGeomGetBody(contacts[i].geom.g1);
-        // Georg: are you sure that b1 is always the leg?
-	if(legContactArray[0].bodyID == b1){conf.legContacts[0] = 1; }
-	if(legContactArray[1].bodyID == b1){conf.legContacts[1] = 4; }
-	if(legContactArray[2].bodyID == b1){conf.legContacts[2] = 2; }
-	if(legContactArray[3].bodyID == b1){conf.legContacts[3] = 5; }
-	if(legContactArray[4].bodyID == b1){conf.legContacts[4] = 3; }
-	if(legContactArray[5].bodyID == b1){conf.legContacts[5] = 6; }
-
-      }
-    }
-
-    /*
-
-    // cout<< "t: " << t << "   timeC: " << timeCounter << endl;
-    if((t + 0.01) >= timeCounter){
-    if(recordGait){
-    cout<<"in here" << endl;
-    fprintf(f,"%d,%d,%d,%d,%d,%d,%g;",conf.legContacts[0],conf.legContacts[2],conf.legContacts[4],conf.legContacts[1],conf.legContacts[3],conf.legContacts[5],t);
-    fprintf(f,"\n");
-    check = true;
-    }else if(check == true && recordGait == false){
-    fprintf(f,"]\n");
-    fclose(f);
-    check = false;
-    }
-    }*/
-
-
-
-    return false;
-  }
-
-
   /** creates vehicle at desired position
       @param pos struct Position with desired position
   */
