@@ -173,15 +173,23 @@ private:
 
 		L0_irs_real=25,
 		L1_irs_real=26,
-		L2_irs_real=29,
+		L2_irs_real=18,
 
 		//light sensors
 		M_ps_real=23,
 		R_ps_real=15,
 		L_ps_real=32,
 
-		//Current sensor
-		A_cs_real=16,
+		//Average current sensor of all motors [ZAP25]
+		A_cs_real= 29,
+
+		//Inclinometer sensor
+		In_x_real=8,
+		In_y_real=7,
+
+		//Port 7 on the Mboard = Inclinometer y NOT yet install
+		//Port 8 on the Mboard = Inclinometer x NOT yet install
+		//Port 24 on the Mboard = free cable outside for any 5v sensor
 
   };
 
