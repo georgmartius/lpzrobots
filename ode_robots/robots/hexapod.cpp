@@ -120,7 +120,8 @@ namespace lpzrobots {
 
 
   int Hexapod::getMotorNumber(){
-    return  2*hipservos.size() + (conf.useTebiaMotors ? tebiasprings.size() : 0);
+    return  2*hipservos.size() + (conf.useTebiaMotors ? tebiaservos.size() : 0)
+      + (conf.useActiveWhisker ? whiskerservos.size() : 0);
   };
 
   /* sets actual motorcommands
@@ -135,25 +136,32 @@ namespace lpzrobots {
       n+=2;
     }
     if(conf.useTebiaMotors){
-      FOREACH(vector<OneAxisServo*>, tebiasprings, i){
+      FOREACH(vector<OneAxisServo*>, tebiaservos, i){
         if(*i) (*i)->set(motors[n++]);
       }
     }else{
-      FOREACH(vector<OneAxisServo*>, tebiasprings, i){
+      FOREACH(vector<OneAxisServo*>, tebiaservos, i){
         if(*i) (*i)->set(0);
       }
     }
     FOREACH(vector<OneAxisServo*>, tarsussprings, i){
       if(*i) (*i)->set(0);
     }
-    FOREACH(vector<OneAxisServo*>, whiskersprings, i){
-      if(*i) (*i)->set(0);
+    if(conf.useActiveWhisker){
+      FOREACH(vector<OneAxisServo*>, whiskerservos, i){
+        if(*i) (*i)->set(motors[n++]);
+      }
+    }else{
+      FOREACH(vector<OneAxisServo*>, whiskerservos, i){
+        if(*i) (*i)->set(0);
+      }
     }
 
   };
 
   int Hexapod::getSensorNumber(){
-    return 2*hipservos.size() + irSensorBank.size() + (conf.useTebiaMotors ? tebiasprings.size() : 0);
+    return 2*hipservos.size() + irSensorBank.size() + (conf.useTebiaMotors ? tebiaservos.size() : 0)
+      + (conf.useActiveWhisker ? whiskerservos.size() : 0) + contactsensors.size();
   };
 
   /* returns actual sensorvalues
@@ -171,15 +179,25 @@ namespace lpzrobots {
       }
     }
     if(conf.useTebiaMotors){
-      FOREACH(vector<OneAxisServo*>, tebiasprings, s){
+      FOREACH(vector<OneAxisServo*>, tebiaservos, s){
         if(*s) sensors[n++] = (*s)->get();
       }
     }
-
+    if(conf.useActiveWhisker){
+      FOREACH(vector<OneAxisServo*>, whiskerservos, s){
+        if(*s) sensors[n++] = (*s)->get();
+      }
+    }
+    if(conf.useContactSensors){
+      FOREACH(vector<ContactSensor*>, contactsensors, s){
+        if(*s) sensors[n++] = (*s)->get();
+      }
+    };
 
     if (conf.irFront || conf.irBack){
       n += irSensorBank.get(sensors+n, sensornumber-n);
     }
+
 
     return n;
   };
@@ -272,73 +290,77 @@ namespace lpzrobots {
   */
   void Hexapod::doInternalStuff(GlobalData& global){
     irSensorBank.reset();
+    if(conf.useContactSensors){
+      FOREACH(vector<ContactSensor*>, contactsensors, s){
+        if(*s) (*s)->reset();
+      }
+    };
+
+    if(conf.calculateEnergy){
+
+      energyOneStep[0] = energyConsumption();
+
+      t = global.time;
+
+      if(global.time <= timeCounter){
+        E_t += energyOneStep[0];
+      }
+
+      // gets current position
+      const dReal *w_position = dBodyGetPosition(trunk->getBody());
+      dReal *pos = new dReal[3];
+      pos[0] = w_position[0];
+      pos[1] = w_position[1];
+      pos[2] = w_position[2];
+      position[0] = w_position[0];
+      position[1] = w_position[1];
+      position[2] = w_position[2];
+      pos_record.push_back(pos);
+
+      if(pos_record.size() == 3){
+        pos_record.erase(pos_record.begin()+1);
+      }
 
 
-
-    energyOneStep[0] = energyConsumption();
-
-    t = global.time;
-
-    if(global.time <= timeCounter){
-      E_t += energyOneStep[0];
-    }
-
-    // gets current position
-    const dReal *w_position = dBodyGetPosition(trunk->getBody());
-    dReal *pos = new dReal[3];
-    pos[0] = w_position[0];
-    pos[1] = w_position[1];
-    pos[2] = w_position[2];
-    position[0] = w_position[0];
-    position[1] = w_position[1];
-    position[2] = w_position[2];
-    pos_record.push_back(pos);
-
-    if(pos_record.size() == 3){
-      pos_record.erase(pos_record.begin()+1);
-    }
+      /* const dReal* velocity = dBodyGetLinearVel( trunk->getBody() );
+         const double v = abs(velocity[0]);
+         conf.v[0] = v;
+      */
 
 
-    /* const dReal* velocity = dBodyGetLinearVel( trunk->getBody() );
-       const double v = abs(velocity[0]);
-       conf.v[0] = v;
-    */
+      if(floor(global.time) == timeCounter){
+
+        dReal *position_1 = pos_record.front();
+        dReal *position_2 = pos_record.back();
+
+        distance = sqrt(pow((position_2[0] - position_1[0]),2) + pow((position_2[1] - position_1[1]),2) );//+ pow((position_2[2] - position_1[2]),2));
+        conf.v[0] = distance/conf.T;
+
+        //cout<< "speed: " << conf.v[0] << " m/s" << endl;
+
+        costOfTran = costOfTransport(E_t,getMassOfRobot(),conf.v[0],conf.T);
+        timeCounter += conf.T;
+        E_t = 0.0;
+
+        delete[] pos;
+        pos_record.clear();
+      }
 
 
-    if(floor(global.time) == timeCounter){
+      for(unsigned int i = 0; i < 6; i++){
 
-      dReal *position_1 = pos_record.front();
-      dReal *position_2 = pos_record.back();
+        const dReal *position = dBodyGetPosition(legContactArray[i].bodyID);
 
+        // cout<< dJointGetUniversalAngle1(joints[0]->getJoint()) * 180/M_PI  << endl;
+        // cout<< dJointGetUniversalAngle2(joints[0]->getJoint())  * 180/M_PI<< endl;
+        //  cout << dJointGetUniversalAngle1(legContactArray[i].joint) * 180/M_PI << endl;
+        //  cout << dJointGetUniversalAngle2(legContactArray[i].joint) * 180/M_PI << endl;
 
+        heights[i] = abs(round(position[2] -  hcorrection,3));
+        angles[2*i]   = dJointGetUniversalAngle1(legContactArray[i].joint) * 180/M_PI ;
+        angles[2*i+1] = dJointGetUniversalAngle2(legContactArray[i].joint) * 180/M_PI ;
 
-      distance = sqrt(pow((position_2[0] - position_1[0]),2) + pow((position_2[1] - position_1[1]),2) );//+ pow((position_2[2] - position_1[2]),2));
-      conf.v[0] = distance/conf.T;
-
-      //cout<< "speed: " << conf.v[0] << " m/s" << endl;
-
-      costOfTran = costOfTransport(E_t,getMassOfRobot(),conf.v[0],conf.T);
-      timeCounter += conf.T;
-      E_t = 0.0;
-
-      delete pos;
-      pos_record.clear();
-    }
-
-
-    for(unsigned int i = 0; i < 6; i++){
-
-      const dReal *position = dBodyGetPosition(legContactArray[i].bodyID);
-
-      // cout<< dJointGetUniversalAngle1(joints[0]->getJoint()) * 180/M_PI  << endl;
-      // cout<< dJointGetUniversalAngle2(joints[0]->getJoint())  * 180/M_PI<< endl;
-      //  cout << dJointGetUniversalAngle1(legContactArray[i].joint) * 180/M_PI << endl;
-      //  cout << dJointGetUniversalAngle2(legContactArray[i].joint) * 180/M_PI << endl;
-
-      heights[i] = abs(round(position[2] -  hcorrection,3));
-      angles[2*i]   = dJointGetUniversalAngle1(legContactArray[i].joint) * 180/M_PI ;
-      angles[2*i+1] = dJointGetUniversalAngle2(legContactArray[i].joint) * 180/M_PI ;
-
+      }
     }
 
   }
@@ -352,6 +374,8 @@ namespace lpzrobots {
 
     // do that with a s contact sensor
     if(conf.useContactSensors){
+
+
     const int NUM_CONTACTS = 8;
     dContact contacts[NUM_CONTACTS];
     int numCollisions = dCollide(o1, o2, NUM_CONTACTS, &contacts[0].geom, sizeof(dContact));
@@ -473,7 +497,6 @@ namespace lpzrobots {
 	fixedJoint = new FixedJoint(trunk,irbox);
 	fixedJoint->init(odeHandle, osgHandleJ, true, 0.04);
 	joints.push_back(fixedJoint);
-
       }
 
 
@@ -622,7 +645,7 @@ namespace lpzrobots {
         k->init(odeHandle, osgHandleJ, true, rad1 * 2.1);
         // servo used as a spring
         spring = new HingeServo(k, -1, 1, 1, 0.01,0); // parameters are set later
-        tebiasprings.push_back(spring);
+        tebiaservos.push_back(spring);
         joints.push_back(k);
       }else{
         // fixed knee joint
@@ -632,6 +655,8 @@ namespace lpzrobots {
       }
       // lower limp should not collide with body!
       odeHandle.addIgnoredPair(trunk,tibia);
+
+      Primitive* foot = tibia;
 
       if(conf.tarsus){
         // New: tarsus
@@ -663,7 +688,7 @@ namespace lpzrobots {
         tarsus->setPose(m4);
         tarsusParts.push_back(tarsus);
         objects.push_back(tarsus);
-
+        foot = tarsus;
 
         if(conf.useTarsusJoints){
           // springy joint
@@ -727,17 +752,20 @@ namespace lpzrobots {
 
         }
 
-
         //        std::cout<< "legContactArray[" << n << "].legID = " << n << std::endl;
+        // TODO: remove!
         legContactArray[n].legID = n;
         legContactArray[n].geomid = section->getGeom();
         legContactArray[n].bodyID = section->getBody();
 
         tarsusParts.clear();
 
-
       }
-
+      if(conf.useContactSensors){
+        ContactSensor* cs = new ContactSensor(false,100.0);
+        cs->init(odeHandle,osgHandle,foot);
+        contactsensors.push_back(cs);
+      }
 
     }
 
@@ -766,7 +794,7 @@ namespace lpzrobots {
       k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
       // servo used as a spring
       spring = new HingeServo(k, -M_PI/6, M_PI/6, .1, 0.01,0);
-      whiskersprings.push_back(spring);
+      whiskerservos.push_back(spring);
       joints.push_back(k);
 
       Primitive* whisker2;
@@ -786,7 +814,7 @@ namespace lpzrobots {
       k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
       // servo used as a spring
       spring = new HingeServo(k, -M_PI/6, M_PI/6, .05, 0.01,0);
-      whiskersprings.push_back(spring);
+      whiskerservos.push_back(spring);
       joints.push_back(k);
 
 
@@ -807,18 +835,18 @@ namespace lpzrobots {
         if(*i) delete *i;
       }
       hipservos.clear();
-      FOREACH(vector<OneAxisServo*>, tebiasprings, i){
+      FOREACH(vector<OneAxisServo*>, tebiaservos, i){
         if(*i) delete *i;
       }
-      tebiasprings.clear();
+      tebiaservos.clear();
       FOREACH(vector<OneAxisServo*>, tarsussprings, i){
         if(*i) delete *i;
       }
       tarsussprings.clear();
-      FOREACH(vector<OneAxisServo*>, whiskersprings, i){
+      FOREACH(vector<OneAxisServo*>, whiskerservos, i){
         if(*i) delete *i;
       }
-      whiskersprings.clear();
+      whiskerservos.clear();
 
       cleanup();
 
@@ -855,7 +883,7 @@ namespace lpzrobots {
         (*i)->setMaxVel(conf.coxaSpeed);
       }
     }
-    FOREACH(vector<OneAxisServo*>, tebiasprings, i){
+    FOREACH(vector<OneAxisServo*>, tebiaservos, i){
       if(*i){
         (*i)->setPower(conf.tebiaPower);
         (*i)->setDamping(conf.tebiaDamping);

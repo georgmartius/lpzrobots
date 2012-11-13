@@ -35,15 +35,25 @@
 
 namespace lpzrobots {
 
-  // this function is called if the sensor object has a collision. In the userdata we get the 
+  // this function is called if the sensor object has a collision. In the userdata we get the
   //  contactsensor and the depth is in the contact information
-  int contactCollCallback(dSurfaceParameters& params, GlobalData& globaldata, void *userdata, 
-                          dContact* contacts, int numContacts,
-                          dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
-    
+  int contactCollCallbackNoCol(dSurfaceParameters& params, GlobalData& globaldata, void *userdata,
+                               dContact* contacts, int numContacts,
+                               dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
+
     ContactSensor* sensor = (ContactSensor*)userdata;
     sensor->setDepth(contacts[0].geom.depth);
-    return 0;    
+    return 0;
+  }
+  // this function is called if the sensor object has a collision. In the userdata we get the
+  //  contactsensor and the depth is in the contact information
+  int contactCollCallback(dSurfaceParameters& params, GlobalData& globaldata, void *userdata,
+                          dContact* contacts, int numContacts,
+                          dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
+
+    ContactSensor* sensor = (ContactSensor*)userdata;
+    sensor->setDepth(contacts[0].geom.depth);
+    return 1;
   }
 
 
@@ -52,7 +62,7 @@ namespace lpzrobots {
                                double forcescale /*= 1*/, double radius /*= 0.05*/)
     : binary(binary), forcescale(forcescale), size(radius) {
     reference = 0;
-    value = 0;  
+    value = 0;
     lastvalue=-1;
     initialised = false;
     sensorBody = 0;
@@ -69,15 +79,15 @@ namespace lpzrobots {
 
 
   void ContactSensor::init(const OdeHandle& odeHandle,
-                           const OsgHandle& osgHandle, 
-                           Primitive* reference, 
+                           const OsgHandle& osgHandle,
+                           Primitive* reference,
                            bool createSphere,
-                           const osg::Matrix pose, 
+                           const osg::Matrix pose,
                            bool colorObject){
     assert(reference);
     this->colorObject = colorObject;
     this->reference   = reference;
-    
+
     value = 0;
     lastvalue = -1;
     if(createSphere){
@@ -85,7 +95,7 @@ namespace lpzrobots {
       transform = new Transform(reference, sensorBody, pose);
       origColor = osgHandle.getColor("joint");
       transform->init(odeHandle, 0, osgHandle.changeColor(origColor));
-      transform->substance.setCollisionCallback(contactCollCallback,this);
+      transform->substance.setCollisionCallback(contactCollCallbackNoCol,this);
     }else{
       reference->substance.setCollisionCallback(contactCollCallback,this);
       if(reference->getOSGPrimitive())
@@ -93,17 +103,17 @@ namespace lpzrobots {
       else
         colorObject = false;
     }
-  
+
     update();
     initialised = true;
-  }; 
+  };
 
   void ContactSensor::reset(){
     value=0;
-  }  
-  
+  }
+
   void ContactSensor::setDepth(float depth){
-    if(binary && depth>0) 
+    if(binary && depth>0)
       value=1.0;
     else
       value = std::max(value,depth*forcescale);
@@ -118,21 +128,21 @@ namespace lpzrobots {
     return transform;
   }
 
-  void ContactSensor::update(){  
+  void ContactSensor::update(){
     if(value!=lastvalue){
       if(colorObject){
         const Color& col = value > 0 ? Color(value,0,0) : origColor;
         if(sensorBody){
-          sensorBody->setColor(col);          
+          sensorBody->setColor(col);
         }else{
-          reference->setColor(col);          
+          reference->setColor(col);
         }
       }
       lastvalue=value;
-    }  
-    if(sensorBody) {    
+    }
+    if(sensorBody) {
       sensorBody->update();
     }
   }
-  
+
 }

@@ -31,6 +31,7 @@
 
 #include <ode_robots/oderobot.h>
 #include <ode_robots/raysensorbank.h>
+#include <ode_robots/contactsensor.h>
 
 namespace lpzrobots {
 
@@ -71,12 +72,16 @@ namespace lpzrobots {
     bool useTarsusJoints; ///< whether to use joints on the tarsus
     bool useBigBox;       ///< whether to use a big invisible box on the back of the robot
 
+    bool useActiveWhisker;    ///< if true whiskers have motorized joints, otherwise springs
+
     double whiskerSpread;   ///< angle by which the wiskers are spread
 
     double T; ///< T is the for the time for calculating the cost of transport over time
     double *v;
 
     bool ignoreInternalCollisions;
+
+    bool calculateEnergy;
 
     bool useContactSensors;
     matrix::Matrix m;
@@ -151,6 +156,8 @@ namespace lpzrobots {
       c.whiskerSpread=M_PI/10.0;
 
       c.ignoreInternalCollisions=true;
+
+      c.calculateEnergy=false;
 
       c.useContactSensors=false;
       c.legContacts = new int[6];
@@ -292,11 +299,12 @@ public:
     std::vector<Primitive*> thorax;
     std::vector<Pos> thoraxPos;
 
+    std::vector <ContactSensor*> contactsensors;
 
-    std::vector <TwoAxisServo*> hipservos; // motor
-    std::vector <OneAxisServo*> tebiasprings;
+    std::vector <TwoAxisServo*> hipservos;
+    std::vector <OneAxisServo*> tebiaservos;
     std::vector <OneAxisServo*> tarsussprings;
-    std::vector <OneAxisServo*> whiskersprings;
+    std::vector <OneAxisServo*> whiskerservos;
 
   };
 

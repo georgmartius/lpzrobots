@@ -31,18 +31,18 @@ namespace lpzrobots {
   class Sphere;
   class Transform;
 
-  /** Class for a contact sensor. 
-      The sensor is on if a collision occurs and stores the penetration depth 
-      (as a crude measure for the colission force). It can be either attached to 
+  /** Class for a contact sensor.
+      The sensor is on if a collision occurs and stores the penetration depth
+      (as a crude measure for the colission force). It can be either attached to
       an existing primitive (e.g. a leg) or create its own sensor object. The latter
       is recommended if you want very localized force sensors.
-      The information of a collision comes to the sensor via the 
+      The information of a collision comes to the sensor via the
       collision callback of the substance used for the primitive.
-      However of no collision is detected the sensor needs to ajust its output as well. 
+      However if no collision is detected the sensor needs to adjust its output as well.
       Therefore a reset function is provided.
   */
   class ContactSensor {
-  public:  
+  public:
 
     /**
        @param binary if true then the sensor is 0 or 1 (for contact), no force value returned
@@ -60,8 +60,8 @@ namespace lpzrobots {
           const osg::Matrix pose = osg::Matrix(),
           bool colorObject = true);
 
-    virtual void reset();  
- 
+    virtual void reset();
+
     /** returns the sensor value in the range >=0;
 	0 means nothing no contact
 	>0 means contact with another object: size is the force in arbitrary unit
@@ -69,15 +69,15 @@ namespace lpzrobots {
      */
     virtual double get();
     virtual void update();
-    
+
     // set measued depth (used internally) (stores the maximum until next reset)
     virtual void setDepth(float depth);
-    
+
     Transform* getTransformObject();
 
   protected:
     bool   binary;              ///< if contact sensor is a switch
-    double forcescale; 
+    double forcescale;
     double value;               ///<  actual sensor value
     double lastvalue;           ///< last value
     double size;                ///< size of graphical sensor
