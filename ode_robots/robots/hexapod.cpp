@@ -704,7 +704,7 @@ namespace lpzrobots {
 
       }
       if(conf.useContactSensors){
-        ContactSensor* cs = new ContactSensor(false,100.0);
+        ContactSensor* cs = new ContactSensor(false,300.0);
         cs->init(odeHandle,osgHandle,foot);
         contactsensors.push_back(cs);
       }

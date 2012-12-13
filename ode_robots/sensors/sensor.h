@@ -102,6 +102,26 @@ namespace lpzrobots {
       return len;
     }
 
+    // parse a string with "xyz" or "XYZ" for specifing the sensors dimension
+    static Dimensions parseSensorDimension(char* str){
+      int val=0;
+      for(unsigned int i=0; i<strlen(str); i++){
+        switch(str[i]){
+        case 'X':
+        case 'x': val|=X; break;                     
+        case 'Y':
+        case 'y': val|=Y; break;                     
+        case 'Z':
+        case 'z': val|=Z; break;                     
+        }
+      }
+      if(val==0) {
+        fprintf(stderr,"parseSensorDimension:Sensor must have at least one dimension"); 
+        val = X;
+      }
+      return (Dimensions)val;
+    }
+
   };
 
 }
