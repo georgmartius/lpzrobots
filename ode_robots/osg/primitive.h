@@ -409,8 +409,8 @@ public:
   */
   Transform(Primitive* parent, Primitive* child, const Pose& pose);
 
-  /// destructor deletes child object
-  ~Transform();
+  /// destructor deletes child object // it should be virtual by yuichi
+  virtual ~Transform();
 
   /** initialised the transform object. This automatically 
       initialises the child geom. 
