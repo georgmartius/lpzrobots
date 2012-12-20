@@ -58,7 +58,7 @@ namespace lpzrobots {
      */
     virtual int getSensorNumber() const  = 0;
 
-    /** returns a list of sensor values (usually in the range [0,1] )
+    /** returns a list of sensor values (usually in the range [-1,1] )
 	This function should be overloaded.
      */
     virtual std::list<sensor> get() const  = 0;
@@ -67,9 +67,9 @@ namespace lpzrobots {
      */
     virtual void update() {};
 
-    /** writes the sensor values (usually in the range [0,1] )
+    /** writes the sensor values (usually in the range [-1,1] )
 	into the given sensor array and returns the number of sensors written.
-	A default implementation based on get() is provided. Only of performance
+	A default implementation based on get() is provided. Only if performance
 	matters overwrite this function.
 	@param sensors call by refernce array which received the values
 	@param length capacity of sensors array
@@ -108,15 +108,15 @@ namespace lpzrobots {
       for(unsigned int i=0; i<strlen(str); i++){
         switch(str[i]){
         case 'X':
-        case 'x': val|=X; break;                     
+        case 'x': val|=X; break;
         case 'Y':
-        case 'y': val|=Y; break;                     
+        case 'y': val|=Y; break;
         case 'Z':
-        case 'z': val|=Z; break;                     
+        case 'z': val|=Z; break;
         }
       }
       if(val==0) {
-        fprintf(stderr,"parseSensorDimension:Sensor must have at least one dimension"); 
+        fprintf(stderr,"parseSensorDimension:Sensor must have at least one dimension");
         val = X;
       }
       return (Dimensions)val;

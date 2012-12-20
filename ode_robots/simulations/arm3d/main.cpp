@@ -131,7 +131,7 @@ public:
 
     ((OdeRobot*)arm)->place(Position(-0.7,0.9,0.01));
     // fixation of cuboid base
-    FixedJoint* anker = new FixedJoint(global.environment /* fixation to ground*/, arm->getMainObject());
+    FixedJoint* anker = new FixedJoint(arm->getMainObject(), global.environment /* fixation to ground*/);
     anker->init(odeHandle, osgHandle);
 
     global.configs.push_back(arm);

@@ -21,21 +21,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.4  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.3  2010/11/11 08:58:45  martius
- *   comments and testing
- *
- *   Revision 1.2  2010/11/10 17:09:36  martius
- *   torque sensors added, but not yet tested
- *
- *   Revision 1.1  2010/09/17 10:06:48  martius
- *   added test for sensors
- *
- *
  ***************************************************************************/
 #include <stdio.h>
 
@@ -58,7 +43,6 @@
 
 #include <ode_robots/speaker.h>
 #include <ode_robots/soundsensor.h>
-#include <ode_robots/torquesensor.h>
 
 // used arena
 #include <ode_robots/playground.h>
@@ -74,7 +58,7 @@ using namespace lpzrobots;
 
 class ThisSim : public Simulation {
 public:
-  Speaker* speaker; 
+  Speaker* speaker;
   double value;
 
   // starting function (executed once at the beginning of the simulation loop)
@@ -91,17 +75,15 @@ public:
     // use FourWheeled vehicle as robot:
     FourWheeledConf fc = FourWheeled::getDefaultConf();
     fc.twoWheelMode = true;
-    fc.useBumper    = false;      
-    fc.irFront      = true;    
-    FourWheeled* fw = new FourWheeled(odeHandle, osgHandle, 
+    fc.useBumper    = false;
+    fc.irFront      = true;
+    FourWheeled* fw = new FourWheeled(odeHandle, osgHandle,
                                         fc, "TestVehicle");
     std::list<Sensor*> sensors;
-    //sensors.push_back(new SoundSensor(Sensor::X));
-    AddSensors2RobotAdapter* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle, 
+    sensors.push_back(new SoundSensor(Sensor::X));
+    AddSensors2RobotAdapter* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle,
                                                                    fw, sensors);
-    vehicle->place(osg::Matrix::translate(0,0,0));    
-    vehicle->addSensor(new TorqueSensor(fw->getJoint(0),16));
-    //    vehicle->addSensor(new TorqueSensor(fw->getJoint(2),16));
+    vehicle->place(osg::Matrix::translate(0,0,0));
     global.configs.push_back(vehicle);
 
     AbstractController *controller = new SineController();
@@ -119,16 +101,16 @@ public:
     PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle);
     s->setPose(osg::Matrix::translate(-1,-1,1));
     global.obstacles.push_back(s);
-    speaker = new Speaker(10); 
+    speaker = new Speaker(10);
     speaker->init(s->getMainPrimitive());
     value=0;
     speaker->set(&value,1);
-    
 
-    
+
+
   }
 
-  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {    
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(control)
       speaker->act(globalData);
   };
@@ -142,12 +124,12 @@ public:
 	{
         case 'k':
           value+=.1;
-          speaker->set(&value,1);          
+          speaker->set(&value,1);
           std::cout << "louder" << std::endl;;
           break;
         case 'K':
           value-=.1;
-          speaker->set(&value,1);          
+          speaker->set(&value,1);
           std::cout << "quiter" << std::endl;
           break;
 	default:

@@ -154,6 +154,7 @@ namespace lpzrobots {
       c.useBigBox=true;
 
       c.whiskerSpread=M_PI/10.0;
+      c.useActiveWhisker=false;
 
       c.ignoreInternalCollisions=true;
 
@@ -205,7 +206,7 @@ namespace lpzrobots {
     /** returns number of motors
      */
     virtual int getMotorNumber();
-  
+
     /** this function is called in each timestep. It should perform robot-internal checks,
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
