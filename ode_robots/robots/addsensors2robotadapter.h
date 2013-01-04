@@ -27,32 +27,32 @@
 #include "oderobot.h"
 #include "sensor.h"
 #include "motor.h"
+#include <selforg/inspectable.h>
 
 namespace lpzrobots {
 
   /** Robot adapter to add sensors and also motors to robots without the
-      need to modify the robot itself. 
-      Examples are Speed sensors, microphons and beepers and so forth            
-      // TODO: add inspectable, make configurable work!
+      need to modify the robot itself.
+      Examples are Speed sensors, microphons and beepers and so forth
       // Maybe it is easier to add this into OdeRobot itself!
   */
-  class AddSensors2RobotAdapter : public OdeRobot {
+  class AddSensors2RobotAdapter : public OdeRobot, public Inspectable {
   public:
-  
+
     /**
      * constructor of adapter
      * @param robot robot the wrap and plug sensors in
      * @param sensors list of sensors to add
      * @param motors list of motors to add
      */
-    AddSensors2RobotAdapter( const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-			     OdeRobot* robot, 
+    AddSensors2RobotAdapter( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+			     OdeRobot* robot,
 			     const std::list<Sensor*>& sensors = std::list<Sensor*>(),
-			     const std::list<Motor*>& motors  = std::list<Motor*>(), 
+			     const std::list<Motor*>& motors  = std::list<Motor*>(),
 			     bool sensors_before_rest = false);
 
     virtual ~AddSensors2RobotAdapter();
-    
+
     /// adds a sensor to the robot. Must be called before placement of the robot, otherwise it has no affect
     virtual void addSensor(Sensor* sensor);
 
@@ -67,8 +67,8 @@ namespace lpzrobots {
       return robot->collisionCallback(data,o1,o2);
     }
 
-    virtual void setColor(const Color& col) { 
-      robot->setColor(col); 
+    virtual void setColor(const Color& col) {
+      robot->setColor(col);
     }
 
     virtual int getSensorNumber();
@@ -80,20 +80,20 @@ namespace lpzrobots {
     virtual std::list<Sensor*> getAttachedSensors(){
       return sensors;
     }
-    
+
     void sense(GlobalData& globalData);
     void doInternalStuff(GlobalData& globalData);
 
     virtual void notifyOnChange(const paramkey& key);
 
     virtual Primitive* getMainPrimitive() const { return robot->getMainPrimitive();}
-    virtual std::vector<Primitive*> getAllPrimitives() const { 
+    virtual std::vector<Primitive*> getAllPrimitives() const {
       return robot->getAllPrimitives();
-    }    
-    virtual std::vector<Primitive*>& getAllPrimitives() { 
+    }
+    virtual std::vector<Primitive*>& getAllPrimitives() {
       return robot->getAllPrimitives();
-    }    
-      
+    }
+
   protected:
     OdeRobot* robot;
     std::list<Sensor*> sensors;

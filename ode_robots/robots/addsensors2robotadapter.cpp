@@ -34,30 +34,34 @@ using namespace std;
 namespace lpzrobots {
 
   AddSensors2RobotAdapter::
-  AddSensors2RobotAdapter(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-			  OdeRobot* robot, const std::list<Sensor*>& sensors, 
-			  const std::list<Motor*>& motors, 
+  AddSensors2RobotAdapter(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+			  OdeRobot* robot, const std::list<Sensor*>& sensors,
+			  const std::list<Motor*>& motors,
 			  bool sensors_before_rest)
     : OdeRobot(odeHandle, osgHandle, robot->getName(), robot->getRevision()),
       robot(robot), sensors(sensors), sensors_before_rest(sensors_before_rest),
       initialized(false), askedfornumber(0)
-  {  
+  {
     assert(robot);
-    copyParameters(*robot);
+    Configurable::addConfigurable(robot);
+    Inspectable* i = dynamic_cast<Inspectable*>(robot);
+    if(i) Inspectable::addInspectable(i);
+
+    //    copyParameters(*robot);
   };
 
 
   AddSensors2RobotAdapter::~AddSensors2RobotAdapter(){
     FOREACH(list<Sensor*>, sensors, i){
       if(*i) delete *i;
-    }    
+    }
     sensors.clear();
     delete robot;
   }
 
   void AddSensors2RobotAdapter::addSensor(Sensor* sensor){
     assert(!askedfornumber);
-    assert(sensor); 
+    assert(sensor);
     if(initialized){
       Primitive* p = robot->getMainPrimitive();
       sensor->init(p);
@@ -73,18 +77,18 @@ namespace lpzrobots {
       Primitive* p = robot->getMainPrimitive();
       motor->init(p);
     }
-    motors.push_back(motor); 
+    motors.push_back(motor);
   }
 
-  void AddSensors2RobotAdapter::update(){      
+  void AddSensors2RobotAdapter::update(){
     assert(initialized);
-    robot->update(); 
+    robot->update();
     FOREACHC(list<Sensor*>, sensors, i){
       (*i)->update();
     }
   }
 
-  int AddSensors2RobotAdapter::getSensorNumber(){ 
+  int AddSensors2RobotAdapter::getSensorNumber(){
     assert(initialized);
     int s=0;
     FOREACHC(list<Sensor*>, sensors, i){
@@ -97,10 +101,10 @@ namespace lpzrobots {
   int AddSensors2RobotAdapter::getSensors(sensor* sensors_, int sensornumber){
     assert(initialized);
     int len = 0;
-    
+
     if(!sensors_before_rest){
       len += robot->getSensors(sensors_ + len,sensornumber - len);
-    }    
+    }
     FOREACH(list<Sensor*>, sensors, i){
       len += (*i)->get(sensors_ + len, sensornumber - len);
     }
@@ -116,7 +120,7 @@ namespace lpzrobots {
     int s=0;
     FOREACHC(list<Motor*>, motors, i){
       s += (*i)->getMotorNumber();
-    } 
+    }
     askedfornumber=true;
     return robot->getMotorNumber() + s;
   }
@@ -130,7 +134,7 @@ namespace lpzrobots {
     FOREACH(list<Motor*>, motors, i){
       len += (*i)->set(motors_ + len, motornumber - len);
     }
-    
+
   }
 
   void AddSensors2RobotAdapter::place(const osg::Matrix& pose){
@@ -151,7 +155,7 @@ namespace lpzrobots {
     FOREACH(list<Sensor*>, sensors, i){
       (*i)->sense(globalData);
     }
-    robot->sense(globalData);        
+    robot->sense(globalData);
   }
 
   void AddSensors2RobotAdapter::doInternalStuff(GlobalData& globalData){

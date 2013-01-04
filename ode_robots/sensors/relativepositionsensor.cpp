@@ -30,13 +30,13 @@
 
 namespace lpzrobots {
 
-  RelativePositionSensor::RelativePositionSensor(double maxDistance, double exponent, 
+  RelativePositionSensor::RelativePositionSensor(double maxDistance, double exponent,
 						 short dimensions /* = X | Y | Z */ , bool local_coordinates /*= false*/)
     : maxDistance(maxDistance), exponent(exponent), dimensions (dimensions), local_coords(local_coordinates){
     own=0;
     ref=0;
   }
-  
+
   void RelativePositionSensor::init(Primitive* own){
     this->own = own;
   }
@@ -47,15 +47,16 @@ namespace lpzrobots {
   int RelativePositionSensor::getSensorNumber() const{
     return (dimensions & X) + ((dimensions & Y) >> 1)  + ((dimensions & Z) >> 2);
   }
-  
+
   std::list<sensor> RelativePositionSensor::get() const {
-    assert(ref);    assert(own);
+    assert(own);
     std::list<sensor> s;
     osg::Vec3 v;
+    osg::Vec3 refpos = ref ? ref->getPosition() : osg::Vec3(0,0,0);
     if (local_coords){
-      v = own->toLocal(ref->getPosition());
+      v = own->toLocal(refpos);
     }else{
-      v = ref->getPosition() - own->getPosition();
+      v = refpos - own->getPosition();
     }
     double scale = pow(v.length() / maxDistance, exponent);
     v *= (1/maxDistance)*scale;
@@ -64,28 +65,9 @@ namespace lpzrobots {
     if (dimensions & Z) s.push_back(v.z());
     return s;
   }
-  
+
   bool RelativePositionSensor::sense(const GlobalData& globaldata){
     return true;
-  }
-  
-  
-  int RelativePositionSensor::get(sensor* sensors, int length) const{
-    assert(ref);    assert(own);
-    int i = 0;
-    assert ( length >= getSensorNumber() );
-    osg::Vec3 v;
-    if (local_coords){
-      v = own->toLocal(ref->getPosition());
-    }else{
-      v = ref->getPosition() - own->getPosition();
-    }
-    double scale = pow(v.length() / maxDistance, exponent);
-    v *= (1/maxDistance)*scale;
-    if (dimensions & X) sensors[i++] = v.x();
-    if (dimensions & Y) sensors[i++] = v.y();
-    if (dimensions & Z) sensors[i++] = v.z();
-    return i;
   }
 
 }
