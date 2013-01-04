@@ -33,41 +33,41 @@
 
 namespace lpzrobots {
 
-  void TraceDrawer::init(){   
+  void TraceDrawer::init(){
     assert(obj);
     lastpos = obj->getPosition();
     initialized=true;
   }
 
-  void TraceDrawer::close(){   
+  void TraceDrawer::close(){
     if(initialized)
       tracker.close();
     initialized=false;
   }
 
-  void TraceDrawer::track(double time){   
+  void TraceDrawer::track(double time){
     if (initialized){
       tracker.track(obj, time);
     }
   }
 
-  void TraceDrawer::drawTrace(GlobalData& global){   
+  void TraceDrawer::drawTrace(GlobalData& global){
     if (initialized && tracker.isDisplayTrace()){
-      Position pos(obj->getPosition());      
+      Position pos(obj->getPosition());
       /* draw cylinder only when length between actual
          and last point is larger then a specific value
       */
       double len = (pos - lastpos).length();
       if(len > 2*tracker.conf.displayTraceThickness) {
         global.addTmpObject(new TmpDisplayItem(new OSGCylinder(tracker.conf.displayTraceThickness,
-                                                               len*1.2), 
+                                                               len*1.2),
                                                ROTM(osg::Vec3(0,0,1), Pos(pos - lastpos)) *
-                                               TRANSM(Pos(lastpos)+Pos(pos - lastpos)/2), 
+                                               TRANSM(Pos(lastpos)+Pos(pos - lastpos)/2),
                                                color),
                             tracker.conf.displayTraceDur);
         lastpos = pos;
       }
-    }    
+    }
   }
 
 
@@ -79,25 +79,25 @@ namespace lpzrobots {
     : Agent(plotOptions, noisefactor, name, revision) {
     constructor_helper(0);
   }
-    
+
   OdeAgent::OdeAgent(const GlobalData& globalData, double noisefactor, const std::string& name, const std::string& revision)
     : Agent(globalData.plotoptions, noisefactor, name, revision){
     constructor_helper(&globalData);
   }
 
-  OdeAgent::OdeAgent(const GlobalData& globalData, const PlotOption& plotOption, 
+  OdeAgent::OdeAgent(const GlobalData& globalData, const PlotOption& plotOption,
                      double noisefactor, const std::string& name, const std::string& revision)
     : Agent(plotOption, noisefactor, name, revision){
     constructor_helper(&globalData);
   }
 
 
-  OdeAgent::OdeAgent(const GlobalData& globalData, const PlotOptionList& plotOptions, 
+  OdeAgent::OdeAgent(const GlobalData& globalData, const PlotOptionList& plotOptions,
                      double noisefactor, const std::string& name, const std::string& revision)
     : Agent(plotOptions, noisefactor, name, revision){
     constructor_helper(&globalData);
   }
-  
+
   OdeAgent::~OdeAgent(){
     removeOperators();
     FOREACH(TraceDrawerList, segmentTracking, td){
@@ -105,7 +105,7 @@ namespace lpzrobots {
     }
 
   }
-  
+
   void OdeAgent::constructor_helper(const GlobalData* globalData){
     fixateRobot         = false;
     fixedJoint          = 0;
@@ -122,7 +122,7 @@ namespace lpzrobots {
     // track the segments
     FOREACH(TraceDrawerList, segmentTracking, td){
       td->track(time);
-    }    
+    }
 
     if(fixateRobot && !fixedJoint) tryFixateRobot();
   }
@@ -130,31 +130,31 @@ namespace lpzrobots {
   void OdeAgent::beforeStep(GlobalData& global){
     OdeRobot* r = getRobot();
     r->sense(global);
-  
+
     trace(global);
 
     Operator::ManipDescr d;
-    Operator::ManipType m;    
+    Operator::ManipType m;
     FOREACH(OperatorList, operators, i){
       m=(*i)->observe(this, global, d);
       switch(m){
-      case Operator::RemoveOperator:        
+      case Operator::RemoveOperator:
         delete *i;
         i=operators.erase(i);
         if(i!=operators.end()) i--;
         break;
       case Operator::Move:
         if(d.show){
-          global.addTmpObject(new TmpDisplayItem(new OSGSphere(d.size.x()), 
+          global.addTmpObject(new TmpDisplayItem(new OSGSphere(d.size.x()),
                                                  TRANSM(d.pos), "manipmove"),0.5);
         }
         break;
       case Operator::Limit:
         if(d.show){
-          global.addTmpObject(new TmpDisplayItem(new OSGCylinder(d.size.x(),d.size.z()), 
-                                                 d.orientation * TRANSM(d.pos), 
+          global.addTmpObject(new TmpDisplayItem(new OSGCylinder(d.size.x(),d.size.z()),
+                                                 d.orientation * TRANSM(d.pos),
                                                  "maniplimit", 0.2),0.5);
-        }        
+        }
         break;
       default: break;
       }
@@ -167,7 +167,7 @@ namespace lpzrobots {
     // track the segments
     FOREACH(TraceDrawerList, segmentTracking, td){
       td->track(time);
-    }    
+    }
 
   }
 
@@ -190,24 +190,24 @@ namespace lpzrobots {
 
   class TrackablePrimitive : public Trackable {
   public:
-    TrackablePrimitive(Primitive* p, const std::string name) 
+    TrackablePrimitive(Primitive* p, const std::string name)
       : p(p), name(name) { }
     virtual std::string getTrackableName() const { return name; };
     virtual Position getPosition() const  { return p->getPosition().toPosition(); };
     virtual Position getSpeed() const     { return p->getVel().toPosition(); };
     virtual Position getAngularSpeed() const { return p->getAngularVel().toPosition(); };
-    virtual matrix::Matrix getOrientation() const { 
+    virtual matrix::Matrix getOrientation() const {
       fprintf(stderr, "TrackablePrimitive:: getOrientation(): not implemented\n");
-      return matrix::Matrix(3,3); 
+      return matrix::Matrix(3,3);
     };
-    
+
   protected:
     Primitive* p;
     std::string name;
   };
 
   /// adds tracking for individual primitives
-  void OdeAgent::addTracking(unsigned int primitiveIndex,const TrackRobot& trackrobot, 
+  void OdeAgent::addTracking(unsigned int primitiveIndex,const TrackRobot& trackrobot,
                              const Color& color){
     assert(robot);
     TraceDrawer td;
@@ -224,7 +224,7 @@ namespace lpzrobots {
     td.init();
     if(!td.tracker.open(robot)){
       fprintf(stderr, "OdeAgent.cpp() ERROR: could not open trackfile! <<<<<<<<<<<<<\n");
-    }    
+    }
     segmentTracking.push_back(td);
   }
 
@@ -241,7 +241,7 @@ namespace lpzrobots {
     }
   }
 
-  void OdeAgent::startMotorBabblingMode (int steps, AbstractController* babblecontroller, 
+  void OdeAgent::startMotorBabblingMode (int steps, AbstractController* babblecontroller,
 					 bool fixRobot){
     WiredController::startMotorBabblingMode(steps, babblecontroller, fixRobot);
     if(fixRobot){
@@ -251,12 +251,12 @@ namespace lpzrobots {
       if(main){
 	fixatingPos = main->getPosition();
 	if(fixatingPos.z()< 1)
-	  fixatingPos.z() += 1;    
+	  fixatingPos.z() += 1;
 	  fixateRobot = true;
-      }    
+      }
     }
   }
-    
+
   void OdeAgent::stopMotorBabblingMode (){
     WiredController::stopMotorBabblingMode();
     fixateRobot = false;
@@ -268,31 +268,31 @@ namespace lpzrobots {
     OdeRobot* r = dynamic_cast<OdeRobot*>(robot);
     if(!r) return;
     Primitive* main = r->getMainPrimitive();
-    if(main){            
+    if(main){
       Pos diff = fixatingPos-main->getPosition();;
       if(diff*diff<.1){
         // DummyPrimitive is a mem leak here.
-        fixedJoint = new FixedJoint(new DummyPrimitive(),main);
+        fixedJoint = new FixedJoint(main,new DummyPrimitive());
         fixedJoint->init(r->odeHandle, r->osgHandle);
       }else{
         main->applyForce(diff*10); // use PID here
-      }      
+      }
     }
-    
+
   }
 
   bool OdeAgent::store(FILE* f) const {
     const OdeRobot* r = getRobot();
-    return r->store(f) && getController()->store(f);    
+    return r->store(f) && getController()->store(f);
   }
 
   bool OdeAgent::restore(FILE* f){
     OdeRobot* r = getRobot();
-    return r->restore(f) && getController()->restore(f);        
+    return r->restore(f) && getController()->restore(f);
   }
 
 
-  
+
   void OdeAgent::addOperator(Operator* o, bool addToConfigurable){
     if(o){
       operators.push_back(o);
@@ -300,19 +300,19 @@ namespace lpzrobots {
         addConfigurable(o);
       }
     }
-    
+
   }
 
   bool OdeAgent::removeOperator(Operator* o){
     unsigned int size = operators.size();
     operators.remove(o);
-    removeConfigurable(o); 
+    removeConfigurable(o);
     return operators.size() < size;
   }
-  
+
   void OdeAgent::removeOperators(){
     FOREACHC(OperatorList, operators, i){
-      removeConfigurable(*i); 
+      removeConfigurable(*i);
       delete (*i);
     }
     operators.clear();
