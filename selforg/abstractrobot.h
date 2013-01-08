@@ -25,15 +25,17 @@
 #define __ABSTRACTROBOT_H
 
 #include <vector>
- 
+#include <list>
+#include <string>
+
 #include "trackable.h"
 #include "configurable.h"
 #include "position.h"
 
 /**
  * Abstract class (interface) for robot in general
- * 
- * 
+ *
+ *
  */
 class AbstractRobot : public Trackable, public Configurable {
 public:
@@ -52,14 +54,14 @@ public:
   virtual ~AbstractRobot(){}
 
   /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
+      @param sensors sensors scaled to [-1,1]
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
   virtual int getSensors(sensor* sensors, int sensornumber)=0;
 
   /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
+      @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
   virtual void setMotors(const motor* motors, int motornumber)=0;
@@ -74,7 +76,16 @@ public:
 
   virtual std::string getTrackableName() const {return getName();}
 
+  /** returns the names for the sensors.
+      The following relation has to hold: getSensorNames().size() == getSensorNumber()
+   */
+  virtual std::list<std::string> getSensorNames() { return std::list<std::string>(getSensorNumber());};
+
+  /** returns the names for the sensors.
+      The following relation has to hold: getMotorNames().size() == getMotorNumber()
+   */
+  virtual std::list<std::string> getMotorNames()  { return std::list<std::string>(getMotorNumber());};
 };
 
 #endif
- 
+
