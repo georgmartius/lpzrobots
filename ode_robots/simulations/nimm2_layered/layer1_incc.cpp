@@ -48,9 +48,6 @@ using namespace std;
 Layer1_INCC::Layer1_INCC(int _buffersize, bool _update_only_1/*=false*/)
   : InvertNChannelController(_buffersize, _update_only_1 ){
 
-  // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile$", 
-			            "$Revision$");
 };
 /*
 Layer1_INCC::~Layer1_INCC(){

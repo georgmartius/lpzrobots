@@ -34,10 +34,6 @@ InvertNChannelController::InvertNChannelController(int _buffersize, bool _update
   addInspectableMatrix("A", &A, false, "model matrix");
   addInspectableMatrix("C", &C, false, "controller matrix");
   addInspectableMatrix("h", &h, false, "controller bias");
-
-  // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile$", 
-			            "$Revision$");
 };
 
 InvertNChannelController::~InvertNChannelController(){

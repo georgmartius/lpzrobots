@@ -81,7 +81,7 @@
 class Configurable : public BackCaller
 {
   public:
-  
+
     typedef std::string paramkey;
     typedef std::string paramdescr;
     // params of type double
@@ -144,11 +144,11 @@ class Configurable : public BackCaller
     }
 
 //   Configurable(const Configurable& copy)
-//     :id(copy.id), name(copy.name), revision(revision), 
+//     :id(copy.id), name(copy.name), revision(revision),
 //      mapOfValues(mapOfValues), mapOfBoolean(mapOfBoolean), mapOfInteger(mapOfInteger)
-//   {  
+//   {
 //   }
-  
+
 
     virtual ~Configurable()
     {
@@ -157,7 +157,7 @@ class Configurable : public BackCaller
     /**
        Is called when a parameter was changes via setParam(). Note that
        it is not called of parameters of childs are changed, then there notifyOnChange() method
-       is called. The key and of the changed parameter 
+       is called. The key and of the changed parameter
        (use getParam() to retrieve its actual value).
        Overload this function when special actions have to be taken on parameter changes.
     */
@@ -169,7 +169,7 @@ class Configurable : public BackCaller
      If you need to do some special treatment for setting (or getting) of the parameter
      you can handle this by overloading getParam and setParam
      */
-    virtual void addParameter(const paramkey& key, paramval* val, 
+    virtual void addParameter(const paramkey& key, paramval* val,
 			      paramval minBound, paramval maxBound,
                               const paramdescr& descr = paramdescr() ) {
       mapOfValues[key] = val;
@@ -180,7 +180,7 @@ class Configurable : public BackCaller
     }
 
     ///  See addParameter(const paramkey& key, paramval* val, paramval minBound, paramval maxBound, const paramdescr& descr)
-    virtual void addParameter(const paramkey& key, paramval* val, 
+    virtual void addParameter(const paramkey& key, paramval* val,
 			      const paramdescr& descr = paramdescr()){
       addParameter(key,val,valDefMinBound, valDefMaxBound, descr);
     }
@@ -189,7 +189,7 @@ class Configurable : public BackCaller
     /**
      See addParameter(const paramkey& key, paramval* val) but for bool values
      */
-    virtual void addParameter(const paramkey& key, parambool* val, 
+    virtual void addParameter(const paramkey& key, parambool* val,
                             const paramdescr& descr = paramdescr()) {
       mapOfBoolean[key] = val;
       if(!descr.empty()) mapOfDescr[key] = descr;
@@ -198,7 +198,7 @@ class Configurable : public BackCaller
     /**
      See addParameter(const paramkey& key, paramval* val) but for int values
      */
-    virtual void addParameter(const paramkey& key, paramint* val, 
+    virtual void addParameter(const paramkey& key, paramint* val,
 			      paramint minBound, paramint maxBound,
                               const paramdescr& descr = paramdescr()) {
       mapOfInteger[key] = val;
@@ -208,7 +208,7 @@ class Configurable : public BackCaller
       mapOfIntBounds[key]=paramintBounds(minBound,maxBound);
     }
 
-    virtual void addParameter(const paramkey& key, paramint* val, 
+    virtual void addParameter(const paramkey& key, paramint* val,
 			      const paramdescr& descr = paramdescr()){
       addParameter(key,val,intDefMinBound, intDefMaxBound, descr);
     }
@@ -217,14 +217,14 @@ class Configurable : public BackCaller
      This function is only provided for convenience. It does the same as addParameter but set the
      variable to the default value
      */
-    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def, 
+    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def,
 				 paramval minBound, paramval maxBound,
                                  const paramdescr& descr = paramdescr()){
       *val = def;
       addParameter(key,val, minBound, maxBound, descr);
     }
 
-    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def, 
+    virtual void addParameterDef(const paramkey& key, paramval* val, paramval def,
 				 const paramdescr& descr = paramdescr()){
       addParameterDef(key,val,def,valDefMinBound, valDefMaxBound, descr);
     }
@@ -238,20 +238,20 @@ class Configurable : public BackCaller
     }
 
     /// See addParameterDef(const paramkey&, paramval*, paramval)
-    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def, 
+    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def,
 				 paramint minBound, paramint maxBound,
                                  const paramdescr& descr = paramdescr()) {
       *val = def;
       addParameter(key,val, minBound, maxBound, descr);
     }
 
-    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def, 
+    virtual void addParameterDef(const paramkey& key, paramint* val, paramint def,
 				 const paramdescr& descr = paramdescr()) {
       addParameterDef(key,val,def,intDefMinBound, intDefMaxBound, descr);
     }
 
     /// sets a description for the given parameter
-    virtual void setParamDescr(const paramkey& key, const paramdescr& descr, 
+    virtual void setParamDescr(const paramkey& key, const paramdescr& descr,
 			       bool traverseChildren = true);
 
 
@@ -315,7 +315,7 @@ class Configurable : public BackCaller
 
     /** The list of all parameters with there value as allocated lists.
 	Note that these are only parameters that are managed manually (with setParam, getParam)
-	@see getAllParamNames()	
+	@see getAllParamNames()
      @return list of key-value pairs
      */
     virtual paramlist getParamList() const {
@@ -349,19 +349,6 @@ class Configurable : public BackCaller
     virtual bool hasParamvalBounds(const paramkey& key, bool traverseChildren = true) const;
 
     virtual bool hasParamintBounds(const paramkey& key, bool traverseChildren = true) const;
-
-
-
-
-
-    /** This is a utility function for inserting the filename and the revision number
-     at the beginning of the given string buffer str and terminates it.
-     @param str buffer (call by reference)
-     that should have space for file+revision+2 characters
-     @param file filename given by CVS i.e. $RCSfile$
-     @param revision revision number given by CVS i.e. $Revision$
-     */
-    static void insertCVSInfo(paramkey& str, const char* file, const char* revision);
 
     /** stores the key values paires into the file : filenamestem.cfg
      including the comments given in the list
@@ -409,7 +396,7 @@ class Configurable : public BackCaller
     void copyParameters(const Configurable&, bool traverseChildren = true);
 
     // internal function to print only description in multiline fasion
-    void printdescr(FILE* f, const char* prefix, const paramkey& key, 
+    void printdescr(FILE* f, const char* prefix, const paramkey& key,
                   int columns, int indent) const;
 
 

@@ -77,9 +77,6 @@ SimpleController::SimpleController(){
   // disable the camerahandling
   cameraHandlingDefined=0;
   
-  // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile$", 
-			      "$Revision$");
 };
 
 

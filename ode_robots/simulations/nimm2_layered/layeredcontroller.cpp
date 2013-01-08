@@ -64,9 +64,6 @@ LayeredController::LayeredController(int _buffersize, bool _update_only_1/*=fals
   x_buffer=0;
   y_buffer=0;
   */
-  // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile$", 
-			            "$Revision$");
 };
 
 LayeredController::~LayeredController(){

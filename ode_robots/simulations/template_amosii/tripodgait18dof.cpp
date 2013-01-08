@@ -33,10 +33,6 @@ TripodGait18DOF::TripodGait18DOF(const TripodGait18DOFConf& _conf)
   
   outputH1 = 0.001;
   outputH2 = 0.001;
-  
-  // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile: tripodgait18dof.cpp,v $",
-      "$Revision: 0.1 $");
 }
 ;
 

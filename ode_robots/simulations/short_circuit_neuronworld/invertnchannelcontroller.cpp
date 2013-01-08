@@ -85,9 +85,6 @@ InvertNChannelController::InvertNChannelController(int _buffersize, bool _update
   y_buffer=0;
   model_type =_model_type;
 
-  // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile$", 
-			            "$Revision$");
 };
 
 InvertNChannelController::~InvertNChannelController(){

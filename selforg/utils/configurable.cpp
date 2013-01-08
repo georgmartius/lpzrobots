@@ -28,24 +28,9 @@
 #include <assert.h>
 #include <stdio.h>
 #include <cmath>
+#include <locale.h> // need to set LC_NUMERIC to have a '.' in the numbers written
 
 using namespace std;
-
-void Configurable::insertCVSInfo(paramkey& str, const char* file, const char* revision){
-  string f(file);
-  string rev(revision);
-  int colon = f.find(':');
-  int end   = f.rfind('$');
-  if(colon >= 0 && end >= 0 && colon+1 < end){
-    str += f.substr(colon+1, end-colon-1);
-  }
-  str += "-";
-  colon = rev.find(':');
-  end   = rev.rfind('$');
-  if(colon >= 0 && end >= 0 && colon+1 < end){
-    str += rev.substr(colon+1, end-colon-1);
-  }
-}
 
 #ifndef AVR
 
@@ -53,6 +38,8 @@ bool Configurable::storeCfg(const char* filenamestem,
 		const std::list< std::string>& comments){
   char name[256];
   FILE* f;
+  setlocale(LC_NUMERIC,"en_US"); // set us type output
+
   sprintf(name, "%s",filenamestem);
   if(!(f = fopen(name, "w"))) return false;
   FOREACHC(std::list< std::string>,comments,c){
@@ -66,6 +53,8 @@ bool Configurable::storeCfg(const char* filenamestem,
 bool Configurable::restoreCfg(const char* filenamestem){
   char name[256];
   FILE* f;
+  setlocale(LC_NUMERIC,"en_US"); // set us type output
+
   sprintf(name, "%s",filenamestem);
   if(!(f=fopen(name, "r")))
     return false;
@@ -165,7 +154,7 @@ std::list<Configurable::paramkey> Configurable::getAllParamNames(bool traverseCh
     l += (*i).first;
   }
   // add custom parameters stuff (which is marked by a * at the end of the line)
-  paramlist list = getParamList(); 
+  paramlist list = getParamList();
   FOREACHC(paramlist, list, i) {
     l += (*i).first;
   }
@@ -209,7 +198,7 @@ void Configurable::copyParameters(const Configurable& c, bool traverseChildren){
   mapOfBoolean = c.mapOfBoolean;
   mapOfInteger = c.mapOfInteger;
   mapOfDescr   = c.mapOfDescr;
-  
+
   mapOfValBounds = c.mapOfValBounds;
   mapOfIntBounds = c.mapOfIntBounds;
   if (traverseChildren) {
@@ -317,7 +306,7 @@ void Configurable::setParamDescr(const paramkey& key, const paramdescr& descr, b
 
 
 void Configurable::print(FILE* f, const char* prefix, int columns, bool traverseChildren /* = true */) const {
-  const char* pre = prefix==0 ? "": prefix;    
+  const char* pre = prefix==0 ? "": prefix;
   columns-= strlen(pre);
   const unsigned short spacelength=20;
   char spacer[spacelength+1];
@@ -329,10 +318,10 @@ void Configurable::print(FILE* f, const char* prefix, int columns, bool traverse
     const string& k = (*i).first;
     double val = * (*i).second;
     if(val>1000 && floor(val) == val){ // without point and digits afterwards
-      fprintf(f, "%s %s=%s%11.0f ", pre, k.c_str(), 
+      fprintf(f, "%s %s=%s%11.0f ", pre, k.c_str(),
 	      spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
     }else{ // normal
-      fprintf(f, "%s %s=%s%11.6f ", pre, k.c_str(), 
+      fprintf(f, "%s %s=%s%11.6f ", pre, k.c_str(),
 	      spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
     }
     printdescr(f, pre, k, columns,spacelength+13);
@@ -353,17 +342,17 @@ void Configurable::print(FILE* f, const char* prefix, int columns, bool traverse
     printdescr(f, pre, k, columns,spacelength+13);
   }
   // add custom parameters stuff (which is marked by a * at the end of the line)
-  paramlist list = getParamList(); 
+  paramlist list = getParamList();
   FOREACHC(paramlist, list, i) {
     const string& k = (*i).first;
-    fprintf(f, "%s %s=%s%11.6f*", pre, k.c_str(), 
+    fprintf(f, "%s %s=%s%11.6f*", pre, k.c_str(),
 	    spacer+(k.length() > spacelength  ? spacelength : k.length()), (*i).second);
     printdescr(f, pre, k, columns,spacelength+13);
   }
   // write termination line
   fprintf(f, "%s######\n",pre);
   // print also all registered configurable children
-  if (traverseChildren) {						
+  if (traverseChildren) {
     char newPrefix[strlen(pre)+2];
     sprintf(newPrefix,"%s-",pre);
     FOREACHC(configurableList, ListOfConfigurableChildren, conf) {
@@ -372,35 +361,35 @@ void Configurable::print(FILE* f, const char* prefix, int columns, bool traverse
   }
 }
 
-void Configurable::printdescr(FILE* f, const char* prefix, 
+void Configurable::printdescr(FILE* f, const char* prefix,
                               const paramkey& key, int columns, int indent) const {
   paramdescr descr = getParamDescr(key);
   int len = descr.length();
-  int space = max(columns - indent,5);  
+  int space = max(columns - indent,5);
   // maybe one can also split at the word boundaries
   while(len > space){
     const paramdescr& d = descr.substr(0,space);
     char* spacer = new char[indent+1];
     memset(spacer, ' ', indent);  spacer[indent]=0;
-    
+
     fprintf(f, " %s\n%s %s",d.c_str(),prefix, spacer);
     delete[] spacer;
     descr = descr.substr(space,len);
     len-=space;
   };
-  fprintf(f, " %s\n",descr.c_str());  
+  fprintf(f, " %s\n",descr.c_str());
 }
 
 
-bool Configurable::parse(FILE* f, const char* prefix, bool traverseChildren) {  
-  char* buffer = (char*)malloc(sizeof(char)*512);   
+bool Configurable::parse(FILE* f, const char* prefix, bool traverseChildren) {
+  char* buffer = (char*)malloc(sizeof(char)*512);
   int preLen= prefix==0 ? 0 : strlen(prefix);
   char pre[preLen+2];
   bool rv=true;
-  if(prefix!=0) 
+  if(prefix!=0)
     strcpy(pre,prefix);
-  
-  assert(buffer);     
+
+  assert(buffer);
   while (fgets(buffer, 512, f) != 0) {
     char* bufNoPrefix = buffer;
     if(preLen>0){
@@ -415,12 +404,12 @@ bool Configurable::parse(FILE* f, const char* prefix, bool traverseChildren) {
     if(strcmp(bufNoPrefix,"######\n")==0) break;
     char* p = strchr(bufNoPrefix,'=');
     if(p!=0){
-      *p=0; // terminate string (key) at = sign	  
+      *p=0; // terminate string (key) at = sign
       char* s = bufNoPrefix;
       while (*s==' ') s++; // skip leading spaces
-      // cout << "Set: " << s << " Val:" << atof(p+1) << endl;	  
-      setParam(s, atof(p+1),false); 
-    }    
+      // cout << "Set: " << s << " Val:" << atof(p+1) << endl;
+      setParam(s, atof(p+1),false);
+    }
   }
   free(buffer);
   if (traverseChildren) {

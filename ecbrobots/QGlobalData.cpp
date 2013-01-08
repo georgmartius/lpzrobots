@@ -109,8 +109,6 @@ namespace lpzrobots {
     comm = 0;
     // deploy the Communicator
     comm = new QECBCommunicator(*this);
-    // prepare name;
-   // Configurable::insertCVSInfo(name, "$RCSfile$", "$Revision$");
   }
 
   QGlobalData::~QGlobalData() {

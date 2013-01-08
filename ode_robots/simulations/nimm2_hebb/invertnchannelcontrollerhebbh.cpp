@@ -59,9 +59,6 @@ using namespace std;
 InvertNChannelControllerHebbH::InvertNChannelControllerHebbH(int _buffersize, bool _update_only_1/*=false*/, bool inactivate_hebb/*=false*/)
   : InvertNChannelController(_buffersize, _update_only_1 ){
 
-  // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile$", 
-			            "$Revision$");
   hebb_inactive=inactivate_hebb;
   if (hebb_inactive){
     std::cout<<"\nHebb learning inactive! (pure invertnchannelcontroller!)\n\n";

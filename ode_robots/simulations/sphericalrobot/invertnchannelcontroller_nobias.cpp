@@ -39,9 +39,6 @@ InvertNChannelController_NoBias::InvertNChannelController_NoBias(int _buffersize
   y_buffer=0;
   addParameter("angle", &this->angle);
 
-  // prepare name;
-  Configurable::insertCVSInfo(name, "$RCSfile$", 
-			            "$Revision$");
 };
 
 InvertNChannelController_NoBias::~InvertNChannelController_NoBias(){
