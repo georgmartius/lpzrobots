@@ -447,7 +447,7 @@ namespace lpzrobots {
   }
 
 
-  //May be it is called every step??
+  //May be it is called every step??  -> Frank: yes
   void Ashigaru::doInternalStuff(GlobalData& globalData){
     //irSensorBank.reset(); // reset sensorbank (infrared sensors)
 
@@ -469,7 +469,19 @@ namespace lpzrobots {
 		  sumForce=0;
 		  contactPoints=0;
 	}
-	*/
+     */
+
+    // Frank: Georgs new TorqueSensor implementation requires sense() to be called before get()
+    motorTorqSensors[T0_m]->sense(globalData);
+    motorTorqSensors[T1_m]->sense(globalData);
+    motorTorqSensors[T2_m]->sense(globalData);
+    motorTorqSensors[C0_m]->sense(globalData);
+    motorTorqSensors[C1_m]->sense(globalData);
+    motorTorqSensors[C2_m]->sense(globalData);
+    motorTorqSensors[F0_m]->sense(globalData);
+    motorTorqSensors[F1_m]->sense(globalData);
+    motorTorqSensors[F2_m]->sense(globalData);
+
 
   }
 
@@ -506,8 +518,8 @@ namespace lpzrobots {
     // Tibia Color (colored by leg)
     OsgHandle tibiaHandle[3] = {osgHandle, osgHandle, osgHandle};
     tibiaHandle[0].color = Color(0./255., 30./255., 10./255., 1.0f);
-	tibiaHandle[1].color = Color(0./255., 30./255., 90./255., 1.0f);
-	tibiaHandle[2].color = Color(0./255., 30./255., 170./255., 1.0f);
+    tibiaHandle[1].color = Color(0./255., 30./255., 90./255., 1.0f);
+    tibiaHandle[2].color = Color(0./255., 30./255., 170./255., 1.0f);
 
     // change Material substance
     OdeHandle odeHandleBody(odeHandle);
