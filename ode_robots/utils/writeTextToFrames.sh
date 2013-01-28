@@ -1,17 +1,17 @@
 #!/bin/bash
 
-if [ -z "$1" -o -z "$2" -o -z "$3" ]; then 
+if [ -z "$1" -o -z "$2" -o -z "$3" ]; then
   cat <<EOI
     Usage: $0 from to drawcommand {furtheroptions}
-       from : index to start 
-       to   : index to end 
+       from : index to start
+       to   : index to end
        drawcommand: imagemagicks draw command passed to -draw eg: "gravity South text 0,80 'My Message'"
-       furtheroptions: more cmd line options default: -pointsize 40 -fill "rgb(255,222,0)"
+       furtheroptions: more cmd line options default: "-pointsize 40 -fill rgb(200,200,200)"
 EOI
  exit 1
 fi
 
-OPT=${4:- -pointsize 40 -fill "rgb(200,200,200)"};
+OPT=${4:- -pointsize 40 -fill rgb(200,200,200)};
 echo $OPT
 mkdir -p new;
 I=$1;
