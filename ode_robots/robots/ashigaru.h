@@ -268,7 +268,6 @@ protected: // Functions
   /** destroys vehicle and space
    */
   virtual void destroy();
-  static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
   /**
    * Assign a human readable name to a motor. This name is used for the
