@@ -257,8 +257,6 @@ public: // Functions
    */
   virtual void doInternalStuff(GlobalData& globalData);
 
-  virtual double& getSumForce() { return sumForce; }
-
   virtual double& getContactPoints() { return contactPoints; }
 
 protected: // Functions
@@ -366,7 +364,7 @@ protected: // Values
 
   //typedef std::map<LegPos, LegPosUsage> LegPosUsageMap;
   //typedef std::map<LegPos, IRSensor*> LegIRSensorMap;
-  typedef std::vector<Primitive*> PrimitiveList;
+  typedef std::vector<Primitive*> PrimitiveList; // this is called Primitives
   typedef std::vector<Joint*> JointList;
   typedef std::vector<OneAxisServo*> ServoList;
 
@@ -399,14 +397,7 @@ protected: // Values
   MTorqMap motorTorqSensors;
 
 
-
   //RaySensorBank irSensorBank; // a collection of ir sensors
-
-  bool visForce; // decides if contact force is made visible in guilogger
-  double sumForce; // stores the contact force made by collisions with external objects
-
-  // to store the value of servo temporally
-  //std::vector<lpzrobots::OneAxisServo*> servo;
 
 };
 

@@ -58,14 +58,9 @@ namespace lpzrobots {
   // constructor:
   // - give handle for ODE and OSG stuff, and default configuration
   Ashigaru::Ashigaru(const OdeHandle& odehandle, const OsgHandle& osgHandle,
-	       const AshigaruConf& conf, const std::string& name)
-  	  	  :OdeRobot(odehandle,
-  	  			  osgHandle,
-  	  			  name,
-  	  			  "$Id$")
-  	  			  ,conf(conf)
-  	  			  ,trunk()
-  	  			  {
+										 const AshigaruConf& conf, const std::string& name)
+  	  	  :OdeRobot(odehandle, osgHandle, name, "0.1"), conf(conf), trunk()
+	{
 	  //
 	  contactPoints=0;
 	  // robot not created up to now
@@ -115,31 +110,31 @@ namespace lpzrobots {
 	  nameSensor(W_y, "angular vel y sensor");
 	  nameSensor(W_z, "angular vel z sensor");
 
-	  // grobal position of the Robot Center
-	  nameSensor(GPOS_Rx, "Grobal Pos of robot x");
-	  nameSensor(GPOS_Ry, "Grobal Pos of robot y");
-	  nameSensor(GPOS_Rz, "Grobal Pos of robot z");
+	  // global position of the Robot Center
+	  nameSensor(GPOS_Rx, "Global Pos of robot x");
+	  nameSensor(GPOS_Ry, "Global Pos of robot y");
+	  nameSensor(GPOS_Rz, "Global Pos of robot z");
 
-	  // grobal speed of the Center
-	  nameSensor(GSPD_Rx, "Grobal Spd of robot x");
-	  nameSensor(GSPD_Ry, "Grobal Spd of robot y");
-	  nameSensor(GSPD_Rz, "Grobal Spd of robot z");
+	  // global speed of the Center
+	  nameSensor(GSPD_Rx, "Global Spd of robot x");
+	  nameSensor(GSPD_Ry, "Global Spd of robot y");
+	  nameSensor(GSPD_Rz, "Global Spd of robot z");
 
-	  // grobal position of the COG
-	  nameSensor(GPOS_COGx, "Grobal COG Pos of robot x");
-	  nameSensor(GPOS_COGy, "Grobal COG Pos of robot y");
-	  nameSensor(GPOS_COGz, "Grobal COG Pos of robot z");
+	  // global position of the COG
+	  nameSensor(GPOS_COGx, "Global COG Pos of robot x");
+	  nameSensor(GPOS_COGy, "Global COG Pos of robot y");
+	  nameSensor(GPOS_COGz, "Global COG Pos of robot z");
 
-	  // grobal position of the LegToe
-	  nameSensor(GPOS_L0x, "Grobal Leg0 toe Pos x");
-	  nameSensor(GPOS_L0y, "Grobal Leg0 toe Pos y");
-	  nameSensor(GPOS_L0z, "Grobal Leg0 toe Pos z");
-	  nameSensor(GPOS_L1x, "Grobal Leg1 toe Pos x");
-	  nameSensor(GPOS_L1y, "Grobal Leg1 toe Pos y");
-	  nameSensor(GPOS_L1z, "Grobal Leg1 toe Pos z");
-	  nameSensor(GPOS_L2x, "Grobal Leg2 toe Pos x");
-	  nameSensor(GPOS_L2y, "Grobal Leg2 toe Pos y");
-	  nameSensor(GPOS_L2z, "Grobal Leg2 toe Pos z");
+	  // global position of the LegToe
+	  nameSensor(GPOS_L0x, "Global Leg0 toe Pos x");
+	  nameSensor(GPOS_L0y, "Global Leg0 toe Pos y");
+	  nameSensor(GPOS_L0z, "Global Leg0 toe Pos z");
+	  nameSensor(GPOS_L1x, "Global Leg1 toe Pos x");
+	  nameSensor(GPOS_L1y, "Global Leg1 toe Pos y");
+	  nameSensor(GPOS_L1z, "Global Leg1 toe Pos z");
+	  nameSensor(GPOS_L2x, "Global Leg2 toe Pos x");
+	  nameSensor(GPOS_L2y, "Global Leg2 toe Pos y");
+	  nameSensor(GPOS_L2z, "Global Leg2 toe Pos z");
 
 
 	// name the motors
@@ -153,10 +148,6 @@ namespace lpzrobots {
 	  nameMotor(F1_m, "F1 motor");
 	  nameMotor(F2_m, "F2 motor");
 
-	//visForce = conf.visForce;
-	//if (visForce) {
-	//	sumForce=0;
-	//}
   };
 
 
@@ -353,26 +344,26 @@ namespace lpzrobots {
      sensors[W_y] = a[1];
      sensors[W_z] = a[2];
 
-     // grobal position of robot center
+     // global position of robot center
      a = this->getMainPrimitive()->getPosition();
-     sensors[GPOS_Rx] = a[0]; // grobal position of the robot
+     sensors[GPOS_Rx] = a[0]; // global position of the robot
      sensors[GPOS_Ry] = a[1];
      sensors[GPOS_Rz] = a[2];
 
-     // grobal speed of robot center
+     // global speed of robot center
      //a = this->legs[L0].shoulder->getPose().getTrans();
      a = this->getMainPrimitive()->getVel();
-     sensors[GSPD_Rx] = a[0]; // grobal spd of the robot
+     sensors[GSPD_Rx] = a[0]; // global spd of the robot
      sensors[GSPD_Ry] = a[1];
      sensors[GSPD_Rz] = a[2];
 
-     // grobal position of the COG
+     // global position of the COG
      a = this->calc_COGPosition();
-	 sensors[GPOS_COGx] = a[0]; // grobal cog of the robot
+	 sensors[GPOS_COGx] = a[0]; // global cog of the robot
      sensors[GPOS_COGy] = a[1];
      sensors[GPOS_COGz] = a[2];
 
-     // grobal position of the leg toe
+     // global position of the leg toe
      a = this->legs[L0].foot->getChildPose().getTrans();
      sensors[GPOS_L0x] = a[0];
      sensors[GPOS_L0y] = a[1];
@@ -449,8 +440,6 @@ namespace lpzrobots {
 
   //May be it is called every step??  -> Frank: yes
   void Ashigaru::doInternalStuff(GlobalData& globalData){
-    //irSensorBank.reset(); // reset sensorbank (infrared sensors)
-
     // update statistics
     //position = getPosition();
 
@@ -463,13 +452,6 @@ namespace lpzrobots {
     // reset ir sensors to maximum value
     //irSensorBank->reset();
 
-    // I dont know
-    /*
-	if (visForce) {
-		  sumForce=0;
-		  contactPoints=0;
-	}
-     */
 
     // Frank: Georgs new TorqueSensor implementation requires sense() to be called before get()
     motorTorqSensors[T0_m]->sense(globalData);
@@ -920,6 +902,13 @@ namespace lpzrobots {
 
   // getTorqueSensorData
   sensor Ashigaru::getTorqueData(TorqueSensor*  torqueSensor){
+		// Georg: the following should do:
+	  if(torqueSensor)
+			return torqueSensor->get().front();
+		else
+			return -1.;
+		/*
+		//
 	  std::list<sensor> a;
 	  std::list<sensor>::iterator it;
 	  if(torqueSensor){
@@ -928,7 +917,8 @@ namespace lpzrobots {
 		 --it;
 		 //std::cout << "trq " << *it << std::endl;
 		 return *it;
-	  }else  return -1.;
+		 }else  return -1.;
+		*/
   }
 
   // convert Pose Matrix(Quatanion) to the roll, pitch, yaw angle (rad)

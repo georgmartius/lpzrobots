@@ -58,7 +58,6 @@ namespace lpzrobots {
     Pos t1;
     Pos t2;
     joint->getTorqueFeedback(t1,t2);
-    const Pos& torque = t1+t2;
     for(int i=0; i<num; i++){
       const Pos& a = joint->getAxis(i);
       // scalar product of axis and force gives the resulting torque
@@ -67,8 +66,7 @@ namespace lpzrobots {
       if(tau<1.0)
         values[i] = values[i]*(1-tau) + (p1+p2)*(-tau/maxtorque);
       else
-      values[i] = (p1+p2)/(-maxtorque);
-
+				values[i] = (p1+p2)/(-maxtorque);
     }
     // debugging:
     // std::cout << "T1:"; t1.print();
