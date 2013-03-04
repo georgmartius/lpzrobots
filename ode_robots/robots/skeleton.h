@@ -30,11 +30,11 @@
 
 namespace lpzrobots {
 
-  class Primitive; 
-  class Joint;  
-  class OneAxisServo;  
-  class TwoAxisServo;  
-  class AngularMotor;  
+  class Primitive;
+  class Joint;
+  class OneAxisServo;
+  class TwoAxisServo;
+  class AngularMotor;
 
 
   typedef struct {
@@ -83,10 +83,10 @@ namespace lpzrobots {
     double backVelocity; ///< velocity of back joint servo
     double backJointLimit; ///< angle range of back joint
 
-    double powerFactor; ///< scale factor for maximal forces of the servos    
-    double relForce;    ///< factor between arm force and rest 
+    double powerFactor; ///< scale factor for maximal forces of the servos
+    double relForce;    ///< factor between arm force and rest
     double dampingFactor; ///< scale factor for damping of the servos
-    
+
     double jointLimitFactor; ///< factor between servo range (XXXJointLimit, see above) and physical joint limit
 
 
@@ -98,9 +98,10 @@ namespace lpzrobots {
     double gripDuration;    ///< time the gripper can grasp
     double releaseDuration; ///< time the gripper has to release before grasping again
 
-    bool movableHead;  ///< if false then no neck movement 
+    bool movableHead;   ///< if false then no neck movement
+    bool useBackJoint;  ///< whether to use the joint in the back
+    bool backSideBend;  ///< whether to use a joint to bend the back sideways
 
-    bool useBackJoint; ///< whether to use the joint in the back
 
     bool irSensors; ///< whether to use the irsensor eyes
 
@@ -113,7 +114,7 @@ namespace lpzrobots {
     std::string headTexture; // texture of the head
     std::string bodyTexture; // texture of the body
     std::string trunkTexture; // texture of the trunk and thorax
-        
+
 
   } SkeletonConf;
 
@@ -123,22 +124,22 @@ namespace lpzrobots {
   class Skeleton : public OdeRobot, public Inspectable{
   public:
 
-    enum SkelParts {Hip,Trunk_comp, Belly, Thorax, Neck, 
-                    Head_comp, 
+    enum SkelParts {Hip,Trunk_comp, Belly, Thorax, Neck,
+                    Head_comp,
                     Left_Shoulder, Left_Forearm, Left_Hand,
-                    Right_Shoulder, Right_Forearm, Right_Hand, 
+                    Right_Shoulder, Right_Forearm, Right_Hand,
                     Left_Thigh, Left_Shin, Left_Foot,
                     Right_Thigh, Right_Shin, Right_Foot,
                     LastPart };
-    
-  
+
+
     /**
      * constructor of Skeleton robot
      * @param odeHandle data structure for accessing ODE
      * @param osgHandle ata structure for accessing OSG
      * @param conf configuration object
      */
-    Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, SkeletonConf& conf, 
+    Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, SkeletonConf& conf,
 	       const std::string& name);
 
     virtual ~Skeleton(){ destroy(); };
@@ -153,11 +154,11 @@ namespace lpzrobots {
 
       c.useVelocityServos = false;
       c.powerFactor       = 1.0;
-      c.relForce          = 1.0;      
+      c.relForce          = 1.0;
       c.dampingFactor     = 1.0;
       c.jointLimitFactor  = 1.1; // factor between servo range and physical limit
 
-      c.hipPower    = 20; 
+      c.hipPower    = 20;
       c.hipDamping  = 0.2;
       c.hipVelocity = 20;
 
@@ -206,11 +207,12 @@ namespace lpzrobots {
       c.neckJointLimit = M_PI/5;
       c.backJointLimit = M_PI/3;//4// // +- 60 degree (half of it to the back)
 
-      c.onlyMainParameters   = true;
+      c.onlyMainParameters   = false;
       c.onlyPrimaryFunctions = false;
       c.handsRotating        = false;
       c.movableHead          = false;
       c.useBackJoint         = true;
+      c.backSideBend         = false;
       c.irSensors            = false;
       c.useGripper           = false;
       c.gripDuration         = 30;
@@ -218,7 +220,7 @@ namespace lpzrobots {
 
       //      c.headTexture = "Images/really_white.rgb";
       c.headTexture     = "Images/dusty.rgb";
-      c.headColor       = "robot4";  
+      c.headColor       = "robot4";
       //  c.bodyTexture = "Images/whitemetal_farbig_small.rgb";
       c.bodyTexture     = "Images/dusty.rgb";
       c.bodyColor       = "robot4";
@@ -243,7 +245,7 @@ namespace lpzrobots {
       c.pelvisDamping = 0.01;
       c.backDamping   = 0.01;
 
-      
+
       return c;
     }
 
@@ -260,14 +262,14 @@ namespace lpzrobots {
     virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
+	@param sensors sensors scaled to [-1,1]
 	@param sensornumber length of the sensor array
 	@return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
+	@param motors motors scaled to [-1,1]
 	@param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
@@ -280,7 +282,7 @@ namespace lpzrobots {
      */
     virtual int getMotorNumber();
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
+    /** this function is called in each timestep. It should perform robot-internal checks,
 	like space-internal collision detection, sensor resets/update etc.
 	@param globalData structure that contains global data from the simulation environment
     */
@@ -300,20 +302,20 @@ namespace lpzrobots {
 
     /// returns a the gripper list
     GripperList& getGrippers();
-    
+
 
   protected:
 
     /** creates vehicle at desired pose
 	@param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */
     virtual void destroy();
 
-    SkeletonConf conf; 
+    SkeletonConf conf;
 
     bool created;      // true if robot was created
 
@@ -328,8 +330,8 @@ namespace lpzrobots {
     std::vector<TwoAxisServo*> headservos; // motors
 
     OneAxisServo* pelvisservo; // between Hip and Trunk_comp
-    std::vector<OneAxisServo*> backservos;   // between Trunk_comp and Thorax
-    //TwoAxisServo* backservo;   // between Trunk_comp and Thorax
+    std::vector<OneAxisServo*> backservos;
+    std::vector<TwoAxisServo*> backservos2;
 
     std::vector<AngularMotor*> frictionmotors;
 
