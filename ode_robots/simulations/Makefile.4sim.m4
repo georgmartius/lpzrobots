@@ -91,6 +91,12 @@ Makefile.depend:
 depend: 
 	makedepend -- $(CPPFLAGS) -- $(CFILES)  -f- > Makefile.depend 2>/dev/null
 
+check-syntax:
+	$(CXX) $(CPPFLAGS) -Wextra -S -fsyntax-only $(CHK_SOURCES)
+
+todo:
+	find -name "*.[ch]*" -exec grep -Hni "TODO" {} \;
+
 tags: 
 	etags $(find -name "*.[ch]")
 

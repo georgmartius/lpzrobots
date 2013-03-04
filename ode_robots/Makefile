@@ -122,6 +122,9 @@ depend:
 	rm Makefile.depend
 	make Makefile.depend
 
+.PHONY: check-syntax
+check-syntax:
+	$(CXX) $(CPPFLAGS) -Wextra -S -fsyntax-only $(CHK_SOURCES)
 
 # Workaroud for bug in etags: filenames should not have leading ./
 CPPFILESNoDot := $(subst ./,,$(CPPFILES))
