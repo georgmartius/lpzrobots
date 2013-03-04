@@ -32,9 +32,9 @@
 class ReplayController : public AbstractController {
 public:
   ReplayController(const char* filename, bool repeat=false)
-    : AbstractController("ReplayController", "1.0"), 
+    : AbstractController("ReplayController", "1.0"),
       filename(filename), repeat(repeat) {
-    
+
     f=fopen(filename,"r");
     if(!f){
       std::cerr<< "ReplayController: error while opening file " << filename << std::endl;
@@ -44,7 +44,7 @@ public:
       std::cerr<< "ReplayController: error while seaching for header in file " << filename << std::endl;
       exit(1);
     }
-    printf("ReplayController: columns: Senors [%i, %i], Motors [%i, %i]\n", 
+    printf("ReplayController: columns: Senors [%i, %i], Motors [%i, %i]\n",
 	   sensorStart, sensorEnd, motorStart, motorEnd);
   }
 
@@ -52,29 +52,29 @@ public:
     //assert(sensornumber == sensorEnd - sensorStart + 1);
     assert(motornumber  == motorEnd - motorStart + 1);
   }
-  
+
   virtual int getSensorNumber() const { return sensorEnd - sensorStart + 1;};
 
   virtual int getMotorNumber() const { return motorEnd - motorStart + 1; };
 
-  virtual void step(const sensor* sensors, int sensornumber, 
+  virtual void step(const sensor* sensors, int sensornumber,
 		    motor* motors, int motornumber){
     stepNoLearning(sensors,sensornumber, motors, motornumber);
   }
 
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
+  virtual void stepNoLearning(const sensor* , int number_sensors,
 			      motor* motors, int number_motors){
-    
+
     if(!parseDataLine(m,f)){
       if(repeat){
 	std::cout << "ReplayController: rewind" << std::endl;
 	rewind(f);
       }else
-	std::cout << "ReplayController: no datafile in file" << filename << std::endl;      
+	std::cout << "ReplayController: no datafile in file" << filename << std::endl;
     }else{
       m=m.rows(motorStart, motorEnd);
     }
-    m.convertToBuffer(motors, sensorEnd-sensorStart + 1);
+    m.convertToBuffer(motors, motorEnd-motorStart + 1);
   }
 
   /**** STOREABLE ****/
@@ -90,16 +90,16 @@ public:
 protected:
 
   bool parseDataFileForHeader(FILE* f){
-    char buffer[1024];  
+    char buffer[1024];
     int i;
     sensorStart=-1;
     sensorEnd=-1;
     motorStart=-1;
     motorEnd=-1;
-    
-    while(fgets(buffer, 1024, f)) {    
+
+    while(fgets(buffer, 1024, f)) {
       if(buffer[0]=='#' && buffer[1]=='C'){
-	// scan line and return      
+	// scan line and return
 	i=0;
 	char* p;
 	p=strtok(buffer," ");
@@ -112,7 +112,7 @@ protected:
 	  if(p[0]=='y' && p[1]=='['){
 	    if(motorStart==-1) motorStart=i;
 	    motorEnd=i;
-	  }      
+	  }
 	  i++;
 	}
 	return true;
@@ -142,10 +142,10 @@ protected:
   }
 
   static bool parseDataLine(matrix::Matrix& data, FILE* f){
-    char buffer[1024];  
+    char buffer[1024];
     int i;
     double dat[1024];
-    while(fgets(buffer, 1024, f)){    
+    while(fgets(buffer, 1024, f)){
       if(buffer[0]=='#' || isEmpty(buffer)){
 	continue;
       }else{
@@ -153,7 +153,7 @@ protected:
 	char* p;
 	p=strtok(buffer," ");
 	if(!p) return false;
-	dat[i] = atof(p);    
+	dat[i] = atof(p);
 	i++;
 	while((p=strtok(NULL," "))!=NULL )  {
 	  if(!check4Number(p)) continue;
@@ -166,7 +166,7 @@ protected:
     };
     return false;
   }
-    
+
 
 
 protected:
@@ -178,7 +178,7 @@ protected:
   const char* filename;
   FILE* f;
   bool repeat;
-  
+
 };
 
 #endif
