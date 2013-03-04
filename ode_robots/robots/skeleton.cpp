@@ -412,7 +412,10 @@ GUIDE adding new sensors
     b->init(ignoreColSpace, 1, osgHTrousers);
     b->setPose(osg::Matrix::translate(0, 1.131, 0.0052) * pose );
 //    b->setMass(/*16*/.61, 0, 0, 0, 0.0996, 0.1284, 0.1882, 0, 0, 0);
-    b->setMass(.5*conf.massfactor);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor, true);
+    else
+      b->setMass(.5*conf.massfactor);
     objects[Hip]=b;
 
     // Trunk_comp
@@ -423,11 +426,10 @@ GUIDE adding new sensors
     b->setPose(osg::Matrix::translate(0, 1.177, 0.0201) * pose );
     //    b->setPose(osg::Matrix::translate(0, 1.39785, 0.0201) * pose );
 //     b->setMass(/*29*/.27, 0, 0, 0, 0.498, 0.285, 0.568, 0, 0, 0);
-    b->setMass(.12*conf.massfactor);//.3
-   //  b = new Capsule(0.3,0.2);
-//     b->init(ignoreColSpace, 1,osgHandle);
-//     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0, 1.6884, 0.0253) * pose );
-//     b->setMass(.1/*1*/, 0, 0, 0, 0.0003125, 0.0003125, 0.0003125, 0, 0, 0);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor, true);
+    else
+      b->setMass(.12*conf.massfactor);//.3
     objects[Trunk_comp]=b;
 
     // Belly
@@ -439,11 +441,10 @@ GUIDE adding new sensors
     b->setPose(osg::Matrix::translate(0, 1.33, 0.0201) * pose );
     //    b->setPose(osg::Matrix::translate(0, 1.39785, 0.0201) * pose );
 //     b->setMass(/*29*/.27, 0, 0, 0, 0.498, 0.285, 0.568, 0, 0, 0);
-    b->setMass(.12*conf.massfactor);//.3
-   //  b = new Capsule(0.3,0.2);
-//     b->init(ignoreColSpace, 1,osgHandle);
-//     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0, 1.6884, 0.0253) * pose );
-//     b->setMass(.1/*1*/, 0, 0, 0, 0.0003125, 0.0003125, 0.0003125, 0, 0, 0);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor, true);
+    else
+      b->setMass(.12*conf.massfactor);//.3
     objects[Belly]=b;
 
     // Thorax
@@ -451,7 +452,10 @@ GUIDE adding new sensors
     b->setTexture(conf.trunkTexture);
     b->init(ignoreColSpace, 1,osgHTrunk);
     b->setPose(osg::Matrix::translate(0, 1.50, 0.03/*0.035*/) * pose );
-    b->setMass(1.0*conf.massfactor);//.3
+    if(conf.useDensity)
+      b->setMass(conf.massfactor, true);
+    else
+      b->setMass(1.0*conf.massfactor);//.3
     objects[Thorax]=b;
 
     double headsize=0.1;
@@ -462,7 +466,10 @@ GUIDE adding new sensors
     b->init(ignoreColSpace, 1, osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0, 1.6884+headsize/2, 0.0253) * pose );
 //     b->setMass(.1/*1*/, 0, 0, 0, 0.0003125, 0.0003125, 0.0003125, 0, 0, 0);
-    b->setMass(.05*conf.massfactor);//.01
+    if(conf.useDensity)
+      b->setMass(conf.massfactor, true);
+    else
+      b->setMass(.05*conf.massfactor);//.01
     objects[Neck]=b;
 
 
@@ -475,6 +482,8 @@ GUIDE adding new sensors
 //     b->setMass(.1, 0, 0, 0, 0.0413, 0.0306, 0.0329, 0, 0, 0);
 //    b->setMass(0.03*conf.massfactor);
 //    objects[Head_comp]=b;
+
+    // TODO: sort out mass!
 
     // Connect Head and Neck
     Transform* t = new Transform(objects[Neck], b,
@@ -501,7 +510,10 @@ GUIDE adding new sensors
     b->init(ignoreColSpace, 1,osgHTrunk);
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(0.3094, 1.587, 0.0227) * pose );
 //     b->setMass(/*2*/.79, 0, 0, 0, 0.00056, 0.021, 0.021, 0, 0, 0);
-    b->setMass(0.2*conf.massfactor);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor, true);
+    else
+      b->setMass(0.2*conf.massfactor);
     objects[Left_Shoulder]=b;
 
     // Left_Forearm
@@ -510,7 +522,10 @@ GUIDE adding new sensors
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(0.5798, 1.5909, 0.024) * pose );
 //     b->setMass(1.21, 0, 0, 0, 0.00055, 0.0076, 0.0076, 0, 0, 0);
-    b->setMass(0.121*conf.massfactor);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor, true);
+    else
+      b->setMass(0.121*conf.massfactor);
     objects[Left_Forearm]=b;
 
     // Left_Hand
@@ -520,7 +535,11 @@ GUIDE adding new sensors
     b->init(odeHandle, 1,osgHTrousers);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0.7826, 1.5948, 0.024) * pose );
 //     b->setMass(0.55, 0, 0, 0, 0.00053, 0.047, 0.0016, 0, 0, 0);
-    b->setMass(0.1*conf.massfactor*conf.relArmmass);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor*conf.relArmmass, true);
+    else
+      b->setMass(0.1*conf.massfactor*conf.relArmmass);
+
     objects[Left_Hand]=b;
 
     // Right_Shoulder
@@ -529,7 +548,10 @@ GUIDE adding new sensors
     b->init(ignoreColSpace, 1,osgHTrunk);
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(-0.3094, 1.587, 0.0227) * pose );
 //     b->setMass(/*2*/.79, 0, 0, 0, 0.00056, 0.021, 0.021, 0, 0, 0);
-    b->setMass(0.2*conf.massfactor);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor, true);
+    else
+      b->setMass(0.2*conf.massfactor);
     b->setColor(conf.trunkColor);
     objects[Right_Shoulder]=b;
 
@@ -539,7 +561,10 @@ GUIDE adding new sensors
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,0,1,0) * osg::Matrix::translate(-0.5798, 1.5909, 0.024) * pose );
 //     b->setMass(1.21, 0, 0, 0, 0.00055, 0.0076, 0.0076, 0, 0, 0);
-    b->setMass(0.121*conf.massfactor);
+        if(conf.useDensity)
+      b->setMass(conf.massfactor, true);
+    else
+      b->setMass(0.121*conf.massfactor);
     objects[Right_Forearm]=b;
 
     // Right_Hand
@@ -550,7 +575,10 @@ GUIDE adding new sensors
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(-0.7826, 1.5948, 0.024) * pose );
     b->setColor(conf.trouserColor);
 //     b->setMass(0.55, 0, 0, 0, 0.00053, 0.047, 0.0016, 0, 0, 0);
-    b->setMass(.1*conf.massfactor*conf.relArmmass);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor*conf.relArmmass, true);
+    else
+      b->setMass(.1*conf.massfactor*conf.relArmmass);
     objects[Right_Hand]=b;
 
     // Left_Thigh
@@ -560,7 +588,10 @@ GUIDE adding new sensors
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0)* osg::Matrix::rotate(-M_PI/60,0,0,1) *
 	       osg::Matrix::translate(0.0949, 0.8525, 0.0253) * pose );
 //     b->setMass(8.35, 0, 0, 0, 0.145, 0.0085, 0.145, 0, 0, 0);
-    b->setMass(.5*conf.massfactor);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor*conf.relLegmass, true);
+    else
+      b->setMass(.5*conf.massfactor*conf.relLegmass);
     objects[Left_Thigh]=b;
 
     // Left_Shin
@@ -569,7 +600,10 @@ GUIDE adding new sensors
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(0.0702, 0.3988, 0.0357) * pose );
     //    b->setMass(4.16, 0, 0, 0, 0.069, 0.0033, 0.069, 0, 0, 0);
-    b->setMass(0.5*conf.massfactor);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor*conf.relLegmass, true);
+    else
+      b->setMass(0.5*conf.massfactor*conf.relLegmass);
     objects[Left_Shin]=b;
 
     // Left_Foot
@@ -578,7 +612,10 @@ GUIDE adding new sensors
     b->init(odeHandle, 1, osgHTrunk);
     b->setPose(osg::Matrix::translate(0.0624, 0.1388, 0.0708) * pose );
     //    b->setMass(1.34, 0, 0, 0, 0.0056, 0.0056, 0.00036, 0, 0, 0);
-    b->setMass(.5*conf.massfactor*conf.relFeetmass);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor, true);
+    else
+      b->setMass(.5*conf.massfactor*conf.relFeetmass);
     objects[Left_Foot]=b;
 
     // Right_Thigh
@@ -588,7 +625,10 @@ GUIDE adding new sensors
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0)* osg::Matrix::rotate(M_PI/60,0,0,1) *
 	       osg::Matrix::translate(-0.0949, 0.8525, 0.0253) * pose );
     //    b->setMass(8.35, 0, 0, 0, 0.145, 0.0085, 0.145, 0, 0, 0);
-    b->setMass(.5*conf.massfactor);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor*conf.relLegmass, true);
+    else
+      b->setMass(.5*conf.massfactor*conf.relLegmass);
     objects[Right_Thigh]=b;
 
     // Right_Shin
@@ -597,7 +637,10 @@ GUIDE adding new sensors
     b->init(odeHandle, 1,osgHandle);
     b->setPose(osg::Matrix::rotate(M_PI_2,1,0,0) * osg::Matrix::translate(-0.0702, 0.3988, 0.0357) * pose );
     //    b->setMass(4.16, 0, 0, 0, 0.069, 0.0033, 0.069, 0, 0, 0);
-    b->setMass(0.5*conf.massfactor);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor*conf.relLegmass, true);
+    else
+      b->setMass(0.5*conf.massfactor*conf.relLegmass);
     objects[Right_Shin]=b;
 
     // Right_Foot
@@ -606,7 +649,10 @@ GUIDE adding new sensors
     b->init(odeHandle, 1, osgHTrunk);
     b->setPose(osg::Matrix::translate(-0.0624, 0.1388, 0.0708) * pose );
     //    b->setMass(1.34, 0, 0, 0, 0.0056, 0.0056, 0.00036, 0, 0, 0);
-    b->setMass(0.5*conf.massfactor*conf.relFeetmass);
+    if(conf.useDensity)
+      b->setMass(conf.massfactor*conf.relFeetmass, true);
+    else
+      b->setMass(0.5*conf.massfactor*conf.relFeetmass);
     objects[Right_Foot]=b;
 
 

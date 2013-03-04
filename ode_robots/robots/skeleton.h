@@ -41,12 +41,14 @@ namespace lpzrobots {
   public:
     double size;       ///< scaling factor for robot (height)
     double massfactor; ///< mass factor for all parts
+    bool   useDensity; ///< massfactor is interpreted as a density
 
     bool   useVelocityServos; ///< if true the more stable velocity controlling servos are used
 
     double relLegmass; ///< relative overall leg mass
     double relArmmass; ///< relative overall arm mass
     double relFeetmass; ///< relative overall feet mass
+
     double hipPower;   ///< maximal force for at hip joint motors
     double hipDamping; ///< damping of hip joint servos
     double hipVelocity; ///< velocity of hip joint servos
@@ -151,6 +153,7 @@ namespace lpzrobots {
       c.relLegmass  = 1;        // unused
       c.relFeetmass = 1;        // .1; unused
       c.relArmmass  = 1;        // 0.3; unused
+      c.useDensity  = false;
 
       c.useVelocityServos = false;
       c.powerFactor       = 1.0;

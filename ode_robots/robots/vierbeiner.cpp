@@ -80,7 +80,7 @@ namespace lpzrobots {
     assert(created); // robot must exist
 
     // controller output as torques
-    unsigned int n=0;
+    int n=0;
     FOREACH(vector <HingeServo*>, headtailservos, s){
       (*s)->set(motors[n]);
       n++;
@@ -119,7 +119,7 @@ namespace lpzrobots {
   */
   int VierBeiner::getSensors(sensor* sensors, int sensornumber){
     assert(created);
-    unsigned int n=0;
+    int n=0;
     FOREACHC(vector <HingeServo*>, headtailservos, s){
       sensors[n]   = (*s)->get();
       n++;

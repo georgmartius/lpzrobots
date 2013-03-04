@@ -36,24 +36,24 @@ namespace lpzrobots {
   public:
     HeightField(const std::string& filename, float x_size, float y_size, float height);
     HeightField(osg::HeightField* heightfield, float x_size, float y_size);
-    
+
     virtual ~HeightField();
     virtual void init(const OdeHandle& odeHandle, double mass,
 		      const OsgHandle& osgHandle,
 		      char mode = Body | Geom | Draw) ;
-    
-    
+
+
     virtual void setPose(const osg::Matrix& pose);
-    
+
     virtual void update();
     virtual OSGPrimitive* getOSGPrimitive() { return osgheightfield; }
 
-    virtual void setMass(double mass) {}
-  
+    virtual void setMass(double mass, bool density = false) {}
+
   protected:
     OSGHeightField* osgheightfield;
     dTriMeshDataID data;
-    
+
   };
 
 

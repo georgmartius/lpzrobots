@@ -1,4 +1,4 @@
- 
+
 /***************************************************************************
  *   Copyright (C) 2005-2011 LpzRobots development team                    *
  *    Georg Martius  <georg dot martius at web dot de>                     *
@@ -68,9 +68,9 @@ Pose osgPose( const double * position , const double * rotation );
 /// converts the rotation component of pose into an ode rotation matrix
 void odeRotation( const Pose& pose , dMatrix3& odematrix);
 
-/** counts number of max velocity violations at joints 
- * (Attention, this is a global variable, initialized to 0 at start)   
- */ 
+/** counts number of max velocity violations at joints
+ * (Attention, this is a global variable, initialized to 0 at start)
+ */
 extern int globalNumVelocityViolations;
 
 /**
@@ -81,17 +81,19 @@ class Primitive : public Storeable {
 public:
   /** Body means that it is a dynamic object with a body.
       Geom means it has a geometrical represenation used for collision detection.
-      Draw means the primitive is drawn
+      Draw means the primitive is drawn.
+      Density means that the mass is interpreted as a density
       _Child and _Transform are only used internally and used for transformed geoms.
   */
 
-  /* typedef */ enum Modes {Body=1, Geom=2, Draw=4, _Child=8, _Transform=16};
+  /* typedef */ enum Modes {Body=1, Geom=2, Draw=4, Density=8,
+                            _Child=16, _Transform=32};
   /* typedef */ enum Category { Dyn=1, Stat=2};
 
 
   Primitive ();
   virtual ~Primitive ();
-  /** registers primitive in ODE and OSG. 
+  /** registers primitive in ODE and OSG.
       @param osgHandle scruct with ODE variables inside (to specify space, world...)
       @param mass Mass of the object in ODE (if withBody = true)
       @param osgHandle scruct with OSG variables inside (scene node, color ...)
@@ -121,10 +123,10 @@ public:
   virtual void setTexture(const TextureDescr& texture);
   /** assigns a texture to the x-th surface of the primitive.
       You can choose how often to repeat
-      negative values of repeat correspond to length units. 
+      negative values of repeat correspond to length units.
       E.g. assume a rectangle of size 5 in x direction: with repeatOnX = 2 the texture would be two times
-      rereated. With repeatOnX = -2 the texture would be 2.5 times repeated because the texture is 
-      made to have the size 2 
+      rereated. With repeatOnX = -2 the texture would be 2.5 times repeated because the texture is
+      made to have the size 2
    */
   virtual void setTexture(int surface, const TextureDescr& texture);
   /// assign a set of texture to the surfaces of the primitive
@@ -140,25 +142,27 @@ public:
   /// returns the pose
   virtual Pose getPose() const;
   /// returns the velocity
-  virtual Pos getVel() const;  
+  virtual Pos getVel() const;
   /// returns the angular velocity
   virtual Pos getAngularVel() const;
 
-  /** apply a force (in world coordinates) to the primitive and 
+  /** apply a force (in world coordinates) to the primitive and
       returns true if it was possible */
   virtual bool applyForce(osg::Vec3 force);
   /** @see applyForce(osg::Vec3) */
   virtual bool applyForce(double x, double y, double z);
 
-  /** apply a torque (in world coordinates) to the primitive and 
+  /** apply a torque (in world coordinates) to the primitive and
       returns true if it was possible
    */
   virtual bool applyTorque(osg::Vec3 torque);
   /** @see applyTorque(osg::Vec3) */
   virtual bool applyTorque(double x, double y, double z);
 
-  /// sets the mass of the body (uniform)
-  virtual void setMass(double mass) = 0;
+  /** sets the mass of the body (uniform)
+      if density==true then mass is interpreted as a density
+   */
+  virtual void setMass(double mass, bool density = false) = 0;
   /** sets full mass specification
     \param cg center of gravity vector
     \param I  3x3 interia tensor
@@ -214,8 +218,8 @@ public:
 
   /* **** storable interface *******/
   virtual bool store(FILE* f) const;
-  
-  virtual bool restore(FILE* f);  
+
+  virtual bool restore(FILE* f);
 
 
 protected:
@@ -245,14 +249,14 @@ class Plane : public Primitive {
 public:
   Plane();
   virtual ~Plane();
-  virtual void init(const OdeHandle& odeHandle, double mass, 
+  virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw) ;
 
-  virtual void update();  
+  virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
 
-  virtual void setMass(double mass);
+  virtual void setMass(double mass, bool density = false);
 
 protected:
   OSGPlane* osgplane;
@@ -275,7 +279,7 @@ public:
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
 
-  virtual void setMass(double mass);
+  virtual void setMass(double mass, bool density = false);
 protected:
   OSGBoxTex* osgbox;
 };
@@ -287,14 +291,14 @@ public:
   Sphere(float radius);
   virtual ~Sphere();
 
-  virtual void init(const OdeHandle& odeHandle, double mass, 
+  virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle,
 		    char mode = Body | Geom | Draw) ;
 
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
 
-  virtual void setMass(double mass);
+  virtual void setMass(double mass, bool density = false);
 
 protected:
   OSGSphere* osgsphere;
@@ -312,7 +316,7 @@ public:
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
 
-  virtual void setMass(double mass);
+  virtual void setMass(double mass, bool density = false);
 
 protected:
   OSGCapsule* osgcapsule;
@@ -330,14 +334,14 @@ public:
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
 
-  virtual void setMass(double mass);
+  virtual void setMass(double mass, bool density = false);
 protected:
   OSGCylinder* osgcylinder;
 };
 
-/** Ray primitive 
+/** Ray primitive
     The actual visual representation can have different length than the
-    ray object. This is specified by length. 
+    ray object. This is specified by length.
     SetLength is an efficient way to change the length at runtime.
 */
 class Ray : public Primitive {
@@ -347,12 +351,12 @@ public:
   virtual void init(const OdeHandle& odeHandle, double mass,
       const OsgHandle& osgHandle,
       char mode = Geom | Draw) ;
-  
+
   void setLength(float len);
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
-    
-  virtual void setMass(double mass);
+
+  virtual void setMass(double mass, bool density = false);
 protected:
   double range;
   float thickness;
@@ -375,7 +379,7 @@ public:
   virtual OSGPrimitive* getOSGPrimitive();
   virtual float getRadius();
 
-  virtual void setMass(double mass);
+  virtual void setMass(double mass, bool density = false);
 
   /**
    * Sets the BoundingShape externally (e.g. XMLBoundingShape).
@@ -396,15 +400,15 @@ protected:
 
 
 /**
-   Primitive for transforming a geom (primitive without body) 
-    in respect to a body (primitive with body). 
-   Hides complexity of ODE TransformGeoms. 
+   Primitive for transforming a geom (primitive without body)
+    in respect to a body (primitive with body).
+   Hides complexity of ODE TransformGeoms.
 */
 class Transform : public Primitive {
 public:
-  /** 
+  /**
       @param parent primitive should have a body and should be initialised
-      @param child  is transformed by pose in respect to parent. 
+      @param child  is transformed by pose in respect to parent.
       This Primitive must NOT have a body and should not be initialised
   */
   Transform(Primitive* parent, Primitive* child, const Pose& pose);
@@ -412,8 +416,8 @@ public:
   /// destructor deletes child object // it should be virtual by yuichi
   virtual ~Transform();
 
-  /** initialised the transform object. This automatically 
-      initialises the child geom. 
+  /** initialised the transform object. This automatically
+      initialises the child geom.
       @param mass mass of the child
       @param mode is the mode for the child, except that Body bit is ignored (child can't have a body)
    */
@@ -424,7 +428,7 @@ public:
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
 
-  virtual void setMass(double mass);
+  virtual void setMass(double mass, bool density = false);
 protected:
   Primitive* parent;
   Primitive* child;
@@ -432,25 +436,25 @@ protected:
 };
 
 /**
-   Dummy Primitive which returns 0 for geom and body. 
+   Dummy Primitive which returns 0 for geom and body.
    Only useful for representing the static world in terms of primitives
    or if virtual objects are created, but then the position and speed has
    to be set manually.
 */
 class DummyPrimitive : public Primitive {
 public:
-  
-  DummyPrimitive() {     
+
+  DummyPrimitive() {
     body=0;
     geom=0;
   }
-  virtual void init(const OdeHandle& odeHandle, double mass, 
+  virtual void init(const OdeHandle& odeHandle, double mass,
 		    const OsgHandle& osgHandle, char mode = Body | Geom | Draw) {
   }
   virtual void update() {}
   virtual OSGPrimitive* getOSGPrimitive() { return 0; }
 
-  virtual void setMass(double mass) {}
+  virtual void setMass(double mass, bool density = false) {}
 
   virtual void setPosition(Pos pos){
     this->pos=pos;
@@ -464,7 +468,7 @@ public:
   virtual Pos getVel() const {
     return vel;
   }
-  
+
 private:
   Pos vel;
   Pos pos;
