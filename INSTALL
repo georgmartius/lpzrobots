@@ -2,6 +2,7 @@ lpzrobots installation hints. Please check also the online documentation
 at http://robot.informatik.uni-leipzig.de/software
 
 Install from source:
+- Check Dependencies file and install all the packages mentioned there then
 type
 > make
 this will first create a configuration file.
