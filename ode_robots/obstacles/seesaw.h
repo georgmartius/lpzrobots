@@ -48,15 +48,15 @@ class Seesaw : public AbstractObstacle{
    * @param mass mass of the bar
    * @param dimension (length of bar, width of bar, height of support)
    */
-  Seesaw(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-         const osg::Vec3& dimension = osg::Vec3(4.0, 0.6, 0.3), double mass = 1.0): 
-    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), dimension(dimension), 
-    mass(mass) {       
+  Seesaw(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+         const osg::Vec3& dimension = osg::Vec3(4.0, 0.6, 0.3), double mass = 1.0):
+    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), dimension(dimension),
+    mass(mass) {
     setTexture("Images/wood_sw.jpg");
-    obstacle_exists=false;    
+    obstacle_exists=false;
   };
 
-  
+
   virtual void setPose(const osg::Matrix& pose){
     this->pose = osg::Matrix::translate(0,0,dimension.z()/2.0) * pose;
     if (!obstacle_exists) {
@@ -64,8 +64,8 @@ class Seesaw : public AbstractObstacle{
     }
   };
 
-  virtual Primitive* getMainPrimitive() const { 
-    if(!obst.empty()) return obst[0]; 
+  virtual Primitive* getMainPrimitive() const {
+    if(!obst.empty()) return obst[0];
     else return 0;
   }
 
@@ -77,7 +77,7 @@ class Seesaw : public AbstractObstacle{
     support->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
     support->setPose(pose);
     obst.push_back(support);
-    
+
     Box* bar;
     bar = new Box(dimension.y(), dimension.x(), dimension.y()/6.0);
     bar->setTextures(getTextures(1));
@@ -86,9 +86,9 @@ class Seesaw : public AbstractObstacle{
     obst.push_back(bar);
 
     // connect them together
-    HingeJoint* joint = new HingeJoint(support, bar, bar->getPosition(), 
+    HingeJoint* joint = new HingeJoint(bar, support, bar->getPosition(),
                                        bar->toGlobal(Axis(1,0,0)));
-    joint->init(odeHandle, osgHandle, true, dimension.y()*1.05,false);    
+    joint->init(odeHandle, osgHandle, true, dimension.y()*1.05,false);
 
     // maybe set stop values
     obstacle_exists=true;

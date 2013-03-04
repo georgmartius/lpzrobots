@@ -110,6 +110,14 @@ namespace lpzrobots {
       addInspectableDescription("x_R[" + itos (n*2+1) + "]",
                                 " leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
                                 + " front/back (raw)");
+      if(conf.useTebiaMotors){
+        addInspectableDescription("x[" + itos (conf.legNumber*2+n) + "]",
+                                  "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
+                                  + " tebia (knee)");
+        addInspectableDescription("x_R[" + itos (conf.legNumber*2+n) + "]",
+                                  "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
+                                  + " tebia (knee) (raw)");
+      }
     }
 
     // Georg: you can also add inspectables here to see them in the logfile/guilogger
