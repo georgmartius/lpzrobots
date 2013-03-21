@@ -230,6 +230,9 @@ namespace lpzrobots {
     nameSensor(BX_pos, "body position sensor x");
     nameSensor(BY_pos, "body position sensor y");
     nameSensor(BZ_pos, "body position sensor z");
+    nameSensor(BX_ori, "body orientation sensor x");
+    nameSensor(BY_ori, "body orientation sensor y");
+    nameSensor(BZ_ori, "body orientation sensor z");
 
     // name the motors
     nameMotor(TR0_m, "TR0 motor");
@@ -534,6 +537,24 @@ namespace lpzrobots {
     }
     //------------------------Add GoalSensor by Ren-------------------
 
+    //------------------------Add Orientation Sensor by Ren-------------------
+
+    std::list<sensor> Ori_lst =  OrientationSensor->get();
+
+    double ori1,ori2,ori3;
+
+    ori1 = Ori_lst.front();
+    Ori_lst.pop_front();
+    ori2 = Ori_lst.front();
+    Ori_lst.pop_front();
+    ori3 = Ori_lst.front();
+    sensors[BX_ori] = ori1; //atan2(ori2,ori1)*180/M_PI;
+    sensors[BY_ori] = ori2;
+    sensors[BZ_ori] = ori3;
+
+    Ori_lst.clear();
+    //------------------------Add Orientation Sensor by Ren-------------------
+
 #ifdef VERBOSE
     std::cerr << "AmosII::getSensors END\n";
 #endif
@@ -714,7 +735,7 @@ namespace lpzrobots {
 
     if (conf.useLocalVelSensor) {
       // create speedsensor
-      speedsensor = new SpeedSensor(1.0, SpeedSensor::TranslationalRel, SpeedSensor::XY);
+      speedsensor = new SpeedSensor(1.0, SpeedSensor::TranslationalRel, SpeedSensor::XYZ);
       //initialize the speedsensor
       speedsensor->init(front);
     }
@@ -1074,6 +1095,12 @@ namespace lpzrobots {
       }
     }
     // --------------Add Goal Sensor by Ren -------------------
+
+    //-----------Add Orientation Sensor by Ren----------------
+    OrientationSensor = new AxisOrientationSensor(AxisOrientationSensor::Axis,Sensor::X |Sensor::Y | Sensor::Z);
+    OrientationSensor->init(front);
+    //-----------Add Orientation Sensor by Ren----------------
+
 
     setParam("dummy", 0); // apply all parameters.
 
