@@ -4,8 +4,6 @@
  *  Created on: May 2, 2011
  *      Author: poramate
  *
- *  Small adaptations and moved to oderobots/selforg/wirings
- *  	by fhesse
  */
 
 #ifndef AMOSIISENSORMOTORDEFINITION_H_

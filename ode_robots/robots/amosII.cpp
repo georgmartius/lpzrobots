@@ -1171,6 +1171,13 @@ namespace lpzrobots {
       legs.clear();
 
       //------------------ delete GoalSensor here by Ren--------------------
+
+      // deleting pointers to GoalSensor_references
+      for (std::vector<Primitive*>::iterator i = conf.GoalSensor_references.begin(); i != conf.GoalSensor_references.end(); i++) {
+        if (*i)
+          delete *i;
+      }
+
       GoalSensor.clear();
       //------------------ delete GoalSensor here by Ren--------------------
 
