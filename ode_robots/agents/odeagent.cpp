@@ -63,7 +63,7 @@ namespace lpzrobots {
                                                                len*1.2),
                                                ROTM(osg::Vec3(0,0,1), Pos(pos - lastpos)) *
                                                TRANSM(Pos(lastpos)+Pos(pos - lastpos)/2),
-                                               color),
+                                               color, OSGPrimitive::Low),
                             tracker.conf.displayTraceDur);
         lastpos = pos;
       }
