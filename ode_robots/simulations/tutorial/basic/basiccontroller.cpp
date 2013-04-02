@@ -26,6 +26,24 @@ int BasicController::getMotorNumber() const {
 
 void BasicController::step(const sensor* sensors, int sensornumber,
     motor* motors, int motornumber) {
+
+  if ((sensors[2] > .5) && (sensors[3] <= .5)) {
+    motors[0] = .2;
+    motors[1] = 1.0;
+  }
+  else if ((sensors[2] <= .5) && (sensors[3] > .5)) {
+    motors[0] = 1.0;
+    motors[1] = .2;
+  }
+  else if ((sensors[2] > .5) && (sensors[3] > .5)) {
+    motors[0] = -1.0;
+    motors[1] = 1.0;
+  }
+  else {
+    motors[0] = 1.0;
+    motors[1] = 1.0;
+  }
+
 }
 
 void BasicController::stepNoLearning(const sensor* , int number_sensors,

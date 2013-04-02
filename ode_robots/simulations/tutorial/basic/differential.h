@@ -8,18 +8,30 @@
 // ODE primitives
 #include <ode_robots/primitive.h>
 
+// ODE joints for objects
+#include <ode_robots/joint.h>
+
+// ODE angular motors
+#include <ode_robots/angularmotor.h>
+
+// ODE infrared distance sensors
+#include <ode_robots/raysensorbank.h>
+#include <ode_robots/irsensor.h>
 
 // Using name space lpzrobots
 namespace lpzrobots{
 
   // structure to hold configuration of the robot
   typedef struct{
-    double bodyRadio;
-    double bodyHeight;
-    double bodyMass;
-    double wheelRadio;
-    double wheelHeight;
-    double wheelMass;
+    double bodyRadio; // Radio of the cylinder defining the body
+    double bodyHeight; // Height of the cylinder defining the body
+    double bodyMass; // Mass of the body
+    double wheelRadio; // Radio of the cylinder defining the wheel
+    double wheelHeight; // Height of the cylinder defining the wheel
+    double wheelMass; // Mass of the wheel
+    double wheelMotorPower; // Maximum power allowed to the motor to reach MaxSpeed
+    double wheelMotorMaxSpeed; // Maximum speed of the wheel
+    double irRange; // Range (max distance) of the infra-red sensors
   } DifferentialConf; 
 
   /**
@@ -28,6 +40,7 @@ namespace lpzrobots{
    */
   class Differential: public OdeRobot{
     public:
+      // Structure to hold the configuration of the robot
       DifferentialConf conf;
 
       /**
@@ -41,12 +54,15 @@ namespace lpzrobots{
        */
       static DifferentialConf getDefaultConf(){
         DifferentialConf conf;
-        conf.bodyRadio   = 1.0;
-        conf.bodyHeight  = 1.0;
-        conf.bodyMass    = 1.0;
-        conf.wheelRadio  = .5;
-        conf.wheelHeight = .5;
-        conf.wheelMass   = 1.0;
+        conf.bodyRadio          = 1.0;
+        conf.bodyHeight         = .5;
+        conf.bodyMass           = 1.0;
+        conf.wheelRadio         = .3;
+        conf.wheelHeight        = .1;
+        conf.wheelMass          = 5.0;
+        conf.wheelMotorPower    = 5.0;
+        conf.wheelMotorMaxSpeed = 5.0;
+        conf.irRange            = 5.0;
         return conf;
       }
 
@@ -60,6 +76,12 @@ namespace lpzrobots{
        * @param pose desired 4x4 pose matrix
        */
       virtual void place(const osg::Matrix& pose);
+
+      /**
+       * Create the robot in the desired pose
+       * @param pose desired 4x4 pose matrix
+       */
+      virtual void create(const osg::Matrix& pose);
 
       /**
        * Return actual sensor values
@@ -84,16 +106,26 @@ namespace lpzrobots{
        * Return the number of motors
        */
       virtual int getMotorNumber();
-    
-      /// update the OSG notes here
+
+      /**
+       * OSG nodes are updated
+       */
       virtual void update();
 
+      /* This function is called in each timestep. It should perform robot-internal checks,
+       * like space-internal collision detection, sensor resets/update etc.
+       * @param globalData structure that contains global data from the simulation environment
+       * */
+      virtual void doInternalStuff(GlobalData& globalData);
+
     private:
-      Primitive* body;
+      std::vector <AngularMotor1Axis*> wheelMotors; // vector to hold wheel motors
+      RaySensorBank irSensorBank; // a collection of ir sensors
   };
+
 
 } // end namespace lpzrobots
 
 
-  // End of header guard
+// End of header guard
 #endif
