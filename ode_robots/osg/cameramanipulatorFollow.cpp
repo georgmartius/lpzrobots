@@ -41,11 +41,11 @@ namespace lpzrobots {
   void CameraManipulatorFollow::calcMovementByAgent() {
     if (this->isWatchingAgentDefined() && camHandle.oldPositionOfAgentDefined) {
       // then manipulate desired view and desired eye
-      const double* robMove = (camHandle.watchingAgent->getRobot()->getPosition()-camHandle.oldPositionOfAgent).toArray();
+      Position robMove = (camHandle.watchingAgent->getRobot()->getPosition()-camHandle.oldPositionOfAgent);
       // attach the robSpeed to desired eye
       for (int i=0;i<=2;i++) {
-        if (!isNaN(robMove[i])) {
-          camHandle.desiredEye[i]+=robMove[i];}
+        if (!isNaN(robMove.toArray()[i])) {
+          camHandle.desiredEye[i]+=robMove.toArray()[i];}
         else
           std::cout << "NAN exception!" << std::endl;
       }
