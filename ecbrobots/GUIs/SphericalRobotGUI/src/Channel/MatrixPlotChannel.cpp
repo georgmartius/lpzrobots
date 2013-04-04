@@ -28,17 +28,17 @@
  *  $Log$
  *  Revision 1.1  2009-04-17 14:17:33  guettler
  *  New PlotChannels and Filters for matrices
- *										   *
+ *                                                                                   *
  *                                                                         *
  **************************************************************************/
 
 #include "MatrixPlotChannel.h"
 
 MatrixPlotChannel::MatrixPlotChannel() {
-	// TODO Auto-generated constructor stub
+        // TODO Auto-generated constructor stub
 
 }
 
 MatrixPlotChannel::~MatrixPlotChannel() {
-	// TODO Auto-generated destructor stub
+        // TODO Auto-generated destructor stub
 }

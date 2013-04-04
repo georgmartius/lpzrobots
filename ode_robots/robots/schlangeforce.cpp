@@ -28,20 +28,20 @@ using namespace std;
 namespace lpzrobots {
 
   SchlangeForce::SchlangeForce ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-				 const SchlangeConf& conf, const std::string& name,
-				 const std::string& revision) 
-    : Schlange(odeHandle, osgHandle, conf, name, 
-	       revision.empty() ? "$Id$" : revision)
+                                 const SchlangeConf& conf, const std::string& name,
+                                 const std::string& revision)
+    : Schlange(odeHandle, osgHandle, conf, name,
+               revision.empty() ? "$Id$" : revision)
   {
   }
-	
+
   SchlangeForce::~SchlangeForce() { }
-	
+
 
   /**
    *Reads the actual motor commands from an array, and sets all motors (forces) of the snake to this values.
    *It is an linear allocation.
-   *@param motors pointer to the array, motor values are scaled to [-1,1] 
+   *@param motors pointer to the array, motor values are scaled to [-1,1]
    *@param motornumber length of the motor array
    **/
   void SchlangeForce::setMotors ( const motor* motors, int motornumber )
@@ -54,18 +54,18 @@ namespace lpzrobots {
     for (int i = 0; i < len; i++){
       // motorcommand
       // use all motors
-      ((UniversalJoint*)joints[i])->addForces(conf.motorPower * motors[2*i], 
-      					       conf.motorPower * motors[2*i+1]);
-      
-      // or use only one motor at a joint (alternating between motor 1 and motor 2)      
+      ((UniversalJoint*)joints[i])->addForces(conf.motorPower * motors[2*i],
+                                                     conf.motorPower * motors[2*i+1]);
+
+      // or use only one motor at a joint (alternating between motor 1 and motor 2)
       // http://www.novell.com/linux/      if (i%2==0){
-      // 	((UniversalJoint*)joints[i])->addTorques(conf.motorPower * motors[2*i],0);
+      //         ((UniversalJoint*)joints[i])->addTorques(conf.motorPower * motors[2*i],0);
       //       }
       //       else{
-      // 	((UniversalJoint*)joints[i])->addTorques(0, conf.motorPower * motors[2*i+1]);
+      //         ((UniversalJoint*)joints[i])->addTorques(0, conf.motorPower * motors[2*i+1]);
       //       }
     }
-  }	
+  }
 
   /**
    *Writes the sensor values to an array in the memory.
@@ -78,7 +78,7 @@ namespace lpzrobots {
     assert(created);
     // there will always be an even number of senors
     // (two sensors/motors per joint)
-    int len = min(sensornumber/2, (int)joints.size()); 
+    int len = min(sensornumber/2, (int)joints.size());
     // reading angle of joints
     /*
       for (int n = 0; n < len; n++) {
@@ -97,46 +97,46 @@ namespace lpzrobots {
   }
 
 
-  /** creates vehicle at desired position 
+  /** creates vehicle at desired position
       @param pos struct Position with desired position
   */
   void SchlangeForce::create(const osg::Matrix& pose){
     Schlange::create(pose);
-    
+
     //*****************joint definition***********
-    for ( int n = 0; n < conf.segmNumber-1; n++ ) {		
+    for ( int n = 0; n < conf.segmNumber-1; n++ ) {
 
       Pos p1(objects[n]->getPosition());
       Pos p2(objects[n+1]->getPosition());
-      
+
       UniversalJoint* j = new UniversalJoint(objects[n], objects[n+1],
- 					     (p1+p2)/2,
- 					     Axis(0,0,1)*pose, Axis(0,1,0)*pose);
+                                              (p1+p2)/2,
+                                              Axis(0,0,1)*pose, Axis(0,1,0)*pose);
       j->init(odeHandle, osgHandle, true, conf.segmDia * 1.02);
-      
-      // setting stops at universal joints		
+
+      // setting stops at universal joints
       j->setParam(dParamLoStop, -conf.jointLimit);
       j->setParam(dParamHiStop,  conf.jointLimit);
       j->setParam(dParamLoStop2, -conf.jointLimit);
       j->setParam(dParamHiStop2,  conf.jointLimit);
-      
+
       // making stops bouncy
       j->setParam (dParamBounce, 0.9 );
       j->setParam (dParamBounce2, 0.9 ); // universal
 
-      joints.push_back(j); 
+      joints.push_back(j);
 
-      frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, 
-						     conf.frictionJoint, conf.frictionJoint)
-			       );
-    }	  
+      frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j,
+                                                     conf.frictionJoint, conf.frictionJoint)
+                               );
+    }
   }
 
 
   /** destroys vehicle and space
    */
-  void SchlangeForce::destroy(){  
-    Schlange::destroy();  
+  void SchlangeForce::destroy(){
+    Schlange::destroy();
   }
 
 }

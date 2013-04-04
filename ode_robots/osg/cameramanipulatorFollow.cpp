@@ -44,10 +44,10 @@ namespace lpzrobots {
       const double* robMove = (camHandle.watchingAgent->getRobot()->getPosition()-camHandle.oldPositionOfAgent).toArray();
       // attach the robSpeed to desired eye
       for (int i=0;i<=2;i++) {
-	if (!isNaN(robMove[i])) {
-	  camHandle.desiredEye[i]+=robMove[i];}
-	else
-	  std::cout << "NAN exception!" << std::endl;
+        if (!isNaN(robMove[i])) {
+          camHandle.desiredEye[i]+=robMove[i];}
+        else
+          std::cout << "NAN exception!" << std::endl;
       }
     }
   }

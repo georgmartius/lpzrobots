@@ -97,7 +97,7 @@ public:
   PassiveBox* box;
   Camera* cam;
   Camera* cam2;
-  
+
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
@@ -107,11 +107,11 @@ public:
     fprintf(stderr, "****\nAttention, the controlinterval is set to 20\n");
     fprintf(stderr, " see the independend update of robot cameras\n****\n");
 
-    
+
 
     // use Playground as boundary:
     playground = new Playground(odeHandle, osgHandle,
-				osg::Vec3(10, .2, 1));
+                                osg::Vec3(10, .2, 1));
     playground->setPosition(osg::Vec3(0,0,0.1));
     global.obstacles.push_back(playground);
 
@@ -145,23 +145,23 @@ public:
     //    camc2.processors.push_back(new BWImageProcessor(true,1));
     camc2.processors.push_back(new HSVImgProc(false,1));
     //    camc2.processors.push_back(new BWImageProcessor(true,1, BWImageProcessor::Saturation));
-    camc2.processors.push_back(new ColorFilterImgProc(true,.5, 
+    camc2.processors.push_back(new ColorFilterImgProc(true,.5,
                                                       HSVImgProc::Red+20, HSVImgProc::Green-20,100));
     cam2 = new Camera(camc2);
 
 //     osgViewer::ViewerBase::Views views;
 //     viewer->getViews(views);
-//     assert(views.size()>0); 
+//     assert(views.size()>0);
 
-    cam2->init(odeHandle, osgHandle.changeColor(Color(0.5,0,0)), box->getMainPrimitive(), 
+    cam2->init(odeHandle, osgHandle.changeColor(Color(0.5,0,0)), box->getMainPrimitive(),
                osg::Matrix::translate(0,0,0.5)*osg::Matrix::rotate(M_PI/2, 0,1,0));
 
     CameraConf camc = Camera::getDefaultConf();
     camc.width = 512;
     camc.height = 64;
-    camc.scale  = .9;    
+    camc.scale  = .9;
     cam = new Camera(camc);
-    cam->init(odeHandle, osgHandle.changeColor(Color(0,0,0)), box->getMainPrimitive(), 
+    cam->init(odeHandle, osgHandle.changeColor(Color(0,0,0)), box->getMainPrimitive(),
               osg::Matrix::translate(0,0,0.5));
 
 
@@ -174,8 +174,8 @@ public:
     b->setTexture(5,"Images/light_chess.rgb",-1,-1);
     b->init(osgHandle.changeColor(Color(1,1,0)));
     b->setMatrix(osg::Matrix::translate(0,-2,2));
-    
-    
+
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
@@ -190,35 +190,35 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	case 'i':
-	  if(playground) {
-	    s.hardness*=1.5;
-	    cout << "hardness " << s.hardness << endl;
-	    playground->setSubstance(s);
-	  }
-	  return true;
-	  break;
-	case 'j':
-	  if(playground) {
-	    s.hardness/=1.5;
-	    cout << "hardness " << s.hardness << endl;
-	    playground->setSubstance(s);
-	  }
-	  return true;
-	  break;
-	default:
-	  return false;
-	  break;
-	}
+        {
+        case 'i':
+          if(playground) {
+            s.hardness*=1.5;
+            cout << "hardness " << s.hardness << endl;
+            playground->setSubstance(s);
+          }
+          return true;
+          break;
+        case 'j':
+          if(playground) {
+            s.hardness/=1.5;
+            cout << "hardness " << s.hardness << endl;
+            playground->setSubstance(s);
+          }
+          return true;
+          break;
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
-  
+
   virtual void end(GlobalData& globalData){
     delete cam;
     delete cam2;
-    delete b;    
+    delete b;
   }
 };
 

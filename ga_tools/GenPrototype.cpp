@@ -33,46 +33,46 @@
 #include "SingletonGenEngine.h"
 
 GenPrototype::GenPrototype() {
-	// nothing
+        // nothing
 }
 
 GenPrototype::GenPrototype(std::string name, IRandomStrategy* randomStrategy, IMutationStrategy* mutationStrategy) {
-	m_name = name;
-	m_randomStrategy = randomStrategy;
-	m_mutationStrategy = mutationStrategy;
+        m_name = name;
+        m_randomStrategy = randomStrategy;
+        m_mutationStrategy = mutationStrategy;
 }
 
 GenPrototype::~GenPrototype() {
-	std::map<Generation*,GenContext*>::iterator itr = m_context.begin();
+        std::map<Generation*,GenContext*>::iterator itr = m_context.begin();
 
-	// delete all contexte
-	while(itr!=m_context.end()) {
-		delete itr->second;
-		m_context.erase(itr);
-		itr=m_context.begin();
-	}
+        // delete all contexte
+        while(itr!=m_context.end()) {
+                delete itr->second;
+                m_context.erase(itr);
+                itr=m_context.begin();
+        }
 
-	// if the strategy deleted it will throw a exception. This is no problem. ignore it.
-	/*try {
-		delete m_randomStrategy;
-		delete m_mutationStrategy;
-	}catch(...){}*/
+        // if the strategy deleted it will throw a exception. This is no problem. ignore it.
+        /*try {
+                delete m_randomStrategy;
+                delete m_mutationStrategy;
+        }catch(...){}*/
 }
 
 void GenPrototype::insertContext(Generation* generation, GenContext* context) {
-	m_context[generation]=context;
+        m_context[generation]=context;
 }
 
 GenContext* GenPrototype::getContext(Generation* generation) {
-	return m_context[generation];
+        return m_context[generation];
 }
 
 Gen* GenPrototype::mutate(GenContext* context, Individual* individual, Gen* oldGen, GenContext* oldContext)const {
-	return m_mutationStrategy->mutate(context, individual, oldGen, oldContext, SingletonGenFactory::getInstance());
+        return m_mutationStrategy->mutate(context, individual, oldGen, oldContext, SingletonGenFactory::getInstance());
 }
 
 int GenPrototype::getMutationProbability(void)const {
-	return m_mutationStrategy->getMutationProbability();
+        return m_mutationStrategy->getMutationProbability();
 }
 
 bool GenPrototype::restoreGene(FILE* f, RESTORE_GA_GENE* gene, std::vector<Gen*>& storage) {

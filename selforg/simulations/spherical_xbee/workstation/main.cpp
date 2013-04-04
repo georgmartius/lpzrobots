@@ -58,7 +58,7 @@ void onTermination();
       then we invoke the agent
       the agent asks the robot (us) about sensors (which we saved in a local variable)
       the agent calls the controller and then sets the motor values with setMotors (also in this class)
-     endloop    
+     endloop
 */
 class Communicator : public AbstractRobot, public CSerialThread {
   enum State {PHASE_INIT, PHASE_CYCLE};
@@ -66,19 +66,19 @@ public:
   /** @param serial port name: e.g.: ttyS0
       @param baud rate e.g. 38400
   */
-  Communicator(const CString& port, int baud, 	       
-	       AbstractController* controller, 
-	       AbstractWiring* wiring,
-	       const list<PlotOption>& plotOptions,
-	       const vector<Xbee>& xbees,
-	       int verboseMode,
-	       bool test_mode =false)
-    : AbstractRobot("RemoteRobot", "$Id$"), 
-      CSerialThread(port,baud, test_mode), 
+  Communicator(const CString& port, int baud,
+               AbstractController* controller,
+               AbstractWiring* wiring,
+               const list<PlotOption>& plotOptions,
+               const vector<Xbee>& xbees,
+               int verboseMode,
+               bool test_mode =false)
+    : AbstractRobot("RemoteRobot", "$Id$"),
+      CSerialThread(port,baud, test_mode),
       controller(controller), wiring(wiring), plotOptions(plotOptions), xbees(xbees)
-  { 
+  {
     sensornumber=0;
-    motornumber=0; 
+    motornumber=0;
     x=0;
     y=0;
     noise=0.1;
@@ -102,13 +102,13 @@ public:
     if(x) free(x);
     if(y) free(y);
   }
-    
+
   virtual void printMsg(int xbee, int addr, uint8* data, int len) {
     data[len]=0;
     fprintf(stdout, "Message from slave (%i (addr: %i)): %s\n", xbee, addr, data);
   }
 
-  /** this function is called at the beginning (initialised==false) 
+  /** this function is called at the beginning (initialised==false)
       or if connection is lost (initialised==true)
   */
   virtual bool resetXbee(int currentXbee){
@@ -139,7 +139,7 @@ public:
       len = receiveData(MSADR, &cmd, databuf);
       if(cmd== CMSG) printMsg(currentXbee, xbees[currentXbee].addr, databuf,len);
     }while(cmd== CMSG);
-    
+
     if ((cmd != CDIM) || (len != 2)) {
       cerr << "Didn't receive number of motors/sensors (len = " << len << ")\n";
       return false;
@@ -159,17 +159,17 @@ public:
 
       xbees[currentXbee].initialised=true;
       if(verbose){
-	cout << "Dim for xbee " << currentXbee << " (address: " << xbees[currentXbee].addr  << ") : "
-	     << xbees[currentXbee].numsensors << ", "
-	     << xbees[currentXbee].nummotors << endl;
-	cout << "Offsets: " << xbees[currentXbee].sensoroffset << ", " 
-	     << xbees[currentXbee].motoroffset << endl;
+        cout << "Dim for xbee " << currentXbee << " (address: " << xbees[currentXbee].addr  << ") : "
+             << xbees[currentXbee].numsensors << ", "
+             << xbees[currentXbee].nummotors << endl;
+        cout << "Offsets: " << xbees[currentXbee].sensoroffset << ", "
+             << xbees[currentXbee].motoroffset << endl;
       }
     }
     else{  // later resets -> lets check whether the same number of motors and sensors
       if(xbees[currentXbee].numsensors != databuf[0] || xbees[currentXbee].nummotors != databuf[1]){
-	cerr << "Error: sensor or motor number not equivalent to initial values " << databuf[0] << ", " << databuf[1] << endl;
-	// TODO: save controller and //exit(1);
+        cerr << "Error: sensor or motor number not equivalent to initial values " << databuf[0] << ", " << databuf[1] << endl;
+        // TODO: save controller and //exit(1);
       }
     }
     return true;
@@ -193,22 +193,22 @@ public:
 //     do{
 //       allinitialised=true;
 //       for (currentXbee = 0; currentXbee < xbees.size(); currentXbee++) {
-// 	if(xbees[currentXbee].initialised) continue;
-// 	allinitialised &= resetXbee(currentXbee);
+//         if(xbees[currentXbee].initialised) continue;
+//         allinitialised &= resetXbee(currentXbee);
 //       }
 //       if(!allinitialised){
-// 	cout << "Some Xbee was not responing, try again!\n";
-// 	usleep(500000);
+//         cout << "Some Xbee was not responing, try again!\n";
+//         usleep(500000);
 //       }
 //     }while(!allinitialised);
 
-    // New sequencial initialisation    
+    // New sequencial initialisation
     for (currentXbee = 0; currentXbee < xbees.size(); currentXbee++) {
       while(!resetXbee(currentXbee)){
-	if (verbose) cout << "Xbee " << currentXbee << " not responing, try again!\n";
-	usleep(5000);
+        if (verbose) cout << "Xbee " << currentXbee << " not responing, try again!\n";
+        usleep(5000);
       };
-      
+
     }
 
     sensornumber = sensornumber_new;
@@ -224,13 +224,13 @@ public:
   Agent* getAgent(){
     return agent;
   }
- 
+
   virtual void writeMotors_readSensors() {
     int i, len, offset, n;
-    
+
     for(currentXbee=0; currentXbee < xbees.size(); currentXbee++) {
       if(doReset || xbees[currentXbee].failurecounter > MAXFAILURES){
-	resetXbee(currentXbee);
+        resetXbee(currentXbee);
       }
     }
     doReset=false;
@@ -239,7 +239,7 @@ public:
     if (verbose) {
       fprintf(stdout, "Motor data   : ");
       for (int i = 0; i < motornumber; i++)
-	fprintf(stdout, "%6i", (int) (127.0 * (y[i] + 1.0)));
+        fprintf(stdout, "%6i", (int) (127.0 * (y[i] + 1.0)));
       fprintf(stdout, "  |  "); fflush(stdout);
     }
 
@@ -247,50 +247,50 @@ public:
       /* Send motor commands for currentXbee. */
       offset = xbees[currentXbee].motoroffset;
       n      = xbees[currentXbee].nummotors;
-          
+
       for (i = 0; i < n; i++) {
-	databuf[i] = (uint8) (127.0 * (y[i + offset] + 1.0));
+        databuf[i] = (uint8) (127.0 * (y[i + offset] + 1.0));
       }
-      
+
       len = sendData(xbees[currentXbee].addr, CMOT, databuf, n);
       if (len != n){
-	cerr << "Error while sending motor values.\n";
-	continue;
+        cerr << "Error while sending motor values.\n";
+        continue;
       }
-          
+
       /* Read sensor values. */
       offset = xbees[currentXbee].sensoroffset;
       n = xbees[currentXbee].numsensors;
       uint8 cmd;
       do{
-	len = receiveData(MSADR, &cmd, databuf);
-	if(cmd== CMSG) printMsg(currentXbee, xbees[currentXbee].addr, databuf,len);
+        len = receiveData(MSADR, &cmd, databuf);
+        if(cmd== CMSG) printMsg(currentXbee, xbees[currentXbee].addr, databuf,len);
       }while(cmd== CMSG || cmd == CDIM);
-            
+
       /* When data were successfully read. */
       if (len >= 0) {
 
-	/* Check for command and number of data bytes. */
-	if (cmd != CSEN) {
-	  cerr << "Didn't receive sensor values (wrong command : " << (int)cmd  << ".\n";
-	  xbees[currentXbee].failurecounter++;
-	  continue;
-	}
-  
-	if (len != n) {
-	  cerr << "Wrong number of sensor values received (got " << len << ", " << n << " expected).\n";
-	  xbees[currentXbee].failurecounter++;
-	  continue;
-	}
-  
-	/* Write sensor values to the x vector. */
-	for (i = 0; i < len; i++)
-	  x[i+offset] = databuf[i] / 127.0 - 1.0;
+        /* Check for command and number of data bytes. */
+        if (cmd != CSEN) {
+          cerr << "Didn't receive sensor values (wrong command : " << (int)cmd  << ".\n";
+          xbees[currentXbee].failurecounter++;
+          continue;
+        }
+
+        if (len != n) {
+          cerr << "Wrong number of sensor values received (got " << len << ", " << n << " expected).\n";
+          xbees[currentXbee].failurecounter++;
+          continue;
+        }
+
+        /* Write sensor values to the x vector. */
+        for (i = 0; i < len; i++)
+          x[i+offset] = databuf[i] / 127.0 - 1.0;
       } else{
-	xbees[currentXbee].failurecounter++;
-	if (verbose)
-	  cerr << "Did not receive sensor values.\n";
-	continue;
+        xbees[currentXbee].failurecounter++;
+        if (verbose)
+          cerr << "Did not receive sensor values.\n";
+        continue;
       }
       xbees[currentXbee].failurecounter = max(0, xbees[currentXbee].failurecounter-1);
     }
@@ -299,7 +299,7 @@ public:
     if (verbose) {
       fprintf(stdout, "Sensor values: ");
       for (int i = 0; i < sensornumber; i++)
-	fprintf(stdout, "%6i", (int) (127.0 * (x[i] + 1.0)));
+        fprintf(stdout, "%6i", (int) (127.0 * (x[i] + 1.0)));
       fprintf(stdout, "\n");
     }
 
@@ -327,28 +327,28 @@ public:
       // difference between actual passed time and desired cycletime
       long diff = cycletime - elaped;
       if(diff > 10000 || diff < -10000)  // check for overflow or other weird things
-	resetSyncTimer();
+        resetSyncTimer();
       else{
-	if(diff > 4){ // if less the 3 milliseconds we don't call usleep since it needs time
-	  usleep((diff-2)*1000);
-	}else if (diff < 0){
-	  if (verbose) {
-	    printf("Time leak of %li ms detected\n",abs(diff));		
-	  }
-	}
+        if(diff > 4){ // if less the 3 milliseconds we don't call usleep since it needs time
+          usleep((diff-2)*1000);
+        }else if (diff < 0){
+          if (verbose) {
+            printf("Time leak of %li ms detected\n",abs(diff));
+          }
+        }
       }
     }else {
       while(pause){
-	usleep(1000);
+        usleep(1000);
       }
-    }    
+    }
     resetSyncTimer();
   }
 
   // robot interface
 
   /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
+      @param sensors sensors scaled to [-1,1]
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
@@ -359,7 +359,7 @@ public:
   }
 
   /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
+      @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
   virtual void setMotors(const motor* motors, int motornumber){
@@ -379,24 +379,24 @@ public:
   virtual matrix::Matrix getOrientation() const {
     matrix::Matrix m(3,3);
     m.toId();
-    return m; 
+    return m;
   };
 
   virtual paramval getParam(const paramkey& key, bool traverseChildren) const{
-    if(key == "noise") return noise; 
-    else if(key == "cycletime") return cycletime; 
-    else if(key == "reset") return 0; 
+    if(key == "noise") return noise;
+    else if(key == "cycletime") return cycletime;
+    else if(key == "reset") return 0;
     else  return Configurable::getParam(key);
   }
 
   virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren){
-    if(key == "noise") noise = val; 
+    if(key == "noise") noise = val;
     else if(key == "cycletime"){
       cycletime=(long)val;
     } else if(key == "reset"){
       doReset=true;
-    } else 
-      return Configurable::setParam(key, val); 
+    } else
+      return Configurable::setParam(key, val);
     return true;
   }
 
@@ -420,9 +420,9 @@ protected:
     }
 
     agent->init(controller, this, wiring);
-    cout << "# Initialised controller with " 
-	 << sensornumber << " Sensors and " 
-	 << motornumber  << " Motors\n";     
+    cout << "# Initialised controller with "
+         << sensornumber << " Sensors and "
+         << motornumber  << " Motors\n";
   }
 
 public:
@@ -443,7 +443,7 @@ private:
 
   //DAT motorDat;
   uint8 databuf[255];
-  
+
   Agent* agent;
   AbstractController* controller;
   AbstractWiring* wiring;
@@ -452,7 +452,7 @@ private:
 
   double* x;
   double* y;
-}; 
+};
 
 /// special wiring for the spherical Robot
 class OurWiring : public AbstractWiring{
@@ -465,27 +465,27 @@ public:
   virtual ~OurWiring() {
     if(lastmotors) free(lastmotors);
   }
-  
+
   virtual bool init(int robotsensornumber, int robotmotornumber){
-    rsensornumber = robotsensornumber;    
-    rmotornumber  = robotmotornumber;    
-    // csensornumber = rsensornumber;        
+    rsensornumber = robotsensornumber;
+    rmotornumber  = robotmotornumber;
+    // csensornumber = rsensornumber;
     csensornumber = numMotorSensors + (rsensornumber-numMotorSensors)*2;    // for IR sensors create two sensors each
-    cmotornumber  = rmotornumber;    
+    cmotornumber  = rmotornumber;
     if(!noiseGenerator) return false;
     noiseGenerator->init(csensornumber); // initialised with number of sensors ( see add() below)
-    lastmotors = (motor*)malloc(sizeof(motor)* rmotornumber); 
+    lastmotors = (motor*)malloc(sizeof(motor)* rmotornumber);
     return true;
   }
-  
-  virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
-			   sensor* csensors, int csensornumber,
-			   double noise){
+
+  virtual bool wireSensors(const sensor* rsensors, int rsensornumber,
+                           sensor* csensors, int csensornumber,
+                           double noise){
     // copy motor sensors
     for(int i=0; i< numMotorSensors; i++){
       csensors[i] = rsensors[i];
     }
-    // for IR Sensors 
+    // for IR Sensors
     int j = numMotorSensors;
     for(int i=numMotorSensors; i< rsensornumber; i++){
       csensors[j]   = rsensors[i] * lastmotors[0];
@@ -496,7 +496,7 @@ public:
   }
 
   virtual bool wireMotors(motor* rmotors, int rmotornumber,
-					 const motor* cmotors, int cmotornumber){
+                                         const motor* cmotors, int cmotornumber){
     memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
     memcpy(lastmotors, cmotors, sizeof(motor)*rmotornumber);
     return true;
@@ -514,7 +514,7 @@ private:
 void onTermination(){
   cmd_end_input();
   fprintf(stderr,"Try to stop serial thread\n");
-  if(communication){    
+  if(communication){
     communication->stop();
   }
 }
@@ -571,8 +571,8 @@ int main(int argc, char** argv){
 
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
 
-  communication= new Communicator(port, baud, controller, 
-				  // new OurWiring(new ColorUniformNoise(0.01)),
+  communication= new Communicator(port, baud, controller,
+                                  // new OurWiring(new ColorUniformNoise(0.01)),
                                   new One2OneWiring(new ColorUniformNoise(0.01)),
                                   plotoptions, xbees, verboseMode);
 
@@ -586,7 +586,7 @@ int main(int argc, char** argv){
   cmd_handler_init();
   int counter = 0;
   while (communication->is_running()) {
-    
+
     // check for cmdline interrupt
     if (control_c_pressed()) {
       communication->pause=true;

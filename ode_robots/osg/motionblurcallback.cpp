@@ -36,28 +36,28 @@ namespace lpzrobots {
   {
     osg::GraphicsContext* gc = dynamic_cast<osg::GraphicsContext*>(object);
     if (!gc) return;
-    
+
     double t = gc->getState()->getFrameStamp()->getSimulationTime();
-    
+
     if (!cleared_)
       {
-	// clear the accumulation buffer
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_ACCUM_BUFFER_BIT);
-	cleared_ = true;
-	t0_ = t;
+        // clear the accumulation buffer
+        glClearColor(0, 0, 0, 0);
+        glClear(GL_ACCUM_BUFFER_BIT);
+        cleared_ = true;
+        t0_ = t;
       }
-    
+
     double dt = fabs(t - t0_);
     t0_ = t;
-    
+
     // compute the blur factor
     double s = powf(0.2, dt / persistence_);
-    
+
     // scale, accumulate and return
     glAccum(GL_MULT, s);
     glAccum(GL_ACCUM, 1 - s);
     glAccum(GL_RETURN, 1.0f);
   }
-  
+
 }

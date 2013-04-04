@@ -61,8 +61,8 @@ bool AbstractWiring::init(int robotsensornumber, int robotmotornumber, RandGen* 
 }
 
 bool AbstractWiring::wireSensors(const sensor* rsensors, int rsensornumber,
-				 sensor* csensors, int csensornumber,
-				 double noiseStrength){
+                                 sensor* csensors, int csensornumber,
+                                 double noiseStrength){
   assert(initialised);
   if(noiseGenerator) {
     memset(noisevals, 0 , sizeof(sensor) * noisenumber);
@@ -75,7 +75,7 @@ bool AbstractWiring::wireSensors(const sensor* rsensors, int rsensornumber,
 }
 
 bool AbstractWiring::wireMotors(motor* rmotors, int rmotornumber,
-				const motor* cmotors, int cmotornumber){
+                                const motor* cmotors, int cmotornumber){
   assert(initialised);
   bool rv = wireMotorsIntern(rmotors, rmotornumber, cmotors, cmotornumber);
   mRmotors.set(rmotors);

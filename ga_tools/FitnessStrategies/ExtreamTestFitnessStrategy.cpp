@@ -27,29 +27,29 @@
 #include "ExtreamTestFitnessStrategy.h"
 
 ExtreamTestFitnessStrategy::ExtreamTestFitnessStrategy() {
-	// nothing
+        // nothing
 }
 
 ExtreamTestFitnessStrategy::ExtreamTestFitnessStrategy(IFitnessStrategy* fitness) : m_strategy(fitness){
-	//m_strategy = fitness;
-	// nothing
+        //m_strategy = fitness;
+        // nothing
 }
 
 ExtreamTestFitnessStrategy::~ExtreamTestFitnessStrategy() {
-	// clean
-	// do not forget to delete the other fitness strategy
-	delete m_strategy;
+        // clean
+        // do not forget to delete the other fitness strategy
+        delete m_strategy;
 }
 
 double ExtreamTestFitnessStrategy::getFitness(const Individual* individual) {
-	// first use the other fitness strategy to calculate the base value!
-	double value = m_strategy->getFitness(individual);
+        // first use the other fitness strategy to calculate the base value!
+        double value = m_strategy->getFitness(individual);
 
-	//if it lower than 10 -> return value² else 100
-	if(value<10.0 && value>-10.0) {
-		return value*value;
-	}
-	else {
-		return 100.0;
-	}
+        //if it lower than 10 -> return value² else 100
+        if(value<10.0 && value>-10.0) {
+                return value*value;
+        }
+        else {
+                return 100.0;
+        }
 }

@@ -72,14 +72,14 @@ void InvertNChannelControllerHebbHHand::init(int sensornumber, int motornumber){
  // context_sensors = new sensor[number_hebb_sensors];
 
  p.set(number_hebb_weights, 1);
- 
+
  for (int i=0; i< number_hebb_weights; i++){
    p.val(i,0)=0.0;
  }
 
  eps_hebb = 0.003; //0.01;
  fact_eps_h =1;
- 
+
   IRused_old=IRused;
   for (int i=0; i<number_hebb_sensors; i++){
     IRused_old.push_back(0);
@@ -90,14 +90,14 @@ void InvertNChannelControllerHebbHHand::init(int sensornumber, int motornumber){
 
 
 /// performs one step (includes learning). Calulates motor commands from sensor inputs.
-void InvertNChannelControllerHebbHHand::step(const sensor* x_, int number_sensors, 
-				    motor* y_, int number_motors){
+void InvertNChannelControllerHebbHHand::step(const sensor* x_, int number_sensors,
+                                    motor* y_, int number_motors){
 
   sensor sensors[number_motors];
   context_sensors.clear(); // remove all previous values
   for (int i=0; i<number_sensors; i++){
     if (i<number_motors){
-      sensors[i]=x_[i];  
+      sensors[i]=x_[i];
     } else {
       context_sensors.push_back(x_[i]);
     }
@@ -110,24 +110,24 @@ void InvertNChannelControllerHebbHHand::step(const sensor* x_, int number_sensor
 
 
 /// performs one step without learning. Calulates motor commands from sensor inputs.
-void InvertNChannelControllerHebbHHand::stepNoLearning(const sensor* x_, int number_sensors, 
-					      motor* y_, int number_motors){
+void InvertNChannelControllerHebbHHand::stepNoLearning(const sensor* x_, int number_sensors,
+                                              motor* y_, int number_motors){
   sensor sensors[number_motors];
   for (int i=0; i<number_sensors; i++){
     if (i<number_motors){
-      sensors[i]=x_[i]; 
+      sensors[i]=x_[i];
     }
     all_sensors[i]=x_[i];
   }
 
   InvertNChannelController::stepNoLearning(sensors,number_motors,y_, number_motors);
 };
-  
+
 /*
 Matrix InvertNChannelControllerHebbHHand::hebb(Matrix& xsi, sensor* sensors){
-  
-  Matrix v=xsi; 
-  
+
+  Matrix v=xsi;
+
 //  IRsensed_old.clear();
 //  IRsensed_old=IRsensed;
   for (int i=0; i<context_sensors.size(); i++){
@@ -155,14 +155,14 @@ Matrix InvertNChannelControllerHebbHHand::hebb(Matrix& xsi, sensor* sensors){
     v.val(i,0)= 0.0;
   }
 
-  
+
   /* calculate xsi hebb and add it ot xsi_org * /
   v.val(0,0)+= p.val(0,0) *  context_sensors.at(0);
   v.val(1,0)+= p.val(1,0) *  context_sensors.at(0);
   for (int i=2; i<number_motors;i++){
     v.val(i,0)+= p.val(i,0) *  context_sensors.at(i-1);
   }
- 
+
   return v;
 
 };
@@ -170,9 +170,9 @@ Matrix InvertNChannelControllerHebbHHand::hebb(Matrix& xsi, sensor* sensors){
 
 
 Matrix InvertNChannelControllerHebbHHand::hebbh(Matrix& xsi, std::vector<sensor>* c_sensors, std::vector<int>* H_reset){
-  
-  Matrix v=xsi; 
-  
+
+  Matrix v=xsi;
+
   IRused_old=IRused;
   for (int i=0; i<c_sensors->size(); i++){
     if (c_sensors->at(i)<0.15){
@@ -188,15 +188,15 @@ Matrix InvertNChannelControllerHebbHHand::hebbh(Matrix& xsi, std::vector<sensor>
     H_reset->at(0) = 1;
     H_reset->at(1) = 1;
   } else {
-      H_reset->at(0) = 0; 
-      H_reset->at(1) = 0; 
+      H_reset->at(0) = 0;
+      H_reset->at(1) = 0;
   }
 
   for (int i=2; i<number_motors; i++){
     if ( (IRused_old.at(i-1)==1) && (IRused.at(i-1)==0) ){
-	H_reset->at(i) = 1;
+        H_reset->at(i) = 1;
     } else {
-        H_reset->at(i) = 0; 
+        H_reset->at(i) = 0;
     }
   }
 
@@ -215,21 +215,21 @@ Matrix InvertNChannelControllerHebbHHand::hebbh(Matrix& xsi, std::vector<sensor>
     v.val(i,0)= 0.0;
   }
 
-  
+
   /* calculate xsi hebb and add it ot xsi_org */
   v.val(0,0)+= p.val(0,0) *  c_sensors->at(0);
   v.val(1,0)+= p.val(1,0) *  c_sensors->at(0);
   for (int i=2; i<number_motors;i++){
     v.val(i,0)+= p.val(i,0) *  c_sensors->at(i-1);
   }
- 
+
   return v;
 
 };
 
 /*
-double InvertNChannelControllerHebbHHand::calculateEHebb(const Matrix& x_delay, 
-					    const Matrix& y_delay){
+double InvertNChannelControllerHebbHHand::calculateEHebb(const Matrix& x_delay,
+                                            const Matrix& y_delay){
   // Calculate z based on the delayed inputs since the present input x is
   // produced by the outputs tau time steps before
   // which on their hand are y = K(x_D)
@@ -247,9 +247,9 @@ double InvertNChannelControllerHebbHHand::calculateEHebb(const Matrix& x_delay,
 
   Matrix Cg = C.multrowwise(z.map(g_s)); // Cg_{ij} = g'_i * C_{ij}
   L = A*Cg;                   // L_{ij}  = \sum_k A_{ik} g'_k c_{kj}
-  
+
   Matrix v = (L^-1)*xsi_hebb;
-  
+
   double E = ((v^T)*v).val(0, 0);
   double Es = 0.0;
   if(desens!=0){
@@ -258,7 +258,7 @@ double InvertNChannelControllerHebbHHand::calculateEHebb(const Matrix& x_delay,
   }
   return (1-desens)*E + desens*Es;
 };
-  */    
+  */
 
 
 /// learn values C,A as normal
@@ -268,12 +268,12 @@ void InvertNChannelControllerHebbHHand::learn(const Matrix& x_delay, const Matri
   Matrix C_update(number_channels,number_channels);
   Matrix h_update(number_channels,1);
 
-  double E_0 = calculateE(x_delay,  y_delay);    
-//  double E_0_Hebb = calculateEHebb(x_delay,  y_delay);    
-  
+  double E_0 = calculateE(x_delay,  y_delay);
+//  double E_0_Hebb = calculateEHebb(x_delay,  y_delay);
+
   // calculate updates for h
 
-  /*  
+  /*
    * calculate h and C updates according to homeokinese
    */
   for (unsigned int i = 0; i < number_motors; i++){
@@ -282,7 +282,7 @@ void InvertNChannelControllerHebbHHand::learn(const Matrix& x_delay, const Matri
     //h_update[i] = -2*eps *eita[i]*eita[i]*g(y_delay[i]);
     h.val(i,0) -= delta;
   }
-  /*  
+  /*
    *  now add (delta)h as predicted from hebb
    */
   xsi_org = x_buffer[t%buffersize] - A * y_delay;
@@ -312,7 +312,7 @@ xsi_hebb=d_h;
   // set h back to zero if hebb has no contribution any more
   if (reset_h.at(0)==1) {
     h.val(0,0)=0;
-    h.val(1,0)=0;	
+    h.val(1,0)=0;
   }
   for (unsigned int i = 2; i < number_motors; i++){
     if (reset_h.at(i-1)==1) {
@@ -344,7 +344,7 @@ xsi_hebb=d_h;
     {
       C.val(i,j) += delta;
       C_update.val(i,j)  = - eps *  (calculateE(x_delay, y_delay) - E_0) / delta ;
-      C_update.val(i,j) -= damping_c*C.val(i,j) ;  // damping term  
+      C_update.val(i,j) -= damping_c*C.val(i,j) ;  // damping term
       C.val(i,j) -= delta;
       //A[i][j] += delta;
       //A_update[i][j] = -eps * (calculateE(x_delay, y_delay,eita) - E_0) / delta;
@@ -379,4 +379,4 @@ list<Inspectable::iparamval> InvertNChannelControllerHebbHHand::getInternalParam
 }
 
 
-  
+

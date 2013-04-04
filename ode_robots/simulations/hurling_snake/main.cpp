@@ -72,7 +72,7 @@
  *   Revision 1.5  2005/11/09 13:39:41  fhesse
  *   GPL added
  *                                                                 *
- *                                                                         * 
+ *                                                                         *
  ***************************************************************************/
 #include <stdio.h>
 
@@ -106,7 +106,7 @@ public:
     global.odeConfig.setParam("controlinterval",2);
     global.odeConfig.setParam("gravity",-9);
 
-  
+
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(20.0, 0.2, 1.0));
     playground->setPosition(Pos(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
@@ -114,8 +114,8 @@ public:
     //   Nimm2* vehicle = new Nimm2(odeHandle);
     //   Position p = {3,3,0};
     //   vehicle->place(p);
-    //   AbstractController *controller = new InvertNChannelController(10);  
-  
+    //   AbstractController *controller = new InvertNChannelController(10);
+
     //   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     //   OdeAgent* agent = new OdeAgent(NoPlot/*plotoptions*/);
     //   agent->init(controller, vehicle, wiring);
@@ -124,7 +124,7 @@ public:
 
 
     HurlingSnake* hs;
-    AbstractController *controller; 
+    AbstractController *controller;
     AbstractWiring* wiring;
     OdeAgent* agent;
 
@@ -139,13 +139,13 @@ public:
       hs->setParam("factorForce",4);
       hs->setParam("frictionGround",0.05);
 
-      //controller = new InvertMotorSpace(10);  
-      controller = new InvertNChannelController(20);  
-      //      controller = new InvertMotorNStep();  
+      //controller = new InvertMotorSpace(10);
+      controller = new InvertNChannelController(20);
+      //      controller = new InvertMotorNStep();
       //      controller->setParam("steps", 2);
       controller->setParam("factorA", 0.4);
       controller->setParam("epsA", 0.15);
-      controller->setParam("eps", 0.05); 
+      controller->setParam("eps", 0.05);
       controller->setParam("adaptrate", 0.000);
       controller->setParam("nomupdate", 0.000);
 
@@ -163,28 +163,28 @@ public:
       // enable tracing of head element
       //agent->setTrackOptions(TrackRobot(false, false, false, true, "0", 1));
       // setting trace length and trace thickness
-      // agent->init_tracing(1000, 0.008);      
+      // agent->init_tracing(1000, 0.008);
 
       // track position (plot position in file)
       agent->setTrackOptions(TrackRobot(true, false, false, false, "0"));
 
       global.agents.push_back(agent);
-    
 
-    
+
+
       global.configs.push_back(controller);
       global.configs.push_back(hs);
-    
+
 
     }
-  
+
     //   ///////////////////////
     //   hs = new HurlingSnake(odeHandle);
     //   Position p4 = {1,1,0.3};
     //   hs->place(p4);
-    //   //AbstractController *controller2 = new InvertNChannelController(10);  
-    //   controller2 = new InvertMotorSpace(10);  
-  
+    //   //AbstractController *controller2 = new InvertNChannelController(10);
+    //   controller2 = new InvertMotorSpace(10);
+
     //   wiring2 = new One2OneWiring(new ColorUniformNoise(0.1));
     //   agent2 = new OdeAgent(global);
     //   agent2->init(controller2, hs, wiring2);
@@ -196,7 +196,7 @@ public:
 
 
 
-    
+
   }
 
   // add own key handling stuff here, just insert some case values
@@ -204,21 +204,21 @@ virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData,
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
-	  return false;
-	  break;
-	}
+        {
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
-  
+
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

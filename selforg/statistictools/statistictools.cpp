@@ -45,7 +45,7 @@ double& StatisticTools::addMeasure(double& observedValue, const char* measureNam
 StatisticMeasure* StatisticTools::getMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam) {
     StatisticMeasure* newMeasure = new StatisticMeasure(observedValue, measureName, mode, stepSpan, additionalParam);
     this->activeMeasures.push_back(newMeasure);
-  	addInspectableValue(newMeasure->getName(),&newMeasure->getValueAddress(), "measure registered at "+ getNameOfInspectable());
+          addInspectableValue(newMeasure->getName(),&newMeasure->getValueAddress(), "measure registered at "+ getNameOfInspectable());
   return newMeasure;
 }
 
@@ -105,7 +105,7 @@ type sub(const type&, const type&),
 type mul(const type&, const type&),
 type div(const type&, const type&)>
 DOUBLE_ANALYSATION_CONTEXT* StatisticTools::getAnalysation(std::vector<type> values) {
-	return new DOUBLE_ANALYSATION_CONTEXT(values);
+        return new DOUBLE_ANALYSATION_CONTEXT(values);
 }*/
 
 /*template
@@ -119,35 +119,35 @@ type add(const type&, const type&),
 type sub(const type&, const type&),
 type mul(const type&, const type&),
 type div(const type&, const type&)>
-type StatisticTools::getAnalisation(DOUBLE_ANALYSATION_CONTEXT* tvAnalysation,	AnalysationMode mode, unsigned int feature) {
-	switch(mode){
-	case AM_AVG:
-		return tvAnalysation->getAvg();
-	case AM_MIN:
-		return tvAnalysation->getMin();
-	case AM_MAX:
-		return tvAnalysation->getMax();
-	case AM_RANGE:
-		return tvAnalysation->getRange();
-	case AM_IQR:
-		return tvAnalysation->getIQR();
-	case AM_MED:
-		return tvAnalysation->getMedian();
-	case AM_WHISKER:
-		return tvAnalysation->getWhisker(1.5);
-	case AM_Q1:
-		return tvAnalysation->getQuartil1();
-	case AM_Q3:
-		return tvAnalysation->getQuartil3();
-	case AM_W1:
-		return tvAnalysation->getWhisker1(1.5);
-	case AM_W3:
-		return tvAnalysation->getWhisker3(1.5);
-	case AM_NUM_EXT:
-		return (type)tvAnalysation->getNumExtrems(1.5);
-	case AM_EXT:
-		return tvAnalysation->getExtrem(1.5,feature);
-	}
+type StatisticTools::getAnalisation(DOUBLE_ANALYSATION_CONTEXT* tvAnalysation,        AnalysationMode mode, unsigned int feature) {
+        switch(mode){
+        case AM_AVG:
+                return tvAnalysation->getAvg();
+        case AM_MIN:
+                return tvAnalysation->getMin();
+        case AM_MAX:
+                return tvAnalysation->getMax();
+        case AM_RANGE:
+                return tvAnalysation->getRange();
+        case AM_IQR:
+                return tvAnalysation->getIQR();
+        case AM_MED:
+                return tvAnalysation->getMedian();
+        case AM_WHISKER:
+                return tvAnalysation->getWhisker(1.5);
+        case AM_Q1:
+                return tvAnalysation->getQuartil1();
+        case AM_Q3:
+                return tvAnalysation->getQuartil3();
+        case AM_W1:
+                return tvAnalysation->getWhisker1(1.5);
+        case AM_W3:
+                return tvAnalysation->getWhisker3(1.5);
+        case AM_NUM_EXT:
+                return (type)tvAnalysation->getNumExtrems(1.5);
+        case AM_EXT:
+                return tvAnalysation->getExtrem(1.5,feature);
+        }
 }*/
 
 /*template
@@ -162,6 +162,6 @@ type sub(const type&, const type&),
 type mul(const type&, const type&),
 type div(const type&, const type&)>
 type StatisticTools::getAnalisation(std::vector<type> values, AnalysationMode mode, unsigned int feature) {
-	DOUBLE_ANALYSATION_CONTEXT* context = GET_TYPE_ANALYSATION(type)(values);
-	return GET_TYPE_ANALYSATION(type)(context,mode,feature);
+        DOUBLE_ANALYSATION_CONTEXT* context = GET_TYPE_ANALYSATION(type)(values);
+        return GET_TYPE_ANALYSATION(type)(context,mode,feature);
 }*/

@@ -30,26 +30,26 @@
 namespace lpzrobots {
 
   // ////////////////// TmpPrimitive //////////////////// //
-  
-  TmpPrimitive::TmpPrimitive(Primitive* p, char mode, double mass, const Pose& pose, 
+
+  TmpPrimitive::TmpPrimitive(Primitive* p, char mode, double mass, const Pose& pose,
                              const Color& color)
-    : item(p), mode(mode), mass(mass), pose(pose), color(color), initialized(false) 
+    : item(p), mode(mode), mass(mass), pose(pose), color(color), initialized(false)
   {
     useColorName=false;
-    if(!item) 
-      item = new Sphere(0.1);    
-  }
-  
-  TmpPrimitive::TmpPrimitive(Primitive* p, char mode, double mass, const Pose& pose, 
-               const std::string& colorname, float alpha)
-    : item(p), mode(mode), mass(mass), pose(pose), 
-      colorname(colorname), alpha(alpha), initialized(false) 
-  {
-    useColorName=true;
-    if(!item) 
+    if(!item)
       item = new Sphere(0.1);
   }
-    
+
+  TmpPrimitive::TmpPrimitive(Primitive* p, char mode, double mass, const Pose& pose,
+               const std::string& colorname, float alpha)
+    : item(p), mode(mode), mass(mass), pose(pose),
+      colorname(colorname), alpha(alpha), initialized(false)
+  {
+    useColorName=true;
+    if(!item)
+      item = new Sphere(0.1);
+  }
+
   void TmpPrimitive::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle){
     Color mcolor(color);
     if(useColorName){
@@ -57,15 +57,15 @@ namespace lpzrobots {
       mcolor.alpha() = alpha;
     }
     item->init(odeHandle, mass, osgHandle.changeColor(mcolor), mode);
-    item->setPose(pose);      
+    item->setPose(pose);
     initialized=true;
   }
-          
+
   void TmpPrimitive::deleteObject(){
     if(item) delete item;
-    item=0;    
+    item=0;
   }
-  
+
   void TmpPrimitive::update(){
     if(item) item->update();
   }
@@ -75,71 +75,71 @@ namespace lpzrobots {
 
   TmpDisplayItem::TmpDisplayItem(OSGPrimitive* p, const Pose& pose,
                                  const Color& color, OSGPrimitive::Quality quality)
-    : item(p), pose(pose), color(color), quality(quality), initialized(false) 
+    : item(p), pose(pose), color(color), quality(quality), initialized(false)
   {
     useColorName=false;
-    if(!item) 
+    if(!item)
       item = new OSGSphere(0.1);
   }
 
   TmpDisplayItem::TmpDisplayItem(OSGPrimitive* p, const Pose& pose,
-                                 const std::string& colorname, float alpha, 
+                                 const std::string& colorname, float alpha,
                                  OSGPrimitive::Quality quality)
     : item(p), pose(pose), colorname(colorname), alpha(alpha), quality(quality),
-      initialized(false) 
+      initialized(false)
   {
     useColorName=true;
-    if(!item) 
+    if(!item)
       item = new OSGSphere(0.1);
   }
-    
+
   void TmpDisplayItem::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle){
     Color mcolor(color);
     if(useColorName){
       mcolor = osgHandle.getColor(colorname);
       mcolor.alpha() = alpha;
     }
-    item->init(osgHandle.changeColor(mcolor), quality);   
-    item->setMatrix(pose);      
+    item->init(osgHandle.changeColor(mcolor), quality);
+    item->setMatrix(pose);
     initialized=true;
   }
-          
+
   void TmpDisplayItem::deleteObject(){
     if(item) delete item;
     item=0;
   }
 
 
-  TmpJoint::TmpJoint(Joint* p, const Color& color, bool withVisual, double visualSize, 
-		     bool ignoreColl)
+  TmpJoint::TmpJoint(Joint* p, const Color& color, bool withVisual, double visualSize,
+                     bool ignoreColl)
 
-    : joint(p), color(color), withVisual(withVisual), visualSize(visualSize), 
-      ignoreColl(ignoreColl), initialized(false) 
+    : joint(p), color(color), withVisual(withVisual), visualSize(visualSize),
+      ignoreColl(ignoreColl), initialized(false)
   {
     useColorName=false;
   }
-  
-  TmpJoint::TmpJoint(Joint* p, const std::string& colorname, float alpha, 
-		     bool withVisual, double visualSize, bool ignoreColl)
 
-    : joint(p), colorname(colorname), alpha(alpha), 
-      withVisual(withVisual), visualSize(visualSize), 
-      ignoreColl(ignoreColl), initialized(false) 
+  TmpJoint::TmpJoint(Joint* p, const std::string& colorname, float alpha,
+                     bool withVisual, double visualSize, bool ignoreColl)
+
+    : joint(p), colorname(colorname), alpha(alpha),
+      withVisual(withVisual), visualSize(visualSize),
+      ignoreColl(ignoreColl), initialized(false)
   {
     useColorName=true;
   }
-    
+
   void TmpJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle){
     Color mcolor(color);
     if(useColorName){
       mcolor = osgHandle.getColor(colorname);
       mcolor.alpha() = alpha;
     }
-    joint->init(odeHandle, osgHandle.changeColor(mcolor), 
-		withVisual, visualSize, ignoreColl);
+    joint->init(odeHandle, osgHandle.changeColor(mcolor),
+                withVisual, visualSize, ignoreColl);
     initialized=true;
   }
-          
+
   void TmpJoint::deleteObject(){
     if(joint) delete joint;
     joint=0;

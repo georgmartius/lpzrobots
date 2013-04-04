@@ -101,13 +101,13 @@ public:
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
-    
+
     setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
     global.odeConfig.noise=0.05;
-    
+
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 0.5),1,true);
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
- 
+
     global.obstacles.push_back(playground);
 
 
@@ -120,30 +120,30 @@ public:
     conf.irSide=false;
     conf.pendularrange  = .4;
 
-	
+
 
     // zusaetzlich das rauschen, gibt weisses und color...
     One2OneWiring* wiring1 = new One2OneWiring ( new ColorUniformNoise() );
     One2OneWiring* wiring2 = new One2OneWiring ( new ColorUniformNoise() );
 
-    
+
     //Kugel 1 ***********************************************
-    
+
     Sphererobot3Masses* myBarrel_1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,1.0)),conf, "Rocco-Kugel-1-Java-Controller");
     ((OdeRobot*)myBarrel_1)->place (Pos( 1.3,0,0.1));
 
     //Controller Kugel 1
-    
-	use_java_controller* jcontroller1;
+
+        use_java_controller* jcontroller1;
     jcontroller1 = new use_java_controller("4811","4812","robot2");
 
     OdeAgent* agent_1 = new OdeAgent( global, plotoptions );
     agent_1->init ( jcontroller1 , myBarrel_1 , wiring1 );
     global.agents.push_back ( agent_1 );
     global.configs.push_back ( jcontroller1 );
-    
+
     // ENDE****************************************************
-	
+
 
 
 
@@ -152,7 +152,7 @@ public:
     myBarrel_2->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
 
     //Controller Kugel 2
-   
+
     use_java_controller* Jcontroller;
     //SineController* Jcontroller;
    Jcontroller = new use_java_controller("4711","4712","robot1");
@@ -163,9 +163,9 @@ public:
     global.agents.push_back ( agent_2 );
     global.configs.push_back ( Jcontroller );
     // ENDE****************************************************
-    
 
-		
+
+
   }
 
   // add own key handling stuff here, just insert some case values

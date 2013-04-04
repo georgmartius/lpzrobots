@@ -37,12 +37,12 @@ using namespace std;
 
 namespace lpzrobots {
 
-  FourWheeled::FourWheeled(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-			   FourWheeledConf conf, const std::string& name)
+  FourWheeled::FourWheeled(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                           FourWheeledConf conf, const std::string& name)
     : Nimm4(odeHandle, osgHandle, name, conf.size, conf.force, conf.speed, conf.sphereWheels), conf(conf)
   {
     length=conf.size/2.0; // length of body
-    
+
     wheelsubstance=conf.wheelSubstance;
   };
 
@@ -51,12 +51,12 @@ namespace lpzrobots {
     destroy();
   }
 
-  int FourWheeled::getSensorNumber(){ 
+  int FourWheeled::getSensorNumber(){
     if(!irSensorBank.isInitialized()){
       fprintf(stderr, "FourWheeled:: place the robot before calling agent->init()!\n");
       assert(irSensorBank.isInitialized());
     }
-      
+
     if(conf.twoWheelMode){
       assert(Nimm4::getSensorNumber() == 4);
       return 2 + irSensorBank.size();
@@ -64,7 +64,7 @@ namespace lpzrobots {
       return Nimm4::getSensorNumber() + irSensorBank.size();
   }
 
-  int FourWheeled::getSensors(sensor* sensors, int sensornumber){   
+  int FourWheeled::getSensors(sensor* sensors, int sensornumber){
     int len = 0;
     if(conf.twoWheelMode){
       sensor nimm4s[4];
@@ -74,7 +74,7 @@ namespace lpzrobots {
     } else {
       len = Nimm4::getSensors(sensors,sensornumber);
     }
-    
+
     // ask sensorbank for sensor values (from infrared sensors)
     //  sensor+len is the starting point in the sensors array
     if (conf.irFront || conf.irSide || conf.irBack){
@@ -83,10 +83,10 @@ namespace lpzrobots {
     return len;
   };
 
-  int FourWheeled::getMotorNumber(){ 
+  int FourWheeled::getMotorNumber(){
     if(conf.twoWheelMode)
       return 2;
-    else 
+    else
       return Nimm4::getMotorNumber();
   }
 
@@ -98,9 +98,9 @@ namespace lpzrobots {
       nimm4m[1] = motors[1];
       nimm4m[3] = motors[1];
       Nimm4::setMotors(nimm4m,4);
-    }else 
+    }else
        Nimm4::setMotors(motors,motornumber);
-    
+
   }
 
 
@@ -127,19 +127,19 @@ namespace lpzrobots {
     if(conf.useBumper){
       bumper = new Box(0.1 , width+2*wheelthickness+radius, length+0.7*width);
       bumper->setTexture("Images/wood.rgb");
-      bumpertrans = new Transform(objects[0], bumper,				
+      bumpertrans = new Transform(objects[0], bumper,
                                   Matrix::translate(width*0.6-radius, 0, 0));
-      bumpertrans->init(odeHandle, 0, osgHandle);      
-      
+      bumpertrans->init(odeHandle, 0, osgHandle);
+
     }else if(conf.useButton){
       bumper = new Box(width*0.6 , width*0.7, 0.1);
       bumper->setTexture("Images/wood.rgb");
-      bumpertrans = new Transform(objects[0], bumper,				
+      bumpertrans = new Transform(objects[0], bumper,
                                   Matrix::translate(0,0, -length*0.9));
-      bumpertrans->init(odeHandle, 0, osgHandle.changeColor(1,1,0));      
+      bumpertrans->init(odeHandle, 0, osgHandle.changeColor(1,1,0));
     }
 
-    
+
 
     /* initialize sensorbank (for use of infrared sensors)
      * sensor values (if sensors used) are saved in the vector of
@@ -154,38 +154,38 @@ namespace lpzrobots {
     irSensorBank.init(odeHandle, osgHandle);
     if (conf.irFront){ // add front left and front right infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
-	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, objects[0],
-				    Matrix::rotate(i*M_PI/10, Vec3(1,0,0)) *
-				    Matrix::translate(0,-i*width/10,length/2 + width/2 - width/60 ),
-				    conf.irRangeFront, RaySensor::drawAll);
+        IRSensor* sensor = new IRSensor();
+        irSensorBank.registerSensor(sensor, objects[0],
+                                    Matrix::rotate(i*M_PI/10, Vec3(1,0,0)) *
+                                    Matrix::translate(0,-i*width/10,length/2 + width/2 - width/60 ),
+                                    conf.irRangeFront, RaySensor::drawAll);
       }
     }
     if (conf.irSide){ // add right infrared sensor to sensorbank if required
       IRSensor* sensor = new IRSensor();
       irSensorBank.registerSensor(sensor, objects[0],
-				  //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
-				  Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
-				  Matrix::translate(0,-width/2, 0 ),
-				  conf.irRangeSide, RaySensor::drawAll);    
+                                  //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
+                                  Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
+                                  Matrix::translate(0,-width/2, 0 ),
+                                  conf.irRangeSide, RaySensor::drawAll);
     }
     if (conf.irBack){ // add rear right and rear left infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
-	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, objects[0],
-				    Matrix::rotate(-i*M_PI/10, Vec3(1,0,0)) *
-				    Matrix::rotate(i*M_PI, Vec3(0,1,0)) *
-				    Matrix::translate(0,i*width/10,-(length/2 + width/2 - width/60) ),
-				    conf.irRangeBack, RaySensor::drawAll);
+        IRSensor* sensor = new IRSensor();
+        irSensorBank.registerSensor(sensor, objects[0],
+                                    Matrix::rotate(-i*M_PI/10, Vec3(1,0,0)) *
+                                    Matrix::rotate(i*M_PI, Vec3(0,1,0)) *
+                                    Matrix::translate(0,i*width/10,-(length/2 + width/2 - width/60) ),
+                                    conf.irRangeBack, RaySensor::drawAll);
       }
     }
     if (conf.irSide){ // add left infrared sensor to sensorbank if required
-	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, objects[0],
-				    //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
-				    Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
-				    Matrix::translate(0,width/2, 0),
-				    conf.irRangeSide, RaySensor::drawAll);      
+        IRSensor* sensor = new IRSensor();
+        irSensorBank.registerSensor(sensor, objects[0],
+                                    //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
+                                    Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
+                                    Matrix::translate(0,width/2, 0),
+                                    conf.irRangeSide, RaySensor::drawAll);
     }
 
   };

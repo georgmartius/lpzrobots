@@ -33,29 +33,29 @@
 
 namespace lpzrobots {
 
-  AbstractGround::AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-				 bool createGround, double groundLength, 
+  AbstractGround::AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                                 bool createGround, double groundLength,
                                  double groundWidth, double wallThickness)
-    : AbstractObstacle(odeHandle, osgHandle), 
-      creategroundPlane(createGround), groundLength(groundLength), 
-      groundWidth(groundWidth), wallThickness(wallThickness), 
+    : AbstractObstacle(odeHandle, osgHandle),
+      creategroundPlane(createGround), groundLength(groundLength),
+      groundWidth(groundWidth), wallThickness(wallThickness),
       groundSubstance(odeHandle.substance) {
     groundPlane=0;
     groundThickness = 0.1;
-    setTexture(0,0,TextureDescr("Images/wall.jpg",-1.5,-3)); // was: wall.rgb 
+    setTexture(0,0,TextureDescr("Images/wall.jpg",-1.5,-3)); // was: wall.rgb
     groundTextureFileName="Images/whiteground.jpg";
     groundColor=osgHandle.colorSchema()->color("arenaground");
     setColor(osgHandle.colorSchema()->color("wall"));
   };
-  
+
   AbstractGround::~AbstractGround(){
   }
-  
+
 
   void AbstractGround::setPose(const osg::Matrix& pose){
     this->pose = pose;
     if(obstacle_exists){
-      destroy();     
+      destroy();
     }
     create();
   };
@@ -63,8 +63,8 @@ namespace lpzrobots {
   void AbstractGround::createGround(bool create) {
     creategroundPlane=create;
     if (obstacle_exists) {
-      std::cout << "ERROR: createGround(bool create)  has no effect AFTER setPosition(osg::Vec3) !!!" 
-		<< std::endl;
+      std::cout << "ERROR: createGround(bool create)  has no effect AFTER setPosition(osg::Vec3) !!!"
+                << std::endl;
       std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
       exit(-1);
     }
@@ -75,10 +75,10 @@ namespace lpzrobots {
     this->groundWidth = length*factorxy;
     this->wallThickness = wallThickness;
   }
-  
-  Primitive* AbstractGround::getMainPrimitive() const { 
+
+  Primitive* AbstractGround::getMainPrimitive() const {
     if(groundPlane)
-      return groundPlane; 
+      return groundPlane;
     else return obst[0];
   }
 
@@ -86,8 +86,8 @@ namespace lpzrobots {
     groundTextureFileName=filename;
     if (obstacle_exists) {
       std::cout << "ERROR: "
-		<< "setGroundTexture(const std::sting& filename) has no effect AFTER setPosition(osg::Vec3) !!!"
-		<< std::endl;
+                << "setGroundTexture(const std::sting& filename) has no effect AFTER setPosition(osg::Vec3) !!!"
+                << std::endl;
       std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
       exit(-1);
     }
@@ -102,8 +102,8 @@ namespace lpzrobots {
     groundColor = color;
     if (obstacle_exists) {
       std::cout << "ERROR: "
-		<< "setGroundColor(const Color& color) has no effect AFTER setPosition(osg::Vec3) !!!"
-		<< std::endl;
+                << "setGroundColor(const Color& color) has no effect AFTER setPosition(osg::Vec3) !!!"
+                << std::endl;
       std::cout << "Program terminated. Please correct this error in main.cpp first." << std::endl;
       exit(-1);
     }
@@ -116,19 +116,19 @@ namespace lpzrobots {
     // else std::cerr << "AbstractGround::setGroundSubstance() ground not created or no ground used!\n";
   }
 
-  void AbstractGround::setGroundThickness(double thickness) { 
+  void AbstractGround::setGroundThickness(double thickness) {
     assert(groundPlane==0 || "call setGroundThickness before creation of playground!");
-    groundThickness = thickness; 
+    groundThickness = thickness;
   }
 
   void AbstractGround::createGround() {
     if (creategroundPlane) {
       // now create the plane in the middle
-      groundPlane = new Box(groundLength+1.95*wallThickness, 
+      groundPlane = new Box(groundLength+1.95*wallThickness,
                             groundWidth+1.95*wallThickness, groundThickness + 1.0);
       groundPlane->setTexture(TextureDescr(groundTextureFileName,-5,-5));
       groundPlane->init(odeHandle, 0, osgHandle.changeColor(groundColor),
-			Primitive::Geom | Primitive::Draw);
+                        Primitive::Geom | Primitive::Draw);
       groundPlane->setSubstance(groundSubstance);
       groundPlane->setPose(osg::Matrix::translate(0.0f,0.0f,groundThickness/2.0-0.5) * pose);
       obst.push_back(groundPlane);
@@ -154,7 +154,7 @@ namespace lpzrobots {
     FOREACHC(std::list<Pos>, ps, p){
       fprintf(f,"%f %f\n",p->x(),p->y());
     }
-    fprintf(f,"%f %f\n",ps.begin()->x(),ps.begin()->y());    
+    fprintf(f,"%f %f\n",ps.begin()->x(),ps.begin()->y());
   }
 
 
@@ -163,8 +163,8 @@ namespace lpzrobots {
     FOREACH(std::vector<Primitive*>, obst, o){
       Box* b= dynamic_cast<Box*>(*o);
       if(b){
-	printCornerPointsXY(b, f);
-	fprintf(f, "\n\n");
+        printCornerPointsXY(b, f);
+        fprintf(f, "\n\n");
       }
     }
   }
@@ -190,5 +190,5 @@ namespace lpzrobots {
 
 
 
-  
+
 }

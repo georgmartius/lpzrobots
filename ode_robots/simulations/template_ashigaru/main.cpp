@@ -51,7 +51,7 @@ public:
 
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos //(Pos(12.1211, 5.91774, 7.22559),  Pos(110.806, -12.6131, 0));
                      (Pos(1.68218, 1.46902, 0.740094),  Pos(130.455, -13.4935, 0));
@@ -63,7 +63,7 @@ public:
 
     // simulated robotic hand
     // - create pointer to robot (with odeHandle, osgHandle and configuration)
-    // - place robot 
+    // - place robot
     AshigaruConf conf = Ashigaru::getDefaultConf();
 
     robot = new Ashigaru(odeHandle, osgHandle, conf, "Ashigaru");
@@ -81,9 +81,9 @@ public:
     //SineController (produces just sine waves)
     // create pointer to controller
     // set some parameters
-    controller = new SineController();  
-    controller->setParam("amplitude", 1);  
-    controller->setParam("period", 500);  
+    controller = new SineController();
+    controller->setParam("amplitude", 1);
+    controller->setParam("period", 500);
     controller->setParam("phaseshift", 0.5);
 
 //#else
@@ -97,19 +97,19 @@ public:
 //#endif
     // push controller in global list of configurables
     global.configs.push_back ( controller );
-    
-    // create pointer to one2onewiring which uses colored-noise 
+
+    // create pointer to one2onewiring which uses colored-noise
     One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
 
     // create pointer to agent (plotoptions is provided by Simulation (generated from cmdline options)
     // initialize pointer with controller, robot and wiring
-    // push agent in globel list of agents    
+    // push agent in globel list of agents
     OdeAgent* agent = new OdeAgent (global );
     agent->init ( controller , robot , wiring );
     global.agents.push_back ( agent );
-      
+
     // display all parameters of all configurable objects on the console
-    
+
   }
 
 //  /** is called if a key was pressed.
@@ -117,22 +117,22 @@ public:
 //      @return true if the key was handled
 //  */
 //  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData,
-//		       int key, bool down) {
+//                       int key, bool down) {
 //    if (down) { // only when key is pressed, not when released
 //      switch ( (char) key ) {
-//	case 'x':
-//	  if(fixator) delete fixator;
-//	  fixator=0;
-//	  break;
+//        case 'x':
+//          if(fixator) delete fixator;
+//          fixator=0;
+//          break;
 //        case 'c' :{
-//	  passive_capsule =  new PassiveCapsule(odeHandle, osgHandle, 1,1,5);
-//      	  passive_capsule->setColor(Color(1.0f,0.2f,0.2f,1.0f));
-//      	  passive_capsule->setTexture("Images/furry_toy.jpg");
-//      	  passive_capsule->setPosition(Pos(0,0,5));
-//      	  globalData.obstacles.push_back(passive_capsule); }
-//	  break;
+//          passive_capsule =  new PassiveCapsule(odeHandle, osgHandle, 1,1,5);
+//                passive_capsule->setColor(Color(1.0f,0.2f,0.2f,1.0f));
+//                passive_capsule->setTexture("Images/furry_toy.jpg");
+//                passive_capsule->setPosition(Pos(0,0,5));
+//                globalData.obstacles.push_back(passive_capsule); }
+//          break;
 //      default:
-//	return false;
+//        return false;
 //      }
 //      return true;
 //    } else return false;
@@ -146,9 +146,9 @@ public:
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
- 
+
+

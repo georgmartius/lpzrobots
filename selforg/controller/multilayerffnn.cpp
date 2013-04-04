@@ -30,7 +30,7 @@ using namespace matrix;
 using namespace std;
 
 MultiLayerFFNN::MultiLayerFFNN(double eps, const std::vector<Layer>& layers,
-			       bool useBypass, bool someInternalParams)
+                               bool useBypass, bool someInternalParams)
   : FeedForwardNN("multilayerffnn", "$Id$"),
     eps(eps), layers(layers),
     useBypass(useBypass), someInternalParams(someInternalParams) {
@@ -43,7 +43,7 @@ MultiLayerFFNN::MultiLayerFFNN(double eps, const std::vector<Layer>& layers,
 
 // initialisation of the network with the given number of input and output units
 void MultiLayerFFNN::init(unsigned int inputDim, unsigned  int outputDim,
-			  double unit_map, RandGen* randGen) {
+                          double unit_map, RandGen* randGen) {
   if(initialised) return;
   assert(layers.size() > 0);
   if(!randGen) randGen = new RandGen(); // this gives a small memory leak
@@ -102,8 +102,8 @@ const Matrix MultiLayerFFNN::process (const Matrix& input) {
 
 // performs learning and returns the network output before learning
 const Matrix MultiLayerFFNN::learn (const Matrix& input,
-				  const Matrix& nom_output,
-				  double learnRateFactor) {
+                                  const Matrix& nom_output,
+                                  double learnRateFactor) {
   assert(initialised);
   int layernum  = layers.size();
   double epsilon         = eps*learnRateFactor;
@@ -213,80 +213,80 @@ void MultiLayerFFNN::damp(double damping){
 
 
 bool MultiLayerFFNN::store(FILE* f) const {
-	fprintf(f,"%g\n", eps);
-	int layernum = layers.size();
-	fprintf(f,"%i\n", layernum);
-	for(int i=0; i<layernum; i++){
-		layers[i].store(f);
-	}
-	int weightsnum = weights.size();
-	fprintf(f,"%i\n#", weightsnum);
-	for(int i=0; i<weightsnum; i++){
-		weights[i].store(f);
-		bias[i].store(f);
-	}
-	fwrite(&useBypass, sizeof(bool), 1, f);
-	if(useBypass)
-	  bypassWeights.store(f);
-	return true;
+        fprintf(f,"%g\n", eps);
+        int layernum = layers.size();
+        fprintf(f,"%i\n", layernum);
+        for(int i=0; i<layernum; i++){
+                layers[i].store(f);
+        }
+        int weightsnum = weights.size();
+        fprintf(f,"%i\n#", weightsnum);
+        for(int i=0; i<weightsnum; i++){
+                weights[i].store(f);
+                bias[i].store(f);
+        }
+        fwrite(&useBypass, sizeof(bool), 1, f);
+        if(useBypass)
+          bypassWeights.store(f);
+        return true;
 }
 
 bool MultiLayerFFNN::write(FILE* f) const {
-	fprintf(f,"%g\n", eps);
-	int layernum = layers.size();
-	fprintf(f,"%i\n", layernum);
-	for(int i=0; i<layernum; i++){
-		layers[i].store(f);
-	}
-	int weightsnum = weights.size();
-	fprintf(f,"%i\n#", weightsnum);
-	for(int i=0; i<weightsnum; i++){
-		weights[i].write(f);
-		bias[i].write(f);
-	}
-	fwrite(&useBypass, sizeof(bool), 1, f);
-	if(useBypass)
-	  bypassWeights.write(f);
-	return true;
+        fprintf(f,"%g\n", eps);
+        int layernum = layers.size();
+        fprintf(f,"%i\n", layernum);
+        for(int i=0; i<layernum; i++){
+                layers[i].store(f);
+        }
+        int weightsnum = weights.size();
+        fprintf(f,"%i\n#", weightsnum);
+        for(int i=0; i<weightsnum; i++){
+                weights[i].write(f);
+                bias[i].write(f);
+        }
+        fwrite(&useBypass, sizeof(bool), 1, f);
+        if(useBypass)
+          bypassWeights.write(f);
+        return true;
 }
 
 
 bool MultiLayerFFNN::restore(FILE* f){
-	char buffer[128];
-	if(fscanf(f,"%s\n", buffer) != 1) return false;
-	eps = atof(buffer);
-	unsigned int layernum;
-	layers.clear();
-	if(fscanf(f,"%i\n", &layernum) != 1) return false;
-	for(unsigned int i=0; i<layernum; i++){
-		Layer l(1);
-		l.restore(f);
-		layers.push_back(l);
-	}
-	ys.resize(layernum);
-	zs.resize(layernum);
-	for(unsigned int i = 0; i < layernum; i++) {
-	  ys[i].set(layers[i].size, 1);
-	  zs[i].set(layers[i].size, 1);
-	}
+        char buffer[128];
+        if(fscanf(f,"%s\n", buffer) != 1) return false;
+        eps = atof(buffer);
+        unsigned int layernum;
+        layers.clear();
+        if(fscanf(f,"%i\n", &layernum) != 1) return false;
+        for(unsigned int i=0; i<layernum; i++){
+                Layer l(1);
+                l.restore(f);
+                layers.push_back(l);
+        }
+        ys.resize(layernum);
+        zs.resize(layernum);
+        for(unsigned int i = 0; i < layernum; i++) {
+          ys[i].set(layers[i].size, 1);
+          zs[i].set(layers[i].size, 1);
+        }
 
-	unsigned int weightsnum;
-	weights.clear();
-	bias.clear();
-	if(fscanf(f,"%i\n#", &weightsnum) != 1) return false;
-	for(unsigned int i=0; i<weightsnum; i++){
-		Matrix m;
-		if(!m.restore(f)) return false;
-		weights.push_back(m);
-		if(!m.restore(f)) return false;
-		bias.push_back(m);
-	}
-	if(fread(&useBypass, sizeof(bool), 1, f)!=1) return false;
-	if(useBypass)
-	  bypassWeights.restore(f);
+        unsigned int weightsnum;
+        weights.clear();
+        bias.clear();
+        if(fscanf(f,"%i\n#", &weightsnum) != 1) return false;
+        for(unsigned int i=0; i<weightsnum; i++){
+                Matrix m;
+                if(!m.restore(f)) return false;
+                weights.push_back(m);
+                if(!m.restore(f)) return false;
+                bias.push_back(m);
+        }
+        if(fread(&useBypass, sizeof(bool), 1, f)!=1) return false;
+        if(useBypass)
+          bypassWeights.restore(f);
 
-	initialised = true;
-	return true;
+        initialised = true;
+        return true;
 }
 
 /************** Inspectable **********************************/
@@ -339,7 +339,7 @@ Inspectable::ilayerlist MultiLayerFFNN::getStructuralLayers() const{
 
   for(int i=0; i<weightsnum; i++){
     l+=ILayer("y" + itos(i),"B" + itos(i), layers[i].size, i+1,
-	      (i < weightsnum-1) ? "Hidden" + itos(i) : "Output");
+              (i < weightsnum-1) ? "Hidden" + itos(i) : "Output");
   }
   return l;
 }
@@ -354,7 +354,7 @@ Inspectable::iconnectionlist MultiLayerFFNN::getStructuralConnections() const{
 }
 
 std::vector<ActivationFunction> MultiLayerFFNN::setActivationFunction(ActivationFunction actfun) {
-  vector<ActivationFunction> actfuns;    
+  vector<ActivationFunction> actfuns;
   FOREACH (vector<Layer>,layers,l) {
     actfuns.push_back((*l).actfun);
     (*l).setActFun(actfun);

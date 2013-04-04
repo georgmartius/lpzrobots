@@ -80,8 +80,8 @@ namespace matrix {
     const char* b = (char*) _b;
     while (count-- > 0) {
       if (*a++ != *b++) {
-	rtnval = 1;
-	break;
+        rtnval = 1;
+        break;
       }
     }
     return (rtnval);
@@ -374,7 +374,7 @@ namespace matrix {
       case 1: // do nothing
         break;
       case 2: // square
-	toMult(*this);
+        toMult(*this);
         break;
       case T:
         toTranspose();
@@ -559,7 +559,7 @@ namespace matrix {
     assert ( data );
     if ( oldData ) { // copy old values
       for ( I i=0;i<this->m * oldN;i++ ) {
-	  data[ (i/oldN)*this->n + ( i%oldN) ]=oldData[i];
+          data[ (i/oldN)*this->n + ( i%oldN) ]=oldData[i];
       }
       free ( oldData );
     }

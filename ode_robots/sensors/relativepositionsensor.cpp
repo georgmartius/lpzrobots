@@ -31,7 +31,7 @@
 namespace lpzrobots {
 
   RelativePositionSensor::RelativePositionSensor(double maxDistance, double exponent,
-						 short dimensions /* = X | Y | Z */ , bool local_coordinates /*= false*/)
+                                                 short dimensions /* = X | Y | Z */ , bool local_coordinates /*= false*/)
     : maxDistance(maxDistance), exponent(exponent), dimensions (dimensions), local_coords(local_coordinates){
     own=0;
     ref=0;

@@ -28,19 +28,19 @@
 
 
 SplitControl::SplitControl(ControllerGenerator* controllerGenerator,
-			   const Assoziations& assoziations,
-			   std::string controllerName, 
-			   int numCtrlCreateBeforeInit,
-			   int numContextSensors)
-  : AbstractController(controllerName, "1"), controllerGenerator(controllerGenerator), 
+                           const Assoziations& assoziations,
+                           std::string controllerName,
+                           int numCtrlCreateBeforeInit,
+                           int numContextSensors)
+  : AbstractController(controllerName, "1"), controllerGenerator(controllerGenerator),
     assoz(assoziations),
     numCtrlCreateBeforeInit (numCtrlCreateBeforeInit), numContextSensors(numContextSensors) {
 
   for(int i=0; i<numCtrlCreateBeforeInit; i++){
     AbstractController* c = (*controllerGenerator)(i);
-    ctrl.push_back(c);    
+    ctrl.push_back(c);
     addConfigurable(c);
-  } 
+  }
 
 }
 
@@ -52,9 +52,9 @@ SplitControl::~SplitControl() {
   delete[] motorbuffer;
 }
 
-void SplitControl::init(const int sensornumber, const int motornumber, 
+void SplitControl::init(const int sensornumber, const int motornumber,
                                    RandGen* randGen) {
-  
+
   if(sensornumber-numContextSensors!=motornumber){
     fprintf(stderr,"sensor%i, context %i, motor: %i", sensornumber, numContextSensors, motornumber);
     assert(sensornumber-numContextSensors==motornumber);
@@ -65,7 +65,7 @@ void SplitControl::init(const int sensornumber, const int motornumber,
 
   sensorbuffer = new sensor[sensornumber+numContextSensors];
   motorbuffer = new motor[motornumber];
-  
+
   int k=0;
   FOREACHC(Assoziations, assoz, a){
     FOREACHC(std::list<int>, a->sensors, s){
@@ -77,11 +77,11 @@ void SplitControl::init(const int sensornumber, const int motornumber,
     int sensornum = a->sensors.size();
     int motornum = a->motors.size();
     assert(sensornum > 0 && motornum > 0);
-    if(k<numCtrlCreateBeforeInit){      
+    if(k<numCtrlCreateBeforeInit){
       ctrl[k]->init(sensornum + numContextSensors, motornum);
     }else{
       AbstractController* c = (*controllerGenerator)(k);
-      c->init(sensornum + numContextSensors, motornum);      
+      c->init(sensornum + numContextSensors, motornum);
       ctrl.push_back(c);
       addConfigurable(c);
     }
@@ -89,31 +89,31 @@ void SplitControl::init(const int sensornumber, const int motornumber,
   }
 }
 
-void SplitControl::step(const sensor* sensors, int sensornumber, 
+void SplitControl::step(const sensor* sensors, int sensornumber,
                                    motor* motors, int motornumber) {
- 
+
   int k=0;
   FOREACH(Assoziations, assoz, a){
     int i=0;
     FOREACHC(std::list<int>, a->sensors, s){
       sensorbuffer[i] = sensors[*s];
       i++;
-    }      
-    if(numContextSensors!=0){
-      memcpy(sensorbuffer+i, sensors+sensornumber-numContextSensors, 
-	     sizeof(sensor)*numContextSensors);
     }
-    ctrl[k]->step(sensorbuffer,i+numContextSensors,motorbuffer,a->motors.size());    
+    if(numContextSensors!=0){
+      memcpy(sensorbuffer+i, sensors+sensornumber-numContextSensors,
+             sizeof(sensor)*numContextSensors);
+    }
+    ctrl[k]->step(sensorbuffer,i+numContextSensors,motorbuffer,a->motors.size());
     i=0;
     FOREACHC(std::list<int>, a->motors, m){
       motors[*m] = motorbuffer[i];
       i++;
-    }     
-    k++;    
+    }
+    k++;
   }
 }
 
-void SplitControl::stepNoLearning(const sensor* sensors , int sensornumber, 
+void SplitControl::stepNoLearning(const sensor* sensors , int sensornumber,
                                              motor* motors, int motornumber){
   int k=0;
   FOREACH(Assoziations, assoz, a){
@@ -121,18 +121,18 @@ void SplitControl::stepNoLearning(const sensor* sensors , int sensornumber,
     FOREACHC(std::list<int>, a->sensors, s){
       sensorbuffer[i] = sensors[*s];
       i++;
-    }      
-    if(numContextSensors!=0){
-      memcpy(sensorbuffer+i, sensors+sensornumber-numContextSensors, 
-	     sizeof(sensor)*numContextSensors);
     }
-    ctrl[k]->stepNoLearning(sensorbuffer,i+numContextSensors,motorbuffer,a->motors.size());    
+    if(numContextSensors!=0){
+      memcpy(sensorbuffer+i, sensors+sensornumber-numContextSensors,
+             sizeof(sensor)*numContextSensors);
+    }
+    ctrl[k]->stepNoLearning(sensorbuffer,i+numContextSensors,motorbuffer,a->motors.size());
     i=0;
     FOREACHC(std::list<int>, a->motors, m){
       motors[*m] = motorbuffer[i];
       i++;
-    }     
-    k++;    
+    }
+    k++;
   }
 }
 

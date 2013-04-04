@@ -34,12 +34,12 @@ Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
   iparamkeylist keylist;
   FOREACHC(imatrixpairlist, mapOfMatrices, m){
     if(m->second.first->isVector()){
-      keylist+=storeVectorFieldNames(*(m->second.first), m->first);    
+      keylist+=storeVectorFieldNames(*(m->second.first), m->first);
     } else {
       if(m->second.second)
-	keylist+=store4x4AndDiagonalFieldNames(*(m->second.first), m->first);
-      else 
-	keylist+=storeMatrixFieldNames(*(m->second.first), m->first);    
+        keylist+=store4x4AndDiagonalFieldNames(*(m->second.first), m->first);
+      else
+        keylist+=storeMatrixFieldNames(*(m->second.first), m->first);
     }
   }
   FOREACHC(iparampairlist, mapOfValues, it){
@@ -52,11 +52,11 @@ Inspectable::iparamkeylist Inspectable::getInternalParamNames() const {
 Inspectable::iparamvallist Inspectable::getInternalParams() const {
   iparamvallist vallist;
   FOREACHC(imatrixpairlist, mapOfMatrices, m){
-    if(m->second.first && (m->second.first->isVector() || !m->second.second)){    
+    if(m->second.first && (m->second.first->isVector() || !m->second.second)){
       vallist+= m->second.first->convertToList();
     } else {
-	vallist+=store4x4AndDiagonal(*(m->second.first));
-    }      
+        vallist+=store4x4AndDiagonal(*(m->second.first));
+    }
   }
   FOREACHC(iparampairlist, mapOfValues, it){
     vallist+=*(it->second);
@@ -66,7 +66,7 @@ Inspectable::iparamvallist Inspectable::getInternalParams() const {
 
 Inspectable::iparamvalptrlist Inspectable::getInternalParamsPtr() const {
   iparamvalptrlist vallist;
-  FOREACHC(iparampairlist, mapOfValues, it){  
+  FOREACHC(iparampairlist, mapOfValues, it){
     vallist+=it->second;
   }
   // be carefully matrix will be ignored
@@ -89,7 +89,7 @@ void Inspectable::addInspectableValue(const iparamkey& key, iparamval const* val
     addInspectableDescription(key, descr);
 }
 
-void Inspectable::addInspectableMatrix(const iparamkey& key, const matrix::Matrix* m, 
+void Inspectable::addInspectableMatrix(const iparamkey& key, const matrix::Matrix* m,
                                        bool only4x4AndDiag, const std::string& descr) {
   mapOfMatrices+=imatrixpair(key, std::pair<const matrix::Matrix*, bool>(m, only4x4AndDiag) );
   if(!descr.empty())

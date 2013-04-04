@@ -27,9 +27,9 @@
 #include "IMutationFactorStrategy.h"
 
 IMutationFactorStrategy::IMutationFactorStrategy() {
-	// nothing
+        // nothing
 }
 
 IMutationFactorStrategy::~IMutationFactorStrategy() {
-	// nothing
+        // nothing
 }

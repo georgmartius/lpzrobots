@@ -39,9 +39,9 @@ namespace lpzrobots {
   // constructor:
   // - give handle for ODE and OSG stuff, and default configuration
   Nimm2::Nimm2(const OdeHandle& odehandle, const OsgHandle& osgHandle,
-	       const Nimm2Conf& conf, const std::string& name)
+               const Nimm2Conf& conf, const std::string& name)
     : OdeRobot(odehandle, osgHandle, name, "$Id$"), conf(conf) {
-	    contactPoints=0;
+            contactPoints=0;
 
     // robot not created up to now
     created=false;
@@ -49,7 +49,7 @@ namespace lpzrobots {
     // Nimm2 color ;-)
     this->osgHandle.color = Color(2, 156/255.0, 0, 1.0f);
     // can be overwritten in main.cpp of simulation with setColor
-    
+
     // maximal used force is calculated from the force and size given in the configuration
     max_force   = conf.force*conf.size*conf.size;
 
@@ -91,10 +91,10 @@ namespace lpzrobots {
     // increase sensornumber by 2 if rear infrared sensors are used
     sensorno+= conf.irBack * 2;
 
-	visForce = conf.visForce;
-	if (visForce) {
-		sumForce=0;
-	}
+        visForce = conf.visForce;
+        if (visForce) {
+                sumForce=0;
+        }
   };
 
 
@@ -117,8 +117,8 @@ namespace lpzrobots {
       joints[1]->setParam(dParamFMax2,max_force);
     } else {
       for (int i=0; i<2; i++){ // set different motorcommands to the wheels
-	joints[i]->setParam(dParamVel2, motors[i]*conf.speed);
-	joints[i]->setParam(dParamFMax2,max_force);
+        joints[i]->setParam(dParamVel2, motors[i]*conf.speed);
+        joints[i]->setParam(dParamFMax2,max_force);
       }
     }
   };
@@ -132,7 +132,7 @@ namespace lpzrobots {
 //   sensor ir_tmp[4];
 
   int Nimm2::getSensors(sensor* sensors, int sensornumber){
-    assert(created); 
+    assert(created);
 
     // choose sensornumber according to number of motors
     // - one motorcommand -> one sensorvalue
@@ -148,8 +148,8 @@ namespace lpzrobots {
       len += irSensorBank.get(sensors+len, sensornumber-len);
 //       for (int i=0; i<4; i++){
 //         ir_tmp[i]=sensors[2+i];
-// 	sensors[2+i]=ir_tmp[i]-ir_old[i];
-// 	ir_old[i]=ir_tmp[i];
+//         sensors[2+i]=ir_tmp[i]-ir_old[i];
+//         ir_old[i]=ir_tmp[i];
 //       }
     }
     return len;
@@ -192,7 +192,7 @@ namespace lpzrobots {
     }
     if (conf.bumper){ // if bumper used update transform objects
       for (int i=0; i<number_bumpers; i++){
-	bumper[i].trans->update();
+        bumper[i].trans->update();
       }
     }
 
@@ -204,10 +204,10 @@ namespace lpzrobots {
 
   void Nimm2::doInternalStuff(GlobalData& globalData){
     irSensorBank.reset(); // reset sensorbank (infrared sensors)
-	  if (visForce) {
-		  sumForce=0;
-		  contactPoints=0;
-	  }
+          if (visForce) {
+                  sumForce=0;
+                  contactPoints=0;
+          }
   }
 
   /** creates vehicle at desired position
@@ -243,14 +243,14 @@ namespace lpzrobots {
       Box* box = new Box(height,conf.boxWidth*width/3, length/4*3);
       box->getOSGPrimitive()->setTexture("Images/wood.rgb");
       box->init(odeHandle, cmass*5, osgHandle);
-      box->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose * Matrix::translate(0, 0, dheight/2));      
+      box->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose * Matrix::translate(0, 0, dheight/2));
       box->substance.toMetal(0);
       objects[0]=box;
     } else {
       Capsule* cap = new Capsule(width/2, length);
       cap->getOSGPrimitive()->setTexture("Images/wood.rgb");
       cap->init(odeHandle, cmass, osgHandle);
-      cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);      
+      cap->setPose(Matrix::rotate(M_PI/2, 0, 1, 0) * pose);
       objects[0]=cap;
     }
 
@@ -261,11 +261,11 @@ namespace lpzrobots {
     // - init cylinder with odehandle, mass and osghandle
     if (conf.bumper && !conf.boxMode){
       for (int i=0; i<number_bumpers; i++){
-	bumper[i].bump = new Capsule(width/4, 2*radius+width/2);
-	bumper[i].trans = new Transform(objects[0], bumper[i].bump,
-					Matrix::rotate(M_PI/2.0, Vec3(1, 0, 0)) *
-					Matrix::translate(0, 0, i==0 ? -(length/2) : (length/2)));
-	bumper[i].trans->init(odeHandle, 0, osgHandle);
+        bumper[i].bump = new Capsule(width/4, 2*radius+width/2);
+        bumper[i].trans = new Transform(objects[0], bumper[i].bump,
+                                        Matrix::rotate(M_PI/2.0, Vec3(1, 0, 0)) *
+                                        Matrix::translate(0, 0, i==0 ? -(length/2) : (length/2)));
+        bumper[i].trans->init(odeHandle, 0, osgHandle);
       }
     } else if (conf.bumper && conf.boxMode){
       for (int i=0; i<number_bumpers; i++){
@@ -283,27 +283,27 @@ namespace lpzrobots {
     osgHandleWheels.color = Color(1.0,1.0,1.0);
     for (int i=1; i<3; i++) {
       if(conf.sphereWheels) { // for spherical wheels
-	Sphere* wheel = new Sphere(radius);      // create spheres
-	wheel->getOSGPrimitive()->setTexture(conf.wheelTexture); // set texture for wheels
-	wheel->init(wheelHandle, wmass, osgHandleWheels); // init with odehandle, mass, and osghandle
+        Sphere* wheel = new Sphere(radius);      // create spheres
+        wheel->getOSGPrimitive()->setTexture(conf.wheelTexture); // set texture for wheels
+        wheel->init(wheelHandle, wmass, osgHandleWheels); // init with odehandle, mass, and osghandle
 
-	wheel->setPose(Matrix::rotate(M_PI/2.0, 1, 0, 0) *
-		       Matrix::translate(wheeloffset,
-					 (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0) *
-		       pose); // place wheels	
-	objects[i] = wheel;
-	if (conf.boxMode) {
-  	//	  wheel->substance.toRubber( 40.0);
-  	 // wheel->substance.toSnow(0.0);
-	}
+        wheel->setPose(Matrix::rotate(M_PI/2.0, 1, 0, 0) *
+                       Matrix::translate(wheeloffset,
+                                         (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0) *
+                       pose); // place wheels
+        objects[i] = wheel;
+        if (conf.boxMode) {
+          //          wheel->substance.toRubber( 40.0);
+           // wheel->substance.toSnow(0.0);
+        }
       }else{ // for "normal" wheels
-	Cylinder* wheel = new Cylinder(radius, wheelthickness);
-	wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
-	wheel->init(wheelHandle, wmass, osgHandleWheels);
-	wheel->setPose(Matrix::rotate(M_PI/2.0, Vec3(1,0,0)) *
-		       Matrix::translate(wheeloffset,
-					 (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0)* pose);	
-	objects[i] = wheel;
+        Cylinder* wheel = new Cylinder(radius, wheelthickness);
+        wheel->getOSGPrimitive()->setTexture("Images/tire.rgb"); // set texture for wheels
+        wheel->init(wheelHandle, wmass, osgHandleWheels);
+        wheel->setPose(Matrix::rotate(M_PI/2.0, Vec3(1,0,0)) *
+                       Matrix::translate(wheeloffset,
+                                         (i==2 ? -1 : 1) * (width*0.5+wheelthickness), 0)* pose);
+        objects[i] = wheel;
       }
     }
 
@@ -314,7 +314,7 @@ namespace lpzrobots {
     // - set stop parameters
     for (int i=0; i<2; i++) {
       joints[i] = new Hinge2Joint(objects[0], objects[i+1], objects[i+1]->getPosition(),
-				 Axis(0, 0, 1)*pose, Axis(0, -1, 0)*pose);
+                                 Axis(0, 0, 1)*pose, Axis(0, -1, 0)*pose);
       joints[i]->init(odeHandle, osgHandleWheels, true, conf.sphereWheels ? 2.01 * radius : wheelthickness*1.05 );
       // set stops to make sure wheels always stay in alignment
       joints[i]->setParam(dParamLoStop,0);
@@ -343,59 +343,59 @@ namespace lpzrobots {
     }
     if (conf.irFront){ // add front left and front right infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
-	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, objects[0],
-				    Matrix::rotate(i*M_PI/10, Vec3(1,0,0)) *
-				    Matrix::translate(0,-i*width/10,irpos ),
-				    conf.irRange, RaySensor::drawAll);
+        IRSensor* sensor = new IRSensor();
+        irSensorBank.registerSensor(sensor, objects[0],
+                                    Matrix::rotate(i*M_PI/10, Vec3(1,0,0)) *
+                                    Matrix::translate(0,-i*width/10,irpos ),
+                                    conf.irRange, RaySensor::drawAll);
       }
     }
     if (conf.irSide){ // add right front and right rear infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
-	IRSensor* sensor = new IRSensor();
-	if (conf.bumper){ // if bumpers used place on bumper
-	  irSensorBank.registerSensor(sensor, objects[0],
-				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
-				      Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
-				      Matrix::translate(0,-width,-i*(length/2) ),
-				      conf.irRange, RaySensor::drawAll);
+        IRSensor* sensor = new IRSensor();
+        if (conf.bumper){ // if bumpers used place on bumper
+          irSensorBank.registerSensor(sensor, objects[0],
+                                      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
+                                      Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
+                                      Matrix::translate(0,-width,-i*(length/2) ),
+                                      conf.irRange, RaySensor::drawAll);
 
-	}else{ // place on body
-	  irSensorBank.registerSensor(sensor, objects[0],
-				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
-				      Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
-				      Matrix::translate(0,-width/2,i*(length/2) ),
-				      conf.irRange, RaySensor::drawAll);
-	}
+        }else{ // place on body
+          irSensorBank.registerSensor(sensor, objects[0],
+                                      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
+                                      Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
+                                      Matrix::translate(0,-width/2,i*(length/2) ),
+                                      conf.irRange, RaySensor::drawAll);
+        }
       }
     }
     if (conf.irBack){ // add rear right and rear left infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
-	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, objects[0],
-				    Matrix::rotate(-i*M_PI/10, Vec3(1,0,0)) *
-				    Matrix::rotate(i*M_PI, Vec3(0,1,0)) *
-				    Matrix::translate(0,i*width/10,-irpos ),
-				    conf.irRange, RaySensor::drawAll);
+        IRSensor* sensor = new IRSensor();
+        irSensorBank.registerSensor(sensor, objects[0],
+                                    Matrix::rotate(-i*M_PI/10, Vec3(1,0,0)) *
+                                    Matrix::rotate(i*M_PI, Vec3(0,1,0)) *
+                                    Matrix::translate(0,i*width/10,-irpos ),
+                                    conf.irRange, RaySensor::drawAll);
       }
     }
     if (conf.irSide){ // add left rear and left front infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
-	IRSensor* sensor = new IRSensor();
-	if (conf.bumper){ // if bumpers used place on bumper
-	  irSensorBank.registerSensor(sensor, objects[0],
-				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
-				      Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
-				      Matrix::translate(0,width,i*(length/2) ),
-				      conf.irRange, RaySensor::drawAll);
+        IRSensor* sensor = new IRSensor();
+        if (conf.bumper){ // if bumpers used place on bumper
+          irSensorBank.registerSensor(sensor, objects[0],
+                                      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
+                                      Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
+                                      Matrix::translate(0,width,i*(length/2) ),
+                                      conf.irRange, RaySensor::drawAll);
 
-	} else { // else place at body
-	  irSensorBank.registerSensor(sensor, objects[0],
-				      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
-				      Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
-				      Matrix::translate(0,width/2,i*(length/2) ),
-				      conf.irRange, RaySensor::drawAll);
-	}
+        } else { // else place at body
+          irSensorBank.registerSensor(sensor, objects[0],
+                                      //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
+                                      Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
+                                      Matrix::translate(0,width/2,i*(length/2) ),
+                                      conf.irRange, RaySensor::drawAll);
+        }
       }
     }
     created=true;
@@ -408,8 +408,8 @@ namespace lpzrobots {
     if (created){
       irSensorBank.clear();
       for (int i=0; i<2; i++){
-	//	if(bumper[i].bump) delete bumper[i].bump; is done by transform primitive
-	if(bumper[i].trans) delete bumper[i].trans;
+        //        if(bumper[i].bump) delete bumper[i].bump; is done by transform primitive
+        if(bumper[i].trans) delete bumper[i].trans;
       }
       cleanup();
       odeHandle.deleteSpace();
@@ -417,26 +417,26 @@ namespace lpzrobots {
     created=false;
   }
 /*
-	std::list<Inspectable::iparamkey> Nimm2::getInternalParamNames() const{
-		std::list<Inspectable::iparamkey> keylist;
-		if (visForce) {
-			keylist+=std::string("SumForce");
-			std::cout << "returning: SumForce!" << std::endl;
-		}
-		std::cout << "beep name.";
-		return keylist;
-	}
+        std::list<Inspectable::iparamkey> Nimm2::getInternalParamNames() const{
+                std::list<Inspectable::iparamkey> keylist;
+                if (visForce) {
+                        keylist+=std::string("SumForce");
+                        std::cout << "returning: SumForce!" << std::endl;
+                }
+                std::cout << "beep name.";
+                return keylist;
+        }
 
 
-	std::list<Inspectable::iparamval> Nimm2::getInternalParams() const {
-		std::list<Inspectable::iparamval> vallist;
-		if (visForce) {
-			vallist+=sumForce;
-			std::cout << "SumForce =" << sumForce << std::endl;
-		}
-		std::cout << "beep val.";
-		return vallist;
-	}
+        std::list<Inspectable::iparamval> Nimm2::getInternalParams() const {
+                std::list<Inspectable::iparamval> vallist;
+                if (visForce) {
+                        vallist+=sumForce;
+                        std::cout << "SumForce =" << sumForce << std::endl;
+                }
+                std::cout << "beep val.";
+                return vallist;
+        }
 */
 }
 

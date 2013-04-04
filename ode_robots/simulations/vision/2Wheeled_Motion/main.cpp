@@ -95,7 +95,7 @@ using namespace std;
 class ThisSim : public Simulation {
 public:
 
-  
+
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
@@ -126,17 +126,17 @@ public:
       playground->setPosition(osg::Vec3(0,0,0.1));
       playground->setGroundSubstance(Substance(0.8,0,40,0.5));
       global.obstacles.push_back(playground);
-    }else if(useCorridor){       // use circular Corridor 
+    }else if(useCorridor){       // use circular Corridor
       // outer ground
       OdeHandle wallHandle = odeHandle;
       wallHandle.substance.toMetal(0.1);
-      OctaPlayground* outer = new OctaPlayground(wallHandle, osgHandle, 
+      OctaPlayground* outer = new OctaPlayground(wallHandle, osgHandle,
                                                  osg::Vec3(radius+1, 0.2, 1), 12);
       outer->setPosition(osg::Vec3(0,0,0.1));
       outer->setGroundSubstance(Substance(0.3,0.005,40,0.5));
       global.obstacles.push_back(outer);
       // inner walls (without ground
-      OctaPlayground* inner = new OctaPlayground(wallHandle, osgHandle, 
+      OctaPlayground* inner = new OctaPlayground(wallHandle, osgHandle,
                                                  osg::Vec3(radius-2, 0.2, 1), 12, false);
       inner->setPosition(osg::Vec3(0,0,0.1));
       global.obstacles.push_back(inner);
@@ -145,7 +145,7 @@ public:
     // add passive spheres as obstacles
     for (int i=0; i< numBalls; i++){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(1,1,0)), 0.3);
-      // s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));      
+      // s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
       if(useCorridor) s1->setPosition(osg::Vec3(sin(i/3.0)*radius,cos(i/3.0)*radius,1));
       else  s1->setPosition(osg::Vec3(i%5,-2+i/5,1));
       s1->setTexture("Images/dusty.rgb");
@@ -160,25 +160,25 @@ public:
 
       twc.camcfg.width  = 256;
       twc.camcfg.height = 128;
-      twc.camcfg.fov    = 120;      
+      twc.camcfg.fov    = 120;
       // get rid of the image processing
       delete twc.camcfg.processors.back();
       twc.camcfg.processors.pop_back();
-            
+
       MotionCameraSensorConf mc = MotionCameraSensor::getDefaultConf();
-      mc.values = MotionCameraSensor::Size | MotionCameraSensor::SizeChange;            
+      mc.values = MotionCameraSensor::Size | MotionCameraSensor::SizeChange;
       twc.camSensor     = new MotionCameraSensor(mc);
-      
-      OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, 
+
+      OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc,
                                          "CamRobot_" + itos(i));
       vehicle->setColor(Color(1,.7,0));
-      if(useCorridor) 
+      if(useCorridor)
         vehicle->place(osg::Vec3(sin(i/2.0-1)*radius,cos(i/2.0-1)*radius,0.3));
       else
-        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1) 
+        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1)
                        * osg::Matrix::translate(3,-4+2*i,0.3));
 
-      
+
       SeMoXConf cc = SeMoX::getDefaultConf();
       cc.modelExt = true;
       SeMoX *semox = new SeMoX(cc);
@@ -186,10 +186,10 @@ public:
       std::list<int> perm;
       perm += 1;
       perm += 0;
-      controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));        
+      controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));
       controller->setParam("rootE",3);
       controller->setParam("gamma_teach",0.005);
-      
+
       // AbstractController *controller = new Braitenberg(Braitenberg::Aggressive, 2, 3);
 //       AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.1),
 //                                                           new select_from_to(2,3));
@@ -205,35 +205,35 @@ public:
       CameraConf camcfg = Camera::getDefaultConf();
       camcfg.width  = 256;
       camcfg.height = 128;
-      camcfg.fov    = 120;      
+      camcfg.fov    = 120;
       camcfg.camSize = 0.08;
       camcfg.processors.push_back(new HSVImgProc(false,1));
       // filter only Yellow color
-      camcfg.processors.push_back(new ColorFilterImgProc(true, .5, 
+      camcfg.processors.push_back(new ColorFilterImgProc(true, .5,
                                   HSVImgProc::Red+20, HSVImgProc::Green-20,100));
       Camera* cam = new Camera(camcfg);
       MotionCameraSensorConf mc = MotionCameraSensor::getDefaultConf();
-      mc.values = MotionCameraSensor::SizeChange;            
+      mc.values = MotionCameraSensor::SizeChange;
       CameraSensor* camSensor = new MotionCameraSensor(mc);
       camSensor->setInitData(cam, odeHandle, osgHandle, osg::Matrix::rotate(-M_PI/2,0,0,1)
-			     * osg::Matrix::translate(0.2,0, 0.40) );
+                             * osg::Matrix::translate(0.2,0, 0.40) );
       std::list<Sensor*> sensors;
-      sensors.push_back(camSensor);      
+      sensors.push_back(camSensor);
       FourWheeledConf fwc = FourWheeled::getDefaultConf();
       fwc.twoWheelMode = true;
       fwc.useBumper    = false;
-      OdeRobot* robot = new FourWheeled(odeHandle, osgHandle, 
-                                        fwc, 
+      OdeRobot* robot = new FourWheeled(odeHandle, osgHandle,
+                                        fwc,
                                         "4WCamRobot_" + itos(i));
       OdeRobot* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle, robot, sensors);
       vehicle->setColor(Color(1,.7,0));
-      if(useCorridor) 
+      if(useCorridor)
         vehicle->place(osg::Vec3(sin(i/2.0-1)*radius,cos(i/2.0-1)*radius,0.3));
       else
-        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1) 
+        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1)
                        * osg::Matrix::translate(3,-4+2*i,0.3));
 
-      
+
       SeMoXConf cc = SeMoX::getDefaultConf();
       cc.modelExt = true;
       SeMoX *semox = new SeMoX(cc);
@@ -242,10 +242,10 @@ public:
       std::list<int> perm;
       perm += 1;
       perm += 0;
-      controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));        
+      controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));
       //  controller->setParam("rootE",3);
       controller->setParam("gamma_teach",0.005);
-      
+
       AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
       OdeAgent* agent = new OdeAgent( i==0 ? plotoptions : std::list<PlotOption>(),0.1);
       agent->init(controller, vehicle, wiring);
@@ -256,7 +256,7 @@ public:
 
     for(int i=0; i<numBlindRobots; i++){
       // this robot has no camera
-      OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), 
+      OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(),
                                     "BlindRobot_" + itos(i));
       vehicle->setColor(Color(1,1,0));
       vehicle->place(Pos(-3,-4+2*i,0.3));
@@ -267,7 +267,7 @@ public:
       global.agents.push_back(agent);
     }
 
-    
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
@@ -281,7 +281,7 @@ public:
       }
     }
   }
-  
+
   virtual void end(GlobalData& globalData){
   }
 

@@ -177,8 +177,8 @@ public:
     // how much will die on the end and if he should make an automatically update of the statistic values.
     // The automatically update isn't possible because before we need a run of the simulation, so we make it later ourself (param false)!
     SingletonGenAlgAPI::getInstance()->prepare((int)((numberIndividuals - (numberIndividuals / 10)) / 2),
-    		numberIndividuals - (((int)((numberIndividuals - (numberIndividuals / 10)) / 2)) * 2),
-    		&random,false);
+                    numberIndividuals - (((int)((numberIndividuals - (numberIndividuals / 10)) / 2)) * 2),
+                    &random,false);
 
     // So we are now ready to start the algorithm!
     // But without the simulation we have no fun with the algorithm. ;) The only we just need is the simulation!
@@ -404,7 +404,7 @@ private:
       // - create pointer to playground (odeHandle contains things like world and space the
       //   playground should be created in; odeHandle is generated in simulation.cpp)
       // - setting geometry for each wall of playground:
-      //   setGeometry(double length, double width, double	height)
+      //   setGeometry(double length, double width, double        height)
       // - setting initial position of the playground: setPosition(double x, double y, double z)
       // - push playground in the global list of obstacles(global list comes from simulation.cpp)
       playground = new Playground(odeHandle, osgHandle, osg::Vec3(18, 0.2, 0.5));

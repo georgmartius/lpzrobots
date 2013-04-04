@@ -35,9 +35,9 @@ namespace lpzrobots {
 
   AddSensors2RobotAdapter::
   AddSensors2RobotAdapter(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			  OdeRobot* robot, const std::list<Sensor*>& sensors,
-			  const std::list<Motor*>& motors,
-			  bool sensors_before_rest)
+                          OdeRobot* robot, const std::list<Sensor*>& sensors,
+                          const std::list<Motor*>& motors,
+                          bool sensors_before_rest)
     : OdeRobot(odeHandle, osgHandle, robot->getName(), robot->getRevision()),
       robot(robot), sensors(sensors), sensors_before_rest(sensors_before_rest),
       initialized(false), askedfornumber(0)

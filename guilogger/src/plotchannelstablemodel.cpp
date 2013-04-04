@@ -61,10 +61,10 @@ QVariant PlotChannelsTableModel::data(const QModelIndex &index, int role) const 
       case 0: return "Enable/disable window";
       case 1: return "Channel to use as x-axis";
       default:
-	if(row<cd.getInfos().size())
-	  return cd.getInfos()[row].descr;
-	else
-	  return QVariant();
+        if(row<cd.getInfos().size())
+          return cd.getInfos()[row].descr;
+        else
+          return QVariant();
       }
     }else
       return QVariant();
@@ -99,7 +99,7 @@ QVariant PlotChannelsTableModel::data(const QModelIndex &index, int role) const 
       return QVariant();
   }
 
-  // also normal row  
+  // also normal row
 // if (role == Qt::DisplayRole)
 //     return QVariant((*plotInfos)[index.column()]->getChannelShow(index.row()));
 
@@ -113,7 +113,7 @@ QVariant PlotChannelsTableModel::headerData(int section, Qt::Orientation orienta
                                             int role) const {
   if (role != Qt::DisplayRole)
     return QVariant();
-  
+
   if (orientation == Qt::Horizontal){
     if(section<plotInfos->size())
       return QString("  %1  ").arg(section+1);
@@ -128,7 +128,7 @@ QVariant PlotChannelsTableModel::headerData(int section, Qt::Orientation orienta
       return "Reference";
     } else
       return (*plotInfos)[0]->getChannelData().getChannelName(section-rowoffset);
-    // QString("Channel %1").arg(section);  
+    // QString("Channel %1").arg(section);
   }
 }
 
@@ -154,7 +154,7 @@ bool PlotChannelsTableModel::setData(const QModelIndex &index, const QVariant &v
 //     return true;
 //   }else
 
-  
+
   if (!index.isValid() || index.column()>=plotInfos->size()) return false;
   if(index.row()==0){
     if(role == Qt::CheckStateRole){

@@ -208,12 +208,12 @@ namespace lpzrobots {
         if (debugColor)
           pssm->setDebugColorOn();
 
-      	pssm->setMinNearDistanceForSplits(minNearSplit);
+              pssm->setMinNearDistanceForSplits(minNearSplit);
 
         pssm->setMaxFarDistance(maxFarDist);
 
         if ( maxFarDist > 0 ) {
-        	int moveVCamFactor = 0;
+                int moveVCamFactor = 0;
             pssm->setMoveVCamBehindRCamFactor(moveVCamFactor);
         }
 
@@ -232,22 +232,22 @@ namespace lpzrobots {
 #if OPENSCENEGRAPH_MAJOR_VERSION == 2 &&  OPENSCENEGRAPH_MINOR_VERSION >= 6
         pssm->setUserLight(lightSource->getLight());
 #endif
-	/*
-	osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,mapCount);
+        /*
+        osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,mapCount);
 
-	if (debugColor)
-	  pssm->setDebugColorOn();
+        if (debugColor)
+          pssm->setDebugColorOn();
 
-	if (useNVidia!=0)
+        if (useNVidia!=0)
         pssm->setPolygonOffset(osg::Vec2(10.0f,20.0f)); //NVidea
-	else
-	  pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit)); //ATI Radeon
+        else
+          pssm->setPolygonOffset(osg::Vec2(polyoffsetfactor,polyoffsetunit)); //ATI Radeon
 
-	// 20080728; guettler: commented out for OSG 2.6 compatibility
-	      if (cullFaceFront)
-	        pssm->forceFrontCullFace();
+        // 20080728; guettler: commented out for OSG 2.6 compatibility
+              if (cullFaceFront)
+                pssm->forceFrontCullFace();
 
-	shadowedScene->setShadowTechnique(pssm.get());*/
+        shadowedScene->setShadowTechnique(pssm.get());*/
     }
     break;
   case 4: /// SoftShadowMap
@@ -411,7 +411,7 @@ namespace lpzrobots {
 
 
   void Base::setTimeStats(double time, double realtimefactor,
-			  double truerealtimefactor, bool pause){
+                          double truerealtimefactor, bool pause){
     if(timestats){
       char buffer[100];
       int minutes = int(time)/60;
@@ -420,12 +420,12 @@ namespace lpzrobots {
         sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx (paused)",minutes,
                 seconds,realtimefactor);
       } else if (realtimefactor>0){
-	if(fabs(truerealtimefactor/realtimefactor-1)<0.15)
-	  sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx",minutes,
-		  seconds,realtimefactor);
-	else
-	  sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx(%.1fx!)",minutes,
-		  seconds,truerealtimefactor, realtimefactor);
+        if(fabs(truerealtimefactor/realtimefactor-1)<0.15)
+          sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx",minutes,
+                  seconds,realtimefactor);
+        else
+          sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx(%.1fx!)",minutes,
+                  seconds,truerealtimefactor, realtimefactor);
       } else
         sprintf(buffer,"Time: %02i:%02i  Speed: %.1fx (max)",minutes, seconds,truerealtimefactor);
       timestats->setText(buffer);
@@ -507,7 +507,7 @@ namespace lpzrobots {
 
       // 20090325; guettler: if using pssm (shadowtype 3), add also the ground to the shadowed scene
       if (shadowType==3)
-      	scene->shadowedSceneRoot->addChild(scene->groundScene); // bin number -1 so draw second.
+              scene->shadowedSceneRoot->addChild(scene->groundScene); // bin number -1 so draw second.
       else
         scene->worldtransform->addChild(scene->groundScene); // bin number -1 so draw second.
 
@@ -564,9 +564,9 @@ namespace lpzrobots {
     for( i = 0; i < nlev; i++ )
       {
         for( j = 0; j <= 18; j++ )
-	  {
+          {
             alpha = osg::DegreesToRadians(lev[i]);
-	    theta = osg::DegreesToRadians((float)(j*20));
+            theta = osg::DegreesToRadians((float)(j*20));
 
             x = radius * cosf( alpha ) * cosf( theta );
             y = radius * cosf( alpha ) * -sinf( theta );
@@ -582,7 +582,7 @@ namespace lpzrobots {
             tcoords[ci][1] = (float)i/(float)(nlev-1);
 
             ci++;
-	  }
+          }
 
 
       }
@@ -593,10 +593,10 @@ namespace lpzrobots {
         drawElements->reserve(38);
 
         for( j = 0; j <= 18; j++ )
-	  {
+          {
             drawElements->push_back((i+1)*19+j);
             drawElements->push_back((i+0)*19+j);
-	  }
+          }
 
         geom->addPrimitiveSet(drawElements);
       }
@@ -801,8 +801,8 @@ namespace lpzrobots {
     osgUtil::CullVisitor* cv = dynamic_cast<osgUtil::CullVisitor*>(nv);
     if (cv)
       {
-	osg::Vec3 eyePointLocal = cv->getEyeLocal();
-	matrix.preMult(osg::Matrix::translate(eyePointLocal.x(),eyePointLocal.y(),0.0f));
+        osg::Vec3 eyePointLocal = cv->getEyeLocal();
+        matrix.preMult(osg::Matrix::translate(eyePointLocal.x(),eyePointLocal.y(),0.0f));
       }
     return true;
   }
@@ -814,8 +814,8 @@ namespace lpzrobots {
     osgUtil::CullVisitor* cv = dynamic_cast<osgUtil::CullVisitor*>(nv);
     if (cv)
       {
-	osg::Vec3 eyePointLocal = cv->getEyeLocal();
-	matrix.postMult(osg::Matrix::translate(-eyePointLocal.x(),-eyePointLocal.y(),0.0f));
+        osg::Vec3 eyePointLocal = cv->getEyeLocal();
+        matrix.postMult(osg::Matrix::translate(-eyePointLocal.x(),-eyePointLocal.y(),0.0f));
       }
     return true;
   }

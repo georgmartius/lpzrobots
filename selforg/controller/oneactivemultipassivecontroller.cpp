@@ -27,80 +27,80 @@
 
 
 OneActiveMultiPassiveController::OneActiveMultiPassiveController(AbstractController* controller, const std::string& name, const std::string& revision)
-		: AbstractMultiController(controller, name, revision) {}
+                : AbstractMultiController(controller, name, revision) {}
 
 OneActiveMultiPassiveController::~OneActiveMultiPassiveController() {}
 
 /****************************************************************************/
-/*	AbstractMultiController should implement the following classes:        	*/
-/*	AbstractController, Configurable, Inspectable, Storeable	            */
+/*        AbstractMultiController should implement the following classes:                */
+/*        AbstractController, Configurable, Inspectable, Storeable                    */
 /****************************************************************************/
 
 
 /****************************************************************************/
-/*	BEGIN methods of AbstractController                                 	*/
+/*        BEGIN methods of AbstractController                                         */
 /****************************************************************************/
 
-void OneActiveMultiPassiveController::init(const int sensornumber, const int motornumber, 
-					   RandGen* randGen) {
-	// call the same method of super class
-	AbstractMultiController::init( sensornumber,motornumber, randGen);
-	// allocate memory for passiveMotors
-	this->passiveMotors = (motor*) malloc(sizeof(motor) * motornumber);
+void OneActiveMultiPassiveController::init(const int sensornumber, const int motornumber,
+                                           RandGen* randGen) {
+        // call the same method of super class
+        AbstractMultiController::init( sensornumber,motornumber, randGen);
+        // allocate memory for passiveMotors
+        this->passiveMotors = (motor*) malloc(sizeof(motor) * motornumber);
 }
 
 void OneActiveMultiPassiveController::step(const sensor* sensors, int sensornumber, motor* motors, int motornumber) {
-	assert(controller);
-	// make normal step of the active controller
-	// then make step of all passive controllers
-	controller->step(sensors,sensornumber,motors,motornumber);
+        assert(controller);
+        // make normal step of the active controller
+        // then make step of all passive controllers
+        controller->step(sensors,sensornumber,motors,motornumber);
 
-	for(std::list<AbstractController*>::iterator i=controllerList.begin(); i != controllerList.end(); i++){
-		(*i)->step(sensors,sensornumber,passiveMotors,motornumber);
-	}
+        for(std::list<AbstractController*>::iterator i=controllerList.begin(); i != controllerList.end(); i++){
+                (*i)->step(sensors,sensornumber,passiveMotors,motornumber);
+        }
 }
 
 void OneActiveMultiPassiveController::stepNoLearning(const sensor* sensors , int sensornumber, motor* motors, int motornumber){
-	assert(controller);
-	// make normal step of the active controller
-	// then make step of all passive controllers
-	controller->stepNoLearning(sensors,sensornumber,motors,motornumber);
-	for(std::list<AbstractController*>::iterator i=controllerList.begin(); i != controllerList.end(); i++){
-		(*i)->stepNoLearning(sensors,sensornumber,passiveMotors,motornumber);
-	}
+        assert(controller);
+        // make normal step of the active controller
+        // then make step of all passive controllers
+        controller->stepNoLearning(sensors,sensornumber,motors,motornumber);
+        for(std::list<AbstractController*>::iterator i=controllerList.begin(); i != controllerList.end(); i++){
+                (*i)->stepNoLearning(sensors,sensornumber,passiveMotors,motornumber);
+        }
 }
 
 /****************************************************************************/
-/*	END methods of AbstractController                                 	    */
+/*        END methods of AbstractController                                             */
 /****************************************************************************/
 
 
 
 /****************************************************************************/
-/*	BEGIN methods of Configurable                                       	*/
+/*        BEGIN methods of Configurable                                               */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	END methods of Configurable                                      	    */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*	BEGIN methods of Inspectable                                          	*/
-/****************************************************************************/
-
-/****************************************************************************/
-/*	END methods of Inspectable                                       	    */
+/*        END methods of Configurable                                                  */
 /****************************************************************************/
 
 
 
 /****************************************************************************/
-/*	BEGIN methods of Storeable                                           	*/
+/*        BEGIN methods of Inspectable                                                  */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	END methods of Storeable                                          	    */
+/*        END methods of Inspectable                                                   */
+/****************************************************************************/
+
+
+
+/****************************************************************************/
+/*        BEGIN methods of Storeable                                                   */
+/****************************************************************************/
+
+/****************************************************************************/
+/*        END methods of Storeable                                                      */
 /****************************************************************************/
 

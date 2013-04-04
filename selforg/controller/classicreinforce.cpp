@@ -97,10 +97,10 @@ void ClassicReinforce::step(const sensor* x_, int number_sensors, motor* y_, int
       oldreward=reward;
       reward=0;
       if(!manualControl){// select a new action
-	oldaction = action;
-	action = conf.qlearning->select(state);
-	//action = conf.qlearning->select_sample(state);
-	//newaction = conf.qlearning->select_keepold(state);
+        oldaction = action;
+        action = conf.qlearning->select(state);
+        //action = conf.qlearning->select_sample(state);
+        //newaction = conf.qlearning->select_keepold(state);
       }
     }
 

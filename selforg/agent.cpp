@@ -52,17 +52,17 @@ Agent::Agent(const std::list<PlotOption>& plotOptions, double noisefactor, const
 
 Agent::~Agent(){
   // closes all pipes of the agents due to pause mode or so
-  trackrobot.close(); 
+  trackrobot.close();
   if(robot) delete robot;
   if(rsensors) free(rsensors);
   if(rmotors)  free(rmotors);
 }
 
 
-bool Agent::init(AbstractController* controller, AbstractRobot* robot, 
-		 AbstractWiring* wiring, long int seed){
+bool Agent::init(AbstractController* controller, AbstractRobot* robot,
+                 AbstractWiring* wiring, long int seed){
   this->robot   = robot;
-  assert(robot);  
+  assert(robot);
 
   if(!seed) seed=rand();
   randGen.init(seed);
@@ -74,10 +74,10 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot,
   memset(rsensors,0, sizeof(motor)*rsensornumber);
   memset(rmotors,0, sizeof(motor)*rmotornumber);
 
-  
-  // add robot to inspectables  
+
+  // add robot to inspectables
   Inspectable* in = dynamic_cast<Inspectable*>(robot);
-  if(in) addInspectable(in); 
+  if(in) addInspectable(in);
   addConfigurable(robot);
   plotEngine.setName(robot->getName());
   setName(robot->getName() + "'s Agent");
@@ -93,7 +93,7 @@ void Agent::step(double noise, double time){
   int len =  robot->getSensors(rsensors, rsensornumber);
   if(len != rsensornumber){
     fprintf(stdout, "%s:%i: Got not enough sensors, expected %i, got %i!\n", __FILE__, __LINE__,
-	    rsensornumber, len);
+            rsensornumber, len);
   }
 
   WiredController::step(rsensors,rsensornumber, rmotors, rmotornumber, noise, time);

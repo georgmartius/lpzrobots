@@ -15,12 +15,12 @@ using namespace lpzrobots;
 
 XMLRobot::XMLRobot(DOMNode* robotNode, XMLParserEngine& xmlEngine, const string& name)
 : OdeRobot(xmlEngine.getOdeHandle(), xmlEngine.getOsgHandle(), name, "$Id$"), XMLObject(xmlEngine) {
-	// TODO Auto-generated constructor stub
+        // TODO Auto-generated constructor stub
 
 }
 
 XMLRobot::~XMLRobot() {
-	// TODO Auto-generated destructor stub
+        // TODO Auto-generated destructor stub
 }
 
 
@@ -30,16 +30,16 @@ XMLRobot::~XMLRobot() {
  }
 
  /** sets the pose of the vehicle
-	@param pose desired 4x4 pose matrix
+        @param pose desired 4x4 pose matrix
  */
   void XMLRobot::place(const osg::Matrix& pose) {
 
   }
 
  /** this function is called in each timestep after control. It
-	should perform robot-internal checks and actions,
-	like acting and sensing of internal motors/sensors etc.
-	@param globalData structure that contains global data from the simulation environment
+        should perform robot-internal checks and actions,
+        like acting and sensing of internal motors/sensors etc.
+        @param globalData structure that contains global data from the simulation environment
  */
   void XMLRobot::doInternalStuff(GlobalData& globalData) {
 

@@ -44,13 +44,13 @@ bool PlotOption::open(){
       if (parameter=="no_time_in_filename"){
         sprintf(logfilename,"%s.log",name.c_str());
       } else{
-	sprintf(logfilename,"%s_%02i-%02i-%02i_%02i-%02i-%02i.log",
-	      name.c_str(), t->tm_year%100, t->tm_mon+1 , t->tm_mday,
-  	      t->tm_hour, t->tm_min, t->tm_sec);
+        sprintf(logfilename,"%s_%02i-%02i-%02i_%02i-%02i-%02i.log",
+              name.c_str(), t->tm_year%100, t->tm_mon+1 , t->tm_mday,
+                t->tm_hour, t->tm_min, t->tm_sec);
       }
       pipe=fopen(logfilename,"w");
       if (pipe)
-	std::cout << "Now logging to file \"" << logfilename << "\"." << std::endl;
+        std::cout << "Now logging to file \"" << logfilename << "\"." << std::endl;
       break;
   case GuiLogger_File:
     pipe=popen("guilogger -m pipe -l","w");
@@ -144,8 +144,8 @@ void PlotOption::flush(long step){
     case SoundMan:{
       int ttt = fflush(pipe);
       if(ttt!=0) {
-	printf("Pipe broken: %s\n",strerror(ttt));
-	close();
+        printf("Pipe broken: %s\n",strerror(ttt));
+        close();
       }
       break;}
     default:

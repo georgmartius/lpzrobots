@@ -133,13 +133,13 @@ public:
 
 
   Joint* fixator;
-  AbstractObstacle* playground; 
+  AbstractObstacle* playground;
   double hardness;
   Substance s;
   AbstractController *teachcontroller;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
 
@@ -149,14 +149,14 @@ public:
 <<<<<<< main.cpp
 
     global.odeConfig.setParam("controlinterval",5);
-    global.odeConfig.setParam("simstepsize",0.003); 
-    global.odeConfig.setParam("noise",0.05); 
+    global.odeConfig.setParam("simstepsize",0.003);
+    global.odeConfig.setParam("noise",0.05);
     global.odeConfig.setParam("realtimefactor",3);
 
     //    global.odeConfig.setParam("gravity", 0);
 =======
     global.odeConfig.setParam("controlinterval",2);
-    global.odeConfig.setParam("noise",0.1); 
+    global.odeConfig.setParam("noise",0.1);
     global.odeConfig.setParam("realtimefactor",1);
     global.odeConfig.setParam("gravity", -3);
 >>>>>>> 1.9
@@ -165,20 +165,20 @@ public:
 
     // use Playground as boundary:
 <<<<<<< main.cpp
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
-    //   setGeometry(double length, double width, double	height)
+    // - setting geometry for each wall of playground:
+    //   setGeometry(double length, double width, double        height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
 
     s.toPlastic(0.9);
 
-    double diam = .8; 
+    double diam = .8;
     int anzgrounds = 4;
 =======
-    s.toPlastic(0.9); 
-    double scale = 20; 
+    s.toPlastic(0.9);
+    double scale = 20;
     double height = 0;
     int anzgrounds=1;
 >>>>>>> 1.9
@@ -187,8 +187,8 @@ public:
       playground = new Playground(odeHandle, osgHandle, osg::Vec3(40+4*i, .2, .15+0.15*i), 1, i==(anzgrounds-1));
 
 =======
-      playground = new Playground(odeHandle, osgHandle, 
-	     osg::Vec3((4+4*i)*scale, .2, (.15+0.15*i)*height), 1, i==(anzgrounds-1));
+      playground = new Playground(odeHandle, osgHandle,
+             osg::Vec3((4+4*i)*scale, .2, (.15+0.15*i)*height), 1, i==(anzgrounds-1));
 >>>>>>> 1.9
       OdeHandle myhandle = odeHandle;
 
@@ -211,30 +211,30 @@ public:
       global.obstacles.push_back(s1);
     }
 <<<<<<< main.cpp
-    ///////// CREATION OF DOGS --- Begin 
+    ///////// CREATION OF DOGS --- Begin
 =======
 
 
     teachcontroller = new WalkController();
     teachcontroller->init(12,12);
 >>>>>>> 1.9
-    for (int i=0; i< 1/*2*/; i++){ //Several dogs 
+    for (int i=0; i< 1/*2*/; i++){ //Several dogs
 
     VierBeinerConf conf = VierBeiner::getDefaultConf();
-	//  conf.hipJointLimit = M_PI/8;        
-    conf.legNumber = 8;     
-    conf.hipPower = 6;    
+        //  conf.hipJointLimit = M_PI/8;
+    conf.legNumber = 8;
+    conf.hipPower = 6;
     conf.kneePower = 4;
 
 
 <<<<<<< main.cpp
-    VierBeiner* dog = new VierBeiner(odeHandle, osgHandle,conf, "Dog");   
+    VierBeiner* dog = new VierBeiner(odeHandle, osgHandle,conf, "Dog");
 =======
     OdeHandle doghandle = odeHandle;
     doghandle.substance.toRubber(10);
-    VierBeiner* dog = new VierBeiner(doghandle, osgHandle,conf, "Dog");     
+    VierBeiner* dog = new VierBeiner(doghandle, osgHandle,conf, "Dog");
 >>>>>>> 1.9
-    //dog->place(osg::Matrix::translate(0,0,0.15));  
+    //dog->place(osg::Matrix::translate(0,0,0.15));
     dog->place(osg::Matrix::translate(0,0,.5 + 4*i));
     global.configs.push_back(dog);
 
@@ -261,7 +261,7 @@ public:
     // InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     // cc.useS=false;
     // AbstractController *controller = new InvertMotorNStep(cc);
-    
+
     // AbstractController *controller = new SineController();
     //   InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
 >>>>>>> 1.9
@@ -281,8 +281,8 @@ public:
     vector<Layer> layers;
     //    layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
     // size of output layer is automatically set
-    layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-    MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass. 
+    layers.push_back(Layer(1,1,FeedForwardNN::linear));
+    MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass.
     cc.model=net;
     cc.useS=false;
     //    cc.someInternalParams=false;
@@ -293,8 +293,8 @@ public:
    //  vector<Layer> layers;
 //      layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
 //     // size of output layer is automatically set
-//     layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-//     MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass. 
+//     layers.push_back(Layer(1,1,FeedForwardNN::linear));
+//     MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, false);// false means no bypass.
 //     cc.model=net;
 //     cc.useS=true;
     //cc.useS=false;
@@ -302,7 +302,7 @@ public:
 
     //     AbstractController* controller = new DerController(cc);
 >>>>>>> 1.9
-	// AbstractController* controller = new InvertMotorBigModel(cc);
+        // AbstractController* controller = new InvertMotorBigModel(cc);
 <<<<<<< main.cpp
      // controller->setParam("sinerate",50);
      //controller->setParam("phaseshift",1);
@@ -335,7 +335,7 @@ public:
 >>>>>>> 1.9
     //    controller->setParam("kwta",4);
     //    controller->setParam("inhibition",0.01);
-    
+
     // TEST
     controller->setParam("epsC",0.0);
     controller->setParam("epsA",0.1);
@@ -344,34 +344,34 @@ public:
     controller->setParam("s4delay",2);
     controller->setParam("teacher",0.1);
     controller->setParam("continuity",0);
-        
+
 
     global.configs.push_back(controller);
-  
+
     // create pointer to one2onewiring
     //AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     // feedback connection and blind channels
-    AbstractWiring* wiring = 
-      new WiringSequence(new FeedbackWiring(new ColorUniformNoise(0.1), 
-					    FeedbackWiring::Motor,0.5),
-			 new One2OneWiring(0, false, 2));
+    AbstractWiring* wiring =
+      new WiringSequence(new FeedbackWiring(new ColorUniformNoise(0.1),
+                                            FeedbackWiring::Motor,0.5),
+                         new One2OneWiring(0, false, 2));
 
-    // create pointer to agent 
+    // create pointer to agent
     // initialize pointer with controller, robot and wiring
-    // push agent in globel list of agents 
+    // push agent in globel list of agents
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, dog, wiring);
     //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
     global.agents.push_back(agent);
-  
-    //  
+
+    //
     }// Several dogs end
-    
-  
-    ///////// CREATION OF DOGS -- End 
 
 
-    
+    ///////// CREATION OF DOGS -- End
+
+
+
   }
 
 
@@ -382,9 +382,9 @@ public:
       AbstractController* contr = globalData.agents.front()->getController();
       InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(contr);
       if(c){
-	int len = c->getSensorNumber();
-	teachcontroller->step(sensors, len, motors, len);
-	c->setMotorTeachingSignal(motors,len);
+        int len = c->getSensorNumber();
+        teachcontroller->step(sensors, len, motors, len);
+        c->setMotorTeachingSignal(motors,len);
       }
     }
 
@@ -395,32 +395,32 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	case 'x': 
-	  if(fixator) delete fixator;
-	  fixator=0;	 
-	  return true;
-	  break;
-	case 'i': 
-	  if(playground) {	    
-	    s.hardness*=1.5;
-	    cout << "hardness " << s.hardness << endl;
-	    playground->setSubstance(s);
-	  }
-	  return true;
-	  break;
-	case 'j': 
-	  if(playground) {
-	    s.hardness/=1.5;
-	    cout << "hardness " << s.hardness << endl;
-	    playground->setSubstance(s);
-	  }
-	  return true;
-	  break;
-	default:
-	  return false;
-	  break;
-	}
+        {
+        case 'x':
+          if(fixator) delete fixator;
+          fixator=0;
+          return true;
+          break;
+        case 'i':
+          if(playground) {
+            s.hardness*=1.5;
+            cout << "hardness " << s.hardness << endl;
+            playground->setSubstance(s);
+          }
+          return true;
+          break;
+        case 'j':
+          if(playground) {
+            s.hardness/=1.5;
+            cout << "hardness " << s.hardness << endl;
+            playground->setSubstance(s);
+          }
+          return true;
+          break;
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
@@ -428,9 +428,9 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
+

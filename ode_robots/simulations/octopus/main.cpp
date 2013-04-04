@@ -86,7 +86,7 @@ class ThisSim : public Simulation {
 public:
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(4.24924, 3.29721, 0.869867),  Pos(127.559, 0.122009, 0));
     // initialization
@@ -96,10 +96,10 @@ public:
     //    global.odeConfig.setParam("gravity", -3);
 
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
-    //   setGeometry(double length, double width, double	height)
+    // - setting geometry for each wall of playground:
+    //   setGeometry(double length, double width, double        height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 0.5));
@@ -107,9 +107,9 @@ public:
     global.obstacles.push_back(playground);
 
     // add passive spheres as obstacles
-    // - create pointer to sphere (with odehandle, osghandle and 
+    // - create pointer to sphere (with odehandle, osghandle and
     //   optional parameters radius and mass,where the latter is not used here) )
-    // - set Pose(Position) of sphere 
+    // - set Pose(Position) of sphere
     // - set a texture for the sphere
     // - add sphere to list of obstacles
     for (int i=0; i<= 1/*2*/; i+=2){
@@ -125,7 +125,7 @@ public:
     // change material to Plastic
     OdeHandle octopusHandle(odeHandle);
     octopusHandle.substance.toPlastic(0.5);
-    Octopus* vehicle = new Octopus(octopusHandle, osgHandle, conf, "Octopus1");    
+    Octopus* vehicle = new Octopus(octopusHandle, osgHandle, conf, "Octopus1");
     vehicle->place(osg::Matrix::translate(0,0,0.5));
     global.configs.push_back(vehicle);
 
@@ -138,9 +138,9 @@ public:
     // create pointer to controller
     // push controller in global list of configurables
     //AbstractController *controller = new SineController();
-    AbstractController *controller = new InvertMotorNStep();  
+    AbstractController *controller = new InvertMotorNStep();
     global.configs.push_back(controller);
-  
+
     // create pointer to one2onewiring
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
@@ -150,8 +150,8 @@ public:
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
-  
-    
+
+
   }
 
   // add own key handling stuff here, just insert some case values
@@ -159,11 +159,11 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
-	  return false;
-	  break;
-	}
+        {
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
@@ -174,9 +174,9 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
+

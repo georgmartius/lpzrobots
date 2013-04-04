@@ -57,10 +57,10 @@ namespace lpzrobots {
 
   // constructor:
   // - give handle for ODE and OSG stuff
-  Hexapod::Hexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		   const HexapodConf& c, const std::string& name)
+  Hexapod::Hexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                   const HexapodConf& c, const std::string& name)
     : OdeRobot(odeHandle, osgHandle, name, "HexaPod 0.9"), conf(c)
-  { 
+  {
     // robot is not created till now
     pos1d = new double[3];
     pos1 = new dReal();
@@ -90,7 +90,7 @@ namespace lpzrobots {
     addParameter("coxaJointLimitH", &conf.coxaJointLimitH);
     addParameter("coxaJointLimitV", &conf.coxaJointLimitV);
     addParameter("coxaSpeed", &conf.coxaSpeed);
-    
+
     if(conf.useTebiaJoints){
       addParameter("tebiaPower",      &conf.tebiaPower);
       addParameter("tebiaDamp",       &conf.tebiaDamping);
@@ -98,19 +98,19 @@ namespace lpzrobots {
     }
 
     // name the sensors
-    for(int n=0; n<conf.legNumber; n++){      
+    for(int n=0; n<conf.legNumber; n++){
       addInspectableDescription("x[" + itos (n*2) + "]",
-                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left") 
+                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
                                 + " up/down");
       addInspectableDescription("x[" + itos (n*2+1) + "]",
-                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left") 
+                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
                                 + " front/back");
     }
 
     // Georg: you can also add inspectables here to see them in the logfile/guilogger
     // e.g.
     addInspectableValue("Energy", &E_t, "Energy over several timesteps");
-    
+
   };
 
 
@@ -119,7 +119,7 @@ namespace lpzrobots {
   };
 
   /* sets actual motorcommands
-     @param motors motors scaled to [-1,1] 
+     @param motors motors scaled to [-1,1]
      @param motornumber length of the motor array
   */
   void Hexapod::setMotors(const motor* motors, int motornumber){
@@ -131,10 +131,10 @@ namespace lpzrobots {
     }
 
     FOREACH(vector<OneAxisServo*>, tebiasprings, i){
-      if(*i) (*i)->set(0); 
+      if(*i) (*i)->set(0);
     }
     FOREACH(vector<OneAxisServo*>, whiskersprings, i){
-      if(*i) (*i)->set(0); 
+      if(*i) (*i)->set(0);
     }
 
 
@@ -175,7 +175,7 @@ namespace lpzrobots {
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position is 0
     //    Matrix p2;
-    //    p2 = pose * Matrix::translate(Vec3(0, 0, conf.legLength + conf.legLength/8)); 
+    //    p2 = pose * Matrix::translate(Vec3(0, 0, conf.legLength + conf.legLength/8));
     create(pose);
   };
 
@@ -185,7 +185,7 @@ namespace lpzrobots {
    */
   void Hexapod::update(){
     assert(created); // robot must exist
-  
+
     for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
       if(*i) (*i)->update();
     }
@@ -214,7 +214,7 @@ namespace lpzrobots {
   double Hexapod::energyConsumpThroughtHeatLoss(const dReal *torques){
     // Georg: This should be sqr(torques[0]) + sqr(torques[1]) + ..
     // torque can be negative!
-    return pow(torques[0] + torques[1] + torques[2],2); 
+    return pow(torques[0] + torques[1] + torques[2],2);
   }
 
   double Hexapod::energyConsumption(){
@@ -252,11 +252,11 @@ namespace lpzrobots {
     return  ceil( ( num * pow( 10,x ) ) - 0.49 ) / pow( 10,x );
 
   }
-  /** this function is called in each timestep. It should perform robot-internal checks, 
+  /** this function is called in each timestep. It should perform robot-internal checks,
       like space-internal collision detection, sensor resets/update etc.
       @param global structure that contains global data from the simulation environment
   */
-  void Hexapod::doInternalStuff(GlobalData& global){     
+  void Hexapod::doInternalStuff(GlobalData& global){
     irSensorBank.reset();
 
     energyOneStep[0] = energyConsumption();
@@ -310,9 +310,9 @@ namespace lpzrobots {
 
   }
 
-  /** checks for internal collisions and treats them. 
-   *  In case of a treatment return true (collision will be ignored by other objects 
-   *  and the default routine)  else false (collision is passed to other objects and 
+  /** checks for internal collisions and treats them.
+   *  In case of a treatment return true (collision will be ignored by other objects
+   *  and the default routine)  else false (collision is passed to other objects and
    *  (if not treated) to the default routine).
    */
   bool Hexapod::collisionCallback(void *data, dGeomID o1, dGeomID o2){
@@ -330,14 +330,14 @@ namespace lpzrobots {
 
     for(int i = 0; i < numCollisions; ++i)
       {
-	dBodyID b1 =  dGeomGetBody(contacts[i].geom.g1);
+        dBodyID b1 =  dGeomGetBody(contacts[i].geom.g1);
         // Georg: are you sure that b1 is always the leg?
-	if(legContactArray[0].bodyID == b1){conf.legContacts[0] = 1; }
-	if(legContactArray[1].bodyID == b1){conf.legContacts[1] = 4; }
-	if(legContactArray[2].bodyID == b1){conf.legContacts[2] = 2; }
-	if(legContactArray[3].bodyID == b1){conf.legContacts[3] = 5; }
-	if(legContactArray[4].bodyID == b1){conf.legContacts[4] = 3; }
-	if(legContactArray[5].bodyID == b1){conf.legContacts[5] = 6; }
+        if(legContactArray[0].bodyID == b1){conf.legContacts[0] = 1; }
+        if(legContactArray[1].bodyID == b1){conf.legContacts[1] = 4; }
+        if(legContactArray[2].bodyID == b1){conf.legContacts[2] = 2; }
+        if(legContactArray[3].bodyID == b1){conf.legContacts[3] = 5; }
+        if(legContactArray[4].bodyID == b1){conf.legContacts[4] = 3; }
+        if(legContactArray[5].bodyID == b1){conf.legContacts[5] = 6; }
 
       }
 
@@ -363,7 +363,7 @@ namespace lpzrobots {
   }
 
 
-  /** creates vehicle at desired position 
+  /** creates vehicle at desired position
       @param pos struct Position with desired position
   */
   void Hexapod::create( const osg::Matrix& pose ){
@@ -377,7 +377,7 @@ namespace lpzrobots {
     TwoAxisServo* servo;
     OneAxisServo* spring;
     FixedJoint* fixedJoint;
-    
+
     // create body
     double twidth = conf.size * conf.width ;// 1/1.5;
     double theight = conf.size * conf.height; // 1/4;
@@ -394,90 +394,90 @@ namespace lpzrobots {
     if(conf.irSensors == true){
       for(int i = -1; i < 2; i+=2){
 
-	irbox = new Box(0.1,0.1,0.1);
-	irbox->setTexture("Images/toy_fur3.jpg");
-	irbox->init(odeHandle, 0.00001, osgHandle);
-	irbox->setPose(ROTM(M_PI/4,0,0,1) * TRANSM(i*conf.size/2,0,theight/2)*trunkPos);
-	objects.push_back(irbox);
-	fixedJoint = new FixedJoint(trunk,irbox);
-	fixedJoint->init(odeHandle, osgHandleJ, true, 0.4);
-	joints.push_back(fixedJoint);
+        irbox = new Box(0.1,0.1,0.1);
+        irbox->setTexture("Images/toy_fur3.jpg");
+        irbox->init(odeHandle, 0.00001, osgHandle);
+        irbox->setPose(ROTM(M_PI/4,0,0,1) * TRANSM(i*conf.size/2,0,theight/2)*trunkPos);
+        objects.push_back(irbox);
+        fixedJoint = new FixedJoint(trunk,irbox);
+        fixedJoint->init(odeHandle, osgHandleJ, true, 0.4);
+        joints.push_back(fixedJoint);
       }
 
       for(int i = -1; i < 2; i+=2){
 
-	irbox = new Box(0.1,0.1,0.15);
-	irbox->setTexture("Images/toy_fur3.jpg");
-	irbox->init(odeHandle, 0.00001, osgHandle);
-	irbox->setPose(TRANSM(0,i*twidth/2,theight/2 + 0.05)*trunkPos);
-	objects.push_back(irbox);
-	fixedJoint = new FixedJoint(trunk,irbox);
-	fixedJoint->init(odeHandle, osgHandleJ, true, 0.4);
-	joints.push_back(fixedJoint);
+        irbox = new Box(0.1,0.1,0.15);
+        irbox->setTexture("Images/toy_fur3.jpg");
+        irbox->init(odeHandle, 0.00001, osgHandle);
+        irbox->setPose(TRANSM(0,i*twidth/2,theight/2 + 0.05)*trunkPos);
+        objects.push_back(irbox);
+        fixedJoint = new FixedJoint(trunk,irbox);
+        fixedJoint->init(odeHandle, osgHandleJ, true, 0.4);
+        joints.push_back(fixedJoint);
       }
 
 
       irSensorBank.init(odeHandle, osgHandle);
 
       if (conf.irFront){ // add front left and front right infrared sensor to sensorbank if required
-     	IRSensor* sensor = new IRSensor();
-     	irSensorBank.registerSensor(sensor, objects[2],
-     				    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
-     				    Matrix::translate(1*0.05,0,0),
-     				    conf.irRangeFront, RaySensor::drawAll);
-       	IRSensor* sensor2 = new IRSensor();
-       	irSensorBank.registerSensor(sensor2, objects[2],
-				    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
-				    Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
-				    Matrix::translate(0,-0.05,0),
-				    conf.irRangeFront, RaySensor::drawAll);
+             IRSensor* sensor = new IRSensor();
+             irSensorBank.registerSensor(sensor, objects[2],
+                                         Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
+                                         Matrix::translate(1*0.05,0,0),
+                                         conf.irRangeFront, RaySensor::drawAll);
+               IRSensor* sensor2 = new IRSensor();
+               irSensorBank.registerSensor(sensor2, objects[2],
+                                    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
+                                    Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
+                                    Matrix::translate(0,-0.05,0),
+                                    conf.irRangeFront, RaySensor::drawAll);
 
       }
       if (conf.irBack){ // add front left and front right infrared sensor to sensorbank if required
 
-      	IRSensor* sensor = new IRSensor();
-       	irSensorBank.registerSensor(sensor, objects[1],
-       				    Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
-       				    Matrix::translate(-1*0.05,0,0),
-       				    conf.irRangeBack, RaySensor::drawAll);
+              IRSensor* sensor = new IRSensor();
+               irSensorBank.registerSensor(sensor, objects[1],
+                                           Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
+                                           Matrix::translate(-1*0.05,0,0),
+                                           conf.irRangeBack, RaySensor::drawAll);
 
-	IRSensor* sensor2 = new IRSensor();
-	irSensorBank.registerSensor(sensor2, objects[1],
-				    Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
-				    Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
-				    Matrix::translate(0,0.05,0),
-				    conf.irRangeBack, RaySensor::drawAll);
+        IRSensor* sensor2 = new IRSensor();
+        irSensorBank.registerSensor(sensor2, objects[1],
+                                    Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
+                                    Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
+                                    Matrix::translate(0,0.05,0),
+                                    conf.irRangeBack, RaySensor::drawAll);
       }
       if(conf.irLeft){
-	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, objects[3],
-				    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
-				    Matrix::rotate(-M_PI/2, Vec3(0,0,1)) *
-				    Matrix::translate(0,-0.05,0.05),
-				    conf.irRangeLeft, RaySensor::drawAll);
+        IRSensor* sensor = new IRSensor();
+        irSensorBank.registerSensor(sensor, objects[3],
+                                    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
+                                    Matrix::rotate(-M_PI/2, Vec3(0,0,1)) *
+                                    Matrix::translate(0,-0.05,0.05),
+                                    conf.irRangeLeft, RaySensor::drawAll);
 
-    	/* IRSensor* sensor2 = new IRSensor();
-	   irSensorBank.registerSensor(sensor2, objects[3],
-	   Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
-	   Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
-	   Matrix::translate(0,-0.05,0),
-	   conf.irRangeLeft, RaySensor::drawAll);*/
+            /* IRSensor* sensor2 = new IRSensor();
+           irSensorBank.registerSensor(sensor2, objects[3],
+           Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
+           Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
+           Matrix::translate(0,-0.05,0),
+           conf.irRangeLeft, RaySensor::drawAll);*/
       }
       if(conf.irRight){
-	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, objects[4],
-				    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
-				    Matrix::rotate(M_PI/2, Vec3(0,0,1)) *
-				    Matrix::translate(0,0.05,0.05),
-				    conf.irRangeLeft, RaySensor::drawAll);
+        IRSensor* sensor = new IRSensor();
+        irSensorBank.registerSensor(sensor, objects[4],
+                                    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
+                                    Matrix::rotate(M_PI/2, Vec3(0,0,1)) *
+                                    Matrix::translate(0,0.05,0.05),
+                                    conf.irRangeLeft, RaySensor::drawAll);
 
 
-	/* IRSensor* sensor2 = new IRSensor();
-	   irSensorBank.registerSensor(sensor2, objects[4],
-	   Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
-	   Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
-	   Matrix::translate(0,0.05,0),
-	   conf.irRangeRight, RaySensor::drawAll);*/
+        /* IRSensor* sensor2 = new IRSensor();
+           irSensorBank.registerSensor(sensor2, objects[4],
+           Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
+           Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
+           Matrix::translate(0,0.05,0),
+           conf.irRangeRight, RaySensor::drawAll);*/
       }
     }
 
@@ -495,19 +495,19 @@ namespace lpzrobots {
 
       // upper limp
       Primitive* coxaThorax;
-      Pos pos = Pos(-conf.size/(2+0.2) + ((int)n/2) * legdist, 
-                    n%2==0 ? - twidth/2 : twidth/2, 
+      Pos pos = Pos(-conf.size/(2+0.2) + ((int)n/2) * legdist,
+                    n%2==0 ? - twidth/2 : twidth/2,
                     conf.legLength - theight/3);
-      
+
       osg::Matrix m = ROTM(M_PI/2,v%2==0 ? -1 : 1,0,0) * TRANSM(pos) * pose;
       coxaThorax = new Capsule(t1, l1);
       coxaThorax->setTexture("Images/toy_fur3.jpg");
       coxaThorax->init(odeHandle, legmass, osgHandle);
 
-      osg::Matrix m1 =  TRANSM(0,0,-l1/2) 
-        * ROTM(M_PI,0,0,v%2==0 ? -1 : 1) 
+      osg::Matrix m1 =  TRANSM(0,0,-l1/2)
+        * ROTM(M_PI,0,0,v%2==0 ? -1 : 1)
         * ROTM(2*M_PI,0,v%2==0 ? -1 : 1,0) * m;
-      
+
       coxaThorax->setPose(m1);
       thoraxPos.push_back(coxaThorax->getPosition());
 
@@ -518,8 +518,8 @@ namespace lpzrobots {
       // powered hip joint
       Pos nullpos(0,0,0);
 
-      UniversalJoint* j 
-        = new UniversalJoint(trunk, coxaThorax, nullpos * m, 
+      UniversalJoint* j
+        = new UniversalJoint(trunk, coxaThorax, nullpos * m,
                              ROTM(M_PI,0,0,v%2==0 ? -1 : 1) * Axis(v%2==0 ? -1 : 1,0,0) * m,
                              ROTM(M_PI,0,0,v%2==0 ? -1 : 1) * Axis(0,1,0) * m);
 
@@ -529,8 +529,8 @@ namespace lpzrobots {
       legContactArray[n].joint = j->getJoint();
 
       // values will be set in setParam later
-      servo =  new TwoAxisServoVel(odeHandle, j,-1,1, 1, -1,1,1,0 );  
-      //     servo =  new UniversalServo(j,-1,1, 1, -1,1,1,0); 
+      servo =  new TwoAxisServoVel(odeHandle, j,-1,1, 1, -1,1,1,0 );
+      //     servo =  new UniversalServo(j,-1,1, 1, -1,1,1,0);
       hipservos.push_back(servo);
 
       // lower leg
@@ -538,7 +538,7 @@ namespace lpzrobots {
       tibia = new Capsule(t2, l2);
       tibia->setTexture("Images/toy_fur3.jpg");
       tibia->init(odeHandle, legmass, osgHandle);
-      osg::Matrix m2 =   TRANSM(0,0,-l2/2) * ROTM(1.5,v%2==0 ? -1 : 1,0,0) 
+      osg::Matrix m2 =   TRANSM(0,0,-l2/2) * ROTM(1.5,v%2==0 ? -1 : 1,0,0)
         * TRANSM(0,0,-l1/2) * m1;
       tibia->setPose(m2);
       objects.push_back(tibia);
@@ -550,12 +550,12 @@ namespace lpzrobots {
 
       if(conf.useTebiaJoints){
       // springy knee joint
-        HingeJoint* k = new HingeJoint(coxaThorax, tibia, Pos(0,0,-l1/2) * m1, 
+        HingeJoint* k = new HingeJoint(coxaThorax, tibia, Pos(0,0,-l1/2) * m1,
                                        Axis(v%2==0 ? -1 : 1,0,0) * m1);
         k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
         // servo used as a spring
         spring = new HingeServo(k, -1, 1, 1, 0.01,0); // parameters are set later
-        tebiasprings.push_back(spring);            
+        tebiasprings.push_back(spring);
         joints.push_back(k);
       }else{
         // fixed knee joint
@@ -564,7 +564,7 @@ namespace lpzrobots {
         joints.push_back(k);
       }
       // lower limp should not collide with body!
-      odeHandle.addIgnoredPair(trunk,tibia); 
+      odeHandle.addIgnoredPair(trunk,tibia);
       // Georg: we could also ignore all internal collisions (see createNewSimpleSpace above)
     }
     // New: wiskers
@@ -573,10 +573,10 @@ namespace lpzrobots {
       double t1 = conf.legLength/30;
 
       Primitive* whisker;
-      Pos pos = Pos(conf.size/(2)+t1, 
-                    n*twidth/4, 
+      Pos pos = Pos(conf.size/(2)+t1,
+                    n*twidth/4,
                     conf.legLength + theight/5);
-      
+
       osg::Matrix m = ROTM(M_PI/10, n,0,0) * ROTM(M_PI/2+M_PI/10, 0,-1,0) * TRANSM(pos) * pose;
       whisker = new Capsule(t1, l1);
       whisker->init(odeHandle, legmass/10, osgHandleJ);
@@ -586,41 +586,41 @@ namespace lpzrobots {
 
       //FixedJoint* k = new FixedJoint(trunk, whisker);
       //k->init(odeHandle, osgHandle, false, 0);
-      HingeJoint* k = new HingeJoint(trunk, whisker, Pos(0,0,0) * m, 
+      HingeJoint* k = new HingeJoint(trunk, whisker, Pos(0,0,0) * m,
                                      Axis(1,0,0) * m);
       k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
       // servo used as a spring
       spring = new HingeServo(k, -M_PI/6, M_PI/6, .1, 0.01,0);
-      whiskersprings.push_back(spring);            
+      whiskersprings.push_back(spring);
       joints.push_back(k);
-      
+
       Primitive* whisker2;
       whisker2 = new Capsule(t1/2, l1);
       whisker2->init(odeHandle, legmass/10, osgHandleJ);
-      osg::Matrix m2 = TRANSM(0,0,-l1/2) 
-        * ROTM(M_PI/10, n,0,0) 
-        * ROTM(M_PI/10, 0,1,0) * TRANSM(0,0,-l1/2) * m1; 
+      osg::Matrix m2 = TRANSM(0,0,-l1/2)
+        * ROTM(M_PI/10, n,0,0)
+        * ROTM(M_PI/10, 0,1,0) * TRANSM(0,0,-l1/2) * m1;
       whisker2->setPose(m2);
       objects.push_back(whisker2);
 
       //      k = new FixedJoint(whisker, whisker2);
-      //      k->init(odeHandle, osgHandleJ, false, 0);      
-      k = new HingeJoint(whisker, whisker2, Pos(0,0,-l1/2) * m1, 
+      //      k->init(odeHandle, osgHandleJ, false, 0);
+      k = new HingeJoint(whisker, whisker2, Pos(0,0,-l1/2) * m1,
                                      Axis(0,1,0) * m1);
       k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
       // servo used as a spring
       spring = new HingeServo(k, -M_PI/6, M_PI/6, .05, 0.01,0);
-      whiskersprings.push_back(spring);            
+      whiskersprings.push_back(spring);
       joints.push_back(k);
-      
+
 
     }
-        
+
 
     setParam("dummy",0); // apply all parameters.
-    
+
     created=true;
-  }; 
+  };
 
 
   /** destroys vehicle and space
@@ -646,11 +646,11 @@ namespace lpzrobots {
 
 
       for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-	if(*i) delete *i;
+        if(*i) delete *i;
       }
-      joints.clear();      
+      joints.clear();
       for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-	if(*i) delete *i;
+        if(*i) delete *i;
       }
       objects.clear();
 
@@ -660,10 +660,10 @@ namespace lpzrobots {
 
     created=false;
   }
-      
-  bool Hexapod::setParam(const paramkey& key, paramval val, bool traverseChildren){    
+
+  bool Hexapod::setParam(const paramkey& key, paramval val, bool traverseChildren){
     // the parameters are assigned here
-    bool rv = Configurable::setParam(key, val); 
+    bool rv = Configurable::setParam(key, val);
     // we simply set all parameters here
     FOREACH(vector<TwoAxisServo*>, hipservos, i){
       if(*i){
@@ -681,7 +681,7 @@ namespace lpzrobots {
         (*i)->setDamping(conf.tebiaDamping);
         (*i)->setMinMax(-conf.tebiaJointLimit,+conf.tebiaJointLimit);
       }
-    }    
+    }
     return rv;
 
 

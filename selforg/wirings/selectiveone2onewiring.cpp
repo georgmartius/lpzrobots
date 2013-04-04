@@ -28,8 +28,8 @@
 
 /// constructor
 SelectiveOne2OneWiring::SelectiveOne2OneWiring(NoiseGenerator* noise,
-					       select_predicate* sel_sensor,
-					       int plotMode, const std::string& name)
+                                               select_predicate* sel_sensor,
+                                               int plotMode, const std::string& name)
   : One2OneWiring(noise, plotMode, 0, name), sel_sensor(sel_sensor) {
   assert(sel_sensor);
 }
@@ -46,21 +46,21 @@ bool SelectiveOne2OneWiring::initIntern(){
   int num=0;
   for(int i=0; i<rsensornumber; i++){
     if((*sel_sensor)(i,rsensornumber)) num++;
-  }  
+  }
   csensornumber = num;
   printf("robot sensors: %i, selected senors: %i\n", rsensornumber, num);
   return true;
 }
 
-/// Realizes selective one to one wiring from robot sensors to controller sensors. 
-//   @param rsensors pointer to array of sensorvalues from robot 
+/// Realizes selective one to one wiring from robot sensors to controller sensors.
+//   @param rsensors pointer to array of sensorvalues from robot
 //   @param rsensornumber number of sensors from robot
-//   @param csensors pointer to array of sensorvalues for controller  
+//   @param csensors pointer to array of sensorvalues for controller
 //   @param csensornumber number of sensors to controller
 //   @param noise size of the noise added to the sensors
-bool SelectiveOne2OneWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
-					       sensor* csensors, int csensornumber, 
-					       double noiseStrength){
+bool SelectiveOne2OneWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber,
+                                               sensor* csensors, int csensornumber,
+                                               double noiseStrength){
   // noisevals are set in AbstractWiring()
   int num=0;
   for(int i=0; i< rsensornumber; i++){

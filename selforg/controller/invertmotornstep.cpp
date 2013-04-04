@@ -54,11 +54,11 @@ InvertMotorNStep::InvertMotorNStep( const InvertMotorNStepConf& conf)
   eta_buffer = 0;
 
   addInspectableMatrix("A", &A, conf.someInternalParams, "model matrix");
-  if(conf.useS) 
+  if(conf.useS)
     addInspectableMatrix("S", &S, conf.someInternalParams, "extended Model matrix");
   if(conf.useSD)
     addInspectableMatrix("SD", &SD, conf.someInternalParams, "extended Model matrix (deriv)");
-  
+
   addInspectableMatrix("C", &C, conf.someInternalParams, "controller matrix");
   addInspectableMatrix("R", &R, conf.someInternalParams, "linear Response matrix");
   addInspectableMatrix("H", &H, false, "controller bias");
@@ -509,8 +509,8 @@ void InvertMotorNStep::learnModel(int delay)
     {
       // select the last conf.numberContext sensors.
       const Matrix& x_c      =
-	x_buffer[(t-1) % buffersize].rows(number_sensors - conf.numberContext,
-					  number_sensors - 1);
+        x_buffer[(t-1) % buffersize].rows(number_sensors - conf.numberContext,
+                                          number_sensors - 1);
       const Matrix& S_update =(( xsi*(x_c^T) ) * (epsA * error_factor));
       S += S_update.mapP(&squashSize, squash);
     }
@@ -619,7 +619,7 @@ void InvertMotorNStep::kwtaInhibition(matrix::Matrix& wm, unsigned int k, double
         wm.val(i,j)*= inhfactor;
       } //else {
       // double d = m - abs_of_elem;  // allways possitive
-      //	wm.val(i,j)*= 1+(damping*d); // scale exhitation by distance to max
+      //        wm.val(i,j)*= 1+(damping*d); // scale exhitation by distance to max
       //      }
     }
   }
@@ -712,19 +712,19 @@ void InvertMotorNStep::setSensorTeachingSignal(const sensor* teaching, int len)
 
 
 void InvertMotorNStep::setMotorTeaching(const matrix::Matrix& teaching){
-  assert(teaching.getM() == number_motors && teaching.getN() == 1);  
-  // Note: through the clipping the otherwise effectless 
-  //  teaching with old motor value has now an effect, 
-  //  namely to drive out of the saturation region. 
+  assert(teaching.getM() == number_motors && teaching.getN() == 1);
+  // Note: through the clipping the otherwise effectless
+  //  teaching with old motor value has now an effect,
+  //  namely to drive out of the saturation region.
   y_teaching= teaching.mapP(0.95,clip);
   useTeaching=true;
 }
 
 void InvertMotorNStep::setSensorTeaching(const matrix::Matrix& teaching){
-  assert(teaching.getM() == number_sensors && teaching.getN() == 1);  
+  assert(teaching.getM() == number_sensors && teaching.getN() == 1);
   // calculate the y_teaching, that belongs to the distal teaching value by the inverse model.
-  y_teaching = (A.pseudoInverse(0.001) * (teaching-B)).mapP(0.95, clip); 
-  useTeaching=true;  
+  y_teaching = (A.pseudoInverse(0.001) * (teaching-B)).mapP(0.95, clip);
+  useTeaching=true;
 }
 
 matrix::Matrix InvertMotorNStep::getLastMotorValues(){

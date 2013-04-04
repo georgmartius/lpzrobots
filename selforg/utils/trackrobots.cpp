@@ -46,10 +46,10 @@ bool TrackRobot::open(const Trackable* robot){
     time_t t = time(0);
     strftime(date, 128, "%F_%H-%M-%S", localtime(&t));
     if(conf.id>=0)
-      sprintf(filename, "%s_track_%s_%i_%s.log", 
+      sprintf(filename, "%s_track_%s_%i_%s.log",
               robot->getTrackableName().c_str(), conf.scene.c_str(), conf.id, date);
     else
-      sprintf(filename, "%s_track_%s_%s.log", 
+      sprintf(filename, "%s_track_%s_%s.log",
               robot->getTrackableName().c_str(), conf.scene.c_str(), date);
 
     file = fopen(filename, "w");
@@ -88,9 +88,9 @@ void TrackRobot::track(const Trackable* robot, double time)
     if( conf.trackOrientation){
       const matrix::Matrix& o = robot->getOrientation();
       for(int i=0; i<3; i++){
-	for(int j=0; j<3; j++){
-	  fprintf(file, " %g", o.val(i,j));
-	}
+        for(int j=0; j<3; j++){
+          fprintf(file, " %g", o.val(i,j));
+        }
       }
     }
     fprintf(file, "\n");

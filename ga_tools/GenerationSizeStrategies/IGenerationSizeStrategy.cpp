@@ -27,9 +27,9 @@
 #include "IGenerationSizeStrategy.h"
 
 IGenerationSizeStrategy::IGenerationSizeStrategy() {
-	// nothing
+        // nothing
 }
 
 IGenerationSizeStrategy::~IGenerationSizeStrategy() {
-	// nothing
+        // nothing
 }

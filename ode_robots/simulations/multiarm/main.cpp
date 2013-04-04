@@ -58,7 +58,7 @@
 #include <selforg/invertmotornstep.h>
 #include <selforg/invertmotorbigmodel.h>
 #include <selforg/multilayerffnn.h>
-#include <selforg/derbigcontroller.h> 
+#include <selforg/derbigcontroller.h>
 #include <selforg/replaycontroller.h>
 
 #include "multisat.h"
@@ -71,14 +71,14 @@ Arm* arm;
 
 #ifdef REPLAY
 ReplayController* controller;
-#else 
+#else
 InvertMotorNStep* controller;
 #endif
 
 // target of reaching task in euklidian coordinates
 double target[]={-1,2,4};
 
-class ThisSim : public Simulation 
+class ThisSim : public Simulation
 {
 public:
   bool switchedToRL;
@@ -92,9 +92,9 @@ public:
     //setCameraHomePos(Pos(2.69124, 4.76157, 8.87839),  Pos(134.901, -47.8333, 0)); // control initial arm config
     //(Pos(4.51276, 15.1867, 4.2256),  Pos(157.899, -1.90167, 0)); // frontal, ganz drauf
     //
-      
+
     switchedToRL=false;
-      
+
     // initialization
     global.odeConfig.noise=0.1;
 
@@ -102,30 +102,30 @@ public:
     playground->setColor(Color(0.88f,0.4f,0.26f,0.2f));
     playground->setPosition(osg::Vec3(0,0,0.05));
     global.obstacles.push_back(playground);
-    
-    //		Color c(osgHandle.color);
+
+    //                Color c(osgHandle.color);
     //    c.alpha() = 0.4;
-    //		OsgHandle osgHandle_target = osgHandle.changeColor(c);
-    //		
-    //		Sphere* targetSphere = new Sphere(0.5);
-    //		targetSphere->init(odeHandle, 0, osgHandle_target);
-    //		osg::Matrix tp = osg::Matrix::translate(target[0], target[1], target[2]);
-    //		targetSphere->setPose(tp);
-    //		FixedJoint* anker = new FixedJoint(global.environment /* fixation to ground*/, targetSphere);
-    //		anker->init(odeHandle, osgHandle);
-				
-    //		// X-direction sphere
-    //		PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
+    //                OsgHandle osgHandle_target = osgHandle.changeColor(c);
+    //
+    //                Sphere* targetSphere = new Sphere(0.5);
+    //                targetSphere->init(odeHandle, 0, osgHandle_target);
+    //                osg::Matrix tp = osg::Matrix::translate(target[0], target[1], target[2]);
+    //                targetSphere->setPose(tp);
+    //                FixedJoint* anker = new FixedJoint(global.environment /* fixation to ground*/, targetSphere);
+    //                anker->init(odeHandle, osgHandle);
+
+    //                // X-direction sphere
+    //                PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.5);
     //    s1->setPosition(osg::Vec3(4,0,0));
-    //		s1->setTexture("Images/dusty.rgb");
-    //		global.obstacles.push_back(s1);
-    //									 
-    //		// Y-direction sphere
-    //		PassiveSphere* s2 = new PassiveSphere(odeHandle, osgHandle, 1.5);
+    //                s1->setTexture("Images/dusty.rgb");
+    //                global.obstacles.push_back(s1);
+    //
+    //                // Y-direction sphere
+    //                PassiveSphere* s2 = new PassiveSphere(odeHandle, osgHandle, 1.5);
     //    s2->setPosition(osg::Vec3(0,4,0));
-    //		s2->setTexture("Images/dusty.rgb");
-    //		global.obstacles.push_back(s2);
-									 
+    //                s2->setTexture("Images/dusty.rgb");
+    //                global.obstacles.push_back(s2);
+
     ArmConf conf = Arm::getDefaultConf();
     // the arm will have joint sensors, position sensors and speed senors
     conf.useJointSensors=true;
@@ -134,7 +134,7 @@ public:
     OdeHandle armHandle = odeHandle;
     armHandle.substance.toFoam(3);
     arm = new Arm(armHandle, osgHandle, conf, "Arm");
-    
+
     ((OdeRobot*)arm)->place(Position(-0.7,0.9,0.0));
     // fixation of cuboid base
     FixedJoint* anker = new FixedJoint(arm->getMainObject(), global.environment /* fixation to ground*/);
@@ -145,7 +145,7 @@ public:
 
 #ifdef REPLAY
     const char* replayfilename="IMNS_Arm_nice_swing_30min.sel.log";
-    controller = new ReplayController(replayfilename,true);     
+    controller = new ReplayController(replayfilename,true);
 #else
     // PSEUDOLINEAR MODEL CONTROLLER
     InvertMotorNStepConf confi= InvertMotorNStep::getDefaultConf();
@@ -163,17 +163,17 @@ public:
     controller->setParam("s4del", 1); // verzoegerung bis motor echt greift
 #endif
 
-    
-    global.configs.push_back(controller); 
+
+    global.configs.push_back(controller);
     // create pointer to one2onewiring
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-    // create pointer to selectiveWiring    
+    // create pointer to selectiveWiring
     //    AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.1), new select_from_to(0,2));
 //     std::list<PlotOption> l;
 //     l.push_back(PlotOption(GuiLogger,Robot,5));
-//    OdeAgent*  agent = new OdeAgent(l);	
-    OdeAgent*  agent = new OdeAgent(global);	
-      
+//    OdeAgent*  agent = new OdeAgent(l);
+    OdeAgent*  agent = new OdeAgent(global);
+
     MultiSatConf msc = MultiSat::getDefaultConf();
     msc.controller = controller;
     msc.numContext = 6; // use first X sensors as context
@@ -190,29 +190,29 @@ public:
     // initialize pointer with controller, robot and wiring
     // push agent in globel list of agents
     agent->init(multisat, arm, wiring);
-		
+
     //  agent->setTrackOptions(TrackRobot(true, false, false,50));
     global.agents.push_back(agent);
-		
+
     //-----------------------
     // switch off/change gravity
     global.odeConfig.setParam("gravity",-3.00);
     //     global.odeConfig.setParam("realtimefactor",0);
 
-    // show (print to console) params of all objects in configurable list 
-    
+    // show (print to console) params of all objects in configurable list
+
     //printf("===== started. =====\n");
-			
+
     // transform target into shoulder centered coordinates
-    //		arm->scaleShoulderCentered(target);
-    printf("target shoulder centered = (%f, %f, %f)\n", target[0], target[1], target[2]);		
+    //                arm->scaleShoulderCentered(target);
+    printf("target shoulder centered = (%f, %f, %f)\n", target[0], target[1], target[2]);
   } //start-end
 
   // add distal teaching signal (desired behavior! not error)
-  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) 
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control)
   {
-    //	double sineRate=30;
-    // 	double phaseShift=0.65;
+    //        double sineRate=30;
+    //         double phaseShift=0.65;
     if(globalData.time > 60*60 && !switchedToRL){
       multisat->setParam("rlmode",1);
       printf("RL started\n");
@@ -226,23 +226,23 @@ public:
   virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
     char filename[1024];
-    if (down) { // only when key is pressed, not when released      
+    if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	case 'n' : 
-	  std::cout << "Please type a filename stem:";
-	  std::cin >> filename;
-	  if(multisat) multisat->storeSats(filename); 
-	  break;
-	default:
-	  return false;
-	  break;
-	}
+        {
+        case 'n' :
+          std::cout << "Please type a filename stem:";
+          std::cin >> filename;
+          if(multisat) multisat->storeSats(filename);
+          break;
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
 
-  /*virtual*/ void bindingDescription(osg::ApplicationUsage & au) const 
+  /*virtual*/ void bindingDescription(osg::ApplicationUsage & au) const
   {
     au.addKeyboardMouseBinding("Distal Teaching: i","increase error (nimm: forward)");
     au.addKeyboardMouseBinding("Distal Teaching: k","decrease error (nimm: backward)");
@@ -257,7 +257,7 @@ public:
 //}; // class-end
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;

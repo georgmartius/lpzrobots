@@ -31,14 +31,14 @@ Sat::Sat(InvertableModel* _net, double _eps){
 }
 
 
-MultiExpertPair::MultiExpertPair( const MultiExpertPairConf& _conf) 
+MultiExpertPair::MultiExpertPair( const MultiExpertPairConf& _conf)
   : AbstractModel("MultiExpertPair", "$Id: "), conf(_conf)
-{  
+{
   runcompetefirsttime=true;
   winner=0;
   companion=1;
   t=0;
-  initialised = false;  
+  initialised = false;
   managementInterval=10;
 };
 
@@ -51,8 +51,8 @@ MultiExpertPair::~MultiExpertPair()
 }
 
 
-void MultiExpertPair::init(unsigned int inputDim, unsigned  int outputDim, 
-			   double unit_map, RandGen* randGen){
+void MultiExpertPair::init(unsigned int inputDim, unsigned  int outputDim,
+                           double unit_map, RandGen* randGen){
   assert(conf.numSats>1);
   this->inputDim  = inputDim;
   this->outputDim = outputDim;
@@ -62,20 +62,20 @@ void MultiExpertPair::init(unsigned int inputDim, unsigned  int outputDim,
     if(conf.numHidden!=0)
       layers.push_back(Layer(conf.numHidden, 0.5 , FeedForwardNN::tanh));
     layers.push_back(Layer(1,0.5));
-    MultiLayerFFNN* net = new MultiLayerFFNN(1, layers, 1); // learning rate is set to 1 and modulates each step  
+    MultiLayerFFNN* net = new MultiLayerFFNN(1, layers, 1); // learning rate is set to 1 and modulates each step
     ModelWithMemoryAdapter* netwm = new ModelWithMemoryAdapter(net,1000,10);
     netwm->init(inputDim, outputDim);
     Sat sat(netwm, conf.eps0);
     sats.push_back(sat);
   }
-  
+
   satErrors.set(conf.numSats, 1);
   satModErrors.set(conf.numSats, 1);
   satAvg1Errors.set(conf.numSats, 1);
   satAvg2Errors.set(conf.numSats, 1);
   satEpsMod.set(conf.numSats, 1);
   double d = 1;
-  satEpsMod.toMapP(&d,constant); // set all elements to 1;  
+  satEpsMod.toMapP(&d,constant); // set all elements to 1;
 
   errorCov.set(conf.numSats, conf.numSats);
 
@@ -98,11 +98,11 @@ const matrix::Matrix MultiExpertPair::process (const matrix::Matrix& input){
 }
 
 
-const matrix::Matrix MultiExpertPair::learn (const matrix::Matrix& input, 
-					    const matrix::Matrix& nom_output, 
-					    double learnRateFactor){   
-  const Matrix& errors = compete(input,nom_output);    
-  int newwinner = argmin(errors);    
+const matrix::Matrix MultiExpertPair::learn (const matrix::Matrix& input,
+                                            const matrix::Matrix& nom_output,
+                                            double learnRateFactor){
+  const Matrix& errors = compete(input,nom_output);
+  int newwinner = argmin(errors);
   bool newsatadded=false;
   if(newwinner != winner){ // select new winner and companion
     // Todo: use cov matrix!
@@ -114,26 +114,26 @@ const matrix::Matrix MultiExpertPair::learn (const matrix::Matrix& input,
       int newcomp = argmax(epsmod);
       cerr << "new companion with epsmod:" << satEpsMod.val(newcomp,0) << "\n";
       if(satEpsMod.val(newcomp,0)< conf.mature){
-	if(conf.maxSats > (signed)sats.size()){
-	  newcomp = addSat(newcomp);
-	  newsatadded = true;
-	  cerr << "create new agent #" << newcomp << "\n";
-	}else{
-	  newcomp = companion; 	  // use simple competition : winner=companion
-	  cerr << "all agents are used!\n";
-	}
+        if(conf.maxSats > (signed)sats.size()){
+          newcomp = addSat(newcomp);
+          newsatadded = true;
+          cerr << "create new agent #" << newcomp << "\n";
+        }else{
+          newcomp = companion;           // use simple competition : winner=companion
+          cerr << "all agents are used!\n";
+        }
       }
       winner = companion;
-      companion = newcomp;	
-      // just to make the companion selection better at the start, 
+      companion = newcomp;
+      // just to make the companion selection better at the start,
       //  when all experts have the same immaturity
-      satEpsMod.val(companion,0)-=0.0001; 
+      satEpsMod.val(companion,0)-=0.0001;
     }else{ // another agent wins.
       if(winner==companion){ // we have already no companion anymore
-	// then if there is no imature one then we will have non.
-	companion = argmax(satEpsMod);
-	if(satEpsMod.val(companion,0)<conf.mature) 
-	  companion = newwinner;
+        // then if there is no imature one then we will have non.
+        companion = argmax(satEpsMod);
+        if(satEpsMod.val(companion,0)<conf.mature)
+          companion = newwinner;
       }
       winner=newwinner;
     }
@@ -142,32 +142,32 @@ const matrix::Matrix MultiExpertPair::learn (const matrix::Matrix& input,
     // update cov matrix only with respect to the winner
     // we assume the mean normalised error is 1 (also because we are more interested
     // in the correlation of low errors than high ones)
-    double mu=1;  
+    double mu=1;
     // covE_winner = (E/|E| - mu)*(winner_error - mu)
-    const Matrix& covE_winner = (errors*(1/matrixNorm1(errors)) - 
-				 errors.mapP(&mu, constant)) * 
+    const Matrix& covE_winner = (errors*(1/matrixNorm1(errors)) -
+                                 errors.mapP(&mu, constant)) *
                                 (errors.val(winner,0) - mu);
     // we consider rowwise the correlation of the winner with the others
     for(unsigned int i=0; i<errorCov.getN(); i++){
-      errorCov.val(winner,i) = (1-1/conf.tauW)*errorCov.val(winner,i) 
-	+ (1/conf.tauW)*covE_winner.val(i,0);
+      errorCov.val(winner,i) = (1-1/conf.tauW)*errorCov.val(winner,i)
+        + (1/conf.tauW)*covE_winner.val(i,0);
     }
   }
 
   // let winner learn
-  Matrix out= sats[winner].net->learn(input, nom_output,  
-				      sats[winner].eps*satEpsMod.val(winner,0)); 
+  Matrix out= sats[winner].net->learn(input, nom_output,
+                                      sats[winner].eps*satEpsMod.val(winner,0));
   // let companion learn
   if(winner != companion){
     sats[companion].net->learn(input, nom_output,
-			       sats[winner].eps*satEpsMod.val(companion,0)); 
+                               sats[winner].eps*satEpsMod.val(companion,0));
   }
-    
+
   // the winner only matures if he is successful (1 if error=0; 0 if error>0.3
-  double maturation = max(0.0,(0.3-satAvg1Errors.val(winner,0))*(1/0.3)); 
-  
+  double maturation = max(0.0,(0.3-satAvg1Errors.val(winner,0))*(1/0.3));
+
   satEpsMod.val(winner,0) *= (1-maturation/conf.tauW);
-  
+
   if(t%managementInterval==0){
     management();
   }
@@ -176,11 +176,11 @@ const matrix::Matrix MultiExpertPair::learn (const matrix::Matrix& input,
 };
 
 
-Matrix MultiExpertPair::compete(const matrix::Matrix& input, 
-				const matrix::Matrix& nom_output) {  
+Matrix MultiExpertPair::compete(const matrix::Matrix& input,
+                                const matrix::Matrix& nom_output) {
   assert(satErrors.getM()>=sats.size());
 
-  // ask all networks to make their predictions on last timestep, 
+  // ask all networks to make their predictions on last timestep,
   //  compare with real world
   unsigned int i=0;
   FOREACH(vector<Sat>, sats, s){
@@ -190,12 +190,12 @@ Matrix MultiExpertPair::compete(const matrix::Matrix& input,
   }
   if(runcompetefirsttime){
     satAvg1Errors=satErrors;
-    satAvg2Errors=satErrors; 
+    satAvg2Errors=satErrors;
     runcompetefirsttime=false;
   }
   satAvg1Errors = satAvg1Errors * (1.0-1.0/conf.tauE1) + satErrors * (1.0/conf.tauE1);
   satAvg2Errors = satAvg2Errors * (1.0-1.0/conf.tauE2) + satErrors * (1.0/conf.tauE2);
-    
+
 //   // modulate predicted error to prefere mature experts
 //   //  does not really work that way
 //   Matrix lambdaW = satEpsMod.mapP(&conf.lambda_w, constant);
@@ -215,7 +215,7 @@ int MultiExpertPair::addSat(int copySat){
   assert(numsats < conf.maxSats && copySat >=0 && copySat < numsats);
 
   ModelWithMemoryAdapter* cnet = dynamic_cast<ModelWithMemoryAdapter*>(sats[copySat].net);
-  assert(cnet);  
+  assert(cnet);
   MultiLayerFFNN* cnn = dynamic_cast<MultiLayerFFNN*>(cnet->getModel());
   MultiLayerFFNN* net = new MultiLayerFFNN(*cnn);
   ModelWithMemoryAdapter* netwm = new ModelWithMemoryAdapter(net,1000,10);
@@ -243,19 +243,19 @@ double MultiExpertPair::min(void* m, double d){
 }
 
 void MultiExpertPair::management(){
-//   // annealing of neighbourhood learning 
+//   // annealing of neighbourhood learning
 //   FOREACH(vector<Sat> , sats, s){
 //     s->lifetime+=managementInterval;
 //   }
   // imature experts
   if(conf.tauI!=0.0){
     Matrix imaturation(satEpsMod.getM(),1);
-    double imaturate= ((double)managementInterval/conf.tauI); 
+    double imaturate= ((double)managementInterval/conf.tauI);
     imaturation.toMapP(&imaturate, constant); // fill matrix with "imaturate"
-    satEpsMod += imaturation; 
-    //also limit it to 1  
+    satEpsMod += imaturation;
+    //also limit it to 1
     double m=1.0;
-    satEpsMod.toMapP(&m, MultiExpertPair::min );  
+    satEpsMod.toMapP(&m, MultiExpertPair::min );
   }
 }
 
@@ -278,10 +278,10 @@ Configurable::paramlist MultiExpertPair::getParamList() const{
   paramlist keylist = AbstractModel::getParamList();
   keylist += pair<paramkey, paramval>("epsSat",sats[0].eps);
   return keylist;
-} 
+}
 
 
-bool MultiExpertPair::store(FILE* f) const {  
+bool MultiExpertPair::store(FILE* f) const {
   fprintf(f,"%i\n", sats.size());
   fprintf(f,"%i\n", conf.numHidden);
   fprintf(f,"%i\n", runcompetefirsttime);
@@ -297,7 +297,7 @@ bool MultiExpertPair::store(FILE* f) const {
   FOREACHC(vector<Sat>, sats, s){
     s->net->store(f);
   }
- 
+
   // save config and controller
   Configurable::print(f,0);
   return true;
@@ -308,9 +308,9 @@ bool MultiExpertPair::restore(FILE* f){
     init(2,2);
 
   char buffer[128];
-  if(fscanf(f,"%s\n", buffer) != 1) return false;	
+  if(fscanf(f,"%s\n", buffer) != 1) return false;
   conf.numSats = atoi(buffer);
-  if(fscanf(f,"%s\n", buffer) != 1) return false;	
+  if(fscanf(f,"%s\n", buffer) != 1) return false;
   conf.numHidden = atoi(buffer);
 
  // we need to use fgets in order to avoid spurious effects with following matrix (binary)
@@ -327,15 +327,15 @@ bool MultiExpertPair::restore(FILE* f){
   // clean sats array
   sats.clear();
   // restore sats
-  for(int i=0; i < conf.numSats; i++){ 
+  for(int i=0; i < conf.numSats; i++){
     MultiLayerFFNN* n = new MultiLayerFFNN(0,vector<Layer>());
     n->restore(f);
     sats.push_back(Sat(n,n->eps));
   }
- 
+
   // save config and controller
   Configurable::parse(f);
-  t=0; // set time to zero to ensure proper filling of buffers  
+  t=0; // set time to zero to ensure proper filling of buffers
   return true;
 }
 
@@ -357,8 +357,8 @@ void MultiExpertPair::restoreSats(const std::list<std::string>& filenames){
   unsigned int i=0;
   FOREACHC(list<std::string>, filenames, file){
     if(i>= sats.size()) return;
-    FILE* f=fopen(file->c_str(),"rb");    
-    if(!f) 
+    FILE* f=fopen(file->c_str(),"rb");
+    if(!f)
       cerr << "cannot open file " << *file << endl;
     else{
       sats[i].net->restore(f);
@@ -366,12 +366,12 @@ void MultiExpertPair::restoreSats(const std::list<std::string>& filenames){
       fclose(f);
     }
     i++;
-  }  
+  }
 }
 
 
 list<Inspectable::iparamkey> MultiExpertPair::getInternalParamNames() const {
-  list<iparamkey> keylist;  
+  list<iparamkey> keylist;
   keylist += storeVectorFieldNames(satErrors, "errs");
   keylist += storeVectorFieldNames(satAvg1Errors, "avg1errs");
   keylist += storeVectorFieldNames(satAvg2Errors, "avg2errs");
@@ -381,7 +381,7 @@ list<Inspectable::iparamkey> MultiExpertPair::getInternalParamNames() const {
   keylist += string("winner_error");
   keylist += string("companion");
   keylist += string("companion_error");
-  return keylist; 
+  return keylist;
 }
 
 list<Inspectable::iparamval> MultiExpertPair::getInternalParams() const {

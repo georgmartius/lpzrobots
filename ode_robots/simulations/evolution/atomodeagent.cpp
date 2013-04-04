@@ -58,8 +58,8 @@
  *   Revision 1.1.2.1  2006/03/28 14:14:44  fhesse
  *   tracing of a given primitive (in the osg window) added
  *                                                *
- *                                                                         *  
- *                                                                         *  
+ *                                                                         *
+ *                                                                         *
  ***************************************************************************/
 
 #include <selforg/agent.h>
@@ -80,13 +80,13 @@ namespace lpzrobots
 AtomOdeAgent::AtomOdeAgent(const PlotOption& plotOption) : OdeAgent(plotOption)
 {
 
-	      
+
 }
 
 AtomOdeAgent::AtomOdeAgent(const std::list<PlotOption>& plotOptions) : OdeAgent(plotOptions)
 {
 
-	      
+
 }
 
 /*AtomOdeAgent::~AtomOdeAgent ()
@@ -125,10 +125,10 @@ bool AtomOdeAgent::init ( AbstractController* controller, OdeRobot* robot, Abstr
     /*    for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
       // this prevents the simulation to terminate if the child  closes
       // or if we fail to open it.
-      signal(SIGPIPE,SIG_IGN); 
+      signal(SIGPIPE,SIG_IGN);
       (*i).open();
-    }    
-    // init the plotting pipe 
+    }
+    // init the plotting pipe
     initPlottingPipe();*/
 
     /*evolutionary parameters*/

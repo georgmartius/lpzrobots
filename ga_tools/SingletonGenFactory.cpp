@@ -38,58 +38,58 @@ int SingletonGenFactory::m_number = 0;
 SingletonGenFactory* SingletonGenFactory::m_factory = 0;
 
 SingletonGenFactory::SingletonGenFactory() {
-	// nothing
+        // nothing
 }
 
 SingletonGenFactory::~SingletonGenFactory() {
-	// nothing
+        // nothing
 }
 
 Gen* SingletonGenFactory::createGen(GenContext* context, Individual* individual, GenPrototype* prototype)const {
-	Gen* gen = new Gen(prototype, m_number);
-	m_number++;
-	IValue* value = prototype->getRandomValue();		//create a new random value
+        Gen* gen = new Gen(prototype, m_number);
+        m_number++;
+        IValue* value = prototype->getRandomValue();                //create a new random value
 
-	gen->setValue(value);
+        gen->setValue(value);
 
-	context->addGen(gen);								//save gen
-	individual->addGen(gen);
-	SingletonGenEngine::getInstance()->addGen(gen);
+        context->addGen(gen);                                                                //save gen
+        individual->addGen(gen);
+        SingletonGenEngine::getInstance()->addGen(gen);
 
-	return gen;
+        return gen;
 }
 
 Gen* SingletonGenFactory::createGen(GenContext* context, Individual* individual, GenPrototype* prototype, GenContext* oldContext, Individual* oldIndividual, Gen* oldGen, bool mutate)const {
-	if(mutate) {
-		return prototype->mutate(context, individual, oldGen, oldContext);			//mutate
-	}
+        if(mutate) {
+                return prototype->mutate(context, individual, oldGen, oldContext);                        //mutate
+        }
 
 
-	Gen* gen = new Gen(prototype,m_number);											//copy gen
+        Gen* gen = new Gen(prototype,m_number);                                                                                        //copy gen
 
-	m_number++;
+        m_number++;
 
-	IValue* value = oldGen->getValue();
+        IValue* value = oldGen->getValue();
 
-	gen->setValue(value);
+        gen->setValue(value);
 
-	context->addGen(gen);
-	individual->addGen(gen);
-	SingletonGenEngine::getInstance()->addGen(gen);
+        context->addGen(gen);
+        individual->addGen(gen);
+        SingletonGenEngine::getInstance()->addGen(gen);
 
-	return gen;
+        return gen;
 }
 
 Gen* SingletonGenFactory::createGen(GenContext* context, Individual* individual, GenPrototype* prototype, IValue* value) {
-	Gen* gen = new Gen(prototype,m_number);
+        Gen* gen = new Gen(prototype,m_number);
 
-	m_number++;
+        m_number++;
 
-	gen->setValue(value);
+        gen->setValue(value);
 
-	context->addGen(gen);
-	individual->addGen(gen);
-	SingletonGenEngine::getInstance()->addGen(gen);
+        context->addGen(gen);
+        individual->addGen(gen);
+        SingletonGenEngine::getInstance()->addGen(gen);
 
-	return gen;
+        return gen;
 }

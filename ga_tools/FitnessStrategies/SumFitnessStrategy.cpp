@@ -36,31 +36,31 @@
 #define STANDART_FACTOR_FOR_UNKNOWN_DATA_TYP 1.0
 
 SumFitnessStrategy::SumFitnessStrategy() {
-	// nothing
+        // nothing
 }
 
 SumFitnessStrategy::~SumFitnessStrategy() {
-	// nothing
+        // nothing
 }
 
 double SumFitnessStrategy::getFitness(const Individual* individual) {
-	double sum = 0.0;						//the sum and on the end the resulting fitness value
-	int num = individual->getSize();		//number of gens inside the individual
-	Gen* gen;								//the actual gen
-	IValue* value;							//the value of the gen
-	TemplateValue<double>* tValue;			//the casted value of the gen
+        double sum = 0.0;                                                //the sum and on the end the resulting fitness value
+        int num = individual->getSize();                //number of gens inside the individual
+        Gen* gen;                                                                //the actual gen
+        IValue* value;                                                        //the value of the gen
+        TemplateValue<double>* tValue;                        //the casted value of the gen
 
-	for(int x=0; x<num; x++) {
-		gen = individual->getGen(x);		//become the gen from the individual
-		value = gen->getValue();			//become the value of the gen
-		tValue = dynamic_cast<TemplateValue<double>* >(value);	//cast the value to double gen
-		if(tValue == 0) { //UNKNOWN DATA TYP	//test the value if it is really a double gen
-			sum += STANDART_FACTOR_FOR_UNKNOWN_DATA_TYP;
-		}
-		else {
-			sum += tValue->getValue();		// add the value
-		}
-	}
+        for(int x=0; x<num; x++) {
+                gen = individual->getGen(x);                //become the gen from the individual
+                value = gen->getValue();                        //become the value of the gen
+                tValue = dynamic_cast<TemplateValue<double>* >(value);        //cast the value to double gen
+                if(tValue == 0) { //UNKNOWN DATA TYP        //test the value if it is really a double gen
+                        sum += STANDART_FACTOR_FOR_UNKNOWN_DATA_TYP;
+                }
+                else {
+                        sum += tValue->getValue();                // add the value
+                }
+        }
 
-	return sum;		//return the result
+        return sum;                //return the result
 }

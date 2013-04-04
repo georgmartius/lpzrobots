@@ -59,12 +59,12 @@ struct ControlGen : public ControllerGenerator {
   ControlGen(double eps)
     :eps(eps) {}
   virtual ~ControlGen(){}
-  virtual AbstractController* operator()( int index) { 
+  virtual AbstractController* operator()( int index) {
     AbstractController* c;
-    c= new Sos(0.01);    
+    c= new Sos(0.01);
     c->setParam("epsC",eps);
     c->setParam("epsA",.1);
-    return c; 
+    return c;
   }
   double eps;
 };
@@ -98,10 +98,10 @@ public:
   }
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     addParameterDef("multilayer",&useMultilayer, false, "use multilayer controller (SoML)");
-    
+
     int numHexapods      = 0;
     int numSphericals    = 0;
     int numSnakes        = 0;
@@ -124,15 +124,15 @@ public:
     env.type=Env::Normal;
     env.create(odeHandle, osgHandle, global);
 
-    env.numSpheres  = 0; 
-    env.numBoxes    = 0;   
+    env.numSpheres  = 0;
+    env.numBoxes    = 0;
     env.numCapsules = 0;
     env.placeObstacles(odeHandle, osgHandle, global);
-                
+
     // So wird das mit allen Robotern aussehen, createXXX, siehe unten
-    for(int r=0; r < numHexapods ; r++) { 
+    for(int r=0; r < numHexapods ; r++) {
       createHexapod(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,1+1*r));
-    }    
+    }
     for(int r=0; r < numSphericals; r++) {
       createSpherical(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,0+1*r));
     }
@@ -151,13 +151,13 @@ public:
     for(int r=0; r < numCaterPillars; r++) {
       createCaterPillar(odeHandle, osgHandle, global, osg::Matrix::translate(-4-r,5+r,0.5));
     }
-       
 
-    lastRobotCreation=-.5;    
+
+    lastRobotCreation=-.5;
   }
 
   bool removeRobot(GlobalData& global, const string& nameprefix){
-    OdeAgentList::reverse_iterator i = 
+    OdeAgentList::reverse_iterator i =
       find_if(global.agents.rbegin(), global.agents.rend(), agent_match_prefix(nameprefix));
     if(i!=global.agents.rend()){
       printf("Removed robot %s\n", (*i)->getRobot()->getName().c_str());
@@ -165,12 +165,12 @@ public:
       global.agents.erase(i.base()-1);
       removeElement(global.configs, a);
       delete a;
-      return true; 
+      return true;
     }
     return false;
   }
-  
-  OdeAgent* createHexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+
+  OdeAgent* createHexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
                           GlobalData& global, osg::Matrix pose){
     // find robot and do naming
     string name("Hexapod");
@@ -188,14 +188,14 @@ public:
     myHexapodConf.tarsus             = true;
     myHexapodConf.numTarsusSections  = 1;
     myHexapodConf.useTarsusJoints    = true;
-    
+
 
     OsgHandle rosgHandle=osgHandle.changeColorSet(num);
     OdeHandle rodeHandle = odeHandle;
-    rodeHandle.substance.toRubber(20);    
+    rodeHandle.substance.toRubber(20);
     OdeRobot* robot = new Hexapod(rodeHandle, rosgHandle, myHexapodConf, name);
     robot->place(osg::Matrix::rotate(M_PI*0,1,0,0)*pose);
-    
+
     AbstractController* controller = new Sox(1.2, false);
     controller->setParam("epsC",0.3);
     controller->setParam("epsA",0.05);
@@ -204,17 +204,17 @@ public:
     //    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     OdeAgent*       agent  = new OdeAgent( global, PlotOption(NoPlot));
     agent->init(controller, robot, wiring);
-    
+
     // add an operator to keep robot from falling over
-    agent->addOperator(new LimitOrientationOperator(Axis(0,0,1), Axis(0,0,1), 
+    agent->addOperator(new LimitOrientationOperator(Axis(0,0,1), Axis(0,0,1),
                                                     M_PI*0.5, 10));
 
     global.agents.push_back(agent);
-    global.configs.push_back(agent);      
+    global.configs.push_back(agent);
     return agent;
   }
 
-  OdeAgent* createSpherical(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+  OdeAgent* createSpherical(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
                             GlobalData& global, osg::Matrix pose){
 
     // find robot and do naming
@@ -222,35 +222,35 @@ public:
     int num = count_if(global.agents.begin(), global.agents.end(), agent_match_prefix(name));
     name += "_" + itos(num+1);
 
-    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
     conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
-    OdeRobot* sphere = 
-      new Sphererobot3Masses ( odeHandle, osgHandle.changeColor("Green"), 
-                               conf, name, 0.2); 
+    OdeRobot* sphere =
+      new Sphererobot3Masses ( odeHandle, osgHandle.changeColor("Green"),
+                               conf, name, 0.2);
     sphere->place(pose);
     AbstractController* controller = new Sos();
     One2OneWiring*      wiring     = new One2OneWiring ( new WhiteUniformNoise() );
     OdeAgent*           agent      = new OdeAgent ( global, PlotOption(NoPlot));
     agent->init ( controller, sphere, wiring);
     global.agents.push_back(agent);
-    global.configs.push_back(agent);      
+    global.configs.push_back(agent);
     return agent;
   }
 
-  OdeAgent* createSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+  OdeAgent* createSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
                         GlobalData& global, osg::Matrix pose, string name = "Snake"){
     // find robot and do naming
     int num = count_if(global.agents.begin(), global.agents.end(), agent_match_prefix(name));
-    name += "_" + itos(num+1);        
+    name += "_" + itos(num+1);
     SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
     snakeConf.segmNumber   = 6+2*num;
     snakeConf.motorPower   = 5;
     snakeConf.useServoVel  = true;
 
     OdeRobot*    robot     = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, name);
-    robot->place(pose); 
+    robot->place(pose);
 
-    AbstractController* controller = new Sox(1.2);     
+    AbstractController* controller = new Sox(1.2);
     AbstractWiring*     wiring     = new One2OneWiring(new ColorUniformNoise(0.1));
     OdeAgent*           agent      = new OdeAgent( global, PlotOption(NoPlot) );
     agent->init(controller, robot, wiring);
@@ -258,34 +258,34 @@ public:
     global.configs.push_back(agent);
     return agent;
   }
-  
-  OdeAgent* createHumanoid(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-                           GlobalData& global, osg::Matrix pose){    
+
+  OdeAgent* createHumanoid(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                           GlobalData& global, osg::Matrix pose){
     // find robot and do naming
     string name("Humanoid");
     int num = count_if(global.agents.begin(), global.agents.end(), agent_match_prefix(name));
     name += "_" + itos(num+1);
-        
+
     // normal servos
     //SkeletonConf conf   = Skeleton::getDefaultConf();
     // velocity servos
     SkeletonConf conf = Skeleton::getDefaultConfVelServos();
-    
+
     conf.massfactor  = 1;
     conf.relLegmass  = 1;
     conf.relFeetmass = 1;
     conf.relArmmass  = 1;       //1.0;
-    
+
     // conf.ankleJointLimit = 0.001; //!
     // conf.pelvisPower     = 20;
-     
+
     conf.powerFactor  = 1;
-    
+
     conf.useBackJoint     = true;
     conf.jointLimitFactor = 1.4;
-    
-    // conf.irSensors = true;    
-    
+
+    // conf.irSensors = true;
+
     OdeHandle skelHandle=odeHandle;
     OsgHandle skelOsgHandle=osgHandle.changeColorSet(num);
 
@@ -296,14 +296,14 @@ public:
     // // additional sensor
     // std::list<Sensor*> sensors;
     // // sensors.push_back(new AxisOrientationSensor(AxisOrientationSensor::OnlyZAxis));
-    // AddSensors2RobotAdapter* human = 
+    // AddSensors2RobotAdapter* human =
     //   new AddSensors2RobotAdapter(skelHandle, osgHandle, human0, sensors);
     // global.configs.push_back(human0);
-    
+
     human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)*pose);
     //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
     //                 *osg::Matrix::translate(.2*i+20,2*i+20,.841/*7*/ +2*i));
-    
+
     AbstractController* controller;
     if(useMultilayer){
       SoMLConf sc = SoML::getDefaultConf();
@@ -313,17 +313,17 @@ public:
       sc.hiddenModelUnitsRatio = 1.0;
       sc.useS = false;
       controller = new SoML(sc);
-    }else{      
+    }else{
       controller = new Sox();
     }
-        
+
     controller->setParam("epsC",0.3);
     controller->setParam("epsA",0.1);
     controller->setParam("Logarithmic",1);
     controller->setParam("sense",1);
     //controller->setParam("harmony",0);
     controller->setParam("causeaware",0.01);
-              
+
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     OdeAgent*      agent  = new OdeAgent(global);
     agent->init(controller, human, wiring);
@@ -331,28 +331,28 @@ public:
     LiftUpOperatorConf lc = LiftUpOperator::getDefaultConf();
     lc.height = 1.5;
     lc.force  = 10;
-    // lc.intervalMode = true;    
+    // lc.intervalMode = true;
     // agent->addOperator(new LiftUpOperator(lc));
 
     // like a bungee
-    agent->addOperator(new PullToPointOperator(Pos(0,0,5),50,true, 
-                                               PullToPointOperator::Z, 
+    agent->addOperator(new PullToPointOperator(Pos(0,0,5),50,true,
+                                               PullToPointOperator::Z,
                                                0, 0.1));
-    
+
     global.agents.push_back(agent);
     global.configs.push_back(agent);
     return agent;
   }
 
-  OdeAgent* createArmband(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-                          GlobalData& global, osg::Matrix pose){    
+  OdeAgent* createArmband(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                          GlobalData& global, osg::Matrix pose){
     // SPLIT CONTROLLED ARMBAND
 
     // find robot and do naming
     string name("SliderArmband");
     int num = count_if(global.agents.begin(), global.agents.end(), agent_match_prefix(name));
     name += "_" + itos(num+1);
-    
+
     SliderWheelieConf mySliderWheelieConf  = SliderWheelie::getDefaultConf();
     mySliderWheelieConf.segmNumber         = 12;
     mySliderWheelieConf.segmLength         = .4;
@@ -365,14 +365,14 @@ public:
     mySliderWheelieConf.motorDamp          = 0.05;
     mySliderWheelieConf.sliderLength       = 0.5;
 
-    OdeRobot* robot = new SliderWheelie(odeHandle, osgHandle.changeColor(.5,.1,.2), 
+    OdeRobot* robot = new SliderWheelie(odeHandle, osgHandle.changeColor(.5,.1,.2),
                                         mySliderWheelieConf, name);
-    robot->place(Pos(0,0,2.0)); 
-    
+    robot->place(Pos(0,0,2.0));
+
     //controller = new Sos(1.0);
-    AbstractController * controller = 
+    AbstractController * controller =
       new OneControllerPerChannel(new ControlGen(1),"OnePerJoint");
-    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05)); 
+    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05));
     OdeAgent* agent = new OdeAgent(global);
     // only the first controller is exported to guilogger and Co
     agent->addInspectable(((OneControllerPerChannel*)controller)->getControllers()[0]);
@@ -384,8 +384,8 @@ public:
   }
 
 
-  OdeAgent* createLongVehicle(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-                              GlobalData& global, osg::Matrix pose){    
+  OdeAgent* createLongVehicle(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                              GlobalData& global, osg::Matrix pose){
     // find robot and do naming
     string name("LongVehicle");
     int num = count_if(global.agents.begin(), global.agents.end(), agent_match_prefix(name));
@@ -400,48 +400,48 @@ public:
     nimm2conf.cigarLength= 3.0;
     nimm2conf.singleMotor=false;
     nimm2conf.boxMode=true;
-    nimm2conf.boxWidth=1.5;      
+    nimm2conf.boxWidth=1.5;
     //      nimm2conf.visForce =true;
     nimm2conf.bumper=true;
-    
+
     OdeHandle odeHandleR = odeHandle;
     OdeRobot* robot = new Nimm2(odeHandleR, osgHandle, nimm2conf, name);
-    robot->setColor(Color(.1,.1,.8));        
+    robot->setColor(Color(.1,.1,.8));
     robot->place(pose);
     AbstractController* controller = new Sos();
-    AbstractWiring* wiring = new One2OneWiring(new WhiteNormalNoise());    
-    OdeAgent* agent = new OdeAgent(global, PlotOption(NoPlot));    
+    AbstractWiring* wiring = new One2OneWiring(new WhiteNormalNoise());
+    OdeAgent* agent = new OdeAgent(global, PlotOption(NoPlot));
     agent->init(controller, robot, wiring);
     global.agents.push_back(agent);
     global.configs.push_back(agent);
     return agent;
-  }    
+  }
 
-  OdeAgent* createCaterPillar(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-                              GlobalData& global, osg::Matrix pose){    
+  OdeAgent* createCaterPillar(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                              GlobalData& global, osg::Matrix pose){
     // find robot and do naming
     string name("CaterPillar");
     int num = count_if(global.agents.begin(), global.agents.end(), agent_match_prefix(name));
     name += "_" + itos(num+1);
-    
+
     CaterPillarConf myCaterPillarConf = DefaultCaterPillar::getDefaultConf();
     myCaterPillarConf.segmNumber=7+num;
     myCaterPillarConf.jointLimit=M_PI/3;
     myCaterPillarConf.motorPower=5;
     myCaterPillarConf.frictionJoint=0.01;
     CaterPillar* robot=
-      new CaterPillar ( odeHandle, osgHandle.changeColor(Color(.1f,.5,0.1)), 
+      new CaterPillar ( odeHandle, osgHandle.changeColor(Color(.1f,.5,0.1)),
                         myCaterPillarConf, name );
-    robot->place(pose); 
-      
+    robot->place(pose);
+
     AbstractController* controller = new Sos();
-    AbstractWiring* wiring = new One2OneWiring(new WhiteNormalNoise());    
-    OdeAgent* agent = new OdeAgent(global, PlotOption(NoPlot));    
+    AbstractWiring* wiring = new One2OneWiring(new WhiteNormalNoise());
+    OdeAgent* agent = new OdeAgent(global, PlotOption(NoPlot));
     agent->init(controller, robot, wiring);
     global.agents.push_back(agent);
     global.configs.push_back(agent);
     return agent;
-  }    
+  }
 
 
   // add own key handling stuff here, just insert some case values
@@ -449,51 +449,51 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       // lower case (create robot) but last creation less than a second ago
-      if(key >= 'a' && key <='z' && lastRobotCreation > (global.time-1)) { 
+      if(key >= 'a' && key <='z' && lastRobotCreation > (global.time-1)) {
         printf("You have to wait one second between robot creations.\n");
         return false;
       }
 
       switch ( (char) key )
-	{
+        {
         case 'k': // test
           env.widthground=15;
           env.create(odeHandle, osgHandle, global,true);
         case 'b':
           createSpherical(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,2)); break;
         case 'B':
-          removeRobot(global, "Spherical"); break;          
+          removeRobot(global, "Spherical"); break;
         case 'x':
           createHexapod(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,2)); break;
         case 'X':
-          removeRobot(global, "Hexapod"); break;          
+          removeRobot(global, "Hexapod"); break;
         case 's':
           createSnake(odeHandle, osgHandle, global, osg::Matrix::translate(4,4,2)); break;
         case 'S':
-          removeRobot(global, "Snake"); break;          
+          removeRobot(global, "Snake"); break;
         case 'i': // put Snake in center (useful in pit-mode
-          createSnake(odeHandle, osgHandle, global, 
+          createSnake(odeHandle, osgHandle, global,
                       osg::Matrix::translate(0,0,2),"PitSnake"); break;
         case 'I':
-          removeRobot(global, "PitSnake"); break;          
+          removeRobot(global, "PitSnake"); break;
         case 'u':
           createHumanoid(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,2)); break;
         case 'U':
-          removeRobot(global, "Humanoid"); break;          
+          removeRobot(global, "Humanoid"); break;
         case 'a':
           createArmband(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,2)); break;
         case 'A':
-          removeRobot(global, "SliderArmband"); break;          
+          removeRobot(global, "SliderArmband"); break;
         case 'l':
           createLongVehicle(odeHandle, osgHandle, global, osg::Matrix::translate(0,0,2)); break;
         case 'L':
-          removeRobot(global, "LongVehicle"); break;          
-	default:
-	  return false;
-	  break;
-	}
-      if(key >= 'a' && key <='z') { // lower case -> created robot 
-        lastRobotCreation = global.time;        
+          removeRobot(global, "LongVehicle"); break;
+        default:
+          return false;
+          break;
+        }
+      if(key >= 'a' && key <='z') { // lower case -> created robot
+        lastRobotCreation = global.time;
       }
       return true;
     }
@@ -512,16 +512,16 @@ public:
   }
 
 
-  
+
 };
 
 
 
 int main (int argc, char **argv)
-{ 
+{
 
   ThisSim sim;
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

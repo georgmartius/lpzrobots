@@ -84,7 +84,7 @@ public:
 
   AbstractObstacle* playground;
 
-  
+
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
@@ -99,7 +99,7 @@ public:
 
     // use Playground as boundary:
     playground = new Playground(odeHandle, osgHandle,
-				osg::Vec3(10, .2, 1));
+                                osg::Vec3(10, .2, 1));
     playground->setPosition(osg::Vec3(0,0,0.1));
     global.obstacles.push_back(playground);
 
@@ -120,22 +120,22 @@ public:
 
       twc.camcfg.width  = 256;
       twc.camcfg.height = 128;
-      twc.camcfg.fov    = 120;      
+      twc.camcfg.fov    = 120;
       // get rid of the image processing
-      twc.camcfg.removeProcessors();      
+      twc.camcfg.removeProcessors();
 
       OpticalFlowConf ofc = OpticalFlow::getDefaultConf();
       ofc.dims    = Sensor::X;
       ofc.verbose = 1;
-      ofc.points  = OpticalFlow::getDefaultPoints(3);      
+      ofc.points  = OpticalFlow::getDefaultPoints(3);
       twc.camSensor     = new OpticalFlow(ofc);
 
-      OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, 
+      OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc,
                                          "CamRobot_" + itos(i));
       vehicle->setColor(Color(1,.7,0));
       vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1)
                      *osg::Matrix::translate(3,-4+2*i,0.3));
-      
+
       SeMoXConf cc = SeMoX::getDefaultConf();
       cc.modelExt = true;
       SeMoX *semox = new SeMoX(cc);
@@ -143,10 +143,10 @@ public:
       std::list<int> perm;
       perm += 1;
       perm += 0;
-      controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));        
+      controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));
       controller->setParam("rootE",3);
       controller->setParam("gamma_teach",0.005);
-      
+
       // AbstractController *controller = new Braitenberg(Braitenberg::Aggressive, 2, 3);
 //       AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.1),
 //                                                           new select_from_to(2,3));
@@ -160,7 +160,7 @@ public:
 
     for(int i=0; i<numBlindRobots; i++){
       // this robot has no camera
-      OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), 
+      OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(),
                                     "BlindRobot_" + itos(i));
       vehicle->setColor(Color(1,1,0));
       vehicle->place(Pos(-3,-4+2*i,0.3));
@@ -171,12 +171,12 @@ public:
       global.agents.push_back(agent);
     }
 
-    
+
   }
 
-  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {    
+  virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
   }
-  
+
   virtual void end(GlobalData& globalData){
   }
 

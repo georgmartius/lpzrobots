@@ -45,7 +45,7 @@ public:
       , predpos(horizont) {
     horizontCopy=horizont;
     stepsizeCopy=stepsize;
-    addParameter("realtimefactor", &realtimefactor); 
+    addParameter("realtimefactor", &realtimefactor);
     addParameter("stepsize", &stepsizeCopy);// actually not to change, only for documentation
     addParameter("horizont", &horizontCopy);// actually not to change, only for documentation
     pred_error=0;
@@ -53,7 +53,7 @@ public:
   }
 
   ~Sim(){
-    delete mep;    
+    delete mep;
   }
 
 
@@ -63,25 +63,25 @@ public:
     if(!f) {
       fprintf(stderr, "cannot open file %s\n", filename);
       exit(1);
-    }  
-    
+    }
+
     double time;
     int frame;
     while(!feof(f)){
       Matrix m(3,1);
       fscanf(f,"%lf%i%lf%lf%lf",&time,&frame,&m.val(0,0),&m.val(1,0),&m.val(2,0));
       pos.push_back(m);
-    }    
+    }
     data_size= pos.size();
-    fclose(f);  
-  
+    fclose(f);
+
 //     MultiExpertPairConf pc = MultiExpertPair::getDefaultConf();
 //     pc.numSats=20;
 //     pc.numHidden=6; // 12
 //     pc.lambda_w=0.1;
 //     pc.eps0=1; //0.1
 //     pc.tauE1=2;
-//     pc.tauW=300; // 300    
+//     pc.tauW=300; // 300
 //     mep  = new MultiExpertPair(pc);
 //     mep->init(3*3,3);
 
@@ -117,8 +117,8 @@ public:
     calcPredPos(&predpos, pred,pos,t);
     if((t%5000) == 0) printf("Time %i\n",t);
     if(t>data_size-(horizont+1)*stepsize)
-      t=4*stepsize;   
-    return t++;    
+      t=4*stepsize;
+    return t++;
   }
 
   Matrix getData(const vector<Matrix>& pos, int t, int d) const {
@@ -140,23 +140,23 @@ public:
   }
 
 
-  // predicts the future 
+  // predicts the future
   void predict(list<Matrix>* pred, AbstractModel* modell, const vector<Matrix>& pos, int t, int steps){
     Matrix b[3]={getData(pos,t,-2), getData(pos,t,-1), getData(pos,t,0)};
     for(int i=0; i< steps; i++){
       Matrix input = b[(i+2)%3].above(b[(i+1)%3]).above(b[(i+0)%3]);
-      b[i%3]= modell->process(input);    
-      // b[i%3]= input.rows(0,2);    
-      pred->push_back(b[i%3]);  
+      b[i%3]= modell->process(input);
+      // b[i%3]= input.rows(0,2);
+      pred->push_back(b[i%3]);
     }
   }
 
-  void calcPredPos(vector<Matrix>* pp, const list<Matrix>&pred, 
-		   const vector<Matrix>& pos, int t){
+  void calcPredPos(vector<Matrix>* pp, const list<Matrix>&pred,
+                   const vector<Matrix>& pos, int t){
     calcPredPosFromAcc(pp,pred,pos,t);
   }
-  void calcPredPosFromSpeed(vector<Matrix>* pp, const list<Matrix>&pred, 
-		   const vector<Matrix>& pos, int t){
+  void calcPredPosFromSpeed(vector<Matrix>* pp, const list<Matrix>&pred,
+                   const vector<Matrix>& pos, int t){
     assert(pp->size() == pred.size() );
     Matrix point=pos[t];
     int i=0;
@@ -167,8 +167,8 @@ public:
     }
   }
 
-  void calcPredPosFromAcc(vector<Matrix>* pp, const list<Matrix>&pred, 
-		   const vector<Matrix>& pos, int t){
+  void calcPredPosFromAcc(vector<Matrix>* pp, const list<Matrix>&pred,
+                   const vector<Matrix>& pos, int t){
     assert(pp->size() == pred.size() );
     Matrix point = pos[t];
     Matrix speed = getDataSpeed(pos,t,0);
@@ -187,7 +187,7 @@ public:
     double size=0;
     FOREACHC( list<Matrix>, pred, p){
       i++;
-      error += ((*p) - getData(pos,t,i)).multTM().val(0,0); 
+      error += ((*p) - getData(pos,t,i)).multTM().val(0,0);
       size  += getData(pos,t,i).map(fabs).elementSum();
       // calc length of speed difference
     }
@@ -195,21 +195,21 @@ public:
   }
 
   virtual iparamkeylist getInternalParamNames() const{
-    list<iparamkey> keylist;  
+    list<iparamkey> keylist;
     keylist += storeVectorFieldNames(pos[0], "pos");
     keylist += storeVectorFieldNames(pos[0], "data");
     for(unsigned int i=0; i < predpos.size(); i++){
       keylist += storeVectorFieldNames(pos[0], "pred" + itos(i));
     }
     keylist += string("pred_error");
-    return keylist; 
+    return keylist;
   }
   virtual iparamvallist getInternalParams() const{
     list<iparamval> l;
     l += pos[max(t-1,100)].convertToList();
     l += getData(pos,max(t-1,100),0).convertToList();
     FOREACHC(vector<Matrix>, predpos, i)
-      l += i->convertToList();          
+      l += i->convertToList();
     l += (double)pred_error;
     return l;
   }
@@ -217,9 +217,9 @@ public:
 public:
   vector<Matrix> pos;   // true positions
   vector<Matrix> predpos; // predicted positions
-  AbstractModel * mep;  
+  AbstractModel * mep;
   double pred_error;
-  int data_size;  
+  int data_size;
   int t;
 
   double stepsizeCopy;
@@ -242,12 +242,12 @@ void openPlotOptions(list<PlotOption>& plotoptions , list<const Inspectable*>& i
     if(p->pipe){
       // print start
       time_t t = time(0);
-      fprintf(p->pipe,"# Start %s", ctime(&t));    
+      fprintf(p->pipe,"# Start %s", ctime(&t));
       // print interval
       fprintf(p->pipe, "# Recording every %dth dataset\n", p->interval);
       // print all configureables
       FOREACHC (vector<Configurable*>, configureables,i){
-	(*i)->print(p->pipe, "# ");
+        (*i)->print(p->pipe, "# ");
       }
 
       printInternalParameterNames(p->pipe, 0, 0, inspectables);
@@ -257,7 +257,7 @@ void openPlotOptions(list<PlotOption>& plotoptions , list<const Inspectable*>& i
 
 void plot(list<PlotOption>& plotoptions, list<const Inspectable*>& inspectables, int t){
   FOREACH(list<PlotOption>, plotoptions, i){
-    if( ((*i).pipe) && (t % (*i).interval == 0) ){      
+    if( ((*i).pipe) && (t % (*i).interval == 0) ){
       printInternalParameters((*i).pipe, t, 0, 0, 0, 0, inspectables);
       if(t% ((*i).interval * 10)) fflush((*i).pipe);
     }
@@ -285,24 +285,24 @@ int main(int argc, char** argv){
   }
 
   Sim sim("ManipuTest");
- 
+
   globaldata.configs.push_back(&sim);
   inspectables.push_back(&sim);
   AbstractModel* m = sim.init(filename);
-  globaldata.configs.push_back(m);  
+  globaldata.configs.push_back(m);
   inspectables.push_back(m);
 
   showParams(globaldata.configs);
   openPlotOptions(plotoptions, inspectables, globaldata.configs);
-  
+
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
   printf(" You probably want to use the guilogger with e.g.: -g 10\n");
-  
+
   cmd_handler_init();
   while(!stop){
     int t = sim.step();
     plot(plotoptions, inspectables,t);
-    if(control_c_pressed()){      
+    if(control_c_pressed()){
       if(!handleConsole(globaldata)){
         stop=1;
       }
@@ -315,10 +315,10 @@ int main(int argc, char** argv){
     }
     if(t%drawinterval==0){
       usleep(60000);
-    }    
+    }
   };
 
-  closeConsole();  
+  closeConsole();
   fprintf(stderr,"terminating\n");
   FOREACH(list<PlotOption>, plotoptions, i){
     i->close();

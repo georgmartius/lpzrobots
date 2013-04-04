@@ -90,21 +90,21 @@ public:
     result.val(1,0) = -sin(phi) - pendl->mu*omega + pendl->maxForce*pendl->y[0];
     return result;
   }
-  
+
 
   // Runge Kutta of forth order for systems of ODEs
   Matrix RungeKutta4(const void* p, Matrix s, Matrix (*F)(const void*, Matrix), double dt ){
     Matrix k1 = F(p, s) * dt;
     Matrix k2 = F(p, s + (k1 * 0.5)) * dt;
-    Matrix k3 = F(p, s + (k2 * 0.5)) * dt; 
+    Matrix k3 = F(p, s + (k2 * 0.5)) * dt;
     Matrix k4 = F(p, s + k3) * dt;
     return  s + (k1 + k2*2.0 + k3*2.0 + k4)*(1.0/6.0);
   }
-  
+
 
   // robot interface
   /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
+      @param sensors sensors scaled to [-1,1]
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
@@ -115,34 +115,34 @@ public:
   }
 
   /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
+      @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
   virtual void setMotors(const motor* motors, int motornumber){
     assert(motornumber == this->motornumber);
     memcpy(y, motors, sizeof(motor) * motornumber);
 
-    // motor values are now stored in y, sensor values are expected to be stored in x    
+    // motor values are now stored in y, sensor values are expected to be stored in x
     // perform robot action here
     for(int i=0; i< controlinterval; i++){
       state = RungeKutta4(this, state, System, dt);
     }
     while(state.val(0,0)>M_PI) state.val(0,0)-=2*M_PI;
     while(state.val(0,0)<-M_PI) state.val(0,0)+=2*M_PI;
-    
+
     // x[0] = state.val(0,0) / M_PI;     // phi
     // x,y pos
-    x[0] = sin(state.val(0,0));    
-    x[1] = cos(state.val(0,0));    
+    x[0] = sin(state.val(0,0));
+    x[1] = cos(state.val(0,0));
     // x[0] = 0.1*y[0] + 0.9*sin(state.val(0,0));  // efferent copy + sensor
     //x[1] = 0.1*y[1] + 0.9*cos(state.val(0,0));  // efferent copy + sensor
     //    x[1] = state.val(1,0) * sensorscale;     // omega
     //    x[1] = state.val(0,0) / M_PI;     // phi
-    //    x[2] = sin(state.val(0,0));    
-    //    x[3] = cos(state.val(0,0));    
+    //    x[2] = sin(state.val(0,0));
+    //    x[3] = cos(state.val(0,0));
     //  x[1] = 0.9*x[1]+0.1*y[1];
 
-  }  
+  }
 
   virtual int getSensorNumber(){ return sensornumber; }
   virtual int getMotorNumber() { return motornumber; }
@@ -150,7 +150,7 @@ public:
   virtual Position getSpeed() const {return Position(state.val(1,0),0,0);}
   virtual Position getAngularSpeed() const {return Position(0,0,0);}
   virtual matrix::Matrix getOrientation() const {
-    matrix::Matrix m(3,3); m.toId();  return m; 
+    matrix::Matrix m(3,3); m.toId();  return m;
   };
 
   // resets pendulum if in upper half
@@ -173,16 +173,16 @@ private:
 
   Matrix state; // phi and omega
 
-  paramval sensorscale;// factor for tactile sensor 
+  paramval sensorscale;// factor for tactile sensor
   paramval maxForce;   // factor for Force
   paramval reinf;      // strength of reinforcement
-}; 
+};
 
 
-int coord(double phi,double len){ 
+int coord(double phi,double len){
   double x = sin(phi)*len;
   double y = cos(phi)*len;
-  return int(round((x+1.0)/2*(SIZEX-1))) + int((y+1.0)/2*SIZEY)*SIZEX;  
+  return int(round((x+1.0)/2*(SIZEX-1))) + int((y+1.0)/2*SIZEY)*SIZEX;
 }
 
 void printRobots(Pendulum* robot){
@@ -200,7 +200,7 @@ void printRobots(Pendulum* robot){
   }
   field[coord(phi,0)]='O';
   color[coord(phi,0)]=2;
-  
+
   if(clrscreen){
     printf("\n");
     clrscreen=false;
@@ -210,18 +210,18 @@ void printRobots(Pendulum* robot){
   }
   for(int j=0; j<SIZEY; j++){
     for(int i=0; i<SIZEX; i++){
-      printf("\033[%im%c",(color[i + j*SIZEX]==0) ? 0 : 100+color[i + j*SIZEX], 
-	     field[i + j*SIZEX]);
+      printf("\033[%im%c",(color[i + j*SIZEX]==0) ? 0 : 100+color[i + j*SIZEX],
+             field[i + j*SIZEX]);
     }
-    printf("\033[0m\n");    
-  }  
+    printf("\033[0m\n");
+  }
   printf("Phi: %lf\tOmega: %lf\n", phi, omega);
   fflush(stdout);
-  
+
 }
 
 void reinforce(Agent* a){
-//   MyRobot* r = (MyRobot*)a->getRobot();  
+//   MyRobot* r = (MyRobot*)a->getRobot();
 //   InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(a->getController());
 //   if(c)
 //     c->setReinforcement(r->getParam("reinf")*(r->whatDoIFeel != 0));
@@ -254,33 +254,33 @@ int main(int argc, char** argv){
   }
 
   Pendulum* pendulum;;
-  
+
   SeMoXConf cc = SeMoX::getDefaultConf();
   cc.modelExt = false;
   AbstractController* controller = new SeMoX(cc);
   controller->setParam("s4delay",1.0);
-  controller->setParam("s4avg",1.0);  
-  controller->setParam("factorB",0.1);  
-  controller->setParam("discountS",0.005);  
-  controller->setParam("epsC",0.1);  
-  controller->setParam("epsA",0.1);    
-  
+  controller->setParam("s4avg",1.0);
+  controller->setParam("factorB",0.1);
+  controller->setParam("discountS",0.005);
+  controller->setParam("epsC",0.1);
+  controller->setParam("epsA",0.1);
+
   pendulum               = new Pendulum("Pendulum");
   Agent* agent           = new Agent(plotoptions);
-  AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());  
+  AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
   agent->init(controller, pendulum, wiring);
-  // if you like, you can keep track of the robot with the following line. 
-  //  this assumes that you robot returns its position, speed and orientation. 
+  // if you like, you can keep track of the robot with the following line.
+  //  this assumes that you robot returns its position, speed and orientation.
   //  if(i==0) agent->setTrackOptions(TrackRobot(true,true,false, false,"updown_SD",10));
-    
+
   globaldata.configs.push_back(pendulum);
   globaldata.configs.push_back(controller);
   globaldata.agents.push_back(agent);
-  
+
   showParams(globaldata.configs);
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
   printf(" You probably want to use the guilogger with e.g.: -g 10\n");
-  
+
   cmd_handler_init();
   long int t=0;
   while(!stop){
@@ -288,7 +288,7 @@ int main(int argc, char** argv){
       (*i)->step(noise,t/100.0);
       reinforce(*i);
     }
-    if(control_c_pressed()){      
+    if(control_c_pressed()){
       if(!handleConsole(globaldata)){
         stop=1;
       }
@@ -305,8 +305,8 @@ int main(int argc, char** argv){
     if(t%drawinterval==0){
       printRobots(pendulum);
       usleep(60000);
-    }    
-    t++;    
+    }
+    t++;
   };
 
   FOREACH(AgentList, globaldata.agents, i){

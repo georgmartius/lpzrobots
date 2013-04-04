@@ -68,7 +68,7 @@ std::list<ComplexMeasure*> MeasureAdapter::addSensorComplexMeasure(char* measure
 }
 
 /****************************************************************************/
-/*	BEGIN methods of AbstractController                                 */
+/*        BEGIN methods of AbstractController                                 */
 /****************************************************************************/
 
 void MeasureAdapter::init(const int sensornumber, const int motornumber, RandGen* randGen) {
@@ -100,21 +100,21 @@ void MeasureAdapter::stepNoLearning(const sensor* sensors, int sensornumber, mot
 }
 
 /****************************************************************************/
-/*	END methods of AbstractController                                   */
+/*        END methods of AbstractController                                   */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	BEGIN methods of Storeable                                           	*/
+/*        BEGIN methods of Storeable                                                   */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	END methods of Storeable                                          	    */
+/*        END methods of Storeable                                                      */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	BEGIN methods of Inspectable                                        */
+/*        BEGIN methods of Inspectable                                        */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	END methods of Inspectable                                          */
+/*        END methods of Inspectable                                          */
 /****************************************************************************/

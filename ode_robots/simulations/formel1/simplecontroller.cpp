@@ -51,7 +51,7 @@
  *   Revision 1.1  2005/08/08 11:14:54  robot1
  *   simple control for moving robot with keyboard
  *
- *                                                                         * 
+ *                                                                         *
  *                                                                         *
  ***************************************************************************/
 
@@ -76,46 +76,46 @@ SimpleController::SimpleController(){
 
   // disable the camerahandling
   cameraHandlingDefined=0;
-  
+
 };
 
 
-/** initialisation of the controller with the given sensor/ motornumber 
+/** initialisation of the controller with the given sensor/ motornumber
     Must be called before use.
 */
 void SimpleController::init(int sensornumber, int motornumber){
   number_sensors=sensornumber;
   number_motors=motornumber;
 };
-  
-/** performs one step (includes learning). 
+
+/** performs one step (includes learning).
     Calculates motor commands from sensor inputs.
     @param sensor sensors inputs scaled to [-1,1]
     @param sensornumber length of the sensor array
     @param motor motors outputs. MUST have enough space for motor values!
     @param motornumber length of the provided motor array
 */
-void SimpleController::step(const sensor* sensors, int sensornumber, 
-			    motor* motors, int motornumber) {
+void SimpleController::step(const sensor* sensors, int sensornumber,
+                            motor* motors, int motornumber) {
   stepNoLearning(sensors, sensornumber, motors, motornumber);
 };
 
-/** performs one step without learning. 
+/** performs one step without learning.
     @see step
 */
-void SimpleController::stepNoLearning(const sensor* sensors, int number_sensors, 
-				      motor* motors, int number_motors) {
+void SimpleController::stepNoLearning(const sensor* sensors, int number_sensors,
+                                      motor* motors, int number_motors) {
 
   for (int i=0; i<number_motors; i++){
-    //     if (i%2==0)    
+    //     if (i%2==0)
     //       motors[i]=sin(t/velocity);
     //     else
     //       motors[i]=cos(t/velocity);
     //    motors[i]=sin(t/velocity + i*leftRightShift*M_PI/2);
 
-    // 	printf("velocity: %f\n",velocity);
-    // 	printf("leftRightShift: %f\n",leftRightShift);
-    
+    //         printf("velocity: %f\n",velocity);
+    //         printf("leftRightShift: %f\n",leftRightShift);
+
     if (leftRightShift!=0){
       velocity +=0.5;
     }
@@ -127,15 +127,15 @@ void SimpleController::stepNoLearning(const sensor* sensors, int number_sensors,
     // due to shift exists left and right motors get different values
     else if (leftRightShift<0) { // steering left
       if (i%2==0) // left motors
-	motors[i]=velocity+leftRightShift*4*velocity;
+        motors[i]=velocity+leftRightShift*4*velocity;
       else // right motors
-	motors[i]=velocity;
+        motors[i]=velocity;
     }
     else { // steering right
       if (i%2==0) // left motors
-	motors[i]=velocity;
+        motors[i]=velocity;
       else // right motors
-	motors[i]=velocity-leftRightShift*4*velocity;
+        motors[i]=velocity-leftRightShift*4*velocity;
     }
   }
   if (leftRightShift<0.25) {
@@ -158,8 +158,8 @@ void SimpleController::stepNoLearning(const sensor* sensors, int number_sensors,
       leftRightShift=0; // only straight forward
     }
   // now call cameraHandling if defined
-  //  	if (cameraHandlingDefined==1)
-  //  		cameraHandlingFunction();
+  //          if (cameraHandlingDefined==1)
+  //                  cameraHandlingFunction();
   t++;
   for (int i =4; i<number_sensors;i++)
     cout << "sensor " << i << " = " << sensors[i] << "\t";
@@ -170,11 +170,11 @@ void SimpleController::stepNoLearning(const sensor* sensors, int number_sensors,
   }
 
 };
-  
+
 
 Configurable::paramval SimpleController::getParam(const paramkey& key, bool traverseChildren) const{
-  if(key == "velocity") return velocity; 
-  else if(key == "leftRightShift") return leftRightShift; 
+  if(key == "velocity") return velocity;
+  else if(key == "leftRightShift") return leftRightShift;
   else  return AbstractController::getParam(key) ;
 }
 
@@ -183,7 +183,7 @@ bool SimpleController::setParam(const paramkey& key, paramval val, bool traverse
     velocity=val;
     if(velocity == 0) leftRightShift = 0;
   }
-  else if(key == "leftRightShift") leftRightShift=val; 
+  else if(key == "leftRightShift") leftRightShift=val;
   else return AbstractController::setParam(key, val);
   return true;
 }

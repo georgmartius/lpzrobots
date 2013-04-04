@@ -149,15 +149,15 @@ public:
   StatisticMeasure* convTest1;
   /*
   virtual std::list<iparamkey> getInternalParamNames() const  {
-  	std::list<iparamkey> list;
-  	list+=std::string("sumForce");
-  	return list;
+          std::list<iparamkey> list;
+          list+=std::string("sumForce");
+          return list;
   }
 
   virtual std::list<iparamval> getInternalParams() const {
-  	std::list<iparamval> list;
-  	//list+=getAvgOf3( oldest,old,myNimm2->getSumForce());
-  	return list;
+          std::list<iparamval> list;
+          //list+=getAvgOf3( oldest,old,myNimm2->getSumForce());
+          return list;
   }
   */
 
@@ -258,8 +258,8 @@ public:
       wiring = new One2OneWiring(new WhiteUniformNoise());
       agent = new OdeAgent( std::list<PlotOption>() );
       // create DiscreteControllerAdapter
-      //	    DiscreteControllerAdapter* discretesizer = new DiscreteControllerAdapter(controller);
-      //	    discretesizer->setIntervalCount(3);
+      //            DiscreteControllerAdapter* discretesizer = new DiscreteControllerAdapter(controller);
+      //            discretesizer->setIntervalCount(3);
       OneActiveMultiPassiveController* onamupaco = new OneActiveMultiPassiveController(controller,"main");
       mic = new MutualInformationController(30);
       mic->setParam("showF",0);
@@ -268,7 +268,7 @@ public:
 
       agent->addInspectable((Inspectable*)stats);
       agent->addCallbackable((Callbackable*)stats);
-      agent->init(onamupaco, myNimm2		, wiring);
+      agent->init(onamupaco, myNimm2                , wiring);
       global.configs.push_back(controller);
       global.agents.push_back(agent);
 
@@ -288,19 +288,19 @@ public:
 
 
       stats->addMeasure(myNimm2->getSumForce(), "sumForce", ID, 3);
-      	    stats->addMeasure(myNimm2->getSumForce(), "sumForceAvg50", AVG, 50);
-      	    stats->addMeasure(myNimm2->getContactPoints(),"contactPoints",ID,0);
-      	    double& peakForce = stats->addMeasure(myNimm2->getSumForce(),"peakForce",PEAK,0,0.06333);
-      	    stats->addMeasure(peakForce, "peakForceMax", MAX, 0);
-      	    stats->addMeasure(myNimm2->getSumForce(), "ForceMax", MAX, 0);
-      	    double& sumsumForce = stats->addMeasure(peakForce, "sumPeakForce50", SUM, 50);
-      	    stats->addMeasure(sumsumForce, "sumPeakForceAvg50", AVG, 50);
-      	    stats->addMeasure(sumsumForce, "MaxsumPeakForce50", MAX, 50);
+                  stats->addMeasure(myNimm2->getSumForce(), "sumForceAvg50", AVG, 50);
+                  stats->addMeasure(myNimm2->getContactPoints(),"contactPoints",ID,0);
+                  double& peakForce = stats->addMeasure(myNimm2->getSumForce(),"peakForce",PEAK,0,0.06333);
+                  stats->addMeasure(peakForce, "peakForceMax", MAX, 0);
+                  stats->addMeasure(myNimm2->getSumForce(), "ForceMax", MAX, 0);
+                  double& sumsumForce = stats->addMeasure(peakForce, "sumPeakForce50", SUM, 50);
+                  stats->addMeasure(sumsumForce, "sumPeakForceAvg50", AVG, 50);
+                  stats->addMeasure(sumsumForce, "MaxsumPeakForce50", MAX, 50);
 
 
     }
 
-    
+
     std::cout << "running with cInit = " << this->cInit << "." << std::endl;
 
   }

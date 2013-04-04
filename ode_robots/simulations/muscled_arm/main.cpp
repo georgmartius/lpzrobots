@@ -119,10 +119,10 @@ public:
     setCameraMode(Static);
     // initialization
     global.odeConfig.noise=0.1;
-    
 
-    // passive sphere 
-    // setPosition does not work anymore 
+
+    // passive sphere
+    // setPosition does not work anymore
 //     PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle, 0.1);
 //     s1->setPosition(osg::Vec3(-0.7,0.9,0.1));
 //     s1->setTexture("Images/dusty.rgb");
@@ -158,7 +158,7 @@ public:
     // controller->setParam("period",200);
     // controller->setParam("phaseshift",1);
     global.configs.push_back(controller);
-  
+
     // create pointer to one2onewiring
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
@@ -185,7 +185,7 @@ public:
 
     //      controller = new   SineController();
     //      global.configs.push_back(controller);
-  
+
     //     // create pointer to one2onewiring
     //     wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
@@ -202,8 +202,8 @@ public:
     global.odeConfig.setParam("gravity",0);
     //     global.odeConfig.setParam("realtimefactor",0);
 
-    // show (print to console) params of all objects in configurable list 
-    
+    // show (print to console) params of all objects in configurable list
+
   }
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet
@@ -214,45 +214,45 @@ public:
     //       {
     //       case '1' : arm->force_[0]+=0.5; break;
     //       case '!' : arm->force_[0]-=0.5; break;
-    
+
     //       case '2' : arm->force_[1]+=0.5; break;
     //       case '@' : arm->force_[1]-=0.5; break;
-    
+
     //       case '3' : arm->force_[2]+=0.5; break;
     //       case '#' : arm->force_[2]-=0.5; break;
-    
+
     //       case '4' : arm->force_[3]+=0.5; break;
     //       case '$' : arm->force_[3]-=0.5; break;
-    
+
     //       case '5' : arm->force_[4]+=0.5; break;
     //       case '%' : arm->force_[4]-=0.5; break;
-    
+
     //       case '6' : arm->force_[5]+=0.5; break;
     //       case '^' : arm->force_[5]-=0.5; break;
-    
+
     //       case 'q' : arm->force_[0]=0; break;
     //       case 'w' : arm->force_[1]=0; break;
     //       case 'e' : arm->force_[2]=0; break;
     //       case 'r' : arm->force_[3]=0; break;
     //       case 't' : arm->force_[4]=0; break;
     //       case 'y' : arm->force_[5]=0; break;
-    
+
     //       case 'a' : for (int i=0; i<6; i++) arm->force_[i]=0; break;
-    
-    //       case 'z' : 
-    // 	arm->force_[0]=0;
-    // 	arm->force_[1]=0;
-    // 	arm->force_[2]=0.5;
-    // 	arm->force_[3]=0.5;
-    // 	arm->force_[4]=-0.5;
-    // 	arm->force_[5]=-0.5; 
-    // 	break;
+
+    //       case 'z' :
+    //         arm->force_[0]=0;
+    //         arm->force_[1]=0;
+    //         arm->force_[2]=0.5;
+    //         arm->force_[3]=0.5;
+    //         arm->force_[4]=-0.5;
+    //         arm->force_[5]=-0.5;
+    //         break;
     //       }
     //     for (int i=0; i<6; i++){
     //       std::cout<<arm->force_[i]<<"  ";
     //     }
     //     std::cout<<"\n";
-    
+
   }
 
 
@@ -262,19 +262,19 @@ public:
   //   {
   //     if (down) { // only when key is pressed, not when released
   //       switch ( (char) key )
-  // 	{
-  // 	default:
-  // 	  return false;
-  // 	  break;
-  // 	}
+  //         {
+  //         default:
+  //           return false;
+  //           break;
+  //         }
   //     }
   //     return false;
   //   }
-  
+
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;

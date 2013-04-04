@@ -151,7 +151,7 @@ class ThisSim : public Simulation {
 public:
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(6.5701, 17.3534, 11.7749),  Pos(159.449, -30.0839, 0));
     // initialization
@@ -160,19 +160,19 @@ public:
     global.odeConfig.noise=0.1;
     //  global.odeConfig.setParam("gravity", 0);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
-    
+
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
-    //   setGeometry(double length, double width, double	height)
+    // - setting geometry for each wall of playground:
+    //   setGeometry(double length, double width, double        height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
-    OctaPlayground* playground = 
+    OctaPlayground* playground =
       new OctaPlayground(odeHandle, osgHandle,
-			 osg::Vec3(8.0f, 0.2, 6.0f),
-		         12, // number of corners
-			 true); // if ground is created (only create one)
+                         osg::Vec3(8.0f, 0.2, 6.0f),
+                         12, // number of corners
+                         true); // if ground is created (only create one)
     // true); // if ground is created (only create one)
     // when you not set this texture, a brown wooden texture
     // is used, the setColor would overlay with the wooden texture
@@ -187,9 +187,9 @@ public:
 
     OctaPlayground* playground2 =
       new OctaPlayground(odeHandle, osgHandle,
-			 osg::Vec3(1.0f, 0.2, 2.5f),
-			 12, // number of corners
-			 false); // if ground is created (only create one)
+                         osg::Vec3(1.0f, 0.2, 2.5f),
+                         12, // number of corners
+                         false); // if ground is created (only create one)
     playground2->setColor(Color(1.0,0.5,0.0,0.1));
     // when you not set this texture, a brown wooden texture
     // is used, the setColor would overlay with the wooden texture
@@ -200,9 +200,9 @@ public:
 
     // Creation of passive boxes
     // add passive spheres, boxes and capsules as obstacles
-    // - create pointer to sphere, box or capsule (with odehandle, osghandle and 
+    // - create pointer to sphere, box or capsule (with odehandle, osghandle and
     //   optional parameters radius and mass,where the latter is not used here) )
-    // - set Pose(Position) of sphere, box or capsule 
+    // - set Pose(Position) of sphere, box or capsule
     // - set a texture for the sphere, box or capsule
     // - add sphere, box or capsule to list of obstacles
     // note that the dependent header file has to be include above
@@ -212,15 +212,15 @@ public:
     int m=3;
     for (int j=0;j<m;j++) {
       for(int i=0; i<n; i++){
-	PassiveSphere* s = 
-	  new PassiveSphere(odeHandle, 
-			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)),
-			  /*Diameter=*/.2+i*0.03,/*Mass=*/.5);
-	s->setPosition(Pos(sin(2*M_PI*(((float)i)/((float)n)+0.05f))*(3.0f+2.0f*j),
-			   cos(2*M_PI*(((float)i)/((float)n)+0.05f))*(3.0f+2.0f*j),
-			   0.8f+2.0f*j)); 
-	s->setTexture("Images/dusty.rgb");
-	global.obstacles.push_back(s);    
+        PassiveSphere* s =
+          new PassiveSphere(odeHandle,
+                          osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)),
+                          /*Diameter=*/.2+i*0.03,/*Mass=*/.5);
+        s->setPosition(Pos(sin(2*M_PI*(((float)i)/((float)n)+0.05f))*(3.0f+2.0f*j),
+                           cos(2*M_PI*(((float)i)/((float)n)+0.05f))*(3.0f+2.0f*j),
+                           0.8f+2.0f*j));
+        s->setTexture("Images/dusty.rgb");
+        global.obstacles.push_back(s);
       }
 
     }
@@ -228,18 +228,18 @@ public:
     m=3;
     for (int j=0;j<m;j++) {
       for(int i=0; i<n; i++){
-	PassiveBox* b = 
-	  new  PassiveBox(odeHandle, 
-			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 
-			  osg::Vec3(0.4+i*0.1, 0.8-i*0.03, 0.4), 0.2+i*0.1);
-	if (i==1)
-	  b->setTexture("Images/light_chess.rgb");
-	else
-	  b->setTexture("Images/dusty.rgb");
-	b->setPosition(Pos(sin(2*M_PI*(((float)i)/((float)n))+0.1f)*(3.0f+2.0f*j),
-			   cos(2*M_PI*(((float)i)/((float)n))+0.1f)*(3.0f+2.0f*j),
-			   3.0f+2.0f*j)); 
-	global.obstacles.push_back(b);    
+        PassiveBox* b =
+          new  PassiveBox(odeHandle,
+                          osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)),
+                          osg::Vec3(0.4+i*0.1, 0.8-i*0.03, 0.4), 0.2+i*0.1);
+        if (i==1)
+          b->setTexture("Images/light_chess.rgb");
+        else
+          b->setTexture("Images/dusty.rgb");
+        b->setPosition(Pos(sin(2*M_PI*(((float)i)/((float)n))+0.1f)*(3.0f+2.0f*j),
+                           cos(2*M_PI*(((float)i)/((float)n))+0.1f)*(3.0f+2.0f*j),
+                           3.0f+2.0f*j));
+        global.obstacles.push_back(b);
       }
 
     }
@@ -247,112 +247,112 @@ public:
     m=3;
     for (int j=0;j<m;j++) {
       for(int i=0; i<n; i++){
-	PassiveCapsule* b = 
-	  new  PassiveCapsule(odeHandle, 
-			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 
-			  0.2f+0.03*i,1.0f-i*0.04);
-	b->setPosition(Pos(sin(2*M_PI*(((float)i)/((float)n)))*(3.0f+2.0f*j),
-			   cos(2*M_PI*(((float)i)/((float)n)))*(3.0f+2.0f*j),
-			   5.0f+2.0f*j)); 
-	b->setTexture("Images/dusty.rgb");
-	global.obstacles.push_back(b);    
+        PassiveCapsule* b =
+          new  PassiveCapsule(odeHandle,
+                          osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)),
+                          0.2f+0.03*i,1.0f-i*0.04);
+        b->setPosition(Pos(sin(2*M_PI*(((float)i)/((float)n)))*(3.0f+2.0f*j),
+                           cos(2*M_PI*(((float)i)/((float)n)))*(3.0f+2.0f*j),
+                           5.0f+2.0f*j));
+        b->setTexture("Images/dusty.rgb");
+        global.obstacles.push_back(b);
       }
 
     }
 
 
- // Creation of spherical robots: 
+ // Creation of spherical robots:
     for(int i=0; i<0; i++){
       OdeRobot* sphere1;
-      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
       conf.diameter=2;
       conf.irAxis1=true;
       conf.irAxis2=true;
       conf.irAxis3=true;
-       sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0.0+.1*i,0.0,1.0)), 
-      					 conf, "Sphere1", 0.4); 
+       sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0.0+.1*i,0.0,1.0)),
+                                               conf, "Sphere1", 0.4);
        // sphere1 = new ForcedSphere(odeHandle, osgHandle, "FSphere");
-    
+
        // sphere1->place ( Pos(-3,1/2,3+2*i));
       sphere1->place ( Pos(0,0,7+2*i));
       AbstractController* controller = new InvertMotorNStep();
-      controller->setParam("steps", 2);    
-      controller->setParam("adaptrate", 0.005);    
-      controller->setParam("nomupdate", 0.01);    
-      controller->setParam("epsC", 0.01);    
-      controller->setParam("epsA", 0.005);    
-      controller->setParam("rootE", 3);  
-      
+      controller->setParam("steps", 2);
+      controller->setParam("adaptrate", 0.005);
+      controller->setParam("nomupdate", 0.01);
+      controller->setParam("epsC", 0.01);
+      controller->setParam("epsA", 0.005);
+      controller->setParam("rootE", 3);
+
       DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
       c.useId = true;
       c.useFirstD = true;
       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
-      
-      
+
+
        // One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
       OdeAgent* agent = new OdeAgent ( plotoptions );
       agent->init ( controller , sphere1 , wiring );
       //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
       global.agents.push_back ( agent );
-      global.configs.push_back ( controller );    
+      global.configs.push_back ( controller );
     }
- //creation of snakes 
+ //creation of snakes
       for(int i=0; i<1; i++){
       //****************/
       SchlangeConf conf = Schlange::getDefaultConf();
       conf.motorPower=.3;
-      conf.segmNumber =10-i/2; 
+      conf.segmNumber =10-i/2;
       conf.segmDia    = 0.15;   //  diameter of a snake element
 
       // conf.jointLimit=conf.jointLimit*3;
       conf.jointLimit=conf.jointLimit*2.0;
       conf.frictionJoint=0.002;
-      SchlangeServo2* schlange1 = 
-	//new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
-	new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),
-			     conf, "S1");
-      //Positionieren und rotieren 
+      SchlangeServo2* schlange1 =
+        //new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
+        new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),
+                             conf, "S1");
+      //Positionieren und rotieren
       schlange1->place(osg::Matrix::rotate(M_PI/2, 0, 1, 0)*
-		       osg::Matrix::translate(2*i,i,conf.segmNumber/2+2));
+                       osg::Matrix::translate(2*i,i,conf.segmNumber/2+2));
       if (i==0) {
-	//      schlange1->setTexture("Images/whitemetal_tiefgruen.rgb");
-	//      schlange1->setHeadTexture("Images/whitemetal_tiefrot.rgb");
+        //      schlange1->setTexture("Images/whitemetal_tiefgruen.rgb");
+        //      schlange1->setHeadTexture("Images/whitemetal_tiefrot.rgb");
       } else {
-	//	schlange1->setTexture("Images/whitemetal_tiefrot.rgb");
-	//	schlange1->setHeadTexture("Images/whitemetal_tiefgruen.rgb");
+        //        schlange1->setTexture("Images/whitemetal_tiefrot.rgb");
+        //        schlange1->setHeadTexture("Images/whitemetal_tiefgruen.rgb");
       }
- 
 
-      //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
-      //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
-      AbstractController *controller = new InvertMotorNStep(); 
-      // AbstractController *controller = new invertmotornstep();  
-      //AbstractController *controller = new SineController();  
-      //    AbstractController *controller = new InvertMotorNStep();  
 
-      //     AbstractController *controller = new SineController();  
-      
+      //AbstractController *controller = new InvertNChannelController(100/*,true*/);
+      //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);
+      AbstractController *controller = new InvertMotorNStep();
+      // AbstractController *controller = new invertmotornstep();
+      //AbstractController *controller = new SineController();
+      //    AbstractController *controller = new InvertMotorNStep();
+
+      //     AbstractController *controller = new SineController();
+
       //    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05)); //Only this line for one2Onewiring
 
 
-      //   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));    
+      //   AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.1));
       DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
       c.useId = true;
       c.useFirstD = true;
       //   c.derivativeScale=10;
       DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
-      
-     
+
+
 
       OdeAgent* agent = new OdeAgent(global);
       agent->init(controller, schlange1, wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
       global.configs.push_back(schlange1);
-  
- 
+
+
       global.odeConfig.setParam("controlinterval",2);
-      global.odeConfig.setParam("gravity", -2); 
+      global.odeConfig.setParam("gravity", -2);
 
       controller->setParam("steps",2);
       controller->setParam("epsC",0.01);
@@ -363,13 +363,13 @@ public:
       // controller->setParam("desens",0.0);
          controller->setParam("s4delay",3.0);
       //   controller->setParam("s4avg",1.0);
-    
+
          controller->setParam("factorB",0.0);
       //   controller->setParam("zetaupdate",0.1);
-    
+
       }//creation of snakes End
 
-    
+
   }
 
   // add own key handling stuff here, just insert some case values
@@ -377,11 +377,11 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
-	  return false;
-	  break;
-	}
+        {
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
@@ -392,9 +392,9 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
+

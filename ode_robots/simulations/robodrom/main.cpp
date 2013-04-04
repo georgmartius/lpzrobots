@@ -125,17 +125,17 @@ public:
 
   void addRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global, int i){
     Color col;
-    
-    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+
+    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
     conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
     conf.diameter=1.0;
     conf.pendularrange= 0.30; // 0.15;
-    conf.motorpowerfactor  = 150;     
+    conf.motorpowerfactor  = 150;
     conf.spheremass = 1;
     conf.motorsensor=false;
-    
+
     conf.addSensor(new SpeedSensor(5, SpeedSensor::RotationalRel));
-    
+
 
     //SphererobotArms* sphere = new SphererobotArms ( odeHandle, conf);
     switch(i){
@@ -157,8 +157,8 @@ public:
       col.r()=0;
       col.g()=0;
       col.b()=1;
-      sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere" + 
-					string(envnames[env]), 0.4);
+      sphere = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(col), conf, "sphere" +
+                                        string(envnames[env]), 0.4);
       sphere->place ( osg::Matrix::translate( 0 , 0 , .5 ));
       break;
     default:
@@ -170,44 +170,44 @@ public:
       sphere->place ( osg::Matrix::translate( double(rand())/RAND_MAX*10 , 0 , height+1 ));
       break;
     }
-  
-  
-    // //AbstractController *controller = new InvertNChannelController(10);  
+
+
+    // //AbstractController *controller = new InvertNChannelController(10);
     // AbstractController *controller = new InvertMotorNStep();
     // //    controller->setParam("factorB", 0.1);
     // controller->setParam("steps", 2);
     // //    controller->setParam("nomupdate", 0.005);
-    AbstractController *controller = new Sox(1.2,false);    
+    AbstractController *controller = new Sox(1.2,false);
     controller->setParam("epsC", 0.2);
-    controller->setParam("epsA", 0.2);        
+    controller->setParam("epsA", 0.2);
     if(env==ElipticBasin){
       controller->setParam("epsC", 0.3);
-      controller->setParam("epsA", 0.3);        
+      controller->setParam("epsA", 0.3);
     }
     controller->setParam("Logarithmic", 0);
     controller->setParam("sense", 0.5);
     // 1297536669
     // 1297586370.000000
-    
-    // SeMoXConf cc = SeMoX::getDefaultConf();    
+
+    // SeMoXConf cc = SeMoX::getDefaultConf();
     // cc.modelExt=true;
-    // AbstractController* controller = new SeMoX(cc);  
-    
+    // AbstractController* controller = new SeMoX(cc);
+
     // controller->setParam("epsC", 0.05);
-    // controller->setParam("epsA", 0.1);        
+    // controller->setParam("epsA", 0.1);
     // controller->setParam("rootE", 0);
     // controller->setParam("steps", 1);
     // controller->setParam("s4avg", 1);
     // controller->setParam("dampModel", 0.9e-5);
     // controller->setParam("discountS", 0.05);
-    
-    
-  
-    //    AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );   
-  AbstractWiring* wiring = new SelectiveOne2OneWiring(new WhiteUniformNoise(), 
-                                                      new select_from_to(0,2), 
+
+
+
+    //    AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
+  AbstractWiring* wiring = new SelectiveOne2OneWiring(new WhiteUniformNoise(),
+                                                      new select_from_to(0,2),
                                                       AbstractWiring::Robot);
-  
+
     OdeAgent* agent;
     if(i==0 || i==3 ){
       agent = new OdeAgent (global);
@@ -220,23 +220,23 @@ public:
       agent->setTrackOptions(TrackRobot(true,false,false,false,"",2));
 
     global.agents.push_back ( agent );
-    global.configs.push_back ( controller );  
-    global.configs.push_back ( sphere);  
+    global.configs.push_back ( controller );
+    global.configs.push_back ( sphere);
   }
 
   void removeRobot(GlobalData& global){
     if(!global.agents.empty()){
       OdeAgentList::iterator i =  global.agents.end()-1;
       delete (*i)->getRobot();
-      delete (*i)->getController(); 
+      delete (*i)->getController();
       delete (*i);
-      global.agents.erase(i);    
+      global.agents.erase(i);
     }
   }
 
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(16.3129, 18.2069, 12.5683),  Pos(137.914, -28.1771, 0));
     setCameraMode(Static);
@@ -248,19 +248,19 @@ public:
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
-    //   setGeometry(double length, double width, double	height)
+    // - setting geometry for each wall of playground:
+    //   setGeometry(double length, double width, double        height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
     Playground* playground;
     if(env==ElipticBasin){
-      playground = new Playground(odeHandle, osgHandle, 
-				  osg::Vec3(20, 0.2, height+1.f), 2);
+      playground = new Playground(odeHandle, osgHandle,
+                                  osg::Vec3(20, 0.2, height+1.f), 2);
     }else{
-      playground = new Playground(odeHandle, osgHandle, 
-				  osg::Vec3(20, 0.2, height+0.3f), 1);
+      playground = new Playground(odeHandle, osgHandle,
+                                  osg::Vec3(20, 0.2, height+0.3f), 1);
     }
     playground->setColor(Color(.1,0.7,.1));
     playground->setTexture("");
@@ -271,12 +271,12 @@ public:
     switch(env){
     case ThreeBump:
       {
-        //     TerrainGround* terrainground = 
+        //     TerrainGround* terrainground =
         //       new TerrainGround(odeHandle, osgHandle,
-        //  			"terrains/threebumps.ppm", "terrains/threebumps.ppm", 20, 20, height);
-        TerrainGround* terrainground = 
+        //                          "terrains/threebumps.ppm", "terrains/threebumps.ppm", 20, 20, height);
+        TerrainGround* terrainground =
           new TerrainGround(odeHandle, osgHandle.changeColor(Color(1.0f,194.0/255.0,41.0/255.0)),
-                            "terrains/macrospheresLMH_64.ppm",""/*"Images/dusty.rgb" "terrains/macrospheresTex_256.ppm"*/, 
+                            "terrains/macrospheresLMH_64.ppm",""/*"Images/dusty.rgb" "terrains/macrospheresTex_256.ppm"*/,
                             20, 20, height, OSGHeightField::LowMidHigh);
         terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
         global.obstacles.push_back(terrainground);
@@ -286,16 +286,16 @@ public:
       }
       break;
     case SingleBasin:
-      // at Radius 3.92 height difference of 0.5 and at 6.2 height difference of 1 
+      // at Radius 3.92 height difference of 0.5 and at 6.2 height difference of 1
       // ./start -single track -f 2 -r 1297536669
 
     case ElipticBasin:
       // ./start -eliptic -f 5 -track -r 1297628680
       {
-        TerrainGround* terrainground = 
+        TerrainGround* terrainground =
           new TerrainGround(odeHandle, osgHandle.changeColor(Color(1.0f,1.0f,1.0f)),
-			    //                        "terrains/dip128_flat.ppm","terrains/dip128_flat_texture.ppm", 
-                            "terrains/dip128.ppm","terrains/dip128_texture.ppm", 
+                            //                        "terrains/dip128_flat.ppm","terrains/dip128_flat_texture.ppm",
+                            "terrains/dip128.ppm","terrains/dip128_texture.ppm",
                             20, env == SingleBasin ? 20 : 40, height, OSGHeightField::Red);
         terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
         global.obstacles.push_back(terrainground);
@@ -303,12 +303,12 @@ public:
       }
       break;
     }
-        
+
 
     // add passive spheres as obstacles
-    // - create pointer to sphere (with odehandle, osghandle and 
+    // - create pointer to sphere (with odehandle, osghandle and
     //   optional parameters radius and mass,where the latter is not used here) )
-    // - set Pose(Position) of sphere 
+    // - set Pose(Position) of sphere
     // - set a texture for the sphere
     // - add sphere to list of obstacles
     for (int i=0; i< numpassive; i+=1){
@@ -317,8 +317,8 @@ public:
       s1->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s1);
     }
-  
-    
+
+
   }
 
 
@@ -326,7 +326,7 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   if(Simulation::contains(argv,argc,"-eliptic")>0)
     env=ElipticBasin;
   if(Simulation::contains(argv,argc,"-single")>0)
@@ -334,12 +334,12 @@ int main (int argc, char **argv)
   if(Simulation::contains(argv,argc,"-three")>0)
     env=ThreeBump;
   track = (Simulation::contains(argv,argc,"-track")>0);
-  
-  ThisSim sim;  
+
+  ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
+
 
 
 

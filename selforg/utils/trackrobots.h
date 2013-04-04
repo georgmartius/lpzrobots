@@ -47,7 +47,7 @@ struct TrackRobotConf {
   bool   writeFile;             ///< whether to write a log file
 
   int interval;
-  std::string scene;  
+  std::string scene;
   int id;
 };
 
@@ -77,7 +77,7 @@ public:
     conf.trackSpeed            = false;
     conf.trackOrientation      = false;
     conf.displayTrace          = false;
-    conf.displayTraceDur       = 60; 
+    conf.displayTraceDur       = 60;
     conf.displayTraceThickness = 0.05;
     conf.interval              = 1;
     conf.writeFile             = true;
@@ -106,13 +106,13 @@ public:
     conf.displayTrace     = displayTrace;
     conf.interval	  = interval;
     conf.scene            = scene;
-    conf.id               = 0;
+    conf.id               = -1; // whole robot, not individual parts
     file = 0;
     cnt  = 1;
   }
 
   // TrackRobot(const TrackRobot &rhs)
-  // {    
+  // {
   //   deepcopy(*this, rhs);
   // }
 
@@ -134,7 +134,7 @@ public:
   {
     // if (file)
     //   fclose(file);
-    // file = 0;    
+    // file = 0;
   }
 
   /// returns whether tracing is activated

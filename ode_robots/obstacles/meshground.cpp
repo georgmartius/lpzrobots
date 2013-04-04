@@ -38,22 +38,22 @@
 #include <ode-dbl/common.h>
 
 #include "meshground.h"
- 
+
 namespace lpzrobots {
 
   using namespace osg;
 
-  MeshGround::MeshGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-			 const std::string& filename, const std::string& texture, 
-			 double x_size, double y_size, double height,
-			 OSGHeightField::CodingMode coding)
-    :  AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), 
-       filename(filename), texture(texture), 
+  MeshGround::MeshGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                         const std::string& filename, const std::string& texture,
+                         double x_size, double y_size, double height,
+                         OSGHeightField::CodingMode coding)
+    :  AbstractObstacle::AbstractObstacle(odeHandle, osgHandle),
+       filename(filename), texture(texture),
        x_size(x_size), y_size(y_size), height(height), coding(coding){
-    obstacle_exists=false;    
+    obstacle_exists=false;
   };
 
-  
+
 void MeshGround::setPose(const osg::Matrix& pose){
   this->pose = pose;
   if (obstacle_exists){
@@ -62,22 +62,22 @@ void MeshGround::setPose(const osg::Matrix& pose){
   create();
 }
 
-void MeshGround::create(){    
+void MeshGround::create(){
   if(strstr(filename.c_str(),".ppm")){
-    heightfield = new HeightField(OSGHeightField::loadFromPPM(filename,height, coding), 
-				  x_size, y_size);
+    heightfield = new HeightField(OSGHeightField::loadFromPPM(filename,height, coding),
+                                  x_size, y_size);
   }else{
     heightfield = new HeightField(filename, x_size, y_size, height);
   }
   if(!texture.empty())
     heightfield->setTexture(texture);
 
-  heightfield->setPose(pose);  
+  heightfield->setPose(pose);
   heightfield->init(odeHandle, 0, osgHandle);
-  
+
   obstacle_exists=true;
 }
-  
+
 
 void MeshGround::destroy(){
   if(heightfield) delete(heightfield);

@@ -78,15 +78,15 @@ Sat::Sat(MultiLayerFFNN* _net, double _eps){
 }
 
 
-MultiSat::MultiSat( const MultiSatConf& _conf) 
+MultiSat::MultiSat( const MultiSatConf& _conf)
   : AbstractController("MultiSat", "$Id: "), buffersize(_conf.buffersize), conf(_conf)
-{  
+{
   runcompetefirsttime=true;
   managementInterval=100;
   winner=0;
   companion=1;
   satControl=false;
-  initialised = false;  
+  initialised = false;
 };
 
 
@@ -106,7 +106,7 @@ MultiSat::~MultiSat()
 void MultiSat::init(int sensornumber, int motornumber, RandGen* randGen){
 
   number_motors  = motornumber;
-  number_sensors = sensornumber;  
+  number_sensors = sensornumber;
   int number_real_sensors = number_sensors - conf.numContext;
   assert(conf.numSats>1);
   if(!randGen) randGen = new RandGen(); // this gives a small memory leak
@@ -136,12 +136,12 @@ void MultiSat::init(int sensornumber, int motornumber, RandGen* randGen){
     vector<Layer> layers;
     layers.push_back(Layer(conf.numHidden, 0.5 , FeedForwardNN::tanh));
     layers.push_back(Layer(1,1));
-    MultiLayerFFNN* net = new MultiLayerFFNN(1, layers); // learning rate is set to 1 and modulates each step  
+    MultiLayerFFNN* net = new MultiLayerFFNN(1, layers); // learning rate is set to 1 and modulates each step
     net->init(satinputdim, satoutputdim, 0, randGen);
     Sat sat(net, conf.eps0);
     sats.push_back(sat);
   }
-  
+
 
   satErrors.set(conf.numSats, 1);
   satModErrors.set(conf.numSats, 1);
@@ -154,7 +154,7 @@ void MultiSat::init(int sensornumber, int motornumber, RandGen* randGen){
   satPredictWeight.set(satoutputdim,1);
   satPredictWeight.toMapP(&d,constant); // set all elements to 1;
   for(int i=0; i < number_real_sensors; i++) satPredictWeight.val(i,0)=0.5;
-  
+
 
   //  addParameter("lambda_c", &(conf.lambda_comp));
   addParameter("tauE1", &(conf.tauE1));
@@ -181,61 +181,61 @@ void MultiSat::step(const sensor* x_, int number_sensors, motor* y_, int number_
 
   fillSensorBuffer(x_, number_sensors);
   if(t>buffersize) {
-    
-    const Matrix& errors = compete();    
+
+    const Matrix& errors = compete();
     int newwinner = argmin(errors);
     if(newwinner != winner){ // select new winner and companion
       if(newwinner==companion){
-	// select imature expert if exists
-	Matrix epsmod = satEpsMod;
-	epsmod.val(companion,0)=0; // knock out old companion
-	int newcomp = argmax(epsmod);
-	cerr << "new companion with epsmod:" << satEpsMod.val(newcomp,0) << "\n";
-// 	if(satEpsMod.val(newcomp,0)<0.4){ 
-// 	  // no imature expert go to simple competition without companion
-// 	  winner = companion;
-// 	  cerr << "would need to create new agent\n";
-// 	}else{
-	  if(newcomp==companion) {
-	    cerr << "should never happen!\n";
-	  }
-	  winner = companion;
-	  companion = newcomp;	
-	  // just to make the companion selection better at the start, 
-	  //  when all experts have the same immaturity
-	  satEpsMod.val(companion,0)-=0.0001; 
-	  //	}
+        // select imature expert if exists
+        Matrix epsmod = satEpsMod;
+        epsmod.val(companion,0)=0; // knock out old companion
+        int newcomp = argmax(epsmod);
+        cerr << "new companion with epsmod:" << satEpsMod.val(newcomp,0) << "\n";
+//         if(satEpsMod.val(newcomp,0)<0.4){
+//           // no imature expert go to simple competition without companion
+//           winner = companion;
+//           cerr << "would need to create new agent\n";
+//         }else{
+          if(newcomp==companion) {
+            cerr << "should never happen!\n";
+          }
+          winner = companion;
+          companion = newcomp;
+          // just to make the companion selection better at the start,
+          //  when all experts have the same immaturity
+          satEpsMod.val(companion,0)-=0.0001;
+          //        }
       }else{ // another agent wins.
-	if(winner==companion){ // we have already no companion 
-	  // then if there is no imature one then we will have non.
-	  companion = argmax(satEpsMod);
-	  if(satEpsMod.val(companion,0)<0.4)	    
-	    companion = newwinner;
-	}
-	winner=newwinner;
+        if(winner==companion){ // we have already no companion
+          // then if there is no imature one then we will have non.
+          companion = argmax(satEpsMod);
+          if(satEpsMod.val(companion,0)<0.4)
+            companion = newwinner;
+        }
+        winner=newwinner;
       }
     }
     // update min for winner
     satMinErrors.val(winner,0) = min(satMinErrors.val(winner,0), satAvg2Errors.val(winner,0));
     // let winner learn
-    sats[winner].net->learn(satInput, nomSatOutput,  
-			    sats[winner].eps*satEpsMod.val(winner,0)); 
+    sats[winner].net->learn(satInput, nomSatOutput,
+                            sats[winner].eps*satEpsMod.val(winner,0));
     // let companion learn
     if(winner != companion){
-      sats[companion].net->learn(satInput, nomSatOutput,  
-				 sats[winner].eps*satEpsMod.val(companion,0)); 
+      sats[companion].net->learn(satInput, nomSatOutput,
+                                 sats[winner].eps*satEpsMod.val(companion,0));
     }
 
     // the winner only matures if he is successful (1 if error=0; 0 if error>0.3
-    double maturation = max(0.0,(0.3-satAvg1Errors.val(winner,0))*1/0.3); 
-    
+    double maturation = max(0.0,(0.3-satAvg1Errors.val(winner,0))*1/0.3);
+
     satEpsMod.val(winner,0) *= (1-maturation/conf.tauW);
 
 //     // let all sats learn with their decreasing learning rate
 //     FOREACH(vector<Sat>, sats, s){
-//       double e = exp(-(1/conf.tauC)*s->lifetime); 
+//       double e = exp(-(1/conf.tauC)*s->lifetime);
 //       if(e>10e-12){
-// 	s->net->learn(satInput, nomSatOutput, s->eps*e);    
+//         s->net->learn(satInput, nomSatOutput, s->eps*e);
 //       }
 //     }
 
@@ -248,11 +248,11 @@ void MultiSat::step(const sensor* x_, int number_sensors, motor* y_, int number_
   }
 
   // let main controller give its commands
-  conf.controller->step(x_, number_sensors-conf.numContext, y_, number_motors);  
+  conf.controller->step(x_, number_sensors-conf.numContext, y_, number_motors);
   fillMotorBuffer(y_, number_motors); // store the plain c-array "_y" into the y buffer
 
   // okay, use y from sat to control robot partially (half)
-  if(!y_sat.isNulltimesNull()){ 
+  if(!y_sat.isNulltimesNull()){
     satControl = true;
     const Matrix& y = y_buffer[t % buffersize]; // this is the command to main controller just gave
     Matrix y_res = (y + y_sat) * 0.5;
@@ -280,12 +280,12 @@ void MultiSat::fillSensorBuffer(const sensor* x_, int number_sensors)
   Matrix x(number_sensors-conf.numContext, 1, x_);
   Matrix x_c(conf.numContext, 1, x_+number_sensors-conf.numContext);
   // put new input vector in ring buffer x_buffer
-  putInBuffer(x_buffer, x);  
+  putInBuffer(x_buffer, x);
   if(conf.useDerive){
     const Matrix& xp = calcDerivatives(x_buffer,0);
-    putInBuffer(xp_buffer, xp);    
+    putInBuffer(xp_buffer, xp);
   }
-  putInBuffer(x_context_buffer, x_c);  
+  putInBuffer(x_context_buffer, x_c);
 }
 
 void MultiSat::fillMotorBuffer(const motor* y_, int number_motors)
@@ -293,13 +293,13 @@ void MultiSat::fillMotorBuffer(const motor* y_, int number_motors)
   assert((unsigned)number_motors == this->number_motors);
   Matrix y(number_motors,1,y_);
   // put new output vector in ring buffer y_buffer
-  putInBuffer(y_buffer, y);  
+  putInBuffer(y_buffer, y);
 }
 
 double multisat_errormodulation(void* fak, double e, double e_min){
   double faktor = *((double*)fak);
-  //  return e*(1 + faktor*sqr(max(0.0,e-e_min))); 
-  return e*(1 + sqrt(faktor*max(0.0,e-e_min))); 
+  //  return e*(1 + faktor*sqr(max(0.0,e-e_min)));
+  return e*(1 + sqrt(faktor*max(0.0,e-e_min)));
 }
 
 // we need this indirection because of some template error if we use just min
@@ -309,8 +309,8 @@ double multisat_min(double a, double b){
 
 Matrix MultiSat::controlBySat(int winner){
   /* idea 1:
-     sat with below half of the minimal prediction error range is allowed to 
-     give a control suggestion 
+     sat with below half of the minimal prediction error range is allowed to
+     give a control suggestion
    */
   //  double mini = min(satMinErrors);
   //  double maxi = max(satMinErrors);
@@ -333,7 +333,7 @@ Matrix MultiSat::controlBySat(int winner){
     }
     const Matrix& out = sats[winner].net->process(satInput);
     return out.rows(x_t.getM(), out.getM()-1);
-  }else{    
+  }else{
     return Matrix();
   }
 }
@@ -374,13 +374,13 @@ Matrix MultiSat::compete()
   }
   if(runcompetefirsttime){
     satAvg1Errors=satErrors;
-    satAvg2Errors=satErrors; 
+    satAvg2Errors=satErrors;
     satMinErrors=satAvg2Errors;
     runcompetefirsttime=false;
   }
   satAvg1Errors = satAvg1Errors * (1.0-1.0/conf.tauE1) + satErrors * (1.0/conf.tauE1);
   satAvg2Errors = satAvg2Errors * (1.0-1.0/conf.tauE2) + satErrors * (1.0/conf.tauE2);
-    
+
   // modulate predicted error to prefere mature experts
   Matrix lambdaW = satEpsMod.mapP(&conf.lambda_w, constant);
   satModErrors = satAvg1Errors.multrowwise(satEpsMod + lambdaW);
@@ -392,8 +392,8 @@ Matrix MultiSat::compete()
   return satModErrors;
 }
 
-  
-Matrix MultiSat::calcDerivatives(const matrix::Matrix* buffer,int delay){  
+
+Matrix MultiSat::calcDerivatives(const matrix::Matrix* buffer,int delay){
   int t1 = t+buffersize;
   const Matrix& xt    = buffer[(t1-delay)%buffersize];
   const Matrix& xtm1  = buffer[(t1-delay-1)%buffersize];
@@ -411,16 +411,16 @@ void MultiSat::management(){
     s->lifetime+=managementInterval;
   }
   // conf.lambda_comp = t * (1.0/conf.tauC);
-  
+
   // decay minima and learning rate modulations
   Matrix deltaM (satMinErrors.getM(),1);
-  double delta = (conf.deltaMin*(double)managementInterval/1000.0); 
+  double delta = (conf.deltaMin*(double)managementInterval/1000.0);
   deltaM.toMapP(&delta, constant); // fill matrix with delta
   satMinErrors += deltaM;
-  satEpsMod += deltaM; // maybe also limit it to 1  
+  satEpsMod += deltaM; // maybe also limit it to 1
   double m=1.0;
   satEpsMod.toMapP(&m, multisat_min );
-  
+
 }
 
 
@@ -442,10 +442,10 @@ Configurable::paramlist MultiSat::getParamList() const{
   paramlist keylist = AbstractController::getParamList();
   keylist += pair<paramkey, paramval>("epsSat",sats[0].eps);
   return keylist;
-} 
+}
 
 
-bool MultiSat::store(FILE* f) const {  
+bool MultiSat::store(FILE* f) const {
   fprintf(f,"%i\n", conf.numSats);
   fprintf(f,"%i\n", conf.numContext);
   fprintf(f,"%i\n", conf.numHidden);
@@ -464,7 +464,7 @@ bool MultiSat::store(FILE* f) const {
   FOREACHC(vector<Sat>, sats, s){
     s->net->store(f);
   }
- 
+
   // save config and controller
   Configurable::print(f,0);
   conf.controller->store(f);
@@ -476,11 +476,11 @@ bool MultiSat::restore(FILE* f){
     init(2,2);
 
   char buffer[128];
-  if(fscanf(f,"%s\n", buffer) != 1) return false;	
+  if(fscanf(f,"%s\n", buffer) != 1) return false;
   conf.numSats = atoi(buffer);
-  if(fscanf(f,"%s\n", buffer) != 1) return false;	
+  if(fscanf(f,"%s\n", buffer) != 1) return false;
   conf.numContext = atoi(buffer);
-  if(fscanf(f,"%s\n", buffer) != 1) return false;	
+  if(fscanf(f,"%s\n", buffer) != 1) return false;
   conf.numHidden = atoi(buffer);
 
  // we need to use fgets in order to avoid spurious effects with following matrix (binary)
@@ -498,16 +498,16 @@ bool MultiSat::restore(FILE* f){
   // clean sats array
   sats.clear();
   // restore sats
-  for(int i=0; i < conf.numSats; i++){ 
+  for(int i=0; i < conf.numSats; i++){
     MultiLayerFFNN* n = new MultiLayerFFNN(0,vector<Layer>());
     n->restore(f);
     sats.push_back(Sat(n,n->eps));
   }
- 
+
   // save config and controller
   Configurable::parse(f);
   conf.controller->restore(f);
-  t=0; // set time to zero to ensure proper filling of buffers  
+  t=0; // set time to zero to ensure proper filling of buffers
   return true;
 }
 
@@ -526,7 +526,7 @@ void MultiSat::storeSats(const char* filestem){
 
 list<Inspectable::iparamkey> MultiSat::getInternalParamNames() const {
   list<iparamkey> keylist;
-  
+
   keylist += storeVectorFieldNames(x_context_buffer[0], "XC");
   keylist += storeVectorFieldNames(satErrors, "errs");
   keylist += storeVectorFieldNames(satAvg1Errors, "avg1errs");
@@ -539,7 +539,7 @@ list<Inspectable::iparamkey> MultiSat::getInternalParamNames() const {
   keylist += string("companion");
   keylist += string("companion_error");
   keylist += string("satctrl");
-  return keylist; 
+  return keylist;
 }
 
 list<Inspectable::iparamval> MultiSat::getInternalParams() const {

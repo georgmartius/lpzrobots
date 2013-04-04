@@ -98,7 +98,7 @@
 // used arena
 #include <ode_robots/playground.h>
 #include <ode_robots/octaplayground.h> // arena
-#include <ode_robots/complexplayground.h> 
+#include <ode_robots/complexplayground.h>
 
 // used passive spheres
 #include <ode_robots/passivesphere.h>
@@ -120,9 +120,9 @@
 using namespace lpzrobots;
 using namespace std;
 
-template<typename T> 
+template<typename T>
 std::vector<T> mkVector(const T* v, int len){
-  return std::vector<T>(v,v+len);  
+  return std::vector<T>(v,v+len);
 }
 
 int id=0; // id of simulation  for logfile
@@ -135,7 +135,7 @@ const char* VersionStrings[] = {"V1", "1r1b", "test", "V2", "V3", "V4", "V5", "V
 class ThisSim : public Simulation, public Inspectable {
 public:
   ThisSim(Version v, double teaching, double sizefactor)
-    : version(v), teaching(teaching), sizefactor(sizefactor) {    
+    : version(v), teaching(teaching), sizefactor(sizefactor) {
   }
 
   enum Env {Round, Corridor, Bone, Arena};
@@ -158,7 +158,7 @@ public:
     double bonefactor     = .8;
 
     double learningrate   = 0.1; // epsC and epsA
-    
+
     setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
     setCameraHomePos(Pos(-0.50487, -20.9638, 8.85769),  Pos(-0.789815, -21.674, 0));
     setCameraMode(Static);
@@ -181,7 +181,7 @@ public:
       arena             = Corridor;
       numSeeing4wheeled = 1;
       sizeSetPoint      = 2;
-      numBalls          = 5;      
+      numBalls          = 5;
       break;
     case _1r1b:
       // 1r1b: Corridor (10), 1x 4wheeled, 1 Ball
@@ -189,7 +189,7 @@ public:
       arena             = Corridor;
       numSeeing4wheeled = 1;
       sizeSetPoint      = 2;
-      numBalls          = 1;      
+      numBalls          = 1;
       break;
     case test:
       // 1r1b: Corridor (10), 1x 4wheeled, 1 Ball
@@ -197,7 +197,7 @@ public:
       arena             = Corridor;
       numSeeing4wheeled = 1;
       sizeSetPoint      = 2;
-      numBalls          = 1;      
+      numBalls          = 1;
       learningrate      = 0.02;
       sizefactor        = 0.1;
       break;
@@ -211,7 +211,7 @@ public:
       // V3:  Round (8), 3x 4wheeled, 1 Balls (0.9 teaching clip) sizesetpoint = 2
       numSeeing4wheeled = 3;
       sizeSetPoint      = 2;
-      numBalls          = 1;      
+      numBalls          = 1;
       break;
     case V4:
       // V4:  Round (8), 2x 4wheeled red, 1xblind (0.9 teaching clip) sizesetpoint = .2
@@ -255,14 +255,14 @@ public:
     pos.set(numSeeing4wheeled+numBlindRobots,2);
     vel.set(numSeeing4wheeled+numBlindRobots,2);
     addInspectableMatrix("pos", &pos, "position of the robots");
-    addInspectableMatrix("vel", &vel, "velocity of the robots");    
+    addInspectableMatrix("vel", &vel, "velocity of the robots");
     distance.set(numSeeing4wheeled+numBlindRobots,1);
     if(numBalls>0){
       balls.set(numBalls,2);
       addInspectableMatrix("balls",   &balls, "position of the balls");
       addInspectableMatrix("distance", &distance, "distance to closest ball (for each robot)");
     }
-    
+
 
     global.configs.push_back(this);
 
@@ -271,7 +271,7 @@ public:
     switch(arena){
     case Round:
       {
-        OctaPlayground* playground = new OctaPlayground(wallHandle, osgHandle, 
+        OctaPlayground* playground = new OctaPlayground(wallHandle, osgHandle,
                                                         osg::Vec3(radiusRound, 0.2, 1), 12);
         playground->setPosition(osg::Vec3(0,0,0.1));
         playground->setGroundSubstance(Substance(0.4,0.005,40,0.5));
@@ -281,14 +281,14 @@ public:
     case Corridor:
       {
         // outer ground
-        OctaPlayground* outer = new OctaPlayground(wallHandle, osgHandle.changeAlpha(0.2), 
+        OctaPlayground* outer = new OctaPlayground(wallHandle, osgHandle.changeAlpha(0.2),
                                                    osg::Vec3(radiusCorr+2, 0.2, 1), 12);
         outer->setTexture("");
         outer->setPosition(osg::Vec3(0,0,0.1));
         outer->setGroundSubstance(Substance(0.4,0.005,40,0.5));
         global.obstacles.push_back(outer);
         // inner walls (without ground
-        OctaPlayground* inner = new OctaPlayground(wallHandle, osgHandle.changeColor(0.1,0.4,0.1), 
+        OctaPlayground* inner = new OctaPlayground(wallHandle, osgHandle.changeColor(0.1,0.4,0.1),
                                                    osg::Vec3(radiusCorr-2, 0.2, 1), 12, false);
         inner->setTexture("");
         inner->setPose(osg::Matrix::rotate(M_PI/12,0,0,1) * osg::Matrix::translate(0,0,0.1));
@@ -296,8 +296,8 @@ public:
       }
       break;
     case Bone:
-      {        
-        AbstractGround* playground = new ComplexPlayground(wallHandle, osgHandle, 
+      {
+        AbstractGround* playground = new ComplexPlayground(wallHandle, osgHandle,
                                                            "bone.fig", bonefactor, 0.03);
         playground->setPosition(osg::Vec3(0,0,0.1));
         playground->setGroundSubstance(Substance(0.6,0.005,40,0.5));
@@ -305,8 +305,8 @@ public:
       }
       break;
     case Arena:
-      {        
-        AbstractGround* playground = new ComplexPlayground(wallHandle, osgHandle, 
+      {
+        AbstractGround* playground = new ComplexPlayground(wallHandle, osgHandle,
                                                            "arena.fig", bonefactor, 0.03);
         playground->setPosition(osg::Vec3(0,0,0.1));
         playground->setGroundSubstance(Substance(0.6,0.005,40,0.5));
@@ -318,7 +318,7 @@ public:
     // add passive spheres as obstacles
     for (int i=0; i< numBalls; i++){
       PassiveSphere* s1 = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(1,1,0)), 0.3);
-      // s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));      
+      // s1->setPosition(osg::Vec3(-4.5+i*4.5,0,0));
       switch(arena){
       case Round: s1->setPosition(osg::Vec3(i%5,-2+i/5,1));
         break;
@@ -328,7 +328,7 @@ public:
         break;
       case Arena: s1->setPosition(osg::Vec3((-3+(i%4)*2)*bonefactor,(8+i/4)*bonefactor,1));
         break;
-      }      
+      }
       s1->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s1);
     }
@@ -343,22 +343,22 @@ public:
 
       twc.camcfg.width  = 256;
       twc.camcfg.height = 128;
-      twc.camcfg.fov    = 120;      
+      twc.camcfg.fov    = 120;
       // get rid of the image processing
       delete twc.camcfg.processors.back();
       twc.camcfg.processors.pop_back();
       MotionCameraSensorConf mc = MotionCameraSensor::getDefaultConf();
-      mc.values = MotionCameraSensor::Position | 
-        MotionCameraSensor::Size | MotionCameraSensor::SizeChange;            
+      mc.values = MotionCameraSensor::Position |
+        MotionCameraSensor::Size | MotionCameraSensor::SizeChange;
       twc.camSensor     = new MotionCameraSensor(mc);
       /// TWOWHEELED
-      OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, 
+      OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc,
                                          "CamRobotTwo_" + itos(i));
       vehicle->setColor(Color(1,.7,0));
       if(arena == Corridor)
         vehicle->place(osg::Vec3(sin(i/2.0-1)*radiusCorr,cos(i/2.0-1)*radiusCorr,0.3));
       else
-        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1) 
+        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1)
                        * osg::Matrix::translate(3,-4+2*i,0.3));
 
       SeMoXHebModConf cc = SeMoXHebMod::getDefaultConf();
@@ -369,11 +369,11 @@ public:
 //       std::list<int> perm;
 //       perm += 1;
 //       perm += 0;
-//       controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));        
+//       controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));
 //       controller->setParam("gamma_teach",0.005);
       controller->setParam("gamma_teach", teaching);
       //  controller->setParam("rootE",3);
-      
+
       AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
       OdeAgent* agent = i==0 ? new OdeAgent(global,0.1) : new OdeAgent(global,PlotOption(NoPlot),0.1);
       agent->init(controller, vehicle, wiring);
@@ -387,41 +387,41 @@ public:
       CameraConf camcfg = Camera::getDefaultConf();
       camcfg.width  = 256;
       camcfg.height = 128;
-      camcfg.fov    = 120;      
+      camcfg.fov    = 120;
       camcfg.camSize = 0.08;
       camcfg.processors.push_back(new HSVImgProc(false,1));
       // filter only Yellow color
-      camcfg.processors.push_back(new ColorFilterImgProc(true, .5, 
+      camcfg.processors.push_back(new ColorFilterImgProc(true, .5,
                                   HSVImgProc::Yellow-10, HSVImgProc::Yellow+10,100));
       Camera* cam = new Camera(camcfg);
-      mc.values = MotionCameraSensor::Position | 
-        MotionCameraSensor::Size | MotionCameraSensor::SizeChange;            
+      mc.values = MotionCameraSensor::Position |
+        MotionCameraSensor::Size | MotionCameraSensor::SizeChange;
       CameraSensor* camSensor = new MotionCameraSensor(mc);
       camSensor->setInitData(cam, odeHandle, osgHandle, osg::Matrix::rotate(-M_PI/2,0,0,1)
-			     * osg::Matrix::translate(0.2,0, 0.40) );
+                             * osg::Matrix::translate(0.2,0, 0.40) );
       std::list<Sensor*> sensors;
-      sensors.push_back(camSensor);      
-      FourWheeledConf fwc = FourWheeled::getDefaultConf();      
+      sensors.push_back(camSensor);
+      FourWheeledConf fwc = FourWheeled::getDefaultConf();
       fwc.twoWheelMode = true;
       fwc.useBumper    = false;
       fwc.force        = 5;
-      OdeRobot* robot = new FourWheeled(odeHandle, osgHandle, 
-                                        fwc, "4W_" + string(VersionStrings[version]) + "_CamRobot_" + 
+      OdeRobot* robot = new FourWheeled(odeHandle, osgHandle,
+                                        fwc, "4W_" + string(VersionStrings[version]) + "_CamRobot_" +
                                         itos(teaching*1000) + "_"  + itos(i) + "_" + itos(::id));
       OdeRobot* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle, robot, sensors);
       if(seeingAreRed)
         vehicle->setColor(Color(1,0,0));
       else
         vehicle->setColor(Color(1,.7,0));
-      if(arena == Bone || arena == Arena) 
+      if(arena == Bone || arena == Arena)
         vehicle->place(osg::Vec3(0,-i-2,0.1));
-      else if(arena==Corridor) 
+      else if(arena==Corridor)
         vehicle->place(osg::Vec3(sin(i/2.0+.5)*radiusCorr,cos(i/2.0+.5)*radiusCorr,0.3));
       else
-        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1) 
+        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1)
                        * osg::Matrix::translate(3,-4+2*i,0.3));
 
-      
+
       SeMoXHebModConf cc = SeMoXHebMod::getDefaultConf();
       cc.modelExt = true;
       SeMoXHebMod *semox = new SeMoXHebMod(cc);
@@ -433,11 +433,11 @@ public:
       controller->setParam("epsA",learningrate);
       controller->setParam("dampController",0.0001);
 
-      
-      double noise[] = {1,1};      
+
+      double noise[] = {1,1};
       AbstractWiring* wiring = new SelectiveNoiseWiring(new WhiteUniformNoise(),
                                                         mkVector(noise,2));
-      
+
       //    AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
       OdeAgent* agent = i==0 ? new OdeAgent(global) : new OdeAgent(global,PlotOption(NoPlot));
       agent->addInspectable(this);
@@ -450,11 +450,11 @@ public:
 
     for(int i=0; i<numBlindRobots; i++){
       // this robot has no camera
-      FourWheeledConf fwc = FourWheeled::getDefaultConf();      
+      FourWheeledConf fwc = FourWheeled::getDefaultConf();
       fwc.twoWheelMode = true;
       fwc.useBumper    = false;
       fwc.force        = 4;
-      OdeRobot* vehicle = new FourWheeled(odeHandle, osgHandle, fwc, 
+      OdeRobot* vehicle = new FourWheeled(odeHandle, osgHandle, fwc,
                                           "BlindRobot_" + itos(i));
       vehicle->setColor(Color(1,1,0));
       vehicle->place(Pos(-3,-4+2*i,0.3));
@@ -464,7 +464,7 @@ public:
       std::list<int> perm;
       perm += 1;
       perm += 0;
-      controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));        
+      controller->setCMC(CrossMotorCoupling::getPermutationCMC(perm));
       controller->setParam("gamma_teach",0.003);
 
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
@@ -473,12 +473,12 @@ public:
       global.agents.push_back(agent);
     }
 
-    
+
   }
 
   virtual void addCallback(GlobalData& global, bool draw, bool pause, bool control) {
     if(control){
-      FOREACH(OdeAgentList, global.agents, a){        
+      FOREACH(OdeAgentList, global.agents, a){
         SeMoXHebMod* semox = dynamic_cast<SeMoXHebMod*>((*a)->getController());
         if(semox){
           matrix::Matrix desired = semox->getLastSensorValues();
@@ -491,14 +491,14 @@ public:
       }
     }
 
-    
+
     // ball friction
     int i=0;
     FOREACH(ObstacleList, globalData.obstacles, o){
       PassiveSphere* s = dynamic_cast<PassiveSphere*>(*o);
       if(s){
         Pos svel = s->getMainPrimitive()->getVel();
-        s->getMainPrimitive()->applyForce(-svel*friction);        
+        s->getMainPrimitive()->applyForce(-svel*friction);
         // save for stat
         Pos spos = s->getMainPrimitive()->getPosition();
         balls.val(i,0) = spos.x();
@@ -508,7 +508,7 @@ public:
     }
 
     //stats and
-    // optionally move all balls to the robots 
+    // optionally move all balls to the robots
     int r=0;
     FOREACHC(OdeAgentList,globalData.agents, a){
       Pos rpos = (*a)->getRobot()->getPosition();
@@ -518,35 +518,35 @@ public:
       pos.val(r,1) = rpos.y();
       Position rvel = (*a)->getRobot()->getSpeed();
       vel.val(r,0) = rvel.x;
-      vel.val(r,1) = rvel.y;      
+      vel.val(r,1) = rvel.y;
       FOREACH(ObstacleList, globalData.obstacles, o){
         PassiveSphere* s = dynamic_cast<PassiveSphere*>(*o);
-        if(s){          
+        if(s){
           Pos spos = s->getMainPrimitive()->getPosition();
           if(attraction > 0)
             s->getMainPrimitive()->applyForce((rpos-spos)*attraction);
           // save for stat
           if((rpos-spos).length() < distance.val(r,0)) distance.val(r,0) = (rpos-spos).length();
-        }        
+        }
       }
       r++;
     }
 
-    
-    
-    
+
+
+
   }
-  
+
   virtual void end(GlobalData& globalData){
   }
 
   virtual void usage() const {
-    printf("  *********** SPECIFIC Options ************ \n");    
+    printf("  *********** SPECIFIC Options ************ \n");
     printf("\t-v Variant\tVariant of the simulation V1 - V5 and\n\
-\t\t1r1b (1 robot 1 ball) (read the sourcecode)\n");    
-    printf("\t-t gamma_teach\tteaching strength (Def: 0.02)\n");    
-    printf("\t-sf factor\tfactor of guiding for size (Def: 1)\n");    
-    printf("\t-i  id of the simulation (to name the log files (Def: 0)\n");    
+\t\t1r1b (1 robot 1 ball) (read the sourcecode)\n");
+    printf("\t-t gamma_teach\tteaching strength (Def: 0.02)\n");
+    printf("\t-sf factor\tfactor of guiding for size (Def: 1)\n");
+    printf("\t-i  id of the simulation (to name the log files (Def: 0)\n");
   };
 
 
@@ -572,7 +572,7 @@ public:
   paramval sizeSetPoint;
 
   Version version;
-  double teaching;  
+  double teaching;
 
   paramval attraction;
   paramval friction;
@@ -581,7 +581,7 @@ public:
 
   // stats
   matrix::Matrix pos, vel, distance;
-  matrix::Matrix balls;  
+  matrix::Matrix balls;
 };
 
 

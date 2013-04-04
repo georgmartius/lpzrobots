@@ -48,7 +48,7 @@ NeuralGas::NeuralGas(double lambda, double eps, int maxTime,
 }
 
 void NeuralGas::init(unsigned int inputDim, unsigned int outputDim,
-		     double unit_map, RandGen* randGen){
+                     double unit_map, RandGen* randGen){
   if(!randGen) randGen = new RandGen(); // this gives a small memory leak
   weights.resize(outputDim);
   diffvectors.resize(outputDim);
@@ -102,8 +102,8 @@ const Matrix NeuralGas::process (const Matrix& input){
 }
 
 const Matrix NeuralGas::learn (const Matrix& input,
-			 const Matrix& nom_output,
-			 double learnRateFactor ){
+                         const Matrix& nom_output,
+                         double learnRateFactor ){
   // "activation" of network already done in process
   // rank by distance
   rankingvector ranking(distances.getM());

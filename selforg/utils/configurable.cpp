@@ -35,7 +35,7 @@ using namespace std;
 #ifndef AVR
 
 bool Configurable::storeCfg(const char* filenamestem,
-		const std::list< std::string>& comments){
+                const std::list< std::string>& comments){
   char name[256];
   FILE* f;
   setlocale(LC_NUMERIC,"en_US"); // set us type output
@@ -319,10 +319,10 @@ void Configurable::print(FILE* f, const char* prefix, int columns, bool traverse
     double val = * (*i).second;
     if(val>1000 && floor(val) == val){ // without point and digits afterwards
       fprintf(f, "%s %s=%s%11.0f ", pre, k.c_str(),
-	      spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
+              spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
     }else{ // normal
       fprintf(f, "%s %s=%s%11.6f ", pre, k.c_str(),
-	      spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
+              spacer+(k.length() > spacelength  ? spacelength : k.length()), * (*i).second);
     }
     printdescr(f, pre, k, columns,spacelength+13);
   }
@@ -346,7 +346,7 @@ void Configurable::print(FILE* f, const char* prefix, int columns, bool traverse
   FOREACHC(paramlist, list, i) {
     const string& k = (*i).first;
     fprintf(f, "%s %s=%s%11.6f*", pre, k.c_str(),
-	    spacer+(k.length() > spacelength  ? spacelength : k.length()), (*i).second);
+            spacer+(k.length() > spacelength  ? spacelength : k.length()), (*i).second);
     printdescr(f, pre, k, columns,spacelength+13);
   }
   // write termination line
@@ -394,11 +394,11 @@ bool Configurable::parse(FILE* f, const char* prefix, bool traverseChildren) {
     char* bufNoPrefix = buffer;
     if(preLen>0){
       if(strncmp(buffer,pre,preLen)==0)
-	bufNoPrefix = buffer+preLen;
+        bufNoPrefix = buffer+preLen;
       else {
-	fprintf(stderr,"could not detect prefix: %s in line: %s\n", pre,buffer);
-	rv=false;
-	break;
+        fprintf(stderr,"could not detect prefix: %s in line: %s\n", pre,buffer);
+        rv=false;
+        break;
       }
     }
     if(strcmp(bufNoPrefix,"######\n")==0) break;

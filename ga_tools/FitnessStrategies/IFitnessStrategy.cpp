@@ -27,9 +27,9 @@
 #include "IFitnessStrategy.h"
 
 IFitnessStrategy::IFitnessStrategy() {
-	// nothing
+        // nothing
 }
 
 IFitnessStrategy::~IFitnessStrategy() {
-	// nothing
+        // nothing
 }

@@ -126,7 +126,7 @@ public:
   int dteachingLen;
   double sineRate;
   double phaseShift;
-  
+
   ThisSim()
   {
     addParameterDef("sinerate",   &sineRate,   20);
@@ -140,7 +140,7 @@ public:
     bool schlange=true;
 
     global.odeConfig.setParam("controlinterval",4);
-    global.odeConfig.setParam("gravity", -1); 
+    global.odeConfig.setParam("gravity", -1);
     global.odeConfig.setParam("realtimefactor",4);
     global.odeConfig.setParam("noise",0.05);
 
@@ -151,36 +151,36 @@ public:
     conf.frictionJoint=0.05;
     //conf.motorPower=5;
     //    conf.frictionJoint=0.01;
-    conf.segmNumber=9;     
+    conf.segmNumber=9;
     conf.useServoVel=true;
     //     conf.jointLimit=conf.jointLimit*3;
-    SchlangeServo* schlange1 = 
+    SchlangeServo* schlange1 =
       new SchlangeServo ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
                           conf, "Schlange1D");
-    ((OdeRobot*)schlange1)->place(Pos(0,0,3)); 
+    ((OdeRobot*)schlange1)->place(Pos(0,0,3));
 
-    // //    //AbstractController *controller = new InvertNChannelController(100/*,true*/);  
-    // //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);  
+    // //    //AbstractController *controller = new InvertNChannelController(100/*,true*/);
+    // //  AbstractController *controller = new InvertMotorSpace(100/*,true*/);
     // InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     // cc.cInit=1.8;
     // cc.cInit=1.0;
     // //    cc.cNonDiag=0.0;
     // cc.useSD=true;
     // cc.someInternalParams=false;
-    // controller = new InvertMotorNStep(cc);  
-    
-    // AbstractController *controller = new InvertMotorNStep(cc);  
-    
+    // controller = new InvertMotorNStep(cc);
+
+    // AbstractController *controller = new InvertMotorNStep(cc);
+
     //    DerControllerConf dc = DerController::getDefaultConf();
     //    dc.cInit=1;
-    //    AbstractController *controller = new DerController(dc);  
+    //    AbstractController *controller = new DerController(dc);
     //    controller->setParam("noiseY",0);
-    
-    //    AbstractController *controller = new SineController();  
+
+    //    AbstractController *controller = new SineController();
     //     DerControllerConf cc = DerController::getDefaultConf();
     //     cc.cInit=0.8;
     //     cc.useS=false;
-    //     AbstractController *controller = new DerController(cc);  
+    //     AbstractController *controller = new DerController(cc);
 
     SoMLConf sc = SoML::getDefaultConf();
     SoML* controller = new SoML(sc);
@@ -199,15 +199,15 @@ public:
     global.agents.push_back(agent);
     global.configs.push_back(controller);
     global.configs.push_back(schlange1);
-  
+
 
     //controller->setParam("inhibition",0.00);
     controller->setParam("limitrf",4);
     //    controller->setParam("kwta",5);
     controller->setParam("dampS",0.001);
- 
+
     global.odeConfig.setParam("controlinterval",1);
-    global.odeConfig.setParam("gravity", 0.0); 
+    global.odeConfig.setParam("gravity", 0.0);
 
     controller->setParam("steps",1);
     controller->setParam("epsC",0.01);
@@ -218,7 +218,7 @@ public:
     // controller->setParam("desens",0.0);
     //   controller->setParam("s4delay",1.0);
     controller->setParam("s4avg",2.0);
-    
+
     //   controller->setParam("factorB",0.0);
     //   controller->setParam("zetaupdate",0.1);
 
@@ -227,8 +227,8 @@ public:
     fixator->init(odeHandle, osgHandle);
 
     global.configs.push_back(this);
-    
-    
+
+
     teaching=false;
     dteaching=false;
     teachingLen = schlange1->getMotorNumber();
@@ -242,45 +242,45 @@ public:
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(control){
       if(teaching){
-	for(int i=0; i<teachingLen; i++){
-	  teachingSignal[i]=0.6*sin(globalData.time/sineRate*25 + i*phaseShift*M_PI/2);
-	}
-	controller->setMotorTeachingSignal(teachingSignal,teachingLen);
+        for(int i=0; i<teachingLen; i++){
+          teachingSignal[i]=0.6*sin(globalData.time/sineRate*25 + i*phaseShift*M_PI/2);
+        }
+        controller->setMotorTeachingSignal(teachingSignal,teachingLen);
       }
       if(dteaching){
-	for(int i=0; i<dteachingLen; i++){
-	  dteachingSignal[i]=0.6*sin(globalData.time/sineRate*25 + i*phaseShift*M_PI/2);
-	}
-	controller->setSensorTeachingSignal(dteachingSignal,dteachingLen);
+        for(int i=0; i<dteachingLen; i++){
+          dteachingSignal[i]=0.6*sin(globalData.time/sineRate*25 + i*phaseShift*M_PI/2);
+        }
+        controller->setSensorTeachingSignal(dteachingSignal,dteachingLen);
       }
-      
+
     }
   };
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet
   virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
-    if (!down) return false;    
+    if (!down) return false;
     bool handled = false;
     switch ( key )
       {
       case 'x':
-	if(fixator) delete (fixator);
-	fixator=0 ;	
-	handled = true; 
-	break;
-      case 't' : 
-	teaching=!teaching;
-	if(teaching) dteaching=false;
-	printf("Teaching Signal: %s,\n", teaching ? "on" : "off");
-	handled = true; 
-	break;
-      case 'd' : 
-	dteaching=!dteaching;
-	if(dteaching) teaching=false;
-	printf("Distal Teaching Signal: %s,\n", dteaching ? "on" : "off");
-	handled = true; 
-	break;
+        if(fixator) delete (fixator);
+        fixator=0 ;
+        handled = true;
+        break;
+      case 't' :
+        teaching=!teaching;
+        if(teaching) dteaching=false;
+        printf("Teaching Signal: %s,\n", teaching ? "on" : "off");
+        handled = true;
+        break;
+      case 'd' :
+        dteaching=!dteaching;
+        if(dteaching) teaching=false;
+        printf("Distal Teaching Signal: %s,\n", dteaching ? "on" : "off");
+        handled = true;
+        break;
       }
     fflush(stdout);
     return handled;
@@ -300,11 +300,11 @@ public:
 
 
 int main (int argc, char **argv)
-{  
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 }
 
 
- 
-  
+
+

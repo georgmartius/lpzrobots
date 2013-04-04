@@ -28,18 +28,18 @@ using namespace matrix;
 using namespace std;
 
 
-ModelWithMemoryAdapter::ModelWithMemoryAdapter(InvertableModel* model, 
-					       int memorySize, int numPatternsPerStep)
+ModelWithMemoryAdapter::ModelWithMemoryAdapter(InvertableModel* model,
+                                               int memorySize, int numPatternsPerStep)
   : InvertableModel(model->getName(), model->getRevision()), model(model), memorySize(memorySize), numPatternsPerStep(numPatternsPerStep),
     randGen(0){
   assert(model);
   assert(memorySize>0 && memorySize<1000000);
-  assert(numPatternsPerStep>=0 && numPatternsPerStep<1000000);  
+  assert(numPatternsPerStep>=0 && numPatternsPerStep<1000000);
 
 }
 
-void ModelWithMemoryAdapter::init(unsigned int inputDim, unsigned  int outputDim, 
-				  double unit_map, RandGen* randGen){
+void ModelWithMemoryAdapter::init(unsigned int inputDim, unsigned  int outputDim,
+                                  double unit_map, RandGen* randGen){
   model->init(inputDim, outputDim, unit_map, randGen);
   // initialise memory
   memory.resize(memorySize);
@@ -50,21 +50,21 @@ void ModelWithMemoryAdapter::init(unsigned int inputDim, unsigned  int outputDim
   }
 }
 
-const Matrix ModelWithMemoryAdapter::learn (const matrix::Matrix& input, 
-					    const matrix::Matrix& nom_output, 
-					    double learnRateFactor){
+const Matrix ModelWithMemoryAdapter::learn (const matrix::Matrix& input,
+                                            const matrix::Matrix& nom_output,
+                                            double learnRateFactor){
   // learn new mapping
-  const Matrix& out =  model->learn(input, nom_output, learnRateFactor);  
+  const Matrix& out =  model->learn(input, nom_output, learnRateFactor);
   // learn some old stuff
   for(int i=0; i<numPatternsPerStep; i++){
     int index = int(randGen->rand()*memorySize);
     const Pat& pat = memory[index];
-    if(!pat.inp.isNulltimesNull()){ // if memory place is used 
+    if(!pat.inp.isNulltimesNull()){ // if memory place is used
       //      cout << i << " " ;
       model->learn(pat.inp, pat.out, pat.lrFactor);
     }
-  }  
-  //  cout  << endl;  
+  }
+  //  cout  << endl;
   // store new mapping
   if(numPatternsPerStep>0)
     memory[int(randGen->rand()*memorySize)]=Pat(input, nom_output, learnRateFactor);

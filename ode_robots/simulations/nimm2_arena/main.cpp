@@ -100,12 +100,12 @@ public:
   list<Joint*> joints;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
     int number_x=3;
     int number_y=1;
-    connectRobots = true; 
+    connectRobots = true;
     double distance = 0.3;
 
     // initialization
@@ -122,78 +122,78 @@ public:
 
     // for(int i=0; i<50; i++){
 //       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
-//       s->setPosition(osg::Vec3(-4+(i/10),-4+(i%10),1)); 
-//       global.obstacles.push_back(s);    
+//       s->setPosition(osg::Vec3(-4+(i/10),-4+(i%10),1));
+//       global.obstacles.push_back(s);
 //     }
-    
+
     OdeRobot* nimm2;
     AbstractController* contrl;
     AbstractWiring* wiring;
     OdeAgent* agent;
     vector<OdeRobot*> robots(number_x);
     for (int i=-0; i<number_y; i++){
-      for (int j=-0; j<number_x; j++){ 
-	//      nimm2 = new Nimm2(odeHandle);
-	Nimm2Conf conf = Nimm2::getDefaultConf();
-	conf.speed=20;
-	conf.force=3.0;
-	conf.bumper=true;
-	conf.cigarMode=true;
-	wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-	if ((i==0) && (j==0)) {
-	  controller = new InvertMotorNStep();  
-	  //	  controller = new InvertMotorSpace(10);  
-	  agent = new OdeAgent(global);
-	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2Yellow");
-	  nimm2->setColor(Color(1.0,1.0,0));
-	  global.configs.push_back(controller);
-	  agent->init(controller, nimm2, wiring);
-	  controller->setParam("adaptrate", 0.000);
-	  //    controller->setParam("nomupdate", 0.0005);
-	  controller->setParam("epsC", 0.05);
-	  controller->setParam("epsA", 0.01);
-	  controller->setParam("epsC", 0.05);
-	  controller->setParam("rootE", 0);
-	  controller->setParam("steps", 2);
-	  controller->setParam("s4avg", 5);
-	  controller->setParam("s4del", 5);
-	  //	  controller->setParam("factorB",0);
-	} else {
-	  contrl = new InvertNChannelController(10);  		
-	  agent = new OdeAgent(global,PlotOption(NoPlot));	  
-	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
-	  agent->init(contrl, nimm2, wiring);
-	  contrl->setParam("adaptrate", 0.000);
-	  //    controller->setParam("nomupdate", 0.0005);
-	  contrl->setParam("epsC", 0.005);
-	  contrl->setParam("epsA", 0.001);
-	  contrl->setParam("rootE", 0);
-	  contrl->setParam("steps", 2);
-	  contrl->setParam("s4avg", 5);
-	  contrl->setParam("factorB",0);
-	}
-	nimm2->place(Pos(j*(2.5+distance),i*1.26,0));
-	global.agents.push_back(agent);
-	robots[j]=nimm2;
+      for (int j=-0; j<number_x; j++){
+        //      nimm2 = new Nimm2(odeHandle);
+        Nimm2Conf conf = Nimm2::getDefaultConf();
+        conf.speed=20;
+        conf.force=3.0;
+        conf.bumper=true;
+        conf.cigarMode=true;
+        wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+        if ((i==0) && (j==0)) {
+          controller = new InvertMotorNStep();
+          //          controller = new InvertMotorSpace(10);
+          agent = new OdeAgent(global);
+          nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2Yellow");
+          nimm2->setColor(Color(1.0,1.0,0));
+          global.configs.push_back(controller);
+          agent->init(controller, nimm2, wiring);
+          controller->setParam("adaptrate", 0.000);
+          //    controller->setParam("nomupdate", 0.0005);
+          controller->setParam("epsC", 0.05);
+          controller->setParam("epsA", 0.01);
+          controller->setParam("epsC", 0.05);
+          controller->setParam("rootE", 0);
+          controller->setParam("steps", 2);
+          controller->setParam("s4avg", 5);
+          controller->setParam("s4del", 5);
+          //          controller->setParam("factorB",0);
+        } else {
+          contrl = new InvertNChannelController(10);
+          agent = new OdeAgent(global,PlotOption(NoPlot));
+          nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
+          agent->init(contrl, nimm2, wiring);
+          contrl->setParam("adaptrate", 0.000);
+          //    controller->setParam("nomupdate", 0.0005);
+          contrl->setParam("epsC", 0.005);
+          contrl->setParam("epsA", 0.001);
+          contrl->setParam("rootE", 0);
+          contrl->setParam("steps", 2);
+          contrl->setParam("s4avg", 5);
+          contrl->setParam("factorB",0);
+        }
+        nimm2->place(Pos(j*(2.5+distance),i*1.26,0));
+        global.agents.push_back(agent);
+        robots[j]=nimm2;
       }
       if(connectRobots)
-	for(int j=0; j<number_x-1; j++){
-	  Joint* joint = new BallJoint(robots[j]->getMainPrimitive(), 
-				       robots[j+1]->getMainPrimitive(),
-				       Pos((j+0.5)*(2.5+distance),i*1.26,0.30) 
-				       );
-	  joint->init(odeHandle,osgHandle,true,distance/2);
-	  joints.push_back(joint);
-	}
+        for(int j=0; j<number_x-1; j++){
+          Joint* joint = new BallJoint(robots[j]->getMainPrimitive(),
+                                       robots[j+1]->getMainPrimitive(),
+                                       Pos((j+0.5)*(2.5+distance),i*1.26,0.30)
+                                       );
+          joint->init(odeHandle,osgHandle,true,distance/2);
+          joints.push_back(joint);
+        }
     }
-      
-    
+
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(draw && connectRobots){
-      FOREACH(list<Joint*>, joints,j){      
-	(*j)->update();
+      FOREACH(list<Joint*>, joints,j){
+        (*j)->update();
       }
     }
   };
@@ -202,21 +202,21 @@ public:
   //Funktion die eingegebene Befehle/kommandos verarbeitet
   virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
-    if (!down) return false;    
+    if (!down) return false;
     bool handled = false;
     FILE* f;
     switch ( key )
       {
       case 's' :
-	f=fopen("controller","wb");
-	controller->store(f) && printf("Controller stored\n");
-	fclose(f);
-	handled = true; break;	
+        f=fopen("controller","wb");
+        controller->store(f) && printf("Controller stored\n");
+        fclose(f);
+        handled = true; break;
       case 'l' :
-	f=fopen("controller","rb");
-	controller->restore(f) && printf("Controller loaded\n");
-	handled = true; break;	
-	fclose(f);
+        f=fopen("controller","rb");
+        controller->restore(f) && printf("Controller loaded\n");
+        handled = true; break;
+        fclose(f);
       }
     fflush(stdout);
     return handled;
@@ -230,13 +230,13 @@ public:
     au.addKeyboardMouseBinding("Simulation: l","load");
   }
 
-  
+
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

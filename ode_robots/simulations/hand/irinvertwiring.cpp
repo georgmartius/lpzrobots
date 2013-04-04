@@ -48,23 +48,23 @@ IRInvertWiring::~IRInvertWiring(){
 }
 */
 
-/// Realizes one to one wiring from robot sensors to controller sensors. 
+/// Realizes one to one wiring from robot sensors to controller sensors.
 //  sensorvalues with sensornumber>motornumber are
 //  recalculated as (1-sensorvalue)
-//   @param rsensors pointer to array of sensorvalues from robot 
+//   @param rsensors pointer to array of sensorvalues from robot
 //   @param rsensornumber number of sensors from robot
-//   @param csensors pointer to array of sensorvalues for controller  
+//   @param csensors pointer to array of sensorvalues for controller
 //   @param csensornumber number of sensors to controller
 //   @param noise size of the noise added to the sensors
-bool IRInvertWiring::wireSensors(const sensor* rsensors, int rsensornumber, 
-				sensor* csensors, int csensornumber, 
-				double noiseStrength){
+bool IRInvertWiring::wireSensors(const sensor* rsensors, int rsensornumber,
+                                sensor* csensors, int csensornumber,
+                                double noiseStrength){
   if (rsensornumber!=csensornumber)
     return false;
   else{
     memset(noisevals, 0 , sizeof(sensor) * this->rsensornumber);
-    //noiseGenerator->add(noisevals, -noiseStrength, noiseStrength);   
-    noiseGenerator->add(noisevals, noiseStrength);   
+    //noiseGenerator->add(noisevals, -noiseStrength, noiseStrength);
+    noiseGenerator->add(noisevals, noiseStrength);
     for(int i=0; i< rsensornumber; i++){
       csensors[i] = rsensors[i] + noisevals[i];
     }

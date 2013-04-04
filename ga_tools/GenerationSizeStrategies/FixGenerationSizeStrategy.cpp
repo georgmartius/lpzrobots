@@ -29,17 +29,17 @@
 #include "Generation.h"
 
 FixGenerationSizeStrategy::FixGenerationSizeStrategy() {
-	// nothing
+        // nothing
 }
 
 FixGenerationSizeStrategy::FixGenerationSizeStrategy(int value) {
-	m_size = value;
+        m_size = value;
 }
 
 FixGenerationSizeStrategy::~FixGenerationSizeStrategy() {
-	// nothing
+        // nothing
 }
 
 int FixGenerationSizeStrategy::calcGenerationSize(Generation* oldGeneration) {
-	return m_size;
+        return m_size;
 }

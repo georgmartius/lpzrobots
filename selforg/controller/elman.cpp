@@ -32,7 +32,7 @@ using namespace std;
 
 /// initialisation of the network with the given number of input and output units
 void Elman::init(unsigned int inputDim, unsigned  int outputDim,
-		 double unit_map, RandGen* randGen) {
+                 double unit_map, RandGen* randGen) {
   MultiLayerFFNN::init(inputDim, outputDim, unit_map, randGen);
   // create context neurons and weights
   if(useElman){
@@ -80,8 +80,8 @@ const Matrix Elman::process (const Matrix& input) {
 
 /// performs learning and returns the network output before learning
 const Matrix Elman::learn (const Matrix& input,
-			   const Matrix& nom_output,
-			   double learnRateFactor) {
+                           const Matrix& nom_output,
+                           double learnRateFactor) {
   assert(initialised);
   int layernum  = layers.size();
   double epsilon         = eps*learnRateFactor;
@@ -114,9 +114,9 @@ const Matrix Elman::learn (const Matrix& input,
       weights[0]     += delta * (input^T) * epsilon;
       bias[0]        += delta * epsilon * layers[0].factor_bias;
       if(useElman)
-	elmanWeights   += delta * (elmanContext^T) * epsilon - elmanWeights*0.001;
+        elmanWeights   += delta * (elmanContext^T) * epsilon - elmanWeights*0.001;
       if(useJordan)
-	jordanWeights  += delta * (jordanContext^T) * epsilon - jordanWeights*0.001;
+        jordanWeights  += delta * (jordanContext^T) * epsilon - jordanWeights*0.001;
     }
   }
   return ys[layernum-1];
@@ -149,11 +149,11 @@ NetUpdate Elman::weightIncrement(const matrix::Matrix& xsi_){
       update.weights[0] = delta * (input^T);
       update.bias[0]    = delta * layers[0].factor_bias;
       if(useElman){
-	update.other[k] = delta * (elmanContext^T) - elmanWeights*0.00001;
-	k++;
+        update.other[k] = delta * (elmanContext^T) - elmanWeights*0.00001;
+        k++;
       }
       if(useJordan)
-	update.other[k] = delta * (jordanContext^T) - jordanWeights*0.00001;
+        update.other[k] = delta * (jordanContext^T) - jordanWeights*0.00001;
     }
   }
   return update;
@@ -161,7 +161,7 @@ NetUpdate Elman::weightIncrement(const matrix::Matrix& xsi_){
 
 
 NetUpdate Elman::weightIncrementBlocked(const matrix::Matrix& xsi_,
-					int blockedlayer, int blockfrom, int blockto){
+                                        int blockedlayer, int blockfrom, int blockto){
   assert(initialised);
   int layernum  = layers.size();
   assert(weights.size() == (unsigned)layernum);
@@ -194,11 +194,11 @@ NetUpdate Elman::weightIncrementBlocked(const matrix::Matrix& xsi_,
       update.weights[0] = delta * (input^T);
       update.bias[0]    = delta * layers[0].factor_bias;
       if(useElman){
-	update.other[k] = delta * (elmanContext^T);//  - elmanWeights*0.00001;
-	k++;
+        update.other[k] = delta * (elmanContext^T);//  - elmanWeights*0.00001;
+        k++;
       }
       if(useJordan)
-	update.other[k] = delta * (jordanContext^T) - jordanWeights*0.00001;
+        update.other[k] = delta * (jordanContext^T) - jordanWeights*0.00001;
     }
   }
   return update;
@@ -210,7 +210,7 @@ void Elman::updateWeights(const NetUpdate& update){
   assert(weights.size() == (unsigned)layernum);
   assert(bias.size() == (unsigned)layernum);
   assert((int)update.weights.size() == layernum &&
-	 (int)update.other.size() == (useBypass!=0) + (useElman!=0) + (useJordan!=0));
+         (int)update.other.size() == (useBypass!=0) + (useElman!=0) + (useJordan!=0));
 
   for(int i=0; i<layernum; i++){
     weights[i] += update.weights[i];

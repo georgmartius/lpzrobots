@@ -22,7 +22,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "substance.h" 
+#include "substance.h"
 #include "globaldata.h"
 #include "axis.h"
 #include "primitive.h"
@@ -34,7 +34,7 @@ using namespace std;
 namespace lpzrobots {
 
   Substance::Substance()
-    : callback(0) 
+    : callback(0)
   {
     toDefaultSubstance();
   }
@@ -57,11 +57,11 @@ namespace lpzrobots {
     //    sp.bounce_vel;
     dReal kp   = 100*s1.hardness* s2.hardness / (s1.hardness + s2.hardness);
     double kd1 = (1.00-s1.elasticity);
-    double kd2 = (1.00-s2.elasticity); 
+    double kd2 = (1.00-s2.elasticity);
     dReal kd   = 50*(kd1 * s2.hardness + kd2 * s1.hardness) / (s1.hardness + s2.hardness);
 //     kp=30;
 //     kd=1;
-    //     cout << "spring: " << kp << "\t "<<kd << "\t step: " << stepsize << endl;    
+    //     cout << "spring: " << kp << "\t "<<kd << "\t step: " << stepsize << endl;
     sp.soft_erp = stepsize*kp / ( stepsize*kp + kd);
     sp.soft_cfm =  1 / (stepsize*kp + kd);
 //     if(sp.soft_cfm>0.1) {
@@ -72,31 +72,31 @@ namespace lpzrobots {
 //     }
 //     cout << "ERP: " << sp.soft_erp << "\t CFM:  "<<  sp.soft_cfm << endl;
     //    sp.motion1,motion2;
-    
+
     sp.slip1=s1.slip + s2.slip;
     sp.slip2=s1.slip + s2.slip;
     //cout << "s1= " << s1.slip << ", s2 = " << s2.slip << ", sges= " << sp.slip1 << std::endl;
     if(sp.slip1<0.0001) sp.mode=0;
     else sp.mode = dContactSlip1 | dContactSlip2;
     sp.mode |= dContactSoftERP | dContactSoftCFM | dContactApprox1;
-    
+
   }
 
   void Substance::printSurfaceParams(const dSurfaceParameters& sp){
-    cout << "Surface:" << sp.mu << "\t ";      
+    cout << "Surface:" << sp.mu << "\t ";
     cout << sp.soft_erp << "\t ";
     cout << sp.soft_cfm << "\t ";
-    cout << sp.slip1 << "\n ";    
+    cout << sp.slip1 << "\n ";
   }
 
 
-  // Factory methods   
+  // Factory methods
   Substance Substance::getDefaultSubstance(){
     Substance s;
     s.toDefaultSubstance();
     return s;
   }
-  
+
   void Substance::toDefaultSubstance(){
     toPlastic(0.8);
   }
@@ -116,7 +116,7 @@ namespace lpzrobots {
     elasticity = 0.8;
     slip       = 0.01;
   }
-  
+
   // high roughness, no slip, very elastic, hardness : [5-50]
   Substance Substance::getRubber(float _hardness){
     Substance s;
@@ -133,7 +133,7 @@ namespace lpzrobots {
     elasticity = 0.95;
     slip       = 0.0;
   }
-  
+
   // medium slip, a bit elastic, medium hardness, roughness [0.5-1]
   Substance Substance::getPlastic(float _roughness){
     Substance s;
@@ -148,7 +148,7 @@ namespace lpzrobots {
     if(_roughness>3) { cerr << "very rough plastic used!" << endl;}
     roughness  = _roughness;
     hardness   = 40;
-    elasticity = 0.5; 
+    elasticity = 0.5;
     slip       = 0.01;
   }
 
@@ -176,7 +176,7 @@ namespace lpzrobots {
     Substance s;
     s.toSnow(_slip);
     return s;
-  
+
   }
 
   // variable slip and roughness [0-1], not elastic, high hardness for solid snow
@@ -194,16 +194,16 @@ namespace lpzrobots {
   Substance Substance::getNoContact(){
     Substance s;
     s.toNoContact();
-    return s;  
+    return s;
   }
 
   // collision function that does nothing and prohibits further treatment of collision event.
-  int dummyCallBack(dSurfaceParameters& params, GlobalData& globaldata, void *userdata, 
-		    dContact* contacts, int numContacts,
-		    dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
-    return 0; 
+  int dummyCallBack(dSurfaceParameters& params, GlobalData& globaldata, void *userdata,
+                    dContact* contacts, int numContacts,
+                    dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
+    return 0;
   }
-  
+
   // no contact points are generated
   void Substance::toNoContact(){
     toDefaultSubstance();
@@ -216,18 +216,18 @@ namespace lpzrobots {
   struct AnisotropFrictionData {
     double ratio;
     Axis axis;
-  };  
- 
-  static int anisocallback(dSurfaceParameters& params, GlobalData& globaldata, void *userdata, 
+  };
+
+  static int anisocallback(dSurfaceParameters& params, GlobalData& globaldata, void *userdata,
                            dContact* contacts, int numContacts,
                            dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
-    // The other substance should not have a callback itself, 
-    //   because then we don't know. It could be a IR sensor for example, 
+    // The other substance should not have a callback itself,
+    //   because then we don't know. It could be a IR sensor for example,
     //   so we just behave as we would be a normal substance
     if(s2.callback) return 1;
-        
+
     AnisotropFrictionData* data = (AnisotropFrictionData*)userdata;
-    assert(data && "anisocallback does not have correct userdata!");    
+    assert(data && "anisocallback does not have correct userdata!");
 
     // we have to set the vectors in contacts
     osg::Matrix pose = osgPose(dGeomGetPosition(o1), dGeomGetRotation(o1));
@@ -242,44 +242,44 @@ namespace lpzrobots {
         dir.normalize();
         contacts[i].fdir1[0]=dir.x();
         contacts[i].fdir1[1]=dir.y();
-        contacts[i].fdir1[2]=dir.z();        
-      }      
+        contacts[i].fdir1[2]=dir.z();
+      }
     }
-    
+
     // calc default params
     Substance::getSurfaceParams(params, s1,s2,globaldata.odeConfig.simStepSize);
     // set new friction parameters
-    params.mu2=params.mu*(data->ratio); 
+    params.mu2=params.mu*(data->ratio);
     params.mode |= dContactMu2 | dContactFDir1;
-    
+
     return 2;
   }
 
   void Substance::toAnisotropFriction(double _ratio, const Axis& _axis){
     // this is a memory leak but we cannot circumvent it
-    AnisotropFrictionData* data = new AnisotropFrictionData; 
-    data->ratio = _ratio; 
+    AnisotropFrictionData* data = new AnisotropFrictionData;
+    data->ratio = _ratio;
     data->axis  = _axis;
     setCollisionCallback(anisocallback,data);
   }
 
   // ***  end anisotropfriction stuff;
-  
+
 
   DebugSubstance::DebugSubstance(){
     setCollisionCallback(&dbg_output, 0);
-  } 
+  }
 
-  DebugSubstance::DebugSubstance( float roughness, float slip, 
+  DebugSubstance::DebugSubstance( float roughness, float slip,
                                   float hardness, float elasticity):
     Substance(roughness, slip, hardness, elasticity) {
     setCollisionCallback(dbg_output, 0 );
-    
+
   }
 
-  int DebugSubstance::dbg_output(dSurfaceParameters& params, GlobalData& globaldata, 
+  int DebugSubstance::dbg_output(dSurfaceParameters& params, GlobalData& globaldata,
                              void *userdata, dContact* contacts, int numContacts,
-                             dGeomID o1, dGeomID o2, 
+                             dGeomID o1, dGeomID o2,
                              const Substance& s1, const Substance& s2){
     dSurfaceParameters sp;
     getSurfaceParams(sp, s1, s2, globaldata.odeConfig.simStepSize);
@@ -287,7 +287,7 @@ namespace lpzrobots {
 
     return 1;
   }
-  
 
-  
+
+
 };

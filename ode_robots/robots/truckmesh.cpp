@@ -48,27 +48,27 @@ namespace lpzrobots {
   // constructor:
   // - give handle for ODE and OSG stuff
   // - size of robot, maximal used force and speed factor are adjustable
-  TruckMesh::TruckMesh(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		       const std::string& name,
-		       double size/*=1.0*/, double force /*=3*/, double speed/*=15*/, double mass/*=1*/)
+  TruckMesh::TruckMesh(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                       const std::string& name,
+                       double size/*=1.0*/, double force /*=3*/, double speed/*=15*/, double mass/*=1*/)
     : // calling OdeRobots construtor with name of the actual robot
     OdeRobot(odeHandle, osgHandle, name, "$Id$")
-  { 
-    
+  {
+
     // robot is not created till now
     created=false;
 
-    // choose color (here the color of the "Nimm Zwei" candy is used, 
+    // choose color (here the color of the "Nimm Zwei" candy is used,
     // where the name of the Nimm2 and Nimm4 robots comes from ;-)
     this->osgHandle.color = Color(2, 156/255.0, 0, 1.0f);
-    
+
     // maximal used force is calculated from the force factor and size given to the constructor
     max_force   = force*size*size;
-  
+
     // speed and type of wheels are set
     this->speed = speed;
-  
-    height=size;  
+
+    height=size;
 
     length=size*1.5; // length of the truck
     middlewidth=size/10; // for y axis, it's the middle of the truck
@@ -85,20 +85,20 @@ namespace lpzrobots {
 
 
   /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
+      @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
   void TruckMesh::setMotors(const motor* motors, int motornumber){
     assert(created); // robot must exist
     // the number of controlled motors is minimum of
-    // "number of motorcommands" (motornumber) and 
+    // "number of motorcommands" (motornumber) and
     // "number of motors inside the robot" (motorno)
     int len = (motornumber < motorno)? motornumber : motorno;
 
     // for each motor the motorcommand (between -1 and 1) multiplied with speed
     // is set and the maximal force to realize this command are set
-    for (int i=0; i<len; i++){ 
-      joints[i]->setParam(dParamVel2, motors[i]*speed);       
+    for (int i=0; i<len; i++){
+      joints[i]->setParam(dParamVel2, motors[i]*speed);
       joints[i]->setParam(dParamFMax2, max_force);
     }
 
@@ -107,9 +107,9 @@ namespace lpzrobots {
     /*
       double tmp;
       int len = (motornumber < motorno)? motornumber : motorno;
-      for (int i=0; i<len; i++){ 
+      for (int i=0; i<len; i++){
       tmp=dJointGetHinge2Param(joints[i],dParamVel2);
-      dJointSetHinge2Param(joints[i],dParamVel2,tmp + 0.5*(motors[i]*speed-tmp) );       
+      dJointSetHinge2Param(joints[i],dParamVel2,tmp + 0.5*(motors[i]*speed-tmp) );
       dJointSetHinge2Param (joints[i],dParamFMax2,max_force);
       }
     */
@@ -124,16 +124,16 @@ namespace lpzrobots {
     assert(created); // robot must exist
 
     // the number of sensors to read is the minimum of
-    // "number of sensors requested" (sensornumber) and 
+    // "number of sensors requested" (sensornumber) and
     // "number of sensors inside the robot" (sensorno)
     int len = (sensornumber < sensorno)? sensornumber : sensorno;
 
-    // for each sensor the anglerate of the joint is red and scaled with 1/speed 
+    // for each sensor the anglerate of the joint is red and scaled with 1/speed
     for (int i=0; i<len; i++){
       sensors[i]=dynamic_cast<Hinge2Joint*>(joints[i])->getPosition2Rate();
       sensors[i]/=speed;  //scaling
     }
-    // the number of red sensors is returned 
+    // the number of red sensors is returned
     return len;
   };
 
@@ -141,10 +141,10 @@ namespace lpzrobots {
   void TruckMesh::place(const osg::Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
-    // width*0.6 is added (without this the wheels and half of the robot will be in the ground)    
+    // width*0.6 is added (without this the wheels and half of the robot will be in the ground)
     Matrix p2;
-    p2 = pose * Matrix::translate(Vec3(0, 0, height*0.26)); 
-    create(p2);    
+    p2 = pose * Matrix::translate(Vec3(0, 0, height*0.26));
+    create(p2);
   };
 
 
@@ -153,7 +153,7 @@ namespace lpzrobots {
    */
   void TruckMesh::update(){
     assert(created); // robot must exist
-  
+
     for (int i=0; i<segmentsno; i++) { // update objects
       objects[i]->update();
     }
@@ -170,24 +170,24 @@ namespace lpzrobots {
     // this has no meaning for this robot, because collsions between wheels and body are ignored
     // but if parts of the robot can move against each other this is important
 
-    // the follwing (not active) code part can be used to check if objects which had collisions 
+    // the follwing (not active) code part can be used to check if objects which had collisions
     // are inside the list of objects of the robot
-    /*  Nimm4* me = (Nimm4*)data;  
-	if(isGeomInObjectList(me->object, me->segmentsno, o1) 
-	&& isGeomInObjectList(me->object, me->segmentsno, o2)){
-	return;
-	}
+    /*  Nimm4* me = (Nimm4*)data;
+        if(isGeomInObjectList(me->object, me->segmentsno, o1)
+        && isGeomInObjectList(me->object, me->segmentsno, o2)){
+        return;
+        }
     */
   }
 
-  /** this function is called in each timestep. It should perform robot-internal checks, 
+  /** this function is called in each timestep. It should perform robot-internal checks,
       like space-internal collision detection, sensor resets/update etc.
       @param global structure that contains global data from the simulation environment
   */
   void TruckMesh::doInternalStuff(GlobalData& global){}
 
 
-  /** creates vehicle at desired position 
+  /** creates vehicle at desired position
       @param pos struct Position with desired position
   */
   void TruckMesh::create( const osg::Matrix& pose ){
@@ -198,8 +198,8 @@ namespace lpzrobots {
     odeHandle.createNewSimpleSpace(parentspace,true);
 
     objects.resize(7);  // 1 mesh, 6 wheels
-    joints.resize(6); // joints between mesh and each wheel    
- 
+    joints.resize(6); // joints between mesh and each wheel
+
     // create mesh for main body
     // initialize it with ode-, osghandle and mass
     // rotate and place body (here by 90° around the y-axis)
@@ -208,9 +208,9 @@ namespace lpzrobots {
     Mesh* mesh = new Mesh("Meshes/dumptruck.osg",height/20.0f);
     mesh->getOSGPrimitive()->setTexture("Images/really_white.rgb");
     mesh->init(odeHandle, cmass, osgHandle);
-    mesh->setPose(/*Matrix::rotate(M_PI/2, 0, 1, 0) */ pose);    
+    mesh->setPose(/*Matrix::rotate(M_PI/2, 0, 1, 0) */ pose);
     objects[0]=mesh;
-    
+
     // create wheel bodies
     osgHandle.color= Color(1.0,1.0,1.0);
     for (int i=1; i<7; i++) {
@@ -222,27 +222,27 @@ namespace lpzrobots {
       Cylinder* cyl=0;
       Vec3 wpos;
       if (i<3) { // back wheels
-	cyl = new Cylinder(radius,wheelthickness*1.80);
-	wpos = Vec3(middlelength-length*0.343,
-		    middlewidth+((i-1)%2==0?-1.02:1)*width*0.35,
-		    -height*0.302+radius );
-      } 
+        cyl = new Cylinder(radius,wheelthickness*1.80);
+        wpos = Vec3(middlelength-length*0.343,
+                    middlewidth+((i-1)%2==0?-1.02:1)*width*0.35,
+                    -height*0.302+radius );
+      }
       else if (i<5){ // middle wheels
-	cyl = new Cylinder(radius,wheelthickness*1.80);
-	wpos = Vec3(middlelength-length*0.201,
-		    middlewidth+((i-1)%2==0?-1.02:1)*width*0.35,
-		    -height*0.302+radius );
+        cyl = new Cylinder(radius,wheelthickness*1.80);
+        wpos = Vec3(middlelength-length*0.201,
+                    middlewidth+((i-1)%2==0?-1.02:1)*width*0.35,
+                    -height*0.302+radius );
       }
       else if (i<7){ // front wheels
-	cyl = new Cylinder(radius,wheelthickness*1.02);
-	wpos = Vec3(middlelength+length*0.407,
-		    middlewidth+((i-1)%2==0?-1.05:1)*width*0.387,
-		    -height*0.302+radius); 
+        cyl = new Cylinder(radius,wheelthickness*1.02);
+        wpos = Vec3(middlelength+length*0.407,
+                    middlewidth+((i-1)%2==0?-1.05:1)*width*0.387,
+                    -height*0.302+radius);
       }
       assert(cyl);
       cyl->getOSGPrimitive()->setTexture("Images/tire_full.rgb");
-      cyl->init(odeHandle, wmass, osgHandle);    
-      cyl->setPose(Matrix::rotate(M_PI/2, 1, 0, 0) * Matrix::translate(wpos) * pose);      
+      cyl->init(odeHandle, wmass, osgHandle);
+      cyl->setPose(Matrix::rotate(M_PI/2, 1, 0, 0) * Matrix::translate(wpos) * pose);
       objects[i]=cyl;
     }
 
@@ -259,7 +259,7 @@ namespace lpzrobots {
     }
 
     created=true; // robot is created
-  }; 
+  };
 
 
   /** destroys vehicle and space

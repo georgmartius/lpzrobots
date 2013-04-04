@@ -34,20 +34,20 @@
 
 namespace lpzrobots {
 
-  // this function is called if the ray has a collision. In the userdata we get the 
+  // this function is called if the ray has a collision. In the userdata we get the
   //  irsensor and the depth is in the contact information
-  int irCollCallback(dSurfaceParameters& params, GlobalData& globaldata, void *userdata, 
-		     dContact* contacts, int numContacts,
-		     dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
-    
+  int irCollCallback(dSurfaceParameters& params, GlobalData& globaldata, void *userdata,
+                     dContact* contacts, int numContacts,
+                     dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
+
     IRSensor* sensor = (IRSensor*)userdata;
     sensor->setLength(contacts[0].geom.depth);
-    return 0;    
+    return 0;
   }
 
 
   IRSensor::IRSensor(float exponent/* = 1*/, double size /*= 0.05*/){
-    value = 0;  
+    value = 0;
     len=0;
     lastvalue=-1;
     ray=0;
@@ -63,8 +63,8 @@ namespace lpzrobots {
 
   IRSensor::~IRSensor(){
     if(transform) delete(transform);
-  
-    //   dGeomDestroy(transform);     
+
+    //   dGeomDestroy(transform);
     //   if(sensorRay) delete sensorRay;
     if(sensorBody) delete sensorBody;
   }
@@ -75,44 +75,44 @@ namespace lpzrobots {
   }
 
   void IRSensor::init(const OdeHandle& odeHandle,
-		      const OsgHandle& osgHandle, 
-		      Primitive* body, 
-		      const osg::Matrix pose, float range,
-		      rayDrawMode drawMode){
+                      const OsgHandle& osgHandle,
+                      Primitive* body,
+                      const osg::Matrix pose, float range,
+                      rayDrawMode drawMode){
     this->range = range;
     this->osgHandle = osgHandle;
     value = 0;
     len   = range;
     lastvalue = -1;
-  
+
     ray = new Ray(range, 0.005, len);
     transform = new Transform(body, ray, pose);
-    OdeHandle myOdeHandle(odeHandle);  
-    transform->init(odeHandle, 0, osgHandle, 
-		    (drawMode==drawAll || drawMode==drawRay) ? (Primitive::Draw | Primitive::Geom) : Primitive::Geom );
+    OdeHandle myOdeHandle(odeHandle);
+    transform->init(odeHandle, 0, osgHandle,
+                    (drawMode==drawAll || drawMode==drawRay) ? (Primitive::Draw | Primitive::Geom) : Primitive::Geom );
     transform->substance.setCollisionCallback(irCollCallback,this);
-  
 
-    // transform = dCreateGeomTransform (odeHandle.space); 
-    //   dGeomTransformSetInfo(transform, 0);   
+
+    // transform = dCreateGeomTransform (odeHandle.space);
+    //   dGeomTransformSetInfo(transform, 0);
     //   dGeomTransformSetCleanup(transform, 1); // destroy ray geom of transform is deleted
 
-    //   ray = dCreateRay ( 0, range); 
+    //   ray = dCreateRay ( 0, range);
     //   osg::Vec3 p = pose.getTrans();
     //   dGeomSetPosition (ray, p.x(), p.y(), p.z());
     //   dMatrix3 rot;
     //   odeRotation(pose, rot);
     //   dGeomSetRotation(ray, rot);
 
-    //   dGeomTransformSetGeom(transform, ray);  
+    //   dGeomTransformSetGeom(transform, ray);
     //   dGeomSetBody ( transform, body->getBody() );
-    //   // disable transform geom, 
+    //   // disable transform geom,
     //   //  so that it is not treated by normal collision detection.
-    //   dGeomDisable (transform); 
+    //   dGeomDisable (transform);
 
     switch(drawMode){
     case drawAll:
-      //   case drawRay:     
+      //   case drawRay:
       //     sensorRay = new OSGBox(0.002, 0.002, len);
       //     sensorRay->init(osgHandle);
       //     if( drawMode != drawAll) break;
@@ -122,15 +122,15 @@ namespace lpzrobots {
       break;
     default:
       break;
-    }    
+    }
     update();
     initialised = true;
-  }; 
+  };
 
   void IRSensor::reset(){
     setLength(range);
-  }  
-  
+  }
+
   void IRSensor::setLength(float len){
     this->len = len;
     value     = characteritic(len);
@@ -146,23 +146,23 @@ namespace lpzrobots {
     return value;
   }
 
-  void IRSensor::update(){  
+  void IRSensor::update(){
     if(value!=lastvalue){
       ray->setColor(Color(value*1.5, 0.0, 0.0));
-      if(sensorBody) {    
+      if(sensorBody) {
         sensorBody->setColor(Color(value*2.0, 0.0, 0.0));
       }
       lastvalue=value;
     }
     ray->update();
-  
-    if(sensorBody) {    
-      sensorBody->setMatrix(osg::Matrix::translate(0,0,0.005) * 
+
+    if(sensorBody) {
+      sensorBody->setMatrix(osg::Matrix::translate(0,0,0.005) *
                             ray->getPose() * transform->getPose());
     }
 
   }
-  
+
   float IRSensor::characteritic(float len){
     float v = (range - len)/range;
     return v < 0 ? 0 : pow(v, exponent);

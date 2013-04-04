@@ -101,7 +101,7 @@ class ThisSim : public Simulation
 {
 
 public:
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
 
     setCameraHomePos ( Pos ( 0, 0, 7), Pos ( -0.0828247 , -89.9146 , 0) );
@@ -113,10 +113,10 @@ public:
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
-    //   setGeometry(double length, double width, double	height)
+    // - setting geometry for each wall of playground:
+    //   setGeometry(double length, double width, double        height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
 
@@ -144,17 +144,17 @@ public:
     wheel[1] = new SimpleComponent ( odeHandle , osgHandle , cConf );
     wheel[2] = new SimpleComponent ( odeHandle , osgHandle , cConf );
     wheel[3] = new SimpleComponent ( odeHandle , osgHandle , cConf );
-    
+
     body->setSimplePrimitive ( new Capsule ( 0.1 , 1 ) );
     body->getMainPrimitive ()->init ( odeHandle , 0.5 , osgHandle.changeColor ( Color ( 2, 156/255.0, 0, 1.0f ) ) );
     body->getMainPrimitive()->getOSGPrimitive()->setTexture("Images/wood.rgb");
 
     for ( int n = 0; n < 4; n++ )
     {
-	wheel[n]->setSimplePrimitive ( (Primitive*) new Sphere ( 0.3 ) );
-	wheel[n]->getMainPrimitive ()->init ( odeHandle , 0.2 , osgHandle.changeColor ( Color ( 0.8,0.8,0.8 )) );
-	wheel[n]->getMainPrimitive()->getOSGPrimitive()->setTexture("Images/wood.rgb");
-    } 
+        wheel[n]->setSimplePrimitive ( (Primitive*) new Sphere ( 0.3 ) );
+        wheel[n]->getMainPrimitive ()->init ( odeHandle , 0.2 , osgHandle.changeColor ( Color ( 0.8,0.8,0.8 )) );
+        wheel[n]->getMainPrimitive()->getOSGPrimitive()->setTexture("Images/wood.rgb");
+    }
 
 
     body->place ( osg::Matrix::rotate ( M_PI/2 , osg::Vec3 (1 , 0 , 0 ))*osg::Matrix::translate ( 0 , 0 , 0.5 ) );
@@ -166,65 +166,65 @@ public:
 
     for ( int n = 0; n < 4; n++ )
     {
-	Axis axis = Axis ( ( wheel[n<2?0:2]->getPosition () - wheel[n<2?1:3]->getPosition ()).toArray() );
-	HingeJoint* j1 = new HingeJoint ( body->getMainPrimitive () , wheel[n]->getMainPrimitive () , osg::Vec3 (0,0.5*( n<2?-1:1),0.5) , axis );
-	j1->init ( odeHandle , osgHandle , true , 1 );
+        Axis axis = Axis ( ( wheel[n<2?0:2]->getPosition () - wheel[n<2?1:3]->getPosition ()).toArray() );
+        HingeJoint* j1 = new HingeJoint ( body->getMainPrimitive () , wheel[n]->getMainPrimitive () , osg::Vec3 (0,0.5*( n<2?-1:1),0.5) , axis );
+        j1->init ( odeHandle , osgHandle , true , 1 );
 
-	body->addSubcomponent ( wheel[n] , j1 , false );
-    } 
+        body->addSubcomponent ( wheel[n] , j1 , false );
+    }
 
-	    //controller
-	    controller = new InvertMotorNStep ( cc );
-	    controller->setParam ("adaptrate", 0.0);
-	    controller->setParam ("epsC", 0.1);
-	    controller->setParam ("epsA", 0.01);
-	    controller->setParam ("rootE", 3);
-	    controller->setParam ("steps", 2);
-	    controller->setParam ("s4avg", 2);
-	    controller->setParam ("factorB",0);
-//	    controller = new SineController ( 18 );
-	    //wiring
-	    wiring = new DerivativeWiring ( c , new ColorUniformNoise () );   
-	    //agent
-	    agent = new OdeAgent ( plotoptions );
-	    agent->init ( controller , body , wiring );
-	    global.agents.push_back ( agent );
-	    global.configs.push_back ( controller );   
+            //controller
+            controller = new InvertMotorNStep ( cc );
+            controller->setParam ("adaptrate", 0.0);
+            controller->setParam ("epsC", 0.1);
+            controller->setParam ("epsA", 0.01);
+            controller->setParam ("rootE", 3);
+            controller->setParam ("steps", 2);
+            controller->setParam ("s4avg", 2);
+            controller->setParam ("factorB",0);
+//            controller = new SineController ( 18 );
+            //wiring
+            wiring = new DerivativeWiring ( c , new ColorUniformNoise () );
+            //agent
+            agent = new OdeAgent ( plotoptions );
+            agent->init ( controller , body , wiring );
+            global.agents.push_back ( agent );
+            global.configs.push_back ( controller );
 
-    
-  }   
-    
+
+  }
+
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet
   virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
-    if (!down) return false;    
+    if (!down) return false;
     bool handled = false;
     FILE* f;
     switch ( key )
       {
       case 's' :
-	f=fopen("controller","wb");
-	controller->store(f) && printf("Controller stored\n");
-	fclose(f);
-	handled = true; break;	
+        f=fopen("controller","wb");
+        controller->store(f) && printf("Controller stored\n");
+        fclose(f);
+        handled = true; break;
       case 'l' :
-	f=fopen("controller","rb");
-	controller->restore(f) && printf("Controller loaded\n");
-	handled = true; break;	
-	fclose(f);
+        f=fopen("controller","rb");
+        controller->restore(f) && printf("Controller loaded\n");
+        handled = true; break;
+        fclose(f);
       case 'A':
-	  body->removeSubcomponent ( wheel[0] );
-	  break;
+          body->removeSubcomponent ( wheel[0] );
+          break;
       case 'S':
-	  body->removeSubcomponent ( wheel[1] );
-	  break;
+          body->removeSubcomponent ( wheel[1] );
+          break;
       case 'Q':
-	  body->removeSubcomponent ( wheel[2] );
-	  break;
+          body->removeSubcomponent ( wheel[2] );
+          break;
       case 'W':
-	  body->removeSubcomponent ( wheel[3] );
-	  break;
+          body->removeSubcomponent ( wheel[3] );
+          break;
 
 
 
@@ -241,13 +241,13 @@ public:
     au.addKeyboardMouseBinding("Simulation: l","load");
   }
 
-  
+
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

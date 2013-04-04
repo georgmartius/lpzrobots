@@ -37,47 +37,47 @@ namespace lpzrobots {
                     "interval in steps between subsequent controller calls");
 
     addParameterDef("realtimefactor"   ,&realTimeFactor, 1, 0, 100,
-		    "speed of simulation wrt. real time (0: full speed)");
-    addParameterDef("simstepsize"      ,&simStepSize,    0.01,0.000001,.1, 
-		    "stepsize of the physical simulation (in seconds)");
-    addParameterDef("gravity"          ,&gravity,        -9.81,-20,20, 
-		    "strengh of gravity (-9.81 is earth gravity)");
+                    "speed of simulation wrt. real time (0: full speed)");
+    addParameterDef("simstepsize"      ,&simStepSize,    0.01,0.000001,.1,
+                    "stepsize of the physical simulation (in seconds)");
+    addParameterDef("gravity"          ,&gravity,        -9.81,-20,20,
+                    "strengh of gravity (-9.81 is earth gravity)");
     addParameterDef("randomseed"          ,&randomSeedCopy,   0,
-		    "random number seed (cmdline -r) (readonly)");
+                    "random number seed (cmdline -r) (readonly)");
     addParameterDef("fps"              ,&fps,            25,0.0001,200, "frames per second");
-    
+
     drawInterval = calcDrawInterval(fps,realTimeFactor);
     // prepare name;
     videoRecordingMode=false;
   }
-        
+
 
   void OdeConfig::notifyOnChange(const paramkey& key){
     if(key == "simstepsize") {
-      simStepSize=std::max(0.000001,simStepSize); 
+      simStepSize=std::max(0.000001,simStepSize);
       drawInterval=calcDrawInterval(fps,realTimeFactor);
     }else if(key == "realtimefactor"){
-      realTimeFactor=std::max(0.0,realTimeFactor);      
+      realTimeFactor=std::max(0.0,realTimeFactor);
       if (videoRecordingMode)
-	drawInterval=calcDrawInterval(25,realTimeFactor);
+        drawInterval=calcDrawInterval(25,realTimeFactor);
       else
-      	drawInterval=calcDrawInterval(fps,realTimeFactor);
+              drawInterval=calcDrawInterval(fps,realTimeFactor);
     }else if(key == "fps"){
-      fps=std::max(0.0001,fps);      
+      fps=std::max(0.0001,fps);
       if (videoRecordingMode)
-	drawInterval=calcDrawInterval(25,realTimeFactor);
+        drawInterval=calcDrawInterval(25,realTimeFactor);
       else
-      	drawInterval=calcDrawInterval(fps,realTimeFactor);
+              drawInterval=calcDrawInterval(fps,realTimeFactor);
     } else if(key == "gravity") {
       dWorldSetGravity ( odeHandle.world , 0 , 0 , gravity );
     } else if(key == "controlinterval") {
-      controlInterval = std::max(1,controlInterval); 
+      controlInterval = std::max(1,controlInterval);
     } else if(key == "randomseed") { // this is readonly!
       std::cerr << "randomseed is readonly" << std::endl;
       randomSeedCopy = randomSeed; // reset changes
-    } 
+    }
   }
-  
+
   void OdeConfig::setOdeHandle(const OdeHandle& odeHandle){
     this->odeHandle = odeHandle;
   }

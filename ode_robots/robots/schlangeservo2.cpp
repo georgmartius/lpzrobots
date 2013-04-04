@@ -29,32 +29,32 @@ namespace lpzrobots {
 
   SchlangeServo2::
   SchlangeServo2 ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		   const SchlangeConf& conf, const std::string& name,
-		   const std::string& revision )
-    : Schlange(odeHandle, osgHandle, conf, name, 
-	       revision.empty() ? "$Id$" : revision) 
+                   const SchlangeConf& conf, const std::string& name,
+                   const std::string& revision )
+    : Schlange(odeHandle, osgHandle, conf, name,
+               revision.empty() ? "$Id$" : revision)
   {
-    
+
   }
-  
+
   SchlangeServo2::~SchlangeServo2() { }
-	
+
 
   /**
    *Reads the actual motor commands from an array, an sets all motors (forces) of the snake to this values.
    *It is an linear allocation.
-   *@param motors pointer to the array, motor values are scaled to [-1,1] 
+   *@param motors pointer to the array, motor values are scaled to [-1,1]
    *@param motornumber length of the motor array
    **/
   void SchlangeServo2::setMotors ( const motor* motors, int motornumber )
   {
     assert(created);
     int len = min(motornumber, getMotorNumber())/2;
-    // controller output as torques 
+    // controller output as torques
     for (int i = 0; i < len; i++){
       servos[i]->set(motors[2*i], motors[2*i+1]);
     }
-  }	
+  }
 
   /**
    *Writes the sensor values to an array in the memory.
@@ -67,55 +67,55 @@ namespace lpzrobots {
   {
     assert(created);
     int len = min(sensornumber, getSensorNumber())/2;
-  
+
     for (int n = 0; n < len; n++) {
       sensors[2*n] = servos[n]->get1();
       sensors[2*n+1] = servos[n]->get2();
     }
-	
+
     return 2*len;
   }
 
 
-  /** creates vehicle at desired position 
+  /** creates vehicle at desired position
       @param pos struct Position with desired position
   */
   void SchlangeServo2::create(const osg::Matrix& pose){
     Schlange::create(pose);
-    
+
     //*****************joint definition***********
-    for ( int n = 0; n < conf.segmNumber-1; n++ ) {		
+    for ( int n = 0; n < conf.segmNumber-1; n++ ) {
 
       const Pos& p1(objects[n]->getPosition());
-      const Pos& p2(objects[n+1]->getPosition());      
+      const Pos& p2(objects[n+1]->getPosition());
       UniversalJoint* j = new UniversalJoint(objects[n], objects[n+1],
-					     (p1 + p2)/2,
-					     Axis(0,0,1)* pose, Axis(0,1,0)* pose);
+                                             (p1 + p2)/2,
+                                             Axis(0,0,1)* pose, Axis(0,1,0)* pose);
       j->init(odeHandle, osgHandle, true, conf.segmDia * 1.02);
-            
+
       // making stops bouncy
       //    j->setParam (dParamBounce, 0.9 );
       //    j->setParam (dParamBounce2, 0.9 ); // universal
 
-      joints.push_back(j); 
-      
+      joints.push_back(j);
+
       UniversalServo* servo;
       if(conf.useServoVel){
-	servo =  new TwoAxisServoVel(odeHandle, j, 
-				     -conf.jointLimit, conf.jointLimit, conf.motorPower,
-				     -conf.jointLimit, conf.jointLimit, conf.motorPower, 
-				     conf.frictionJoint, conf.velocity);
-      }else{	
-	servo =  new UniversalServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,
-				    -conf.jointLimit, conf.jointLimit, conf.motorPower, 
-				    conf.frictionJoint,0.0);
+        servo =  new TwoAxisServoVel(odeHandle, j,
+                                     -conf.jointLimit, conf.jointLimit, conf.motorPower,
+                                     -conf.jointLimit, conf.jointLimit, conf.motorPower,
+                                     conf.frictionJoint, conf.velocity);
+      }else{
+        servo =  new UniversalServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,
+                                    -conf.jointLimit, conf.jointLimit, conf.motorPower,
+                                    conf.frictionJoint,0.0);
       }
       servos.push_back(servo);
-      
-      frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, 
-						     conf.frictionJoint, conf.frictionJoint)
-			       );
-    }	  
+
+      frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j,
+                                                     conf.frictionJoint, conf.frictionJoint)
+                               );
+    }
   }
 
 
@@ -125,23 +125,23 @@ namespace lpzrobots {
     }
     for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
       if(*i) {
-	(*i)->setDamping1(conf.frictionJoint);
-	(*i)->setDamping2(conf.frictionJoint);
+        (*i)->setDamping1(conf.frictionJoint);
+        (*i)->setDamping2(conf.frictionJoint);
       }
     }
     for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
       if(*i) (*i)->setMaxVel(conf.velocity);
-    }    
+    }
   }
 
 
   /** destroys vehicle and space
    */
-  void SchlangeServo2::destroy(){  
+  void SchlangeServo2::destroy(){
     if (created){
       Schlange::destroy();
       for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
-	if(*i) delete *i;
+        if(*i) delete *i;
       }
       servos.clear();
     }

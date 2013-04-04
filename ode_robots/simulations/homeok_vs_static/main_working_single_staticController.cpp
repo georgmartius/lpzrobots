@@ -187,7 +187,7 @@ public:
     // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
     // - setting geometry for each wall of playground:
-    //   setGeometry(double length, double width, double	height)
+    //   setGeometry(double length, double width, double        height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
 
@@ -210,14 +210,14 @@ public:
 
 
 //     Playground* playground = new Playground(PlaygroundHandle, osgHandle, osg::Vec3(16, 0.2, 0.5),
-//                          	 /*double factorxy = 1*/1,/* bool createGround=true*/ true);
+//                                   /*double factorxy = 1*/1,/* bool createGround=true*/ true);
      Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(16, 0.2, 0.8),
-                          	 /*double factorxy = 1*/1,/* bool createGround=true*/ true);
+                                   /*double factorxy = 1*/1,/* bool createGround=true*/ true);
 
 
 //     Playground* playground = (Playground*)new ComplexPlayground(PlaygroundHandle, osgHandle ,
-//		      "playground2.fig",
-//		/*double factor =*/ 1, /*double heightfactor=*/0.02, /*bool createGround=*/false);
+//                      "playground2.fig",
+//                /*double factor =*/ 1, /*double heightfactor=*/0.02, /*bool createGround=*/false);
 
 playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
 //Substance s;
@@ -256,8 +256,8 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
     // - create pointer to nimm4 (with odeHandle and osg Handle and possible other settings, see nimm4.h)
     // - place robot
 //     OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle, "Nimm4",
-// 	       /*double size=1.0*/1.0, /*double force=3*/1, /*double speed=15*/ 15,
-// 	       /*bool sphereWheels =true*/ true);
+//                /*double size=1.0*/1.0, /*double force=3*/1, /*double speed=15*/ 15,
+//                /*bool sphereWheels =true*/ true);
 
     Nimm2Conf conf = Nimm2::getDefaultConf();
 //     conf.size=1;
@@ -272,7 +272,7 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
 //     conf.irSide=false;
 //     conf.irRange=3;
      conf.singleMotor=true;//false;
-// 	  conf.visForce=false;
+//           conf.visForce=false;
 //     conf.boxMode=false;
     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, conf, "Nimm2");
 
@@ -301,7 +301,7 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
     //agent->setTrackOptions(TrackRobot(true, false, false, false, "track" ,1));
     global.agents.push_back(agent);
 
-    
+
 
     summed_path=0;
 
@@ -318,11 +318,11 @@ playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und gener
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
-	  return false;
-	  break;
-	}
+        {
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }

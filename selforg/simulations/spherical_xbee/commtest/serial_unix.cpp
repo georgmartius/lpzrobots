@@ -20,9 +20,9 @@ void CSerialThread::start(){
   fd_in=-1;
   fd_out=-1;
   // start thread using this static function
-  
+
   pthread_create(&thread,NULL,CSerialThread_run, this);
-  
+
 
 };
 
@@ -59,14 +59,14 @@ int CSerialThread::readB() {
 }
 
 
-int CSerialThread::readNByte(unsigned char* c, int n, int timeout){  
+int CSerialThread::readNByte(unsigned char* c, int n, int timeout){
   int r = read(fd_out, c, n);
   if(r<n){ // second try
     if(r<0) r=0;
-    printf("Retry!\n");    
+    printf("Retry!\n");
     usleep(timeout);
     int r1= read(fd_out, c+r, n-r);
-    if (r1<0) 
+    if (r1<0)
       return -1;
     else
       r+=r1;
@@ -75,16 +75,16 @@ int CSerialThread::readNByte(unsigned char* c, int n, int timeout){
     if(c[0]=='#' && c[1]=='#'){
       return r;
     }else{
-      
+
     }
   }return -1;
-  
-  
+
+
 }
 
 // thread function
 bool CSerialThread::run(){
-  
+
   int baud;
   struct termios newtio;
 
@@ -100,7 +100,7 @@ bool CSerialThread::run(){
   case  38400: baud=B38400;  break;
   case  57600: baud=B57600;  break;
   case 115200: baud=B115200; break;
-  default: 
+  default:
     return false;
   }
 
@@ -110,11 +110,11 @@ bool CSerialThread::run(){
   //    pthread_testcancel();
   if (fd_in <0) { cerr << "Error open port.\n"; return false; }
   if(test_mode){
-    fd_out = open((m_port + "_out").c_str(), O_RDWR|O_SYNC);//|O_NONBLOCK);    
+    fd_out = open((m_port + "_out").c_str(), O_RDWR|O_SYNC);//|O_NONBLOCK);
   }else{
     fd_out=fd_in;
   }
-  
+
   // set interface parameters
   newtio.c_cflag = baud | CS8 | CLOCAL | CREAD | CSTOPB;
   newtio.c_iflag = IGNPAR;
@@ -123,9 +123,9 @@ bool CSerialThread::run(){
   newtio.c_lflag = 0;
   newtio.c_cc[VMIN]=1;
   newtio.c_cc[VTIME]=0;
- 
+
   tcsetattr(fd_in,TCSANOW,&newtio);
-  tcflush(fd_in, TCIFLUSH); 
+  tcflush(fd_in, TCIFLUSH);
   //    pthread_testcancel();
 
   unsigned char slave = 0;
@@ -136,12 +136,12 @@ bool CSerialThread::run(){
     pthread_testcancel();
     //!!test
     slave = (slave+1)%numslaves;
-    printf("Send to %i\n",slave);        
-    c[0]=255;          
-    c[1]=slave+1;          
-    c[2]=17;          
+    printf("Send to %i\n",slave);
+    c[0]=255;
+    c[1]=slave+1;
+    c[2]=17;
     write(fd_out, c, 20);
-    
+
     int b;
     do{
       b = readB();
@@ -155,21 +155,21 @@ bool CSerialThread::run(){
     if(addr==0){
       int i;
       for(i=0; i<len; i++){
-	int b =readB();
-	if(b==-1) break; 
-	c[i] = b;
+        int b =readB();
+        if(b==-1) break;
+        c[i] = b;
       }
       if(i<len) continue;
     }else{
-      printf("Got weird packet\n");    
+      printf("Got weird packet\n");
     }
 
     // output
-    printf("Got from %i: ",slave);    
+    printf("Got from %i: ",slave);
     for(int i=0; i<len; i++){
-      printf("%i ",c[i]);    
+      printf("%i ",c[i]);
     }
-    printf("\n");    
+    printf("\n");
 
   }//  end of while loop
   close(fd_in);
@@ -208,7 +208,7 @@ void CSerialThread::sendNack(uint8 adr) {
 uint8 CSerialThread::makeAddrPacket(uint8 adr) {
   return PADR | adr;
 }
-  
+
 uint8 CSerialThread::makeStopPacket(uint8 adr) {
   return PSTOP | adr;
 }
@@ -272,10 +272,10 @@ int CSerialThread::sendData(uint8 adr, uint8 cmd, uint8 *data, uint8 len) {
   /* Indicate end of data stream with zero-length byte. */
   //    if (len > 0)
   //      if (sendByte(makeLenPacket(0)) <= 0) return -1; //buffer[size-1] = makeLenPacket(0);
-      
+
   /* send stop byte: always when communication is finished */
   if (sendByte(makeStopPacket(adr)) <= 0) return -1; //buffer[size-1] = makeLenPacket(0);
-      
+
 
   /* Check for NACK and eventually resend data. */
   n = getByte(&c);
@@ -309,7 +309,7 @@ int CSerialThread::sendByte(uint8 c) {
 
 int CSerialThread::getByte(uint8 *c) {
   int cnt = 0, n=-1;
-  
+
   while ((n = read(fd_in, c, 1)) <= 0) {
     if (cnt++ > READTIMEOUT) {
       cerr << "Time out!\n";
@@ -326,20 +326,20 @@ int CSerialThread::getByte(uint8 *c) {
 void CSerialThread::receiveMsg(uint8 adr, int len) {
   int n;
   uint8 c, msg[len];
-  
+
   /* Read data packets. */
     for (int i = 0; i < len; i++) {
 
       /* Get first data packet (i.e. MS bits from data byte). */
       n = getByte(&c); //n = read(fd_in, &c, 1);
       if ((n < 1) || ((c & MASK_L2) != PDAT))
-	return;
+        return;
       msg[i] = (MASK_R4 & c) << 4;
 
       /* Get second data packet (i.e. LS bits from data byte). */
       n = getByte(&c);
       if ((n < 1) || ((c & MASK_L2) != PDAT))
-	return;
+        return;
       msg[i] = msg[i] | (MASK_R4 & c);
 
       //if ((i % 2) == 1) sendAck(adr);
@@ -439,7 +439,7 @@ int CSerialThread::receiveData(uint8 adr, uint8 *cmd, uint8 *data, uint8 maxlen,
   }
   //  }
   sendAck(adr);
-    
+
 //   /* Print out message. */
 //   if (*cmd == CDMSG) {
 //     printMsg(buffer, len);
@@ -451,7 +451,7 @@ int CSerialThread::receiveData(uint8 adr, uint8 *cmd, uint8 *data, uint8 maxlen,
       " (received " << len << " bytes).\n";
     return -1;
   }
-    
+
   /* Copy buffer to data. */
   for (int i = 0; i < len; i++)
     data[i] = buffer[i];
@@ -464,7 +464,7 @@ int CSerialThread::receiveData(uint8 adr, uint8 *cmd, uint8 *data, uint8 maxlen,
 /// redirection function, because we can't call member function direct
 static void* CSerialThread_run(void* p)
 {
-  
+
   bool rv = ((CSerialThread*)p)->run();
   pthread_exit(&rv);
 

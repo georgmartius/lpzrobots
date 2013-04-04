@@ -30,11 +30,11 @@ namespace lpzrobots
 /*****************************************************************************/
 /* SimpleComponent                                                                 */
 /*****************************************************************************/
-    
+
     SimpleComponent::SimpleComponent ( const OdeHandle &odeHandle, const OsgHandle &osgHandle , const ComponentConf& conf = Component::getDefaultConf () ) : Component ( odeHandle, osgHandle , conf )
     {
-	simplePrimitive = NULL;
-    
+        simplePrimitive = NULL;
+
     }
 
     SimpleComponent::~SimpleComponent ()
@@ -43,48 +43,48 @@ namespace lpzrobots
 
     void SimpleComponent::update ()
     {
-	//there is a simplePrimitive, and it is updated
-	if ( simplePrimitive != NULL )
-	    simplePrimitive->update ();
-	//all subcomponents and joints also are updated
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
-	{
-	    connection[n].joint->update ();
-	    connection[n].subcomponent->update ();
-	}
+        //there is a simplePrimitive, and it is updated
+        if ( simplePrimitive != NULL )
+            simplePrimitive->update ();
+        //all subcomponents and joints also are updated
+        for ( int n = 0; n < getNumberSubcomponents (); n++ )
+        {
+            connection[n].joint->update ();
+            connection[n].subcomponent->update ();
+        }
     }
 
     void SimpleComponent::place ( const Pos &pos )
     {
-	Position newpos;
+        Position newpos;
 
-	if ( simplePrimitive != NULL) //there is a simplePrimitive, and its position is updated
-	{
-	    simplePrimitive->setPosition ( osg::Vec3 ( ((Pos)pos).toPosition().x , ((Pos)pos).toPosition().y , ((Pos)pos).toPosition().z ) );
-	}
+        if ( simplePrimitive != NULL) //there is a simplePrimitive, and its position is updated
+        {
+            simplePrimitive->setPosition ( osg::Vec3 ( ((Pos)pos).toPosition().x , ((Pos)pos).toPosition().y , ((Pos)pos).toPosition().z ) );
+        }
 
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
-	{
-	    newpos = connection[n].subcomponent->getPosition () - ((Pos)pos).toPosition ();
-	    connection[n].subcomponent->place ( *(new Pos ( newpos )) );
-	}
+        for ( int n = 0; n < getNumberSubcomponents (); n++ )
+        {
+            newpos = connection[n].subcomponent->getPosition () - ((Pos)pos).toPosition ();
+            connection[n].subcomponent->place ( *(new Pos ( newpos )) );
+        }
     }
 
     void SimpleComponent::place (const osg::Matrix &pose)
     {
-	simplePrimitive->setPose ( pose );
+        simplePrimitive->setPose ( pose );
     }
 
     bool SimpleComponent::collisionCallback (void *data, dGeomID o1, dGeomID o2)
     {
-	for ( int n = 0; n < getNumberSubcomponents (); n++ )
-	{
-//		if ( dynamic_cast <RobotComponent*> ( connection[n].subcomponent )  != NULL ) //if the pointer could be casted to RobotComponent, then it is a RobotComponent
+        for ( int n = 0; n < getNumberSubcomponents (); n++ )
+        {
+//                if ( dynamic_cast <RobotComponent*> ( connection[n].subcomponent )  != NULL ) //if the pointer could be casted to RobotComponent, then it is a RobotComponent
 
-	    if ( connection[n].subcomponent->collisionCallback ( data , o1 , o2 ) )
-		return true; // exit if collision was treated by a robot/component
-	}
-	return false; //a simpleComponent does never handle collisions itself, it uses the standard collisionCallback of the simulation
+            if ( connection[n].subcomponent->collisionCallback ( data , o1 , o2 ) )
+                return true; // exit if collision was treated by a robot/component
+        }
+        return false; //a simpleComponent does never handle collisions itself, it uses the standard collisionCallback of the simulation
     }
 
     void SimpleComponent::doInternalStuff (GlobalData &globalData)
@@ -94,40 +94,40 @@ namespace lpzrobots
 
     Position SimpleComponent::getPosition () const
     {
-	    osg::Vec3 position = simplePrimitive->getPosition();
-	    return Position ( position[0], position[1] , position[2] );
+            osg::Vec3 position = simplePrimitive->getPosition();
+            return Position ( position[0], position[1] , position[2] );
     }
 
     osg::Vec3 SimpleComponent::getPositionbetweenComponents ( Component* component )
     {
-	osg::Vec3 posi1 = getMainPrimitive ()->getPosition ();
-	osg::Vec3 posi2 = component->getMainPrimitive ()->getPosition ();
-	osg::Vec3 anchor = osg::Vec3 ( posi1[0] + ( posi2[0] - posi1[0])/2 , posi1[1] + ( posi2[1] - posi1[1])/2 , posi1[2] + ( posi2[2] - posi1[2])/2 );
+        osg::Vec3 posi1 = getMainPrimitive ()->getPosition ();
+        osg::Vec3 posi2 = component->getMainPrimitive ()->getPosition ();
+        osg::Vec3 anchor = osg::Vec3 ( posi1[0] + ( posi2[0] - posi1[0])/2 , posi1[1] + ( posi2[1] - posi1[1])/2 , posi1[2] + ( posi2[2] - posi1[2])/2 );
 
-	return anchor;
+        return anchor;
     }
 
 
     bool SimpleComponent::setSimplePrimitive ( Primitive* newprimitive )
     {
-	if ( simplePrimitive != NULL )
-	{
-	    simplePrimitive = newprimitive;
-	    return true;
-	}
-	else
-	{
-	    simplePrimitive = newprimitive;
-	    return false;
-	}
+        if ( simplePrimitive != NULL )
+        {
+            simplePrimitive = newprimitive;
+            return true;
+        }
+        else
+        {
+            simplePrimitive = newprimitive;
+            return false;
+        }
     }
 
     Primitive* SimpleComponent::getMainPrimitive () const
     {
-	    if ( simplePrimitive != NULL )
-		return simplePrimitive;
-	    else
-		return NULL;
+            if ( simplePrimitive != NULL )
+                return simplePrimitive;
+            else
+                return NULL;
     }
 }
 

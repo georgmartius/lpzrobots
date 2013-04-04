@@ -55,7 +55,7 @@ namespace lpzrobots {
 
 
   /******************************************************************************/
-  OSGHeightField::OSGHeightField(osg::HeightField* heightfield,float x_size, float y_size) 
+  OSGHeightField::OSGHeightField(osg::HeightField* heightfield,float x_size, float y_size)
     : field(heightfield), x_size(x_size), y_size(y_size)
   {
     int cols = field->getNumColumns();
@@ -64,8 +64,8 @@ namespace lpzrobots {
     field->setYInterval(y_size/(float)(rows-1));
   }
 
-  OSGHeightField::OSGHeightField(const std::string& filename, 
-				 float x_size, float y_size, float height)
+  OSGHeightField::OSGHeightField(const std::string& filename,
+                                 float x_size, float y_size, float height)
     : x_size(x_size), y_size(y_size) {
     field = osgDB::readHeightFieldFile(filename);
     if(!field){
@@ -79,13 +79,13 @@ namespace lpzrobots {
     // scale the height // Todo: find out maximum, currently 1 is assumed
     for(int i=0; i< cols; i++){
       for(int j=0; j< rows; j++){
-	field->setHeight(i,j, field->getHeight(i,j) * height);  
+        field->setHeight(i,j, field->getHeight(i,j) * height);
       }
     }
   }
 
   // overloaded, because transformation goes into heightfield directly
-  void OSGHeightField::setMatrix(const osg::Matrix& m4x4){    
+  void OSGHeightField::setMatrix(const osg::Matrix& m4x4){
     assert(field);
     field->setOrigin(m4x4.getTrans()-Vec3(x_size/2.0, y_size/2.0,0 ));
     Quat q;
@@ -100,11 +100,11 @@ namespace lpzrobots {
     transform = new MatrixTransform;
     if (osgHandle.cfg->noGraphics)
       return;
-    geode = new Geode;  
+    geode = new Geode;
     transform->addChild(geode.get());
     osgHandle.parent->addChild(transform.get());
 
-    //  osgUtil::Simplifier simplifier(.6);    
+    //  osgUtil::Simplifier simplifier(.6);
     //  simplifier.simplify(field);
 
     shape = new ShapeDrawable(field, osgHandle.cfg->tesselhints[quality]);
@@ -115,8 +115,8 @@ namespace lpzrobots {
     }else{
       shape->setStateSet(new StateSet(*osgHandle.cfg->normalState));
     }
-    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(), 
-						       StateAttribute::ON);
+    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(),
+                                                       StateAttribute::ON);
 
     applyTextures();
   }
@@ -137,7 +137,7 @@ namespace lpzrobots {
     }
   }
 
-  
+
   HeightField* OSGHeightField::loadFromPPM(const std::string& filename, double height, CodingMode codingMode){
     HeightField* field = new HeightField();
     ImagePPM image;
@@ -149,15 +149,15 @@ namespace lpzrobots {
     int cols = image.width();
     int rows = image.height();
 
-    field->allocate(cols, rows);    
-    
+    field->allocate(cols, rows);
+
     // copy and convert the image from RGB chars to double heights
     unsigned char* data = image.data();
     for(int j=0; j< rows; j++){
       for(int i=0; i< cols; i++){
-	// use the coding to get the height value and scale it with height
-	field->setHeight(i,j, coding(codingMode, data) * height);  
-	data+=3;
+        // use the coding to get the height value and scale it with height
+        field->setHeight(i,j, coding(codingMode, data) * height);
+        data+=3;
       }
     }
     return field;

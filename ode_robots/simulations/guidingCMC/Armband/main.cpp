@@ -94,7 +94,7 @@ public:
   motor teaching[segmnum];
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(-5.44372, 7.37141, 3.31768),  Pos(-142.211, -21.1623, 0));
     // initialization
@@ -106,10 +106,10 @@ public:
 
     // use Playground as boundary:
 //    playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
-//     // playground->setColor(Color(0,0,0,0.8)); 
-//     playground->setGroundColor(Color(2,2,2,1)); 
+//     // playground->setColor(Color(0,0,0,0.8));
+//     playground->setGroundColor(Color(2,2,2,1));
 //     playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
-//     global.obstacles.push_back(playground);    
+//     global.obstacles.push_back(playground);
     controller=0;
 
     /******* S L I D E R - w H E E L I E *********/
@@ -122,19 +122,19 @@ public:
     mySliderWheelieConf.sliderLength = 0;
     mySliderWheelieConf.motorType    = SliderWheelieConf::CenteredServo;
     //mySliderWheelieConf.drawCenter   = false;
-    vehicle = new SliderWheelie(odeHandle, osgHandle.changeColor(Color(1,222/255.0,0)), 
-				mySliderWheelieConf, "sliderWheelie_" + std::itos(teacher*10000));
+    vehicle = new SliderWheelie(odeHandle, osgHandle.changeColor(Color(1,222/255.0,0)),
+                                mySliderWheelieConf, "sliderWheelie_" + std::itos(teacher*10000));
 
-    vehicle->place(Pos(0,0,0.1));    
+    vehicle->place(Pos(0,0,0.1));
     global.configs.push_back(vehicle);
 
     // create pointer to controller
     // push controller in global list of configurables
-    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
+    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.cInit=1.0;
     cc.useS=false;
     cc.someInternalParams=true;
-    controller = new InvertMotorNStep(cc);  
+    controller = new InvertMotorNStep(cc);
 //     AbstractController* controller = new SineController(~0, SineController::Sine);   // local variable!
 // //     // motorpower 20
 //     controller->setParam("period", 300);
@@ -157,36 +157,36 @@ public:
 
     //    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     AbstractWiring* wiring = new FeedbackWiring(new ColorUniformNoise(0.1),
-						FeedbackWiring::Motor, 0.75);
+                                                FeedbackWiring::Motor, 0.75);
     //plotoptions.push_back(PlotOption(GuiLogger,Robot,5));
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
-    if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, 
-						 change < 50 ? std::itos(change).c_str() : "uni", 50));
+    if(track) agent->setTrackOptions(TrackRobot(true,false,false, false,
+                                                 change < 50 ? std::itos(change).c_str() : "uni", 50));
     global.agents.push_back(agent);
     global.configs.push_back(controller);
-      
-    
+
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(control && controller){
       if(useSym){
-	int k= int(globalData.time/(change*60))%2 == 0 ? 0 : 1; // turn around every 10 minutes
-	motor last[segmnum];
-	controller->getLastMotors(last,segmnum);	
-	for(int i=0; i<segmnum; i++){
-	  double l = last[(i+k+(segmnum)/2)%segmnum];
-	  if(fabs(l)>0.4){
-	    teaching[i] = l;
-	  }else{
-	    teaching[i] = last[i];
-	  }
-	}
+        int k= int(globalData.time/(change*60))%2 == 0 ? 0 : 1; // turn around every 10 minutes
+        motor last[segmnum];
+        controller->getLastMotors(last,segmnum);
+        for(int i=0; i<segmnum; i++){
+          double l = last[(i+k+(segmnum)/2)%segmnum];
+          if(fabs(l)>0.4){
+            teaching[i] = l;
+          }else{
+            teaching[i] = last[i];
+          }
+        }
       }
 
       if(useSym){
-	controller->setMotorTeachingSignal(teaching, segmnum);
+        controller->setMotorTeachingSignal(teaching, segmnum);
       }
 
     }
@@ -196,15 +196,15 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   int index = Simulation::contains(argv,argc,"-sym");
   if(index >0 && argc>index){
-    teacher=atof(argv[index]); 
-    useSym = 1;  
+    teacher=atof(argv[index]);
+    useSym = 1;
   }
   index = Simulation::contains(argv,argc,"-change");
   if(index >0 && argc>index){
-    change=atoi(argv[index]); 
+    change=atoi(argv[index]);
   }
   track = Simulation::contains(argv,argc,"-notrack") == 0;
 
@@ -214,5 +214,5 @@ int main (int argc, char **argv)
   return sim.run(argc, argv) ? 0 :  1;
 }
 
- 
- 
+
+

@@ -50,7 +50,7 @@ WiringSequence::~WiringSequence(){
 void WiringSequence::addWiring(AbstractWiring* wiring){
   assert(!initialised);
   assert(wiring);
-  wirings.push_back(wiring);  
+  wirings.push_back(wiring);
 }
 
 
@@ -64,7 +64,7 @@ bool WiringSequence::initIntern(){
     // initialize the wiring with the output of the last wiring
     (*w)->init(snum,mnum, randGen);
     snum  = (*w)->getControllerSensornumber();
-    mnum  = (*w)->getControllerMotornumber();    
+    mnum  = (*w)->getControllerMotornumber();
   }
   csensornumber = snum;
   cmotornumber  = mnum;
@@ -72,12 +72,12 @@ bool WiringSequence::initIntern(){
   return true;
 }
 
-bool WiringSequence::wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
-				       sensor* csensors, int csensornumber, 
-				       double noiseStrength){
+bool WiringSequence::wireSensorsIntern(const sensor* rsensors, int rsensornumber,
+                                       sensor* csensors, int csensornumber,
+                                       double noiseStrength){
   assert(rsensornumber==this->rsensornumber);
   assert(csensornumber==this->csensornumber);
-  
+
   const sensor* inp =  rsensors;
   int inp_s = rsensornumber;
   sensor* sensorbuf;
@@ -88,23 +88,23 @@ bool WiringSequence::wireSensorsIntern(const sensor* rsensors, int rsensornumber
       sensorbuf = csensors;
       assert(d == csensornumber);
     }else{
-      sensorbuf = new sensor[d]; 
+      sensorbuf = new sensor[d];
     }
     wirings[i]->wireSensors(inp, inp_s, sensorbuf, d, noiseStrength);
     if(i!=0) delete[] inp; // delete buffer, but not in first round
     inp   = sensorbuf;
-    inp_s = d;    
-  }  
+    inp_s = d;
+  }
   return true;
 }
 
 bool WiringSequence::wireMotorsIntern(motor* rmotors, int rmotornumber,
-				      const motor* cmotors, int cmotornumber){
+                                      const motor* cmotors, int cmotornumber){
   assert(rmotornumber==this->rmotornumber);
   assert(cmotornumber==this->cmotornumber);
 
   const motor* inp =  cmotors;
-  int inp_s = cmotornumber;  
+  int inp_s = cmotornumber;
   motor* motorbuf;
   int num = wirings.size();
   for(int i=num-1; i>=0; i--){
@@ -113,13 +113,13 @@ bool WiringSequence::wireMotorsIntern(motor* rmotors, int rmotornumber,
       motorbuf = rmotors;
       assert(d == rmotornumber);
     }else{
-      motorbuf = new motor[d]; 
+      motorbuf = new motor[d];
     }
     wirings[i]->wireMotors(motorbuf, d, inp, inp_s);
     if(i!=num-1) delete[] inp; // delete buffer, but not in first round
     inp   = motorbuf;
-    inp_s = d;    
-  }  
+    inp_s = d;
+  }
   return true;
 
 }

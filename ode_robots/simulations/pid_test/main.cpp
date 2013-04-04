@@ -67,7 +67,7 @@
 #include <ode_robots/playground.h>
 // used passive spheres
 #include <ode_robots/joint.h>
-#include <ode_robots/oneaxisservo.h> 
+#include <ode_robots/oneaxisservo.h>
 
 // used controller
 //#include <selforg/invertnchannelcontroller.h>
@@ -95,7 +95,7 @@ public:
   double freq;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(1.53837, 4.73003, 1.27411),  Pos(154.844, -9.01605, 0));
 
@@ -114,10 +114,10 @@ public:
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
-    //   setGeometry(double length, double width, double	height)
+    // - setting geometry for each wall of playground:
+    //   setGeometry(double length, double width, double        height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 0.5));
@@ -130,9 +130,9 @@ public:
     joint = new SliderJoint(sphere1, global.environment, sphere1->getPosition(), Axis(0,0,1));
     joint->init(odeHandle, osgHandle, true,0.1);
     //    if(useVelServos){
-      servo = new OneAxisServo(joint,-1,1,100,0.2,2);    
+      servo = new OneAxisServo(joint,-1,1,100,0.2,2);
       //    }else{
-      //      servo = new OneAxisServoVel(joint,-1,1,100,0.1,10);    
+      //      servo = new OneAxisServoVel(joint,-1,1,100,0.1,10);
       //    }
 
     box1=new Box(1,1,1);
@@ -148,23 +148,23 @@ public:
     joint2->init(odeHandle, osgHandle, true,0.1);
     joint3 = new SliderJoint(box2, box3, (box1->getPosition() + box2->getPosition())/2, Axis(0,0,1));
     joint3->init(odeHandle, osgHandle, true,0.1);
-    servo2 = new OneAxisServo(joint2,-1,1,100,0.2,2);    
-    servo3 = new OneAxisServo(joint3,-1,1,100,0.2,2);    
+    servo2 = new OneAxisServo(joint2,-1,1,100,0.2,2);
+    servo3 = new OneAxisServo(joint3,-1,1,100,0.2,2);
 
     freq=0.06;
   }
 
   /// addCallback()  optional additional callback function.
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
-    sphere1->update();    
-    joint->update();    
+    sphere1->update();
+    joint->update();
     servo->set(sin(globalData.time/freq));
 
-    box1->update();    
-    box2->update();    
-    box3->update();    
-    joint2->update();    
-    joint3->update();    
+    box1->update();
+    box2->update();
+    box3->update();
+    joint2->update();
+    joint3->update();
     servo2->set(sin(globalData.time/freq));
     servo3->set(sin((globalData.time+1.234567)/freq ));
     // servo->set(0, globalData.time);
@@ -181,8 +181,8 @@ public:
       case 'X' : dBodyAddForce ( box3->getBody(), 0 , 0 , -1000 ); break;
       case 'y' : dBodyAddForce ( sphere1->getBody() , 0 ,0 , 1000 ); break;
       case 'a' : dBodyAddForce ( sphere1->getBody(), 0 , 0 , -1000 ); break;
-      case 'S' : freq*=0.8; printf("FR : %g\n", freq);	break; 
-      case 's' : freq/=0.8; printf("FR : %g\n", freq);	break; 
+      case 'S' : freq*=0.8; printf("FR : %g\n", freq);        break;
+      case 's' : freq/=0.8; printf("FR : %g\n", freq);        break;
       case 'P' : servo->setPower(servo->getPower()+5); printf("KP : %g\n", servo->getPower()); break;
       case 'p' : servo->setPower(servo->getPower()-5); printf("KP : %g\n", servo->getPower()); break;
       case 'D' : servo->setDamping(servo->getDamping()*1.01); printf("KD : %g\n", servo->getDamping()); break;
@@ -190,8 +190,8 @@ public:
       case 'I' : servo->offsetCanceling()*=1.01; printf("KI : %g\n", servo->offsetCanceling()); break;
       case 'i' : servo->offsetCanceling()*=0.99; printf("KI : %g\n", servo->offsetCanceling()); break;
       default:
-	return false;
-	break;
+        return false;
+        break;
       }
     }
     return false;
@@ -202,10 +202,10 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
+
 

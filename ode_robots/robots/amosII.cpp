@@ -578,7 +578,7 @@ namespace lpzrobots {
     }
     // update the graphical representation of the sensorbank
     irSensorBank->update();
-    
+
     for (int i = 0; i < LEG_POS_MAX; i++) {
       if (legContactSensors[LegPos(i)])
         legContactSensors[LegPos(i)]->update();
@@ -665,7 +665,7 @@ namespace lpzrobots {
 
     // color of joint axis
     OsgHandle osgHandleJoint = osgHandle.changeColor("joint");
-    
+
     // change Material substance
     OdeHandle odeHandleBody = odeHandle;
     odeHandleBody.substance.toMetal(3.0);
@@ -1044,25 +1044,25 @@ namespace lpzrobots {
     //-----------------add GoalSensor by Ren------------------------
     if (conf.GoalSensor_references.size()>0)
     {
-    	// Relative position sensor
-    	for (std::vector<Primitive*>::iterator it = conf.GoalSensor_references.begin(); it<conf.GoalSensor_references.end();it++)
-    	{
-    	  // Using 0 as second parameter if exact distance should be given as linear sensor
-    		RelativePositionSensor GoalSensor_tmp(1, 0,Sensor::X|Sensor::Y|Sensor::Z, true);
-    		//max distance for normalization
-    		//exponent for sensor characteristic
-    		//dimensions to sense
-    		//use Z as x-coordinate ( robot was created with vertical capsule or something like that)
-    		//local_coordinates
-    		GoalSensor_tmp.setReference(*it);
-    		GoalSensor.push_back(GoalSensor_tmp);
-    		//sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot, have been declared in sensormotordefinition
-    	}
-    	GoalSensor_active = true;
+            // Relative position sensor
+            for (std::vector<Primitive*>::iterator it = conf.GoalSensor_references.begin(); it<conf.GoalSensor_references.end();it++)
+            {
+              // Using 0 as second parameter if exact distance should be given as linear sensor
+                    RelativePositionSensor GoalSensor_tmp(1, 0,Sensor::X|Sensor::Y|Sensor::Z, true);
+                    //max distance for normalization
+                    //exponent for sensor characteristic
+                    //dimensions to sense
+                    //use Z as x-coordinate ( robot was created with vertical capsule or something like that)
+                    //local_coordinates
+                    GoalSensor_tmp.setReference(*it);
+                    GoalSensor.push_back(GoalSensor_tmp);
+                    //sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot, have been declared in sensormotordefinition
+            }
+            GoalSensor_active = true;
     }
     else
     {
-    	GoalSensor_active =false;
+            GoalSensor_active =false;
     }
     //----------------------Goal Sensor by Ren-----------------------
 
@@ -1097,7 +1097,7 @@ namespace lpzrobots {
           delete legContactSensors[LegPos(i)];
       }
       legContactSensors.clear();
-      
+
       // remove all ignored pairs (brute force method)
       for (PrimitiveList::iterator i = objects.begin(); i != objects.end(); i++) {
         for (PrimitiveList::iterator j = objects.begin(); j != objects.end(); j++) {

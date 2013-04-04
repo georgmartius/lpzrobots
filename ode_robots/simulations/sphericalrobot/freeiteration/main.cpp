@@ -22,17 +22,17 @@ bool check4Number(const char* c){
 }
 
 bool parseDataFile(vector<Matrix>& data, FILE* f){
-  char buffer[1024];  
+  char buffer[1024];
   int i;
   double dat[1024];
   Matrix m;
-  while(fgets(buffer, 1024, f)){    
-    if(buffer[0]=='#') continue;    
+  while(fgets(buffer, 1024, f)){
+    if(buffer[0]=='#') continue;
     i=0;
     char* p;
     p=strtok(buffer," ");
     if(!p) return false;
-    dat[i] = atof(p);    
+    dat[i] = atof(p);
     i++;
     while((p=strtok(NULL," "))!=NULL )  {
       if(!check4Number(p)) continue;
@@ -47,7 +47,7 @@ bool parseDataFile(vector<Matrix>& data, FILE* f){
 
 void writeVecElemNames(ostream& str, const string& name, const Matrix& m){
   for(int i=0; i < m.getM(); i++){
-    str << name << '[' << i << ']' << ' ';    
+    str << name << '[' << i << ']' << ' ';
   }
 }
 
@@ -73,19 +73,19 @@ int main(int argc, char** argv){
   int maxhistory=20;
   DataFunc inp = &tm123;
   DataFunc out = &t;
-  FILE* f;  
+  FILE* f;
 
   /// PARSE Parameter
   index = contains(argv,argc,"-f");
-  if(index!=0 && argc > index) {    
+  if(index!=0 && argc > index) {
     filename = argv[index];
-    cout << "# data file: " << filename << endl;  
+    cout << "# data file: " << filename << endl;
   }
   index = contains(argv,argc,"-n");
   if(index!=0 && argc > index) {
     networkpath = argv[index];
     loadnetwork = true;
-    cout << "# load network: " << networkpath << endl;  
+    cout << "# load network: " << networkpath << endl;
   }
   index = contains(argv,argc,"-i");
   if(index!=0 && argc > index) {
@@ -111,7 +111,7 @@ int main(int argc, char** argv){
     printf("\t-s skip\ttime step to skip (def: 1000)\n");
     exit(0);
   }
-  
+
   /// LOAD FILE
   f = fopen(filename, "r");
   assert(f);
@@ -120,13 +120,13 @@ int main(int argc, char** argv){
     fprintf(stderr, "Cannot parse file");
   }
   fclose(f);
-  
+
   unsigned int inputdim = inp(data,maxhistory).getM();
   unsigned int outputdim = out(data,maxhistory).getM();
 
   /// LOAD/INITALISE NETWORK
   MultiLayerFFNN net(eps, vector<Layer>());
-  
+
   f = fopen(networkpath, "r");
   assert(f);
   if(!net.restore(f)){
@@ -135,32 +135,32 @@ int main(int argc, char** argv){
   }
   fclose(f);
   if(net.getInputDim() != inputdim || net.getOutputDim() != outputdim){
-    cerr << "loaded networks dimension do not fit: observed: " 
-	 << net.getInputDim() << "," << net.getOutputDim()
-	 << " exected: " << inputdim << "," << outputdim << endl;
+    cerr << "loaded networks dimension do not fit: observed: "
+         << net.getInputDim() << "," << net.getOutputDim()
+         << " exected: " << inputdim << "," << outputdim << endl;
     exit(1);
   }
- 
+
   // prediction dataset
   vector<Matrix> preddata;
-   
+
   /// FREE Iteration
   cout << "#C ";
   writeVecElemNames(cout, "Pred",  out(data,maxhistory));
   writeVecElemNames(cout, "Real",  out(data,maxhistory));
   cout << "Error";
-  cout << endl;    
+  cout << endl;
 
   int k=0;
   for(unsigned int i=0; i < data.size(); i++){
     const Matrix& nomout = out(data,i);
-    if(k<=maxhistory){ // copy the 10 timesteps (from start on) into pred      
+    if(k<=maxhistory){ // copy the 10 timesteps (from start on) into pred
       preddata.push_back(nomout);
-      cout << (nomout^T) << (nomout^T) << 0 << endl;     
+      cout << (nomout^T) << (nomout^T) << 0 << endl;
     }else{
       const Matrix& sensors = inp(preddata, k);
       const Matrix& result  = net.process(sensors); // activate with next data in order judge prediction
-      double diff = (nomout - result).multTM().val(0,0);          
+      double diff = (nomout - result).multTM().val(0,0);
       cout << (result^T) << (nomout^T) << diff << endl;
       preddata.push_back(result);
     }
@@ -169,9 +169,9 @@ int main(int argc, char** argv){
       k=0;
       preddata.clear();
       i+=skip;
-      for(int n=0; n<5; n++) cout << Matrix(1,outputdim*2) << 0 << endl;           
+      for(int n=0; n<5; n++) cout << Matrix(1,outputdim*2) << 0 << endl;
     }
-  }  
+  }
   return 0;
 }
 

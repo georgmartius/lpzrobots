@@ -32,8 +32,8 @@ using namespace matrix;
 namespace lpzrobots {
 
   ReplayRobot::ReplayRobot(const OdeHandle& odeHandle,
-		 const OsgHandle& osgHandle,
-		 const char* filename)
+                 const OsgHandle& osgHandle,
+                 const char* filename)
     : OdeRobot(odeHandle, osgHandle, "ReplayRobot", "$Id$"),
       filename(filename){
 
@@ -78,23 +78,23 @@ namespace lpzrobots {
 
     while(fgets(buffer, 1024, f)) {
       if(buffer[0]=='#' && buffer[1]=='C'){
-	// scan line and return
-	i=0;
-	char* p;
-	p=strtok(buffer," ");
-	if(!p) return false; // frist one is #C
-	while((p=strtok(NULL," "))!=NULL )  {
-	  if(p[0]=='x' && p[1]=='['){
-	    if(sensorstart==-1) sensorstart=i;
-	    sensorend=i;
-	  }
-	  if(p[0]=='y' && p[1]=='['){
-	    if(motorstart==-1) motorstart=i;
-	    motorend=i;
-	  }
-	  i++;
-	}
-	return true;
+        // scan line and return
+        i=0;
+        char* p;
+        p=strtok(buffer," ");
+        if(!p) return false; // frist one is #C
+        while((p=strtok(NULL," "))!=NULL )  {
+          if(p[0]=='x' && p[1]=='['){
+            if(sensorstart==-1) sensorstart=i;
+            sensorend=i;
+          }
+          if(p[0]=='y' && p[1]=='['){
+            if(motorstart==-1) motorstart=i;
+            motorend=i;
+          }
+          i++;
+        }
+        return true;
       }
     }
     return false;
@@ -126,21 +126,21 @@ namespace lpzrobots {
     double dat[1024];
     while(fgets(buffer, 1024, f)){
       if(buffer[0]=='#' || isEmpty(buffer)){
-	continue;
+        continue;
       }else{
-	i=0;
-	char* p;
-	p=strtok(buffer," ");
-	if(!p) return false;
-	dat[i] = atof(p);
-	i++;
-	while((p=strtok(NULL," "))!=NULL )  {
-	  if(!check4Number(p)) continue;
-	  dat[i] = atof(p);
-	  i++;
-	};
-	data.set(i,1,dat);
-	return true;
+        i=0;
+        char* p;
+        p=strtok(buffer," ");
+        if(!p) return false;
+        dat[i] = atof(p);
+        i++;
+        while((p=strtok(NULL," "))!=NULL )  {
+          if(!check4Number(p)) continue;
+          dat[i] = atof(p);
+          i++;
+        };
+        data.set(i,1,dat);
+        return true;
       }
     };
     return false;

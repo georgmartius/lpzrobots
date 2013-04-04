@@ -178,7 +178,7 @@ public:
     // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
     // - setting geometry for each wall of playground:
-    //   setGeometry(double length, double width, double	height)
+    //   setGeometry(double length, double width, double        height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
 
@@ -245,11 +245,11 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
-	  return false;
-	  break;
-	}
+        {
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }

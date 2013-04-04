@@ -22,22 +22,22 @@
 
 using namespace std;
 
-void CrossMotorCoupling::step(const sensor* sensors, int sensornumber, 
-			      motor* motors, int motornumber) { 
+void CrossMotorCoupling::step(const sensor* sensors, int sensornumber,
+                              motor* motors, int motornumber) {
 
-  // teaching    
-  const matrix::Matrix& m = teachable->getLastMotorValues();	
+  // teaching
+  const matrix::Matrix& m = teachable->getLastMotorValues();
   controller->step(sensors, sensornumber, motors,  motornumber);
-  matrix::Matrix teaching = m; // default is to teach with the motor value itself 
+  matrix::Matrix teaching = m; // default is to teach with the motor value itself
   for(unsigned int i=0; i< cmc.size(); i++){
     double incom=0;
     FOREACHC(list<int>, cmc[i], src){
-      incom += m.val(*src,0); 
-    }    
+      incom += m.val(*src,0);
+    }
     if(cmc[i].size()>0){ // only if we have incomming connections...
       incom/= cmc[i].size();
       if(abs(incom)>=threshold)
-	teaching.val(i,0)= incom/cmc[i].size();
+        teaching.val(i,0)= incom/cmc[i].size();
     }
   }
   if(cmc.size()){

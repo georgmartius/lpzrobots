@@ -190,15 +190,15 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	case 'b': addObject(odeHandle, osgHandle, globalData, OBox); break;
-	case 'k': addObject(odeHandle, osgHandle, globalData, OSphere); break;
-	case 'c': addObject(odeHandle, osgHandle, globalData, OCaps); break;
-	case 'r': addHumanoid(odeHandle, osgHandle, globalData); break;
-	default:
-	  return false;
-	  break;
-	}
+        {
+        case 'b': addObject(odeHandle, osgHandle, globalData, OBox); break;
+        case 'k': addObject(odeHandle, osgHandle, globalData, OSphere); break;
+        case 'c': addObject(odeHandle, osgHandle, globalData, OCaps); break;
+        case 'r': addHumanoid(odeHandle, osgHandle, globalData); break;
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }

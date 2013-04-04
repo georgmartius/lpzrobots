@@ -47,7 +47,7 @@
 // include simulation environment stuff
 #include <ode_robots/simulation.h>
 
-// arena 
+// arena
 #include <ode_robots/playground.h>
 
 // used passive spheres and boxes
@@ -66,7 +66,7 @@ public:
   enum OType {OBox, OSphere, OCaps};
   int height;
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(-7.90217, 11.727, 5.82483),  Pos(-144.937, -21.2825, 0));
     setCameraMode(Static);
@@ -75,25 +75,25 @@ public:
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
     global.odeConfig.setParam("noise", 0);
-    global.odeConfig.setParam("simstepsize", 0.002); 
+    global.odeConfig.setParam("simstepsize", 0.002);
 
-    
+
     // AbstractGround* playground;
     // playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
-    // playground->setGroundColor(Color(2,2,2,1)); 
+    // playground->setGroundColor(Color(2,2,2,1));
     // playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
-    // global.obstacles.push_back(playground);    
-      
+    // global.obstacles.push_back(playground);
+
     height=0;
-  
-    
+
+
   }
 
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
   };
 
-  virtual void addObject(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+  virtual void addObject(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
                          GlobalData& globalData, OType type){
     OdeHandle handle2 = odeHandle;
     OsgHandle osgHandle2;
@@ -101,35 +101,35 @@ public:
     double size = .5;
     int subtype = rand()%4;
     switch (subtype){
-    case 0: 
+    case 0:
       handle2.substance.toMetal(1);
       osgHandle2 = osgHandle.changeColor(Color(0.5,0.5,0.5));
       break;
-    case 1: 
+    case 1:
       handle2.substance.toPlastic(1);
       osgHandle2 = osgHandle.changeColor(Color(1,1,1));
       break;
-    case 2: 
-      handle2.substance.toRubber(10); 
+    case 2:
+      handle2.substance.toRubber(10);
       osgHandle2 = osgHandle.changeColor(Color(0.2,0.2,0.2));
       break;
-    default: 
+    default:
       handle2.substance.toFoam(5);
       osgHandle2 = osgHandle.changeColor(Color(1,1,0));
       break;
     }
-    
+
     AbstractObstacle* o;
     Pos dim((random_minusone_to_one(0)+1.1)*size, (random_minusone_to_one(0)+1.1)*size, (random_minusone_to_one(0)+1.1)*size);
     switch (type){
     case OBox:
-      o = new PassiveBox(handle2, osgHandle2, dim, dim.x()*dim.y()*dim.z());      
+      o = new PassiveBox(handle2, osgHandle2, dim, dim.x()*dim.y()*dim.z());
       break;
     case OSphere:
-      o = new PassiveSphere(handle2, osgHandle2, dim.x()/2.0, 2.0/3.0*M_PI*pow(dim.x(),3));      
+      o = new PassiveSphere(handle2, osgHandle2, dim.x()/2.0, 2.0/3.0*M_PI*pow(dim.x(),3));
       break;
     case OCaps:
-      o = new PassiveCapsule(handle2, osgHandle2, dim.x()/2.0, dim.z()/2.0, M_PI*sqr(dim.x())*dim.z()/8); 
+      o = new PassiveCapsule(handle2, osgHandle2, dim.x()/2.0, dim.z()/2.0, M_PI*sqr(dim.x())*dim.z()/8);
       break;
     }
     Pos pos((random_minusone_to_one(0))*radius, (random_minusone_to_one(0))*radius, 4+height%3);
@@ -141,19 +141,19 @@ public:
 
 
   // add own key handling stuff here, just insert some case values
-  virtual bool command(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
+  virtual bool command(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
                        GlobalData& globalData, int key, bool down)
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	case 'b': addObject(odeHandle, osgHandle, globalData, OBox); break;
-	case 'k': addObject(odeHandle, osgHandle, globalData, OSphere); break;
-	case 'c': addObject(odeHandle, osgHandle, globalData, OCaps); break;
-	default:
-	  return false;
-	  break;
-	} 
+        {
+        case 'b': addObject(odeHandle, osgHandle, globalData, OBox); break;
+        case 'k': addObject(odeHandle, osgHandle, globalData, OSphere); break;
+        case 'c': addObject(odeHandle, osgHandle, globalData, OCaps); break;
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
@@ -161,8 +161,8 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
-  return sim.run(argc, argv) ? 0 : 1;  
+  return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

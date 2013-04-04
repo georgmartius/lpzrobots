@@ -35,29 +35,29 @@
 #include "IValue.h"
 
 ValueMutationStrategy::ValueMutationStrategy() {
-	// nothing
+        // nothing
 }
 
 ValueMutationStrategy::ValueMutationStrategy(IMutationFactorStrategy* strategy, int mutationProbability) {
-	m_strategy = strategy;
-	m_mutationProbability = mutationProbability;
+        m_strategy = strategy;
+        m_mutationProbability = mutationProbability;
 }
 
 ValueMutationStrategy::~ValueMutationStrategy() {
-	m_strategy = NULL;
+        m_strategy = NULL;
 }
 
 Gen* ValueMutationStrategy::mutate(GenContext* context, Individual* individual, Gen* oldGen, GenContext* oldContext, SingletonGenFactory* factory) {
-	IValue* factor;						//the mutation factor
-	IValue* value;						//the value of the gen
+        IValue* factor;                                                //the mutation factor
+        IValue* value;                                                //the value of the gen
 
-	factor = m_strategy->calcMutationFactor(oldContext->getGene());			//become the mutation factor
-	value = oldGen->getValue()->operator+(*factor);							//become the value of the gen and add the factor
-	//delete factor;
+        factor = m_strategy->calcMutationFactor(oldContext->getGene());                        //become the mutation factor
+        value = oldGen->getValue()->operator+(*factor);                                                        //become the value of the gen and add the factor
+        //delete factor;
 
-	return factory->createGen(context,individual,context->getPrototype(),value);	//create the new gen
+        return factory->createGen(context,individual,context->getPrototype(),value);        //create the new gen
 }
 
 int ValueMutationStrategy::getMutationProbability(void) {
-	return m_mutationProbability;
+        return m_mutationProbability;
 }

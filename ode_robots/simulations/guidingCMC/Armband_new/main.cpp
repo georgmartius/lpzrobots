@@ -117,9 +117,9 @@ int stairs=0;
 class MotorAsSensors : public One2OneWiring {
 public:
   MotorAsSensors(NoiseGenerator* noise, int plotMode=Controller)
-    : One2OneWiring(noise,plotMode, 0) {    
+    : One2OneWiring(noise,plotMode, 0) {
   }
-  virtual ~MotorAsSensors() {} 
+  virtual ~MotorAsSensors() {}
 protected:
   virtual bool initIntern(){
     One2OneWiring::initIntern();
@@ -128,7 +128,7 @@ protected:
     return true;
   }
 
-  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
+  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
                                  sensor* csensors, int csensornumber,
                                  double noise){
     One2OneWiring::wireSensorsIntern(rsensors, rsensornumber, csensors, csensornumber, noise);
@@ -158,7 +158,7 @@ public:
   OdeRobot* vehicle;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(-0.0114359, 6.66848, 0.922832),  Pos(178.866, -7.43884, 0));
     // initialization
@@ -170,10 +170,10 @@ public:
 
     // use Playground as boundary:
 //    playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
-//     // playground->setColor(Color(0,0,0,0.8)); 
-//     playground->setGroundColor(Color(2,2,2,1)); 
+//     // playground->setColor(Color(0,0,0,0.8));
+//     playground->setGroundColor(Color(2,2,2,1));
 //     playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
-//     global.obstacles.push_back(playground);    
+//     global.obstacles.push_back(playground);
     controller=0;
 
     addParameter("k",&k);
@@ -181,10 +181,10 @@ public:
     global.configs.push_back(this);
 
     for(int i=0; i< bars; i++){
-      PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.,0.,0.)), 
-				     osg::Vec3(1,10,0.3+i*.1),0.0);
-      b->setPosition(osg::Vec3(10+i*7,0,0));      
-      global.obstacles.push_back(b);    
+      PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.,0.,0.)),
+                                     osg::Vec3(1,10,0.3+i*.1),0.0);
+      b->setPosition(osg::Vec3(10+i*7,0,0));
+      global.obstacles.push_back(b);
     }
 
     double h = 0.;
@@ -194,12 +194,12 @@ public:
       do{
         h+=(rgen.rand()-.5)*0.6; // values between (-.25.25)
       }while(h<0);
-      PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.3,0.3,0.3)), 
-				     osg::Vec3(1,10,h),0.0);
-      b->setPosition(osg::Vec3(5+i,0,0));      
-      global.obstacles.push_back(b);    
+      PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.3,0.3,0.3)),
+                                     osg::Vec3(1,10,h),0.0);
+      b->setPosition(osg::Vec3(5+i,0,0));
+      global.obstacles.push_back(b);
     }
-      
+
     /******* S L I D E R - w H E E L I E *********/
     SliderWheelieConf mySliderWheelieConf = SliderWheelie::getDefaultConf();
     mySliderWheelieConf.segmNumber   = segmnum;
@@ -210,28 +210,28 @@ public:
     mySliderWheelieConf.sliderLength = 0;
     mySliderWheelieConf.motorType    = SliderWheelieConf::CenteredServo;
     mySliderWheelieConf.showCenter   = false;
-    vehicle = new SliderWheelie(odeHandle, osgHandle.changeColor(Color(1,222/255.0,0)), 
-				mySliderWheelieConf, "sliderWheelie_" + std::itos(teacher*10000));
+    vehicle = new SliderWheelie(odeHandle, osgHandle.changeColor(Color(1,222/255.0,0)),
+                                mySliderWheelieConf, "sliderWheelie_" + std::itos(teacher*10000));
 
-    vehicle->place(Pos(0,0,.1));    
+    vehicle->place(Pos(0,0,.1));
     global.configs.push_back(vehicle);
 
-//     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
+//     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
 //     cc.cInit=1.0;
 //     cc.useS=false;
 //     cc.someInternalParams=true;
-//     InvertMotorNStep *semox = new InvertMotorNStep(cc);  
+//     InvertMotorNStep *semox = new InvertMotorNStep(cc);
 //     semox->setParam("steps", 1);
 //     semox->setParam("continuity", 0.005);
 //     semox->setParam("teacher", teacher);
 
-    SeMoXConf cc = SeMoX::getDefaultConf();    
+    SeMoXConf cc = SeMoX::getDefaultConf();
     //cc.cInit=.95;
     cc.cInit=.5;
     cc.modelExt=false;
     //    cc.someInternalParams=true;
     cc.someInternalParams=false;
-    SeMoX* semox = new SeMoX(cc);  
+    SeMoX* semox = new SeMoX(cc);
 
 //     AbstractController* controller = new SineController(~0, SineController::Sine);   // local variable!
 // //     // motorpower 20
@@ -257,48 +257,48 @@ public:
     //        AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     //AbstractWiring* wiring = new MotorAsSensors(new ColorUniformNoise(0.1));
     AbstractWiring* wiring = new FeedbackWiring(new ColorUniformNoise(0.1),
- 						FeedbackWiring::Motor, 0.75);
+                                                 FeedbackWiring::Motor, 0.75);
     //global.plotoptions.push_back(PlotOption(GuiLogger,Robot,5));
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
-    if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, 
-						 change != 0 ? std::itos(change).c_str() : "uni", 50));
+    if(track) agent->setTrackOptions(TrackRobot(true,false,false, false,
+                                                 change != 0 ? std::itos(change).c_str() : "uni", 50));
     global.agents.push_back(agent);
     global.configs.push_back(controller);
 
     this->getHUDSM()->setColor(Color(1.0,1.0,0));
-    this->getHUDSM()->setFontsize(18);    
+    this->getHUDSM()->setFontsize(18);
     this->getHUDSM()->addMeasure(teacher,"gamma_s",ID,1);
     this->getHUDSM()->addMeasure(k_double,"k",ID,1);
 
     setCMC(k);
     blink=0;
 
-    
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(control && controller){
-      if(useSym && change>0){	
-	int newk= int(globalData.time/(change*60))%2 == 0 ? 0 : 1; // turn around every n minutes
+      if(useSym && change>0){
+        int newk= int(globalData.time/(change*60))%2 == 0 ? 0 : 1; // turn around every n minutes
         if(k!=newk) blink=400;
-	setCMC(newk);
+        setCMC(newk);
       }
       // let the display blink
       if(blink>0){
-        blink--;        
+        blink--;
         HUDStatisticsManager::WindowStatistic* ws = this->getHUDSM()->getMeasureWS("k");
         if(ws){
           ws->getText()->setColor( Color(1.0,1.0,
               int(globalData.time*2)%2 == 0 || blink == 0 ? 0.0 : 1.0));
-        }       
+        }
       }
 
     }
-   
+
   }
 
-  virtual void setCMC(int _k){    
+  virtual void setCMC(int _k){
     k=_k;
     k_double=k;
     std::list<int> perm;
@@ -307,7 +307,7 @@ public:
       perm.push_back((i+k+(len)/2)%len);
     }
     CMC cmc = controller->getPermutationCMC(perm);
-    controller->setCMC(cmc);  
+    controller->setCMC(cmc);
   }
 
   // overloaded from configurable
@@ -321,7 +321,7 @@ public:
       blink=400;
     }
     if(key=="gamma_s"){
-      controller->setParam("gamma_teach", teacher); 
+      controller->setParam("gamma_teach", teacher);
     }
     return rv;
   }
@@ -340,27 +340,27 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   int index = Simulation::contains(argv,argc,"-guide");
   if(index >0 && argc>index){
-    teacher=atof(argv[index]); 
-    useSym = 1;  
+    teacher=atof(argv[index]);
+    useSym = 1;
   }
   index = Simulation::contains(argv,argc,"-k");
   if(index >0 && argc>index){
-    k=atoi(argv[index]); 
+    k=atoi(argv[index]);
   }
   index = Simulation::contains(argv,argc,"-change");
   if(index >0 && argc>index){
-    change=atoi(argv[index]); 
+    change=atoi(argv[index]);
   }
   index = Simulation::contains(argv,argc,"-bars");
   if(index >0 && argc>index){
-    bars=atoi(argv[index]); 
+    bars=atoi(argv[index]);
   }
   index = Simulation::contains(argv,argc,"-stairs");
   if(index >0 && argc>index){
-    stairs=atoi(argv[index]); 
+    stairs=atoi(argv[index]);
   }
   track = Simulation::contains(argv,argc,"-notrack") == 0;
 
@@ -370,5 +370,5 @@ int main (int argc, char **argv)
   return sim.run(argc, argv) ? 0 :  1;
 }
 
- 
- 
+
+

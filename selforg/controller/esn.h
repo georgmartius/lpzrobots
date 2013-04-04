@@ -26,16 +26,17 @@
 
 
 #include <stdio.h>
-#include <selforg/abstractmodel.h>
+#include <cmath>
+#include <selforg/invertablemodel.h>
 #include <selforg/matrix.h>
 
 
 struct ESNConf {
-  int numNeurons;         ///< number of neurons in the reservoir
-  double connectionStrength; ///< strength of internal and input connections
-  double connectionRatio; ///< ratio of internal connections w.r.t full connectivity
-  double inRatio;         ///< ratio of input connections w.r.t full connectivity
-  double outRatio;        ///< ratio of output connections w.r.t full connectivity
+  int numNeurons;            ///< number of neurons in the reservoir
+  double inputStrength;      ///< strength of input to reservoir connections
+  double inputRatio;         ///< ratio of input connections w.r.t full connectivity
+  double connectionRatio;    ///< ratio of internal connections w.r.t full connectivity
+  double spectralRadius;     ///< largest eigenvalue of internal weights
   double learningrate;
   /// switch on to get the internal weights and activations inspectabe
   bool   inspectInternals;
@@ -48,7 +49,7 @@ struct ESNConf {
  * period is the length of the period in steps and
  * phaseshift is the phase difference between channels given in Pi/2
  */
-class ESN : public AbstractModel {
+class ESN : public InvertableModel {
 public:
 
   /**
@@ -60,11 +61,12 @@ public:
   static ESNConf getDefaultConf() {
     ESNConf c;
     c.numNeurons = 100;
-    c.connectionStrength = 0.1;
+    c.inputStrength = 0.1;
+    c.inputRatio = 1;
     c.connectionRatio = 0.1;
-    c.inRatio = 0.2;
-    c.outRatio = 0.2;
+    c.spectralRadius  = 0.9;
     c.inspectInternals = false;
+    c.learningrate=0.01;
     return c;
   }
 
@@ -93,6 +95,22 @@ public:
 				      const matrix::Matrix& nom_output,
 				      double learnRateFactor = 1);
 
+  /* calculates the partial derivative of the of the output with repect to the input (Jacobi matrix).
+
+      \f[J_{ij} = \frac{\partial output_i}{\partial input_j}\f]
+
+      The input is ignored, the network must  be processed or learned before!
+   */
+  virtual const matrix::Matrix response(const matrix::Matrix& _input) const;
+
+  /* calculates the input shift v to given output shift xsi via pseudo inversion.
+
+      \f[o+\xi = \pi(i+v)\f]
+
+      The input is ignored, the network must  be processed or learned before!
+   */
+  virtual const matrix::Matrix inversion(const matrix::Matrix& input, const matrix::Matrix& xsi) const;
+
   /// damps the weights and the biases by multiplying (1-damping)
   virtual void damp(double damping);
 
@@ -106,7 +124,11 @@ public:
   virtual bool restore(FILE*);
 
 
-
+  static double tanh_prime(double z)
+  {
+    double k=tanh(z);
+    return 1.0 - k*k;
+  };
 
 protected:
 
@@ -116,9 +138,12 @@ protected:
   int nbOutputs;
   matrix::Matrix inputWeights;
   matrix::Matrix outputWeights;
-  matrix::Matrix ESNNeurons;
+  matrix::Matrix outputDirectWeights;
+  matrix::Matrix ESNState;
+  matrix::Matrix ESNActivations;
   matrix::Matrix ESNWeights;
   double error;
+  bool initialized;
 
   //
 };

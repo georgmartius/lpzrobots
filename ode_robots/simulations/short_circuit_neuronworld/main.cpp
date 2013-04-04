@@ -82,9 +82,9 @@ SineWhiteNoise* sineNoise;
 class ThisSim : public Simulation {
 
 public:
-  
+
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
 
@@ -95,15 +95,15 @@ public:
     global.odeConfig.setParam("realtimefactor", 0);
 
 
-//    OdeRobot* robot = new ShortCircuit(odeHandle, osgHandle, channels, channels);  
-      NeuronWorldConf conf = NeuronWorld::getDefaultConf();  
+//    OdeRobot* robot = new ShortCircuit(odeHandle, osgHandle, channels, channels);
+      NeuronWorldConf conf = NeuronWorld::getDefaultConf();
       conf.theta_const  = my_theta_const;
-      conf.gamma  = my_gamma; 
-      conf.w  = my_w; 
+      conf.gamma  = my_gamma;
+      conf.w  = my_w;
       conf.neuron_type = linear;
       std::ostringstream tmp_name;
       tmp_name<<"ga"<<my_gamma<<"_th"<<my_theta_const<<"_w"<<my_w;
-      OdeRobot* robot = new NeuronWorld(odeHandle, osgHandle, channels, channels, conf, tmp_name.str());  
+      OdeRobot* robot = new NeuronWorld(odeHandle, osgHandle, channels, channels, conf, tmp_name.str());
       global.configs.push_back(robot);
 
 
@@ -111,7 +111,7 @@ public:
 //     cc.cInit=1;
 //     cc.cNonDiag=0.5;
 //     cc.someInternalParams=false;
-//     AbstractController *controller = new InvertMotorNStep(cc);  
+//     AbstractController *controller = new InvertMotorNStep(cc);
     //AbstractController *controller = new InvertNChannelController(100);
     AbstractController *controller = new InvertNChannelController(100, /*update_only_1=*/false, /*model_type=*/InvertNChannelController::bias);
     global.configs.push_back(controller);
@@ -134,10 +134,10 @@ public:
 //     c.useFirstD=false;
 //     c.derivativeScale=20;
 //     c.blindMotorSets=0;
-//     AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.05)); 
+//     AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.05));
     agent->init(controller, robot, wiring);
     global.agents.push_back(agent);
-    
+
   }
 
 
@@ -167,16 +167,16 @@ public:
 //   {
 //     if (down) { // only when key is pressed, not when released
 //       switch ( (char) key )
-// 	{
-// 	default:
-// 	  return false;
-// 	  break;
-// 	}
+//         {
+//         default:
+//           return false;
+//           break;
+//         }
 //     }
 //     return false;
 //   }
 
-  
+
 };
 
 void printUsage(const char* progname){
@@ -185,9 +185,9 @@ void printUsage(const char* progname){
 }
 
 int main (int argc, char **argv)
-{  
+{
   if(argc <= 1){
-    printUsage(argv[0]);  
+    printUsage(argv[0]);
     return -1;
   }
   channels = std::max(1,atoi(argv[1]));
@@ -202,7 +202,7 @@ int main (int argc, char **argv)
       for (int w=0;w<49;w++){
         my_gamma = g*0.5; // wenn g<3 grenzfall waere: if (my_gamma==1) my_gamma=0.99;
         my_theta_const = t*0.05 - 1.2;
-        my_w= w*0.05 - 1.2;  
+        my_w= w*0.05 - 1.2;
         if ( (w<0.001) && (w>-0.001) ) w=0; // sonst Probleme im Dateinamen  (1.11022e-16)
         ThisSim sim;
         sim.run(argc, argv);
@@ -215,7 +215,7 @@ return 1;
         //sim.~Simulation();
        loopcounter++;
        std::cout<<std::endl<<"run "<<loopcounter<<" of "<<loopmax<<" finished"<<std::endl<<std::endl;
- 
+
        // generate name of robot and hence of logfile
        std::ostringstream tmp_name;
        tmp_name<<"ga"<<my_gamma<<"_th"<<my_theta_const<<"_w"<<my_w;
@@ -234,14 +234,14 @@ return 1;
        system(test2.c_str());
 
 
-//       // Do mathematica stuff 
+//       // Do mathematica stuff
 //       std::ofstream myfile("mathematica_commands.tmp", std::ios::trunc); // trunc -> alten Dateiinhalt loeschen
-//       if (myfile.is_open()){   
+//       if (myfile.is_open()){
 //         myfile << "Print[\"Processing  "<<tmp_name.str()<<".dat\"] \n";
 //         myfile << "x = ReadList[\"./"<<tmp_name.str()<<".dat\", Number, RecordLists -> True]; \n";
 //         myfile << "F = Abs[Fourier[ x[[1 ;; 50000, 2]] - Mean[x[[1 ;; 50000, 2]]] ] ]^2;\n";
 //         myfile << "pos = Position[F[[1;;25000]], Max[F[[1;;25000]]]] [[1,1]]\n";
-//         myfile << "out=StringForm[\"``	``	``	``\","<<my_gamma<<","<<my_theta_const<<", "<<my_w<<", pos];\n";
+//         myfile << "out=StringForm[\"``        ``        ``        ``\","<<my_gamma<<","<<my_theta_const<<", "<<my_w<<", pos];\n";
 //         myfile << "Print[out]\n";
 //         myfile << "Exit[]\n";
 //         myfile.close();
@@ -275,9 +275,9 @@ return 1;
   //  return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
+
 /*
-Mit 
+Mit
 invertmotornstep/motorspace
   epsC=epsA=0.6
   noise=0.05

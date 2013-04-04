@@ -112,7 +112,7 @@ public:
   int useTeaching;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(-5.44372, 7.37141, 3.31768),  Pos(-142.211, -21.1623, 0));
     // initialization
@@ -124,17 +124,17 @@ public:
 
     // use Playground as boundary:
     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(100, 0.2, 1), 2);
-    // playground->setColor(Color(0,0,0,0.8)); 
+    // playground->setColor(Color(0,0,0,0.8));
     playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
-    global.obstacles.push_back(playground);    
+    global.obstacles.push_back(playground);
 
     for(int i=0; i<0; i++){ //20
       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5,10);
       s->setPosition(osg::Vec3(-4+2*(i/5),-4+2*(i%5),2));
-      global.obstacles.push_back(s);    
+      global.obstacles.push_back(s);
     }
-    
-    Nimm2Conf c = Nimm2::getDefaultConf();    
+
+    Nimm2Conf c = Nimm2::getDefaultConf();
     c.sphereWheels=false;
     c.sphereWheels=false;
 
@@ -144,14 +144,14 @@ public:
 
     // create pointer to controller
     // push controller in global list of configurables
-    //  AbstractController *controller = new InvertNChannelController(10);      
-    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
+    //  AbstractController *controller = new InvertNChannelController(10);
+    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.cInit=1.0;
     cc.useS=false;
-    
+
     useTeaching=0;
-    
-    controller = new InvertMotorNStep(cc);  
+
+    controller = new InvertMotorNStep(cc);
     controller->setParam("adaptrate", 0.000);
     //    controller->setParam("nomupdate", 0.0005);
     controller->setParam("epsC", 0.1);
@@ -165,38 +165,38 @@ public:
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
     global.configs.push_back(controller);
-      
-    
+
+
   }
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet
   virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
-    if (!down) return false;    
+    if (!down) return false;
     bool handled = false;
     // FILE* f;
     //    double m;
     //    motor motors[2];
     switch ( key )
       {
-      case 'u' : 
-	teaching[0] = std::min(0.95, teaching[0]+0.1);
-	teaching[1] = std::min(0.95, teaching[1]+0.1);
-	printf("Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
-	handled = true; 
-	break;
-      case 'j' : 
-	teaching[0] = std::max(-0.95, teaching[0]-0.1);
-	teaching[1] = std::max(-0.95, teaching[1]-0.1);
-	printf("Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
-	handled = true; 
-	break;
-      case 'i' : 
-	useTeaching = (useTeaching+1)%3;
-	printf("%s\n", useTeaching==0 ? "Teaching disabled" : 
-	       (useTeaching ==1 ? "enabled motor teaching" : "enabled sensor teaching"));
-	handled = true; 
-	break;
+      case 'u' :
+        teaching[0] = std::min(0.95, teaching[0]+0.1);
+        teaching[1] = std::min(0.95, teaching[1]+0.1);
+        printf("Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
+        handled = true;
+        break;
+      case 'j' :
+        teaching[0] = std::max(-0.95, teaching[0]-0.1);
+        teaching[1] = std::max(-0.95, teaching[1]-0.1);
+        printf("Teaching Signal: %f, %f\n", teaching[0], teaching[1]);
+        handled = true;
+        break;
+      case 'i' :
+        useTeaching = (useTeaching+1)%3;
+        printf("%s\n", useTeaching==0 ? "Teaching disabled" :
+               (useTeaching ==1 ? "enabled motor teaching" : "enabled sensor teaching"));
+        handled = true;
+        break;
       }
     fflush(stdout);
     return handled;
@@ -224,10 +224,10 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 :  1;
 }
 
- 
- 
+
+

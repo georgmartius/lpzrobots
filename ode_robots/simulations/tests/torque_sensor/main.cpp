@@ -219,7 +219,7 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
+        {
         case 'k':
           value+=.1;
           if(amotor)
@@ -244,10 +244,10 @@ public:
             amotor->set(1,value2);
           printf("value1: %f\n", value2);
           break;
-	default:
-	  return false;
-	  break;
-	}
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }

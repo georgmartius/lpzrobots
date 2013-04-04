@@ -121,16 +121,16 @@ public:
     playground->setTexture("Images/really_white.rgb");
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
-        
+
     TerrainGround* terrainground =
       new TerrainGround(groundHandle, osgHandle.changeColor(Color(1.0f,1.0,0.0/*196.0/255.0,41.0/255.0*/)),
-//			"terrains/macrospheresTex_256.ppm",
-			"terrains/zoo_landscape1.ppm",
-//			"terrains/terrain_bumpInDip128.ppm",
-			//"",
-//			"Images/dusty.rgb",
-			"terrains/zoo_landscape_texture.ppm",
-			20, 20, height, OSGHeightField::Red);
+//                        "terrains/macrospheresTex_256.ppm",
+                        "terrains/zoo_landscape1.ppm",
+//                        "terrains/terrain_bumpInDip128.ppm",
+                        //"",
+//                        "Images/dusty.rgb",
+                        "terrains/zoo_landscape_texture.ppm",
+                        20, 20, height, OSGHeightField::Red);
     terrainground->setPose(osg::Matrix::translate(0, 0, 0.1));
     global.obstacles.push_back(terrainground);
 
@@ -139,9 +139,9 @@ public:
 
     for(int i=0; i<3; i++){
       PassiveSphere* s =
-	new PassiveSphere(odeHandle,
-			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)),
-			  0.3);
+        new PassiveSphere(odeHandle,
+                          osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)),
+                          0.3);
       s->setPosition(Pos(-1 , i*2-2, height+0.05));
       s->setTexture("Images/dusty.rgb");
       global.obstacles.push_back(s);
@@ -149,8 +149,8 @@ public:
 
 //     for(int i=0; i<5; i++){
 //       PassiveBox* b =
-// 	new PassiveBox(odeHandle,
-// 			  osgHandle, osg::Vec3(0.2+i*0.1,0.2+i*0.1,0.2+i*0.1));
+//         new PassiveBox(odeHandle,
+//                           osgHandle, osg::Vec3(0.2+i*0.1,0.2+i*0.1,0.2+i*0.1));
 //       b->setPosition(Pos(i*0.5-5, i*0.5, height));
 //       b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
 //       b->setTexture("Images/light_chess.rgb");
@@ -159,7 +159,7 @@ public:
 
 //     for(int i=0; i<5; i++){
 //       PassiveCapsule* c =
-// 	new PassiveCapsule(odeHandle, osgHandle, 0.2f, 0.3f, 0.3f);
+//         new PassiveCapsule(odeHandle, osgHandle, 0.2f, 0.3f, 0.3f);
 //       c->setPosition(Pos(i-1, -i, height));
 //       c->setColor(Color(0.2f,0.2f,1.0f,0.5f));
 //       c->setTexture("Images/light_chess.rgb");
@@ -181,7 +181,7 @@ public:
 //     myCaterPillarConf.frictionJoint=0.01;
 //     myCaterPillar =
 //       new CaterPillar ( odeHandle, osgHandle.changeColor(Color(1.0f,0.0,0.0)),
-// 			myCaterPillarConf, "Raupe");
+//                         myCaterPillarConf, "Raupe");
 //     ((OdeRobot*) myCaterPillar)->place(Pos(-5,-5,height));
 
 //      invertnconf.cInit=2.0;
@@ -201,7 +201,7 @@ public:
       SchlangeServo2* snake;
       SchlangeConf snakeConf = SchlangeServo2::getDefaultConf();
       snakeConf.segmNumber=4;
-      
+
       snake = new SchlangeServo2 ( odeHandle, osgHandle, snakeConf, "SchlangeLong" );
       ((OdeRobot*) snake)->place(Pos(4,4+3*r,height));
       controller = new InvertMotorNStep(invertnconf);
@@ -240,7 +240,7 @@ public:
       controller->setParam("s4avg",3);
       controller->setParam("factorB",0.1); // not needed here and it does some harm on the behaviour
       wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-      agent = new OdeAgent(global); //  std::list<PlotOption>() 
+      agent = new OdeAgent(global); //  std::list<PlotOption>()
       agent->init(controller, robot, wiring);
       global.agents.push_back(agent);
     }
@@ -272,17 +272,17 @@ public:
       wiring = new One2OneWiring(new ColorUniformNoise(0.05));
       agent = new OdeAgent( global, plotoptions );
       agent->init(controller, snake, wiring);
-			       global.configs.push_back(controller);
-			       global.agents.push_back(agent);
+                               global.configs.push_back(controller);
+                               global.agents.push_back(agent);
     }
 
     //****** S P H E R E **********/
-    for(int r=0; r < numSphere; r++) {    
+    for(int r=0; r < numSphere; r++) {
       Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       Sphererobot3Masses* sphere1 =
-	new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(r!=1,r==4,r==1)),
-				 conf, "Sphere_" + std::itos(r), 0.2);
+        new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(r!=1,r==4,r==1)),
+                                 conf, "Sphere_" + std::itos(r), 0.2);
       ((OdeRobot*)sphere1)->place ( Pos( -2.5*r , 0 , height+0.05));
       controller = new InvertMotorSpace(15);
       One2OneWiring* wiring2 = new One2OneWiring ( new ColorUniformNoise() );
@@ -308,24 +308,24 @@ public:
       conf.frictionJoint=0.1;
       PlattfussSchlange* schlange1;
       if (i==0) {
-	schlange1 =
-	  //new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
-	  new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),
-				  conf, "S1");
-	schlange1->setHeadColor(Color(1.0,0,0));
+        schlange1 =
+          //new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
+          new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),
+                                  conf, "S1");
+        schlange1->setHeadColor(Color(1.0,0,0));
       } else {
-	schlange1 =
-	  //new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
-	  new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(0.8, 0.4, .3)),
-				  conf, "S2");
-	schlange1->setHeadColor(Color(0,1.0,0));
+        schlange1 =
+          //new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
+          new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(0.8, 0.4, .3)),
+                                  conf, "S2");
+        schlange1->setHeadColor(Color(0,1.0,0));
       }
       schlange1->setTexture("Images/whitemetal_farbig_small.rgb");
 
       //Positionieren und rotieren
       schlange1->place(osg::Matrix::rotate(M_PI/2, 0, 1, 0)*
-		       // osg::Matrix::translate(-.7+0.7*i,0,(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
-		       osg::Matrix::translate(-7+0.7*i,0,(i+1)*(2+conf.segmNumber)/2.0/*+2*/));
+                       // osg::Matrix::translate(-.7+0.7*i,0,(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
+                       osg::Matrix::translate(-7+0.7*i,0,(i+1)*(2+conf.segmNumber)/2.0/*+2*/));
       DerControllerConf cc = DerController::getDefaultConf();
       cc.cInit=1.15;
       AbstractController *controller = new DerController(cc);
@@ -378,25 +378,25 @@ public:
       //PlattfussSchlange* schlange1;
       SchlangeServo2* schlange1;
       if (i==0) {
-	schlange1 =
-	  new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
-			       //  new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),
-			       conf, "S1_" + std::itos(i));
+        schlange1 =
+          new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
+                               //  new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(1.0, 1.0, 1.0)),
+                               conf, "S1_" + std::itos(i));
       } else {
-	schlange1 =
-	  new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
-			       // new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(0.8, 0.4, .3)),
-			       conf, "S2_" + std::itos(i));
+        schlange1 =
+          new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
+                               // new PlattfussSchlange ( odeHandle, osgHandle.changeColor(Color(0.8, 0.4, .3)),
+                               conf, "S2_" + std::itos(i));
       }
       //Positionieren und rotieren
       schlange1->place(osg::Matrix::rotate(M_PI/2, 0, 1, 0)*
-		       // osg::Matrix::translate(-.7+0.7*i,0,(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
-		       osg::Matrix::translate(-.7+0.7*i,0,(i+1)*(2+conf.segmNumber)/2.0/*+2*/));
+                       // osg::Matrix::translate(-.7+0.7*i,0,(i+1)*(.2+conf.segmNumber)/2.0/*+2*/));
+                       osg::Matrix::translate(-.7+0.7*i,0,(i+1)*(2+conf.segmNumber)/2.0/*+2*/));
       schlange1->setTexture("Images/whitemetal_farbig_small.rgb");
       if (i==0) {
-	schlange1->setHeadColor(Color(1.0,0,0));
+        schlange1->setHeadColor(Color(1.0,0,0));
       } else {
-	schlange1->setHeadColor(Color(0,1.0,0));
+        schlange1->setHeadColor(Color(0,1.0,0));
       }
 
 
@@ -441,7 +441,7 @@ public:
 
 
 
-    
+
   }
 
   // add own key handling stuff here, just insert some case values
@@ -449,11 +449,11 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
-	  return false;
-	  break;
-	}
+        {
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }

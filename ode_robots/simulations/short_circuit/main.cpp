@@ -113,7 +113,7 @@ class ThisSim : public Simulation {
 
 public:
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
 
@@ -123,20 +123,20 @@ public:
     global.odeConfig.setParam("drawinterval", 50);
 
 
-    OdeRobot* robot = new ShortCircuit(odeHandle, osgHandle, channels, channels);  
+    OdeRobot* robot = new ShortCircuit(odeHandle, osgHandle, channels, channels);
 //     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
 //     cc.cInit=1;
 //     cc.cNonDiag=0.5;
 //     cc.someInternalParams=false;
-//     AbstractController *controller = new InvertMotorNStep(cc);  
+//     AbstractController *controller = new InvertMotorNStep(cc);
     AbstractController *controller = new InvertNChannelController(10);
-    
-    //  AbstractController *controller = new InvertNChannelController_NoBias(40);  
+
+    //  AbstractController *controller = new InvertNChannelController_NoBias(40);
     controller->setParam("eps",0.2);
     //  controller->setParam("factor_a",0.00);
     //  controller->setParam("eps",0.01);
-     //AbstractController *controller = new InvertMotorSpace(10,1);  
-    //    AbstractController *controller = new SineController();  
+     //AbstractController *controller = new InvertMotorSpace(10,1);
+    //    AbstractController *controller = new SineController();
     //controller->setParam("nomupdate",0.001);
     controller->setParam("sinerate",100.0);
     controller->setParam("phaseshift",0.6);
@@ -146,29 +146,29 @@ public:
     controller->setParam("factorB",0.0);
     controller->setParam("noiseB",0.0);
     controller->setParam("steps",1);
-    //  AbstractController *controller = new InvertNChannelController(10);  
+    //  AbstractController *controller = new InvertNChannelController(10);
     //AbstractController *controller = new SineController();
-    
+
     OdeAgent* agent = new OdeAgent(global);
-    
+
     // sineNoise = new SineWhiteNoise(omega,2,M_PI/2);
     // One2OneWiring* wiring = new One2OneWiring(sineNoise, true);
     One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise(), true);
     //    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.05), true);
-    
+
     //AbstractWiring* wiring = new SelectiveOne2OneWiring(sineNoise, &select_firsthalf);
     // DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
 //     c.useId=true;
 //     c.useFirstD=false;
 //     c.derivativeScale=20;
 //     c.blindMotorSets=0;
-//     AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.05)); 
+//     AbstractWiring* wiring = new DerivativeWiring(c, new ColorUniformNoise(0.05));
     agent->init(controller, robot, wiring);
     global.agents.push_back(agent);
-    
+
     global.configs.push_back(controller);
-    
-    
+
+
   }
 
 
@@ -198,16 +198,16 @@ public:
 //   {
 //     if (down) { // only when key is pressed, not when released
 //       switch ( (char) key )
-// 	{
-// 	default:
-// 	  return false;
-// 	  break;
-// 	}
+//         {
+//         default:
+//           return false;
+//           break;
+//         }
 //     }
 //     return false;
 //   }
 
-  
+
 };
 
 void printUsage(const char* progname){
@@ -216,18 +216,18 @@ void printUsage(const char* progname){
 }
 
 int main (int argc, char **argv)
-{  
+{
   if(argc <= 1){
-    printUsage(argv[0]);  
+    printUsage(argv[0]);
     return -1;
   }
   channels = std::max(1,atoi(argv[1]));
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+
 /*
-Mit 
+Mit
 invertmotornstep/motorspace
   epsC=epsA=0.6
   noise=0.05

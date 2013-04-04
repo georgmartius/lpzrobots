@@ -63,7 +63,7 @@ using namespace std;
 class ThisSim : public Simulation {
 public:
   enum Grounds { Normal, Octa, Pit, Uterus, Stacked };
-  
+
   // playground parameter
   const static double widthground = 1025.85;// 100; //1.3;
   const static double heightground = .8;// 1.2;
@@ -74,7 +74,7 @@ public:
 
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos (Pos(3.46321, 10.6081, 2.74255),  Pos(161.796, -3.69849, 0));
 
@@ -97,7 +97,7 @@ public:
     // - set noise to 0.0
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
     global.odeConfig.setParam("controlinterval",5);//4);
-    global.odeConfig.setParam("noise",0.0); 
+    global.odeConfig.setParam("noise",0.0);
     global.odeConfig.setParam("realtimefactor",1);
     global.odeConfig.setParam("simstepsize",0.004);//0.004);
     global.odeConfig.setParam("gravity", -6);
@@ -108,7 +108,7 @@ public:
     //************************* SELECT PLAYGROUND HERE ******************?
     setupPlaygrounds(odeHandle, osgHandle, global,  Normal);
 
-   
+
 
    for (int i=0; i< humanoids; i++){ //Several humans
      if (i>0) reckturner=false;
@@ -124,25 +124,25 @@ public:
      conf.useOrientationSensor=false;
 
      conf.jointLimitFactor = 1.1;
-    
+
 
      OdeHandle skelHandle=odeHandle;
      // skelHandle.substance.toMetal(1);
     //     skelHandle.substance.toPlastic(.5);//TEST sonst 40
      // skelHandle.substance.toRubber(5.00);//TEST sonst 40
-     Rhoenrad* human = new Rhoenrad(skelHandle, osgHandle,conf, "Humanoid");           
+     Rhoenrad* human = new Rhoenrad(skelHandle, osgHandle,conf, "Humanoid");
      robot=human;
      human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
-		  //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
-		  *osg::Matrix::translate(.2*i,2*i,.841/*7*/ +2*i));
+                  //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
+                  *osg::Matrix::translate(.2*i,2*i,.841/*7*/ +2*i));
      global.configs.push_back(human);
-      
-      
+
+
      if( fixedInAir){
        Primitive* trunk = human->getMainPrimitive();
-      
+
        fixator = new FixedJoint(trunk, global.environment);
-       //       // fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) , 		   Axis(0,0,1), Axis(0,1,0));
+       //       // fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) ,                    Axis(0,0,1), Axis(0,1,0));
        fixator->init(odeHandle, osgHandle);
      }
 
@@ -162,92 +162,92 @@ public:
      //   AbstractController* controller = new SineController(1<<14); // only motor 14
      // controller = new MotorBabbler();
      //AbstractController* controller = new SineController(0,SineController::Impulse);
-      
+
      global.configs.push_back(controller);
-      
+
      // create pointer to one2onewiring
      One2OneWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
      // DerivativeWiringConf c = DerivativeWiring::getDefaultConf();
      // c.useId = true;
      // c.useFirstD = false;
-     // DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(.2) );            
+     // DerivativeWiring* wiring = new DerivativeWiring ( c , new ColorUniformNoise(.2) );
 
      OdeAgent* agent = new OdeAgent(global);
      agent->init(controller, human, wiring);
      //agent->startMotorBabblingMode(5000);
      //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
-     global.agents.push_back(agent);      
+     global.agents.push_back(agent);
    }// Several humans end
-    
-   
+
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(control &&!pause){
       if(centerforce!=0){
-	// force to center
-	FOREACH(vector<OdeAgent*> , globalData.agents, a){
-	  Primitive* body = (*a)->getRobot()->getMainPrimitive();
-	  osg::Vec3 pos = body->getPosition();
-	  osg::Vec3 d = (center - pos);
-	  dBodyAddForce(body->getBody(), d.x()*centerforce, d.y()*centerforce,  d.z()*centerforce*10.8);//1.8
-	}
+        // force to center
+        FOREACH(vector<OdeAgent*> , globalData.agents, a){
+          Primitive* body = (*a)->getRobot()->getMainPrimitive();
+          osg::Vec3 pos = body->getPosition();
+          osg::Vec3 d = (center - pos);
+          dBodyAddForce(body->getBody(), d.x()*centerforce, d.y()*centerforce,  d.z()*centerforce*10.8);//1.8
+        }
       }
       if(forwardforce!=0){
-	// force forwards
-	FOREACH(vector<OdeAgent*> , globalData.agents, a){
-	  Primitive* body = (*a)->getRobot()->getMainPrimitive();
-	  osg::Matrix pose = body->getPose();
-	  // transform a local point ahead of robot into global coords
-	  // note that the internal corrd of the main primitive has z towards the front
-	  Pos point = (Pos(0,0,1)*pose ); 
-	  point.z()=pose.getTrans().z();  // only use x,y component (this can be commented out)
-	  Pos d = (point - pose.getTrans());
-	  d.normalize();
+        // force forwards
+        FOREACH(vector<OdeAgent*> , globalData.agents, a){
+          Primitive* body = (*a)->getRobot()->getMainPrimitive();
+          osg::Matrix pose = body->getPose();
+          // transform a local point ahead of robot into global coords
+          // note that the internal corrd of the main primitive has z towards the front
+          Pos point = (Pos(0,0,1)*pose );
+          point.z()=pose.getTrans().z();  // only use x,y component (this can be commented out)
+          Pos d = (point - pose.getTrans());
+          d.normalize();
 
-	  dBodyAddForce(body->getBody(), 
-			d.x()*forwardforce, d.y()*forwardforce, d.z()*forwardforce);
-	  if(!forcepoint){
-	    forcepoint = new Sphere(0.1);
-	    forcepoint->init(odeHandle, 0, osgHandle /*osgHandle.changeAlpha(0.4)*/, 
-			     Primitive::Geom | Primitive::Draw);
+          dBodyAddForce(body->getBody(),
+                        d.x()*forwardforce, d.y()*forwardforce, d.z()*forwardforce);
+          if(!forcepoint){
+            forcepoint = new Sphere(0.1);
+            forcepoint->init(odeHandle, 0, osgHandle /*osgHandle.changeAlpha(0.4)*/,
+                             Primitive::Geom | Primitive::Draw);
   }
-	  forcepoint->setPosition(point);
-	  forcepoint->update();
-	}
+          forcepoint->setPosition(point);
+          forcepoint->update();
+        }
       }
     }
    //  if(control &&!pause && centerforce!=0){
 //       // force to center
 //       FOREACH(vector<OdeAgent*> , globalData.agents, a){
-// 	Primitive* body = (*a)->getRobot()->getMainPrimitive();
-// 	osg::Vec3 pos = body->getPosition();
-// 	osg::Vec3 d = (center - pos);
-// 	dBodyAddForce(body->getBody(), d.x()*centerforce, d.y()*centerforce,  d.z()*centerforce*.8);
+//         Primitive* body = (*a)->getRobot()->getMainPrimitive();
+//         osg::Vec3 pos = body->getPosition();
+//         osg::Vec3 d = (center - pos);
+//         dBodyAddForce(body->getBody(), d.x()*centerforce, d.y()*centerforce,  d.z()*centerforce*.8);
 //       }
 //     }
 //       if(forwardforce!=0){
-// 	// force forwards
-// 	FOREACH(vector<OdeAgent*> , globalData.agents, a){
-// 	  Primitive* body = (*a)->getRobot()->getMainPrimitive();
-// 	  osg::Matrix pose = body->getPose();
-// 	  // transform a local point ahead of robot into global coords
-// 	  // note that the internal corrd of the main primitive has z towards the front
-// 	  Pos point = (Pos(0,0,1)*pose ); 
-// 	  point.z()=pose.getTrans().z();  // only use x,y component (this can be commented out)
-// 	  Pos d = (point - pose.getTrans());
-// 	  d.normalize();
+//         // force forwards
+//         FOREACH(vector<OdeAgent*> , globalData.agents, a){
+//           Primitive* body = (*a)->getRobot()->getMainPrimitive();
+//           osg::Matrix pose = body->getPose();
+//           // transform a local point ahead of robot into global coords
+//           // note that the internal corrd of the main primitive has z towards the front
+//           Pos point = (Pos(0,0,1)*pose );
+//           point.z()=pose.getTrans().z();  // only use x,y component (this can be commented out)
+//           Pos d = (point - pose.getTrans());
+//           d.normalize();
 
-// 	  dBodyAddForce(body->getBody(), 
-// 			d.x()*forwardforce, d.y()*forwardforce, d.z()*forwardforce);
-// 	  if(!forcepoint){
-// 	    forcepoint = new Sphere(0.1);
-// 	    forcepoint->init(odeHandle, 0, osgHandle /*osgHandle.changeAlpha(0.4)*/, 
-// 			     Primitive::Geom | Primitive::Draw);
-// 	  }
-// 	  forcepoint->setPosition(point);
-// 	  forcepoint->update();
-// 	}
+//           dBodyAddForce(body->getBody(),
+//                         d.x()*forwardforce, d.y()*forwardforce, d.z()*forwardforce);
+//           if(!forcepoint){
+//             forcepoint = new Sphere(0.1);
+//             forcepoint->init(odeHandle, 0, osgHandle /*osgHandle.changeAlpha(0.4)*/,
+//                              Primitive::Geom | Primitive::Draw);
+//           }
+//           forcepoint->setPosition(point);
+//           forcepoint->update();
+//         }
 //       }
   };
 
@@ -257,50 +257,50 @@ public:
     Substance s;
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	case 'x': 
-	  if(fixator) delete fixator;
-	  fixator=0;	 
-	  return true;
-	  break;
-	case 'i': 
-	  if(playground) {	    
+        {
+        case 'x':
+          if(fixator) delete fixator;
+          fixator=0;
+          return true;
+          break;
+        case 'i':
+          if(playground) {
             s = playground->getSubstance();
-	    s.hardness*=1.5;
-	    cout << "hardness " << s.hardness << endl;
-	    playground->setSubstance(s);
-	  }
-	  return true;
-	  break;
-	case 'j': 
-	  if(playground) {
+            s.hardness*=1.5;
+            cout << "hardness " << s.hardness << endl;
+            playground->setSubstance(s);
+          }
+          return true;
+          break;
+        case 'j':
+          if(playground) {
             s = playground->getSubstance();
-	    s.hardness/=1.5;
-	    cout << "hardness " << s.hardness << endl;
-	    playground->setSubstance(s);
-	  }
-	  return true;
-	  break;
-	case 'r': 
-	  if(robot) {	    
-	    Primitive* wheel = robot->getAllPrimitives().front();
-	    Axis a(0,0,100);
-	    wheel->applyTorque(Pos(wheel->toGlobal(a)));
-	  }
-	  return true;
-	  break;
-	case 'R': 
-	  if(robot) {
-	    Primitive* wheel = robot->getAllPrimitives().front();
-	    Axis a(0,0,-100);
-	    wheel->applyTorque(Pos(wheel->toGlobal(a)));
-	  }
-	  return true;
-	  break;
-	default:
-	  return false;
-	  break;
-	}
+            s.hardness/=1.5;
+            cout << "hardness " << s.hardness << endl;
+            playground->setSubstance(s);
+          }
+          return true;
+          break;
+        case 'r':
+          if(robot) {
+            Primitive* wheel = robot->getAllPrimitives().front();
+            Axis a(0,0,100);
+            wheel->applyTorque(Pos(wheel->toGlobal(a)));
+          }
+          return true;
+          break;
+        case 'R':
+          if(robot) {
+            Primitive* wheel = robot->getAllPrimitives().front();
+            Axis a(0,0,-100);
+            wheel->applyTorque(Pos(wheel->toGlobal(a)));
+          }
+          return true;
+          break;
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
@@ -309,14 +309,14 @@ public:
     switch (ground){
     case Normal:
       {
-        playground = new Playground(odeHandle, osgHandle,osg::Vec3(widthground, 0.208, heightground)); 
-        playground->setColor(Color(1.,1.,1.,.99)); 
-	//playground->setGroundTexture("Images/really_white.rgb");
-	//        playground->setGroundTexture("Images/desert.jpg");
+        playground = new Playground(odeHandle, osgHandle,osg::Vec3(widthground, 0.208, heightground));
+        playground->setColor(Color(1.,1.,1.,.99));
+        //playground->setGroundTexture("Images/really_white.rgb");
+        //        playground->setGroundTexture("Images/desert.jpg");
         playground->setGroundTexture("Images/sand.jpg");
         //playground->setGroundColor(Color(54.0/255,.5,54.0/255));
         playground->setPosition(osg::Vec3(0,0,.1));
-        //      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(1.0875, 8.8, 1.3975)); 
+        //      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(1.0875, 8.8, 1.3975));
         //       playground->setColor(Color(0.88f,0.4f,0.26f,1));
         // playground->setPosition(osg::Vec3(20,20,.5));
         Substance substance;
@@ -338,10 +338,10 @@ public:
               new PassiveBox(odeHandle,
                              osgHandle, osg::Vec3(xsize,ysize,zsize),0.0);
             b->setPosition(Pos(20+boxdis*(i-(xboxes-1)/2.0),20+boxdis*(j-(yboxes-1)/2.0), 0.01));
-            //	 b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
-            //	 b->setTexture("Images/light_chess.rgb");
+            //         b->setColor(Color(1.0f,0.2f,0.2f,0.5f));
+            //         b->setTexture("Images/light_chess.rgb");
             global.obstacles.push_back(b);
-          }               
+          }
         break;
       }
     case Octa:
@@ -355,7 +355,7 @@ public:
       }
     case Pit:
       {
-        // we stack two playgrounds in each other. 
+        // we stack two playgrounds in each other.
         // The outer one is hard and the inner one is softer
         int anzgrounds=2;
         Substance soft = Substance::getRubber(5);
@@ -365,11 +365,11 @@ public:
           if(i==0){
             myHandle.substance = soft;
           }else{
-            myHandle.substance.toMetal(1);            
-          }          
-          Playground* playground = new Playground(myHandle, osgHandle, 
+            myHandle.substance.toMetal(1);
+          }
+          Playground* playground = new Playground(myHandle, osgHandle,
                                                   osg::Vec3(pitsize+2*thicknessSoft*i, thicknessSoft + 12*i, pitheight),
-                                                  1, i==(anzgrounds-1)); 
+                                                  1, i==(anzgrounds-1));
           if(i==(anzgrounds-1)){ // set ground also to the soft substance
             playground->setGroundSubstance(soft);
           }
@@ -377,17 +377,17 @@ public:
           playground->setColor(Color(0.5,0.1,0.1,i==0 ? 0 : .99)); // inner wall invisible
           playground->setPosition(osg::Vec3(0,0,thicknessSoft)); // playground positionieren und generieren
           global.obstacles.push_back(playground);
-        }        
+        }
 
         break;
       }
     case Uterus:
       {
-        // we stack two playgrounds in each other. 
+        // we stack two playgrounds in each other.
         // The outer one is hard (and invisible) and the inner one is soft
         int anzgrounds=2;
         // this is the utterus imitation: high slip, medium roughness, high elasticity, soft
-        Substance uterus(0.2/*roughness*/, 0.1 /*slip*/, 
+        Substance uterus(0.2/*roughness*/, 0.1 /*slip*/,
                          .5 /*hardness*/, 0.95 /*elasticity*/);
         double thickness = 0.4;
         for (int i=0; i< anzgrounds; i++){
@@ -395,12 +395,12 @@ public:
           if(i==0){
             myHandle.substance = uterus;
           }else{
-            myHandle.substance.toMetal(.2);            
-          }          
-          Playground* playground = new Playground(myHandle, osgHandle, 
-                                                  osg::Vec3(uterussize+2*thickness*i, 
+            myHandle.substance.toMetal(.2);
+          }
+          Playground* playground = new Playground(myHandle, osgHandle,
+                                                  osg::Vec3(uterussize+2*thickness*i,
                                                             i==0 ? thickness : .5, pitheight),
-                                                  1, i==0); 
+                                                  1, i==0);
           playground->setTexture("Images/dusty.rgb");
           if(i==0){ // set ground also to the soft substance
             playground->setGroundSubstance(uterus);
@@ -409,7 +409,7 @@ public:
           playground->setColor(Color(0.5,0.1,0.1,i==0? .2 : 0)); // outer ground is not visible (alpha=0)
           playground->setPosition(osg::Vec3(0,0,i==0? thickness : 0 )); // playground positionieren und generieren
           global.obstacles.push_back(playground);
-        }        
+        }
 
         break;
       }
@@ -422,22 +422,22 @@ public:
           //      myhandle.substance.toFoam(10);
           // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
           playground->setPosition(osg::Vec3(0,0,0.2)); // playground positionieren und generieren
-          
+
           global.obstacles.push_back(playground);
         }
         break;
       }
-    }    
-  
+    }
+
   }
 
   Joint* fixator;
   Joint* reckLeft;
   Joint* reckRight;
   Primitive* reck;
-  //  Playground* playground; 
-  AbstractGround* playground; 
-  OdeRobot* robot; 
+  //  Playground* playground;
+  AbstractGround* playground;
+  OdeRobot* robot;
   double hardness;
   bool reckturner;
   osg::Vec3 center;
@@ -451,10 +451,10 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   sim.setCaption("lpzrobots Simulator             playfulmachines.com");
   return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
+

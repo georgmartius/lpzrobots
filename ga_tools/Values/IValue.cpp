@@ -26,15 +26,15 @@
 #include "IValue.h"
 
 IValue::IValue(std::string name) : Inspectable(name), m_name(name) {
-	// nothing
+        // nothing
 }
 
 IValue::~IValue() {
-	// nothing
+        // nothing
 }
 
 IValue::operator std::string(void)const {
-	return "";
+        return "";
 }
 
 bool IValue::store(FILE* f)const {

@@ -65,11 +65,11 @@ public:
 
   ThisSim(int numx, int numy, double regionsize)
     : numx(numx), numy(numy), regionsize(regionsize)
-  {  
+  {
   }
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
 
@@ -93,55 +93,55 @@ public:
     }
     // for(int i=0; i<50; i++){
 //       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
-//       s->setPosition(osg::Vec3(-4+(i/10),-4+(i%10),1)); 
-//       global.obstacles.push_back(s);    
+//       s->setPosition(osg::Vec3(-4+(i/10),-4+(i%10),1));
+//       global.obstacles.push_back(s);
 //     }
-    
+
     OdeRobot* nimm2;
     AbstractController* contrl;
     AbstractWiring* wiring;
     OdeAgent* agent;
-        
-    for (int j=0; j<numx; j++){ 
-      for (int i=0; i<numy; i++){
-	//      nimm2 = new Nimm2(odeHandle);
-	Nimm2Conf conf = Nimm2::getDefaultConf();
-// 	conf.speed=20;
-// 	conf.force=3.0;
-// 	conf.bumper=false;
-// 	conf.cigarMode=false;
-	wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-	contrl = new InvertNChannelController(10);
-	
-	// 	if ((i==0) && (j==0)) {
-	// 	  agent = new OdeAgent(global);
-	
-	// 	  nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2Yellow");
-	// 	  nimm2->setColor(Color(1.0,1.0,0));
-	// 	  global.configs.push_back(contrl);
-	// 	  agent->init(contrl, nimm2, wiring);
-	// 	  //    controller->setParam("nomupdate", 0.0005);
-	// 	} else {
 
-	agent = new OdeAgent(global,NoPlot);	  
-	nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
-	agent->init(contrl, nimm2, wiring);
-		
-	agent->setTrackOptions(TrackRobot(true,true,false,false,(std::itos(numx*numy) + "_" + std::itos((int)regionsize)).c_str(), 1));
-	nimm2->place(Pos( (j-numx/2)*1.25,(i-numy/2)*1.25,0));
-	global.agents.push_back(agent);	
+    for (int j=0; j<numx; j++){
+      for (int i=0; i<numy; i++){
+        //      nimm2 = new Nimm2(odeHandle);
+        Nimm2Conf conf = Nimm2::getDefaultConf();
+//         conf.speed=20;
+//         conf.force=3.0;
+//         conf.bumper=false;
+//         conf.cigarMode=false;
+        wiring = new One2OneWiring(new ColorUniformNoise(0.1));
+        contrl = new InvertNChannelController(10);
+
+        //         if ((i==0) && (j==0)) {
+        //           agent = new OdeAgent(global);
+
+        //           nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2Yellow");
+        //           nimm2->setColor(Color(1.0,1.0,0));
+        //           global.configs.push_back(contrl);
+        //           agent->init(contrl, nimm2, wiring);
+        //           //    controller->setParam("nomupdate", 0.0005);
+        //         } else {
+
+        agent = new OdeAgent(global,NoPlot);
+        nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
+        agent->init(contrl, nimm2, wiring);
+
+        agent->setTrackOptions(TrackRobot(true,true,false,false,(std::itos(numx*numy) + "_" + std::itos((int)regionsize)).c_str(), 1));
+        nimm2->place(Pos( (j-numx/2)*1.25,(i-numy/2)*1.25,0));
+        global.agents.push_back(agent);
       }
     }
-      
-    
+
+
   }
-  
+
 };
 
 int main (int argc, char **argv)
-{ 
+{
   if(argc<3){
-    fprintf(stderr,"Usage: %s num_x num_y [size]\n  size: use -1 for automatic size\n",argv[0]);    
+    fprintf(stderr,"Usage: %s num_x num_y [size]\n  size: use -1 for automatic size\n",argv[0]);
     exit(1);
   }
   double s=-1;
@@ -152,4 +152,4 @@ int main (int argc, char **argv)
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

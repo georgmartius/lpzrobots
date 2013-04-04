@@ -8,5 +8,5 @@
 #include "XMLObject.h"
 
 XMLObject::~XMLObject() {
-	// TODO Auto-generated destructor stub
+        // TODO Auto-generated destructor stub
 }

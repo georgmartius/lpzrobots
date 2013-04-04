@@ -26,9 +26,9 @@
 using namespace matrix;
 using namespace std;
 
-DerSimple::DerSimple( const DerSimpleConf& conf) 
+DerSimple::DerSimple( const DerSimpleConf& conf)
   : InvertMotorController(conf.buffersize, "DerSimple", "$Id$"), conf(conf) {
- 
+
   assert(conf.model != NULL);
 
   fantControl = 50;
@@ -64,7 +64,7 @@ DerSimple::~DerSimple(){
 
 void DerSimple::init(int sensornumber, int motornumber, RandGen* randGen){
   number_motors  = motornumber;
-  number_sensors = sensornumber;  
+  number_sensors = sensornumber;
   assert(number_motors && number_sensors);
   if(!randGen) randGen = new RandGen(); // this gives a small memory leak
 
@@ -72,20 +72,20 @@ void DerSimple::init(int sensornumber, int motornumber, RandGen* randGen){
   ID.toId();
   ID_Sensor.set(number_sensors, number_sensors);
   ID_Sensor.toId();
-  
+
   conf.model->init(number_motors, number_sensors, conf.modelInit);
   A = conf.model->response(Matrix(number_motors,1));
 //   A_Hat = conf.model->response(Matrix(number_motors,1));
 //   ATA_inv = (A.multTM()+ID*0.01)^-1;
-  
+
   if (conf.useS) S.set(number_sensors, number_sensors*2); // S gets frist and second derivative
 
   C.set(number_motors,  number_sensors);
   GSC.set(number_motors,  number_sensors);
 
   // initialise the C matrix with identity + noise (-conf.cNonDiag, conf.cNonDiag) scaled to cInit value
-  //C = ((C^0) + C.mapP(randGen, random_minusone_to_one) * conf.cNonDiag) * conf.cInit;   
-  C = (C^0)  * conf.cInit * 1.0;   
+  //C = ((C^0) + C.mapP(randGen, random_minusone_to_one) * conf.cNonDiag) * conf.cInit;
+  C = (C^0)  * conf.cInit * 1.0;
 
   //  DD.set(number_sensors, number_sensors);
   // DD.toId(); DD *= 0.1; // noise strength estimate
@@ -96,7 +96,7 @@ void DerSimple::init(int sensornumber, int motornumber, RandGen* randGen){
   H.set(number_motors,  1);
   R.set(number_motors, number_motors);
   R=C*A;
-  RRT_inv = (R +  ID * 0.2)^-1;  
+  RRT_inv = (R +  ID * 0.2)^-1;
    squashSize = .05;
 
   xsi.set(number_sensors,1);
@@ -119,13 +119,13 @@ void DerSimple::init(int sensornumber, int motornumber, RandGen* randGen){
     y_buffer[k].set(number_motors,1);
     eta_buffer[k].set(number_motors,1);
   }
-  y_teaching.set(number_motors, 1); 
-  x_intern.set(number_sensors,1); 
+  y_teaching.set(number_motors, 1);
+  x_intern.set(number_sensors,1);
   x_smooth_long.set(number_sensors,1);
 
-  zero_eta.set(number_motors, 1); 
-  eta.set(number_motors, 1); 
-  v_smooth.set(number_motors, 1); 
+  zero_eta.set(number_motors, 1);
+  eta.set(number_motors, 1);
+  v_smooth.set(number_motors, 1);
   y_smooth.set(number_motors, 1);
 
   t_rand = int(randGen->rand()*managementInterval);
@@ -134,17 +134,17 @@ void DerSimple::init(int sensornumber, int motornumber, RandGen* randGen){
 //*************** End init *******************
 
 /// performs one step (includes learning). Calculates motor commands from sensor inputs.
-void DerSimple::step(const sensor* x_, int number_sensors, 
-			    motor* y_, int number_motors){
+void DerSimple::step(const sensor* x_, int number_sensors,
+                            motor* y_, int number_motors){
   fillBuffersAndControl(x_, number_sensors, y_, number_motors);
   if(t>buffersize){
-    int delay = max(int(s4delay)-1,0);   
+    int delay = max(int(s4delay)-1,0);
     // learn Model with actual sensors and with effective motors,
     // calc xsi and A;
     learnModel(delay);
     // learn controller with effective input/output
     learnController(delay);
-    
+
   }
   // update step counter
   t++;
@@ -154,29 +154,29 @@ void DerSimple::step(const sensor* x_, int number_sensors,
 };
 
 /// performs one step without learning. Calulates motor commands from sensor inputs.
-void DerSimple::stepNoLearning(const sensor* x, int number_sensors, 
-				            motor*  y, int number_motors ){
+void DerSimple::stepNoLearning(const sensor* x, int number_sensors,
+                                            motor*  y, int number_motors ){
   fillBuffersAndControl(x, number_sensors, y, number_motors);
   // update step counter
   t++;
 };
 
-void DerSimple::fillBuffersAndControl(const sensor* x_, int number_sensors, 
-					      motor* y_, int number_motors){
-  assert((unsigned)number_sensors == this->number_sensors 
-	 && (unsigned)number_motors == this->number_motors);
-  
+void DerSimple::fillBuffersAndControl(const sensor* x_, int number_sensors,
+                                              motor* y_, int number_motors){
+  assert((unsigned)number_sensors == this->number_sensors
+         && (unsigned)number_motors == this->number_motors);
+
   Matrix x(number_sensors,1,x_);
 
   x_smooth_long += ( x - x_smooth_long ) * 0.005;
-  
+
   // put new input vector in ring buffer x_buffer
    putInBuffer(x_buffer, x);
    // putInBuffer(x_buffer, x - x_smooth_long);
-  
+
   // averaging over the last s4avg values of x_buffer
   x_smooth = calculateSmoothValues(x_buffer, t < s4avg ? 1 : int(max(1.0,s4avg)));
-  
+
   // calculate controller values based on smoothed input values
   Matrix y = calculateControllerValues(x_smooth);
   y += noiseMatrix(y.getM(),y.getN(), *YNoiseGen, -noiseY, noiseY);
@@ -187,7 +187,7 @@ void DerSimple::fillBuffersAndControl(const sensor* x_, int number_sensors,
   // put new output vector in ring buffer y_buffer
   putInBuffer(y_buffer, y);
 
-  // convert y to motor* 
+  // convert y to motor*
   y.convertToBuffer(y_, number_motors);
 }
 
@@ -195,25 +195,25 @@ void DerSimple::fillBuffersAndControl(const sensor* x_, int number_sensors,
 /* learn values H,C
    This implementation uses a better formula for g^-1 using Mittelwertsatz
 */
-void DerSimple::learnController(int delay){ 
-  // eta = A^-1 xsi (first shift in motor-space at current time) 
-  //                
-  //  we use pseudoinverse U=A^T A -> eta = U^-1 A^T xsi 
+void DerSimple::learnController(int delay){
+  // eta = A^-1 xsi (first shift in motor-space at current time)
+  //
+  //  we use pseudoinverse U=A^T A -> eta = U^-1 A^T xsi
   //   if ((t==buffersize+1) || ((t%10)==2))
-  // if ( (t%managementInterval)+1==t_rand) 
+  // if ( (t%managementInterval)+1==t_rand)
   //  ATA_inv = (A.multTM() + ID*0.1)^-1;
   // Matrix eta = ATA_inv * ( (A^T) * xsi );
   // noise for the null space!!!!!!!!!
 
   Matrix y = calculateControllerValues(x_smooth - x_smooth_long);//??????????????????????????????????????????????????????????);
   A_Hat =  conf.model->response(y);
-  eta +=  (A_Hat^T) * (A_Hat*eta - xsi) * -0.1 /*(-epsA)*/ + eta * -0.001; //TEST 
-  // eta += noiseMatrix(eta.getM(),eta.getN(), *YNoiseGen, -noiseY, noiseY); 
+  eta +=  (A_Hat^T) * (A_Hat*eta - xsi) * -0.1 /*(-epsA)*/ + eta * -0.001; //TEST
+  // eta += noiseMatrix(eta.getM(),eta.getN(), *YNoiseGen, -noiseY, noiseY);
 
   // eta *= sin(t/100); //Test
 
   eta_buffer[(t-1)%buffersize] = eta; // Todo: work with the reference
-  
+
   Matrix C_update(C.getM(), C.getN());
   Matrix H_update(H.getM(), H.getN());
 
@@ -225,24 +225,24 @@ void DerSimple::learnController(int delay){
     C_updateTeaching.set(C.getM(), C.getN());
     H_updateTeaching.set(H.getM(), H.getN());
   }
- 
+
   //Update noise matrix and inverse noise matrix:
-  //  double D_length = 100; 
-  // DD += ((xsi * (xsi^T)) - DD)* ( 1/ D_length); 
+  //  double D_length = 100;
+  // DD += ((xsi * (xsi^T)) - DD)* ( 1/ D_length);
 
   // CALC UPDATES
 
   assert( steps + delay < buffersize);
   // Matrix& eta = zero_eta;
   // Matrix v_old = (eta_buffer[t%buffersize]).map(g);
-    Matrix v = zero_eta; 
+    Matrix v = zero_eta;
 
   for(unsigned int s = 1; s <= steps; s++){
-    //????? const Matrix& eta = eta_buffer[(t-s)%buffersize].map(g); 
-    
-     //const Matrix& x      = A * z.map(g) + xsi; 
+    //????? const Matrix& eta = eta_buffer[(t-s)%buffersize].map(g);
+
+     //const Matrix& x      = A * z.map(g) + xsi;
     //    z                    = R * z.map(g) + H + C*xsi; // z is a dynamic itself (not successful)
-    // TODO: check delay!!!!!!!!!!! 
+    // TODO: check delay!!!!!!!!!!!
     const Matrix& x          = x_buffer[(t-s-delay)%buffersize];
     const Matrix& y          = y_buffer[(t-s-delay)%buffersize];
     const Matrix& z          = (C * x + H);// * weighting +( R * y + H) * (1 - weighting);
@@ -253,7 +253,7 @@ void DerSimple::learnController(int delay){
     //const Matrix g_2p_div_p  = Matrix::map2(g_ss_div_s, z, eta);
      const Matrix g_prime_inv = Matrix::map2(g_s_inv_expand2, z,eta);
       const Matrix g_2p_div_p  = Matrix::map2(g_ss_div_s_expand2, z, eta);
-    
+
      //const Matrix zeta =  y *.1;  //TEST!!!!!!!!!!!!!
       //  const Matrix zeta = eta.multrowwise(g_prime_inv); // G'(Z)^-1 * (eta+v)
 
@@ -264,12 +264,12 @@ void DerSimple::learnController(int delay){
     const Matrix& alpha = y +  eta *0.5;
     const Matrix& zz          = C * x;
     const Matrix& gg = (C*x+H).map(g);
-   
-    const Matrix& beta =     alpha.multrowwise(gg).multrowwise(zz); 
- 
-    C_update =(( alpha  * (x^T) *.25 + beta  * (x^T) *-2)*epsC); 
+
+    const Matrix& beta =     alpha.multrowwise(gg).multrowwise(zz);
+
+    C_update =(( alpha  * (x^T) *.25 + beta  * (x^T) *-2)*epsC);
     H_update = beta  *-epsC;
-    
+
 //+++++++==Ende ** Neuer Ansatz fuer den TLE 30.11.07+++++++++
 
 
@@ -277,29 +277,29 @@ void DerSimple::learnController(int delay){
 
     if(conf.modelCompliant!=0 && s==1){  // learning of the forward task
       // eta is difference between last y and reconstructed one -> used as forward error signal
-      // The question is wether to use eta (linearised), zeta (neuron inverse) or eta*g' (Backprop) ! 
+      // The question is wether to use eta (linearised), zeta (neuron inverse) or eta*g' (Backprop) !
       const Matrix g_p     = z.map(g_s);
       const Matrix& g_eta = eta.multrowwise(g_p);
-      C_updateTeaching += ( g_eta*(x^T) ) * conf.modelCompliant * epsC; 
+      C_updateTeaching += ( g_eta*(x^T) ) * conf.modelCompliant * epsC;
       H_updateTeaching += g_eta * conf.modelCompliant * epsC;
     }
 
 
-    if(useTeaching && s==1){    
+    if(useTeaching && s==1){
       const Matrix& y = y_buffer[(t)% buffersize]; // eventuell t-1
        const Matrix& kappa = y_teaching - y;
       const Matrix g_p     = z.map(g_s);
       const Matrix& delta = ( kappa ).multrowwise(g_p);
-        C_updateTeaching += ( delta*(x^T) ) * teacher;// * epsC; 
+        C_updateTeaching += ( delta*(x^T) ) * teacher;// * epsC;
        H_updateTeaching += delta * teacher;// * epsC;
-      // C_updateTeaching += ( (y_buffer[(t)% buffersize])*(x^T) ) * teacher;// * epsC; 
+      // C_updateTeaching += ( (y_buffer[(t)% buffersize])*(x^T) ) * teacher;// * epsC;
       //H_updateTeaching +=  y_buffer[(t)% buffersize]* teacher;// * epsC;
 
         useTeaching=false; // false; after we applied teaching signal it is switched off until new signal is given
     }
   }
 
-  //  double error_factor = calcErrorFactor(v, (logaE & 1) !=0, (rootE & 1) !=0); 
+  //  double error_factor = calcErrorFactor(v, (logaE & 1) !=0, (rootE & 1) !=0);
  //  C_update *= error_factor;
 //   H_update *= error_factor;
 
@@ -310,31 +310,31 @@ void DerSimple::learnController(int delay){
 
 
 
-   
-  // Controlling the learning parameters:  
+
+  // Controlling the learning parameters:
   double u = calcMatrixNorm(C_update);  //TEST
   double q = calcMatrixNorm( C_update.mapP(&squashSize, squash) ); //TEST
   //    double Au = calcMatrixNorm(A_update);  //TEST
-  //double Aq = calcMatrixNorm( A_update.mapP(&squashSize, squash) ); //TEST 
-   if ( u*u > 1.25 *  q*q)      epsC *=0.95999999999999; 
-   else { 
+  //double Aq = calcMatrixNorm( A_update.mapP(&squashSize, squash) ); //TEST
+   if ( u*u > 1.25 *  q*q)      epsC *=0.95999999999999;
+   else {
      C += C_update.mapP(&squashSize, squash) - C* dampC;
-     double H_squashSize = squashSize*2.0;//TEST: H soll sich schneller bewegen können. 
-     H += H_update.mapP(&H_squashSize, squash) - H * dampC; //Test; //Test - H*.001; 
+     double H_squashSize = squashSize*2.0;//TEST: H soll sich schneller bewegen können.
+     H += H_update.mapP(&H_squashSize, squash) - H * dampC; //Test; //Test - H*.001;
      // std::cout <<  "c_up=" << H_update.mapP(&H_squashSize, squash) << std::endl;
 
-   
+
    }
-   
-//   //  //  A += A_update.mapP(&_squashSize, squash);  //A immer updaten 
 
-// //     if ( Au*Au > .5 *  Aq*Aq)      epsA *=0.97;  
-// //     else { 
+//   //  //  A += A_update.mapP(&_squashSize, squash);  //A immer updaten
 
-// //       A += A_update.mapP(&_squashSize, squash); 
+// //     if ( Au*Au > .5 *  Aq*Aq)      epsA *=0.97;
+// //     else {
+
+// //       A += A_update.mapP(&_squashSize, squash);
 // //     }
 
-//   // End  Controlling the learning parameters:  
+//   // End  Controlling the learning parameters:
 };
 
 // learns model and calculates Xsi and A  and learns the model
@@ -343,38 +343,38 @@ void DerSimple::learnModel(int delay){
   const Matrix& x = x_buffer[t % buffersize];
   const Matrix& y = y_buffer[(t - 1 - delay) % buffersize];
     y_smooth += ( y - y_smooth)* .005;
-    //  xsi = x -  conf.model->process(y);  
-    xsi = x- x_smooth_long -  conf.model->process(y-y_smooth);  
-    // xsi = x -  conf.model->process(y);          
+    //  xsi = x -  conf.model->process(y);
+    xsi = x- x_smooth_long -  conf.model->process(y-y_smooth);
+    // xsi = x -  conf.model->process(y);
   xsi_norm = matrixNorm1(xsi);
 
 
   //  if(xsi_norm > 10 /* 5*xsi_norm_avg)*/{ //??????????????????????????????????????????
   //    pain= 1; //xsi_norm/ xsi_norm_avg/5;
   //  } else {
-  //    pain = 0; //pain > 1 ? pain*0.9: 0;      
-    double error_factor = calcErrorFactor(xsi, (logaE & 2) != 0, (rootE & 2) != 0); 
+  //    pain = 0; //pain > 1 ? pain*0.9: 0;
+    double error_factor = calcErrorFactor(xsi, (logaE & 2) != 0, (rootE & 2) != 0);
       conf.model->learn(y-y_smooth, x- x_smooth_long, error_factor);
       //conf.model->learn(y, x, error_factor);
     if(conf.useS){
-      const Matrix& x_primes = calcDerivatives(x_buffer, 1);      
-      const Matrix& S_update=(( xsi*(x_primes^T) ) * (epsA * error_factor)); 
+      const Matrix& x_primes = calcDerivatives(x_buffer, 1);
+      const Matrix& S_update=(( xsi*(x_primes^T) ) * (epsA * error_factor));
       S += S_update.mapP(&squashSize, squash);
       //    }
-  }  
+  }
   A = conf.model->response(y - y_smooth);
 
 //   A_Hat =  conf.model->response(y + eta);
-//   eta +=  (A_Hat^T) * (A_Hat*eta - xsi) *-0.1/* (-epsA)*/ - eta * 0.01; //TEST 
-//   eta += noiseMatrix(eta.getM(),eta.getN(), *YNoiseGen, -noiseY, noiseY); 
+//   eta +=  (A_Hat^T) * (A_Hat*eta - xsi) *-0.1/* (-epsA)*/ - eta * 0.01; //TEST
+//   eta += noiseMatrix(eta.getM(),eta.getN(), *YNoiseGen, -noiseY, noiseY);
 //   eta_buffer[(t-1)%buffersize] = eta; // Todo: work with the reference
 
 };
 
-/// calculate controller outputs 
-/// @param x_smooth smoothed sensors Matrix(number_channels,1) 
+/// calculate controller outputs
+/// @param x_smooth smoothed sensors Matrix(number_channels,1)
 Matrix DerSimple::calculateControllerValues(const Matrix& x_smooth){
-   return (C* x_smooth+H).map(g); 
+   return (C* x_smooth+H).map(g);
    //return (C* (x_smooth - x_smooth_long) +H).map(g); //TEST
 
 };
@@ -385,7 +385,7 @@ void DerSimple::getLastMotors(motor* motors, int len){
   y.convertToBuffer(motors, len);
 }
 
-Matrix DerSimple::calcDerivatives(const matrix::Matrix* buffer,int delay){  
+Matrix DerSimple::calcDerivatives(const matrix::Matrix* buffer,int delay){
   const Matrix& xt    = buffer[(t-delay)%buffersize];
   const Matrix& xtm1  = buffer[(t-delay-1)%buffersize];
   const Matrix& xtm2  = buffer[(t-delay-2)%buffersize];
@@ -412,7 +412,7 @@ void DerSimple::management(){
 
 
 /** stores the controller values to a given file. */
-bool DerSimple::store(FILE* f) const {  
+bool DerSimple::store(FILE* f) const {
   // save matrix values
   C.store(f);
   H.store(f);
@@ -449,7 +449,7 @@ list<Inspectable::iparamkey> DerSimple::getInternalParamNames() const {
     keylist += store4x4AndDiagonalFieldNames(A, "A");
     if(conf.useS) keylist += store4x4AndDiagonalFieldNames(S, "S");
     keylist += store4x4AndDiagonalFieldNames(C, "C");
-    keylist += store4x4AndDiagonalFieldNames(R, "R");    
+    keylist += store4x4AndDiagonalFieldNames(R, "R");
   }else{
     keylist += storeMatrixFieldNames(A, "A");
     if(conf.useS) keylist += storeMatrixFieldNames(S, "S");
@@ -468,7 +468,7 @@ list<Inspectable::iparamkey> DerSimple::getInternalParamNames() const {
   keylist += string("xsi_norm");
   keylist += string("xsi_norm_avg");
   keylist += string("pain");
-  return keylist; 
+  return keylist;
 }
 
 list<Inspectable::iparamval> DerSimple::getInternalParams() const {
@@ -477,7 +477,7 @@ list<Inspectable::iparamval> DerSimple::getInternalParams() const {
     l += store4x4AndDiagonal(A);
     if(conf.useS) l += store4x4AndDiagonal(S);
     l += store4x4AndDiagonal(C);
-    l += store4x4AndDiagonal(R);    
+    l += store4x4AndDiagonal(R);
   }else{
     l += A.convertToList();
     if(conf.useS) l += S.convertToList();
@@ -515,18 +515,18 @@ list<Inspectable::IConnection> DerSimple::getStructuralConnections() const {
 }
 
 //double clip095(double x){
-// return clip(x,-0.95,0.95); 
+// return clip(x,-0.95,0.95);
 //}
 
 void DerSimple::setMotorTeachingSignal(const motor* teaching, int len){
-  assert(len == number_motors);  
+  assert(len == number_motors);
   y_teaching.set(len, 1, teaching);
-  //  y_teaching.toMap(clip095); //TODO where is clip 
+  //  y_teaching.toMap(clip095); //TODO where is clip
   useTeaching=true;
 }
 
 void DerSimple::setSensorTeachingSignal(const sensor* teaching, int len){
-  assert(len == number_sensors);  
+  assert(len == number_sensors);
   Matrix x_teaching(len,1,teaching);
   // calculate the y_teaching, that belongs to the distal teaching value by the inverse model.
   // y_teaching = (A.multTM()^(-1)) *  ((A^T) * x_teaching) *0.000000000; //TEST

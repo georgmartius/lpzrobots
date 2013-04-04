@@ -74,7 +74,7 @@ using namespace lpzrobots;
 
 class ThisSim : public Simulation {
 public:
-	
+
 
   /// start() is called at the start and should create all the object (obstacles, agents...).
   virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global){
@@ -85,24 +85,24 @@ public:
     conf.motorPower   = 0.1;
     conf.jointLimit   = conf.jointLimit*1.5;
     //conf.segmDia      = 0.2;
-    conf.segmNumber   = 7; 
+    conf.segmNumber   = 7;
 
 
     // SchlangeServo
-    SchlangeServo2* schlange1 = 
+    SchlangeServo2* schlange1 =
       new SchlangeServo2 ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
-			   conf, "Servo");
-    ((OdeRobot*)schlange1)->place(Pos(2,2,5)); 
+                           conf, "Servo");
+    ((OdeRobot*)schlange1)->place(Pos(2,2,5));
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.cInit=2;
-    AbstractController *controller1 = new InvertMotorNStep(cc);  
+    AbstractController *controller1 = new InvertMotorNStep(cc);
     controller1->setParam("adaptrate",0);
     controller1->setParam("epsC",0.001);
     controller1->setParam("epsA",0.001);
     controller1->setParam("rootE",1);
     controller1->setParam("s4avg",10);
     controller1->setParam("steps",2);
-    //    AbstractController *controller1 = new SineController();  
+    //    AbstractController *controller1 = new SineController();
     AbstractWiring* wiring1 = new One2OneWiring(new ColorUniformNoise(0.1));
     OdeAgent* agent1 = new OdeAgent(global);
     agent1->init(controller1, schlange1, wiring1);
@@ -115,11 +115,11 @@ public:
 //     conf.motorPower   = 0.2;
 //     conf.jointLimit   = conf.jointLimit*1.5;
 //     //conf.segmDia      = 0.2;
-//     conf.segmNumber   = 5; 
-//      SchlangeForce* schlange2 = 
+//     conf.segmNumber   = 5;
+//      SchlangeForce* schlange2 =
 //        new SchlangeForce ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
-//  			  conf, "Force");
-//      ((OdeRobot*)schlange2)->place(Pos(3,3,5)); 
+//                            conf, "Force");
+//      ((OdeRobot*)schlange2)->place(Pos(3,3,5));
 //      InvertMotorNStepConf cc2 = InvertMotorNStep::getDefaultConf();
 //      cc2.cInit=0.01;
 //      AbstractController *controller2 = new InvertMotorNStep(cc2);
@@ -143,26 +143,26 @@ public:
 //      SchlangeConf conf3 = SchlangeVelocity::getDefaultConf();
 //      conf3.jointLimit=conf3.jointLimit*3;
 //      conf3.segmDia    = 0.2;
-//      conf3.segmNumber = 2;    
-//      SchlangeVelocity* schlange3 = 
+//      conf3.segmNumber = 2;
+//      SchlangeVelocity* schlange3 =
 //        new SchlangeVelocity ( odeHandle, osgHandle.changeColor(Color(0.8, 0.3, 0.5)),
-//  			     conf3, "Velocity");
-//      ((OdeRobot*)schlange3)->place(Pos(2,2,0)); 
-//      AbstractController *controller3 = new SineController();  
+//                               conf3, "Velocity");
+//      ((OdeRobot*)schlange3)->place(Pos(2,2,0));
+//      AbstractController *controller3 = new SineController();
 //      AbstractWiring* wiring3 = new One2OneWiring(new ColorUniformNoise(0.1));
 //      OdeAgent* agent3 = new OdeAgent(global);
 //      agent3->init(controller3, schlange3, wiring3);
 //      global.agents.push_back(agent3);
 //      global.configs.push_back(controller3);
 //      global.configs.push_back(schlange3);
-  
- 
-     global.odeConfig.setParam("controlinterval",1);
-     //     global.odeConfig.setParam("gravity", -9.81); 
-     global.odeConfig.setParam("gravity", 0); 
-     global.odeConfig.setParam("noise", 0.05); 
 
-    
+
+     global.odeConfig.setParam("controlinterval",1);
+     //     global.odeConfig.setParam("gravity", -9.81);
+     global.odeConfig.setParam("gravity", 0);
+     global.odeConfig.setParam("noise", 0.05);
+
+
   }
 
   // add own key handling stuff here, just insert some case values
@@ -170,11 +170,11 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
-	  return false;
-	  break;
-	}
+        {
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
@@ -184,11 +184,11 @@ public:
 
 
 int main (int argc, char **argv)
-{  
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 }
 
 
- 
-  
+
+

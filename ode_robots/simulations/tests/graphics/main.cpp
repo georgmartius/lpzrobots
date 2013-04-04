@@ -99,7 +99,7 @@ public:
   Substance s;
   OSGBoxTex* b;
   OSGBox* b2;
-  
+
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
@@ -115,7 +115,7 @@ public:
 
     // use Playground as boundary:
     playground = new Playground(odeHandle, osgHandle,
-				osg::Vec3(10, .2, 1));
+                                osg::Vec3(10, .2, 1));
     playground->setPosition(osg::Vec3(0,0,0.2));
     global.obstacles.push_back(playground);
 
@@ -136,12 +136,12 @@ public:
 
     b = new OSGBoxTex(5,1,2);
     b->setTexture(0,TextureDescr("Images/dusty.rgb",1,1));
-    b->setTexture(1,TextureDescr("Images/tire_full.rgb",3,1));                
-    b->setTexture(2,TextureDescr("Images/whitemetal_farbig_small.rgb",1,1));  
-    b->setTexture(3,TextureDescr("Images/wall.rgb",1,1));                     
-    b->setTexture(4,TextureDescr("Images/really_white.rgb",1,1));             
-    b->setTexture(5,TextureDescr("Images/light_chess.rgb",-1,-1));            
-    b->init(osgHandle.changeColor(Color(1,1,0)));			    
+    b->setTexture(1,TextureDescr("Images/tire_full.rgb",3,1));
+    b->setTexture(2,TextureDescr("Images/whitemetal_farbig_small.rgb",1,1));
+    b->setTexture(3,TextureDescr("Images/wall.rgb",1,1));
+    b->setTexture(4,TextureDescr("Images/really_white.rgb",1,1));
+    b->setTexture(5,TextureDescr("Images/light_chess.rgb",-1,-1));
+    b->init(osgHandle.changeColor(Color(1,1,0)));
     b->setMatrix(osg::Matrix::translate(0,-2,2));
 
     b2 = new OSGBox(5,1,2);
@@ -149,9 +149,9 @@ public:
     b2->init(osgHandle);
     b2->setMatrix(osg::Matrix::translate(7,0,2));
 
-    
 
-    
+
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
@@ -164,27 +164,27 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	case 'i':
-	  if(playground) {
-	    s.hardness*=1.5;
-	    cout << "hardness " << s.hardness << endl;
-	    playground->setSubstance(s);
-	  }
-	  return true;
-	  break;
-	case 'j':
-	  if(playground) {
-	    s.hardness/=1.5;
-	    cout << "hardness " << s.hardness << endl;
-	    playground->setSubstance(s);
-	  }
-	  return true;
-	  break;
-	default:
-	  return false;
-	  break;
-	}
+        {
+        case 'i':
+          if(playground) {
+            s.hardness*=1.5;
+            cout << "hardness " << s.hardness << endl;
+            playground->setSubstance(s);
+          }
+          return true;
+          break;
+        case 'j':
+          if(playground) {
+            s.hardness/=1.5;
+            cout << "hardness " << s.hardness << endl;
+            playground->setSubstance(s);
+          }
+          return true;
+          break;
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }

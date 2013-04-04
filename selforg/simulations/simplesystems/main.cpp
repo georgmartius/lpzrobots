@@ -90,7 +90,7 @@ public:
     if(y) delete[] y;
     if(x_buffer) {
       for (unsigned int k = 0; k < buffersize; k++)
-	if(x_buffer[k]) delete [] x_buffer[k];
+        if(x_buffer[k]) delete [] x_buffer[k];
       delete[] x_buffer;
     }
   }
@@ -324,7 +324,7 @@ int main(int argc, char** argv){
   robot         = new MyRobot(string("Robot_") + string(modestr), mode, dim);
   agent         = new Agent(plotoptions);
   AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.2),
-  					     AbstractWiring::Controller | AbstractWiring::Noise);
+                                               AbstractWiring::Controller | AbstractWiring::Noise);
   //  AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
   agent->init(controller, robot, wiring);
   // if you like, you can keep track of the robot with the following line.

@@ -44,7 +44,7 @@ TcpController::TcpController(const string& robotname, int port, AbstractControll
   commands["RESET"        ] = RESET;
 
   number_sensors=0;
-  number_motors=0;  
+  number_motors=0;
   quit=false;
 };
 
@@ -60,8 +60,8 @@ void TcpController::init(int sensornumber, int motornumber, RandGen* randGen){
 };
 
 
-void TcpController::step(const sensor* sensors, int sensornumber, 
-			  motor* motors, int motornumber) {
+void TcpController::step(const sensor* sensors, int sensornumber,
+                          motor* motors, int motornumber) {
   if(quit){
     cout << "TcpController::step() remote controller quit!" << endl;
     return;
@@ -95,9 +95,9 @@ void TcpController::step(const sensor* sensors, int sensornumber,
       break;
     case STATUS:
       if(quit)
-        socket << "QUIT"; 
+        socket << "QUIT";
       else
-        socket << "OK"; 
+        socket << "OK";
       break;
     case RESET: // we have not Reset
       break;
@@ -114,16 +114,16 @@ void TcpController::step(const sensor* sensors, int sensornumber,
   }
   if(!observing && teacher) // teacher sees sensor inputs to fill buffers
     teacher->stepNoLearning(sensors,sensornumber,motors,motornumber);
-    
+
 };
 
-void TcpController::stepNoLearning(const sensor* sensors, int number_sensors, 
-				    motor* motors, int number_motors) {
-  
+void TcpController::stepNoLearning(const sensor* sensors, int number_sensors,
+                                    motor* motors, int number_motors) {
+
   step(sensors, number_sensors, motors, number_motors);
 };
- 
- 
+
+
 
 void TcpController::getMotorCommands(motor* motors, int motornumber){
   vector<double> ms;
@@ -178,7 +178,7 @@ void TcpController::configuration(){
     oss.str("");
     oss << "RAW DOMAIN " << -1.0 << " " << 1.0;
     socket << oss.str();
-    oss.str("");    
+    oss.str("");
     oss << "MAPPED DOMAIN " << -1.0 << " " << 1.0;
     socket << oss.str();
     socket << "END SENSOR";
@@ -194,7 +194,7 @@ void TcpController::configuration(){
     oss.str("");
     oss << "RAW DOMAIN " << -1.0 << " " << 1.0;
     socket << oss.str();
-    oss.str("");    
+    oss.str("");
     oss << "MAPPED DOMAIN " << -1.0 << " " << 1.0;
     socket << oss.str();
     socket << "END MOTOR";

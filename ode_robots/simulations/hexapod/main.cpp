@@ -72,7 +72,7 @@ public:
   OdeRobot* vehicle;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(-6.32561, 5.12705, 3.17278),  Pos(-130.771, -17.7744, 0));
 
@@ -84,41 +84,41 @@ public:
     setParam("UseQMPThread", false);
 
     // use Playground as boundary:
-    AbstractGround* playground = 
+    AbstractGround* playground =
       new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 1), 1);
-    //     // playground->setColor(Color(0,0,0,0.8)); 
-    playground->setGroundColor(Color(2,2,2,1)); 
+    //     // playground->setColor(Color(0,0,0,0.8));
+    playground->setGroundColor(Color(2,2,2,1));
     playground->setPosition(osg::Vec3(0,0,0.05)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
- 
+
     Boxpile* boxpile = new Boxpile(odeHandle, osgHandle);
-    boxpile->setColor("wall"); 
+    boxpile->setColor("wall");
     boxpile->setPose(ROTM(M_PI/5.0,0,0,1)*TRANSM(0, 0,0.2));
     global.obstacles.push_back(boxpile);
-    
 
-    //     global.obstacles.push_back(playground); 
+
+    //     global.obstacles.push_back(playground);
     // double diam = .90;
-    // OctaPlayground* playground3 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/4.0*diam, 5,/*Height*/ .3), 12, 
+    // OctaPlayground* playground3 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/4.0*diam, 5,/*Height*/ .3), 12,
     //                                                  false);
     // //  playground3->setColor(Color(.0,0.2,1.0,1));
     // playground3->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     // global.obstacles.push_back(playground3);
-   
+
     controller=0;
 
     //    addParameter("gamma_s",&teacher);
     global.configs.push_back(this);
 
     for(int i=0; i< bars; i++){
-      PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.,0.,0.)), 
-				     osg::Vec3(1,10,0.3+i*.1),10);
-      b->setPosition(osg::Vec3(10+i*7,0,0));      
-      global.obstacles.push_back(b);    
+      PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.,0.,0.)),
+                                     osg::Vec3(1,10,0.3+i*.1),10);
+      b->setPosition(osg::Vec3(10+i*7,0,0));
+      global.obstacles.push_back(b);
     }
-      
+
     /*******  H E X A P O D  *********/
-    int numhexapods = 1; 
+    int numhexapods = 1;
     for ( int ii = 0; ii< numhexapods; ii++){
 
     HexapodConf myHexapodConf        = Hexapod::getDefaultConf();
@@ -137,20 +137,20 @@ public:
     OdeHandle rodeHandle = odeHandle;
     rodeHandle.substance.toRubber(20);
 
-    
-    vehicle = new Hexapod(rodeHandle, osgHandle.changeColor("Green"), 
-			  myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
+
+    vehicle = new Hexapod(rodeHandle, osgHandle.changeColor("Green"),
+                          myHexapodConf, "Hexapod_" + std::itos(teacher*10000));
 
     // on the top
     vehicle->place(osg::Matrix::rotate(M_PI*1,1,0,0)*osg::Matrix::translate(0,0,1.5+ 2*ii));
     // normal position
     //    vehicle->place(osg::Matrix::translate(0,0,0));
 
-//     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
+//     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
 //     cc.cInit=1.0;
 //     cc.useS=false;
     //    cc.someInternalParams=true;
-//     InvertMotorNStep *semox = new InvertMotorNStep(cc);  
+//     InvertMotorNStep *semox = new InvertMotorNStep(cc);
 //     semox->setParam("steps", 1);
 //     semox->setParam("continuity", 0.005);
 //     semox->setParam("teacher", teacher);
@@ -170,24 +170,24 @@ public:
     sox->setParam("Logarithmic",1);
 
 
-    SeMoXConf cc = SeMoX::getDefaultConf();    
+    SeMoXConf cc = SeMoX::getDefaultConf();
     //cc.cInit=.95;
     cc.cInit=.99;
     cc.modelExt=false;
     cc.someInternalParams=true;
-    SeMoX* semox = new SeMoX(cc);  
+    SeMoX* semox = new SeMoX(cc);
 
-    DerInfConf dc = DerInf::getDefaultConf();    
+    DerInfConf dc = DerInf::getDefaultConf();
     dc.cInit=.599;
     dc.someInternalParams=false;
-    AbstractController* derinf = new DerInf(dc);  
+    AbstractController* derinf = new DerInf(dc);
     derinf->setParam("epsC",0.1);
     derinf->setParam("epsA",0.05);
 
     AbstractController* sine = 0;
     if(useSineController){
-      // sine = new SineController(~0, SineController::Sine);   
-      sine = new SineController(~0, SineController::Impulse);   
+      // sine = new SineController(~0, SineController::Sine);
+      sine = new SineController(~0, SineController::Impulse);
       // //     // //     // motorpower 20
       sine->setParam("period", 30);
       sine->setParam("phaseshift", 0.5);
@@ -209,13 +209,13 @@ public:
       //      controller = semox;
       controller = sox;
      //  controller = soml;
-      // controller = derinf; 
+      // controller = derinf;
     }
 
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     // the feedbackwiring feeds here 75% of the motor actions as inputs and only 25% of real inputs
 //     AbstractWiring* wiring = new FeedbackWiring(new ColorUniformNoise(0.1),
-// 						FeedbackWiring::Motor, 0.75);
+//                                                 FeedbackWiring::Motor, 0.75);
     //global.plotoptions.push_back(PlotOption(GuiLogger,Robot,5));
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
@@ -247,31 +247,31 @@ public:
     //agent->startMotorBabblingMode(5000);
 
     // this->getHUDSM()->setColor(Color(1.0,1.0,0));
-    // this->getHUDSM()->setFontsize(18);    
+    // this->getHUDSM()->setFontsize(18);
     // this->getHUDSM()->addMeasure(teacher,"gamma_s",ID,1);
-    
+
   }
   }
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(control && controller){
-      if(teacher){	
+      if(teacher){
         Teachable* contr = dynamic_cast<Teachable*>(controller);
         if(contr){
           // calculate teaching signal
           matrix::Matrix teaching = contr->getLastMotorValues(); // initialize with last motor values (essentially no teaching)
           // TODO: change teaching matrix here
-          contr->setMotorTeaching(teaching);          
+          contr->setMotorTeaching(teaching);
         }
       }
     }
-   
+
   }
 
   // // overloaded from configurable
   // virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren){
   //   bool rv = Configurable::setParam(key,val);
   //   if(key=="gamma_s"){
-  //     controller->setParam("gamma_teach", teacher); 
+  //     controller->setParam("gamma_teach", teacher);
   //   }
   //   return rv;
   // }
@@ -280,14 +280,14 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   int index = Simulation::contains(argv,argc,"-guide");
   if(index >0 && argc>index){
-    teacher=atof(argv[index]);     
+    teacher=atof(argv[index]);
   }
   index = Simulation::contains(argv,argc,"-bars");
   if(index >0 && argc>index){
-    bars=atoi(argv[index]); 
+    bars=atoi(argv[index]);
   }
   track = Simulation::contains(argv,argc,"-track") != 0;
   tracksegm = Simulation::contains(argv,argc,"-tracksegm") != 0;
@@ -298,5 +298,5 @@ int main (int argc, char **argv)
   return sim.run(argc, argv) ? 0 :  1;
 }
 
- 
- 
+
+

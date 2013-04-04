@@ -51,8 +51,8 @@ static void skipWhiteSpace (const std::string& filename, FILE *f)
     // skip comments
     if (c == '#') {
       do {
-	d = fgetc(f);
-	if (d==EOF) std::cerr << "unexpected end of file in '" << filename << "'" << std::endl;
+        d = fgetc(f);
+        if (d==EOF) std::cerr << "unexpected end of file in '" << filename << "'" << std::endl;
       } while (d != '\n');
       continue;
     }
@@ -66,7 +66,7 @@ static void skipWhiteSpace (const std::string& filename, FILE *f)
 
 
 
-ImagePPM::ImagePPM () 
+ImagePPM::ImagePPM ()
 {   image_data = 0;
 }
 
@@ -80,7 +80,7 @@ ImagePPM::ImagePPM (int width, int height, unsigned char* data){
 int ImagePPM::loadImage(const std::string& filename)
 {
   FILE *f = fopen (filename.c_str(),"rb");
-  if (!f) { 
+  if (!f) {
     std::cerr << "Can't open image file '" <<  filename <<  "'" << std::endl;
     return 0;
   }
@@ -120,7 +120,7 @@ int ImagePPM::loadImage(const std::string& filename)
   if (fread( image_data, image_width*image_height*3, 1, f) != 1){
     std::cerr << "Can't read data from image file '" <<  filename <<  "'" << std::endl;
     return 0;
-  } 
+  }
   fclose (f);
   return 1;
 }
@@ -128,7 +128,7 @@ int ImagePPM::loadImage(const std::string& filename)
 
 int ImagePPM::storeImage(const std::string& filename) {
   FILE *f = fopen (filename.c_str(),"wb");
-  if (!f) { 
+  if (!f) {
     std::cerr << "Can't open image file '" <<  filename <<  "'" << std::endl;
     return 0;
   }
@@ -143,7 +143,7 @@ int ImagePPM::storeImage(const std::string& filename) {
   if (fwrite( image_data, image_width*image_height*3, 1, f) != 1){
     std::cerr << "Can't write to image file '" <<  filename <<  "'" << std::endl;
     return 0;
-  } 
+  }
   fclose (f);
   return 1;
 }

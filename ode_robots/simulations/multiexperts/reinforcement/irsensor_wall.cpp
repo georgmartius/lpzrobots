@@ -49,17 +49,17 @@ namespace lpzrobots {
 
   using namespace std;
 
-  // this function is called if the ray has a collision. In the userdata we get the 
+  // this function is called if the ray has a collision. In the userdata we get the
   //  irsensor and the depth is in the contact information
-  int irwallCollCallback(dSurfaceParameters& params, GlobalData& globaldata, void *userdata, 
-			 dContact* contacts, int numContacts,
-			 dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
-    
+  int irwallCollCallback(dSurfaceParameters& params, GlobalData& globaldata, void *userdata,
+                         dContact* contacts, int numContacts,
+                         dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
+
     IRSensorWall* sensor = (IRSensorWall*)userdata;
     list<dGeomID>::iterator result = find(sensor->avoids.begin(),sensor->avoids.end(),o2);
-    if(result==sensor->avoids.end()) 
+    if(result==sensor->avoids.end())
       sensor->setLength(contacts[0].geom.depth);
-    return 0;    
+    return 0;
   }
 
   IRSensorWall::IRSensorWall(float exponent, const list<dGeomID>& avoids)
@@ -73,12 +73,12 @@ namespace lpzrobots {
 
 
   void IRSensorWall::init(const OdeHandle& odeHandle,
-			  const OsgHandle& osgHandle, 
-			  Primitive* body, 
-			  const osg::Matrix pose, float range,
-			  rayDrawMode drawMode){
+                          const OsgHandle& osgHandle,
+                          Primitive* body,
+                          const osg::Matrix pose, float range,
+                          rayDrawMode drawMode){
     IRSensor::init(odeHandle, osgHandle, body, pose,range,  drawMode);
-    transform->substance.setCollisionCallback(irwallCollCallback,this);  
-  }; 
+    transform->substance.setCollisionCallback(irwallCollCallback,this);
+  };
 
 }
