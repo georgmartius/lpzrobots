@@ -95,8 +95,9 @@ namespace lpzrobots {
       */
       virtual void removeExpiredObjects(double time = -1);
 
-      /// removes a particular temporary display item even if it is not yet expired
-      virtual void removeTmpObject(TmpObject* i);
+      /** removes a particular temporary display item even if it is not yet expired
+          @return true if it was deleted (found) */
+      virtual bool removeTmpObject(TmpObject* i);
 
 
     private:

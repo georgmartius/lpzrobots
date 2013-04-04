@@ -243,10 +243,10 @@ namespace lpzrobots {
     r->fixate(global,primitiveID,time);
   }
 
-  void OdeAgent::unfixateRobot(GlobalData& global){
+  bool OdeAgent::unfixateRobot(GlobalData& global){
     OdeRobot* r = dynamic_cast<OdeRobot*>(robot);
-    if(!r) return;
-    r->unFixate(global);
+    if(!r) return false;
+    return r->unFixate(global);
   }
 
 

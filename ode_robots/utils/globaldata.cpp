@@ -60,7 +60,7 @@ namespace lpzrobots {
   }
 
   /// removes a particular temporary display item even if it is not yet expired
-  void GlobalData::removeTmpObject(TmpObject* obj){
+  bool GlobalData::removeTmpObject(TmpObject* obj){
     if(tmpObjects.size()>0){
       TmpObjectMap::iterator i = tmpObjects.begin();
       while(i != tmpObjects.end()){
@@ -68,10 +68,11 @@ namespace lpzrobots {
           i->second->deleteObject();
           delete i->second;
           tmpObjects.erase(i);
-          break;
+          return true;
         }
       }
     }
+    return false;
   }
 
   void GlobalData::removeExpiredObjects(double time){

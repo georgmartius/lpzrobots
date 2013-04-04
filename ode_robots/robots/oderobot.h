@@ -160,8 +160,8 @@ namespace lpzrobots {
         @param duration time to fixate in seconds (if ==0 then indefinite)
      */
     virtual void fixate(GlobalData& global, int primitiveID=-1, double duration = 0);
-    /// release the robot in case it is fixated
-    virtual void unFixate(GlobalData& global);
+    /// release the robot in case it is fixated and return true in this case
+    virtual bool unFixate(GlobalData& global);
 
 
   protected:

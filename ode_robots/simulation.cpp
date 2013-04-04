@@ -754,7 +754,7 @@ namespace lpzrobots {
       if(handled) {
         break;
       }
-              //printf("Key: %i\n", ea.getKey());
+      //printf("Key: %i\n", ea.getKey());
       switch(ea.getKey()) {
       case 3 : // Ctrl - c
         if (globalData.isConfiguratorOpen()){
@@ -793,18 +793,25 @@ namespace lpzrobots {
         break;
       case 8 : // Ctrl - h
         {
-          OSGCameraManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
-          if(!mm) break;
-          CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
-          if(!cameramanipulator) break;
-          OdeAgent* agent = cameramanipulator->getWatchedAgent();
+          OdeAgent* agent = getWatchedAgent();
           if(agent && agent->getRobot()){
             agent->getRobot()->moveToPosition(Pos(0,0,.5),-2); // move lowest body part to center
           }
         }
         handled=true;
         break;
-
+      case 24 : // Ctrl - x // fixate/unFixate
+        {
+          OdeAgent* agent = getWatchedAgent();
+          if(agent && agent->getRobot()){
+            if(!agent->getRobot()->unFixate(globalData)){
+              agent->getRobot()->moveToPosition(Pos(0,0,2),-1); // move robot up
+              agent->getRobot()->fixate(globalData); // fixate robot
+            }
+          }
+        }
+        handled=true;
+        break;
       case 65450: // keypad *  // normal * is allready used by LOD
         globalData.odeConfig.setParam("realtimefactor", 0);
         //std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor")
@@ -923,6 +930,7 @@ namespace lpzrobots {
     au.addKeyboardMouseBinding("Sim: Ctrl-m","Restart the MatrixViz");
     au.addKeyboardMouseBinding("Sim: Ctrl-c","Restart the Configurator");
     au.addKeyboardMouseBinding("Sim: Ctrl-h","Move watched agent to (0,0,0) position");
+    au.addKeyboardMouseBinding("Sim: Ctrl-x","Fixate/release watched agent at pos (0,0,2)");
     au.addKeyboardMouseBinding("Sim: Ctrl-r","Start/Stop video recording");
     au.addKeyboardMouseBinding("Sim: Ctrl-p","Pause on/off");
     au.addKeyboardMouseBinding("Sim: +","increase simulation speed (realtimefactor)");
@@ -1414,9 +1422,19 @@ namespace lpzrobots {
         if(cameramanipulator)
           cameramanipulator->setWatchedAgent(agent);
       }
-
     }
   }
+
+  OdeAgent* Simulation::getWatchedAgent() const {
+    OSGCameraManipulator* mm = keyswitchManipulator->getCurrentMatrixManipulator();
+    if(mm) {
+      CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
+      if(cameramanipulator)
+        return cameramanipulator->getWatchedAgent();
+    }
+    return 0;
+  }
+
 
   void createNewDir(const char* base, char *newdir) {
     struct stat s;

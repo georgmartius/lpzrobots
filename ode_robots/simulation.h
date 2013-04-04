@@ -168,6 +168,9 @@ namespace lpzrobots {
      */
     void setWatchedAgent(OdeAgent* agent);
 
+    /// returns the watched agent (or 0)
+    OdeAgent* getWatchedAgent() const;
+
     static void nearCallback_TopLevel(void *data, dGeomID o1, dGeomID o2);
     static void nearCallback(void *data, dGeomID o1, dGeomID o2);
     bool control_c_pressed();

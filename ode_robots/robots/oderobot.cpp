@@ -133,11 +133,13 @@ namespace lpzrobots {
     }
   }
 
-  void OdeRobot::unFixate(GlobalData& global){
+  bool OdeRobot::unFixate(GlobalData& global){
+    bool fixed=false;
     if(fixationTmpJoint){
-      global.removeTmpObject(fixationTmpJoint);
+      fixed=global.removeTmpObject(fixationTmpJoint);
       fixationTmpJoint=0;
     }
+    return fixed;
   }
 
   /*********** BEGIN TRACKABLE INTERFACE ****************/
