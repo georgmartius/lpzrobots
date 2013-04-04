@@ -235,6 +235,7 @@ public:
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
+    global.configs.push_back(agent);
 
   }
 

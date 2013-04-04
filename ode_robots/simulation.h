@@ -222,6 +222,7 @@ namespace lpzrobots {
     long simtimeoffset;
     double truerealtimefactor; // calculated true speed
     bool justresettimes;      // true if we just reset sync times
+    bool drawContacts;
 
     paramint windowWidth;
     paramint windowHeight;

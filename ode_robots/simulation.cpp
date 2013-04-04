@@ -130,6 +130,7 @@ namespace lpzrobots {
     viewer   = 0;
     arguments= 0;
     startConfigurator = false;
+    drawContacts = false;
 
     // we have to count references by our selfes
     osg::Referenced::ref();
@@ -1167,6 +1168,9 @@ namespace lpzrobots {
     if(index && (argc > index)) {
       startVideoRecording(argv[index]);
     }
+    if (contains(argv, argc, "-drawcontacts")) {
+      drawContacts=true;
+    }
 
     // initialize QuickMP with the number of processors
     QMP_SET_NUM_THREADS(0);
@@ -1279,6 +1283,14 @@ namespace lpzrobots {
                                             me->odeHandle.jointGroup,&contact[i]);
           dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
         }
+        if(me->drawContacts){
+          for (i=0; i < n; i++) {
+            me->globalData.addTmpObject(new TmpDisplayItem(new OSGBox(0.02,0.02,0.02),
+                                                           TRANSM(Pos(contact[i].geom.pos)),
+                                                           Color(1.0,0,0)),
+                                        0.5);
+          }
+        }
       } // if contact points
     } // if geoms
   }
@@ -1385,6 +1397,7 @@ namespace lpzrobots {
     printf("    \t\t\t4: SoftShadowMap, 5: ShadowMap (default)\n");
     printf("    -shadowsize N\t* sets the size of the shadow texture (default 2048)\n");
     printf("    -drawboundings\tenables the drawing of the bounding shapes of the meshes\n");
+    printf("    -drawcontacts\tenables the drawing of the contact points for collision detection\n");
     printf("    -simtime min\tlimited simulation time in minutes\n");
     printf("    -video NAME\tstart video recording with given name\n");
     printf("    -savecfg\t\tsafe the configuration file with the values given by the cmd line\n");

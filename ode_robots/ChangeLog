@@ -1,3 +1,8 @@
+2013-04-XX martius (0.8)
+	Bugfixes: Following camera mode,...
+	Fixation and displacement of robots integrated
+	Contacts can be drawn with -drawcontacts
+
 2011-11-11 martius (0.7)
 	Build system: use config scripts like selforg-config etc.
 	Configurator added (some stability issues remain)
@@ -6,7 +11,6 @@
 	Colors and ColorSchema: named colors and alias sets
    	 color palette files (gimp format)
 	 alias files: simple tab seperated file
-	
 
 
 2010-07-05 martius (0.65)
