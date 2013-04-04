@@ -245,7 +245,7 @@ namespace lpzrobots {
     FOREACH(std::list<std::string>, paletteFiles, f){
       int rv = osgHandle.colorSchema()->loadPalette(*f);
       if(rv<=0){
-	cerr << "Error with palette file " << *f << ": "
+        cerr << "Error with palette file " << *f << ": "
              << osgHandle.colorSchema()->getLoadErrorString(rv) << endl;
       }else if(verboseColorLoading){
         cerr << "Loaded " << rv << " colors from Palette " << *f << endl;
@@ -254,7 +254,7 @@ namespace lpzrobots {
     FOREACH(std::list<std::string>, colorAliasFiles, f){
       int rv = osgHandle.colorSchema()->loadAliases(*f);
       if(rv<=0){
-	cerr << "Error with alias file " << *f << ": "
+        cerr << "Error with alias file " << *f << ": "
              << osgHandle.colorSchema()->getLoadErrorString(rv) << endl;
       }else if(verboseColorLoading){
         cerr << "Loaded " << rv << " alias definitions " << *f << endl;
@@ -267,16 +267,16 @@ namespace lpzrobots {
     if(!restoreCfg(odeRobotsCfg)){
       const char* home = getenv("HOME");
       if(!home){
-	fprintf(stderr,"Cannot determine HOME directory!");
+        fprintf(stderr,"Cannot determine HOME directory!");
       } else {
-	sprintf(odeRobotsCfg,"%s/.lpzrobots/ode_robots",home);
-	if(!restoreCfg(odeRobotsCfg)){
-	  // create directory
-	  char dir[1024];
-	  sprintf(dir,"%s/.lpzrobots",home);
-	  mkdir(dir, S_IREAD | S_IWRITE | S_IEXEC | S_IRGRP | S_IXGRP);
-	  storeOdeRobotsCFG();
-	}
+        sprintf(odeRobotsCfg,"%s/.lpzrobots/ode_robots",home);
+        if(!restoreCfg(odeRobotsCfg)){
+          // create directory
+          char dir[1024];
+          sprintf(dir,"%s/.lpzrobots",home);
+          mkdir(dir, S_IREAD | S_IWRITE | S_IEXEC | S_IRGRP | S_IXGRP);
+          storeOdeRobotsCFG();
+        }
       }
     }
     // process cmdline (possibly overwrite values from cfg file
@@ -294,30 +294,30 @@ namespace lpzrobots {
 //       // set up the usage document, in case we need to print out how to use this program.
 //       arguments->getApplicationUsage()->setApplicationName(arguments->getApplicationName() );
 //       arguments->getApplicationUsage()->setDescription(
-// 	       "Lpzrobots Simulator, <robot.informatik.uni-leipzig.de>");
+//                "Lpzrobots Simulator, <robot.informatik.uni-leipzig.de>");
 //       arguments->getApplicationUsage()->setCommandLineUsage(arguments->getApplicationName() );
 //       arguments->getApplicationUsage()->addCommandLineOption(
-// 	       "-h or --help", "Display this information");
+//                "-h or --help", "Display this information");
 //       // if user request help write it out to cout.
 //       if (arguments->read("-h") || arguments->read("--help")) {
-// 	arguments->getApplicationUsage()->write(std::cout);
-// 	return false;
+//         arguments->getApplicationUsage()->write(std::cout);
+//         return false;
 //       }
       // any option left unread are converted into errors to write out later.
       //    arguments->reportRemainingOptionsAsUnrecognized();
 
       // report any errors if they have occured when parsing the program aguments.
       if (arguments->errors()) {
-	arguments->writeErrorMessages(std::cout);
-	return false;
+        arguments->writeErrorMessages(std::cout);
+        return false;
       }
 
       // construct the viewer.
       viewer = new LPZViewer(*arguments);
       if(useOsgThread && !osgHandle.cfg->shadowType==3){ // ParallelSplitShadowMap does not support threads
-	viewer->setThreadingModel(Viewer::CullDrawThreadPerContext);
+        viewer->setThreadingModel(Viewer::CullDrawThreadPerContext);
       }else{
-	viewer->setThreadingModel(Viewer::SingleThreaded);
+        viewer->setThreadingModel(Viewer::SingleThreaded);
       }
 
       // add the ourself that we can react on keys and mouse
@@ -365,7 +365,7 @@ namespace lpzrobots {
     if (!noGraphics) {
       makeScene(osgHandle.scene, *osgHandle.cfg);
       if (!osgHandle.scene->scene)
-	return false;
+        return false;
       osgHandle.parent=osgHandle.scene->scene;
 
       // add the display node to show what the robot cameras see
@@ -454,16 +454,16 @@ namespace lpzrobots {
 
       // set our motion blur callback as the draw operator on each window
       FOREACH(osgViewer::Viewer::Windows, windows, itr){
-	if(globalData.odeConfig.motionPersistence > 0)
-	  (*itr)->add(new MotionBlurOperation(globalData));
-	(*itr)->setWindowName(windowName);
+        if(globalData.odeConfig.motionPersistence > 0)
+          (*itr)->add(new MotionBlurOperation(globalData));
+        (*itr)->setWindowName(windowName);
       }
     }
     if (startConfigurator)
       globalData.createConfigurator();
 
     while ( ( noGraphics || !viewer->done()) &&
-	    (!simulation_time_reached || restart(odeHandle,osgHandle,globalData)) ) {
+            (!simulation_time_reached || restart(odeHandle,osgHandle,globalData)) ) {
       if (simulation_time_reached) {
         printf("%li min simulation time reached (%li steps) -> simulation cycle (%i) stopped\n",
                (globalData.sim_step/6000), globalData.sim_step, currentCycle);
@@ -475,7 +475,7 @@ namespace lpzrobots {
         resetSyncTimer();
       }
       if(!loop())
-	break;
+        break;
     }
     if(useOdeThread) pthread_join (odeThread, NULL);
     if(useOsgThread) pthread_join (osgThread, NULL);
@@ -501,49 +501,49 @@ namespace lpzrobots {
     for(int t = 0; t < globalData.odeConfig.drawInterval; t++) {
       // Parametereingabe
       if (control_c_pressed()){
-	cmd_begin_input();
-	run=config(globalData);
-	cmd_end_input();
-	resetSyncTimer();
+        cmd_begin_input();
+        run=config(globalData);
+        cmd_end_input();
+        resetSyncTimer();
       }
 
       // the simulation just runs if pause is not enabled
       if (!pause) {
-	// increase time
-	globalData.time += globalData.odeConfig.simStepSize;
-	globalData.sim_step++;
-	// print simulation time every 10 min.
-	if(noGraphics &&
-	   globalData.sim_step % long(600.0/globalData.odeConfig.simStepSize) ==0) {
-	  printf("Simulation time: %li min\n",
-		 globalData.sim_step/ long(60/globalData.odeConfig.simStepSize));
-	}
-	// finish simulation, if intended simulation time is reached
-	if(simulation_time!=-1) { // check time only if activated
-	  if( (globalData.sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60))  == simulation_time) {
-	    if (!simulation_time_reached) { // print out once only
-	      printf("%li min simulation time reached -> simulation stopped \n", simulation_time);
-	    }
-	    simulation_time_reached=true;
+        // increase time
+        globalData.time += globalData.odeConfig.simStepSize;
+        globalData.sim_step++;
+        // print simulation time every 10 min.
+        if(noGraphics &&
+           globalData.sim_step % long(600.0/globalData.odeConfig.simStepSize) ==0) {
+          printf("Simulation time: %li min\n",
+                 globalData.sim_step/ long(60/globalData.odeConfig.simStepSize));
+        }
+        // finish simulation, if intended simulation time is reached
+        if(simulation_time!=-1) { // check time only if activated
+          if( (globalData.sim_step/ ( long(1/globalData.odeConfig.simStepSize)*60))  == simulation_time) {
+            if (!simulation_time_reached) { // print out once only
+              printf("%li min simulation time reached -> simulation stopped \n", simulation_time);
+            }
+            simulation_time_reached=true;
             return run;
-	  }
-	}
+          }
+        }
 
 
-// 	SEQUENCIAL VERSION
-// 	// for all agents: robots internal stuff and control step if at controlInterval
-// 	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-// 	  if ( (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
-// 	    (*i)->step(globalData.odeConfig.noise, globalData.time);
-// 	    (*i)->getRobot()->doInternalStuff(globalData);
-// 	  } else {
-// 	    (*i)->onlyControlRobot();
-// 	  }
-// 	}
+//         SEQUENCIAL VERSION
+//         // for all agents: robots internal stuff and control step if at controlInterval
+//         for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+//           if ( (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
+//             (*i)->step(globalData.odeConfig.noise, globalData.time);
+//             (*i)->getRobot()->doInternalStuff(globalData);
+//           } else {
+//             (*i)->onlyControlRobot();
+//           }
+//         }
 
- 	// for all agents: robots internal stuff and control step if at controlInterval
-// 	PARALLEL VERSION
-	if ( (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
+         // for all agents: robots internal stuff and control step if at controlInterval
+//         PARALLEL VERSION
+        if ( (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
           // render offscreen cameras (robot sensor cameras) (does not work in nographics mode)
           if(!noGraphics && viewer->needForOffScreenRendering()){
             QP(PROFILER.beginBlock("offScreenRendering           "));
@@ -552,10 +552,10 @@ namespace lpzrobots {
             QP(PROFILER.endBlock("offScreenRendering           "));
           }
 
-	  QP(PROFILER.beginBlock("controller                   "));
-	  if (useQMPThreads)
-	  {
-	    // PARALLEL VERSION (QMP)
+          QP(PROFILER.beginBlock("controller                   "));
+          if (useQMPThreads)
+          {
+            // PARALLEL VERSION (QMP)
             QMP_SHARE(globalData);
             // there is a problem with the useOdeThread in the loop (not static)
             if (useOdeThread) // whether to use a separate thread for ode
@@ -563,7 +563,7 @@ namespace lpzrobots {
               QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED)
               {
                 QMP_USE_SHARED(globalData, GlobalData);
-		globalData.agents[i]->beforeStep(globalData);
+                globalData.agents[i]->beforeStep(globalData);
                 globalData.agents[i]->stepOnlyWiredController(globalData.odeConfig.noise, globalData.time);
               }
               QMP_END_PARALLEL_FOR;
@@ -571,7 +571,7 @@ namespace lpzrobots {
               QMP_PARALLEL_FOR(i, 0, globalData.agents.size(),quickmp::INTERLEAVED)
               {
                 QMP_USE_SHARED(globalData, GlobalData);
-		globalData.agents[i]->beforeStep(globalData);
+                globalData.agents[i]->beforeStep(globalData);
                 globalData.agents[i]->step(globalData.odeConfig.noise, globalData.time);
               }
               QMP_END_PARALLEL_FOR;
@@ -581,61 +581,61 @@ namespace lpzrobots {
             // there is a problem with the useOdeThread in the loop (not static)
             if (useOdeThread) {
               FOREACH(OdeAgentList, globalData.agents, i) {
-		(*i)->beforeStep(globalData);
+                (*i)->beforeStep(globalData);
                 (*i)->stepOnlyWiredController(globalData.odeConfig.noise, globalData.time);
               }
             } else {
               FOREACH(OdeAgentList, globalData.agents, i) {
-		(*i)->beforeStep(globalData);
+                (*i)->beforeStep(globalData);
                 (*i)->step(globalData.odeConfig.noise, globalData.time);
               }
             }
           }
-	  QP(PROFILER.endBlock("controller                   "));
-	}else{ // serial execution is sufficient here
-	  FOREACH(OdeAgentList, globalData.agents, i) {
-	    (*i)->onlyControlRobot();
-	  }
-	}
+          QP(PROFILER.endBlock("controller                   "));
+        }else{ // serial execution is sufficient here
+          FOREACH(OdeAgentList, globalData.agents, i) {
+            (*i)->onlyControlRobot();
+          }
+        }
 
-	/****************** Simulationstep *****************/
-	if(useOdeThread){
-	  if (odeThreadCreated)
-	    pthread_join (odeThread, NULL);
-	  else odeThreadCreated=true;
-   	}
-	// Do this here because it
-	// can provide collision handling (old style collision handling)
-	// and this crashes in parallel version
-	QP(PROFILER.beginBlock("internalstuff_and_addcallback"));
-	FOREACH(OdeAgentList, globalData.agents, i) {
-	  if (useOdeThread)
-	    (*i)->setMotorsGetSensors();
-	  (*i)->getRobot()->doInternalStuff(globalData);
-	}
-	addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause,
-		    (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0);
-	QP(PROFILER.endBlock("internalstuff_and_addcallback"));
+        /****************** Simulationstep *****************/
+        if(useOdeThread){
+          if (odeThreadCreated)
+            pthread_join (odeThread, NULL);
+          else odeThreadCreated=true;
+           }
+        // Do this here because it
+        // can provide collision handling (old style collision handling)
+        // and this crashes in parallel version
+        QP(PROFILER.beginBlock("internalstuff_and_addcallback"));
+        FOREACH(OdeAgentList, globalData.agents, i) {
+          if (useOdeThread)
+            (*i)->setMotorsGetSensors();
+          (*i)->getRobot()->doInternalStuff(globalData);
+        }
+        addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause,
+                    (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0);
+        QP(PROFILER.endBlock("internalstuff_and_addcallback"));
 
-	// manipulate agents (with mouse)
-	if(!noGraphics){
-	  videostream->pause = pause;
+        // manipulate agents (with mouse)
+        if(!noGraphics){
+          videostream->pause = pause;
 
-	  OSGCameraManipulator* mm =
-	    keyswitchManipulator->getCurrentMatrixManipulator();
+          OSGCameraManipulator* mm =
+            keyswitchManipulator->getCurrentMatrixManipulator();
 
-	  if(mm) {
-	    CameraManipulator* cm = dynamic_cast<CameraManipulator*>(mm);
-	    if(cm) cm->manipulateAgent(osgHandle);
-	  }
-	}
+          if(mm) {
+            CameraManipulator* cm = dynamic_cast<CameraManipulator*>(mm);
+            if(cm) cm->manipulateAgent(osgHandle);
+          }
+        }
 
-	if(useOdeThread)
-	  pthread_create (&odeThread, NULL, odeStep_run,this);
-	else
-	  odeStep();
+        if(useOdeThread)
+          pthread_create (&odeThread, NULL, odeStep_run,this);
+        else
+          odeStep();
 
- 	// call all registered physical callbackable classes
+         // call all registered physical callbackable classes
         QP(PROFILER.beginBlock("physicsCB                    "));
         if (useQMPThreads!=0)
           callBackQMP(Base::PHYSICS_CALLBACKABLE);
@@ -643,45 +643,45 @@ namespace lpzrobots {
           callBack(Base::PHYSICS_CALLBACKABLE);
         QP(PROFILER.endBlock("physicsCB                    "));
 
-	// remove old sound signal and TmpObjects
-	globalData.removeExpiredObjects();
+        // remove old sound signal and TmpObjects
+        globalData.removeExpiredObjects();
       }
 
       // graphics rendering
       if(t==(globalData.odeConfig.drawInterval-1) && !noGraphics) {
-	if(useOsgThread){
-	  QP(PROFILER.beginBlock("graphics aync"));
-	  if (osgThreadCreated)
-	    pthread_join (osgThread, NULL);
-	  else osgThreadCreated=true;
-	  QP(PROFILER.endBlock("graphics aync"));
-	}
-	QP(PROFILER.beginBlock("graphicsUpdate               "));
-	/************************** Update the scene ***********************/
+        if(useOsgThread){
+          QP(PROFILER.beginBlock("graphics aync"));
+          if (osgThreadCreated)
+            pthread_join (osgThread, NULL);
+          else osgThreadCreated=true;
+          QP(PROFILER.endBlock("graphics aync"));
+        }
+        QP(PROFILER.beginBlock("graphicsUpdate               "));
+        /************************** Update the scene ***********************/
         updateGraphics();
 
-	// update the camera
-	OSGCameraManipulator* mm = keyswitchManipulator->getCurrentMatrixManipulator();
-	if(mm) {
-	  CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
-	  if(cameramanipulator)
-	    cameramanipulator->update();
-	}
-	// update timestats
-	setTimeStats(globalData.time,globalData.odeConfig.realTimeFactor,
-		     truerealtimefactor,pause);
+        // update the camera
+        OSGCameraManipulator* mm = keyswitchManipulator->getCurrentMatrixManipulator();
+        if(mm) {
+          CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
+          if(cameramanipulator)
+            cameramanipulator->update();
+        }
+        // update timestats
+        setTimeStats(globalData.time,globalData.odeConfig.realTimeFactor,
+                     truerealtimefactor,pause);
 
-	// call all registered graphical callbackable classes
+        // call all registered graphical callbackable classes
         callBack(Base::GRAPHICS_CALLBACKABLE);
         QP(PROFILER.endBlock("graphicsUpdate               "));
 
         if(useOsgThread){
-	  pthread_create (&osgThread, NULL, osgStep_run,this);
-	}else{
+          pthread_create (&osgThread, NULL, osgStep_run,this);
+        }else{
           QP(PROFILER.beginBlock("graphics                     "));
-	  osgStep();
-	  QP(PROFILER.endBlock("graphics                     "));
-	}
+          osgStep();
+          QP(PROFILER.endBlock("graphics                     "));
+        }
 
       } // end graphics rendering
 
@@ -700,27 +700,27 @@ namespace lpzrobots {
     if(globalData.odeConfig.realTimeFactor!=0.0 && !pause) {
       // difference between actual time and current time in milliseconds
        long diff = long((globalData.time*1000.0 - simtimeoffset)
-		       / globalData.odeConfig.realTimeFactor  ) - elapsed;
+                       / globalData.odeConfig.realTimeFactor  ) - elapsed;
       if(diff > 10000 || diff < -10000){ // check for overflow or other weird things
-	resetSyncTimer();
+        resetSyncTimer();
       }else {
-	if(diff > 4) { // if less the 3 milliseconds we don't call usleep since it needs time
-	  usleep((diff-2)*1000);
+        if(diff > 4) { // if less the 3 milliseconds we don't call usleep since it needs time
+          usleep((diff-2)*1000);
           //printf("sleep\t\t %li \t, el %li\n", diff, elapsed );
-	  //	  nextLeakAnnounce=100;
-	}else{
+          //          nextLeakAnnounce=100;
+        }else{
           //printf("don't sleep\t %li \t\n", diff, elapsed );
 
         }
       }
       // the video steam should look perfectly syncronised
       if(videostream->isOpen())
-	truerealtimefactor=globalData.odeConfig.realTimeFactor;
+        truerealtimefactor=globalData.odeConfig.realTimeFactor;
       else{
-	//  true speed of simulations. In case resetSyncTimer() was just called this
-	//  gives wrong values, thats why we test on elapsed
-	if(!justresettimes)
-	  truerealtimefactor = (globalData.time*1000.0 - simtimeoffset)/(elapsed+max(1l,diff));
+        //  true speed of simulations. In case resetSyncTimer() was just called this
+        //  gives wrong values, thats why we test on elapsed
+        if(!justresettimes)
+          truerealtimefactor = (globalData.time*1000.0 - simtimeoffset)/(elapsed+max(1l,diff));
       }
       justresettimes=false;
     } else if (pause) {
@@ -752,45 +752,45 @@ namespace lpzrobots {
     case(osgGA::GUIEventAdapter::KEYDOWN): {
       handled = command(odeHandle, osgHandle, globalData, ea.getKey(), true);
       if(handled) {
-	break;
+        break;
       }
-      	//printf("Key: %i\n", ea.getKey());
+              //printf("Key: %i\n", ea.getKey());
       switch(ea.getKey()) {
       case 3 : // Ctrl - c
-	if (globalData.isConfiguratorOpen()){
+        if (globalData.isConfiguratorOpen()){
           globalData.removeConfigurator();
         }else{
           globalData.createConfigurator();
         }
-	break;
+        break;
       case 6 : // Ctrl - f
-	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-	  if(!(*i)->removePlotOption(File)) {
-	    PlotOption po(File, filelogginginterval);
-	    (*i)->addAndInitPlotOption(po);
-	  }
-	}
-	handled= true;
-	break;
+        for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+          if(!(*i)->removePlotOption(File)) {
+            PlotOption po(File, filelogginginterval);
+            (*i)->addAndInitPlotOption(po);
+          }
+        }
+        handled= true;
+        break;
       case 7 : // Ctrl - g
-	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-	  if(!(*i)->removePlotOption(GuiLogger)) {
-	    PlotOption po(GuiLogger, guiloggerinterval,
+        for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+          if(!(*i)->removePlotOption(GuiLogger)) {
+            PlotOption po(GuiLogger, guiloggerinterval,
                           "-geometry +" + std::itos(windowWidth+12) + "+0");
-	    (*i)->addAndInitPlotOption(po);
-	  }
-	}
-	handled=true;
-	break;
+            (*i)->addAndInitPlotOption(po);
+          }
+        }
+        handled=true;
+        break;
       case 13 : // Ctrl - m
-	for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
-	  if(!(*i)->removePlotOption(MatrixViz)) {
-	    PlotOption po(MatrixViz, matrixvizinterval);
-	    (*i)->addAndInitPlotOption(po);
-	  }
-	}
-	handled=true;
-	break;
+        for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+          if(!(*i)->removePlotOption(MatrixViz)) {
+            PlotOption po(MatrixViz, matrixvizinterval);
+            (*i)->addAndInitPlotOption(po);
+          }
+        }
+        handled=true;
+        break;
       case 8 : // Ctrl - h
         {
           OSGCameraManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
@@ -799,18 +799,18 @@ namespace lpzrobots {
           if(!cameramanipulator) break;
           OdeAgent* agent = cameramanipulator->getWatchedAgent();
           if(agent && agent->getRobot()){
-            agent->getRobot()->moveToPosition(Pos(0,0,.5));
+            agent->getRobot()->moveToPosition(Pos(0,0,.5),-2); // move lowest body part to center
           }
         }
-	handled=true;
-	break;
+        handled=true;
+        break;
 
       case 65450: // keypad *  // normal * is allready used by LOD
-	globalData.odeConfig.setParam("realtimefactor", 0);
-	//std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor")
+        globalData.odeConfig.setParam("realtimefactor", 0);
+        //std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor")
         //  << std::endl; // shown in the  hud anyway
-	handled=true;
-	break;
+        handled=true;
+        break;
       case 65455: // keypad /
         globalData.odeConfig.setParam("realtimefactor", 1);
         //std::cout << "realtimefactor = " << globalData.odeConfig.getParam("realtimefactor")
@@ -819,53 +819,53 @@ namespace lpzrobots {
         break;
       case 65451: // keypad +
       case 43: // +
-	{
-	  double rf = globalData.odeConfig.realTimeFactor;
-	  if (rf >= 2)
-	    globalData.odeConfig.setParam("realtimefactor", rf+1);
-	  else if (rf>=1.0)
-	    globalData.odeConfig.setParam("realtimefactor", rf+0.25);
-	  else if (rf>=0.1)
-	    globalData.odeConfig.setParam("realtimefactor", rf+0.1);
-	  else
-	    globalData.odeConfig.setParam("realtimefactor", 0.1);
-          //	  std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
-	  handled=true;
-	}
-	break;
+        {
+          double rf = globalData.odeConfig.realTimeFactor;
+          if (rf >= 2)
+            globalData.odeConfig.setParam("realtimefactor", rf+1);
+          else if (rf>=1.0)
+            globalData.odeConfig.setParam("realtimefactor", rf+0.25);
+          else if (rf>=0.1)
+            globalData.odeConfig.setParam("realtimefactor", rf+0.1);
+          else
+            globalData.odeConfig.setParam("realtimefactor", 0.1);
+          //          std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
+          handled=true;
+        }
+        break;
       case 65453: // keypad -
       case 45: // -
-	{
-	  double rf = globalData.odeConfig.realTimeFactor;
-	  if (rf>2)
-	    globalData.odeConfig.setParam("realtimefactor", rf-1);
-	  else if (rf>1.0)
-	    globalData.odeConfig.setParam("realtimefactor", rf-0.25);
-	  else if (rf>0.1)
-	    globalData.odeConfig.setParam("realtimefactor", rf-0.1);
-	  else
-	    globalData.odeConfig.setParam("realtimefactor", 0.1);
-	  std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
-	  handled=true;
-	}
-	break;
+        {
+          double rf = globalData.odeConfig.realTimeFactor;
+          if (rf>2)
+            globalData.odeConfig.setParam("realtimefactor", rf-1);
+          else if (rf>1.0)
+            globalData.odeConfig.setParam("realtimefactor", rf-0.25);
+          else if (rf>0.1)
+            globalData.odeConfig.setParam("realtimefactor", rf-0.1);
+          else
+            globalData.odeConfig.setParam("realtimefactor", 0.1);
+          std::cout << "realtimefactor = " <<  globalData.odeConfig.getParam("realtimefactor")<< std::endl;
+          handled=true;
+        }
+        break;
       case 18:  // Ctrl - r
-	if(globalData.odeConfig.videoRecordingMode){
+        if(globalData.odeConfig.videoRecordingMode){
           stopVideoRecording();
-	} else {
+        } else {
           startVideoRecording("video");
-	}
-	handled=true;
-	break;
+        }
+        handled=true;
+        break;
       case 16: // Ctrl - p
-	pause = !pause;
-	printf( pause ? "Pause\n" : "Continue\n" );
-	handled = true;
-	break;
+        pause = !pause;
+        printf( pause ? "Pause\n" : "Continue\n" );
+        handled = true;
+        break;
       case 19: // Ctrl - s // change ShadowTechnique
       {
-    	  Base::changeShadowTechnique();
-    	  handled=true;
+              Base::changeShadowTechnique();
+              handled=true;
       }
       break;
       case 'o': //  add random object
@@ -901,9 +901,9 @@ namespace lpzrobots {
           }
         }
       default:
-	// std::cout << ea.getKey() << std::endl;
-	return false;
-	break;
+        // std::cout << ea.getKey() << std::endl;
+        return false;
+        break;
       }
     }
       break;
@@ -1041,7 +1041,7 @@ namespace lpzrobots {
     guiloggerinterval=5;
     if(index) {
       if(argc > index)
-	guiloggerinterval=atoi(argv[index]);
+        guiloggerinterval=atoi(argv[index]);
       if (guiloggerinterval<1) // avoids a bug
         guiloggerinterval=5; // default value
       plotoptions.push_back(PlotOption(GuiLogger, guiloggerinterval,
@@ -1053,7 +1053,7 @@ namespace lpzrobots {
     index = contains(argv, argc, "-f");
     if(index) {
       if(argc > index)
-	filelogginginterval=atoi(argv[index]);
+        filelogginginterval=atoi(argv[index]);
       if (filelogginginterval<1) // avoids a bug
         filelogginginterval=5; // default value
       std::string parameter="";
@@ -1070,7 +1070,7 @@ namespace lpzrobots {
     index = contains(argv, argc, "-m");
     if(index) {
       if(argc > index)
-	matrixvizinterval=atoi(argv[index]);
+        matrixvizinterval=atoi(argv[index]);
       if (matrixvizinterval<1) // avoids a bug
         matrixvizinterval=10; // default value
       plotoptions.push_back(PlotOption(MatrixViz, matrixvizinterval));
@@ -1081,7 +1081,7 @@ namespace lpzrobots {
     if(index) {
       string param="";
       if(argc > index)
-	param=argv[index];
+        param=argv[index];
       plotoptions.push_back(PlotOption(SoundMan, 1, param));
     }
 
@@ -1165,16 +1165,16 @@ namespace lpzrobots {
     index = contains(argv, argc, "-threads");
     if (index) {
       if(argc > index){
-	int threads = atoi(argv[index]);
-	if (threads==1)
-	{ // if set to 1, disable use of QMP
-	  useQMPThreads=false;
-	  printf("Disabling QuickMP multithreading.\n");
-	} else {
+        int threads = atoi(argv[index]);
+        if (threads==1)
+        { // if set to 1, disable use of QMP
+          useQMPThreads=false;
+          printf("Disabling QuickMP multithreading.\n");
+        } else {
           useQMPThreads=true;
-	  QMP_SET_NUM_THREADS(threads);
+          QMP_SET_NUM_THREADS(threads);
           printf("Number of QuickMP threads=%i\n", QMP_GET_MAX_THREADS());
-	}
+        }
       }
     }
 
@@ -1203,7 +1203,7 @@ namespace lpzrobots {
     bool collision_treated=false;
     // call robots collision treatments (old stuff, should be removed at some point)
     for(OdeAgentList::iterator i= me->globalData.agents.begin();
-	(i != me->globalData.agents.end()) && !collision_treated; i++) {
+        (i != me->globalData.agents.end()) && !collision_treated; i++) {
       collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
     }
 
@@ -1230,8 +1230,8 @@ namespace lpzrobots {
       dSurfaceParameters surfParams;
       // check whether ignored pair (e.g. connected by joint)
       if(me->odeHandle.isIgnoredPair(o1, o2 )) {
-	//cerr << "ign:  " << o1  << " " << o2  << "\t " << me->odeHandle.ignoredPairs->size()<< endl;
-	return;
+        //cerr << "ign:  " << o1  << " " << o2  << "\t " << me->odeHandle.ignoredPairs->size()<< endl;
+        return;
       }
       //cerr << "col:  " << o1  << " " << o2  << "\t " << me->odeHandle.ignoredPairs->size()<< endl;
       //      Primitive* p1 = (Primitive*)dGeomGetData (o1);
@@ -1239,8 +1239,8 @@ namespace lpzrobots {
       Primitive* p1 = dynamic_cast<Primitive*>((Primitive*)dGeomGetData (o1));
       Primitive* p2 = dynamic_cast<Primitive*>((Primitive*)dGeomGetData (o2));
       if(!p1 || !p2) {
-	cerr << "collision detected without primitive\n";
-	return;
+        cerr << "collision detected without primitive\n";
+        return;
       }
 
       int i,n;
@@ -1248,29 +1248,29 @@ namespace lpzrobots {
       dContact contact[N];
       n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
       if(n>0) {
-	const Substance& s1 = p1->substance;
-	const Substance& s2 = p2->substance;
-	int callbackrv = 1;
-	if(s1.callback) {
-	  callbackrv = s1.callback(surfParams, me->globalData, s1.userdata, contact, n,
-				   o1, o2, s1, s2);
-	}
-	if(s2.callback && callbackrv==1) {
-	  callbackrv = s2.callback(surfParams, me->globalData, s2.userdata, contact, n,
-				   o2, o1, s2, s1 );
-	}
-	if(callbackrv==1) {
-	  Substance::getSurfaceParams(surfParams, s1,s2, me->globalData.odeConfig.simStepSize);
-	  //Substance::printSurfaceParams(surfParams);
-	}
-	if(callbackrv==0)
-	  return;
-	for (i=0; i < n; i++) {
-	  contact[i].surface = surfParams;
-	  dJointID c = dJointCreateContact (me->odeHandle.world,
-					    me->odeHandle.jointGroup,&contact[i]);
-	  dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
-	}
+        const Substance& s1 = p1->substance;
+        const Substance& s2 = p2->substance;
+        int callbackrv = 1;
+        if(s1.callback) {
+          callbackrv = s1.callback(surfParams, me->globalData, s1.userdata, contact, n,
+                                   o1, o2, s1, s2);
+        }
+        if(s2.callback && callbackrv==1) {
+          callbackrv = s2.callback(surfParams, me->globalData, s2.userdata, contact, n,
+                                   o2, o1, s2, s1 );
+        }
+        if(callbackrv==1) {
+          Substance::getSurfaceParams(surfParams, s1,s2, me->globalData.odeConfig.simStepSize);
+          //Substance::printSurfaceParams(surfParams);
+        }
+        if(callbackrv==0)
+          return;
+        for (i=0; i < n; i++) {
+          contact[i].surface = surfParams;
+          dJointID c = dJointCreateContact (me->odeHandle.world,
+                                            me->odeHandle.jointGroup,&contact[i]);
+          dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
+        }
       } // if contact points
     } // if geoms
   }
@@ -1391,9 +1391,9 @@ namespace lpzrobots {
     if(!noGraphics) {
       OSGCameraManipulator* mm =keyswitchManipulator->getCurrentMatrixManipulator();
       if(mm) {
-	CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
-	if(cameramanipulator)
-	  cameramanipulator->setHome(eye, view);
+        CameraManipulator* cameramanipulator = dynamic_cast<CameraManipulator*>(mm);
+        if(cameramanipulator)
+          cameramanipulator->setHome(eye, view);
       }
     }
   }
@@ -1426,8 +1426,8 @@ namespace lpzrobots {
       else
         sprintf(newdir,"%s%03i", base, i);
       if(stat(newdir,&s)!=0) { // file/dir does not exist -> take it
-	mkdir(newdir, S_IREAD | S_IWRITE | S_IEXEC | S_IRGRP | S_IXGRP );
-	return;
+        mkdir(newdir, S_IREAD | S_IWRITE | S_IEXEC | S_IRGRP | S_IXGRP );
+        return;
       }
     }
     assert(1); // should not happen

@@ -107,8 +107,6 @@ namespace lpzrobots {
   }
 
   void OdeAgent::constructor_helper(const GlobalData* globalData){
-    fixateRobot         = false;
-    fixedJoint          = 0;
     if(globalData){
       FOREACHC(std::list<Configurable*>, globalData->globalconfigurables, c){
         plotEngine.addConfigurable(*c);
@@ -123,8 +121,6 @@ namespace lpzrobots {
     FOREACH(TraceDrawerList, segmentTracking, td){
       td->track(time);
     }
-
-    if(fixateRobot && !fixedJoint) tryFixateRobot();
   }
 
   void OdeAgent::beforeStep(GlobalData& global){
@@ -237,49 +233,22 @@ namespace lpzrobots {
     int len =  robot->getSensors(rsensors, rsensornumber);
     if(len != rsensornumber){
       fprintf(stderr, "%s:%i: Got not enough sensors, expected %i, got %i!\n", __FILE__, __LINE__,
-	      rsensornumber, len);
+        rsensornumber, len);
     }
   }
 
-  void OdeAgent::startMotorBabblingMode (int steps, AbstractController* babblecontroller,
-					 bool fixRobot){
-    WiredController::startMotorBabblingMode(steps, babblecontroller, fixRobot);
-    if(fixRobot){
-      OdeRobot* r = dynamic_cast<OdeRobot*>(robot);
-      if(!r) return;
-      Primitive* main = r->getMainPrimitive();
-      if(main){
-	fixatingPos = main->getPosition();
-	if(fixatingPos.z()< 1)
-	  fixatingPos.z() += 1;
-	  fixateRobot = true;
-      }
-    }
-  }
-
-  void OdeAgent::stopMotorBabblingMode (){
-    WiredController::stopMotorBabblingMode();
-    fixateRobot = false;
-    if(fixedJoint)
-      delete fixedJoint;
-  }
-
-  void OdeAgent::tryFixateRobot(){
+  void OdeAgent::fixateRobot(GlobalData& global, int primitiveID, double time){
     OdeRobot* r = dynamic_cast<OdeRobot*>(robot);
     if(!r) return;
-    Primitive* main = r->getMainPrimitive();
-    if(main){
-      Pos diff = fixatingPos-main->getPosition();;
-      if(diff*diff<.1){
-        // DummyPrimitive is a mem leak here.
-        fixedJoint = new FixedJoint(main,new DummyPrimitive());
-        fixedJoint->init(r->odeHandle, r->osgHandle);
-      }else{
-        main->applyForce(diff*10); // use PID here
-      }
-    }
-
+    r->fixate(global,primitiveID,time);
   }
+
+  void OdeAgent::unfixateRobot(GlobalData& global){
+    OdeRobot* r = dynamic_cast<OdeRobot*>(robot);
+    if(!r) return;
+    r->unFixate(global);
+  }
+
 
   bool OdeAgent::store(FILE* f) const {
     const OdeRobot* r = getRobot();

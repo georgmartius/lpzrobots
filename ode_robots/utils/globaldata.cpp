@@ -34,8 +34,8 @@ namespace lpzrobots {
       uninitializedTmpObjects.push_back(std::pair<double, TmpObject*>(time+duration,i));
     }
   }
-  
-  void GlobalData::initializeTmpObjects(const OdeHandle& odeHandle, 
+
+  void GlobalData::initializeTmpObjects(const OdeHandle& odeHandle,
                                         const OsgHandle& osgHandle){
     if(uninitializedTmpObjects.size()>0){
       FOREACH(TmpObjectList, uninitializedTmpObjects, i){
@@ -58,8 +58,23 @@ namespace lpzrobots {
       }
     }
   }
- 
-  void GlobalData::removeExpiredObjects(double time){    
+
+  /// removes a particular temporary display item even if it is not yet expired
+  void GlobalData::removeTmpObject(TmpObject* obj){
+    if(tmpObjects.size()>0){
+      TmpObjectMap::iterator i = tmpObjects.begin();
+      while(i != tmpObjects.end()){
+        if( i->second == obj ){
+          i->second->deleteObject();
+          delete i->second;
+          tmpObjects.erase(i);
+          break;
+        }
+      }
+    }
+  }
+
+  void GlobalData::removeExpiredObjects(double time){
     if(tmpObjects.size()>0){
       if(time<0) time=this->time;
       TmpObjectMap::iterator i = tmpObjects.begin();

@@ -39,7 +39,7 @@ namespace lpzrobots {
     TraceDrawer() : obj(0){}
     Position lastpos;
     Trackable* obj;
-    TrackRobot tracker;    
+    TrackRobot tracker;
     Color color;
     void init();
     void close();
@@ -51,11 +51,11 @@ namespace lpzrobots {
     bool initialized;
   };
 
- 
+
   typedef std::list<PlotOption> PlotOptionList;
   typedef std::list<Operator*> OperatorList;
   typedef std::list<TraceDrawer> TraceDrawerList;
-  
+
   /** Specialised agent for ode robots
    */
   class OdeAgent : public Agent, public Storeable {
@@ -73,7 +73,7 @@ namespace lpzrobots {
     OdeAgent(const GlobalData& globalData, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "");
     /** Provided for convinience. A single plotoption is used as given by plotOption */
     OdeAgent(const GlobalData& globalData, const PlotOption& plotOption, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "");
-    /** Provided for convinience. The plotoptions are taken from the given plotOptions 
+    /** Provided for convinience. The plotoptions are taken from the given plotOptions
         (and not from globaldata, if you wish to overwrite them)
     */
     OdeAgent(const GlobalData& globalData, const PlotOptionList& plotOptions, double noisefactor = 1, const std::string& name = "OdeAgent", const std::string& revision = "");
@@ -105,22 +105,11 @@ namespace lpzrobots {
      */
     virtual void setMotorsGetSensors();
 
-    /** should be called before step() or stepOnlyWiredController() 
+    /** should be called before step() or stepOnlyWiredController()
         and calls operators and robot->sense()
     */
     virtual void beforeStep(GlobalData& global);
 
-    /** Enables the motor babbling mode. 
-        The robot is move into the air and is fixed by a fixed joint if fixRobot==true
-        See WiredController::startMotorBabblingMode().
-    */
-    virtual void startMotorBabblingMode (int steps,
-					 AbstractController* babblecontroller = 0,
-					 bool fixRobot=true);
-    
-    /** stops the motor babbling mode. */
-    virtual void stopMotorBabblingMode ();
-    
     /**
      * Returns a pointer to the robot.
      */
@@ -138,47 +127,51 @@ namespace lpzrobots {
 
     /** @deprecated use TrackRobot parameters */
     virtual void setTraceThickness(int tracethickness){ }
-    
+
     /// adds tracking for individual primitives
-    virtual void addTracking(unsigned int primitiveIndex,const TrackRobot& trackrobot, 
+    virtual void addTracking(unsigned int primitiveIndex,const TrackRobot& trackrobot,
                              const Color& color);
     virtual void setTrackOptions(const TrackRobot& trackrobot);
 
     /****** STOREABLE **********/
     virtual bool store(FILE* f) const;
-    virtual bool restore(FILE* f);  
+    virtual bool restore(FILE* f);
 
 
     /****** OPERATORS *********/
     /// adds an operator to the agent (the operator is deleted on destruction of the agent!)
     virtual void addOperator(Operator* o, bool addToConfigurable = true );
-    
+
     /** removes the given operator: it is _not_ deleted (memory wise)
         @return true on success
      */
-    virtual bool removeOperator(Operator* o);  
+    virtual bool removeOperator(Operator* o);
     /// removes (and deletes) all operators
-    virtual void removeOperators();    
+    virtual void removeOperators();
 
   protected:
- 
+
     /**
      * continues the trace by one segment
      */
     virtual void trace(GlobalData& global);
 
-    /** tries to fixate the robot at fixatingPos */
-    virtual void tryFixateRobot();
+    /** fixates the given primitive of the robot at its current position to the world
+        for a certain time.
+        Hint: use getRobot()->moveToPosition() to get the robot relocated
+        @param primitiveID if -1 then the main primitive is used, otherwise the primitive with the given index
+        @param time time to fixate in seconds (if ==0 then indefinite)
+     */
+    virtual void fixateRobot(GlobalData& global, int primitiveID=-1, double time = 0);
+    /// release the robot in case it is fixated
+    virtual void unfixateRobot(GlobalData& global);
 
   private:
     void constructor_helper(const GlobalData* globalData);
 
     TraceDrawer mainTrace;
-    Pos fixatingPos; 
-    bool fixateRobot;
-    Joint* fixedJoint;
 
-    OperatorList operators; 
+    OperatorList operators;
 
     TraceDrawerList segmentTracking;
   };
