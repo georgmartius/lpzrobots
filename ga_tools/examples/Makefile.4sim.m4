@@ -53,7 +53,7 @@ INC   += -I.
 
 CXX = g++
 CPPFLAGS = -Wall -pipe -Wno-deprecated $(INC) $(shell selforg-config $(CFGOPTS) --cflags) \
-  $(shell ode_robots-config $(CFGOPTS) --intern --cflags) 
+  $(shell ode_robots-config $(CFGOPTS) --cflags) $(shell ga_tools-config $(CFGOPTS) --intern --cflags)
 
 normal: DEV(libode_robots libga_tools) 
 	$(MAKE) $(EXEC)
