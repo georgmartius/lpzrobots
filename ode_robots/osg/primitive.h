@@ -346,6 +346,9 @@ protected:
 */
 class Ray : public Primitive {
 public:
+  /**
+     @param thickness if thickness == 0 then a line is used and not a box
+   */
   Ray(double range, float thickness, float length);
   virtual ~Ray();
   virtual void init(const OdeHandle& odeHandle, double mass,
@@ -361,7 +364,7 @@ protected:
   double range;
   float thickness;
   float length;
-  OSGBox* osgbox;
+  OSGPrimitive* osgprimitive;
 };
 
 

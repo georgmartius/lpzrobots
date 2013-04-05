@@ -139,7 +139,7 @@ namespace lpzrobots {
   void OSGPrimitive::applyTextures(){
     if (!osgHandle.cfg || osgHandle.cfg->noGraphics)
       return;
-    // this is only the default implementation. For Non-ShapeDrawables this most prob. be overloaded
+    // this is only the default implementation. For Non-ShapeDrawables this must prob. be overloaded
     if(textures.size() > 0){
       osg::Group* grp = getGroup();
       if(!grp) return;
@@ -167,16 +167,12 @@ namespace lpzrobots {
   void OSGPrimitive::setColor(const std::string& color){
     if (!osgHandle.cfg || osgHandle.cfg->noGraphics)
       return;
-    if(shape.valid()){
-      osgHandle.color = osgHandle.getColor(color);
-      shape->setColor(osgHandle.color);
-    }
+    setColor(osgHandle.getColor(color));
   }
 
   Color OSGPrimitive::getColor(){
     return osgHandle.color;
   }
-
 
 
 
@@ -456,6 +452,64 @@ namespace lpzrobots {
 
     applyTextures();
   }
+
+  OSGLine::OSGLine(const std::list<osg::Vec3>& points)
+    : points(points), geometry(0) {
+  }
+
+  void OSGLine::init(const OsgHandle& osgHandle, Quality quality){
+    this->osgHandle=osgHandle;
+    assert(osgHandle.parent || osgHandle.cfg->noGraphics);
+    transform = new MatrixTransform;
+    if (osgHandle.cfg->noGraphics)
+      return;
+    geode = new Geode;
+    transform->addChild(geode.get());
+    osgHandle.parent->addChild(transform.get());
+    shape=0;
+    geometry = new osg::Geometry;
+    updatePoints();
+
+    setColor(osgHandle.color);
+    geode->addDrawable(geometry);
+    geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+  }
+
+  void OSGLine::setPoints(const std::list<osg::Vec3>& points){
+    this->points=points;
+    updatePoints();
+  }
+
+  void OSGLine::updatePoints(){
+    osg::Vec3Array *v = new osg::Vec3Array;
+    FOREACHC(std::list<osg::Vec3>, points, p){
+      v->push_back(*p);
+    }
+    geometry->setVertexArray( v);
+    osg::DrawArrays *da = geometry->getNumPrimitiveSets()>0 ?
+      dynamic_cast<DrawArrays*>(geometry->getPrimitiveSet(0)) : 0;
+    if(!da){
+      osg::DrawArrays *da = new osg::DrawArrays(osg::PrimitiveSet::LINES,0,v->size());
+      geometry->addPrimitiveSet( da);
+    }else{
+      da->setCount(v->size());
+    }
+    geometry->dirtyDisplayList();
+  }
+
+
+  void OSGLine::setColor(const Color& color){
+    if (!osgHandle.cfg || osgHandle.cfg->noGraphics)
+      return;
+    if(geometry){
+      osgHandle.color=color;
+      osg::Vec4Array* colors=new osg::Vec4Array;
+      colors->push_back(osgHandle.color);
+      geometry->setColorArray(colors);
+      geometry->setColorBinding(osg::Geometry::BIND_OVERALL);
+    }
+  }
+
 
   /******************************************************************************/
   OSGMesh::OSGMesh(const std::string& filename, float scale,

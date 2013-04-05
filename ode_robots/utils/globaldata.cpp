@@ -70,6 +70,7 @@ namespace lpzrobots {
           tmpObjects.erase(i);
           return true;
         }
+        i++;
       }
     }
     return false;

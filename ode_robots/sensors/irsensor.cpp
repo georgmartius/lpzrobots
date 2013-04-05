@@ -85,7 +85,7 @@ namespace lpzrobots {
     len   = range;
     lastvalue = -1;
 
-    ray = new Ray(range, 0.005, len);
+    ray = new Ray(range, 0 /*0.005*/, len); // 0 means that we use a line
     transform = new Transform(body, ray, pose);
     OdeHandle myOdeHandle(odeHandle);
     transform->init(odeHandle, 0, osgHandle,

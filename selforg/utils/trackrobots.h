@@ -43,7 +43,7 @@ struct TrackRobotConf {
   bool   trackOrientation;
   bool   displayTrace;
   double displayTraceDur;       ///< duration in second to display the trace
-  double displayTraceThickness;
+  double displayTraceThickness; ///< if thickkness is 0 (default) then a line is used otherwise a cylinder
   bool   writeFile;             ///< whether to write a log file
 
   int interval;
@@ -78,7 +78,7 @@ public:
     conf.trackOrientation      = false;
     conf.displayTrace          = false;
     conf.displayTraceDur       = 60;
-    conf.displayTraceThickness = 0.05;
+    conf.displayTraceThickness = 0.0;
     conf.interval              = 1;
     conf.writeFile             = true;
     //    conf.scene           = "";
@@ -111,30 +111,8 @@ public:
     cnt  = 1;
   }
 
-  // TrackRobot(const TrackRobot &rhs)
-  // {
-  //   deepcopy(*this, rhs);
-  // }
-
-  // const TrackRobot& operator=(const TrackRobot &rhs)
-  // {
-  //   if ( this != &rhs )
-  //   {
-  //     if (file)
-  //       fclose(file);
-  //     file=0;
-
-  //     deepcopy(*this, rhs);
-  //   }
-
-  //   return *this;
-  // }
-
   ~TrackRobot()
   {
-    // if (file)
-    //   fclose(file);
-    // file = 0;
   }
 
   /// returns whether tracing is activated
@@ -156,8 +134,6 @@ public:
   FILE* file;
   long cnt;
 
- // private:
- //   static void deepcopy (TrackRobot &lhs, const TrackRobot &rhs);
 
 };
 

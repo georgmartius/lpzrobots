@@ -250,7 +250,7 @@ public:
       //      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
       AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.2));
       //      OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
-      OdeAgent* agent = new OdeAgent ( plotoptions );
+      OdeAgent* agent = new OdeAgent ( global );
       agent->addInspectable(controller); // add selforg controller to list of inspectables
       agent->init ( multisat , robot , wiring );
       //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
@@ -331,7 +331,7 @@ public:
       global.configs.push_back ( controller );
 
       AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.20) );
-      OdeAgent* agent = new OdeAgent ( plotoptions );
+      OdeAgent* agent = new OdeAgent ( global );
       agent->addInspectable(controller);
       agent->init ( multisat , robot , wiring );
       global.configs.push_back ( multisat );
@@ -395,7 +395,7 @@ public:
       global.configs.push_back ( controller );
 
       AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.20) );
-      OdeAgent* agent = new OdeAgent ( plotoptions );
+      OdeAgent* agent = new OdeAgent ( global );
       agent->addInspectable(controller);
       agent->init ( multisat , robot , wiring );
       global.configs.push_back ( multisat );

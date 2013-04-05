@@ -72,7 +72,7 @@ MultiReinforce::~MultiReinforce()
 }
 
 
-void MultiReinforce::init(int sensornumber, int motornumber){
+void MultiReinforce::init(int sensornumber, int motornumber, RandGen* randGen){
 
   number_motors  = motornumber;
   number_sensors = sensornumber;

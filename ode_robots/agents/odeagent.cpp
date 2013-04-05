@@ -54,18 +54,30 @@ namespace lpzrobots {
   void TraceDrawer::drawTrace(GlobalData& global){
     if (initialized && tracker.isDisplayTrace()){
       Position pos(obj->getPosition());
-      /* draw cylinder only when length between actual
-         and last point is larger then a specific value
-      */
       double len = (pos - lastpos).length();
-      if(len > 2*tracker.conf.displayTraceThickness) {
-        global.addTmpObject(new TmpDisplayItem(new OSGCylinder(tracker.conf.displayTraceThickness,
-                                                               len*1.2),
-                                               ROTM(osg::Vec3(0,0,1), Pos(pos - lastpos)) *
-                                               TRANSM(Pos(lastpos)+Pos(pos - lastpos)/2),
-                                               color, OSGPrimitive::Low),
-                            tracker.conf.displayTraceDur);
-        lastpos = pos;
+      if(tracker.conf.displayTraceThickness>0){ // use a cylinder
+        /* draw cylinder only when length between actual
+           and last point is larger then a specific value
+        */
+        if(len > 2*tracker.conf.displayTraceThickness) {
+          global.addTmpObject(new TmpDisplayItem(new OSGCylinder(tracker.conf.displayTraceThickness, len*1.2),
+                                                 ROTM(osg::Vec3(0,0,1), Pos(pos - lastpos)) *
+                                                 TRANSM(Pos(lastpos)+Pos(pos - lastpos)/2),
+                                                 color, OSGPrimitive::Low),
+                              tracker.conf.displayTraceDur);
+          lastpos = pos;
+        }
+      }else{ // use a line
+        if(len > 0.05) {
+          pnts.push_back(Pos(lastpos));
+          pnts.push_back(Pos(pos));
+          if(pnts.size()>16){
+            global.addTmpObject(new TmpDisplayItem(new OSGLine(pnts), TRANSM(0,0,0), color),
+                                tracker.conf.displayTraceDur);
+            pnts.clear();
+          }
+          lastpos = pos;
+        }
       }
     }
   }

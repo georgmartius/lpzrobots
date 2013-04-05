@@ -49,6 +49,7 @@ namespace lpzrobots {
     void drawTrace(GlobalData& global);
   protected:
     bool initialized;
+    std::list<osg::Vec3> pnts;
   };
 
 

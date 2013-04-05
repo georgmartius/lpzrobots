@@ -150,9 +150,9 @@ void MultiSat::init(int sensornumber, int motornumber, RandGen* randGen){
   satMinErrors.set(conf.numSats, 1);
   satEpsMod.set(conf.numSats, 1);
   double d = 1;
-  satEpsMod.toMapP(&d,constant); // set all elements to 1;
+  satEpsMod.toMapP(d,constant); // set all elements to 1;
   satPredictWeight.set(satoutputdim,1);
-  satPredictWeight.toMapP(&d,constant); // set all elements to 1;
+  satPredictWeight.toMapP(d,constant); // set all elements to 1;
   for(int i=0; i < number_real_sensors; i++) satPredictWeight.val(i,0)=0.5;
 
 
@@ -416,7 +416,7 @@ void MultiSat::management(){
   // decay minima and learning rate modulations
   Matrix deltaM (satMinErrors.getM(),1);
   double delta = (conf.deltaMin*(double)managementInterval/1000.0);
-  deltaM.toMapP(&delta, constant); // fill matrix with delta
+  deltaM.toMapP(delta, constant); // fill matrix with delta
   satMinErrors += deltaM;
   satEpsMod += deltaM; // maybe also limit it to 1
   double m=1.0;

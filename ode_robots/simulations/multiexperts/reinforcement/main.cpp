@@ -62,7 +62,7 @@
 #include <selforg/matrix.h>
 #include <selforg/replaycontroller.h>
 #include <selforg/classicreinforce.h>
-#include <ode_robots/multireinforce.h>
+#include "multireinforce.h"
 
 #include <ode_robots/sphererobot3masses.h>
 #include <ode_robots/barrel2masses.h>
@@ -503,8 +503,8 @@ public:
       playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
       playground->setGroundTexture("Images/dusty.rgb");
       playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.6));
-      playground->setPosition(osg::Vec3(0,0,-playgroundheight/2));
       playground->setTexture("");
+      playground->setPosition(osg::Vec3(0,0,-playgroundheight/2));
       global.obstacles.push_back(playground);
       // underground
 //       playground = new Playground(odeHandle, osgHandle,osg::Vec3(playgroundsize[0], 0, 0 ),
@@ -521,14 +521,14 @@ public:
       playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
       playground->setGroundTexture("Images/dusty.rgb");
       playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
-      playground->setPosition(osg::Vec3(0,0,0.1));
       playground->setTexture("");
+      playground->setPosition(osg::Vec3(0,0,0.1));
       global.obstacles.push_back(playground);
       //     // inner playground
       playground = new OctaPlayground(odeHandle, osgHandle,osg::Vec3(10, 0.2, playgroundheight), 12, false);
       playground->setColor(Color(255/255.0,200/255.0,0/255.0, 0.1));
-      playground->setPosition(osg::Vec3(0,0,0.1));
       playground->setTexture("");
+      playground->setPosition(osg::Vec3(0,0,0.1));
       global.obstacles.push_back(playground);
       break;
     case cluttered:
@@ -846,7 +846,7 @@ public:
 int main (int argc, char **argv)
 {
   playgr=longsquarecorridor;
-  int index = contains(argv, argc, "-pl");
+  int index = Simulation::contains(argv, argc, "-pl");
   if(index && (argc > index)){
     if(argv[index][0]=='l') playgr=labyrint;
     else if(strcmp(argv[index],"42")==0) playgr=complexpl;
@@ -855,7 +855,7 @@ int main (int argc, char **argv)
     else if(argv[index][0]=='c') playgr=cluttered;
     else if(argv[index][0]=='n') playgr=none;
   }
-  index = contains(argv, argc, "-ql");
+  index = Simulation::contains(argv, argc, "-ql");
   double eps=0.1,disc=0.9,expl=0.1;
   int sarsa=1;
   if(index && (argc > index+4)){
@@ -865,15 +865,15 @@ int main (int argc, char **argv)
     sarsa=atoi(argv[index+3]);
     interval=atoi(argv[index+4]);
   }
-  useMultiAgent = !contains(argv, argc, "-classic");
-  track         = contains(argv, argc, "-t");
-  rareprint     = contains(argv, argc, "-rare");
-  if(contains(argv, argc, "-nographics")){
+  useMultiAgent = !Simulation::contains(argv, argc, "-classic");
+  track         = Simulation::contains(argv, argc, "-t");
+  rareprint     = Simulation::contains(argv, argc, "-rare");
+  if(Simulation::contains(argv, argc, "-nographics")){
     absolutePath="/home/georg/sim/Spherical_reinf/data/";
     realtimefactor=0;
   }
 
-  index = contains(argv, argc, "-rewavg");
+  index = Simulation::contains(argv, argc, "-rewavg");
   if(index && (argc > index))
     rewavg=atoi(argv[index]);
 

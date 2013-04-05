@@ -614,14 +614,20 @@ namespace lpzrobots{
   Ray::Ray(double range, float thickness, float length)
     : range(range), thickness(thickness), length(length)
   {
-    osgbox = new OSGBox(thickness, thickness, length);
+    if(thickness==0){
+      std::list<osg::Vec3> pnts;
+      pnts.push_back(osg::Vec3(0,0,-length/2));
+      pnts.push_back(osg::Vec3(0,0,length/2));
+      osgprimitive = new OSGLine(pnts);
+    } else
+      osgprimitive = new OSGBox(thickness, thickness, length);
   }
 
   Ray::~Ray(){
-    if(osgbox) delete osgbox;
+    if(osgprimitive) delete osgprimitive;
   }
 
-  OSGPrimitive* Ray::getOSGPrimitive() { return osgbox; }
+  OSGPrimitive* Ray::getOSGPrimitive() { return osgprimitive; }
 
   void Ray::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
                  char mode) {
@@ -634,7 +640,7 @@ namespace lpzrobots{
     attachGeomAndSetColliderFlags();
 
     if (mode & Draw){
-      osgbox->init(osgHandle);
+      osgprimitive->init(osgHandle);
     }
     QMP_END_CRITICAL(5);
   }
@@ -642,13 +648,22 @@ namespace lpzrobots{
   void Ray::setLength(float len){
     length=len;
     if (mode & Draw){
-      osgbox->setDim(osg::Vec3(thickness,thickness,length));
+      OSGBox* b = dynamic_cast<OSGBox*>(osgprimitive);
+      if(b)
+        b->setDim(osg::Vec3(thickness,thickness,length));
+      else{
+        OSGLine* l = dynamic_cast<OSGLine*>(osgprimitive);
+        std::list<osg::Vec3> pnts;
+        pnts.push_back(osg::Vec3(0,0,-length/2));
+        pnts.push_back(osg::Vec3(0,0,length/2));
+        l->setPoints(pnts);
+      }
     }
   }
 
   void Ray::update(){
     if(mode & Draw) {
-      osgbox->setMatrix(Pose::translate(0,0,length/2)*osgPose(geom));
+      osgprimitive->setMatrix(Pose::translate(0,0,length/2)*osgPose(geom));
     }
   }
 
