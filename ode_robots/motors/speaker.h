@@ -21,25 +21,25 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
-#ifndef   	SPEAKER_H_
-# define   	SPEAKER_H_
+#ifndef           SPEAKER_H_
+# define           SPEAKER_H_
 
 #include "motor.h"
 
 namespace lpzrobots {
-  
+
   /**
      This "motor" emulates a speaker or piezo element to produce sound.
      The sound can be detected by sound sensors (@see SoundSensor).
      Note that obstacles do not interact with the sound in any way.
    */
   class Speaker: public Motor {
-  public: 
+  public:
     Speaker(float frequency)
       : frequency(frequency) {
     }
     virtual ~Speaker() {};
-    
+
     virtual void init(Primitive* own){
       this->own=own;
     }
@@ -50,22 +50,22 @@ namespace lpzrobots {
 
     virtual bool act(GlobalData& globaldata){
       globaldata.sounds.push_back(Sound(globaldata.time, own->getPosition(),
-					intensity,frequency, (void*)own));
+                                        intensity,frequency, (void*)own));
       return true;
     }
 
     virtual int set(const motor* values, int length){
       if(length>0)
-	intensity=values[0];
+        intensity=values[0];
       return 1;
-    };    
-    
+    };
+
   private:
     Primitive* own;
-    float frequency;    
+    float frequency;
     float intensity;
   };
 
 }
 
-#endif 	    /* !SPEAKER_H_ */
+#endif             /* !SPEAKER_H_ */

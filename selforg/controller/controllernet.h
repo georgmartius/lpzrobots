@@ -33,7 +33,7 @@
     and propagation and projection methods suitable for homeokinesis controller
  */
 class ControllerNet : public Configurable {
-public:     
+public:
 
   /**
      @param layers Layer description (the input layer is not specified (always linear))
@@ -41,21 +41,21 @@ public:
   */
   ControllerNet(const std::vector<Layer>& layers, bool useBypass=false);
   virtual ~ControllerNet(){ }
-  
+
   /** initialisation of the network with the given number of input and output units.
       The dimensionality of the ouputlayer is automatically adjusted.
-      @param unit_map defines the approximate response of the network 
+      @param unit_map defines the approximate response of the network
        after initialisation (if unit_map=1 the weights are unit matrices).
       @param randGen pointer to random generator, if 0 an new one is used
    */
-  virtual void init(unsigned int inputDim, unsigned  int outputDim, 
-		    double unit_map = 0.0, double rand = 0.2, RandGen* randGen = 0); 
+  virtual void init(unsigned int inputDim, unsigned  int outputDim,
+                    double unit_map = 0.0, double rand = 0.2, RandGen* randGen = 0);
 
-  /** passive processing of the input. 
+  /** passive processing of the input.
       This has to be done before calling reponse, and the back/forward propagation/projection functions.
       The activations and the response matrix are stored internally.
    */
-  virtual const matrix::Matrix process (const matrix::Matrix& input); 
+  virtual const matrix::Matrix process (const matrix::Matrix& input);
 
   /** like process just with the opportunity to overwrite the activation of
       a specific layer
@@ -64,7 +64,7 @@ public:
    */
   virtual const matrix::Matrix processX (const matrix::Matrix& input,
                                          const matrix::Matrix& injection,
-                                         unsigned int injectInLayer); 
+                                         unsigned int injectInLayer);
 
   /// damps the weights and the biases by multiplying (1-damping)
   virtual void damp(double damping);
@@ -72,12 +72,12 @@ public:
   /** response matrix of neural network (for current activation, see process)
   \f[  J_ij = \frac{\partial y_i}{\partial x_j} \f]
   \f[  J = G_n' W_n G_{n-1}' W_{n-1} ... G_1' W_1 \f]
-  with \f$W_n\f$ is the weight matrix of layer n and 
+  with \f$W_n\f$ is the weight matrix of layer n and
   \f$ G'\f$ is a diagonal matrix with \f$ G'_ii = g'_i \f$ as values on the diagonal.
   */
   virtual const matrix::Matrix& response() const;
 
-  /** like response, just that only a range of layers is considered 
+  /** like response, just that only a range of layers is considered
       The Bypass is not considered here.
       @param from index of layer to start: -1 at input, 0 first hidden layer ...
       @param to index of layer to stop: -1: last layer, 0 first hidden layer ...
@@ -91,78 +91,78 @@ public:
   */
   virtual const matrix::Matrix& responseLinear() const;
 
-  /** backpropagation of vector error through network.      
+  /** backpropagation of vector error through network.
       The storage for the intermediate values (errors, zetas) do not need to be given.
-      The errors(layerwise) are at the output of the neurons 
+      The errors(layerwise) are at the output of the neurons
       (index 0 is at the input level, output of layer 0 has index 1 and so on)
       The zetas(layerwise) are the values inside the neurons that
       arise when backpropagating the error signal. (zeta[0] is at layer 0)
       @return errors[0] (result of backpropagation)
    */
-  virtual const matrix::Matrix backpropagation(const matrix::Matrix& error, 
-                                               matrix::Matrices* errors = 0, 
+  virtual const matrix::Matrix backpropagation(const matrix::Matrix& error,
+                                               matrix::Matrices* errors = 0,
                                                matrix::Matrices* zetas = 0) const;
 
   /** like backpropagation but with special features: we can start from any layer
       and the bypass-discounting can be used (see disseration Georg Martius)
       WARNING: the errors and zetas above the `startWithLayer' are undefined
-      @param startWithLayer the error is clamped at this layer and the processing starts there 
+      @param startWithLayer the error is clamped at this layer and the processing starts there
         (-1: output layer)
       @see backpropagation
    */
-  virtual const matrix::Matrix backpropagationX(const matrix::Matrix& error, 
-                                                matrix::Matrices* errors = 0, 
+  virtual const matrix::Matrix backpropagationX(const matrix::Matrix& error,
+                                                matrix::Matrices* errors = 0,
                                                 matrix::Matrices* zetas = 0,
                                                 int startWithLayer = -1) const;
 
 
   /** backprojection of vector error through network.
       The storage for the intermediate values (errors, zetas) do not need to be given.
-      The errors(layerwise) are at the output of the neurons 
+      The errors(layerwise) are at the output of the neurons
       (index 0 is at the input level, output of layer 0 has index 1 and so on)
       The zetas(layerwise) are the values inside the neurons that
       arise when backprojecting the error signal. (zeta[0] is at layer 0)
       @return errors[0] (result of backprojecting)
    */
-  virtual const matrix::Matrix backprojection(const matrix::Matrix& error, 
+  virtual const matrix::Matrix backprojection(const matrix::Matrix& error,
                                               matrix::Matrices* errors = 0,
                                               matrix::Matrices* zetas = 0) const;
 
-  
+
   /** forwardpropagation of vector error through network.
       The storage for the intermediate values (errors, zetas) do not need to be given.
-      The errors(layerwise) are at the output of the neurons 
+      The errors(layerwise) are at the output of the neurons
       (index 0 is at the input level = error, output of layer 0 has index 1 and so on)
       The zetas(layerwise) are the values inside the neurons that
       arise when forwardpropagate the error signal. (zeta[0] is at layer 0)
       @return errors[layernum] (result of forwardpropagation)
    */
-  virtual const matrix::Matrix forwardpropagation(const matrix::Matrix& error, 
-                                               matrix::Matrices* errors = 0, 
+  virtual const matrix::Matrix forwardpropagation(const matrix::Matrix& error,
+                                               matrix::Matrices* errors = 0,
                                                matrix::Matrices* zetas = 0) const;
 
   /** forwardprojection of vector error through network.
       The storage for the intermediate values (errors, zetas) do not need to be given.
-      The errors(layerwise) are at the output of the neurons 
+      The errors(layerwise) are at the output of the neurons
       (index 0 is at the input level = error, output of layer 0 has index 1 and so on)
       The zetas(layerwise) are the values inside the neurons that
       arise when forwardprojecting the error signal. (zeta[0] is at layer 0)
       @return errors[layernum] (result of forwardprojection)
    */
-  virtual const matrix::Matrix forwardprojection(const matrix::Matrix& error, 
-                                               matrix::Matrices* errors = 0, 
+  virtual const matrix::Matrix forwardprojection(const matrix::Matrix& error,
+                                               matrix::Matrices* errors = 0,
                                                matrix::Matrices* zetas = 0) const;
 
   /// returns the number of input neurons
-  virtual unsigned int getInputDim() const { 
-    return weights[0].getN(); 
+  virtual unsigned int getInputDim() const {
+    return weights[0].getN();
   }
   /// returns the number of output neurons
-  virtual unsigned int getOutputDim() const { 
-    return (weights.rbegin())->getM(); 
+  virtual unsigned int getOutputDim() const {
+    return (weights.rbegin())->getM();
   }
 
-  /** returns activation of the given layer. Layer 0 is the first hidden layer. 
+  /** returns activation of the given layer. Layer 0 is the first hidden layer.
       Negative values count from the end (-1 is the last layer)
    */
   virtual const matrix::Matrix& getLayerOutput(int layer) const {
@@ -239,14 +239,14 @@ public:
   bool store(FILE* f) const;
   /// restores the layer binary from file stream
   bool restore(FILE* f);
-  
+
   /// writes the layer ASCII into file stream (not in the storable interface)
   bool write(FILE* f) const;
 
 protected:
   // actually calculate the jacobian and stores it in L, see response()
   virtual void calcResponseIntern();
-  
+
 
 protected:
   std::vector<Layer> layers;

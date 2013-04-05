@@ -19,7 +19,7 @@
 #ifndef __FFNNCONTROLLER_H
 #define __FFNNCONTROLLER_H
 
-#include "abstractcontroller.h" 
+#include "abstractcontroller.h"
 #include <assert.h>
 #include <cmath>
 
@@ -33,7 +33,7 @@ class FFNNController : public AbstractController {
 
 public:
   /** @param networkfilename file to load the network
-      @param history  number of time steps the network gets input (in sense of dimension of input) 
+      @param history  number of time steps the network gets input (in sense of dimension of input)
       @param input_only_x if true then the input vector is \f[ (x_{t},x_{t-1},...,x_{t-history})^T \f]
        if false then also the y values are used: \f[ (x_{t}, y_{t-1}, x_{t-1},y_{t-2},...,x_{t-history})^T \f]
       @param init_wait number of timesteps to wait before controlling
@@ -41,13 +41,13 @@ public:
   FFNNController(const std::string& networkfilename, int history, bool input_only_x, unsigned int init_wait=0);
 
   /** @param net pointer to network (it must have the right dimensions)
-      @param history  number of time steps the network gets input (in sense of dimension of input) 
+      @param history  number of time steps the network gets input (in sense of dimension of input)
       @param input_only_x if true then the input vector is \f[ (x_{t},x_{t-1},...,x_{t-history})^T \f]
        if false then also the y values are used: \f[ (x_{t}, y_{t-1}, x_{t-1},y_{t-2},...,x_{t-history})^T \f]
-      @param init_wait number of timesteps to wait before controlling      
+      @param init_wait number of timesteps to wait before controlling
   */
   FFNNController(MultiLayerFFNN* net, int history, bool input_only_x, unsigned int init_wait=0);
-  
+
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
 
   virtual ~FFNNController();
@@ -58,8 +58,8 @@ public:
   virtual int getMotorNumber() const  { return number_motors; }
 
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
   /**** CONFIGURABLE ****/
   void notifyOnChange(const paramkey& key);
@@ -68,7 +68,7 @@ public:
   /** stores the controller values to a given file (binary).  */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file (binary). */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   // inspectable interface
   virtual std::list<iparamkey> getInternalParamNames()const  { return std::list<iparamkey>(); }
@@ -95,12 +95,12 @@ protected:
   int s4avg;
   unsigned int t;
   unsigned int init_wait;
-  
+
   matrix::Matrix* x_buffer;
   matrix::Matrix* y_buffer;
   matrix::Matrix x_smooth;
 
-  MultiLayerFFNN* net; 
+  MultiLayerFFNN* net;
   bool initialised;
 
 };

@@ -118,11 +118,11 @@
 
 namespace lpzrobots {
 
-  class Primitive; 
-  class Joint;  
-  class OneAxisServo;  
-  class TwoAxisServo;  
-  class AngularMotor;  
+  class Primitive;
+  class Joint;
+  class OneAxisServo;
+  class TwoAxisServo;
+  class AngularMotor;
 
 
   typedef struct {
@@ -173,14 +173,14 @@ namespace lpzrobots {
 
     double powerFactor; ///< scale factor for maximal forces of the servos
     double dampingfactor; ///< scale factor for damping of the servos
-    
+
     double jointLimitFactor; ///< factor between servo range (XXXJointLimit, see above) and physical joint limit
 
 
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
     bool handsRotating; ///< hands are attached with a ball joint
 
-    bool movableHead;  ///< if false then no neck movement 
+    bool movableHead;  ///< if false then no neck movement
 
     bool useBackJoint; ///< whether to use the joint in the back
 
@@ -204,22 +204,22 @@ namespace lpzrobots {
   class Skeleton : public OdeRobot, public Inspectable {
   public:
 
-    enum SkelParts {Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp, 
+    enum SkelParts {Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp,
                     Left_Shoulder, Left_Forearm, Left_Hand,
-                    Right_Shoulder, Right_Forearm, Right_Hand, 
+                    Right_Shoulder, Right_Forearm, Right_Hand,
                     Left_Thigh, Left_Shin, Left_Foot,
                     Right_Thigh, Right_Shin, Right_Foot,
                     LastPart };
-    
-  
+
+
     /**
      * constructor of Skeleton robot
      * @param odeHandle data structure for accessing ODE
      * @param osgHandle ata structure for accessing OSG
      * @param conf configuration object
      */
-    Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, SkeletonConf& conf, 
-	       const std::string& name);
+    Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, SkeletonConf& conf,
+               const std::string& name);
 
     virtual ~Skeleton(){ destroy(); };
 
@@ -307,8 +307,8 @@ namespace lpzrobots {
       SkeletonConf c = getDefaultConf();
 
       c.useVelocityServos = true;
-      c.dampingfactor=0.1; // softness 
-      
+      c.dampingfactor=0.1; // softness
+
 /*       c.hipDamping= 0.01; */
 /*       c.hip2Damping=0.01; */
 /*       c.neckDamping=0.01; */
@@ -329,20 +329,20 @@ namespace lpzrobots {
 
 
     /** sets the pose of the vehicle
-	@param pose desired pose matrix
+        @param pose desired pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -354,9 +354,9 @@ namespace lpzrobots {
      */
     virtual int getMotorNumber();
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
@@ -374,20 +374,20 @@ namespace lpzrobots {
 
     /** returns the position of the trunk */
     virtual Position getTrunkPosition();
-       
+
 
   protected:
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */
     virtual void destroy();
 
-    SkeletonConf conf; 
+    SkeletonConf conf;
 
     bool created;      // true if robot was created
 

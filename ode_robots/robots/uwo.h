@@ -29,13 +29,13 @@
 
 namespace lpzrobots {
 
-  class Primitive; 
+  class Primitive;
   class Joint;
 
   typedef struct {
   public:
     double size;       ///< scaling factor for robot (diameter of body)
-    double legLength;  ///< length of the legs in units of size 
+    double legLength;  ///< length of the legs in units of size
     int    legNumber;  ///<  number of snake elements
     bool   radialLegs; ///< joint orientation is radial instead of cartesian
     double mass;       ///< chassis mass
@@ -46,21 +46,21 @@ namespace lpzrobots {
   } UwoConf;
 
 
-  /** UWO: Unknown Walk Object :-), looks like a plate with a lot of legs 
+  /** UWO: Unknown Walk Object :-), looks like a plate with a lot of legs
    */
   class Uwo : public OdeRobot {
   public:
-  
+
     /**
      * constructor of uwo robot
      * @param odeHandle data structure for accessing ODE
      * @param osgHandle ata structure for accessing OSG
      * @param size scaling of robot
      * @param force maximal used force to realize motorcommand
-     * @param radialLegs switches between cartensian and radial leg joints 
+     * @param radialLegs switches between cartensian and radial leg joints
      */
-    Uwo(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const UwoConf& conf, 
-	const std::string& name);
+    Uwo(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const UwoConf& conf,
+        const std::string& name);
 
     virtual ~Uwo(){ destroy(); };
 
@@ -85,20 +85,20 @@ namespace lpzrobots {
 
 
     /** sets the pose of the vehicle
-	@param pose desired pose matrix
+        @param pose desired pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -114,9 +114,9 @@ namespace lpzrobots {
       return conf.legNumber*2;
     };
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
@@ -128,20 +128,20 @@ namespace lpzrobots {
     virtual Primitive* getMainPrimitive() const { return objects[0]; }
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */
     virtual void destroy();
 
-    UwoConf conf; 
+    UwoConf conf;
     double legmass;    // leg mass
 
     bool created;      // true if robot was created
-    
-    
+
+
     std::vector <UniversalServo*> servos; // motors
 
   };

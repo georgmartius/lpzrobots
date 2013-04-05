@@ -49,7 +49,7 @@ using namespace matrix;
 namespace lpzrobots{
 
   /* Enumeration of different parts and joints */
-  enum parts 
+  enum parts
     {
       base,
       shoulder1,
@@ -59,7 +59,7 @@ namespace lpzrobots{
       hand
     };
 
-  typedef struct 
+  typedef struct
   {
     double body_mass;
     double body_height;
@@ -68,12 +68,12 @@ namespace lpzrobots{
 
     double shoulder_mass;
     double shoulder_radius;
-    double joint_offset; // distance of shoulder components from each other	
-		
+    double joint_offset; // distance of shoulder components from each other
+
     double upperarm_mass;
     double upperarm_radius;
     double upperarm_length;
-		
+
     double forearm_mass;
     double forearm_radius;
     double forearm_length;
@@ -91,30 +91,30 @@ namespace lpzrobots{
     double damping;    // motor damping
     double servoFactor; // reduces servo angle constraints to servoFactor percent of hingeJoint angle constraints
     double scaleMotorElbow;
-	      
+
     bool withContext; // if true context sensors are the effector positions
     bool useJointSensors; // if true joint sensors otherwise effector positions
 
     std::list<Sensor*> sensors; // list of additional sensors
-		
+
   } ArmConf;
-	
+
   class Arm : public OdeRobot
   {
   public:
-		  
+
     Arm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const ArmConf& conf, const std::string& name);
 
     static ArmConf getDefaultConf()
     {
-      ArmConf conf;		 
-			
+      ArmConf conf;
+
       conf.motorPower=5;//2-15;
       conf.damping=0.2;//1.0;
 
       conf.upperarm_radius = 0.05;//0.15; <- not beautiful
       conf.forearm_radius = 0.05;//0.1; <- not beautiful TODO universelle Anordnung!
-			
+
       // body
       conf.body_mass = 1.0;
       conf.body_height = 5.0;
@@ -130,7 +130,7 @@ namespace lpzrobots{
       // forearm
       conf.forearm_mass = 0.1; // 0.01
       conf.forearm_length = 1.2;
-      // stops at hinge joints 
+      // stops at hinge joints
       conf.elevation_min=-M_PI/3;
       conf.elevation_max=M_PI/3;
       conf.humeral_min=-M_PI/4;
@@ -145,19 +145,19 @@ namespace lpzrobots{
       conf.withContext=false;
 
       return conf;
-    }			
-			
+    }
+
     virtual ~Arm(){};
 
     virtual paramkey getName() const {return "Arm";};
-		
-    /** 
+
+    /**
      * sets the pose of the vehicle
      * @param pose desired 4x4 pose matrix
      */
     virtual void place(const osg::Matrix& pose);
 
-    /** 
+    /**
      * update the subcomponents
      */
     virtual void update();
@@ -170,22 +170,22 @@ namespace lpzrobots{
      */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
-    /** 
+    /**
      * sets actual motorcommands
      * @param motors motors scaled to [-1,1]
      * @param motornumber length of the motor array
      */
     virtual void setMotors(const motor* motors, int motornumber);
 
-    /** 
+    /**
      * returns number of sensors
      */
     virtual int getSensorNumber()
     {
       return sensorno;
     };
-				
-    /** 
+
+    /**
      * returns number of motors
      */
     virtual int getMotorNumber()
@@ -193,7 +193,7 @@ namespace lpzrobots{
       return motorno;
     };
 
-    /** 
+    /**
      * returns a vector with the positions of all segments of the robot
      * @param poslist vector of positions (of all robot segments)
      * @return length of the list
@@ -206,7 +206,7 @@ namespace lpzrobots{
      */
     void getEndeffectorPosition(double* position);
 
-    /** 
+    /**
      * this function is called in each timestep. It should perform robot-internal checks,
      * like space-internal collision detection, sensor resets/update etc.
      * @param globalData structure that contains global data from the simulation environment
@@ -217,30 +217,30 @@ namespace lpzrobots{
     virtual void notifyOnChange(const paramkey& key);
 
     virtual Primitive* getMainObject() const{
-      return objects[base]; 
+      return objects[base];
     }
-		
+
     /**
-     * the main object of the robot, which is used for position and speed tracking 
+     * the main object of the robot, which is used for position and speed tracking
      */
-    virtual Primitive* getMainPrimitive() const 
-    { 
-      return objects[hand]; 
+    virtual Primitive* getMainPrimitive() const
+    {
+      return objects[hand];
     }
-		
+
     void setDlearnTargetHack(double* post);
     void setDmotorTargetHack(double* post);
 
   protected:
 
-    /** 
+    /**
      * creates vehicle at desired pose
      * @param pose 4x4 pose matrix
      * @param snowmanmode snowman body
      */
     virtual void create(const osg::Matrix& pose);
 
-    /** 
+    /**
      * destroys vehicle and space
      */
     virtual void destroy();
@@ -248,7 +248,7 @@ namespace lpzrobots{
     static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
     void hitTarget();
-	
+
     double dBodyGetPositionAll ( dBodyID basis , int para );
     double dGeomGetPositionAll ( dGeomID basis , int para );
 
@@ -257,29 +257,29 @@ namespace lpzrobots{
     // inspectable interface
     //virtual std::list<Inspectable::iparamkey> getInternalParamNames() const;
     //virtual std::list<Inspectable::iparamval> getInternalParams() const;
-    //		virtual std::list<ILayer> getStructuralLayers() const;
-    //		virtual std::list<IConnection> getStructuralConnections() const;
+    //                virtual std::list<ILayer> getStructuralLayers() const;
+    //                virtual std::list<IConnection> getStructuralConnections() const;
 
-		
-    ArmConf conf;    
+
+    ArmConf conf;
     matrix::Matrix endeff;
-		
+
     paramval factorSensors;
     paramval print;
-		
-    
-    
+
+
+
     std::vector <HingeServo*> hingeServos;
-	
+
     int sensorno;      // number of sensors
     int motorno;       // number of motors
-		
+
     bool created;      // true if robot was created
-	
+
     dSpaceID parentspace;
-		
+
     int printed;
-		
+
   };
 }
 #endif

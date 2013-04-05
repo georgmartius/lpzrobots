@@ -28,14 +28,14 @@
 
 namespace lpzrobots {
 
-  class Primitive; 
-  class Joint;  
-  class OneAxisServo;  
+  class Primitive;
+  class Joint;
+  class OneAxisServo;
 
   typedef struct {
   public:
     double size;       ///< scaling factor for robot (diameter of body)
-    double legLength;  ///< length of the legs in units of size 
+    double legLength;  ///< length of the legs in units of size
     int    legNumber;  ///<  number of snake elements
     double mass;       ///< chassis mass
     double relLegmass; ///< relative overall leg mass
@@ -51,29 +51,29 @@ namespace lpzrobots {
     double ankleDamping; ///< damping in the ankles
     bool   hippo;        ///< "dog" looks like a hippopotamus
     bool   drawstupidface;
-    bool   useBigBox;   ///< use big box on back or not 
+    bool   useBigBox;   ///< use big box on back or not
     bool   legBodyCollisions; ///< legs and body collide
   } VierBeinerConf;
 
 
   /** robot that should look like a dog
-      
+
      sensors/motors: 0: neck, 1: tail
                      2,3,4,5 : hip:  rh, lh, rf, lf
-		     6,7,8,9 : knee: rh, lh, rf, lf
-		     10,11   : ankle rh, lh
+                     6,7,8,9 : knee: rh, lh, rf, lf
+                     10,11   : ankle rh, lh
    */
   class VierBeiner : public OdeRobot {
   public:
-  
+
     /**
      * constructor of VierBeiner robot
      * @param odeHandle data structure for accessing ODE
      * @param osgHandle ata structure for accessing OSG
      * @param conf configuration object
      */
-    VierBeiner(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const VierBeinerConf& conf, 
-	       const std::string& name);
+    VierBeiner(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const VierBeinerConf& conf,
+               const std::string& name);
 
     virtual ~VierBeiner(){};
 
@@ -109,20 +109,20 @@ namespace lpzrobots {
 
 
     /** sets the pose of the vehicle
-	@param pose desired pose matrix
+        @param pose desired pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -134,13 +134,13 @@ namespace lpzrobots {
      */
     virtual int getMotorNumber();
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
-    
+
     /******** CONFIGURABLE ***********/
     virtual void notifyOnChange(const paramkey& key);
 
@@ -149,26 +149,26 @@ namespace lpzrobots {
   protected:
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */
     virtual void destroy();
 
-    VierBeinerConf conf; 
+    VierBeinerConf conf;
     double legmass;    // leg mass
 
     bool created;      // true if robot was created
 
 
     // some objects explicitly needed for ignored collision pairs
-    Primitive *trunk, *headtrans, *bigboxtransform, *neck, *tail; 
-    // these ones are only need if a face is to be drawn 
-    Primitive *eye_r_trans, *eye_l_trans, *ear_l_trans,*ear_r_trans, *mouth_trans; 
-    
-    
+    Primitive *trunk, *headtrans, *bigboxtransform, *neck, *tail;
+    // these ones are only need if a face is to be drawn
+    Primitive *eye_r_trans, *eye_l_trans, *ear_l_trans,*ear_r_trans, *mouth_trans;
+
+
     std::vector <OneAxisServo*> hipservos; // motors
     std::vector <OneAxisServo*> kneeservos; // motors
     std::vector <OneAxisServo*> ankleservos; // motors

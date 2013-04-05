@@ -38,25 +38,25 @@
  */
 class MatrixPlotChannel: public GroupPlotChannel {
 public:
-	MatrixPlotChannel(std::string name);
-	virtual ~MatrixPlotChannel();
+        MatrixPlotChannel(std::string name);
+        virtual ~MatrixPlotChannel();
 
-	/**
-	 * wieviele Spalten oder Zeilen
-	 * @param dim
-	 * @return
-	 */
-	virtual int getDimension(int dim);
+        /**
+         * wieviele Spalten oder Zeilen
+         * @param dim
+         * @return
+         */
+        virtual int getDimension(int dim);
 
-	virtual double getValue(int row, int column);
+        virtual double getValue(int row, int column);
 
-	MatrixElementPlotChannel* getChannel(int row, int column);
+        MatrixElementPlotChannel* getChannel(int row, int column);
 
-	GroupPlotChannel* getRow(int row);
+        GroupPlotChannel* getRow(int row);
 
   GroupPlotChannel* getLastRow();
 
-	virtual void addRow(GroupPlotChannel* gc);
+        virtual void addRow(GroupPlotChannel* gc);
 
 
 protected:

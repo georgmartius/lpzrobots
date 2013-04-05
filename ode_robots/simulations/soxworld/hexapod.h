@@ -31,15 +31,15 @@
 
 namespace lpzrobots {
 
-  class Primitive; 
-  class Joint;  
-  class OneAxisServo;  
-  class TwoAxisServo;  
+  class Primitive;
+  class Joint;
+  class OneAxisServo;
+  class TwoAxisServo;
 
 
   struct HexapodConf {
     double size;       ///< scaling factor for robot (diameter of body)
-    double legLength;  ///< length of the legs in units of size 
+    double legLength;  ///< length of the legs in units of size
     int    legNumber;  ///<  number of snake elements
     double width;      ///< body with in units of size
     double height;     ///< body with in units of size
@@ -58,7 +58,7 @@ namespace lpzrobots {
     double tebiaJointLimit;  ///< angle range for knees
     double tebiaDamping; ///< damping in the knees
 
-    bool tarsus;		  ///< whether to use a tarsus or not
+    bool tarsus;                  ///< whether to use a tarsus or not
     int numTarsusSections; ///< the number of sections in the tarsus
     bool useTarsusJoints; ///< whether to use joints on the tarsus
     bool useBigBox;       ///< whether to use a big invisible box on the back of the robot
@@ -83,22 +83,22 @@ namespace lpzrobots {
     int legID;
     dGeomID geomid;
     dBodyID bodyID;
-    
+
     dJointID joint;
   };
 
 
   class Hexapod : public OdeRobot, public Inspectable {
   public:
-  
+
     /**
      * constructor of VierBeiner robot
      * @param odeHandle data structure for accessing ODE
      * @param osgHandle ata structure for accessing OSG
      * @param conf configuration object
      */
-    Hexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const HexapodConf& conf, 
-	       const std::string& name);
+    Hexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const HexapodConf& conf,
+               const std::string& name);
 
     virtual ~Hexapod(){ destroy(); };
 
@@ -120,8 +120,8 @@ namespace lpzrobots {
       c.coxaSpeed   = 30; // The speed calculates how it works
       c.T = 1.0;
 
-      c.useTebiaJoints = true; 
-      c.tebiaPower = 1.2; 
+      c.useTebiaJoints = true;
+      c.tebiaPower = 1.2;
       c.tebiaJointLimit = M_PI/4; // +- 45 degree
       c.tebiaDamping = 0.01; // Georg: the damping reduces the swinging of the system
 
@@ -151,20 +151,20 @@ namespace lpzrobots {
 
 
     /** sets the pose of the vehicle
-	@param pose desired pose matrix
+        @param pose desired pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumbHexapod::getDefaultConf()er length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumbHexapod::getDefaultConf()er length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -175,16 +175,16 @@ namespace lpzrobots {
     /** returns number of motors
      */
     virtual int getMotorNumber();
-    /** checks for internal collisions and treats them. 
-     *  In case of a treatment return true (collision will be ignored by other objects 
-     *  and the default routine)  else false (collision is passed to other objects and 
+    /** checks for internal collisions and treats them.
+     *  In case of a treatment return true (collision will be ignored by other objects
+     *  and the default routine)  else false (collision is passed to other objects and
      *  (if not treated) to the default routine).
      */
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2);
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
@@ -197,7 +197,7 @@ namespace lpzrobots {
     double round(double,int);
 
     virtual double energyConsumption();
-    
+
     virtual double energyConsumpThroughtHeatLoss(const dReal *torques);
 
     virtual double outwardMechanicalPower(const dReal *torques,const dReal *angularV);
@@ -207,7 +207,7 @@ namespace lpzrobots {
     virtual double getMassOfRobot();
 
     virtual double *getPosition(){
-    	return position;
+            return position;
     }
 
     /******** CONFIGURABLE ***********/
@@ -222,25 +222,25 @@ namespace lpzrobots {
   protected:
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */
     virtual void destroy();
 
 public:
-    HexapodConf conf; 
+    HexapodConf conf;
     double legmass;    // leg mass
-    int	countt;
+    int        countt;
     bool created;      // true if robot was created
     RaySensorBank irSensorBank; // a collection of ir sensors
 
   public:
     double costOfTran;
     double* energyOneStep; ///< energy consumption for one time step
-    double E_t;	///< energy consumption over a period t;
+    double E_t;        ///< energy consumption over a period t;
     bool recordGait;
     double *heights;
     double *angles;

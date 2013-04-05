@@ -4,7 +4,7 @@
  *  Created on: 18, Sep, 2012
  *      Author: Yuichi
  *
- *	This is the definition of the name of the motors and sensors for Ashigaru
+ *        This is the definition of the name of the motors and sensors for Ashigaru
  */
 
 #ifndef ASHIGARUSENSORMOTORDEFINITION_H_
@@ -14,7 +14,7 @@
 
  Here, I determine the parameters of the robot Ashigaru
 
- 	  _	    Joint Joint Joint
+           _            Joint Joint Joint
    /     \    TC    CT    FT
   |       |== o === | === | ======  Leg
    \  _  / Shld Coxa  Femur  Tibia
@@ -64,7 +64,7 @@ enum AshigaruSensorNames{
   //   [    center               z ---------> y
   //   [                           |
   //    \ ___0__                   |
-  ///                       	   V x
+  ///                                  V x
   //
   POSE_r = 21, // roll (rad)
   POSE_p = 22, // pitch
@@ -133,7 +133,7 @@ enum AshigaruMotorNames{
 
  Here, I determine the parameters of the robot Ashigaru
 
- 	  _	    Joint Joint Joint
+           _            Joint Joint Joint
    /     \    TC    CT    FT
   |       |== o === | === | ======  Leg
    \  _  / Shld Coxa  Femur  Tibia
@@ -142,66 +142,66 @@ enum AshigaruMotorNames{
 ************************************************************************/
 // The internal parameters of the dynamixel
 typedef struct {
-	//Unit m, kg
-	double length;
-	double width;
-	double height;
+        //Unit m, kg
+        double length;
+        double width;
+        double height;
 
-	double length_axis_to_center;// The length between the center of dynamixel and the axis.
-	double length_from_axis_to_tip; // The length between the axis and the tip of joint material(bra for servo)
+        double length_axis_to_center;// The length between the center of dynamixel and the axis.
+        double length_from_axis_to_tip; // The length between the axis and the tip of joint material(bra for servo)
 
-	double mass;
+        double mass;
 }DynaAX12Conf;
 
 // The internal parameters of the Hexagon Body
 typedef struct {
-	//Unit m, kg
-	double length;
-	double height;
+        //Unit m, kg
+        double length;
+        double height;
 
-	double mass;
+        double mass;
 }HexagonBodyConf;
 
 // The internal parameters of Foot frame (Tibia)
 typedef struct {
-	//Unit m,kg
-	double length;
-	double width;
-	double height;
+        //Unit m,kg
+        double length;
+        double width;
+        double height;
 
-	double footRadius;
+        double footRadius;
 
-	double mass;
+        double mass;
 }FootFrameConf;
 
 typedef struct {
-	// Unit m
-	double length_center_to_TCJ;
-	double length_TCJ_to_CTJ;
-	double length_CTJ_to_FTJ;
-	double length_FTJ_to_Toe;
+        // Unit m
+        double length_center_to_TCJ;
+        double length_TCJ_to_CTJ;
+        double length_CTJ_to_FTJ;
+        double length_FTJ_to_Toe;
 }JointLength;
 
 //The internal parameter of the servo
 typedef struct{
-	// angle limit (rad)
-	// about TC
-	double TC_angle_MAX;
-	double TC_angle_MIN;
-	// about CT
-	double CT_angle_MAX;
-	double CT_angle_MIN;
-	// about FT
-	double FT_angle_MAX;
-	double FT_angle_MIN;
+        // angle limit (rad)
+        // about TC
+        double TC_angle_MAX;
+        double TC_angle_MIN;
+        // about CT
+        double CT_angle_MAX;
+        double CT_angle_MIN;
+        // about FT
+        double FT_angle_MAX;
+        double FT_angle_MIN;
 
-	//servoParam
-	 // input current??
-	double power;
-	 // damping coefficience
-	double damp;
-	 // Max vel which the servo can get
-	double maxVel;
+        //servoParam
+         // input current??
+        double power;
+         // damping coefficience
+        double damp;
+         // Max vel which the servo can get
+        double maxVel;
 
 }ServoParam;
 
@@ -209,28 +209,28 @@ typedef struct{
 //  this is not good parameter I think, I have to change it But, temporally I use it
 
 typedef struct{
-	// The leg which is used for connection
-	int conectedLegNum;
-	// The strength of the joint connection
-	//  this is correspond to the servo parameter P
-	//  By making this parameter too large to vibrate, we can treat it as rigid body
-	double servoPower;
+        // The leg which is used for connection
+        int conectedLegNum;
+        // The strength of the joint connection
+        //  this is correspond to the servo parameter P
+        //  By making this parameter too large to vibrate, we can treat it as rigid body
+        double servoPower;
 
 }SpecialParam;
 
 //! >ASHIGARU Configuration struct
 typedef struct {
-	double rate;// What rate should I multiple to real length number
-	double massRate; // what rate should I multiple to real mass number
-	double connectLength; // Length between center of the robot and that of another robot when they are connected each other.
-	double wholeMass; // the whole mass of the robot
+        double rate;// What rate should I multiple to real length number
+        double massRate; // what rate should I multiple to real mass number
+        double connectLength; // Length between center of the robot and that of another robot when they are connected each other.
+        double wholeMass; // the whole mass of the robot
 
-	DynaAX12Conf dyna; // Dynamixel's real configuration
-	HexagonBodyConf body; // Body's real config.
-	FootFrameConf foot; // foot's real config.
-	JointLength jLength; // joint length param
-	ServoParam servoParam; // parameter for servo
-	SpecialParam specialParam; // special parameter (temporally)
+        DynaAX12Conf dyna; // Dynamixel's real configuration
+        HexagonBodyConf body; // Body's real config.
+        FootFrameConf foot; // foot's real config.
+        JointLength jLength; // joint length param
+        ServoParam servoParam; // parameter for servo
+        SpecialParam specialParam; // special parameter (temporally)
 
 } AshigaruConf;
 

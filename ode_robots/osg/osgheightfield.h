@@ -42,9 +42,9 @@ namespace lpzrobots {
      * HighMidLow: Blue is least significant, Green is medium significant and Red is most significant
      */
     enum CodingMode {Red, Sum, LowMidHigh};
-      
 
-    OSGHeightField(osg::HeightField* heightfield,float x_size, float y_size);    
+
+    OSGHeightField(osg::HeightField* heightfield,float x_size, float y_size);
     OSGHeightField(const std::string& filename, float x_size, float y_size, float height);
 
     virtual void setMatrix(const osg::Matrix& matrix);
@@ -52,11 +52,11 @@ namespace lpzrobots {
 
     virtual const osg::HeightField* getHeightField() const { return field; }
 
-    /** loads an ppm image and returns the height field using the given coding and the height 
-	(maximal height of the heightfield)
+    /** loads an ppm image and returns the height field using the given coding and the height
+        (maximal height of the heightfield)
     */
-    static osg::HeightField* loadFromPPM(const std::string& filename, double height, 
-					 CodingMode codingMode=Red);
+    static osg::HeightField* loadFromPPM(const std::string& filename, double height,
+                                         CodingMode codingMode=Red);
     /// return the height using the given coding mode. The data pointer points to RGB data point
     static double coding(CodingMode mode, const unsigned char* data);
 

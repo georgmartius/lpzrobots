@@ -32,20 +32,20 @@
 
 
 namespace lpzrobots {
-  
+
   /**
      class for reading bounding shape description files (.bbox) and to create appropriate geoms
 
-     File Format: Lines wise, every line stands for one primitive. 
+     File Format: Lines wise, every line stands for one primitive.
 
      Possible lines are:
      - sphere radius (x,y,z)
      - cylinder radius height (x,y,z) (alpha, beta, gamma)
      - capsule radius height (x,y,z) (alpha, beta, gamma)
      - box length width height (x,y,z) (alpha, beta, gamma)
-     
-     (x,y,z) is the position vector and (alpha, beta, gamma) are 
-     the rotation angles about x,y,z axis respectively        
+
+     (x,y,z) is the position vector and (alpha, beta, gamma) are
+     the rotation angles about x,y,z axis respectively
 
      Example:
      \code
@@ -73,8 +73,8 @@ cylinder 5 30 (0,0,175) (0,0,0)
 
     /// tries to open the bbox file and greates all geoms
     virtual bool init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      double scale, char mode);
-    
+                      double scale, char mode);
+
     virtual bool isActive();
 
     /**
@@ -84,8 +84,8 @@ cylinder 5 30 (0,0,175) (0,0,0)
     virtual void setPose(const osg::Matrix& pose);
 
   private:
-    bool readBBoxFile(std::string& filename, const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		      double scale, char mode);
+    bool readBBoxFile(std::string& filename, const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                      double scale, char mode);
 
   protected:
     std::string filename;

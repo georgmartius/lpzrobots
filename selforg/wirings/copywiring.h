@@ -68,8 +68,8 @@ protected:
       @param noise size of the noise added to the sensors
   */
   virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
-			   sensor* csensors, int csensornumber,
-			   double noise);
+                           sensor* csensors, int csensornumber,
+                           double noise);
 
   /** Realizes one to one wiring from controller motor outputs to robot motors.
       @param rmotors pointer to array of motorvalues for robot
@@ -78,7 +78,7 @@ protected:
       @param cmotornumber number of motorvalues from controller
   */
   virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
-			  const motor* cmotors, int cmotornumber);
+                          const motor* cmotors, int cmotornumber);
 
 
 protected:

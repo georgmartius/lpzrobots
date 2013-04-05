@@ -66,12 +66,12 @@ public:
       @param motornumber length of the provided motor array
   */
   virtual void step(const sensor* sensors, int sensornumber,
-		    motor* motors, int motornumber);
+                    motor* motors, int motornumber);
   /** performs one step.
       @see step
   */
   virtual void stepNoLearning(const sensor* , int number_sensors,
-			      motor* , int number_motors);
+                              motor* , int number_motors);
 
 
   /********* STORABLE INTERFACE ******/

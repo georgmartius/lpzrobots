@@ -33,8 +33,8 @@
 
 class MatrixElementPlotChannel: public AbstractPlotChannel {
 public:
-	MatrixElementPlotChannel(std::string name);
-	virtual ~MatrixElementPlotChannel();
+        MatrixElementPlotChannel(std::string name);
+        virtual ~MatrixElementPlotChannel();
 };
 
 #endif /* MATRIXELEMENTPLOTCHANNEL_H_ */

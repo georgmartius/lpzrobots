@@ -59,7 +59,7 @@ namespace lpzrobots {
     virtual int getSensorNumber() const  = 0;
 
     /** returns a list of sensor values (usually in the range [-1,1] )
-	This function should be overloaded.
+        This function should be overloaded.
      */
     virtual std::list<sensor> get() const  = 0;
 
@@ -68,19 +68,19 @@ namespace lpzrobots {
     virtual void update() {};
 
     /** writes the sensor values (usually in the range [-1,1] )
-	into the given sensor array and returns the number of sensors written.
-	A default implementation based on get() is provided. Only if performance
-	matters overwrite this function.
-	@param sensors call by refernce array which received the values
-	@param length capacity of sensors array
-	@return number of sensor values written
+        into the given sensor array and returns the number of sensors written.
+        A default implementation based on get() is provided. Only if performance
+        matters overwrite this function.
+        @param sensors call by refernce array which received the values
+        @param length capacity of sensors array
+        @return number of sensor values written
      */
     virtual int get(sensor* sensors, int length) const {
       const std::list<sensor>& l = get();
       assert(length>=(int)l.size());
       int n=0;
       FOREACHC(std::list<sensor>,l,s)
-	sensors[n++] = *s;
+        sensors[n++] = *s;
       return l.size();
     };
 
@@ -88,7 +88,7 @@ namespace lpzrobots {
     static std::list<sensor> selectrows(const matrix::Matrix& m, short dimensions) {
       std::list<sensor> l;
       for(int i=0; i<3; i++){
-	if(( 1 <<i ) & dimensions) l += m.row(i).convertToList();
+        if(( 1 <<i ) & dimensions) l += m.row(i).convertToList();
       }
       return l;
     }
@@ -96,8 +96,8 @@ namespace lpzrobots {
     static int selectrows(sensor* sensors, int length, const matrix::Matrix& m, short dimensions) {
       int len=0;
       for(int i=0; i<3; i++){
-	if(( 1 << i) & dimensions)
-	  len+=m.row(i).convertToBuffer(sensors+len, length-len);
+        if(( 1 << i) & dimensions)
+          len+=m.row(i).convertToBuffer(sensors+len, length-len);
       }
       return len;
     }

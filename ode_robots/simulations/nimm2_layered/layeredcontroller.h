@@ -15,7 +15,7 @@
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
- *                                            * 
+ *                                            *
  *                                                                         *
  *   $Log$
  *   Revision 1.3  2011-05-30 13:56:42  martius
@@ -65,10 +65,10 @@
 #include <selforg/matrix.h>
 
 /**
- * class for robot controller that uses the georg's matrixlib for 
- *  direct matrix inversion for n channels 
+ * class for robot controller that uses the georg's matrixlib for
+ *  direct matrix inversion for n channels
  * (simple one layer networks)
- * 
+ *
  * Implements standart parameters: eps, rho, mu, stepnumber4avg, stepnumber4delay
  */
 class LayeredController : public AbstractController {
@@ -80,34 +80,34 @@ public:
   virtual ~LayeredController();
 
   /// returns the name of the object (with version number)
-  virtual paramkey getName() const {return name; } 
+  virtual paramkey getName() const {return name; }
   /// returns the number of sensors the controller was initialised with or 0 if not initialised
   virtual int getSensorNumber() const { return number_channels; }
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_channels; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
 
   /***** STOREABLE ****/
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   // inspectable interface
   virtual std::list<iparamkey> getInternalParamNames() const;
   virtual std::list<iparamval> getInternalParams() const;
   virtual std::list<ILayer> getStructuralLayers() const;
   virtual std::list<IConnection> getStructuralConnections() const;
-  
+
 
   virtual paramval getParam(const paramkey& key, bool raverseChildren=true) const;
   virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
@@ -117,7 +117,7 @@ protected:
 
   Layer1_INCC* layer1;
   Layer2_INCC* layer2;
-  
+
   unsigned short number_channels;
   unsigned short buffersize;
   bool update_only_1;
@@ -136,7 +136,7 @@ protected:
 
 
   // step conter
-  int t;  
+  int t;
 
 
 

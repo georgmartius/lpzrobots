@@ -37,7 +37,7 @@
  *
  *  Revision 1.1  2010/03/07 22:50:38  guettler
  *  first development state for feature XMLImport
- *										   *
+ *                                                                                   *
  *                                                                         *
  **************************************************************************/
 #ifndef __XMLPRIMITIVEFACTORY_H_

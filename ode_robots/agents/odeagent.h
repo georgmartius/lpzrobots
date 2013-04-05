@@ -81,10 +81,10 @@ namespace lpzrobots {
     virtual ~OdeAgent();
 
     /** initializes the object with the given controller, robot and wiring
-	and initializes plotoptionengine
+        and initializes plotoptionengine
     */
     virtual bool init(AbstractController* controller, OdeRobot* robot, AbstractWiring* wiring,
-		      long int seed = 0){
+                      long int seed = 0){
       return Agent::init(controller, robot, wiring, seed);
     }
 

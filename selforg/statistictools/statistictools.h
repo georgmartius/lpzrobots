@@ -47,21 +47,21 @@ class StatisticTools : public Inspectable, public Callbackable {
 public:
   StatisticTools(const std::string& name = "StatisticTools") : Inspectable(name), beginMeasureCounter(0) { }
 
-	/**
-	 * adds a variable to observe and measure the value
-	 * @param observedValue    the value to observe.
-	 * @param measureName      the name of the measured value
-	 * @param mode             the mode of measure
-	 * @param stepSpan         in most cases the stepSpan is important to get
-	 * the measured value of a number of steps, like AVG:
-	 * if stepSpan = 0, AVG is calculated over all steps
-	 * if stepSpan = n, AVG is calculated over the LAST n steps
-	 * The same counts for all the other MeasureModes.
-	 * @param additionalParam  is used for example for mode PEAK, the param is the limit value,
-	 * all values minus limit are displayed, values below the limit are set to 0.
-  	 * In CONV mode (test the convergence), this value is the epsilon criteria.
-	 * @return measured value as adress. So it is possible to measure this value again
-	 */
+        /**
+         * adds a variable to observe and measure the value
+         * @param observedValue    the value to observe.
+         * @param measureName      the name of the measured value
+         * @param mode             the mode of measure
+         * @param stepSpan         in most cases the stepSpan is important to get
+         * the measured value of a number of steps, like AVG:
+         * if stepSpan = 0, AVG is calculated over all steps
+         * if stepSpan = n, AVG is calculated over the LAST n steps
+         * The same counts for all the other MeasureModes.
+         * @param additionalParam  is used for example for mode PEAK, the param is the limit value,
+         * all values minus limit are displayed, values below the limit are set to 0.
+           * In CONV mode (test the convergence), this value is the epsilon criteria.
+         * @return measured value as adress. So it is possible to measure this value again
+         */
   virtual double& addMeasure(double& observedValue, const char* measureName, MeasureMode mode, long stepSpan, double additionalParam=0);
 
   /**
@@ -112,12 +112,12 @@ public:
 
 
 
-	/**
-	 * starts the measure at a specific time. This is useful if there are
-	 * values that have to be ignored at simulation start.
-	 * @param step number of steps (normally simsteps) to wait for beginning the measures
-	 */
-	virtual void beginMeasureAt(long step);
+        /**
+         * starts the measure at a specific time. This is useful if there are
+         * values that have to be ignored at simulation start.
+         * @param step number of steps (normally simsteps) to wait for beginning the measures
+         */
+        virtual void beginMeasureAt(long step);
 
   /**
    * Tells you wether the measures have already been started.
@@ -126,18 +126,18 @@ public:
   virtual bool measureStarted() { return (beginMeasureCounter==0?true:false); }
 
 
-	/**
-	 * CALLBACKABLE INTERFACE
-	 *
-	 *	this method is invoked when a callback is done from the class where this
-	 * class is for callback registered
-	 */
-	virtual void doOnCallBack(BackCaller* source, BackCaller::CallbackableType type = BackCaller::DEFAULT_CALLBACKABLE_TYPE);
+        /**
+         * CALLBACKABLE INTERFACE
+         *
+         *        this method is invoked when a callback is done from the class where this
+         * class is for callback registered
+         */
+        virtual void doOnCallBack(BackCaller* source, BackCaller::CallbackableType type = BackCaller::DEFAULT_CALLBACKABLE_TYPE);
 
 
 protected:
-	std::list<AbstractMeasure*> activeMeasures;
-	long beginMeasureCounter;
+        std::list<AbstractMeasure*> activeMeasures;
+        long beginMeasureCounter;
 };
 
 
@@ -160,7 +160,7 @@ type sub(const type&, const type&),
 type mul(const type&, const type&),
 type div(const type&, const type&)>
 ANALYSATION_CONTEXT* getAnalysation(std::vector<type> values) {
-	return new ANALYSATION_CONTEXT(values);
+        return new ANALYSATION_CONTEXT(values);
 }
 
 /**
@@ -183,38 +183,38 @@ type sub(const type&, const type&),
 type mul(const type&, const type&),
 type div(const type&, const type&)>
 type getAnalysation(ANALYSATION_CONTEXT* tvAnalysation, AnalysationMode mode, unsigned int feature = 0) {
-	switch(mode){
-	case AM_AVG:
-		return tvAnalysation->getAvg();
-	case AM_MIN:
-		return tvAnalysation->getMin();
-	case AM_MAX:
-		return tvAnalysation->getMax();
-	case AM_RANGE:
-		return tvAnalysation->getRange();
-	case AM_IQR:
-		return tvAnalysation->getIQR();
-	case AM_MED:
-		return tvAnalysation->getMedian();
-	case AM_WHISKER:
-		return tvAnalysation->getWhisker(1.5);
-	case AM_Q1:
-		return tvAnalysation->getQuartil1();
-	case AM_Q3:
-		return tvAnalysation->getQuartil3();
-	case AM_W1:
-		return tvAnalysation->getWhisker1(1.5);
-	case AM_W3:
-		return tvAnalysation->getWhisker3(1.5);
-	case AM_NUM_EXT:
-		return (type)tvAnalysation->getNumExtrems(1.5);
-	case AM_EXT:
-		return tvAnalysation->getExtrem(1.5,feature);
-	case AM_BEST:
-		return tvAnalysation->getBest();
-	default:
-		return zero();
-	}
+        switch(mode){
+        case AM_AVG:
+                return tvAnalysation->getAvg();
+        case AM_MIN:
+                return tvAnalysation->getMin();
+        case AM_MAX:
+                return tvAnalysation->getMax();
+        case AM_RANGE:
+                return tvAnalysation->getRange();
+        case AM_IQR:
+                return tvAnalysation->getIQR();
+        case AM_MED:
+                return tvAnalysation->getMedian();
+        case AM_WHISKER:
+                return tvAnalysation->getWhisker(1.5);
+        case AM_Q1:
+                return tvAnalysation->getQuartil1();
+        case AM_Q3:
+                return tvAnalysation->getQuartil3();
+        case AM_W1:
+                return tvAnalysation->getWhisker1(1.5);
+        case AM_W3:
+                return tvAnalysation->getWhisker3(1.5);
+        case AM_NUM_EXT:
+                return (type)tvAnalysation->getNumExtrems(1.5);
+        case AM_EXT:
+                return tvAnalysation->getExtrem(1.5,feature);
+        case AM_BEST:
+                return tvAnalysation->getBest();
+        default:
+                return zero();
+        }
 }
 
 /**
@@ -237,10 +237,10 @@ type sub(const type&, const type&),
 type mul(const type&, const type&),
 type div(const type&, const type&)>
 type getAnalysation(std::vector<type> values, AnalysationMode mode, unsigned int feature = 0) {
-	ANALYSATION_CONTEXT* context = GET_TYPE_ANALYSATION(type)(values);
-	type result = GET_TYPE_ANALYSATION(type)(context,mode,feature);
-	delete context;
-	return result;
+        ANALYSATION_CONTEXT* context = GET_TYPE_ANALYSATION(type)(values);
+        type result = GET_TYPE_ANALYSATION(type)(context,mode,feature);
+        delete context;
+        return result;
 }
 
 #endif

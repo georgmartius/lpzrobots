@@ -33,25 +33,25 @@
 namespace lpzrobots {
 
   typedef struct {
-    Nimm2Conf n2cfg;   ///< configuration for underlying nimm2 robot    
+    Nimm2Conf n2cfg;   ///< configuration for underlying nimm2 robot
     CameraConf camcfg; ///< camera config. Allows to change the image processing
     bool useCamera;    ///< whether to use the camera
     osg::Matrix camPos; ///< relative pose of the camera
-    /** camera sensor (converts image to sensor data) 
+    /** camera sensor (converts image to sensor data)
         (if NULL then DirectCameraSensor() is used) */
-    CameraSensor* camSensor; 
+    CameraSensor* camSensor;
     /// list of sensors that are mounted at the robot. (e.g.\ AxisOrientationSensor)
-    std::list<Sensor*> sensors; 
+    std::list<Sensor*> sensors;
     /// adds a sensor to the list of sensors
-    void addSensor(Sensor* s) { sensors.push_back(s); }        
+    void addSensor(Sensor* s) { sensors.push_back(s); }
   } TwoWheeledConf;
-  
-  /** Robot is based on nimm2 with 
+
+  /** Robot is based on nimm2 with
       a camera installed
   */
   class TwoWheeled : public Nimm2{
   public:
-  
+
     /**
      * constructor of twowheeled robot
      * @param odeHandle data structure for accessing ODE
@@ -59,8 +59,8 @@ namespace lpzrobots {
      * @param conf configuration structure
      * @param name name of the robot
      */
-    TwoWheeled(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-	       TwoWheeledConf conf, const std::string& name);
+    TwoWheeled(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+               TwoWheeledConf conf, const std::string& name);
 
     static TwoWheeledConf getDefaultConf(){
       TwoWheeledConf conf;
@@ -72,14 +72,14 @@ namespace lpzrobots {
       conf.camcfg.camSize = 0.08;
       conf.camcfg.processors.push_back(new HSVImgProc(false,1));
       // filter only Yellow color
-      conf.camcfg.processors.push_back(new ColorFilterImgProc(true, .5, 
+      conf.camcfg.processors.push_back(new ColorFilterImgProc(true, .5,
                              HSVImgProc::Red+20, HSVImgProc::Green-20,100));
       // only two sensors for left and right visual field
-      conf.camcfg.processors.push_back(new LineImgProc(true,20, 2));    
+      conf.camcfg.processors.push_back(new LineImgProc(true,20, 2));
       conf.useCamera = true;
-      conf.camPos    = osg::Matrix::rotate(M_PI/2,0,0,1) 
+      conf.camPos    = osg::Matrix::rotate(M_PI/2,0,0,1)
         * osg::Matrix::translate(-0.20,0,0.40);
-      conf.camSensor = 0;      
+      conf.camSensor = 0;
       return conf;
     }
 
@@ -96,9 +96,9 @@ namespace lpzrobots {
 
   protected:
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */

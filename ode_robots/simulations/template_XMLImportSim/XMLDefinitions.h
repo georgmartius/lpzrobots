@@ -22,7 +22,7 @@
  ***************************************************************************
  *                                                                         *
  *  DESCRIPTION                                                            *
- *  
+ *
  *                                                                         *
  *                                                                         *
  *  $Log$
@@ -39,7 +39,7 @@
  *
  *  Revision 1.1  2010/03/07 22:50:38  guettler
  *  first development state for feature XMLImport
- *										   *
+ *                                                                                   *
  *                                                                         *
  **************************************************************************/
 #ifndef __XMLDEFINITIONS_H_
@@ -128,12 +128,12 @@ namespace XMLDefinitions {
   const static char* alphacolorAtt            = "Alpha";
 
   // for Joints and Transforms
-  const static char* parentPrimitive		    	= "PrimitiveId1";
-  const static char* childPrimitive		       	= "PrimitiveId2";
+  const static char* parentPrimitive                            = "PrimitiveId1";
+  const static char* childPrimitive                               = "PrimitiveId2";
 
   // Primitive ray
-  const static char* rangeAtt                	= "Range";
-  const static char* thicknessAtt			      	= "Thickness";
+  const static char* rangeAtt                        = "Range";
+  const static char* thicknessAtt                                      = "Thickness";
 
   // Mesh related nodes
   const static char* boundingShapeNode        ="BoundingShape";

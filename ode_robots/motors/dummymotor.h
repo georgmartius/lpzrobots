@@ -21,20 +21,20 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
-#ifndef   	DUMMYMOTOR_H_
-# define   	DUMMYMOTOR_H_
+#ifndef           DUMMYMOTOR_H_
+# define           DUMMYMOTOR_H_
 
 #include "motor.h"
 
 namespace lpzrobots {
-  
+
   class DummyMotor: public Motor {
-  public: 
+  public:
     DummyMotor(int number=1)
       : number(number) {
     }
     virtual ~DummyMotor() {};
-    
+
     virtual void init(Primitive* own){
     }
 
@@ -48,12 +48,12 @@ namespace lpzrobots {
 
     virtual int set(const motor* values, int length){
       return number;
-    };    
-    
+    };
+
   private:
     int number;
   };
 
 }
 
-#endif 	    /* !DUMMYMOTOR_H_ */
+#endif             /* !DUMMYMOTOR_H_ */

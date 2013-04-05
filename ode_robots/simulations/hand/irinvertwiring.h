@@ -34,15 +34,15 @@
 
 #include <selforg/one2onewiring.h>
 
-/** Implements one to one wireing of robot sensors to inputs of the controller 
-    and controller outputs to robot motors. 
+/** Implements one to one wireing of robot sensors to inputs of the controller
+    and controller outputs to robot motors.
  */
 class IRInvertWiring :public One2OneWiring{
 public:
   /** constructor
-      @param noise NoiseGenerator that is used for adding noise to sensor values  
+      @param noise NoiseGenerator that is used for adding noise to sensor values
       @param plotNoise for plotting the noise values (to observe it from outside
-      via getInternalParams() and guilogger) set it TRUE, for not plotting the noise set 
+      via getInternalParams() and guilogger) set it TRUE, for not plotting the noise set
       it to FALSE.
    */
   IRInvertWiring(NoiseGenerator* noise, bool plotNoise=false, const std::string& name = "IRInvertWiring");
@@ -53,16 +53,16 @@ public:
   //  virtual ~IRInvertWiring();
 
 
-  /** Realizes one to one wiring from robot sensors to controller sensors. 
-      @param rsensors pointer to array of sensorvalues from robot 
+  /** Realizes one to one wiring from robot sensors to controller sensors.
+      @param rsensors pointer to array of sensorvalues from robot
       @param rsensornumber number of sensors from robot
-      @param csensors pointer to array of sensorvalues for controller  
+      @param csensors pointer to array of sensorvalues for controller
       @param csensornumber number of sensors to controller
       @param noise size of the noise added to the sensors
   */
-  virtual bool wireSensors(const sensor* rsensors, int rsensornumber, 
-			   sensor* csensors, int csensornumber,
-			   double noise);
+  virtual bool wireSensors(const sensor* rsensors, int rsensornumber,
+                           sensor* csensors, int csensornumber,
+                           double noise);
 
 };
 

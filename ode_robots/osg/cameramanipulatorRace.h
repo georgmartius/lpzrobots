@@ -31,7 +31,7 @@ namespace lpzrobots {
 
   /**
      CameraManipulatorRace is a MatrixManipulator which provides Flying simulator-like
-     updating of the camera position & orientation. 
+     updating of the camera position & orientation.
      Left mouse button: Pan and tilt
      Right mouse button: forward and sideways
      Middle mouse button: up and sideways
@@ -40,24 +40,24 @@ namespace lpzrobots {
   class CameraManipulatorRace : public CameraManipulator {
 
   public:
-    
+
     CameraManipulatorRace(osg::Node* node,GlobalData& global, CameraHandle& cameraHandle);
-    
+
     /** returns the classname of the manipulator
-	it's NECCESSARY to define this funtion, otherwise
-	the new manipulator WON'T WORK! (but ask me not why)
+        it's NECCESSARY to define this funtion, otherwise
+        the new manipulator WON'T WORK! (but ask me not why)
      */
     virtual const char* className() const { return "Race-Camera"; }
-  
+
   protected:
-    
+
     virtual ~CameraManipulatorRace();
-    
+
     /** This handles robot movements, so that the camera movemenent is right affected.
-	should be overwritten by new cameramanipulator
+        should be overwritten by new cameramanipulator
     */
        virtual void calcMovementByAgent();
-    
+
   };
 }
 

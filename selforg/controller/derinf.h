@@ -65,7 +65,7 @@ public:
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
   virtual void stepNoLearning(const sensor* , int number_sensors,
-			      motor* , int number_motors);
+                              motor* , int number_motors);
 
   /**************  STOREABLE **********************************/
   /** stores the controller values to a given file. */
@@ -134,7 +134,7 @@ protected:
   double causal; //GrangerCausality
   double causalfactor; //GrangerCausality
   double EE;
-  double EE_mean; 
+  double EE_mean;
   double EE_sqr;
   double xsistrength;
   double sense;
@@ -177,7 +177,7 @@ protected:
   matrix::Matrix y_teaching; ///< teaching motor signal
   bool useTeaching; ///< flag whether there is an actual teachning signal or not
 
-  matrix::Matrix x_intern;  
+  matrix::Matrix x_intern;
   int num_iterations;
 
   int t_rand; ///< initial random time to avoid syncronous management of all controllers
@@ -202,7 +202,7 @@ protected:
   /// puts the sensors in the ringbuffer, generate controller values and put them in the
   //  ringbuffer as well
   virtual void fillBuffersAndControl(const sensor* x_, int number_sensors,
-			     motor* y_, int number_motors);
+                             motor* y_, int number_motors);
 
 /** learn values H,C
     This is the implementation uses a better formula for g^-1 using Mittelwertsatz

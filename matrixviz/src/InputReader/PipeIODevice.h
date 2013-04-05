@@ -10,7 +10,7 @@ class PipeIODevice : public QFile
       virtual ~PipeIODevice() {};
 
       virtual bool canReadLine() const {
-	return QFile::buffer.contains('\n') || QIODevice::canReadLine();
+        return QFile::buffer.contains('\n') || QIODevice::canReadLine();
       }
 
   };

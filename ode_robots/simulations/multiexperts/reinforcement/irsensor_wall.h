@@ -47,10 +47,10 @@ namespace lpzrobots {
     virtual RaySensor* clone() const;
 
     virtual void init(const OdeHandle& odeHandle,
-		      const OsgHandle& osgHandle,
-		      Primitive* body,
-		      const osg::Matrix pose, float range,
-		      rayDrawMode drawMode = drawSensor);
+                      const OsgHandle& osgHandle,
+                      Primitive* body,
+                      const osg::Matrix pose, float range,
+                      rayDrawMode drawMode = drawSensor);
   public:
     std::list<dGeomID> avoids;
   };

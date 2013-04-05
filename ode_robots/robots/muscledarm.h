@@ -42,49 +42,49 @@ namespace lpzrobots{
 
   /* Enumeration of different parts and joints */
   // left, right up and down correspond to view from top, when base is on the bottom
-  enum parts {base, upperArm, lowerArm, 
-	      mainMuscle11, //left mainMuscle bottom part
-	      mainMuscle12, //left mainMuscle top part
-	      mainMuscle21, //right mainMuscle lower part
-	      mainMuscle22, //right mainMuscle upper part
-	      smallMuscle11, 
-	      smallMuscle12, 
-	      smallMuscle21, 
-	      smallMuscle22, 
-	      smallMuscle31, 
-	      smallMuscle32, 
-	      smallMuscle41, 
-	      smallMuscle42, 
-	      hand,
-	      NUMParts};
+  enum parts {base, upperArm, lowerArm,
+              mainMuscle11, //left mainMuscle bottom part
+              mainMuscle12, //left mainMuscle top part
+              mainMuscle21, //right mainMuscle lower part
+              mainMuscle22, //right mainMuscle upper part
+              smallMuscle11,
+              smallMuscle12,
+              smallMuscle21,
+              smallMuscle22,
+              smallMuscle31,
+              smallMuscle32,
+              smallMuscle41,
+              smallMuscle42,
+              hand,
+              NUMParts};
 
   enum joints {HJ_BuA,    // hinge joint between base and upperArm
-	       HJ_uAlA,   // hinge joint between upperArm and lowerArm
+               HJ_uAlA,   // hinge joint between upperArm and lowerArm
 
-	       HJ_BmM11,  // hinge joint between base and mainMuscle11
-	       HJ_lAmM12, // hinge joint between lowerArm and mainMuscle12
-	       HJ_BmM21,  // hinge joint between base and mainMuscle21
-	       HJ_lAmM22, // hinge joint between lowerArm and mainMuscle22
+               HJ_BmM11,  // hinge joint between base and mainMuscle11
+               HJ_lAmM12, // hinge joint between lowerArm and mainMuscle12
+               HJ_BmM21,  // hinge joint between base and mainMuscle21
+               HJ_lAmM22, // hinge joint between lowerArm and mainMuscle22
 
-	       HJ_BsM11,  // hinge joint between base and smallMuscle11
-	       HJ_uAsM12, // hinge joint between upperArm and smallMuscle12
-	       HJ_BsM21,  // hinge joint between base and smallMuscle21
-	       HJ_uAsM22, // hinge joint between upperArm and smallMuscle22
-	       HJ_lAsM31, // hinge joint between lowerArm and smallMuscle31
-	       HJ_uAsM32, // hinge joint between upperArm and smallMuscle32
-	       HJ_lAsM41, // hinge joint between lowerArm and smallMuscle41
-	       HJ_uAsM42, // hinge joint between upperArm and smallMuscle42
-     
-	       SJ_mM1, // sliderJoint between mainMuscle11 and mainMuscle12
-	       SJ_mM2, // sliderJoint between mainMuscle21 and mainMuscle22
+               HJ_BsM11,  // hinge joint between base and smallMuscle11
+               HJ_uAsM12, // hinge joint between upperArm and smallMuscle12
+               HJ_BsM21,  // hinge joint between base and smallMuscle21
+               HJ_uAsM22, // hinge joint between upperArm and smallMuscle22
+               HJ_lAsM31, // hinge joint between lowerArm and smallMuscle31
+               HJ_uAsM32, // hinge joint between upperArm and smallMuscle32
+               HJ_lAsM41, // hinge joint between lowerArm and smallMuscle41
+               HJ_uAsM42, // hinge joint between upperArm and smallMuscle42
 
-	       SJ_sM1, // slider Joint between smallMuscle11 ans smallMuscle12
-	       SJ_sM2, // slider Joint between smallMuscle21 ans smallMuscle22
-	       SJ_sM3, // slider Joint between smallMuscle31 ans smallMuscle32
-	       SJ_sM4, // slider Joint between smallMuscle41 ans smallMuscle42
+               SJ_mM1, // sliderJoint between mainMuscle11 and mainMuscle12
+               SJ_mM2, // sliderJoint between mainMuscle21 and mainMuscle22
 
-	       FJ_lAH, // fixed joint between lowerArm and hand
-	       NUMJoints};
+               SJ_sM1, // slider Joint between smallMuscle11 ans smallMuscle12
+               SJ_sM2, // slider Joint between smallMuscle21 ans smallMuscle22
+               SJ_sM3, // slider Joint between smallMuscle31 ans smallMuscle32
+               SJ_sM4, // slider Joint between smallMuscle41 ans smallMuscle42
+
+               FJ_lAH, // fixed joint between lowerArm and hand
+               NUMJoints};
 
 
 
@@ -99,11 +99,11 @@ namespace lpzrobots{
 
   class MuscledArm : public OdeRobot{
   public:
-  
+
     double force_[6];
-  
-    MuscledArm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const MuscledArmConf& conf, 
-	       const std::string& name);
+
+    MuscledArm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const MuscledArmConf& conf,
+               const std::string& name);
 
     static MuscledArmConf getDefaultConf(){
       MuscledArmConf conf;
@@ -122,21 +122,21 @@ namespace lpzrobots{
 
 
     /** sets the pose of the vehicle
-	@param pose desired 4x4 pose matrix
+        @param pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -153,22 +153,22 @@ namespace lpzrobots{
     };
 
 /*     /\** returns position of hand (=sphere at the end of lower arm)  */
-/* 	@return position robot position in struct Position   */
+/*         @return position robot position in struct Position   */
 /*     *\/ */
 /*     virtual osg::Vec3 MuscledArm::getPosition(); */
 
     /** returns a vector with the positions of all segments of the robot
-	@param poslist vector of positions (of all robot segments) 
-	@return length of the list
+        @param poslist vector of positions (of all robot segments)
+        @return length of the list
     */
     virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
-  
+
 
     virtual Primitive* getMainObject() const;
 
@@ -178,9 +178,9 @@ namespace lpzrobots{
     virtual Primitive* getMainPrimitive() const { return object[hand]; }
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */
@@ -190,25 +190,25 @@ namespace lpzrobots{
 
     double dBodyGetPositionAll ( dBodyID basis , int para );
     double dGeomGetPositionAll ( dGeomID basis , int para );
-  
-    void BodyCreate(int n, dMass m, dReal x, dReal y, dReal z, 
-		    dReal qx, dReal qy, dReal qz, dReal qangle);
 
-    MuscledArmConf conf;    
+    void BodyCreate(int n, dMass m, dReal x, dReal y, dReal z,
+                    dReal qx, dReal qy, dReal qz, dReal qangle);
+
+    MuscledArmConf conf;
 
     static const int  armanzahl= 3;
 
 
-    Primitive* object[NUMParts];  
-    Joint* joint[NUMJoints]; 
-    
+    Primitive* object[NUMParts];
+    Joint* joint[NUMJoints];
+
     Position old_dist[NUMParts]; // used for damping
 
     paramval factorMotors;
     paramval factorSensors;
     paramval damping;
     paramval print;
-    
+
     int segmentsno;    // number of motorsvehicle segments
 
 
@@ -216,7 +216,7 @@ namespace lpzrobots{
     double gelenkabstand;
     double SOCKEL_LAENGE;
     double SOCKEL_BREITE;
-    double SOCKEL_HOEHE; 
+    double SOCKEL_HOEHE;
     double SOCKEL_MASSE;
 
     int sensorno;      //number of sensors
@@ -227,7 +227,7 @@ namespace lpzrobots{
 
 
     dSpaceID parentspace;
-    
+
     int printed;
 
     double max_l;

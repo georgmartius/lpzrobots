@@ -97,14 +97,14 @@ public:
       @param interval timesteps between consequent logging events (default 1)
    */
   TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, bool displayTrace,
-	     const char* scene = "", int interval = 1)
+             const char* scene = "", int interval = 1)
   {
     conf = getDefaultConf();
     conf.trackPos         = trackPos;
-    conf.trackSpeed	  = trackSpeed;
+    conf.trackSpeed          = trackSpeed;
     conf.trackOrientation = trackOrientation;
     conf.displayTrace     = displayTrace;
-    conf.interval	  = interval;
+    conf.interval          = interval;
     conf.scene            = scene;
     conf.id               = -1; // whole robot, not individual parts
     file = 0;

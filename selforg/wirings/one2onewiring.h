@@ -26,14 +26,14 @@
 
 #include "abstractwiring.h"
 
-/** Implements one to one wiring of robot sensors to inputs of the controller 
-    and controller outputs to robot motors. 
+/** Implements one to one wiring of robot sensors to inputs of the controller
+    and controller outputs to robot motors.
  */
 class One2OneWiring :public AbstractWiring{
 public:
   /** constructor
-      @param noise NoiseGenerator that is used for adding noise to sensor values  
-      @param plotMode see AbstractWiring 
+      @param noise NoiseGenerator that is used for adding noise to sensor values
+      @param plotMode see AbstractWiring
       @param blind number of blind channels
         (additional sensors and motors coupled directly)
    */
@@ -50,25 +50,25 @@ protected:
    */
   virtual bool initIntern();
 
-  /** Realizes one to one wiring from robot sensors to controller sensors. 
-      @param rsensors pointer to array of sensorvalues from robot 
+  /** Realizes one to one wiring from robot sensors to controller sensors.
+      @param rsensors pointer to array of sensorvalues from robot
       @param rsensornumber number of sensors from robot
-      @param csensors pointer to array of sensorvalues for controller  
+      @param csensors pointer to array of sensorvalues for controller
       @param csensornumber number of sensors to controller
       @param noise size of the noise added to the sensors
   */
-  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
-			   sensor* csensors, int csensornumber,
-			   double noise);
+  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
+                           sensor* csensors, int csensornumber,
+                           double noise);
 
-  /** Realizes one to one wiring from controller motor outputs to robot motors. 
-      @param rmotors pointer to array of motorvalues for robot 
-      @param rmotornumber number of robot motors 
-      @param cmotors pointer to array of motorvalues from controller  
+  /** Realizes one to one wiring from controller motor outputs to robot motors.
+      @param rmotors pointer to array of motorvalues for robot
+      @param rmotornumber number of robot motors
+      @param cmotors pointer to array of motorvalues from controller
       @param cmotornumber number of motorvalues from controller
   */
   virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
-			  const motor* cmotors, int cmotornumber);
+                          const motor* cmotors, int cmotornumber);
 
 
 protected:

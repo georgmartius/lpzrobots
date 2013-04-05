@@ -30,31 +30,31 @@
 
 class GroupPlotChannel: public AbstractPlotChannel {
 public:
-	GroupPlotChannel(std::string name);
-	virtual ~GroupPlotChannel();
+        GroupPlotChannel(std::string name);
+        virtual ~GroupPlotChannel();
 
 
-	virtual void addPlotChannel(AbstractPlotChannel* channelToAdd);
+        virtual void addPlotChannel(AbstractPlotChannel* channelToAdd);
 
-	/* inherited from AbstractPlotChannel
-	 virtual void setValue(double v) { channelValue=v; }
+        /* inherited from AbstractPlotChannel
+         virtual void setValue(double v) { channelValue=v; }
 
-	  virtual double getValue()       { return channelValue; }
+          virtual double getValue()       { return channelValue; }
 
-	  virtual std::string getChannelName() { return name; }
-	  */
+          virtual std::string getChannelName() { return name; }
+          */
 
-	/**
-	 * Hier schauen, ob QT-Listen verwendet werden sollten!
-	 */
-	virtual std::list<double> getValues();
+        /**
+         * Hier schauen, ob QT-Listen verwendet werden sollten!
+         */
+        virtual std::list<double> getValues();
 
-	virtual std::list<AbstractPlotChannel*> getChannelsOfGroup();
+        virtual std::list<AbstractPlotChannel*> getChannelsOfGroup();
 
-	virtual AbstractPlotChannel* at(int pos);
+        virtual AbstractPlotChannel* at(int pos);
 
 protected:
-	std::list<AbstractPlotChannel*> channelsOfGroup;
+        std::list<AbstractPlotChannel*> channelsOfGroup;
 };
 
 #endif /* __GROUPPLOTCHANNEL_H_ */

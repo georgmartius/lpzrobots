@@ -31,11 +31,11 @@
 
 namespace lpzrobots {
 
-  class Primitive; 
-  class Joint;  
-  class OneAxisServo;  
-  class TwoAxisServo;  
-  class AngularMotor;  
+  class Primitive;
+  class Joint;
+  class OneAxisServo;
+  class TwoAxisServo;
+  class AngularMotor;
 
   typedef struct {
   public:
@@ -50,7 +50,7 @@ namespace lpzrobots {
     bool   useOrientationSensor; ///< if true the orienation of the swing is available as sensor value
     bool   useSpeedSensor      ; ///< if true the rotational speed of the swing is available as sensor value
     bool   useModifiedSensors  ; ///< if true all sensors are multiplied with the speed of the swing
-    bool fixArms; 
+    bool fixArms;
 
     double relLegmass; ///< relative overall leg mass
     double relArmmass; ///< relative overall arm mass
@@ -93,14 +93,14 @@ namespace lpzrobots {
 
     double powerFactor; ///< scale factor for maximal forces of the servos
     double dampingFactor; ///< scale factor for damping of the servos
-    
+
     double jointLimitFactor; ///< factor between servo range (XXXJointLimit, see above) and physical joint limit
 
 
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
     bool handsRotating; ///< hands are attached with a ball joint
 
-    bool movableHead;  ///< if false then no neck movement 
+    bool movableHead;  ///< if false then no neck movement
 
     bool useBackJoint; ///< whether to use the joint in the back
 
@@ -125,13 +125,13 @@ namespace lpzrobots {
   class Swing : public OdeRobot, public Inspectable {
   public:
 
-    enum SkelParts {SwingBar,SwingLeftPole,SwingRightPole, 
-                    Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp, 
+    enum SkelParts {SwingBar,SwingLeftPole,SwingRightPole,
+                    Hip,Trunk_comp, Belly, Thorax, Neck, Head_trans, Head_comp,
                     Left_Shoulder, Left_Forearm, Left_Hand,
-                    Right_Shoulder, Right_Forearm, Right_Hand, 
+                    Right_Shoulder, Right_Forearm, Right_Hand,
                     Left_Thigh, Left_Shin, Left_Foot,
                     Right_Thigh, Right_Shin, Right_Foot,
-                    LastPart };    
+                    LastPart };
 
     /**
      * constructor of Swing robot
@@ -139,8 +139,8 @@ namespace lpzrobots {
      * @param osgHandle ata structure for accessing OSG
      * @param conf configuration object
      */
-    Swing(const OdeHandle& odeHandle, const OsgHandle& osgHandle, SwingConf& conf, 
-	       const std::string& name);
+    Swing(const OdeHandle& odeHandle, const OsgHandle& osgHandle, SwingConf& conf,
+               const std::string& name);
 
     virtual ~Swing(){ destroy(); };
 
@@ -149,16 +149,16 @@ namespace lpzrobots {
       c.size        = 1;
       c.massfactor  = 1;
       c.relLegmass  = 1;   // unused
-      c.relFeetmass = .3;// .1; 
+      c.relFeetmass = .3;// .1;
       c.relArmmass  = .3;// 0.3;
 
-      c.relSwingmass = 0.1;  
-      c.swingSize    = 3.0; 
-      c.swingWidth   = 1.2; 
-	
-      c.useOrientationSensor = false; 
-      c.useSpeedSensor = false; 
-      c.useModifiedSensors = false; 
+      c.relSwingmass = 0.1;
+      c.swingSize    = 3.0;
+      c.swingWidth   = 1.2;
+
+      c.useOrientationSensor = false;
+      c.useSpeedSensor = false;
+      c.useModifiedSensors = false;
       c.fixArms=true;
 
 
@@ -240,8 +240,8 @@ namespace lpzrobots {
       SwingConf c = getDefaultConf();
 
       c.useVelocityServos = true;
-      c.dampingFactor=0.1; // softness 
-      
+      c.dampingFactor=0.1; // softness
+
 /*       c.hipDamping= 0.01; */
 /*       c.hip2Damping=0.01; */
 /*       c.neckDamping=0.01; */
@@ -262,20 +262,20 @@ namespace lpzrobots {
 
 
     /** sets the pose of the vehicle
-	@param pose desired pose matrix
+        @param pose desired pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -286,27 +286,27 @@ namespace lpzrobots {
     /** returns number of motors
      */
     virtual int getMotorNumber();
-    /** checks for internal collisions and treats them. 
-     *  In case of a treatment return true (collision will be ignored by other objects 
-     *  and the default routine)  else false (collision is passed to other objects and 
+    /** checks for internal collisions and treats them.
+     *  In case of a treatment return true (collision will be ignored by other objects
+     *  and the default routine)  else false (collision is passed to other objects and
      *  (if not treated) to the default routine).
      */
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) {return false;}
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
-    
-    
+
+
     virtual bool setParam(const paramkey& key, paramval val, bool useChilds = true);
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return objects[Trunk_comp]; }
 
- 
+
     /** returns the position of the head */
     virtual Position getHeadPosition();
 
@@ -316,15 +316,15 @@ namespace lpzrobots {
   protected:
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */
     virtual void destroy();
 
-    SwingConf conf; 
+    SwingConf conf;
 
     bool created;      // true if robot was created
 
@@ -352,7 +352,7 @@ namespace lpzrobots {
     BallJoint*  hand_swing[2];
     PID hand_pid[2];
     //    FixedJoint*  hip_swing; // will be removed as soon as hands are connected
-    
+
     bool  fixating; // will be removed as soon as hands are connected
     long int t;
 

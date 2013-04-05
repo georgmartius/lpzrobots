@@ -55,9 +55,9 @@ public:
 
 class PlotInfo : public QObject{
   Q_OBJECT
-public:  
+public:
   PlotInfo(const ChannelData& cd);
-    
+
   /// sets whether the channel is to be shown
   void setChannelShow(int index, bool on);
   /// sets whether the channel is to be shown (this works also before initialization)
@@ -65,8 +65,8 @@ public:
   void setAllChannelShow(bool on);
 
   bool getChannelShow(int index) const;
-  bool getChannelShow(const QString& name) const;  
-		
+  bool getChannelShow(const QString& name) const;
+
   /// if empty then no reference is used
   void setReference1(const ChannelName& ref1);
   /// if -1 then no reference is used
@@ -84,27 +84,27 @@ public:
 
   void setStyle(const ChannelName& channel, PlotStyle style);
   void setStyle(int channel, PlotStyle style);
-  
+
   void setIsVisible(bool enable);
   bool getIsVisible() const { return isVisisble; }
 
-  const ChannelData& getChannelData() const { return channelData; } 
-  const QLinkedList<int> getVisibleChannels() const { return visiblechannels; } 
-  const QVector<ChannelPlotInfo >& getChannelInfos() const { return channels; } 
+  const ChannelData& getChannelData() const { return channelData; }
+  const QLinkedList<int> getVisibleChannels() const { return visiblechannels; }
+  const QVector<ChannelPlotInfo >& getChannelInfos() const { return channels; }
 
-		 
+
 public slots:
   // information that channels are changed (this initializes the structure)
   void channelsChanged();
-  
+
 private:
   /// reference to channel data
   const ChannelData& channelData;
-  
+
   /** list of channel information */
   QVector<ChannelPlotInfo > channels;
   ///< indexes of visible channels (this makes the display quick and the selection slow)
-  QLinkedList<int> visiblechannels; // TODO: convert to a map 
+  QLinkedList<int> visiblechannels; // TODO: convert to a map
   bool isVisisble;
 
   int reference1;

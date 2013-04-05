@@ -99,10 +99,10 @@ namespace lpzrobots {
     virtual void removeAllGrippables();
 
     static int onCollision(dSurfaceParameters& params, GlobalData& globaldata,
-			   void *userdata,
-			   dContact* contacts, int numContacts,
-			   dGeomID o1, dGeomID o2,
-			   const Substance& s1, const Substance& s2);
+                           void *userdata,
+                           dContact* contacts, int numContacts,
+                           dGeomID o1, dGeomID o2,
+                           const Substance& s1, const Substance& s2);
 
   private:
     GripperConf conf;

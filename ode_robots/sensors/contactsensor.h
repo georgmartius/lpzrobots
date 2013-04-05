@@ -63,9 +63,9 @@ namespace lpzrobots {
     virtual void reset();
 
     /** returns the sensor value in the range >=0;
-	0 means nothing no contact
-	>0 means contact with another object: size is the force in arbitrary unit
-	@see characteritic()
+        0 means nothing no contact
+        >0 means contact with another object: size is the force in arbitrary unit
+        @see characteritic()
      */
     virtual double get();
     virtual void update();

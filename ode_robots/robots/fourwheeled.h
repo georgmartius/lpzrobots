@@ -29,9 +29,9 @@
 
 namespace lpzrobots {
 
-  class Primitive; 
-  class Hinge2Joint; 
-  class Joint; 
+  class Primitive;
+  class Hinge2Joint;
+  class Joint;
 
   typedef struct {
     double size;
@@ -49,13 +49,13 @@ namespace lpzrobots {
     double irRangeSide;
     Substance wheelSubstance;
   } FourWheeledConf;
-  
-  /** Robot is based on nimm4 with 
-      4 wheels and a capsule like body   
+
+  /** Robot is based on nimm4 with
+      4 wheels and a capsule like body
   */
   class FourWheeled : public Nimm4{
   public:
-  
+
     /**
      * constructor of nimm4 robot
      * @param odeHandle data structure for accessing ODE
@@ -95,12 +95,12 @@ namespace lpzrobots {
     virtual int getMotorNumber();
 
     virtual int getSensors(sensor* sensors, int sensornumber);
-    
+
     virtual void setMotors(const motor* motors, int motornumber);
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
@@ -109,9 +109,9 @@ namespace lpzrobots {
 
   protected:
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */

@@ -51,26 +51,26 @@
  *  see method StatisticMeasure::step() !
  */
 enum MeasureMode {
- 	/// returns the value to observe itself
-	ID,
-	/// returns the average value
-		AVG,
-	/// returns the moving average value
+         /// returns the value to observe itself
+        ID,
+        /// returns the average value
+                AVG,
+        /// returns the moving average value
                 MOVAVG,
-	/// returns the median value
-		MED,
-	/// returns the minimum value
-		MIN,
-	/// returns the maximum value
-		MAX,
-	/// returns only values above defined limit
-		PEAK,
-	/// returns the sum of the value generated over time (or stepSpan)
-		SUM,
-	/// returns 1 if convergence is reached, otherwise 0
-	/// convergence criteria (epsilon) is given by addMeasure, the convergence
-	/// is reached if value is falling below the criteria of the measure time (stepSpan)
-		CONV,
+        /// returns the median value
+                MED,
+        /// returns the minimum value
+                MIN,
+        /// returns the maximum value
+                MAX,
+        /// returns only values above defined limit
+                PEAK,
+        /// returns the sum of the value generated over time (or stepSpan)
+                SUM,
+        /// returns 1 if convergence is reached, otherwise 0
+        /// convergence criteria (epsilon) is given by addMeasure, the convergence
+        /// is reached if value is falling below the criteria of the measure time (stepSpan)
+                CONV,
     /// returns the difference between two successive steps
         STEPDIFF,
     /// returns the difference between two successive steps, normalized with number of steps

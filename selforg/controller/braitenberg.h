@@ -30,48 +30,48 @@
 
 /**
  * simple braitenberg controler type 2 a and b (Aggressive,Cowardly)
- * 
+ *
  * assumes a linecamera (see LineImgProc), left and right sensor are specified in the constructor
  */
 class Braitenberg : public AbstractController {
 public:
   enum Type {Aggressive, Cowardly};
 
-  /**     
+  /**
      @param type Braitenberg type
      @param leftsensor index of left light sensor
      @param rightsensor index of right light sensor
      @param leftmotor index of motor of left wheel
      @param rightmotor index of motor of right wheel
    */
-  Braitenberg(Type type, int leftsensor, int rightsensor, 
+  Braitenberg(Type type, int leftsensor, int rightsensor,
               int leftmotor=0, int rightmotor=1)
     : AbstractController("Braitenberg", "0.1"), type(type),
       leftsensor(leftsensor), rightsensor(rightsensor),
       leftmotor(leftmotor), rightmotor(rightmotor) {
-    
+
     addParameterDef("strength", &strength,0.6);
     addParameterDef("offset", &offset,0.0);
   }
 
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0){
     number_sensors=sensornumber;
-    number_motors=motornumber;      
+    number_motors=motornumber;
     assert(sensornumber>=2 && sensornumber>=leftsensor && sensornumber>=rightsensor);
-    assert(motornumber>=2  && motornumber>=leftmotor   && motornumber>=rightmotor);      
+    assert(motornumber>=2  && motornumber>=leftmotor   && motornumber>=rightmotor);
   }
-  
+
   virtual int getSensorNumber() const {return number_sensors;}
 
   virtual int getMotorNumber() const {return number_motors;}
 
-  virtual void step(const sensor* sensors, int sensornumber, 
-		    motor* motors, int motornumber) {
+  virtual void step(const sensor* sensors, int sensornumber,
+                    motor* motors, int motornumber) {
     stepNoLearning(sensors, sensornumber, motors , motornumber);
   }
 
-  virtual void stepNoLearning(const sensor* sensors, int sensornumber, 
-			      motor* motors, int motornumber){
+  virtual void stepNoLearning(const sensor* sensors, int sensornumber,
+                              motor* motors, int motornumber){
     switch(type){
     case Aggressive:
       motors[leftmotor] = sensors[rightsensor] * strength + offset;
@@ -83,18 +83,18 @@ public:
       break;
     }
   }
-  
+
 
   /********* STORABLE INTERFACE ******/
   /// @see Storable
-  virtual bool store(FILE* f) const { 
+  virtual bool store(FILE* f) const {
     Configurable::print(f,"");
     return true;
   }
 
   /// @see Storable
-  virtual bool restore(FILE* f) { 
-    Configurable::parse(f);    
+  virtual bool restore(FILE* f) {
+    Configurable::parse(f);
     return true;
   }
 
@@ -111,4 +111,4 @@ protected:
   paramval offset;
 };
 
-#endif 
+#endif

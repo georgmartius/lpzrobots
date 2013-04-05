@@ -36,14 +36,14 @@ typedef struct SeMoXConf {
   bool modelExt;    ///< modelExt if true then additional matrix S is used in forward model (sees sensors)
   /** number of context sensors (considered at the end of the sensor
       vector, which are only feed to the model extended model */
-  int numContext;   
+  int numContext;
   bool someInternalParams;  ///< someInternalParams if true only some internal parameters are exported
 } SeMoXConf;
 
 /**
- * This controller follows the prinziple of homeokinesis and 
- *  implements the extensions described in the thesis of Georg Martius 
- *  2009, University Goettingen: 
+ * This controller follows the prinziple of homeokinesis and
+ *  implements the extensions described in the thesis of Georg Martius
+ *  2009, University Goettingen:
  *  Goal-Oriented Control of Self-organizing Behavior in Autonomous Robots
  *
  * This class also implements part of the guided self-organization
@@ -63,10 +63,10 @@ public:
     SeMoXConf c;
     c.buffersize = 50;
     // c.initialC // remains 0x0
-    c.cInit = 1.0;  
-    c.cNonDiag = 0;  
-    c.aInit = 1.0;  
-    c.sInit = 0.0;  
+    c.cInit = 1.0;
+    c.cNonDiag = 0;
+    c.aInit = 1.0;
+    c.sInit = 0.0;
     c.modelExt  = true;
     c.someInternalParams = true;
     c.numContext = 0;
@@ -82,50 +82,50 @@ public:
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_motors; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
   /**** STOREABLE ****/
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   /**** INSPECTABLE ****/
   virtual std::list<ILayer> getStructuralLayers() const;
   virtual std::list<IConnection> getStructuralConnections() const;
 
   /**** TEACHABLE ****/
-  /** The given motor teaching signal is used for this timestep. 
+  /** The given motor teaching signal is used for this timestep.
       It is used as a feed forward teaching signal for the controller.
-      Please note, that the teaching signal has to be given each timestep 
+      Please note, that the teaching signal has to be given each timestep
        for a continuous teaching process.
      @param teaching: matrix with dimensions (motornumber,1)
    */
   virtual void setMotorTeaching(const matrix::Matrix& teaching);
 
-  /** The given sensor teaching signal (distal learning) is used for this timestep. 
+  /** The given sensor teaching signal (distal learning) is used for this timestep.
       The belonging motor teachung signal is calculated by the inverse model.
       See setMotorTeaching
      @param teaching: matrix with dimensions (motorsensors,1)
    */
-  virtual void setSensorTeaching(const matrix::Matrix& teaching);  
+  virtual void setSensorTeaching(const matrix::Matrix& teaching);
   /// returns the last motor values (useful for cross motor coupling)
   virtual matrix::Matrix getLastMotorValues();
   /// returns the last sensor values (useful for cross sensor coupling)
   virtual matrix::Matrix getLastSensorValues();
-  
-protected: 
+
+protected:
   unsigned short number_sensors;
   unsigned short number_motors;
-  
+
   matrix::Matrix A; ///< Model Matrix (motors to sensors)
-  matrix::Matrix S; ///< additional Model Matrix (sensors derivatives to sensors) 
+  matrix::Matrix S; ///< additional Model Matrix (sensors derivatives to sensors)
   matrix::Matrix C; ///< Controller Matrix
   matrix::Matrix H; ///< Controller Bias
   matrix::Matrix B; ///< Model Bias
@@ -148,7 +148,7 @@ protected:
   matrix::Matrix y_teaching; ///< motor teaching  signal
 
   paramval gamma_cont;  ///< parameter to include contiuity in motor values (avoid high frequencies)
-  paramval gamma_teach; ///< strength of teaching 
+  paramval gamma_teach; ///< strength of teaching
   paramval discountS;   ///< discount strength for hierachical model
 
   paramval dampModel;       ///< damping of A and S matrices
@@ -162,21 +162,21 @@ protected:
   int managementInterval; ///< interval between subsequent management function calls
   parambool _modelExt_copy; ///< copy of modelExtension variable (to achieve readonly)
 
-  /// puts the sensors in the ringbuffer, generate controller values and put them in the 
+  /// puts the sensors in the ringbuffer, generate controller values and put them in the
   //  ringbuffer as well
-  virtual void fillBuffersAndControl(const sensor* x_, int number_sensors, 
-			     motor* y_, int number_motors);
+  virtual void fillBuffersAndControl(const sensor* x_, int number_sensors,
+                             motor* y_, int number_motors);
 
   /// calculates xsi for the current time step using the delayed y values
   //  and x delayed by one
-  //  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop 
+  //  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop
   virtual void calcXsi(int delay);
 
   /// learn H,C with motors y and corresponding sensors x
   virtual void learnController();
 
   /// learn A, (and S) using motors y and corresponding sensors x
-  //  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop 
+  //  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop
   virtual void learnModel(int delay);
 
   /// calculates the predicted sensor values
@@ -186,8 +186,8 @@ protected:
   virtual void management();
 
   /// returns controller output for given sensor values
-  virtual matrix::Matrix calculateControllerValues(const matrix::Matrix& x_smooth);   
-   
+  virtual matrix::Matrix calculateControllerValues(const matrix::Matrix& x_smooth);
+
 protected:
   static double regularizedInverse(double v);
 

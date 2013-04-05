@@ -170,7 +170,7 @@ class Configurable : public BackCaller
      you can handle this by overloading getParam and setParam
      */
     virtual void addParameter(const paramkey& key, paramval* val,
-			      paramval minBound, paramval maxBound,
+                              paramval minBound, paramval maxBound,
                               const paramdescr& descr = paramdescr() ) {
       mapOfValues[key] = val;
       if (minBound>*val) minBound = (*val)>0 ? 0 : (*val)*2;
@@ -181,7 +181,7 @@ class Configurable : public BackCaller
 
     ///  See addParameter(const paramkey& key, paramval* val, paramval minBound, paramval maxBound, const paramdescr& descr)
     virtual void addParameter(const paramkey& key, paramval* val,
-			      const paramdescr& descr = paramdescr()){
+                              const paramdescr& descr = paramdescr()){
       addParameter(key,val,valDefMinBound, valDefMaxBound, descr);
     }
 
@@ -199,7 +199,7 @@ class Configurable : public BackCaller
      See addParameter(const paramkey& key, paramval* val) but for int values
      */
     virtual void addParameter(const paramkey& key, paramint* val,
-			      paramint minBound, paramint maxBound,
+                              paramint minBound, paramint maxBound,
                               const paramdescr& descr = paramdescr()) {
       mapOfInteger[key] = val;
       if (minBound>*val) minBound = (*val)>0 ? 0 : (*val)*2;
@@ -209,7 +209,7 @@ class Configurable : public BackCaller
     }
 
     virtual void addParameter(const paramkey& key, paramint* val,
-			      const paramdescr& descr = paramdescr()){
+                              const paramdescr& descr = paramdescr()){
       addParameter(key,val,intDefMinBound, intDefMaxBound, descr);
     }
 
@@ -218,14 +218,14 @@ class Configurable : public BackCaller
      variable to the default value
      */
     virtual void addParameterDef(const paramkey& key, paramval* val, paramval def,
-				 paramval minBound, paramval maxBound,
+                                 paramval minBound, paramval maxBound,
                                  const paramdescr& descr = paramdescr()){
       *val = def;
       addParameter(key,val, minBound, maxBound, descr);
     }
 
     virtual void addParameterDef(const paramkey& key, paramval* val, paramval def,
-				 const paramdescr& descr = paramdescr()){
+                                 const paramdescr& descr = paramdescr()){
       addParameterDef(key,val,def,valDefMinBound, valDefMaxBound, descr);
     }
 
@@ -239,20 +239,20 @@ class Configurable : public BackCaller
 
     /// See addParameterDef(const paramkey&, paramval*, paramval)
     virtual void addParameterDef(const paramkey& key, paramint* val, paramint def,
-				 paramint minBound, paramint maxBound,
+                                 paramint minBound, paramint maxBound,
                                  const paramdescr& descr = paramdescr()) {
       *val = def;
       addParameter(key,val, minBound, maxBound, descr);
     }
 
     virtual void addParameterDef(const paramkey& key, paramint* val, paramint def,
-				 const paramdescr& descr = paramdescr()) {
+                                 const paramdescr& descr = paramdescr()) {
       addParameterDef(key,val,def,intDefMinBound, intDefMaxBound, descr);
     }
 
     /// sets a description for the given parameter
     virtual void setParamDescr(const paramkey& key, const paramdescr& descr,
-			       bool traverseChildren = true);
+                               bool traverseChildren = true);
 
 
     /// return the id of the configurable objects, which is created by random on initialisation
@@ -314,8 +314,8 @@ class Configurable : public BackCaller
     virtual void setParamBounds(const paramkey& key, paramintBounds bounds, bool traverseChildren = true);
 
     /** The list of all parameters with there value as allocated lists.
-	Note that these are only parameters that are managed manually (with setParam, getParam)
-	@see getAllParamNames()
+        Note that these are only parameters that are managed manually (with setParam, getParam)
+        @see getAllParamNames()
      @return list of key-value pairs
      */
     virtual paramlist getParamList() const {

@@ -39,19 +39,19 @@ typedef struct __DerivativeWiringConf {
 } DerivativeWiringConf;
 
 
-/** Implements a wiring (between controller and robot) 
-    which includes the first and second derivative 
+/** Implements a wiring (between controller and robot)
+    which includes the first and second derivative
     of the original robot sensor values
 */
 class DerivativeWiring : public AbstractWiring{
 public:
   /** constructor
-      @param conf  for giving the wished configuration of DerivativeWiring 
-      via \ref __DerivativeWiringConf "DerivativeWiringConf" 
-      @param noise NoiseGenerator that is used for adding noise to sensor values  
+      @param conf  for giving the wished configuration of DerivativeWiring
+      via \ref __DerivativeWiringConf "DerivativeWiringConf"
+      @param noise NoiseGenerator that is used for adding noise to sensor values
   */
-  DerivativeWiring(const DerivativeWiringConf& conf, 
-		   NoiseGenerator* noise, const std::string& name = "DerivativeWiring");
+  DerivativeWiring(const DerivativeWiringConf& conf,
+                   NoiseGenerator* noise, const std::string& name = "DerivativeWiring");
 
   /** destructor
    */
@@ -71,7 +71,7 @@ public:
     return c;
   };
 
-  /** Providing default configuration for DerivativeWiring for only first derivative. 
+  /** Providing default configuration for DerivativeWiring for only first derivative.
       smoothing over 4 steps and scale of 5. Use smaller noise!
       ( as static method )
    */
@@ -92,12 +92,12 @@ protected:
 
   virtual bool initIntern();
 
-  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
-				 sensor* csensors, int csensornumber,
-				 double noise);
+  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
+                                 sensor* csensors, int csensornumber,
+                                 double noise);
 
   virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
-				const motor* cmotors, int cmotornumber);
+                                const motor* cmotors, int cmotornumber);
 
 protected:
   /** Calculate the first derivative of the sensorvalues given by the robot
@@ -117,22 +117,22 @@ protected:
   int time;
   /// number timesteps the sensor values are delayed for calculation of the derivative
   //  int delay;
-  
+
 
   /// current and old smoothed sensor values of robot
-  sensor* sensorbuffer[buffersize]; 
+  sensor* sensorbuffer[buffersize];
 
   /// current sensors (with noise)
   // sensor* id;
 
   /// current first derivative
-  sensor* first;               
+  sensor* first;
 
   /// current second derivative
-  sensor* second;            
+  sensor* second;
 
-  /// array that stored the values of the blind motors     
-  motor *blindMotors;        
+  /// array that stored the values of the blind motors
+  motor *blindMotors;
 
 };
 

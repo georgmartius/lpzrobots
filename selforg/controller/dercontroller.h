@@ -43,10 +43,10 @@ typedef struct DerControllerConf {
 } DerControllerConf;
 
 /**
- * class for robot controller that uses the georg's matrixlib for 
- *  direct matrix inversion for n channels 
+ * class for robot controller that uses the georg's matrixlib for
+ *  direct matrix inversion for n channels
  * (simple one layer networks)
- * 
+ *
  * Implements standart parameters: eps, rho, mu, stepnumber4avg, stepnumber4delay
  */
 class DerController : public InvertMotorController {
@@ -63,22 +63,22 @@ public:
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_motors; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
 
   /**** STOREABLE ****/
   virtual bool store(FILE* f) const;
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   /**** CONFIGURABLE ****/
   virtual std::list<iparamkey> getInternalParamNames() const;
-  virtual std::list<iparamval> getInternalParams() const;  
+  virtual std::list<iparamval> getInternalParams() const;
   virtual std::list<ILayer> getStructuralLayers() const;
   virtual std::list<IConnection> getStructuralConnections() const;
 
@@ -107,9 +107,9 @@ public:
 protected:
   unsigned short number_sensors;
   unsigned short number_motors;
-  
+
   matrix::Matrix A; ///< Model Matrix (motors to sensors)
-  matrix::Matrix S; ///< additional Model Matrix (sensors to sensors) 
+  matrix::Matrix S; ///< additional Model Matrix (sensors to sensors)
   matrix::Matrix C; ///< Controller Matrix
   matrix::Matrix DD; ///< Noise  Matrix
   matrix::Matrix Dinverse; ///< Inverse  Noise  Matrix
@@ -144,17 +144,17 @@ protected:
 
   DerControllerConf conf;
 
-  /// puts the sensors in the ringbuffer, generate controller values and put them in the 
+  /// puts the sensors in the ringbuffer, generate controller values and put them in the
   //  ringbuffer as well
-  virtual void fillBuffersAndControl(const sensor* x_, int number_sensors, 
-			     motor* y_, int number_motors);
+  virtual void fillBuffersAndControl(const sensor* x_, int number_sensors,
+                             motor* y_, int number_motors);
 
-  /// calculates the first shift into the motor space useing delayed motor values. 
+  /// calculates the first shift into the motor space useing delayed motor values.
   //  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop
   virtual void calcEtaAndBufferIt(int delay);
   /// calculates xsi for the current time step using the delayed y values
   //  and x delayed by one
-  //  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop 
+  //  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop
   virtual void calcXsi(int delay);
 
   /// learn H,C with motors y and corresponding sensors x
@@ -165,16 +165,16 @@ protected:
 
   /// calculates the Update for C, H and A
   // @param y_delay timesteps to delay the y-values.  (usually 0)
-  //  Please note that the delayed values are NOT used for the error calculation 
+  //  Please note that the delayed values are NOT used for the error calculation
   //  (this is done in calcXsi())
-  virtual void calcCandHandAUpdates(matrix::Matrix& C_update, matrix::Matrix& H_update, 
-				    matrix::Matrix& A_update, int y_delay);//Test A
+  virtual void calcCandHandAUpdates(matrix::Matrix& C_update, matrix::Matrix& H_update,
+                                    matrix::Matrix& A_update, int y_delay);//Test A
   /// updates the matrices C, H and A
-  virtual void updateCandHandA(const matrix::Matrix& C_update, const matrix::Matrix& H_update,  
-			       const matrix::Matrix& A_update, double squashSize);//Test A
+  virtual void updateCandHandA(const matrix::Matrix& C_update, const matrix::Matrix& H_update,
+                               const matrix::Matrix& A_update, double squashSize);//Test A
 
   virtual matrix::Matrix calculateControllerValues(const matrix::Matrix& x_smooth);
-    
+
   /// calculates the city block distance (abs) norm of the matrix. (abs sum of absolutes / size of matrix)
   virtual double calcMatrixNorm(const matrix::Matrix& m);
   /// calculates the error_factor for either logarithmic (E=ln(e^T*e)) or square (E=sqrt(e^t*e)) error

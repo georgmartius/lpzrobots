@@ -28,17 +28,17 @@
 
 namespace lpzrobots {
 
-  /** Class for speed sensing of robots. 
+  /** Class for speed sensing of robots.
       The sensor values are normalised speeds, either translational or rotational
   */
   class SpeedSensor : public Sensor {
-  public:  
+  public:
 
-    /// Sensor mode 
+    /// Sensor mode
     enum Mode { Translational,     ///< measures translational speed in world coordinates (Linear velocity)
-		TranslationalRel,  ///< measures translational speed in body coordinates (Linear velocity)
-		Rotational,        ///< measures roational velocity around the world axis
-		RotationalRel      ///< measures roational velocity around the body axis
+                TranslationalRel,  ///< measures translational speed in body coordinates (Linear velocity)
+                Rotational,        ///< measures roational velocity around the world axis
+                RotationalRel      ///< measures roational velocity around the body axis
     };
 
     /**
@@ -48,10 +48,10 @@ namespace lpzrobots {
      */
     SpeedSensor(double maxSpeed, Mode mode = Translational, short dimensions = X | Y | Z );
     virtual ~SpeedSensor() {}
-  
-    virtual void init(Primitive* own);  
+
+    virtual void init(Primitive* own);
     virtual int getSensorNumber() const;
-  
+
     virtual bool sense(const GlobalData& globaldata);
     virtual std::list<sensor> get() const;
     virtual int get(sensor* sensors, int length) const;

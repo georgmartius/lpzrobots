@@ -29,12 +29,12 @@
 
 /**
  * robot controller for self-organized behaviour using pro-active elements
- * and it is based in InvertMotorNStep. 
+ * and it is based in InvertMotorNStep.
  */
 class ProActive2 : public InvertMotorNStep {
 
 public:
-  /** @param numberNonContext number of input channels that are not considered as context inputs 
+  /** @param numberNonContext number of input channels that are not considered as context inputs
       (e.g.\ infrared)
       @param tau time window for temporal correlation
       @param conf configuration \ref InvertMotorNStepConf
@@ -56,10 +56,10 @@ public:
   virtual ~ProActive2(){
     if (syndyn_buffer){
       delete[] syndyn_buffer;
-    } 
+    }
   }
 
-  virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0){ 
+  virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0){
     assert( numberNonContext <= (unsigned int) sensornumber);
     number_all_sensors = sensornumber;
     InvertMotorNStep::init(numberNonContext, motornumber);
@@ -70,28 +70,28 @@ public:
 
     for (unsigned int k = 0; k < buffersize; k++) {
       syndyn_buffer[k].set(synDynInputNumber,1);
-    }    
-    
+    }
+
     xsi_pred.set(numberNonContext,1);
     xsi_orig.set(numberNonContext,1);
 
   }
 
   virtual void step(const sensor* x_, int number_sensors, motor* y_, int number_motors){
-    // call InvertMotorNStep just with the non-context sensors    
+    // call InvertMotorNStep just with the non-context sensors
     // column vector with context sensor values
-    x_context.set(number_all_sensors - numberNonContext, 1, x_ + numberNonContext); 
-    InvertMotorNStep::step(x_, numberNonContext, y_, number_motors);    
+    x_context.set(number_all_sensors - numberNonContext, 1, x_ + numberNonContext);
+    InvertMotorNStep::step(x_, numberNonContext, y_, number_motors);
   }
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* x_, int number_sensors, 
-			      motor* y_, int number_motors){
+  virtual void stepNoLearning(const sensor* x_, int number_sensors,
+                              motor* y_, int number_motors){
     x_context.set(number_all_sensors - numberNonContext, 1, x_ + numberNonContext); // column vector with context sensor values
-    // time is increased 
-    InvertMotorNStep::stepNoLearning(x_, numberNonContext, y_, number_motors); 
+    // time is increased
+    InvertMotorNStep::stepNoLearning(x_, numberNonContext, y_, number_motors);
     t--;
-    bufferSynDynInput();    
+    bufferSynDynInput();
     t++;
   }
 
@@ -120,7 +120,7 @@ public:
     l += xsi_pred.convertToList();
     return l;
   }
-      
+
   static InvertMotorNStepConf getDefaultConf(){
     InvertMotorNStepConf c;
     c.buffersize = 10;
@@ -138,25 +138,25 @@ protected:
     // first the postsynaptic potential and then the context sensors and then the non-context sensors
     //    matrix::Matrix hinput = z.above(x_context*y.val(0,0)); // column vector with z above x_context
     //    const matrix::Matrix& hinput = z.above(x_context); // column vector with z above x_context
-    const matrix::Matrix& hinput = x_context; 
+    const matrix::Matrix& hinput = x_context;
     // put new sensor vector in ring buffer sensor_buffer (all sensors)
     putInBuffer(syndyn_buffer, hinput);
   }
 
   /// calculates xsi for the current time step using the delayed y values
   //  overloaded version which incorporates time smoothing
-  virtual void calcXsi(int delay){ 
+  virtual void calcXsi(int delay){
     InvertMotorNStep::calcXsi(delay);
     xsi_orig = xsi;
     const matrix::Matrix& y = y_buffer[(t - 1 - delay) % buffersize];
     if(x_context.val(0,0) *  y.val(0,0) > 0.1){
       xsi_pred.val(0,0) = x_context.val(0,0) *  y.val(0,0)  * 0.2 ;
     }else{
-      xsi_pred.val(0,0)=0;      
-    }    
+      xsi_pred.val(0,0)=0;
+    }
     xsi += xsi_pred;
   }
-  
+
 protected:
   OneLayerFFNN synDyn;
 
@@ -165,12 +165,12 @@ protected:
   matrix::Matrix xsi_pred;
   matrix::Matrix xsi_orig;
   paramkey* internkeylist;
-  
+
   unsigned int tau;
   unsigned int numberNonContext;
   unsigned int number_all_sensors;
-  double dampH; 
-  double epsH; 
+  double dampH;
+  double epsH;
 
 };
 

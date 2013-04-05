@@ -43,20 +43,20 @@ namespace lpzrobots {
     virtual void update() {}
 
     /** sets the pose of the vehicle
-	@param pose desired 4x4 pose matrix
+        @param pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose) {}
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1]
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1]
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -69,8 +69,8 @@ namespace lpzrobots {
     virtual int getMotorNumber() {return motorEnd - motorStart + 1; }
 
     /** this function is called in each timestep. It should perform robot-internal checks,
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData) {}
 

@@ -45,21 +45,21 @@ public:
     x.set(number_sensors,1);
     y.set(number_motors,1);
   }
-  
+
   virtual int getSensorNumber() const { return number_sensors;};
 
   virtual int getMotorNumber() const { return number_motors; };
 
-  virtual void step(const sensor* sensors, int sensornumber, 
-		    motor* motors, int motornumber){
+  virtual void step(const sensor* sensors, int sensornumber,
+                    motor* motors, int motornumber){
     stepNoLearning(sensors,sensornumber, motors, motornumber);
   }
 
-  virtual void stepNoLearning(const sensor* sensors, int number_sensors, 
-			      motor* motors, int number_motors){
+  virtual void stepNoLearning(const sensor* sensors, int number_sensors,
+                              motor* motors, int number_motors){
     assert(this->number_motors<=number_motors);
     assert(this->number_sensors<=number_sensors);
-    x.set(sensors);    
+    x.set(sensors);
     y.convertToBuffer(motors, this->number_motors);
   }
 
@@ -68,22 +68,22 @@ public:
     y=motors;
   }
 
-  virtual matrix::Matrix getLastSensorValues(){ 
+  virtual matrix::Matrix getLastSensorValues(){
     return x;
   }
 
   virtual bool store(FILE* f) const { return true;};
-  
-  /** loads the object from the given file stream (binary). 
+
+  /** loads the object from the given file stream (binary).
   */
-  virtual bool restore(FILE* f){ return true; };  
+  virtual bool restore(FILE* f){ return true; };
 
 
 protected:
   unsigned short number_sensors;
   unsigned short number_motors;
   matrix::Matrix x;        // current sensor value vector
-  matrix::Matrix y;        // current motor value vector  
+  matrix::Matrix y;        // current motor value vector
 };
 
-#endif 
+#endif

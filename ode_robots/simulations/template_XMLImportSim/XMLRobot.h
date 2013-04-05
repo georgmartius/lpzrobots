@@ -15,27 +15,27 @@
 
 class XMLRobot: public lpzrobots::OdeRobot, public XMLObject {
 public:
-	XMLRobot(XERCESC::DOMNode* robotNode, XMLParserEngine& xmlEngine, const std::string& name);
-	virtual ~XMLRobot();
+        XMLRobot(XERCESC::DOMNode* robotNode, XMLParserEngine& xmlEngine, const std::string& name);
+        virtual ~XMLRobot();
 
 
-	   /// update the OSG notes here
-	    virtual void update();
+           /// update the OSG notes here
+            virtual void update();
 
-	    /** sets the pose of the vehicle
-		@param pose desired 4x4 pose matrix
-	    */
-	    virtual void place(const osg::Matrix& pose);
+            /** sets the pose of the vehicle
+                @param pose desired 4x4 pose matrix
+            */
+            virtual void place(const osg::Matrix& pose);
 
-	    /** this function is called in each timestep after control. It
-		should perform robot-internal checks and actions,
-		like acting and sensing of internal motors/sensors etc.
-		@param globalData structure that contains global data from the simulation environment
-	    */
-	    virtual void doInternalStuff(lpzrobots::GlobalData& globalData);
+            /** this function is called in each timestep after control. It
+                should perform robot-internal checks and actions,
+                like acting and sensing of internal motors/sensors etc.
+                @param globalData structure that contains global data from the simulation environment
+            */
+            virtual void doInternalStuff(lpzrobots::GlobalData& globalData);
 
-	    /// return the primitive of the robot that is used for tracking and camera following
-	    virtual lpzrobots::Primitive* getMainPrimitive() const;
+            /// return the primitive of the robot that is used for tracking and camera following
+            virtual lpzrobots::Primitive* getMainPrimitive() const;
 
 };
 

@@ -66,7 +66,7 @@ typedef struct MultiReinforceConf {
   double tauH;          ///< hystersis time (time an state is kept even another one seams right)
   double tauI;          ///< maximal waiting time for state change if action was changed
   int reinforce_interval; ///<  time between consecutive reinforcement selections
-  
+
   QLearning* qlearning;      ///< QLearning instance
   matrix::Matrix* actioncorrel; /// correlation matrix of actions
 } MultiReinforceConf;
@@ -75,12 +75,12 @@ typedef struct MultiReinforceConf {
 typedef struct Sat {
   Sat(MultiLayerFFNN* _net, double _eps);
   MultiLayerFFNN* net;
-  double eps;  
+  double eps;
   double lifetime;
 } Sat;
 
 /**
- * class for robot controller 
+ * class for robot controller
  * using several feedforward networks (satelite) and one selforg controller
  */
 class MultiReinforce : public AbstractController {
@@ -96,16 +96,16 @@ public:
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_motors; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
   // !!!!!!!!!!!!!!!!!!! MISC STUFF !!!!!!!!
-  
+
   /// restores the sat networks from seperate files
   static std::list<std::string> createFileList(const char* filestem, int n);
   /// restores the sat networks from seperate files
@@ -128,11 +128,11 @@ public:
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   /**** INSPECTABLE ****/
   virtual std::list<iparamkey> getInternalParamNames() const;
-  virtual std::list<iparamval> getInternalParams() const;  
+  virtual std::list<iparamval> getInternalParams() const;
   virtual std::list<ILayer> getStructuralLayers() const;
   virtual std::list<IConnection> getStructuralConnections() const;
 
@@ -157,7 +157,7 @@ public:
 protected:
   unsigned short number_sensors;
   unsigned short number_motors;
-  
+
   // sensor, sensor-derivative and motor values storage
   unsigned short buffersize;
   matrix::Matrix* x_buffer;
@@ -181,7 +181,7 @@ protected:
   matrix::Matrix satErrors;       ///< actual errors of the sats
   matrix::Matrix satAvgErrors;    ///< averaged errors of the sats
   matrix::Matrix statesbins;      ///< bins with counts for each state
-  
+
   MultiReinforceConf conf;
   bool initialised;
   int t;
@@ -189,7 +189,7 @@ protected:
 
   /// returns number of state, to be overwritten
   virtual int getStateNumber() = 0;
-  
+
   /// returns state, to be overwritten
   virtual int calcState() = 0;
 
@@ -208,8 +208,8 @@ protected:
 
   /// handles inhibition damping etc.
   virtual void management();
- 
-  /** Calculates first and second derivative and returns both in on matrix (above). 
+
+  /** Calculates first and second derivative and returns both in on matrix (above).
       We use simple discrete approximations:
       \f[ f'(x) = (f(x) - f(x-1)) / 2 \f]
       \f[ f''(x) = f(x) - 2f(x-1) + f(x-2) \f]

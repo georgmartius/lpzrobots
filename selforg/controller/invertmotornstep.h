@@ -72,7 +72,7 @@ public:
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
   virtual void stepNoLearning(const sensor* , int number_sensors,
-			      motor* , int number_motors);
+                              motor* , int number_motors);
 
   /**** STOREABLE ****/
   /** stores the controller values to a given file. */
@@ -102,26 +102,26 @@ public:
 
 
   /**** New TEACHING interface ****/
-  /** The given motor teaching signal is used for this timestep. 
+  /** The given motor teaching signal is used for this timestep.
       It is used as a feed forward teaching signal for the controller.
-      Please note, that the teaching signal has to be given each timestep 
+      Please note, that the teaching signal has to be given each timestep
        for a continuous teaching process.
      @param teaching: matrix with dimensions (motornumber,1)
    */
   virtual void setMotorTeaching(const matrix::Matrix& teaching);
 
-  /** The given sensor teaching signal (distal learning) is used for this timestep. 
+  /** The given sensor teaching signal (distal learning) is used for this timestep.
       The belonging motor teachung signal is calculated by the inverse model.
       See setMotorTeaching
      @param teaching: matrix with dimensions (motorsensors,1)
    */
-  virtual void setSensorTeaching(const matrix::Matrix& teaching);  
+  virtual void setSensorTeaching(const matrix::Matrix& teaching);
   /// returns the last motor values (useful for cross motor coupling)
   virtual matrix::Matrix getLastMotorValues();
   /// returns the last sensor values (useful for cross sensor coupling)
   virtual matrix::Matrix getLastSensorValues();
 
-  
+
 
   // UNUSED! OLD IMPLEMENTATION which hat some consistency arguments
   void calcCandHUpdatesTeaching(matrix::Matrix& C_update, matrix::Matrix& H_update, int y_delay);
@@ -216,7 +216,7 @@ protected:
   /// puts the sensors in the ringbuffer, generate controller values and put them in the
   //  ringbuffer as well
   virtual void fillBuffersAndControl(const sensor* x_, int number_sensors,
-			     motor* y_, int number_motors);
+                             motor* y_, int number_motors);
 
   /// calculates the first shift into the motor space useing delayed motor values.
   //  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop

@@ -32,11 +32,11 @@
 namespace lpzrobots {
 
   /**
-     Manages camera sensors. The cameras are rendered to texture offscreen, 
+     Manages camera sensors. The cameras are rendered to texture offscreen,
      meaning independent of the normal graphical rendering.
-     Additionally the view of the cameras is displayed as an overlay.     
+     Additionally the view of the cameras is displayed as an overlay.
    */
-  class RobotCameraManager : public osgGA::GUIEventHandler {    
+  class RobotCameraManager : public osgGA::GUIEventHandler {
     struct Overlay {
       Overlay(const Camera::CameraImage& image);
       ~Overlay();
@@ -46,7 +46,7 @@ namespace lpzrobots {
       int overlayH;
       int overlayX;
       int overlayY;
-      osg::Node* overlay; 
+      osg::Node* overlay;
     };
     typedef std::vector<Overlay> Overlays;
     struct RobotCam {
@@ -54,7 +54,7 @@ namespace lpzrobots {
       Overlays overlays;
     };
     typedef std::vector<RobotCam> RobotCams;
-    
+
   public:
     RobotCameraManager(int windowWidth, int windowHeight);
     virtual void addCamera(Camera* cam);
@@ -62,13 +62,13 @@ namespace lpzrobots {
 
     virtual osg::Group* getDisplay() { return display; }
     virtual osg::Group* getOffScreen()  { return offscreen; }
-    
+
     /* ** GUIEventHandler interface **/
-    virtual bool handle (const osgGA::GUIEventAdapter& ea, 
-			 osgGA::GUIActionAdapter& aa, 
-			 osg::Object* o, osg::NodeVisitor* nv);
+    virtual bool handle (const osgGA::GUIEventAdapter& ea,
+                         osgGA::GUIActionAdapter& aa,
+                         osg::Object* o, osg::NodeVisitor* nv);
     virtual void getUsage (osg::ApplicationUsage &) const;
-    
+
   protected:
 
     virtual void updateView();

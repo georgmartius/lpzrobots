@@ -32,7 +32,7 @@
 #include "randomgenerator.h"
 
 /** Interface and basic class for noise generator.
-    It is suitable for single noise channels but also multidimensional noise. 
+    It is suitable for single noise channels but also multidimensional noise.
  */
 class NoiseGenerator{
 public:
@@ -41,7 +41,7 @@ public:
     dimension   = 0;
     randGen     = 0;
     ownRandGen  = false;
-  };    
+  };
 
   virtual ~NoiseGenerator()
   {
@@ -72,10 +72,10 @@ public:
   };
 
   /** generate somehow distributed random number parameterized with min and max.
-      valid only for ONE random number, use \ref add() for 
+      valid only for ONE random number, use \ref add() for
       adding this kind of noise to several channels
    */
-  virtual double generate() = 0; 
+  virtual double generate() = 0;
 
   /** adds multidimensional noise to the value field.
       Generic implementation calls generate for each channel.
@@ -85,11 +85,11 @@ public:
   virtual void add(double *value, double noiseStrength){
     for (unsigned int i = 0; i < dimension; i++){
       value[i]+=generate()*noiseStrength;
-    }    
+    }
   }
 
 protected:
-  //generates white (no averaging) uniformly distributed random number between "min" and "max"  
+  //generates white (no averaging) uniformly distributed random number between "min" and "max"
   double uniform(double min=-0.1, double max=0.1){
     assert(randGen);
     return( randGen->rand()*(max-min)+min);
@@ -111,18 +111,18 @@ public:
   virtual ~NoNoise(){}
   virtual double generate() {
     return 0;
-  }; 
+  };
 };
 
 
-/// generates white (no averaging) uniformly distributed random number between "min" and "max"  
+/// generates white (no averaging) uniformly distributed random number between "min" and "max"
 class WhiteUniformNoise : public NoiseGenerator{
 public:
   WhiteUniformNoise() {}
   virtual ~WhiteUniformNoise(){}
   virtual double generate() {
     return uniform(-1,1);
-  }; 
+  };
 
 };
 
@@ -135,13 +135,13 @@ public:
   virtual double generate() {
     double x1=uniform01();
     double x2=uniform01();
-    return( (sqrt(-2*log(x1)) *cos(2*M_PI*x2))); 
+    return( (sqrt(-2*log(x1)) *cos(2*M_PI*x2)));
   };
   // original version
   //  virtual double generate(double mean, double stddev) {
   //    double x1=uniform(0, 1);
   //    double x2=uniform(0, 1);
-  //    return( (sqrt(-2*log(x1)) *cos(2*M_PI*x2))  * stddev + mean) ; 
+  //    return( (sqrt(-2*log(x1)) *cos(2*M_PI*x2))  * stddev + mean) ;
   //  }
 
 };
@@ -161,31 +161,31 @@ public:
   virtual ~ColorUniformNoise(){ if(mean) free(mean);}
   virtual void init(unsigned int dimension, RandGen* randGen=0){
     NoiseGenerator::init(dimension, randGen);
-    mean = (double*)malloc(sizeof(double) * dimension);    
+    mean = (double*)malloc(sizeof(double) * dimension);
     for (unsigned int i=0; i<dimension; i++){
-	mean[i]=0.0;
-    }	
+        mean[i]=0.0;
+    }
   }
 
-  virtual double generate() {    
+  virtual double generate() {
     mean1channel+=  sqrttau *  uniform(-1,  +1) - tau *  mean1channel;
     return(mean1channel);
-  } 
+  }
 
   /** adds multidimensional noise to the value field.
       @param value field where noise is added. Must have length dimension (\ref init())
       @param min lower bound of interval
-      @param max upper bound of interval 
+      @param max upper bound of interval
    */
   virtual void add(double *value, double noiseStrength){
-    for (unsigned int i = 0; i < dimension; i++){     
+    for (unsigned int i = 0; i < dimension; i++){
       mean[i]+= sqrttau * uniform(-1,  +1)*noiseStrength - tau *  mean[i];
       value[i]+=mean[i];
-    }    
-  }   
-  
+    }
+  }
+
   virtual double getTau(){ return tau;}
-  virtual void setTau(double newTau){ 
+  virtual void setTau(double newTau){
     if(newTau >=0 && newTau <= 1){
       tau=newTau;
       sqrttau = sqrt(tau);
@@ -194,8 +194,8 @@ public:
 
 protected:
   double tau; // smoothing paramter
-  double sqrttau; // square root of smoothing parameter 
-  double* mean;  
+  double sqrttau; // square root of smoothing parameter
+  double* mean;
   double mean1channel;
 };
 
@@ -213,26 +213,26 @@ public:
 
   virtual void init(unsigned int dimension, RandGen* randGen=0){
     WhiteNormalNoise::init(dimension, randGen);
-    mean = (double*)malloc(sizeof(double) * dimension);    
+    mean = (double*)malloc(sizeof(double) * dimension);
     for (unsigned int i=0; i<dimension; i++){
-	mean[i]=0.0;
-    }	
+        mean[i]=0.0;
+    }
   }
 
   virtual double generate() { //double stddev, double meanvalue) {
     mean1channel += sqrttau * WhiteNormalNoise::generate() - tau*mean1channel;
     return(mean1channel);
-  } 
+  }
 
-  virtual void add(double *value, double noiseStrength) { 
-    for (unsigned int i = 0; i < dimension; i++){     
+  virtual void add(double *value, double noiseStrength) {
+    for (unsigned int i = 0; i < dimension; i++){
       mean[i]+=sqrttau * WhiteNormalNoise::generate()*noiseStrength - tau*mean[i];
       value[i]+=mean[i];
-    }    
-  }   
+    }
+  }
 
   virtual double getTau(){ return tau;}
-  virtual void setTau(double newTau){ 
+  virtual void setTau(double newTau){
     if(newTau >=0 && newTau <= 1){
       tau=newTau;
       sqrttau = sqrt(tau);
@@ -241,8 +241,8 @@ public:
 
 protected:
   double tau; // smoothing paramter
-  double sqrttau; // square root of smoothing parameter 
-  double* mean;  
+  double sqrttau; // square root of smoothing parameter
+  double* mean;
   double mean1channel;
   double factor;
 };
@@ -255,8 +255,8 @@ public:
       @param phaseShift phase shift between channels in rad
       @param channels number of channel for sine noise (and the rest get white noise)
    */
-  SineWhiteNoise(double omega, double amplitude, double phaseShift = M_PI/2, 
-		 unsigned int channels = 0xFFFF)
+  SineWhiteNoise(double omega, double amplitude, double phaseShift = M_PI/2,
+                 unsigned int channels = 0xFFFF)
     : omega(omega), amplitude(amplitude)
     , channels(channels), phaseShift(phaseShift){
     t=0;
@@ -264,37 +264,37 @@ public:
 
   virtual ~SineWhiteNoise(){}
 
-  virtual double generate() {        
+  virtual double generate() {
     t ++;
     return (1-amplitude)*uniform(-1,  1) + sin(t*omega)*amplitude;
-  } 
+  }
 
   /** adds multidimensional noise to the value field.
       @param value field where noise is added. Must have length dimension (\ref init())
    */
   virtual void add(double *value, double noiseStrength) { // min, double max){
 
-    for (unsigned int i = 0; i < dimension; i++){     
+    for (unsigned int i = 0; i < dimension; i++){
       if(i < channels){
-	value[i]+=sin(t*omega+i*phaseShift)*amplitude*noiseStrength;
-	value[i]+=(1-amplitude)*uniform(-1,  1)*noiseStrength;
+        value[i]+=sin(t*omega+i*phaseShift)*amplitude*noiseStrength;
+        value[i]+=(1-amplitude)*uniform(-1,  1)*noiseStrength;
       }else{
-	value[i]+=uniform(-1,  1)*noiseStrength;
+        value[i]+=uniform(-1,  1)*noiseStrength;
       }
-    }    
+    }
     t ++;
-  }   
+  }
   void setOmega(double omega){
     this->omega=omega;
   }
   void setPhaseShift(double phaseShift){
     this->phaseShift=phaseShift;
   }
-  
+
 protected:
   long int t;        // time
   double omega;     // angle velocity
-  double amplitude; // factor for noise strength  
+  double amplitude; // factor for noise strength
   unsigned int channels;     // number of channels with sine
   double phaseShift; // phase shift
 

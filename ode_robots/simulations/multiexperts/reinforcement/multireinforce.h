@@ -98,7 +98,7 @@ public:
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
   virtual void stepNoLearning(const sensor* , int number_sensors,
-			      motor* , int number_motors);
+                              motor* , int number_motors);
 
   // !!!!!!!!!!!!!!!!!!! MISC STUFF !!!!!!!!
 

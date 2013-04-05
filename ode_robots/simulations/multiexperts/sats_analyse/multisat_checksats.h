@@ -91,7 +91,7 @@ typedef struct MultiSatCheckConf {
   int    numContext;    ///< number of context sensors (ignored)
   int    numSats;       ///< number of satelite networks
   bool   useDerive;     ///< input to sat network includes derivatives
-  double penalty;       ///< factor to multiply the square of the difference of error and optimal error 
+  double penalty;       ///< factor to multiply the square of the difference of error and optimal error
   double satControlFactor; ///< factor of which the output of winner sat is used for control
 } MultiSatCheckConf;
 
@@ -99,12 +99,12 @@ typedef struct MultiSatCheckConf {
 typedef struct Sat {
   Sat(MultiLayerFFNN* _net, double _eps);
   MultiLayerFFNN* net;
-  double eps;  
+  double eps;
   double lifetime;
 } Sat;
 
 /**
- * class for robot controller 
+ * class for robot controller
  * using several feedforward networks (satelite) and one selforg controller
  */
 class MultiSatCheck : public AbstractController {
@@ -120,18 +120,18 @@ public:
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_motors; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
   // !!!!!!!!!!!!!!!!!!! MISC STUFF !!!!!!!!
-  
+
   /// stores the sat networks into seperate files
-  void storeSats(const char* filestem); 
+  void storeSats(const char* filestem);
 
 
   /************** CONFIGURABLE ********************************/
@@ -144,11 +144,11 @@ public:
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   /**** INSPECTABLE ****/
   virtual std::list<iparamkey> getInternalParamNames() const;
-  virtual std::list<iparamval> getInternalParams() const;  
+  virtual std::list<iparamval> getInternalParams() const;
   virtual std::list<ILayer> getStructuralLayers() const;
   virtual std::list<IConnection> getStructuralConnections() const;
 
@@ -158,11 +158,11 @@ public:
     c.numHidden = 2;
     c.eps0=0.005;
     //    c.lambda_comp = 0;
-    c.deltaMin = 1.0/1000.0; 
-    c.tauC = 10.0/c.eps0; 
-    c.tauE1 = 20; 
-    c.tauE2 = 200; 
-    c.tauW  = 1000; 
+    c.deltaMin = 1.0/1000.0;
+    c.tauC = 10.0/c.eps0;
+    c.tauE1 = 20;
+    c.tauE2 = 200;
+    c.tauW  = 1000;
     c.numContext=0;
     c.numSats=20;
     c.useDerive=false;
@@ -175,7 +175,7 @@ public:
 protected:
   unsigned short number_sensors;
   unsigned short number_motors;
-  
+
   // sensor, sensor-derivative and motor values storage
   unsigned short buffersize;
   matrix::Matrix* x_buffer;
@@ -196,12 +196,12 @@ protected:
   matrix::Matrix satModErrors;    ///< modulated (avg1) errors of sats
   matrix::Matrix satMinErrors;    ///< minimum errors of sats (calculated from avg2)
   matrix::Matrix satEpsMod;       ///< modulated eps of sats
-  
+
   MultiSatCheckConf conf;
   bool initialised;
   int t;
   int managementInterval;       ///< interval between subsequent management calls
-  
+
   /// satelite networks competition, return vector of predicted errors of sat networks
   matrix::Matrix compete();
 
@@ -219,8 +219,8 @@ protected:
 
   /// handles inhibition damping etc.
   virtual void management();
- 
-  /** Calculates first and second derivative and returns both in on matrix (above). 
+
+  /** Calculates first and second derivative and returns both in on matrix (above).
       We use simple discrete approximations:
       \f[ f'(x) = (f(x) - f(x-1)) / 2 \f]
       \f[ f''(x) = f(x) - 2f(x-1) + f(x-2) \f]

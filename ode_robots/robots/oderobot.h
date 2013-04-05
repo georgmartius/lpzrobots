@@ -57,7 +57,7 @@ namespace lpzrobots {
      * Constructor
      */
     OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-	     const std::string& name, const std::string& revision);
+             const std::string& name, const std::string& revision);
 
     /// calls cleanup()
     virtual ~OdeRobot();
@@ -67,12 +67,12 @@ namespace lpzrobots {
     virtual void update() = 0;
 
     /** sets the vehicle to position pos
-	@param pos desired position of the robot
+        @param pos desired position of the robot
     */
     virtual void place(const Pos& pos);
 
     /** sets the pose of the vehicle
-	@param pose desired 4x4 pose matrix
+        @param pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose) = 0;
 
@@ -86,21 +86,21 @@ namespace lpzrobots {
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){ return false; };
 
     /** this function is called each controlstep before control.
-	This is the place the perform active sensing (e.g. Image processing)
-	@param globalData structure that contains global data from the simulation environment
+        This is the place the perform active sensing (e.g. Image processing)
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void sense(GlobalData& globalData) {};
 
     /** this function is called in each simulation timestep (always after control). It
-	should perform robot-internal checks and actions
-	like resetting certain sensors or implement velocity dependend friction and the like.
-	The attached Motors should act here.
-	@param globalData structure that contains global data from the simulation environment
+        should perform robot-internal checks and actions
+        like resetting certain sensors or implement velocity dependend friction and the like.
+        The attached Motors should act here.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData) {};
 
     /** sets color of the robot
-	@param col Color struct with desired Color
+        @param col Color struct with desired Color
     */
     virtual void setColor(const Color& col);
 
@@ -108,22 +108,22 @@ namespace lpzrobots {
     /*********** BEGIN TRACKABLE INTERFACE ****************/
 
     /** returns position of the object
-	@return vector of position (x,y,z)
+        @return vector of position (x,y,z)
     */
     virtual Position getPosition() const;
 
     /** returns linear speed vector of the object
-	@return vector  (vx,vy,vz)
+        @return vector  (vx,vy,vz)
     */
     virtual Position getSpeed() const;
 
     /** returns angular velocity vector of the object
-	@return vector  (wx,wy,wz)
+        @return vector  (wx,wy,wz)
     */
     virtual Position getAngularSpeed() const;
 
     /** returns the orientation of the object
-	@return 3x3 rotation matrix
+        @return 3x3 rotation matrix
     */
     virtual matrix::Matrix getOrientation() const;
     /*********** END TRACKABLE INTERFACE ****************/

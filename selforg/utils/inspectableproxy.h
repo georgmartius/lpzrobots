@@ -34,38 +34,38 @@
  */
 class InspectableProxy : public Inspectable {
 public:
-	/**
-	 * constructor
-	 * Takes a list of Inspectables for which the proxy stands.
+        /**
+         * constructor
+         * Takes a list of Inspectables for which the proxy stands.
          * Attention: The inspectables must have registered
          * all their variables already!
-	 * @param list (list<Inspectable*>&) the list
-	 */
-	InspectableProxy(const std::list<Inspectable*>& list, const iparamkey& name = "InspectableProxy");
+         * @param list (list<Inspectable*>&) the list
+         */
+        InspectableProxy(const std::list<Inspectable*>& list, const iparamkey& name = "InspectableProxy");
 
-	/**
-	 * default destructor
-	 */
-	virtual ~InspectableProxy();
+        /**
+         * default destructor
+         */
+        virtual ~InspectableProxy();
 
-	/**
-	 * this function is for replacing the old list
-	 * @param list (list<Inspectable*>& the new list
-	 * @return (bool) true if it successful
-	 */
-	bool replaceList(const std::list<Inspectable*>& list);
+        /**
+         * this function is for replacing the old list
+         * @param list (list<Inspectable*>& the new list
+         * @return (bool) true if it successful
+         */
+        bool replaceList(const std::list<Inspectable*>& list);
 
 private:
-	/**
-	 * the saved list of the Inspectable where the proxy stand for.
-	 */
-	//std::list<Inspectable*> m_list;
+        /**
+         * the saved list of the Inspectable where the proxy stand for.
+         */
+        //std::list<Inspectable*> m_list;
 
-	/**
-	 * disable the default constructor
-	 * @return
-	 */
-	InspectableProxy(const iparamkey& name = "InspectableProxy");
+        /**
+         * disable the default constructor
+         * @return
+         */
+        InspectableProxy(const iparamkey& name = "InspectableProxy");
 };
 
 #endif /* INSPECTABLEPROXY_H_ */

@@ -33,40 +33,40 @@
 namespace lpzrobots {
   class Primitive;
 
-/** Abstract class for Ray-based sensors. 
-    This are sensors which are based on distance measurements using the ODE geom class Ray. 
-    The sensor value is obtained by collisions. 
-    However of no collision is detected the sensor needs to ajust its output as well. 
+/** Abstract class for Ray-based sensors.
+    This are sensors which are based on distance measurements using the ODE geom class Ray.
+    The sensor value is obtained by collisions.
+    However of no collision is detected the sensor needs to ajust its output as well.
     Therefore a reset function is provided.
     See also RaySensorBank, which is an object for managing multiple ray sensors.
  */
 class RaySensor {
-public:  
+public:
   enum rayDrawMode { drawNothing, drawRay, drawSensor, drawAll};
 
   RaySensor() {}
   virtual ~RaySensor(){}
-  
+
   // should create a copy if this, without initialisation
   virtual RaySensor* clone() const = 0;
-  
+
   /** providing essential information
       @param odeHandle OdeHandle
       @param osgHandle OsgHandle
       @param body primitive to which the sensor will be attached
       @param pose relative pose in respect to body in which the sensor will be placed
       @param range length of the sensor
-      @param drawMode whether to draw nothing, sensor body, ray, or both 
+      @param drawMode whether to draw nothing, sensor body, ray, or both
    */
   virtual void init(const OdeHandle& odeHandle,
-		    const OsgHandle& osgHandle, Primitive* body, 
-		    const osg::Matrix pose, float range,
-		    rayDrawMode drawMode = drawSensor) = 0;  
+                    const OsgHandle& osgHandle, Primitive* body,
+                    const osg::Matrix pose, float range,
+                    rayDrawMode drawMode = drawSensor) = 0;
 
-  /** used for reseting the sensor value to a value of maximal distance. 
+  /** used for reseting the sensor value to a value of maximal distance.
    */
-  virtual void reset() = 0;  
-  
+  virtual void reset() = 0;
+
   /** returns the sensor value (usually in the range [-1,1] )
    */
   virtual double get() = 0;
@@ -76,10 +76,10 @@ public:
   */
   virtual void setRange(float range) = 0;
 
-  /** updates the position of the osg nodes 
+  /** updates the position of the osg nodes
    */
   virtual void update() = 0;
-  
+
 };
 
 }

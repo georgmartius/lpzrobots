@@ -36,20 +36,20 @@
 class ForceBoostWiring: public AbstractWiring, public Configurable {
 public:
   /** constructor
-      @param noise NoiseGenerator that is used for adding noise to sensor values  
-      @param plotMode see AbstractWiring 
+      @param noise NoiseGenerator that is used for adding noise to sensor values
+      @param plotMode see AbstractWiring
       @param boost factor for mismatch integration
-      @param exportBoostError whether to export force boost error to inspectables 
+      @param exportBoostError whether to export force boost error to inspectables
         (guilogger)
    */
-  ForceBoostWiring(NoiseGenerator* noise, double boost=0, bool exportBoostError=false, 
+  ForceBoostWiring(NoiseGenerator* noise, double boost=0, bool exportBoostError=false,
                    int plotMode=Controller, const std::string& name = "ForceBoostWiring");
 
   /** destructor
    */
   virtual ~ForceBoostWiring();
 
-  virtual void reset(); 
+  virtual void reset();
 protected:
 
   /** initializes the number of sensors and motors on robot side, calculate
@@ -57,25 +57,25 @@ protected:
    */
   virtual bool initIntern();
 
-  /** Realizes one to one wiring from robot sensors to controller sensors. 
-      @param rsensors pointer to array of sensorvalues from robot 
+  /** Realizes one to one wiring from robot sensors to controller sensors.
+      @param rsensors pointer to array of sensorvalues from robot
       @param rsensornumber number of sensors from robot
-      @param csensors pointer to array of sensorvalues for controller  
+      @param csensors pointer to array of sensorvalues for controller
       @param csensornumber number of sensors to controller
       @param noise size of the noise added to the sensors
   */
-  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
-			   sensor* csensors, int csensornumber,
-			   double noise);
+  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
+                           sensor* csensors, int csensornumber,
+                           double noise);
 
-  /** Realizes one to one wiring from controller motor outputs to robot motors. 
-      @param rmotors pointer to array of motorvalues for robot 
-      @param rmotornumber number of robot motors 
-      @param cmotors pointer to array of motorvalues from controller  
+  /** Realizes one to one wiring from controller motor outputs to robot motors.
+      @param rmotors pointer to array of motorvalues for robot
+      @param rmotornumber number of robot motors
+      @param cmotors pointer to array of motorvalues from controller
       @param cmotornumber number of motorvalues from controller
   */
   virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
-			  const motor* cmotors, int cmotornumber);
+                          const motor* cmotors, int cmotornumber);
 
 
 protected:

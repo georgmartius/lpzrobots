@@ -1,13 +1,13 @@
 /************************************************************************/
 /* originally from:                                                     */
-/* schlange.h						        	*/
-/* Abstract class for Snakes                             		*/
-/* @author Georg Martius 						*/
+/* schlange.h                                                                */
+/* Abstract class for Snakes                                             */
+/* @author Georg Martius                                                 */
 /************************************************************************/
 /* here:                                                                */
-/* defaultCaterpillar.h 				        	*/
-/* Abstract class for Caterpillars                             		*/
-/* @author Frank Guettler 						*/
+/* defaultCaterpillar.h                                                 */
+/* Abstract class for Caterpillars                                             */
+/* @author Frank Guettler                                                 */
 /************************************************************************/
 /***************************************************************************
  *   Copyright (C) 2005-2011 LpzRobots development team                    *
@@ -63,22 +63,22 @@ public:
 
 
 /**
- * This is a class, which models a snake like robot. 
- * It consists of a number of equal elements, each linked 
+ * This is a class, which models a snake like robot.
+ * It consists of a number of equal elements, each linked
  * by a joint
  **/
 class DefaultCaterPillar: public OdeRobot
 {
 protected:
-  
-  bool created;  
-  
+
+  bool created;
+
   std::vector <AngularMotor*> frictionmotors;
   CaterPillarConf conf;
 
 public:
   DefaultCaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-	     const CaterPillarConf& conf, const std::string& name, const std::string& revision);
+             const CaterPillarConf& conf, const std::string& name, const std::string& revision);
 
   static CaterPillarConf getDefaultConf(){
     CaterPillarConf conf;
@@ -96,8 +96,8 @@ public:
   }
 
   virtual ~DefaultCaterPillar();
-	
- 
+
+
   /** sets the pose of the vehicle
       @param pose desired 4x4 pose matrix
   */
@@ -107,10 +107,10 @@ public:
   virtual void update();
 
   /**
-   *Reads the actual motor commands from an array, 
+   *Reads the actual motor commands from an array,
    *an sets all motors of the snake to this values.
    *It is an linear allocation.
-   *@param motors pointer to the array, motor values are scaled to [-1,1] 
+   *@param motors pointer to the array, motor values are scaled to [-1,1]
    *@param motornumber length of the motor array
    **/
   virtual void setMotors ( const motor* motors, int motornumber ) = 0;
@@ -122,7 +122,7 @@ public:
    *@return number of actually written sensors
    **/
   virtual int getSensors ( sensor* sensors, int sensornumber ) = 0;
-	
+
   /** returns number of sensors
    */
   virtual int getSensorNumber() = 0;
@@ -132,7 +132,7 @@ public:
   virtual int getMotorNumber() = 0;
 
   /** returns a vector with the positions of all segments of the robot
-      @param poslist vector of positions (of all robot segments) 
+      @param poslist vector of positions (of all robot segments)
       @return length of the list
   */
   virtual int getSegmentsPosition(std::vector<Position> &poslist);
@@ -153,7 +153,7 @@ protected:
   /** creates vehicle at desired pose
       @param pose 4x4 pose matrix
   */
-  virtual void create(const osg::Matrix& pose); 
+  virtual void create(const osg::Matrix& pose);
   virtual void destroy();
 };
 

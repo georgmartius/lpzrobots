@@ -42,14 +42,14 @@ namespace lpzrobots {
     double pendularmass;
     double slidermass;
     double sliderrange;
-  
+
     double force;      // forcefactor of the servo power (1 is usual)
     double hingeRange; //the angle (in rad) of the hinges that connect pendular with poles
   } SphererobotConf;
 
 
   /**
-   *This is a class, which models a snake like robot. It consists of a number of equal elements, each linked 
+   *This is a class, which models a snake like robot. It consists of a number of equal elements, each linked
    *by a joint. This class is based upon the class roboter by the same author.
    *@author Marcel Kretschmann
    *@version beta
@@ -58,11 +58,11 @@ namespace lpzrobots {
   {
   public:
     /* typedef */ enum objects { Base, Pendular, Pole1Bot, Pole2Bot, Pole3Bot,
-			   Pole1Top , Pole2Top, Pole3Top, Last};
+                           Pole1Top , Pole2Top, Pole3Top, Last};
 
   protected:
     const static int sensorno = 9;
-  
+
     SphererobotConf conf;
     bool created;
 
@@ -74,11 +74,11 @@ namespace lpzrobots {
 
   public:
 
-    Sphererobot ( const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		  const SphererobotConf& conf, const std::string& name );
-	
+    Sphererobot ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                  const SphererobotConf& conf, const std::string& name );
+
     virtual ~Sphererobot();
-	
+
     static SphererobotConf getDefaultConf(){
       SphererobotConf c;
       c.diameter     = 1;
@@ -94,18 +94,18 @@ namespace lpzrobots {
 
     /// update the subcomponents
     virtual void update();
-	
+
     /** sets the pose of the vehicle
-	@param pose desired 4x4 pose matrix
+        @param pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose);
-  
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
-	
+
     /**
      *Writes the sensor values to an array in the memory.
      *@param sensors pointer to the array
@@ -113,41 +113,41 @@ namespace lpzrobots {
      *@return number of actually written sensors
      **/
     virtual int getSensors ( sensor* sensors, int sensornumber );
-	
+
     /**
      *Reads the actual motor commands from an array, an sets all motors of the snake to this values.
      *It is an linear allocation.
-     *@param motors pointer to the array, motor values are scaled to [-1,1] 
+     *@param motors pointer to the array, motor values are scaled to [-1,1]
      *@param motornumber length of the motor array
      **/
     virtual void setMotors ( const motor* motors, int motornumber );
-	
+
     /**
      *Returns the number of motors used by the snake.
      *@return number of motors
      **/
     virtual int getMotorNumber();
-  
+
     /**
      *Returns the number of sensors used by the robot.
      *@return number of sensors
      **/
     virtual int getSensorNumber();
-	
+
     /** returns a vector with the positions of all segments of the robot
     */
-    virtual int getSegmentsPosition(std::vector<Position> &poslist);	
+    virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return object[Base]; }
 
   protected:
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
-    virtual void destroy(); 
-    
+    virtual void create(const osg::Matrix& pose);
+    virtual void destroy();
+
 
 
   };

@@ -32,12 +32,12 @@ typedef struct ClassicReinforceConf {
   unsigned short buffersize; ///< size of the ringbuffers for sensors, motors,...
   int    numContext;    ///< number of context sensors (ignored)
   int reinforce_interval; ///<  time between consecutive reinforcement selections
-  
+
   QLearning* qlearning;      ///< QLearning instance
 } ClassicReinforceConf;
 
 /**
- * class for robot controller 
+ * class for robot controller
  * using several feedforward networks (satelite) and one selforg controller
  */
 class ClassicReinforce : public AbstractController {
@@ -53,16 +53,16 @@ public:
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_motors; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
   // !!!!!!!!!!!!!!!!!!! MISC STUFF !!!!!!!!
-  
+
   /** enables/disables manual control, action_ is the sat network number to be used
       if mControl is false, action is ignored
    */
@@ -76,11 +76,11 @@ public:
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   /**** INSPECTABLE ****/
   virtual std::list<iparamkey> getInternalParamNames() const;
-  virtual std::list<iparamval> getInternalParams() const;  
+  virtual std::list<iparamval> getInternalParams() const;
   virtual std::list<ILayer> getStructuralLayers() const;
   virtual std::list<IConnection> getStructuralConnections() const;
 
@@ -97,7 +97,7 @@ public:
 protected:
   unsigned short number_sensors;
   unsigned short number_motors;
-  
+
   // sensor, sensor-derivative and motor values storage
   unsigned short buffersize;
   matrix::Matrix* x_buffer;
@@ -119,7 +119,7 @@ protected:
 
   /// returns number of state, to be overwritten
   virtual int getStateNumber() = 0;
-  
+
   /// returns state, to be overwritten
   virtual int calcState() = 0;
 
@@ -141,7 +141,7 @@ protected:
 
   /// handles inhibition damping etc.
   virtual void management();
- 
+
 };
 
 #endif

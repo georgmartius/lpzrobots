@@ -66,7 +66,7 @@ namespace lpzrobots {
     OSGPrimitive ();
     virtual ~OSGPrimitive ();
     /** Initialisation of the primitive. Must in order to place the object into the scene.
-	This function should be overloaded */
+        This function should be overloaded */
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle) = 0;
     /// Sets the transformation matrix of this object (position and orientation)
     virtual void setMatrix( const osg::Matrix& m4x4 );

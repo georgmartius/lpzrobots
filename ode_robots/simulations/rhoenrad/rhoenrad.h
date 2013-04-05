@@ -31,11 +31,11 @@
 
 namespace lpzrobots {
 
-  class Primitive; 
-  class Joint;  
-  class OneAxisServo;  
-  class TwoAxisServo;  
-  class AngularMotor;  
+  class Primitive;
+  class Joint;
+  class OneAxisServo;
+  class TwoAxisServo;
+  class AngularMotor;
 
   typedef struct {
   public:
@@ -89,10 +89,10 @@ namespace lpzrobots {
     double backVelocity; ///< velocity of back joint servo
     double backJointLimit; ///< angle range of back joint
 
-    double powerFactor; ///< scale factor for maximal forces of the servos    
-    double relForce;    ///< factor between arm force and rest 
+    double powerFactor; ///< scale factor for maximal forces of the servos
+    double relForce;    ///< factor between arm force and rest
     double dampingFactor; ///< scale factor for damping of the servos
-    
+
     double jointLimitFactor; ///< factor between servo range (XXXJointLimit, see above) and physical joint limit
 
 
@@ -101,7 +101,7 @@ namespace lpzrobots {
 
     bool handsRotating; ///< hands are attached with a ball joint
 
-    bool movableHead;  ///< if false then no neck movement 
+    bool movableHead;  ///< if false then no neck movement
 
     bool useBackJoint; ///< whether to use the joint in the back
 
@@ -126,13 +126,13 @@ namespace lpzrobots {
   class Rhoenrad : public OdeRobot, public Inspectable {
   public:
 
-    enum SkelParts {Wheel, Hip,Trunk_comp, Belly, Thorax, Neck, Head_comp, 
+    enum SkelParts {Wheel, Hip,Trunk_comp, Belly, Thorax, Neck, Head_comp,
                     Left_Shoulder, Left_Forearm, Left_Hand,
-                    Right_Shoulder, Right_Forearm, Right_Hand, 
+                    Right_Shoulder, Right_Forearm, Right_Hand,
                     Left_Thigh, Left_Shin, Left_Foot,
                     Right_Thigh, Right_Shin, Right_Foot,
-                    LastPart };    
-  
+                    LastPart };
+
     enum WheelType {Sphre,Capsl,Cylndr};
 
     /**
@@ -141,8 +141,8 @@ namespace lpzrobots {
      * @param osgHandle ata structure for accessing OSG
      * @param conf configuration object
      */
-    Rhoenrad(const OdeHandle& odeHandle, const OsgHandle& osgHandle, RhoenradConf& conf, 
-	       const std::string& name);
+    Rhoenrad(const OdeHandle& odeHandle, const OsgHandle& osgHandle, RhoenradConf& conf,
+               const std::string& name);
 
     virtual ~Rhoenrad(){ destroy(); };
 
@@ -151,24 +151,24 @@ namespace lpzrobots {
       c.size        = 1;
       c.massfactor  = 1;
       c.relLegmass  = 1;   // unused
-      c.relFeetmass = .3;// .1; 
+      c.relFeetmass = .3;// .1;
       c.relArmmass  = .3;// 0.3;
 
-      c.relWheelmass = 0.1;  
-      c.wheelSize    = .95; 
-      c.wheelWidth   = 1.0; 
+      c.relWheelmass = 0.1;
+      c.wheelSize    = .95;
+      c.wheelWidth   = 1.0;
       c.wheelType    = Cylndr;
-	
-      c.useOrientationSensor = false; 
+
+      c.useOrientationSensor = false;
 
 
       c.useVelocityServos = false;
       c.powerFactor       = 1.0;
-      c.relForce          = 1.0;      
+      c.relForce          = 1.0;
       c.dampingFactor     = 1.0;
       c.jointLimitFactor  = 1.1; // factor between servo range and physical limit
 
-      c.hipPower    = 20; 
+      c.hipPower    = 20;
       c.hipDamping= 0.2;
       c.hipVelocity=20;
 
@@ -227,7 +227,7 @@ namespace lpzrobots {
 
       //      c.headTexture="Images/really_white.rgb";
       c.headTexture="Images/dusty.rgb";
-      c.headColor       = "robot4";  
+      c.headColor       = "robot4";
       //  c.bodyTexture="Images/whitemetal_farbig_small.rgb";
       c.bodyTexture="Images/dusty.rgb";
       c.bodyColor       = "robot2";
@@ -242,7 +242,7 @@ namespace lpzrobots {
       RhoenradConf c = getDefaultConf();
 
       c.useVelocityServos = true;
-      
+
       c.hipDamping    = 0.01;
       c.hip2Damping   = 0.01;
       c.neckDamping   = 0.01;
@@ -253,7 +253,7 @@ namespace lpzrobots {
       c.pelvisDamping = 0.01;
       c.backDamping   = 0.01;
 
-      
+
       return c;
     }
 
@@ -265,20 +265,20 @@ namespace lpzrobots {
 
 
     /** sets the pose of the vehicle
-	@param pose desired pose matrix
+        @param pose desired pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -290,12 +290,12 @@ namespace lpzrobots {
      */
     virtual int getMotorNumber();
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
-    virtual void doInternalStuff(GlobalData& globalData);    
-    
+    virtual void doInternalStuff(GlobalData& globalData);
+
     /******** CONFIGURABLE ***********/
     virtual void notifyOnChange(const paramkey& key);
 
@@ -308,20 +308,20 @@ namespace lpzrobots {
 
     /** returns the position of the trunk */
     virtual Position getTrunkPosition();
-    
+
 
   protected:
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */
     virtual void destroy();
 
-    RhoenradConf conf; 
+    RhoenradConf conf;
 
     bool created;      // true if robot was created
 

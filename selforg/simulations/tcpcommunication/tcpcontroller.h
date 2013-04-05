@@ -30,7 +30,7 @@
 
 /**
  * class for robot control via a remote tcp controller
- * 
+ *
  * Todo add protocol description
  */
 class TcpController : public AbstractController {
@@ -38,9 +38,9 @@ public:
   enum CommandID{MOTORS=1,SENSORS,STATUS,QUIT,OBSERVE,CONFIGURATION,RESET};
 
   typedef std::map<std::string, CommandID> CommandList;
-  
 
-  /**     
+
+  /**
      @param port Port number to listen for controller
      @param robotname name of robot to send to controller
    */
@@ -49,39 +49,39 @@ public:
   virtual ~TcpController();
 
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
-  
-  /** @return Number of sensors the controller was initialised 
+
+  /** @return Number of sensors the controller was initialised
       with or 0 if not initialised */
   virtual int getSensorNumber() const {return number_sensors;}
 
 
-  /** @return Number of motors the controller was initialised 
+  /** @return Number of motors the controller was initialised
       with or 0 if not initialised */
   virtual int getMotorNumber() const {return number_motors;}
 
   /** performs one step (does communication with remote controller)
       and waits for motor values to be send to the robot.
   */
-  virtual void step(const sensor* sensors, int sensornumber, 
-		    motor* motors, int motornumber);
+  virtual void step(const sensor* sensors, int sensornumber,
+                    motor* motors, int motornumber);
 
-  /** performs one step without learning (Not implemented 
+  /** performs one step without learning (Not implemented
       for remote controller! we use step instead)
       @see step
   */
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
-  
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
+
   /********* STORABLE INTERFACE ******/
   /// @see Storable
-  virtual bool store(FILE* f) const { 
+  virtual bool store(FILE* f) const {
     Configurable::print(f,"");
     return true;
   }
 
   /// @see Storable
-  virtual bool restore(FILE* f) { 
-    Configurable::parse(f);    
+  virtual bool restore(FILE* f) {
+    Configurable::parse(f);
     return true;
   }
 
@@ -103,4 +103,4 @@ protected:
   CommandList commands;
 };
 
-#endif 
+#endif

@@ -30,7 +30,7 @@
 
 /// multi layer neural network with configurable activation functions
 class ModelWithMemoryAdapter : public InvertableModel {
-public: 
+public:
   /**
      @param model pointer to model to accomplish by memory
      @param memorySize number of pattern that are stored
@@ -39,16 +39,16 @@ public:
   ModelWithMemoryAdapter(InvertableModel* model, int memorySize, int numPatternsPerStep);
   virtual ~ModelWithMemoryAdapter(){ }
 
-  virtual void init(unsigned int inputDim, unsigned  int outputDim, 
-		    double unit_map = 0.0, RandGen* randGen = 0);
+  virtual void init(unsigned int inputDim, unsigned  int outputDim,
+                    double unit_map = 0.0, RandGen* randGen = 0);
 
   /**
      learn the input output mapping but also learn mappings from the memory.
      \see InvertableModel::learn
    */
-  virtual const matrix::Matrix learn (const matrix::Matrix& input, 
-				      const matrix::Matrix& nom_output, 
-				      double learnRateFactor = 1);
+  virtual const matrix::Matrix learn (const matrix::Matrix& input,
+                                      const matrix::Matrix& nom_output,
+                                      double learnRateFactor = 1);
 
   /* ********* Delegations *****************/
 
@@ -60,14 +60,14 @@ public:
     return model->response(input);
   }
 
-  virtual const matrix::Matrix inversion(const matrix::Matrix& input, 
-					 const matrix::Matrix& xsi) const{
+  virtual const matrix::Matrix inversion(const matrix::Matrix& input,
+                                         const matrix::Matrix& xsi) const{
     return model->inversion(input, xsi);
   }
-  virtual unsigned int getInputDim() const { 
+  virtual unsigned int getInputDim() const {
     return model->getInputDim();
   }
-  virtual unsigned int getOutputDim() const { 
+  virtual unsigned int getOutputDim() const {
     return model->getOutputDim();
   }
   virtual void damp(double damping) { model->damp(damping);}

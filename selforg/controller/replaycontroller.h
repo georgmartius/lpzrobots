@@ -45,7 +45,7 @@ public:
       exit(1);
     }
     printf("ReplayController: columns: Senors [%i, %i], Motors [%i, %i]\n",
-	   sensorStart, sensorEnd, motorStart, motorEnd);
+           sensorStart, sensorEnd, motorStart, motorEnd);
   }
 
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0){
@@ -58,19 +58,19 @@ public:
   virtual int getMotorNumber() const { return motorEnd - motorStart + 1; };
 
   virtual void step(const sensor* sensors, int sensornumber,
-		    motor* motors, int motornumber){
+                    motor* motors, int motornumber){
     stepNoLearning(sensors,sensornumber, motors, motornumber);
   }
 
   virtual void stepNoLearning(const sensor* , int number_sensors,
-			      motor* motors, int number_motors){
+                              motor* motors, int number_motors){
 
     if(!parseDataLine(m,f)){
       if(repeat){
-	std::cout << "ReplayController: rewind" << std::endl;
-	rewind(f);
+        std::cout << "ReplayController: rewind" << std::endl;
+        rewind(f);
       }else
-	std::cout << "ReplayController: no datafile in file" << filename << std::endl;
+        std::cout << "ReplayController: no datafile in file" << filename << std::endl;
     }else{
       m=m.rows(motorStart, motorEnd);
     }
@@ -99,23 +99,23 @@ protected:
 
     while(fgets(buffer, 1024, f)) {
       if(buffer[0]=='#' && buffer[1]=='C'){
-	// scan line and return
-	i=0;
-	char* p;
-	p=strtok(buffer," ");
-	if(!p) return false; // frist one is #C
-	while((p=strtok(NULL," "))!=NULL )  {
-	  if(p[0]=='x' && p[1]=='['){
-	    if(sensorStart==-1) sensorStart=i;
-	    sensorEnd=i;
-	  }
-	  if(p[0]=='y' && p[1]=='['){
-	    if(motorStart==-1) motorStart=i;
-	    motorEnd=i;
-	  }
-	  i++;
-	}
-	return true;
+        // scan line and return
+        i=0;
+        char* p;
+        p=strtok(buffer," ");
+        if(!p) return false; // frist one is #C
+        while((p=strtok(NULL," "))!=NULL )  {
+          if(p[0]=='x' && p[1]=='['){
+            if(sensorStart==-1) sensorStart=i;
+            sensorEnd=i;
+          }
+          if(p[0]=='y' && p[1]=='['){
+            if(motorStart==-1) motorStart=i;
+            motorEnd=i;
+          }
+          i++;
+        }
+        return true;
       }
     }
     return false;
@@ -147,21 +147,21 @@ protected:
     double dat[1024];
     while(fgets(buffer, 1024, f)){
       if(buffer[0]=='#' || isEmpty(buffer)){
-	continue;
+        continue;
       }else{
-	i=0;
-	char* p;
-	p=strtok(buffer," ");
-	if(!p) return false;
-	dat[i] = atof(p);
-	i++;
-	while((p=strtok(NULL," "))!=NULL )  {
-	  if(!check4Number(p)) continue;
-	  dat[i] = atof(p);
-	  i++;
-	};
-	data.set(i,1,dat);
-	return true;
+        i=0;
+        char* p;
+        p=strtok(buffer," ");
+        if(!p) return false;
+        dat[i] = atof(p);
+        i++;
+        while((p=strtok(NULL," "))!=NULL )  {
+          if(!check4Number(p)) continue;
+          dat[i] = atof(p);
+          i++;
+        };
+        data.set(i,1,dat);
+        return true;
       }
     };
     return false;

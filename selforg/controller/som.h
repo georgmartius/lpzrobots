@@ -30,14 +30,14 @@
 #include <vector>
 
 /** self-organised map class. Implementation follows normal vector-quantiser
- scheme. 
+ scheme.
 The output of the network is  \f$exp(- |x-w_i|^2/rdfsize)\f$ for each neuron.
 */
 class SOM : public AbstractModel {
-public: 
+public:
   typedef std::list< std::pair<int,double> > Neighbours;
   typedef std::vector<std::pair<matrix::Matrix,double> > Neighbourhood;
-  
+
   SOM(const std::string& name="SOM",
       const std::string& revision = "$Id$");
 
@@ -45,7 +45,7 @@ public:
       @param dimensions number of dimensions of the neuron lattice
    */
   SOM(unsigned int dimensions, double sigma, double eps, double rbfsize,
-      const std::string& name="SOM", 
+      const std::string& name="SOM",
       const std::string& revision = "$Id$");
   virtual ~SOM(){};
 
@@ -55,8 +55,8 @@ public:
       @param unit_map if zero then weights are randomly choosed, otherwise
              uniformly distributed in the inputspace of size (unit_map x unit_map x ...)
    */
-  virtual void init(unsigned int inputDim, unsigned  int outputDim, 
-		    double unit_map = 0.0, RandGen* randGen = 0);
+  virtual void init(unsigned int inputDim, unsigned  int outputDim,
+                    double unit_map = 0.0, RandGen* randGen = 0);
 
   virtual const matrix::Matrix process (const matrix::Matrix& input);
 
@@ -65,28 +65,28 @@ public:
       learnRateFactor can be given to modify eps for this learning step
       (process should be called before)
   */
-  virtual const matrix::Matrix learn (const matrix::Matrix& input, 
-				      const matrix::Matrix& nom_output, 
-				      double learnRateFactor = 1);
+  virtual const matrix::Matrix learn (const matrix::Matrix& input,
+                                      const matrix::Matrix& nom_output,
+                                      double learnRateFactor = 1);
 
   virtual void damp(double damping) { return;}
 
   virtual unsigned int getInputDim() const { return weights[0].getM();}
   virtual unsigned int getOutputDim() const  { return weights.size();}
 
-    
+
   virtual bool store(FILE* f) const;
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   virtual void printWeights(FILE* f) const;
 
   const Neighbourhood& getNeighbourhood(){return neighbourhood;}
 
 protected:
- 
+
   /// activation function (rbf)
   static double activationfunction(void* rdfsize, double d);
-  
+
   /// checks whether the given coordinate is within the lattice
   static bool validCoord(const matrix::Matrix& m, int size);
   /// converts index  to coordinates (size is the size of the space)
@@ -98,12 +98,12 @@ protected:
   /// initialised neighbourhood
   void initNeighbourhood(double sigma);
 
-  /** returns neighbourhood as a list of indices with weights      
+  /** returns neighbourhood as a list of indices with weights
   */
   Neighbours getNeighbours(int winner);
 
 
-public: 
+public:
   double eps; ///< learning rate for weight update
 private:
 
@@ -117,9 +117,9 @@ private:
 
 
   /// list of vectors defining relative neighbourhood coordinates and weights
-  Neighbourhood neighbourhood; 
-  
-  
+  Neighbourhood neighbourhood;
+
+
   bool initialised;
 };
 

@@ -38,7 +38,7 @@ class CommLineParser
 private:
   QString mode;    // input streaming mode = serial | pipe | file
   QString port;    // serial port to read from
-  QString file;    // input file for visualisation 
+  QString file;    // input file for visualisation
   bool    logg;    // Logging on/off
   bool    help;    // display help or not
   int     delay;   // delay for pipe
@@ -47,9 +47,9 @@ private:
   bool mpparse;
 
 public:
-    
+
   CommLineParser()
-  { 
+  {
     logg = FALSE;
     help = FALSE;
     delay = 100;
@@ -69,11 +69,11 @@ public:
 
   // implementation for special use (read guilogger command line parameters)
   void parseCommandLine(int argc, char **argv)
-  { 
+  {
     QList<QString> ComLineParams;
     for(int i=1; i<argc; i++) ComLineParams.push_back(argv[i]);
 
-    int i=0;    
+    int i=0;
     if((i = ComLineParams.indexOf("-m")) != -1) mode = ComLineParams[i+1];
     if((i = ComLineParams.indexOf("-p")) != -1) port = ComLineParams[i+1];
     if((i = ComLineParams.indexOf("-f")) != -1) file = ComLineParams[i+1];
@@ -86,15 +86,15 @@ public:
 
   // more common implementation for general purpose
   QMap<QString, QString> parseCommandLine2(int argc, char **argv)
-  {   
-    for(int i=1; i<argc; i++) 
+  {
+    for(int i=1; i<argc; i++)
       {
-	if((argv[i][0] == '-') && (argv[i+1] != 0) && (argv[i+1][0] != '-')) 
-	  {   paramMap.insert(argv[i], argv[i+1]);
-	    i++;
-	  }
-	else if(argv[i][0] == '-' && argv[i+1] != 0 && argv[i+1][0] == '-') paramMap.insert(argv[i], "1");
-	else if(argv[i][0] == '-' && argv[i+1] == 0 ) paramMap.insert(argv[i], "1");
+        if((argv[i][0] == '-') && (argv[i+1] != 0) && (argv[i+1][0] != '-'))
+          {   paramMap.insert(argv[i], argv[i+1]);
+            i++;
+          }
+        else if(argv[i][0] == '-' && argv[i+1] != 0 && argv[i+1][0] == '-') paramMap.insert(argv[i], "1");
+        else if(argv[i][0] == '-' && argv[i+1] == 0 ) paramMap.insert(argv[i], "1");
       }
 
     mpparse = TRUE;
@@ -104,7 +104,7 @@ public:
 
   QString getParamValue(QString key)
   {   if(!mpparse) {printf("getParamValue(): parseCommandLine2 not executed, please call it to use this function.\n"); return "";}
-        
+
     QMap<QString, QString>::iterator it;
 
     it = paramMap.find(key);

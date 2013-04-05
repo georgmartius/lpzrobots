@@ -21,8 +21,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
-#ifndef   	SOUNDSENSOR_H_
-# define   	SOUNDSENSOR_H_
+#ifndef           SOUNDSENSOR_H_
+# define           SOUNDSENSOR_H_
 
 #include "sensor.h"
 
@@ -31,22 +31,22 @@ namespace lpzrobots {
   /** Sound sensor
       with possible direction and frequency detection and also
       distance dependence (Not implemented yet)
-      This works, but is not very well tested and documented. 
+      This works, but is not very well tested and documented.
       The angle detection also works without sound and so on.
       Take a look at the code before using it.
   */
   class SoundSensor: public Sensor {
-  public:  
+  public:
     /* typedef */ enum Measure { Segments, Angle, AngleVel };
 
-    /** @param dim Up-axis of the robot (sometimes it is not Z)	
+    /** @param dim Up-axis of the robot (sometimes it is not Z)
     */
-    SoundSensor(Dimensions dim = Z, Measure measure = Angle, 
-		int segments=1, int levels=1, float maxDistance=1000);
+    SoundSensor(Dimensions dim = Z, Measure measure = Angle,
+                int segments=1, int levels=1, float maxDistance=1000);
     virtual ~SoundSensor();
-  
+
     virtual void init(Primitive* own){ this->own = own;}
-  
+
     virtual bool sense(const GlobalData& globaldata);
 
     virtual int getSensorNumber() const;
@@ -61,7 +61,7 @@ namespace lpzrobots {
     int segments;
     int levels;
     float maxDistance;
-    
+
     double* val;
     double* oldangle;
 
@@ -69,9 +69,9 @@ namespace lpzrobots {
 
   };
 
-  
-  
+
+
 
 }
 
-#endif 	    /* !SOUNDSENSOR_H_ */
+#endif             /* !SOUNDSENSOR_H_ */

@@ -29,30 +29,30 @@
 
 #include "heightfieldprimitive.h"
 #include "abstractobstacle.h"
- 
+
 namespace lpzrobots {
 
   class MeshGround : public AbstractObstacle {
   public:
-    
-  
+
+
     /** Constructor
-	@param odeHandle 
-	@param osgHandle
-	@param filename name of the file to load. 
-	If ending is .ppm then it is considered as a bitmap height file.
-	The coding mode is used to decode the heights. 
-	Otherwise it is consider to be a OSG HeightFieldFile
-	@param texture image filename for the texture
-	@param x_size size in x direction in world coordinates
-	@param y_size size in y direction in world coordinates
-	@param height height in world coordinates
-	@param coding Coding mode, see OSGHeightField (this an own class, not in OSG)
+        @param odeHandle
+        @param osgHandle
+        @param filename name of the file to load.
+        If ending is .ppm then it is considered as a bitmap height file.
+        The coding mode is used to decode the heights.
+        Otherwise it is consider to be a OSG HeightFieldFile
+        @param texture image filename for the texture
+        @param x_size size in x direction in world coordinates
+        @param y_size size in y direction in world coordinates
+        @param height height in world coordinates
+        @param coding Coding mode, see OSGHeightField (this an own class, not in OSG)
     */
-    MeshGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-	       const std::string& filename, const std::string& texture, 
-	       double x_size, double y_size, double height,
-	       OSGHeightField::CodingMode coding = OSGHeightField::Red);
+    MeshGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+               const std::string& filename, const std::string& texture,
+               double x_size, double y_size, double height,
+               OSGHeightField::CodingMode coding = OSGHeightField::Red);
 
     /**
      * updates the position of the geoms  ( not nessary for static objects)
@@ -64,7 +64,7 @@ namespace lpzrobots {
 
   protected:
     virtual void create();
-    virtual void destroy();    
+    virtual void destroy();
 
   protected:
     std::string filename;

@@ -39,25 +39,25 @@ class PassiveBox : public AbstractObstacle{
   osg::Vec3 dimension;
   double mass;
   int texture;
-  
+
 
   Box* box;
 
 
  public:
-  
+
   /**
    * Constructor, if you set mass=0.0, you get a box which cannot be moved
    */
-  PassiveBox(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-	     const osg::Vec3& dimension = osg::Vec3(1.0, 1.0, 1.0), double mass = 1.0):
-    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), dimension(dimension), mass(mass) {       
+  PassiveBox(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+             const osg::Vec3& dimension = osg::Vec3(1.0, 1.0, 1.0), double mass = 1.0):
+    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), dimension(dimension), mass(mass) {
     box = new Box(dimension.x(), dimension.y(), dimension.z());
     obst.push_back(box);
-    obstacle_exists=false;    
+    obstacle_exists=false;
   };
 
-  
+
   virtual void setPose(const osg::Matrix& pose){
     this->pose = osg::Matrix::translate(0,0,dimension.z()/2) * pose;
     if (!obstacle_exists) {

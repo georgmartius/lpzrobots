@@ -33,7 +33,7 @@ namespace lpzrobots {
 
   /**
    * Hurling snake is a string a beats.
-   * 
+   *
    */
   class HurlingSnake : public OdeRobot{
   public:
@@ -43,32 +43,32 @@ namespace lpzrobots {
     HurlingSnake(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const std::string& name);
 
     ~HurlingSnake();
-  
+
     /// update the subcomponents
     virtual void update();
 
     /** sets the pose of the vehicle
-	@param pose desired 4x4 pose matrix
+        @param pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
-  
+
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -81,11 +81,11 @@ namespace lpzrobots {
     virtual int getMotorNumber();
 
     /** returns a vector with the positions of all segments of the robot
-	@param poslist vector of positions (of all robot segments) 
-	@return length of the list
+        @param poslist vector of positions (of all robot segments)
+        @return length of the list
     */
     virtual int getSegmentsPosition(std::vector<Position> &poslist);
-  
+
     /******** CONFIGURABLE ***********/
     virtual void notifyOnChange(const paramkey& key);
 
@@ -98,21 +98,21 @@ namespace lpzrobots {
   private:
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys robot and space
      */
     virtual void destroy();
-       
+
     bool created;      // true if robot was created
 
 
     Position initial_pos;    // initial position of robot
 
-    int NUM;	   /* number of beats */
-    double MASS;	   /* mass of a beats */
+    int NUM;           /* number of beats */
+    double MASS;           /* mass of a beats */
     double RADIUS;   /* sphere radius */
 
     //    std::list<AngularMotor*> frictionMotors;
@@ -133,4 +133,4 @@ namespace lpzrobots {
 }
 
 #endif
- 
+

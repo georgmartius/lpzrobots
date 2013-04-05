@@ -34,18 +34,18 @@ struct PiMaxConf {
   double initFeedbackStrength;  ///< initial strength of sensor to motor connection
   bool   useExtendedModel;      ///< if true, the extended model (S matrix) is used
   /// if true the controller can be taught see teachable interface
-  bool   useTeaching;              
+  bool   useTeaching;
   /// # of steps the sensors are averaged (1 means no averaging)
-  int    steps4Averaging;         
+  int    steps4Averaging;
   /// # of steps the motor values are delayed (1 means no delay)
-  int    steps4Delay;             
+  int    steps4Delay;
   bool   someInternalParams;    ///< if true only some internal parameters are exported
   bool   onlyMainParameters;    ///< if true only some configurable parameters are exported
 };
 
 
 /**
- * This controller implements the predictive information maximization 
+ * This controller implements the predictive information maximization
    described in paper: to be published
    TODO: insert paper
  */
@@ -63,11 +63,11 @@ public:
     PiMaxConf conf;
     conf.initFeedbackStrength = 1.0;
     conf.useExtendedModel     = true;
-    conf.useTeaching          = false;              
-    conf.steps4Averaging      = 1;         
-    conf.steps4Delay          = 1;             
-    conf.someInternalParams   = false; 
-    conf.onlyMainParameters   = true;  
+    conf.useTeaching          = false;
+    conf.steps4Averaging      = 1;
+    conf.steps4Delay          = 1;
+    conf.someInternalParams   = false;
+    conf.onlyMainParameters   = true;
     return conf;
   }
 
@@ -76,24 +76,24 @@ public:
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_motors; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
   /// called during babbling phase
   virtual void motorBabblingStep(const sensor* , int number_sensors,
-				 const motor* , int number_motors);
+                                 const motor* , int number_motors);
 
   /***** STOREABLE ****/
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   /* some direct access functions (unsafe!) */
   virtual matrix::Matrix getA();
@@ -108,7 +108,7 @@ public:
   virtual void setSensorTeaching(const matrix::Matrix& teaching);
   virtual matrix::Matrix getLastMotorValues();
   virtual matrix::Matrix getLastSensorValues();
-  
+
 protected:
   unsigned short number_sensors;
   unsigned short number_motors;
@@ -123,22 +123,22 @@ protected:
 
   matrix::Matrix Sigma; // noise covariance matrix
 
-  matrix::Matrix R; // 
+  matrix::Matrix R; //
   matrix::Matrix C_native; // Controller Matrix obtained from motor babbling
   matrix::Matrix A_native; // Model Matrix obtained from motor babbling
 
   matrix::Matrix a_buffer[buffersize]; // buffer needed for delay
-  matrix::Matrix s_buffer[buffersize]; // buffer of sensor values 
+  matrix::Matrix s_buffer[buffersize]; // buffer of sensor values
   matrix::Matrix xi_buffer[buffersize]; // buffer of pred errors
   matrix::Matrix L_buffer[buffersize]; // buffer of Jacobians
 
   matrix::Matrix s;        // current sensor value vector
   matrix::Matrix s_smooth; // time average of s values
-  
+
   PiMaxConf conf; ///< configuration objects
 
   int t;
-  
+
 
   bool intern_isTeaching;    // teaching signal available?
   matrix::Matrix a_teaching; // motor teaching  signal
@@ -157,7 +157,7 @@ protected:
 
   // calculates the pseudo inverse of L in different ways, depending on pseudo
   matrix::Matrix pseudoInvL(const matrix::Matrix& L, const matrix::Matrix& A, const matrix::Matrix& C);
-  
+
   /// learn values model and controller (A,b,C,h)
   virtual void learn();
 
@@ -175,7 +175,7 @@ protected:
   };
 
   /// function that clips the second argument to the interval [-first,first]
-  static double clip(double r, double x){  
+  static double clip(double r, double x){
     return min(max(x,-r),r);
   }
   /// calculates the inverse the argument (useful for Matrix::map)

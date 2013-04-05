@@ -41,8 +41,8 @@ namespace matrix {
  * Interface for inspectable objects.
  * That means that one can read out some internal parameters indentified by string keys
  *
- * TODO: support for lead through of params (e.g. getInternalParams()) 
- * for all children inspectables. For this use a instance-wide switch (useChildren) 
+ * TODO: support for lead through of params (e.g. getInternalParams())
+ * for all children inspectables. For this use a instance-wide switch (useChildren)
  * as a member variable to enable this feature when desired.
 */
 class Inspectable {
@@ -55,7 +55,7 @@ public:
   typedef std::pair<iparamkey,iparamval const*> iparampair;
 
   // the bool says whether  only 4x4AndDiag is used
-  typedef std::pair<iparamkey,std::pair< const matrix::Matrix*, bool > > imatrixpair; 
+  typedef std::pair<iparamkey,std::pair< const matrix::Matrix*, bool > > imatrixpair;
   typedef std::list<iparamkey> iparamkeylist;
   typedef std::list<std::string> infoLinesList;
   typedef std::list<iparamval> iparamvallist;
@@ -66,9 +66,9 @@ public:
   // the network stucture export will be discontinued soon
   typedef struct ILayer{
     ILayer(const std::string& vectorname, const std::string& biasname,
-	   int dimension, int rank, const std::string& layername)
+           int dimension, int rank, const std::string& layername)
       : vectorname(vectorname), biasname(biasname),
-	 dimension(dimension), rank(rank), layername(layername) {}
+         dimension(dimension), rank(rank), layername(layername) {}
     std::string vectorname;  //< prefix of the internal parameter vector e.g. "v"
     std::string biasname;    ///< prefix of the internal parameter vector used as bias for the neurons e.g. "h"
     int dimension;      ///< length of the vector (number of units)
@@ -162,17 +162,17 @@ public:
    * are used.
    * @param key the name of the matrix, shown e.g. in guilogger (no spaces allowed)
    * @param m the address of the matrix to inspect
-   * @param only4x4AndDiag of true only 4x4 matrix plus the diagonal is used 
-   * @param descr description string to be exported 
+   * @param only4x4AndDiag of true only 4x4 matrix plus the diagonal is used
+   * @param descr description string to be exported
    *              (for the entire matrix with key_) (using infolines)
    * @note that you can change the structure of the matrix while
    * being inspected, but no after the getInternalParameterNames is called!
    */
-  virtual void addInspectableMatrix(const iparamkey& key, const matrix::Matrix* m, 
-                                    bool only4x4AndDiag=true, 
+  virtual void addInspectableMatrix(const iparamkey& key, const matrix::Matrix* m,
+                                    bool only4x4AndDiag=true,
                                     const std::string& descr = std::string());
 
-  /** 
+  /**
    * adds a description for the given parameter using info-lines
    * The line will start (appart from the #I) with a D for description
    * followed by the key end then followed by the string.

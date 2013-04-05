@@ -44,73 +44,73 @@ Example of 2 hidden layer network with both, elman and jordan context units.
 \pre{
 +--<-----O O O
 |        | | |
-|        H H H 
+|        H H H
 |        | | |
 |        | | |
 |        | | |
 |        H H H ----->-----+ 1:1 fixed connections (time delayed)
 |   >->-/| | |\-<-<       |
-|  / / / | | | \ \ \      |  
-| J J J  I I I  E E E     | 
+|  / / / | | | \ \ \      |
+| J J J  I I I  E E E     |
 +-^-^-^         ^-^-^--<--+
 }
  */
 class Elman : public MultiLayerFFNN {
-public: 
+public:
   /**
      @param eps learning rate
      @param layers Layer description (the input layer is not specified (always linear))
      @param lambda self-recurrent feedback strength of context neurons
   */
-  Elman(double eps, const std::vector<Layer>& layers, 
-	bool useElman, bool useJordan=false, bool useBypass=false)
-    : MultiLayerFFNN(eps,layers,useBypass), useElman(useElman), useJordan(useJordan) { 
-    
-    initialised = false;  
+  Elman(double eps, const std::vector<Layer>& layers,
+        bool useElman, bool useJordan=false, bool useBypass=false)
+    : MultiLayerFFNN(eps,layers,useBypass), useElman(useElman), useJordan(useJordan) {
+
+    initialised = false;
   }
 
   virtual ~Elman(){ }
 
   /// initialisation of the network with the given number of input and output units
-  virtual void init(unsigned int inputDim, unsigned  int outputDim, 
-		    double unit_map = 0.0, RandGen* randGen = 0); 
+  virtual void init(unsigned int inputDim, unsigned  int outputDim,
+                    double unit_map = 0.0, RandGen* randGen = 0);
 
-  /** passive processing of the input 
+  /** passive processing of the input
       (this will be different for every input, since it is a recurrent network)
   */
-  virtual const matrix::Matrix process (const matrix::Matrix& input); 
+  virtual const matrix::Matrix process (const matrix::Matrix& input);
 
   /// performs learning and returns the network output before learning
-  virtual const matrix::Matrix learn (const matrix::Matrix& input, 
-				      const matrix::Matrix& nom_output, 
-				      double learnRateFactor = 1);
+  virtual const matrix::Matrix learn (const matrix::Matrix& input,
+                                      const matrix::Matrix& nom_output,
+                                      double learnRateFactor = 1);
 
   /** determines the weight and bias updates
    */
   virtual NetUpdate weightIncrement(const matrix::Matrix& xsi);
 
   /** like weightIncrement but with blocked backprop flow for some neurons.
-      @param blockedlayer index of layer with blocked neurons 
+      @param blockedlayer index of layer with blocked neurons
       @param blockfrom index of neuron in blockedlayer to start blocking
       @param blockto index of neuron in blockedlayer to end blocking (if -1 then to end)
       (not included)
    */
-  virtual NetUpdate weightIncrementBlocked(const matrix::Matrix& xsi_, 
-					   int blockedlayer, 
-					   int blockfrom, int blockto);
+  virtual NetUpdate weightIncrementBlocked(const matrix::Matrix& xsi_,
+                                           int blockedlayer,
+                                           int blockfrom, int blockto);
 
 
-  /** applies the weight increments to the weight (and bias) matrices 
+  /** applies the weight increments to the weight (and bias) matrices
       with the learningrate and the learnRateFactor */
   virtual void updateWeights(const NetUpdate& updates);
 
 
   /* Is implemented in multilayerfnn
-     virtual const matrix::Matrix response(const matrix::Matrix& input) const;     
+     virtual const matrix::Matrix response(const matrix::Matrix& input) const;
    */
 
   void damp(double damping);
-  
+
   /**************  STOREABLE **********************************/
   /// stores the layer binary into file stream
   bool store(FILE* f) const;

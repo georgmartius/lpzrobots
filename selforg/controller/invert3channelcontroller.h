@@ -17,7 +17,7 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
  *                                                                         *
  ***************************************************************************/
- 
+
 #ifndef __INVERT3CHANNELCONTROLLER_H
 #define __INVERT3CHANNELCONTROLLER_H
 
@@ -28,9 +28,9 @@
 
 
 /**
- * class for robot controller that use naglaa's direct matrix inversion for n channels 
+ * class for robot controller that use naglaa's direct matrix inversion for n channels
  * (simple one layer networks)
- * 
+ *
  * Implements standart parameters: eps, rho, mu, stepnumber4avg, stepnumber4delay
  */
 template <int NUMBER_CHANNELS, int BUFFER_SIZE=2> class Invert3ChannelController : public InvertController {
@@ -56,10 +56,10 @@ public:
   double A[NUMBER_CHANNELS][NUMBER_CHANNELS];    ///< model matrix
   double C[NUMBER_CHANNELS][NUMBER_CHANNELS];    ///< controller matrix
   double h[NUMBER_CHANNELS];       ///< bias vector
-  
-  double x_buffer[BUFFER_SIZE][NUMBER_CHANNELS]; ///< buffer for input values, x[t%buffersize]=actual value, x[(t-1+buffersize)%buffersize]=x(t-1)  
-  double y_buffer[BUFFER_SIZE][NUMBER_CHANNELS]; ///< buffer for output values, y[t%buffersize]=actual value(if already calculated!), y[(t-1+buffersize)%buffersize]=y(t-1)   
-  
+
+  double x_buffer[BUFFER_SIZE][NUMBER_CHANNELS]; ///< buffer for input values, x[t%buffersize]=actual value, x[(t-1+buffersize)%buffersize]=x(t-1)
+  double y_buffer[BUFFER_SIZE][NUMBER_CHANNELS]; ///< buffer for output values, y[t%buffersize]=actual value(if already calculated!), y[(t-1+buffersize)%buffersize]=y(t-1)
+
   double xsi4E[NUMBER_CHANNELS];
   double xsi4Model[NUMBER_CHANNELS];
 
@@ -73,10 +73,10 @@ public:
     virtual void inverseMatrix(double Q[NUMBER_CHANNELS][NUMBER_CHANNELS], double Q_1[NUMBER_CHANNELS][NUMBER_CHANNELS]);
 
     virtual double calculateE(double *x_delay, double *y_delay);
-  
+
     /// learn values h,C   //,A
     virtual void learn(double *x_delay, double *y_delay);
-  
+
     /// learn model parameter (matrix A) by gradient descent
     virtual void learnModel(double *x_actual, double *y_effective);
 
@@ -88,9 +88,9 @@ public:
 
     /// calculate controller ouptus
     virtual void calculateControllerValues(double *x_smooth, double *y);
-  
+
     // put new value in ring buffer
-    virtual void putInBuffer(double buffer[BUFFER_SIZE][NUMBER_CHANNELS], double *values);  
+    virtual void putInBuffer(double buffer[BUFFER_SIZE][NUMBER_CHANNELS], double *values);
 
   */
   /// neuron transfer function
@@ -116,60 +116,60 @@ public:
   };
 
 
-  //template <int NUMBER_CHANNELS, int BUFFER_SIZES> 
-  //	Invert3ChannelController<int NUMBER_CHANNELS, int BUFFER_SIZES>::
+  //template <int NUMBER_CHANNELS, int BUFFER_SIZES>
+  //        Invert3ChannelController<int NUMBER_CHANNELS, int BUFFER_SIZES>::
   Invert3ChannelController(){
-  
+
     t=0;
-    
+
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	h[i] = 0.0;
-	for (int j = 0; j < NUMBER_CHANNELS; j++)
-	  {
-	    if (i == j)
-	      {
-		A[i][j] = 1.0;
-		C[i][j] = 0.1;
-	      }
-	    else
-	      {
-		A[i][j] = 0.0;
-		C[i][j] = 0.0;
-	      }
-	  }
+        h[i] = 0.0;
+        for (int j = 0; j < NUMBER_CHANNELS; j++)
+          {
+            if (i == j)
+              {
+                A[i][j] = 1.0;
+                C[i][j] = 0.1;
+              }
+            else
+              {
+                A[i][j] = 0.0;
+                C[i][j] = 0.0;
+              }
+          }
       }
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	for (int k = 0; k < BUFFER_SIZE; k++)
-	  {
-	    x_buffer[k][i] = 0;
-	    y_buffer[k][i] = 0;	
-	  }
+        for (int k = 0; k < BUFFER_SIZE; k++)
+          {
+            x_buffer[k][i] = 0;
+            y_buffer[k][i] = 0;
+          }
       }
-    
+
     /*    // print initial values
-	  std::cout<<"Constructor of RobotLearnControl:"<<std::endl;
-	  std::cout<<"init: epsilon="<<eps<<std::endl;     
-	  std::cout<<"init: rho="<<rho<<std::endl;         
-	  std::cout<<"init: stepnumber4delay="<<stepnumber4delay<<std::endl; 
-	  std::cout<<"init: stepnumber4avg="<<stepnumber4avg<<std::endl;     
-	  std::cout<<"init: delta="<<delta<<std::endl; 
-	  std::cout<<"init: m (for calculation of E)="<<m<<std::endl; 
-    */    
+          std::cout<<"Constructor of RobotLearnControl:"<<std::endl;
+          std::cout<<"init: epsilon="<<eps<<std::endl;
+          std::cout<<"init: rho="<<rho<<std::endl;
+          std::cout<<"init: stepnumber4delay="<<stepnumber4delay<<std::endl;
+          std::cout<<"init: stepnumber4avg="<<stepnumber4avg<<std::endl;
+          std::cout<<"init: delta="<<delta<<std::endl;
+          std::cout<<"init: m (for calculation of E)="<<m<<std::endl;
+    */
   };
 
   /// performs one step (includes learning). Calulates motor commands from sensor inputs.
-  virtual void step(const sensor* x_, int sensornumber, 
-		    motor* y_, int motornumber) {
+  virtual void step(const sensor* x_, int sensornumber,
+                    motor* y_, int motornumber) {
     double x_smooth[NUMBER_CHANNELS];
     double x_effective[NUMBER_CHANNELS];
-    double y_effective[NUMBER_CHANNELS];    
+    double y_effective[NUMBER_CHANNELS];
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	x_smooth[i] = 0.0;
-	x_effective[i] = 0.0;
-	y_effective[i] = 0.0;
+        x_smooth[i] = 0.0;
+        x_effective[i] = 0.0;
+        y_effective[i] = 0.0;
       }
 
     // put new input value in ring buffer x_buffer
@@ -177,7 +177,7 @@ public:
 
     // averaging over the last stepnumber4avg values of x_buffer
     calculateSmoothValues(x_buffer, stepnumber4avg, x_smooth);
-    
+
     // calculate controller values based on smoothed input values
     calculateControllerValues(x_smooth, y_);
 
@@ -185,12 +185,12 @@ public:
     putInBuffer(y_buffer, y_);
 
     // calculate effective input/output, which is (actual-stepnumber4delay) element of buffer
-    calculateDelayedValues(x_buffer, stepnumber4delay, x_effective);    
+    calculateDelayedValues(x_buffer, stepnumber4delay, x_effective);
     calculateDelayedValues(y_buffer, stepnumber4delay, y_effective);
- 
+
     // learn controller with effective input/output
     learn(x_, x_effective, y_effective);
-    
+
     // learn model with actual input and effective output (that produced the actual input)
     learnModel(x_, y_effective);
 
@@ -200,12 +200,12 @@ public:
 
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* x_, int sensornumber,  
-			      motor* y_, int motornumber){
+  virtual void stepNoLearning(const sensor* x_, int sensornumber,
+                              motor* y_, int motornumber){
     double x_smooth[NUMBER_CHANNELS];
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	x_smooth[i] = 0.0;
+        x_smooth[i] = 0.0;
       }
 
 
@@ -214,7 +214,7 @@ public:
 
     // averaging over the last stepnumber4avg values of x_buffer
     calculateSmoothValues(x_buffer, stepnumber4avg, x_smooth);
-    
+
     // calculate controller values based on smoothed input values
     calculateControllerValues(x_smooth, y_);
 
@@ -224,8 +224,8 @@ public:
     // update step counter
     t++;
   };
-  
- 
+
+
 protected:
   virtual void inverseMatrix(double Q[NUMBER_CHANNELS][NUMBER_CHANNELS], double Q_1[NUMBER_CHANNELS][NUMBER_CHANNELS]){
     // Berechne Inverse von Q
@@ -239,15 +239,15 @@ protected:
       Q_1[1][1] = Q[0][0] / det;
       Q_1[0][1] = -Q[0][1] / det;
       Q_1[1][0] = -Q[1][0] / det;
-      
+
     }
-    
-    
-    if (NUMBER_CHANNELS==3){  
-      
+
+
+    if (NUMBER_CHANNELS==3){
+
       double  Q_adjoint[NUMBER_CHANNELS][NUMBER_CHANNELS]  ;
       double  detQ=0  ;
-      
+
       //calculate the inverse of Q
       Q_adjoint[0][0]=Q[1][1]*Q[2][2]-Q[1][2]*Q[2][1] ;
       Q_adjoint[0][1]=(Q[1][2]*Q[2][0]-Q[1][0]*Q[2][2]) ;
@@ -260,11 +260,11 @@ protected:
       Q_adjoint[2][2]=Q[0][0]*Q[1][1]-Q[0][1]*Q[1][0] ;
       detQ=Q[0][0]*Q_adjoint[0][0]+Q[0][1]*Q_adjoint[0][1]+Q[0][2]*Q_adjoint[0][2] ;
       for(int i=0; i<NUMBER_CHANNELS; i++){
-	for(int j=0; j<NUMBER_CHANNELS; j++) {                                                     
-	  Q_1[i][j]=(Q_adjoint[j][i])/detQ  ;
-	}
-      }       
-    } 
+        for(int j=0; j<NUMBER_CHANNELS; j++) {
+          Q_1[i][j]=(Q_adjoint[j][i])/detQ  ;
+        }
+      }
+    }
   };
 
 
@@ -273,7 +273,7 @@ protected:
     double Q[NUMBER_CHANNELS][NUMBER_CHANNELS];
     double Q_1[NUMBER_CHANNELS][NUMBER_CHANNELS];
     double z[NUMBER_CHANNELS];
-    
+
 
     // Calculate z based on the delayed inputs since the present input x is
     // produced by the outputs tau time steps before
@@ -282,39 +282,39 @@ protected:
 
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	z[i] = h[i];
-	for (int j = 0; j < NUMBER_CHANNELS; j++)
-	  {
-	    z[i] += C[i][j] * x_delay[j];
-	  }
+        z[i] = h[i];
+        for (int j = 0; j < NUMBER_CHANNELS; j++)
+          {
+            z[i] += C[i][j] * x_delay[j];
+          }
       }
 
     // Berechne Matrix L
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	for (int j = 0; j < NUMBER_CHANNELS; j++)
-	  {
-	    L[i][j] = 0.0;
-	    for (int k = 0; k < NUMBER_CHANNELS; k++)
-	      {
-		L[i][j] += A[i][k] * g_s(z[k]) * C[k][j];
-	      }
-	  }
+        for (int j = 0; j < NUMBER_CHANNELS; j++)
+          {
+            L[i][j] = 0.0;
+            for (int k = 0; k < NUMBER_CHANNELS; k++)
+              {
+                L[i][j] += A[i][k] * g_s(z[k]) * C[k][j];
+              }
+          }
       }
 
     // Berechne Q=LL^T
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	for (int j = 0; j < NUMBER_CHANNELS; j++)
-	  {
-	    Q[i][j] = 0.0;
-	    for (int k = 0; k < NUMBER_CHANNELS; k++)
-	      {
-		Q[i][j] += L[i][k] * L[j][k];
-	      }
-	    if (i == j)
-	      Q[i][j] += rho / NUMBER_CHANNELS; // Regularisation
-	  }
+        for (int j = 0; j < NUMBER_CHANNELS; j++)
+          {
+            Q[i][j] = 0.0;
+            for (int k = 0; k < NUMBER_CHANNELS; k++)
+              {
+                Q[i][j] += L[i][k] * L[j][k];
+              }
+            if (i == j)
+              Q[i][j] += rho / NUMBER_CHANNELS; // Regularisation
+          }
       }
 
     // Berechne Inverse von Q
@@ -323,30 +323,30 @@ protected:
     // Berechne xsi
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	xsi4E[i] = x_[i];
-	for (int j = 0; j < NUMBER_CHANNELS; j++)
-	  {
-	    xsi4E[i] -= A[i][j] * y_delay[j];  // using old y value -> no influence of changes (adding delta) in controller
-	    // very very strange!!!!
-	    //xsi4E[i] -= A[i][j] * g(z[j]);     // using recalculating y -> influence of changes (adding delta) in controller
-	  }
+        xsi4E[i] = x_[i];
+        for (int j = 0; j < NUMBER_CHANNELS; j++)
+          {
+            xsi4E[i] -= A[i][j] * y_delay[j];  // using old y value -> no influence of changes (adding delta) in controller
+            // very very strange!!!!
+            //xsi4E[i] -= A[i][j] * g(z[j]);     // using recalculating y -> influence of changes (adding delta) in controller
+          }
       }
     double E = 0;
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	for (int j = 0; j < NUMBER_CHANNELS; j++)
-	  {
-	    E += xsi4E[i] * Q_1[i][j] * xsi4E[j];
-	  }
+        for (int j = 0; j < NUMBER_CHANNELS; j++)
+          {
+            E += xsi4E[i] * Q_1[i][j] * xsi4E[j];
+          }
       }
 
     double E_s=0;
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	for (int j = 0; j < NUMBER_CHANNELS; j++)
-	  {
-	    E_s += (A[i][j]*g(z[j]) - x_[i]) * (A[i][j]*g(z[j]) - x_[i]);
-	  }
+        for (int j = 0; j < NUMBER_CHANNELS; j++)
+          {
+            E_s += (A[i][j]*g(z[j]) - x_[i]) * (A[i][j]*g(z[j]) - x_[i]);
+          }
       }
 
     E=(1-m)*E+ m*E_s;
@@ -366,63 +366,63 @@ protected:
     // calculate updates for h,C,A
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	h[i] += delta;
-	h_update[i] = -eps * (calculateE(x_,x_delay, y_delay) - E_0) / delta;
-	h[i] -= delta;
-	for (int j = 0; j < NUMBER_CHANNELS; j++)
-	  {
-	    C[i][j] += delta;
-	    C_update[i][j] = -eps * (calculateE(x_,x_delay, y_delay) - E_0) / delta;
-	    C[i][j] -= delta;
-	    //A[i][j] += delta;
-	    //A_update[i][j] = -eps * a_factor * (calculateE(x_delay, y_delay) - E_0) / delta;
-	    //A[i][j] -= delta;
-	  }
+        h[i] += delta;
+        h_update[i] = -eps * (calculateE(x_,x_delay, y_delay) - E_0) / delta;
+        h[i] -= delta;
+        for (int j = 0; j < NUMBER_CHANNELS; j++)
+          {
+            C[i][j] += delta;
+            C_update[i][j] = -eps * (calculateE(x_,x_delay, y_delay) - E_0) / delta;
+            C[i][j] -= delta;
+            //A[i][j] += delta;
+            //A_update[i][j] = -eps * a_factor * (calculateE(x_delay, y_delay) - E_0) / delta;
+            //A[i][j] -= delta;
+          }
       }
 
     // apply updates to h,C,A
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	h[i] += squash(h_update[i]);
-	for (int j = 0; j < NUMBER_CHANNELS; j++)
-	  {
-	    C[i][j] += squash(C_update[i][j]);
-	    //A[i][j] += squash(A_update[i][j]);
-	  }
+        h[i] += squash(h_update[i]);
+        for (int j = 0; j < NUMBER_CHANNELS; j++)
+          {
+            C[i][j] += squash(C_update[i][j]);
+            //A[i][j] += squash(A_update[i][j]);
+          }
       }
   };
 
-  
+
   virtual void learnModel(const double *x_actual, double *y_effective){
-    /* 	double z[N_output];    
-	for(int i=0; i<N_output; i++){
-	z[i]=h[i];
-	for(int j=0; j<N_input; j++) {
-	z[i]+=C[i][j]*x_D[j];
-	}
-	}
+    /*         double z[N_output];
+        for(int i=0; i<N_output; i++){
+        z[i]=h[i];
+        for(int j=0; j<N_input; j++) {
+        z[i]+=C[i][j]*x_D[j];
+        }
+        }
     */
     // Berechne xsi
     for(int i=0; i<NUMBER_CHANNELS; i++){
-      xsi4Model[i]=x_actual[i];  
+      xsi4Model[i]=x_actual[i];
       for(int j=0; j<NUMBER_CHANNELS; j++){
-	xsi4Model[i]-= A[i][j]*y_effective[j];
-      }	 
+        xsi4Model[i]-= A[i][j]*y_effective[j];
+      }
     }
 
     for(int i=0; i<NUMBER_CHANNELS; i++){
-      for (int j=0; j<NUMBER_CHANNELS; j++){   
-	A[i][j]+=squash( (factor_a*eps*0.2) *xsi4Model[i] * y_effective[j]) ;
+      for (int j=0; j<NUMBER_CHANNELS; j++){
+        A[i][j]+=squash( (factor_a*eps*0.2) *xsi4Model[i] * y_effective[j]) ;
       }
     }
   };
 
-  
 
-  
-  
+
+
+
   /// calculate delayed values
-  virtual void calculateDelayedValues(double source[BUFFER_SIZE][NUMBER_CHANNELS], paramval number_steps_of_delay_, double *target)  
+  virtual void calculateDelayedValues(double source[BUFFER_SIZE][NUMBER_CHANNELS], paramval number_steps_of_delay_, double *target)
   {
     // number_steps_of_delay_ must not be larger than BUFFER_SIZE
     assert ((int)number_steps_of_delay_ < BUFFER_SIZE);
@@ -431,7 +431,7 @@ protected:
 
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	target[i] = source[(t - (int)number_steps_of_delay_ + BUFFER_SIZE) % BUFFER_SIZE][i];
+        target[i] = source[(t - (int)number_steps_of_delay_ + BUFFER_SIZE) % BUFFER_SIZE][i];
       }
   };
 
@@ -442,38 +442,38 @@ protected:
 
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	target[i] = 0.0;
-	for (int k = 0; k < (int)number_steps_for_averaging_; k++)
-	  {
-	    target[i] += source[(t - k + BUFFER_SIZE) % BUFFER_SIZE][i]/ (double) (number_steps_for_averaging_);
-	  }
+        target[i] = 0.0;
+        for (int k = 0; k < (int)number_steps_for_averaging_; k++)
+          {
+            target[i] += source[(t - k + BUFFER_SIZE) % BUFFER_SIZE][i]/ (double) (number_steps_for_averaging_);
+          }
       }
   };
 
 
 
   /// calculate controller ouptus
-  virtual void calculateControllerValues(double *x_smooth, double *y)  
+  virtual void calculateControllerValues(double *x_smooth, double *y)
   {
     double z[NUMBER_CHANNELS];
 
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	z[i] = h[i];
-	for (int j = 0; j < NUMBER_CHANNELS; j++)
-	  {
-	    z[i] += C[i][j] * x_smooth[j];
-	  }
-	y[i] = g(z[i]);
+        z[i] = h[i];
+        for (int j = 0; j < NUMBER_CHANNELS; j++)
+          {
+            z[i] += C[i][j] * x_smooth[j];
+          }
+        y[i] = g(z[i]);
       }
   };
-  
-  
+
+
   // put new value in ring buffer
-  virtual void putInBuffer(double buffer[BUFFER_SIZE][NUMBER_CHANNELS], const double *values){  
+  virtual void putInBuffer(double buffer[BUFFER_SIZE][NUMBER_CHANNELS], const double *values){
     for (int i = 0; i < NUMBER_CHANNELS; i++)
       {
-	buffer[(t+BUFFER_SIZE)% BUFFER_SIZE][i] = values[i];
+        buffer[(t+BUFFER_SIZE)% BUFFER_SIZE][i] = values[i];
       }
   };
 
@@ -512,8 +512,8 @@ protected:
 
 };
 
-AbstractController* getController(int sensornumber, int motornumber, 
-				  int param1/*=0*/, double param2/*=0*/)
+AbstractController* getController(int sensornumber, int motornumber,
+                                  int param1/*=0*/, double param2/*=0*/)
 {
   if(param1 < 2) param1 = 2;
   return new Invert3ChannelController<2, 4>;

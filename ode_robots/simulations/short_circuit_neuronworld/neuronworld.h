@@ -61,17 +61,17 @@ typedef struct {
 public:
   double     theta_const;  ///<  constant part of bias
   double     gamma;        ///<  Dissipation
-  double     w;            ///<  weight 
-  NeuronType neuron_type;  ///< type of neuron used as world  
+  double     w;            ///<  weight
+  NeuronType neuron_type;  ///< type of neuron used as world
 } NeuronWorldConf;
 
 
   /**
-   * 
+   *
    */
   class NeuronWorld : public OdeRobot{
   public:
-    
+
     NeuronWorld(const OdeHandle& odeHandle, const OsgHandle& osgHandle, int sensornumber, int motornumber, const NeuronWorldConf& conf, const std::string& name="NeuronWorld");
 
   static NeuronWorldConf getDefaultConf(){
@@ -79,7 +79,7 @@ public:
     conf.theta_const = 0;    //  constant part of bias
     conf.gamma = 0;          //  Dissipation
     conf.w = 0;         //  weight
-    conf.neuron_type = schmitt_trigger;  
+    conf.neuron_type = schmitt_trigger;
     return conf;
   }
 
@@ -89,20 +89,20 @@ public:
     virtual void update() {}
 
     /** sets the pose of the vehicle
-	@param pose desired 4x4 pose matrix
+        @param pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose) {}
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -114,9 +114,9 @@ public:
      */
     virtual int getMotorNumber() {return motorno; }
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData) {}
 
@@ -124,7 +124,7 @@ public:
   protected:
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const { return dummy; }
-    
+
     /// neuron transfer function
     static double g(double z)
     {
@@ -133,7 +133,7 @@ public:
     };
 
   protected:
-    DummyPrimitive *dummy; 
+    DummyPrimitive *dummy;
     int sensorno;      //number of sensors
     int motorno;       // number of motors
     motor* motors;
@@ -153,4 +153,4 @@ public:
 }
 
 #endif
- 
+

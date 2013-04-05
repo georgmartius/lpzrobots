@@ -34,15 +34,15 @@
     where cellsize is distance to the second closest neigbour.
 */
 class NeuralGas : public AbstractModel {
-public: 
+public:
   NeuralGas(const std::string& name = "NeuralGas", const std::string& revision = "$Id$");
-  /** create a som      
+  /** create a som
       @param lambda initial competetive constant for neighborhood learning
       @param eps initial  learning rate
       @param maxTime maximal time we expect the network to learn, if 0 no annealing is performed
    */
   NeuralGas(double lambda, double eps, int maxTime,
-      const std::string& name="NeuralGas", 
+      const std::string& name="NeuralGas",
       const std::string& revision = "$Id$");
   virtual ~NeuralGas(){};
 
@@ -52,8 +52,8 @@ public:
       @param unit_map interval for randomly choosen weights.
                if zero then (-1,1) is used otherwise (-unit_map, unit_map) (in all dimensions)
    */
-  virtual void init(unsigned int inputDim, unsigned  int outputDim, 
-		    double unit_map = 0.0, RandGen* randGen = 0);
+  virtual void init(unsigned int inputDim, unsigned  int outputDim,
+                    double unit_map = 0.0, RandGen* randGen = 0);
 
   virtual const matrix::Matrix process (const matrix::Matrix& input);
 
@@ -62,18 +62,18 @@ public:
       learnRateFactor can be given to modify eps for this learning step
       (process should be called before)
   */
-  virtual const matrix::Matrix learn (const matrix::Matrix& input, 
-				      const matrix::Matrix& nom_output, 
-				      double learnRateFactor = 1);
+  virtual const matrix::Matrix learn (const matrix::Matrix& input,
+                                      const matrix::Matrix& nom_output,
+                                      double learnRateFactor = 1);
 
   virtual void damp(double damping) { return;}
 
   virtual unsigned int getInputDim() const { return weights[0].getM();}
   virtual unsigned int getOutputDim() const  { return weights.size();}
 
-    
+
   virtual bool store(FILE* f) const;
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   virtual void printWeights(FILE* f) const;
   virtual void printCellsizes(FILE* f) const;
@@ -85,7 +85,7 @@ protected:
   /// activation function (rbf)
   static double activationfunction(double rdfsize, double d);
 
-public: 
+public:
   double eps; ///< initial learning rate for weight update
 private:
 
@@ -96,7 +96,7 @@ private:
   double lambda; ///< initial neighbourhood size
   int maxTime;   ///< maximal time for annealing
   int t;         ///< time used for annealing
-  
+
   bool initialised;
 };
 

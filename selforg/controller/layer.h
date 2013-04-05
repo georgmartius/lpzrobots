@@ -30,26 +30,26 @@
 
 class Layer : public Storeable {
 public:
-  /** constructor for Layer. 
+  /** constructor for Layer.
       The derivative and inverse of activation function is derived automatically.
       @param size number neurons
       @param factor_bias size of bias neuron , if 0 no bias is used
-      @param actfun activation function. see also FeedForwardNN     
+      @param actfun activation function. see also FeedForwardNN
   */
-  Layer(int size, double factor_bias=0.1, 
-	ActivationFunction actfun = FeedForwardNN::linear);
+  Layer(int size, double factor_bias=0.1,
+        ActivationFunction actfun = FeedForwardNN::linear);
 
-  /** obsolete, use the other constructor for Layer. 
+  /** obsolete, use the other constructor for Layer.
       @param size number neurons
       @param factor_bias size of bias neuron , if 0 no bias is used
       @param actfun activation function. see also FeedForwardNN
       @param dactfun derivative of activation function (should be consistent with actfun)
   */
-  Layer(int size, double factor_bias, 
-	ActivationFunction actfun, 
-	ActivationFunction dactfun) {
+  Layer(int size, double factor_bias,
+        ActivationFunction actfun,
+        ActivationFunction dactfun) {
     fprintf(stderr, "%s %s\n", "Layer::Layer(): this contructor is obsolete! ",
-	    "Please use the one without dactfun now!\n");
+            "Please use the one without dactfun now!\n");
     exit(1);
   }
 
@@ -58,14 +58,14 @@ public:
   bool store(FILE* f) const;
   /// restores the layer binary from file stream
   bool restore(FILE* f);
-  
+
   /// sets the activation function of the layer
   void setActFun(ActivationFunction actfun);
 
   int size;
   double factor_bias;
   ActivationFunction actfun;  ///< callback activation function
-  ActivationFunction dactfun; ///< first derivative of the activation function  
+  ActivationFunction dactfun; ///< first derivative of the activation function
   InvActivationFunction invactfun; ///< inversion of activation function
 
   // prints the Layer data-structure

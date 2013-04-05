@@ -46,14 +46,14 @@ namespace lpzrobots {
     }
     virtual ~Joint();
     /** initialises (and creates) the joint. If visual is true then the joints is
-	also drawn. visualSize is the size of the visual representation.
+        also drawn. visualSize is the size of the visual representation.
         If ignoreColl is true then the pair of connected parts is ignored
         at collision handling.
-	The member variable odeHandle is set to the given handle.
-	(To be overloaded, but this init should be called always from children!)
+        The member variable odeHandle is set to the given handle.
+        (To be overloaded, but this init should be called always from children!)
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2,
+                      bool withVisual = true, double visualSize = 0.2,
                       bool ignoreColl = true);
 
     /// should syncronise the Ode stuff and the OSG notes (if any)
@@ -82,7 +82,7 @@ namespace lpzrobots {
     /// stores the positions of all Axes into sensorarray and returns the number of written entries
     virtual int getPositions(double* sensorarray) const { return 0; }
     /** stores the position rates of all Axes into sensorarray and
-	returns the number of written entries
+        returns the number of written entries
      */
     virtual int getPositionRates(double* sensorarray) const { return 0; }
 
@@ -128,7 +128,7 @@ namespace lpzrobots {
   class TwoAxisJoint : public OneAxisJoint {
   public:
     TwoAxisJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor, const Axis axis1,
-		 const Axis axis2 )
+                 const Axis axis2 )
       : OneAxisJoint(part1, part2, anchor, axis1), axis2(axis2) {}
     virtual Axis getAxis(int n) const { if (n==0) return axis1; else return axis2;}
     virtual Axis getAxis2() const { return axis2; };
@@ -165,7 +165,7 @@ namespace lpzrobots {
     /** initialises (and creates) the joint.
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2,
+                      bool withVisual = true, double visualSize = 0.2,
                       bool ignoreColl = true);
 
     virtual void update();
@@ -183,15 +183,15 @@ namespace lpzrobots {
   class HingeJoint : public OneAxisJoint {
   public:
     HingeJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor,
-		const Axis& axis1);
+                const Axis& axis1);
 
     virtual ~HingeJoint();
 
     /** initialises (and creates) the joint. If visual is true then the axis of the joints is
-	also drawn as a slim cylinder. visualSize is the length of the cylinder.
+        also drawn as a slim cylinder. visualSize is the length of the cylinder.
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2,
+                      bool withVisual = true, double visualSize = 0.2,
                       bool ignoreColl = true);
 
     virtual void update();
@@ -211,15 +211,15 @@ namespace lpzrobots {
   class Hinge2Joint : public TwoAxisJoint {
   public:
     Hinge2Joint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor,
-		const Axis& axis1, const Axis& axis2);
+                const Axis& axis1, const Axis& axis2);
 
     virtual ~Hinge2Joint();
 
     /** initialises (and creates) the joint. If visual is true then axis2 of the joints is
-	also drawn as a slim cylinder. visualSize is the length of the cylinder.
+        also drawn as a slim cylinder. visualSize is the length of the cylinder.
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2,
+                      bool withVisual = true, double visualSize = 0.2,
                       bool ignoreColl = true);
 
     virtual void update();
@@ -243,15 +243,15 @@ namespace lpzrobots {
   class UniversalJoint : public TwoAxisJoint {
   public:
     UniversalJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor,
-		const Axis& axis1, const Axis& axis2);
+                const Axis& axis1, const Axis& axis2);
 
     virtual ~UniversalJoint();
 
     /** initialises (and creates) the joint. If visual is true then axix1 and axis2 of the joints is
-	also drawn as a slim cylinder. visualSize is the length of the cylinder.
+        also drawn as a slim cylinder. visualSize is the length of the cylinder.
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2,
+                      bool withVisual = true, double visualSize = 0.2,
                       bool ignoreColl = true);
 
     virtual void update();
@@ -281,10 +281,10 @@ namespace lpzrobots {
     virtual ~BallJoint();
 
     /** initialises (and creates) the joint.
-	If visual is true then ball is drawn as a sphere with radius of visualSize.
+        If visual is true then ball is drawn as a sphere with radius of visualSize.
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.2,
+                      bool withVisual = true, double visualSize = 0.2,
                       bool ignoreColl = true);
 
     virtual void update();
@@ -303,16 +303,16 @@ namespace lpzrobots {
   class SliderJoint : public OneAxisJoint {
   public:
     SliderJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor,
-		const Axis& axis1);
+                const Axis& axis1);
 
     virtual ~SliderJoint();
 
     /** initialises (and creates) the joint. If visual is true then the axis of the joints is
-	also drawn as a slim cylinder. VisualSize is added to the lenght of the slider and is used
-	for the length of the cylinder. The radius is visualSize/10
+        also drawn as a slim cylinder. VisualSize is added to the lenght of the slider and is used
+        for the length of the cylinder. The radius is visualSize/10
     */
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual = true, double visualSize = 0.1,
+                      bool withVisual = true, double visualSize = 0.1,
                       bool ignoreColl = true);
 
     virtual void update();

@@ -43,21 +43,21 @@ public:
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_motors; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
 
   /***** STOREABLE ****/
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
 
   virtual matrix::Matrix getA();
@@ -66,7 +66,7 @@ public:
   virtual matrix::Matrix getC();
   /* direct setter function for C (unsafe!) */
   virtual void setC(const matrix::Matrix& C);
-  
+
 protected:
   unsigned short number_sensors;
   unsigned short number_motors;
@@ -90,7 +90,7 @@ protected:
   paramint s4avg;          // # of steps the sensors are averaged (1 means no averaging)
   paramint s4delay;        // # of steps the motor values are delayed (1 means no delay)
 
-  
+
   /// learn values model and controller (A,b,C,h)
   virtual void learn(const matrix::Matrix& x, const matrix::Matrix& y);
 
@@ -108,7 +108,7 @@ protected:
   };
 
   /// function that clips the second argument to the interval [-first,first]
-  static double clip(double r,double x){  
+  static double clip(double r,double x){
     return min(max(x,-r),r);
   }
 

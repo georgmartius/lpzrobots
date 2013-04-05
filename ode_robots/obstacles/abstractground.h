@@ -38,7 +38,7 @@ namespace lpzrobots {
 public:
 
     AbstractGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		   bool createGround, double groundLength, double groundWidth, double wallThickness);
+                   bool createGround, double groundLength, double groundWidth, double wallThickness);
 
     virtual ~AbstractGround();
 

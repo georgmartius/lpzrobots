@@ -29,16 +29,16 @@ namespace lpzrobots {
 */
 class Spring : public OneAxisServo{
 public:
-	Spring(OneAxisJoint* joint, double _min, double _max,
-			 double power, double damp=0.2, double integration=0.0,
-			 double maxVel=10.0, double jointLimit = 1.0)
+        Spring(OneAxisJoint* joint, double _min, double _max,
+                         double power, double damp=0.2, double integration=0.0,
+                         double maxVel=10.0, double jointLimit = 1.0)
      : OneAxisServo(joint, _min, _max, power, damp, integration, maxVel, jointLimit, false){
-	}
-	virtual ~Spring(){}
+        }
+        virtual ~Spring(){}
 
     /** sets the set point of the servo.
-	Position is relative to initial position of the two parts
-	connected by the spring
+        Position is relative to initial position of the two parts
+        connected by the spring
     */
     virtual void set(double pos){
         pid.setTargetPosition(pos);

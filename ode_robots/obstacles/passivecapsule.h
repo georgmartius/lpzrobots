@@ -44,16 +44,16 @@ class PassiveCapsule : public AbstractObstacle{
 
 
  public:
-  
+
   /**
    * Constructor
    */
-  PassiveCapsule(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		 float radius=1.0, float height=1.0, double mass = 1.0):
-    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), radius(radius), height(height), mass(mass) {       
+  PassiveCapsule(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                 float radius=1.0, float height=1.0, double mass = 1.0):
+    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), radius(radius), height(height), mass(mass) {
     capsule = new Capsule(radius,height);
-    obst.push_back(capsule); 
-    obstacle_exists=false;    
+    obst.push_back(capsule);
+    obstacle_exists=false;
   };
 
   ~PassiveCapsule(){
@@ -69,7 +69,7 @@ class PassiveCapsule : public AbstractObstacle{
   virtual void setTexture(const std::string& filename){
     if(capsule) capsule->getOSGPrimitive()->setTexture(filename);
   }
-  
+
   virtual void setPose(const osg::Matrix& pose){
     this->pose = osg::Matrix::translate(0,0,height*0.5f+radius) * pose;
     if (!obstacle_exists) {
