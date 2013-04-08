@@ -46,6 +46,7 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
+bool track=false; // whether to track the robot (set by cmdline parameter)
 
 class ThisSim : public Simulation {
 public:
@@ -91,7 +92,7 @@ public:
     conf.diameter=1.0;
     conf.pendularrange= 0.35;
     robot = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)),
-                                       conf, "Robot", 0.2);
+                                       conf, "Spherical", 0.2);
     (robot)->place ( Pos( 0 , 0 , 0.1 ));
 
     // Selforg - Controller (Note there are several: use Sos or Sox now)
@@ -104,7 +105,7 @@ public:
     controller->setParam("rootE",3);    // model and contoller learn with square rooted error
     global.configs.push_back ( controller );
 
-    //  SineController (produces just sine waves)
+    // SineController (produces just sine waves)
     // controller = new SineController();
     // controller->setParam("sinerate", 40);
     // controller->setParam("phaseshift", 0.0);
@@ -117,8 +118,14 @@ public:
     // push agent in globel list of agents
     OdeAgent* agent = new OdeAgent ( global );
     agent->init ( controller , robot , wiring );
-    // the following line will enable a position tracking of the robot, which is written into a file
-    // agent->setTrackOptions(TrackRobot(true, false, false, "Sphere_zaxis", 50));
+    if(track){
+      // the following line will enables a position tracking of the robot, which is written into a file
+      // you can customize what is logged with the TrackRobotConf
+      TrackRobotConf tc = TrackRobot::getDefaultConf();
+      tc.scene = "zaxis";
+      tc.displayTrace = true;
+      agent->setTrackOptions(TrackRobot(tc));
+    }
     global.agents.push_back ( agent );
   }
 
@@ -144,10 +151,14 @@ public:
     au.addKeyboardMouseBinding("Simulation: t","Spin robot clockwise");
   }
 
+  virtual void usage() const {
+    printf("\t-track\tenable tracking of the position of the robot\n");
+  }
 };
 
 int main (int argc, char **argv)
 {
   ThisSim sim;
+  track = sim.contains(argv, argc, "-track"); // check whether cmd-line contains -track
   return sim.run(argc, argv) ? 0 : 1;
 }
