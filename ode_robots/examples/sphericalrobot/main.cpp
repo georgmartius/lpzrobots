@@ -50,15 +50,15 @@ using namespace lpzrobots;
 class ThisSim : public Simulation {
 public:
   AbstractController* controller;
-  Sphererobot3Masses* sphere1;
+  OdeRobot* robot;
 
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
     // initialization
-    // - set global noise to 0.1
-    global.odeConfig.setParam("noise",0.1);
+    // - set global noise sensor to 0.05
+    global.odeConfig.setParam("noise",0.05);
     //  global.odeConfig.setParam("gravity", 0); // no gravity
 
     // use Playground as boundary:
@@ -67,7 +67,7 @@ public:
     // - setting initial position of the playground: setPosition(osg::Vec3(double x, double y, double z))
     // - push playground to the global list of obstacles (global list comes from simulation.cpp)
     OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 1), 12);
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    playground->setPosition(osg::Vec3(0,0,0)); // place and create playground
     global.obstacles.push_back(playground);
 
     // add passive spheres as obstacles
@@ -90,11 +90,11 @@ public:
     conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
     conf.diameter=1.0;
     conf.pendularrange= 0.35;
-    sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)),
-                                       conf, "Sphere1", 0.2);
-    ((OdeRobot*)sphere1)->place ( Pos( 0 , 0 , 0.1 ));
+    robot = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)),
+                                       conf, "Robot", 0.2);
+    (robot)->place ( Pos( 0 , 0 , 0.1 ));
 
-    // Selforg - Controller
+    // Selforg - Controller (Note there are several: use Sos or Sox now)
     // create pointer to controller
     // set some parameters
     // push controller in global list of configurables
@@ -116,7 +116,7 @@ public:
     // initialize pointer with controller, robot and wiring
     // push agent in globel list of agents
     OdeAgent* agent = new OdeAgent ( global );
-    agent->init ( controller , sphere1 , wiring );
+    agent->init ( controller , robot , wiring );
     // the following line will enable a position tracking of the robot, which is written into a file
     // agent->setTrackOptions(TrackRobot(true, false, false, "Sphere_zaxis", 50));
     global.agents.push_back ( agent );
@@ -130,16 +130,8 @@ public:
                        int key, bool down) {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key ) {
-      case 'X' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , 30 ,0 , 0 ); break;
-      case 'x' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
-      case 'T' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 0 , 3 ); break;
-      case 't' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 0 , -3 ); break;
-//       case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")*1.2);
-//         printf("sineRate : %g\n", controller->getParam("sineRate"));
-//       break;
-//       case 's' : controller->setParam("sineRate", controller->getParam("sineRate")/1.2);
-//         printf("sineRate : %g\n", controller->getParam("sineRate"));
-//         break;
+      case 'T' : robot->getMainPrimitive()->applyTorque(0 , 0 , 3 ); break;
+      case 't' : robot->getMainPrimitive()->applyTorque(0 , 0 , -3 ); break;
       default:
         return false;
       }
@@ -148,12 +140,8 @@ public:
   }
 
   virtual void bindingDescription(osg::ApplicationUsage & au) const {
-    au.addKeyboardMouseBinding("Simulation: X","Push robot to right (positive x)");
-    au.addKeyboardMouseBinding("Simulation: x","Push robot to left (negative x)");
     au.addKeyboardMouseBinding("Simulation: T","Spin robot counter-clockwise");
     au.addKeyboardMouseBinding("Simulation: t","Spin robot clockwise");
-    //    au.addKeyboardMouseBinding("Controller: S","Increase sine frequency");
-    //    au.addKeyboardMouseBinding("Controller: s","Decrease sine frequency");
   }
 
 };
@@ -163,5 +151,3 @@ int main (int argc, char **argv)
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 }
-
-
