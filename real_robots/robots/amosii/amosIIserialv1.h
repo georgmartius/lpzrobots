@@ -189,6 +189,12 @@ private:
 	  //Poti sensor
 	  BZ_cs_real=29,
 
+	  // Ultrasonic reflex sensors at front, middle and rear legs (AMOSIIv1)
+	  R0_us_real = 8,
+	  R1_us_real = 7,
+	  L0_us_real = 4,
+	  L1_us_real = 6,
+
   };
 
 };

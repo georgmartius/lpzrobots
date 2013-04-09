@@ -169,6 +169,13 @@ int AmosIISerialV1::getSensors(sensor* sensors, int sensornumber){
 	//Poti sensor (group 7)
 	sensors[BZ_acs]=potValue[BZ_cs_real];
 
+	// Ultrasonic reflex sensors at front, middle and rear legs (AMOSIIv1)
+	sensors[R0_us]=potValue[R0_us_real];
+	sensors[R1_us]=potValue[R1_us_real];
+	sensors[L0_us]=potValue[L0_us_real];
+	sensors[L1_us]=potValue[L1_us_real];
+
+
 	//Conversion to positive range [0,..,255]
 	for(int i=0; i<=AMOSII_SENSOR_MAX;i++){
 		if (sensors[i] < 0){
@@ -204,6 +211,36 @@ void AmosIISerialV1::processSensors(sensor* psensors){
 	psensors[L0_fs]= ((psensors[L0_fs]-28)/(196-28)); //[min = 28 (off ground), max = 196 (on ground)]
 	psensors[L1_fs]= ((psensors[L1_fs]-27)/(195-27)); //[min = 27 (off ground), max = 195 (on ground)]
 	psensors[L2_fs]= ((psensors[L2_fs]-20)/(200-20)); //[min = 20 (off ground), max = 200 (on ground)]
+
+	if(psensors[R0_fs]>1)
+		psensors[R0_fs] = 1;
+	if(psensors[R0_fs]<0)
+		psensors[R0_fs] = 0;
+
+	if(psensors[R1_fs]>1)
+		psensors[R1_fs] = 1;
+	if(psensors[R1_fs]<0)
+		psensors[R1_fs] = 0;
+
+	if(psensors[R2_fs]>1)
+		psensors[R2_fs] = 1;
+	if(psensors[R2_fs]<0)
+		psensors[R2_fs] = 0;
+
+	if(psensors[L0_fs]>1)
+		psensors[L0_fs] = 1;
+	if(psensors[L0_fs]<0)
+		psensors[L0_fs] = 0;
+
+	if(psensors[L1_fs]>1)
+		psensors[L1_fs] = 1;
+	if(psensors[L1_fs]<0)
+		psensors[L1_fs] = 0;
+
+	if(psensors[L2_fs]>1)
+		psensors[L2_fs] = 1;
+	if(psensors[L2_fs]<0)
+		psensors[L2_fs] = 0;
 
 	//Need to ADJUST again 12.04.2012 max min range 180
 	//US sensor (US, Group 2) // UNDK30U6112 range = 6 cm-30cm : Scaling to 0 (not detect),...,1 (detect obstacles)
