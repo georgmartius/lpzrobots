@@ -103,7 +103,7 @@ namespace lpzrobots{
       sensorCount+=100;
     }
     if(conf.CAM_STATE){
-      conf.CAM_TYPE?camPixNum = conf.CAM_WIDTH*conf.CAM_HEIGHT*2:camPixNum = conf.CAM_WIDTH*conf.CAM_HEIGHT;
+      conf.CAM_TYPE?camPixNum = conf.CAM_WIDTH*conf.CAM_HEIGHT*3:camPixNum = conf.CAM_WIDTH*conf.CAM_HEIGHT;
       numOfSensor.CAM=sensorCount;
       sensorCount+=camPixNum;
     }
@@ -197,7 +197,7 @@ namespace lpzrobots{
   
   int EPuckBluetooth::getRecommendConnectionSpeed(EPuckConf config){
     int pixNum=0;
-    config.CAM_TYPE?pixNum = config.CAM_WIDTH*config.CAM_HEIGHT*2:pixNum = config.CAM_WIDTH*config.CAM_HEIGHT;
+    config.CAM_TYPE?pixNum = config.CAM_WIDTH*config.CAM_HEIGHT*3:pixNum = config.CAM_WIDTH*config.CAM_HEIGHT;
     
     if(config.SENSOR_STATE && config.CAM_STATE && config.MIC_STATE) return 2;
     if(config.SENSOR_STATE && !config.CAM_STATE && config.MIC_STATE) return 8;
