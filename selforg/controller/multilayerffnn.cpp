@@ -154,20 +154,13 @@ const Matrix MultiLayerFFNN::inversion(const matrix::Matrix& input, const matrix
 
     deltas[i] = Matrix::map2(layers[i].invactfun, zs[i], xsis[i+1]);
     int dim =  i<0 ?  ys[i-1].getM() : input.getM();
-    // for pseudo inversion we want to invert the smaller matrix (WW^T or W^TW)
-    if(((signed)deltas[i].getM()) > dim){
-      xsis[i] = (weights[i].multTM().pluslambdaI(0.01)^(-1))*(weights[i]^T) * deltas[i];
-    }else{
-      xsis[i] = (weights[i]^T)*(weights[i].multMT().pluslambdaI(0.01)^(-1)) * deltas[i];
-    }
-  }
+	  // for pseudo inversion we want to invert the smaller matrix (WW^T or W^TW)
+      xsis[i] = weights[i].pseudoInverse()*(weights[i]^T) * deltas[i];
+	}
   if(useBypass){    // use the other half of the error on the bypass
     const Matrix& d = Matrix::map2(layers[layernum-1].invactfun, zs[layernum-1], xsi*0.5);
-    if(d.getM() > input.getM()){
-      xsis[0]+= (bypassWeights.multTM().pluslambdaI(0.01)^(-1))*(bypassWeights^T) * d;
-    }else{
-      xsis[0]+= (bypassWeights^T)*(bypassWeights.multMT().pluslambdaI(0.01)^(-1)) * d;
-    }
+		xsis[0]+= (bypassWeights.pseudoInverse())*(bypassWeights^T) * d;
+
   }
   return xsis[0];
 }
@@ -354,7 +347,7 @@ Inspectable::iconnectionlist MultiLayerFFNN::getStructuralConnections() const{
 }
 
 std::vector<ActivationFunction> MultiLayerFFNN::setActivationFunction(ActivationFunction actfun) {
-  vector<ActivationFunction> actfuns;    
+  vector<ActivationFunction> actfuns;
   FOREACH (vector<Layer>,layers,l) {
     actfuns.push_back((*l).actfun);
     (*l).setActFun(actfun);

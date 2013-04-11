@@ -131,8 +131,8 @@ CPPFILESNoDot := $(subst ./,,$(CPPFILES))
 HFILESNoDot   := $(subst ./,,$(HFILES))
 ##!'tags'           		creates tags file for emacs
 tags:
-	@etags -l c++ $(HFILESNoDot) $(CPPFILESNoDot)
-	@etags -l c++ -a -o ../TAGS ${HFILESNoDot} ${CPPFILESNoDot}
+	@etags --language-force="C++" $(HFILESNoDot) $(CPPFILESNoDot)
+	@etags --language-force="C++" -a -o ../TAGS ${HFILESNoDot} ${CPPFILESNoDot}
 
 ##!'search'           		ask for a search string and scans all tex files
 search:

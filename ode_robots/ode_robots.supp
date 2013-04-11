@@ -96,6 +96,13 @@
    obj:/usr/X11R6/lib/libXcursor.so*
 }
 
+# libdricore
+{
+   libdricore9_Cond
+   Memcheck:Cond
+   obj:/usr/lib/*/libdricore*
+}
+
 
 # ode
 {
