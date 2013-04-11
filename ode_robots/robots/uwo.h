@@ -25,6 +25,7 @@
 #define __UWO_H
 
 #include "oderobot.h"
+#include "oneaxisservo.h"
 #include "twoaxisservo.h"
 
 namespace lpzrobots {
@@ -38,11 +39,11 @@ namespace lpzrobots {
     double legLength;  ///< length of the legs in units of size
     int    legNumber;  ///<  number of snake elements
     bool   radialLegs; ///< joint orientation is radial instead of cartesian
+    bool   useSliders; ///< use sliders at legs
     double mass;       ///< chassis mass
     double relLegmass; ///< relative overall leg mass
     double jointLimit; ///< angle range for legs
     double motorPower; ///< maximal force for motors
-    double frictionGround; ///< friction with the ground
   } UwoConf;
 
 
@@ -70,11 +71,11 @@ namespace lpzrobots {
       c.legNumber  = 8;
       c.legLength  = 0.3;
       c.mass       = 1;
+      c.useSliders = true;
       c.relLegmass = 1;
       c.motorPower = 0.5;
       c.jointLimit = M_PI/12; // +- 15 degree
       c.radialLegs = true;
-      c.frictionGround = 1;
       return c;
     }
 
@@ -104,15 +105,11 @@ namespace lpzrobots {
 
     /** returns number of sensors
      */
-    virtual int getSensorNumber(){
-      return conf.legNumber*2;
-    };
+    virtual int getSensorNumber();
 
     /** returns number of motors
      */
-    virtual int getMotorNumber(){
-      return conf.legNumber*2;
-    };
+    virtual int getMotorNumber();
 
     /** this function is called in each timestep. It should perform robot-internal checks,
         like space-internal collision detection, sensor resets/update etc.
@@ -142,7 +139,8 @@ namespace lpzrobots {
     bool created;      // true if robot was created
 
 
-    std::vector <UniversalServo*> servos; // motors
+    std::vector <TwoAxisServo*> servos; // motors
+    std::vector <OneAxisServo*> sliderservos; // motors
 
   };
 

@@ -57,17 +57,28 @@ namespace lpzrobots {
   };
 
 
+  int Uwo::getMotorNumber(){
+    return servos.size()*2 + sliderservos.size();
+  };
+
+  int Uwo::getSensorNumber(){
+    return servos.size()*2 + sliderservos.size();
+  };
+
   /** sets actual motorcommands
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
   void Uwo::setMotors(const motor* motors, int motornumber){
     assert(created); // robot must exist
-
-    int len = min(motornumber, getMotorNumber())/2;
     // controller output as torques
-    for (int i = 0; i < len; i++){
-      servos[i]->set(motors[2*i], motors[2*i+1]);
+    int n=0;
+    FOREACH(vector <TwoAxisServo*>, servos, s){
+      (*s)->set(motors[n],motors[n+1]);
+      n+=2;
+    }
+    FOREACH(vector <OneAxisServo*>, sliderservos, s){
+      (*s)->set(motors[n++]);
     }
 
   };
@@ -79,14 +90,15 @@ namespace lpzrobots {
   */
   int Uwo::getSensors(sensor* sensors, int sensornumber){
     assert(created);
-    int len = min(sensornumber, getSensorNumber())/2;
-
-    for (int n = 0; n < len; n++) {
-      sensors[2*n]   = servos[n]->get1();
-      sensors[2*n+1] = servos[n]->get2();
+    int n=0;
+    FOREACHC(vector <TwoAxisServo*>, servos, s){
+      sensors[n++]   = (*s)->get1();
+      sensors[n++]   = (*s)->get2();
     }
-
-    return 2*len;
+    FOREACHC(vector <OneAxisServo*>, sliderservos, s){
+      sensors[n++]   = (*s)->get();
+    }
+    return n;
   };
 
 
@@ -152,18 +164,30 @@ namespace lpzrobots {
         j = new UniversalJoint(trunk, p, pos * pose, Axis(0,1,0)* pose, Axis(1,0,0)* pose);
       }
       j->init(odeHandle, osgHandle, true, conf.legLength/5 * 1.1);
-
-      // setting stops at universal joints
-      j->setParam(dParamLoStop, -conf.jointLimit*1.5);
-      j->setParam(dParamHiStop,  conf.jointLimit*1.5);
-      j->setParam(dParamLoStop2, -conf.jointLimit*1.5);
-      j->setParam(dParamHiStop2,  conf.jointLimit*1.5);
       joints.push_back(j);
-      UniversalServo* servo =  new UniversalServo(j, -conf.jointLimit, conf.jointLimit,
-                                                  conf.motorPower,
-                                                  -conf.jointLimit, conf.jointLimit,
-                                                  conf.motorPower);
+      // setting stops at universal joints
+      TwoAxisServo* servo =  new TwoAxisServoVel(odeHandle,
+                                                 j, -conf.jointLimit, conf.jointLimit,
+                                                 conf.motorPower,
+                                                 -conf.jointLimit, conf.jointLimit,
+                                                 conf.motorPower);
       servos.push_back(servo);
+
+      if(conf.useSliders){
+        Primitive* f;
+        f = new Sphere(conf.legLength/8);
+        f->init(odeHandle, legmass/8, osgHandle);
+        Pos pos = Pos(0,0,-(conf.legLength/2+0.2));
+        f->setPose( osg::Matrix::translate(pos) * p->getPose());
+        objects.push_back(f);
+        SliderJoint* sj = new SliderJoint(p, f, pos * p->getPose(), Axis(0,0,1)* p->getPose());
+        sj->init(odeHandle, osgHandle, true, 0.2);
+        joints.push_back(sj);
+        OneAxisServoVel* sliderservo =  new OneAxisServoVel(odeHandle,
+                                                            sj, -0.1, 0.1,
+                                                            conf.motorPower);
+        sliderservos.push_back(sliderservo);
+      }
 
     }
 
@@ -175,10 +199,14 @@ namespace lpzrobots {
    */
   void Uwo::destroy(){
     if (created){
-      for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
+      FOREACH(vector<UniversalServo*>, servos, i){
+        if(*i) delete *i;
+      }
+      FOREACH(vector<OneAxisServo*>, sliderservos, i){
         if(*i) delete *i;
       }
       servos.clear();
+      sliderservo.clear();
       cleanup();
       odeHandle.deleteSpace();
     }
@@ -190,6 +218,9 @@ namespace lpzrobots {
   void  Uwo::notifyOnChange(const paramkey& key){
     for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
       if(*i) (*i)->setPower(conf.motorPower, conf.motorPower);
+    }
+    for (vector<OneAxisServo*>::iterator i = sliderservos.begin(); i!= sliderservos.end(); i++){
+      if(*i) (*i)->setPower(conf.motorPower);
     }
   }
 

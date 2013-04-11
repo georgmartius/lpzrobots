@@ -136,8 +136,10 @@ CPPFILESNoDot := $(subst ./,,$(CPPFILES))
 HFILESNoDot   := $(subst ./,,$(HFILES))
 ##!'tags'           		creates tags file for emacs
 tags:
-	@etags --language-force="C++" $(HFILESNoDot) $(CPPFILESNoDot)
-	@etags --language-force="C++" -a -o ../TAGS ${HFILESNoDot} ${CPPFILESNoDot}
+#	@etags --language-force="C++" $(HFILESNoDot) $(CPPFILESNoDot)
+#	@etags --language-force="C++" -a -o ../TAGS ${HFILESNoDot} ${CPPFILESNoDot}
+	@etags --language="c++" $(HFILESNoDot) $(CPPFILESNoDot)
+	@etags --language="c++" -a -o ../TAGS ${HFILESNoDot} ${CPPFILESNoDot}
 
 
 
