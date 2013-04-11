@@ -37,7 +37,7 @@ DegreeSegment::DegreeSegment(const Position& p,const double& angle)
 /**
  * Constructor
  */
-DegreeSegment::DegreeSegment(const Matrix& pose) 
+DegreeSegment::DegreeSegment(const Matrix& pose)
   : AbstractTrackSection(pose) { // GOBAL
   setProperties();
 };
@@ -87,7 +87,7 @@ Position DegreeSegment::getLocalCoordinates(double radius, double alpha) {
 
 
 Position DegreeSegment::getGlobalCoordinates(double radius, double alpha) {
-  return transformToGlobalCoord(getLocalCoordinates(radius, alpha));  
+  return transformToGlobalCoord(getLocalCoordinates(radius, alpha));
 }
 
 
@@ -134,12 +134,12 @@ bool DegreeSegment::isInside(const Position& p) { // must be inner coordinates
   else return 1;
 }
 
-double DegreeSegment::getSectionIdValue(const Position& p) { 
+double DegreeSegment::getSectionIdValue(const Position& p) {
   Position local = transformToLocalCoord(p);
   Position p1;
   if (left==1)
     p1 = local + Position(0,-radius,0);
-  else  
+  else
     p1 = local + Position(0,radius,0);
 
   p1.z=0;
@@ -150,7 +150,7 @@ double DegreeSegment::getSectionIdValue(const Position& p) {
     alpha = getAngle(p1, Position(0.0f,-radius,0.0f));
     if ((alpha>=0.0f) && (alpha <=angle)) {
       return (alpha/angle)*getLength();
-    } 
+    }
   } else {
     alpha = getAngle(p1, Position(0.0f,radius,0.0f));
     if ((alpha>=0.0f) && (alpha <= -angle)) {
@@ -160,12 +160,12 @@ double DegreeSegment::getSectionIdValue(const Position& p) {
   return -1;
 }
 
-double DegreeSegment::getWidthIdValue(const Position& p) { 
+double DegreeSegment::getWidthIdValue(const Position& p) {
   Position local = transformToLocalCoord(p);
   Position p1;
   if (left==1)
     p1 = local + Position(0,-radius,0);
-  else  
+  else
     p1 = local + Position(0,radius,0);
 
   p1.z=0;
@@ -205,7 +205,7 @@ double DegreeSegment::getWidthIdValue(const Position& p) {
    * draws the obstacle (4 boxes for the playground)
    */
   void DegreeSegment::draw(){
-    dsSetTexture (DS_NONE);    
+    dsSetTexture (DS_NONE);
     dsSetColor (color.r, color.g, color.b);
     dVector3 dimensions;
 
@@ -216,19 +216,19 @@ double DegreeSegment::getWidthIdValue(const Position& p) {
 
 
         if (show_aabb) {
-	// draw the bounding box for this geom
-	dReal aabb[6];
-	dGeomGetAABB ((*it),aabb);
-	dVector3 bbpos;
-	for (int i=0; i<3; i++) bbpos[i] = 0.5*(aabb[i*2] + aabb[i*2+1]);
-	dVector3 bbsides;
-	for (int i=0; i<3; i++) bbsides[i] = aabb[i*2+1] - aabb[i*2];
-	dMatrix3 RI;
-	dRSetIdentity (RI);
-	dsSetColorAlpha (1,0,0,0.3);
-	dsDrawBox (bbpos,RI,bbsides);
-	}
-      
+        // draw the bounding box for this geom
+        dReal aabb[6];
+        dGeomGetAABB ((*it),aabb);
+        dVector3 bbpos;
+        for (int i=0; i<3; i++) bbpos[i] = 0.5*(aabb[i*2] + aabb[i*2+1]);
+        dVector3 bbsides;
+        for (int i=0; i<3; i++) bbsides[i] = aabb[i*2+1] - aabb[i*2];
+        dMatrix3 RI;
+        dRSetIdentity (RI);
+        dsSetColorAlpha (1,0,0,0.3);
+        dsDrawBox (bbpos,RI,bbsides);
+        }
+
     }
     dsSetColor (0.0f, 0.0f, 1.0f);
     for(list<dGeomID>::iterator it = outerWalls.begin(); it!= outerWalls.end(); ++it) {
@@ -237,18 +237,18 @@ double DegreeSegment::getWidthIdValue(const Position& p) {
       dsDrawBox ( dGeomGetPosition ( (*it) ) , dGeomGetRotation ( (*it) ) , dimensions );
 
         if (show_aabb) {
-	// draw the bounding box for this geom
-	dReal aabb[6];
-	dGeomGetAABB ((*it),aabb);
-	dVector3 bbpos;
-	for (int i=0; i<3; i++) bbpos[i] = 0.5*(aabb[i*2] + aabb[i*2+1]);
-	dVector3 bbsides;
-	for (int i=0; i<3; i++) bbsides[i] = aabb[i*2+1] - aabb[i*2];
-	dMatrix3 RI;
-	dRSetIdentity (RI);
-	dsSetColorAlpha (1,0,0,0.3);
-	dsDrawBox (bbpos,RI,bbsides);
-	}
+        // draw the bounding box for this geom
+        dReal aabb[6];
+        dGeomGetAABB ((*it),aabb);
+        dVector3 bbpos;
+        for (int i=0; i<3; i++) bbpos[i] = 0.5*(aabb[i*2] + aabb[i*2+1]);
+        dVector3 bbsides;
+        for (int i=0; i<3; i++) bbsides[i] = aabb[i*2+1] - aabb[i*2];
+        dMatrix3 RI;
+        dRSetIdentity (RI);
+        dsSetColorAlpha (1,0,0,0.3);
+        dsDrawBox (bbpos,RI,bbsides);
+        }
 
     }
  };

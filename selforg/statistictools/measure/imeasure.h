@@ -42,21 +42,21 @@
 class IMeasure {
 public:
 
-	virtual ~IMeasure() {};
+        virtual ~IMeasure() {};
 
-	virtual void step() = 0;
+        virtual void step() = 0;
 
-	virtual std::string getName() const = 0;
+        virtual std::string getName() const = 0;
 
-	virtual double getValue() const = 0;
+        virtual double getValue() const = 0;
 
-	virtual double& getValueAddress()  = 0;
+        virtual double& getValueAddress()  = 0;
 
-	virtual void setStepSize(int newStepSize) = 0;
+        virtual void setStepSize(int newStepSize) = 0;
 
-	virtual int getStepSize() const = 0;
+        virtual int getStepSize() const = 0;
 
-	virtual long getActualStep() const = 0;
+        virtual long getActualStep() const = 0;
 };
 
 #endif /* IMEASURE_H_ */

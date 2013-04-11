@@ -4,8 +4,6 @@
  *  Created on: May 2, 2011
  *      Author: poramate
  *
- *  Small adaptations and moved to oderobots/selforg/wirings
- *  	by fhesse
  */
 
 #ifndef AMOSIISENSORMOTORDEFINITION_H_
@@ -208,8 +206,13 @@ enum AmosIISensorNames{
         BY_pos = 116, //(sideward walking direction)
         BZ_pos = 117, //(vertical direction)
 
+        //Body orientation sensors (only simulation), comparable to compass of the real robot
+        BX_ori = 118, // around x axis
+        BY_ori = 119, // around y axis
+        BZ_ori = 120, // around z axis
+
         //Changing according to the maximum sensor number
-        AMOSII_SENSOR_MAX = 118,
+        AMOSII_SENSOR_MAX = 121,
 
 };
 

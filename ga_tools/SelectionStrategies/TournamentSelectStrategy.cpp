@@ -34,77 +34,77 @@
 #include "Individual.h"
 
 TournamentSelectStrategy::TournamentSelectStrategy() {
-	// nothing
+        // nothing
 }
 
 TournamentSelectStrategy::TournamentSelectStrategy(RandGen* random) {
-	m_random = random;
+        m_random = random;
 }
 
 TournamentSelectStrategy::~TournamentSelectStrategy() {
-	// nothing
+        // nothing
 }
 
 void TournamentSelectStrategy::select(Generation* oldGeneration, Generation* newGeneration) {
-	//int live = oldGeneration->getCurrentSize() - oldGeneration->getKillRate();
-	//int size = newGeneration->getSize() - newGeneration->getCurrentSize();
-	int num = oldGeneration->getCurrentSize();
-	int kill = num - oldGeneration->getSize();
-	Individual* ind1;									// the 2 individual which are tested
-	Individual* ind2;
-	int r1,r2;
-	//std::map<int,Individual*> storage;
-	//std::map<int,Individual*>::iterator iter;
-	std::vector<Individual*> storage;					//list with all living individuals
-	std::vector<Individual*>::iterator iter;			//iterator for the list
-	double f1,f2;
+        //int live = oldGeneration->getCurrentSize() - oldGeneration->getKillRate();
+        //int size = newGeneration->getSize() - newGeneration->getCurrentSize();
+        int num = oldGeneration->getCurrentSize();
+        int kill = num - oldGeneration->getSize();
+        Individual* ind1;                                                                        // the 2 individual which are tested
+        Individual* ind2;
+        int r1,r2;
+        //std::map<int,Individual*> storage;
+        //std::map<int,Individual*>::iterator iter;
+        std::vector<Individual*> storage;                                        //list with all living individuals
+        std::vector<Individual*>::iterator iter;                        //iterator for the list
+        double f1,f2;
 
-	for(int y=0;y<num;y++) {							//take all individual in the list.
-		storage.push_back(oldGeneration->getIndividual(y));
-	}
+        for(int y=0;y<num;y++) {                                                        //take all individual in the list.
+                storage.push_back(oldGeneration->getIndividual(y));
+        }
 
-	for(int x=0; x<kill; x++) {				//select two individual for the test
-		r1 = ((int)(m_random->rand()*1000000.0f)) % num;		//2 random indices for the individual list
-		r2 = r1;
-		while(r2==r1) {
-			r2 = ((int)(m_random->rand()*1000000.0f)) % num;
-		}
+        for(int x=0; x<kill; x++) {                                //select two individual for the test
+                r1 = ((int)(m_random->rand()*1000000.0f)) % num;                //2 random indices for the individual list
+                r2 = r1;
+                while(r2==r1) {
+                        r2 = ((int)(m_random->rand()*1000000.0f)) % num;
+                }
 
-		//ind1 = oldGeneration->getIndividual(r1);
-		//ind2 = oldGeneration->getIndividual(r2);
-		ind1 = storage[r1];									//become the 2 individual
-		ind2 = storage[r2];
+                //ind1 = oldGeneration->getIndividual(r1);
+                //ind2 = oldGeneration->getIndividual(r2);
+                ind1 = storage[r1];                                                                        //become the 2 individual
+                ind2 = storage[r2];
 
-		f1 = ind1->getFitness();							//the fitness values of this individuals
-		f2 = ind2->getFitness();
+                f1 = ind1->getFitness();                                                        //the fitness values of this individuals
+                f2 = ind2->getFitness();
 
-		f1*=f1;		// abs									//in absolute
-		f2*=f2;		// abs
+                f1*=f1;                // abs                                                                        //in absolute
+                f2*=f2;                // abs
 
-		if(f1<f2) {											//the test and than kill the worse
-			/*if(storage[r1]==0)
-				storage[r1]=ind1;
-			else
-				x--;*/
-			storage.erase(find(storage.begin(),storage.end(),storage[r2]));
-		}
-		else {
-			/*if(storage[r2]==0)
-				storage[r2]=ind2;
-			else
-				x--;*/
-			storage.erase(find(storage.begin(),storage.end(),storage[r1]));
-		}
+                if(f1<f2) {                                                                                        //the test and than kill the worse
+                        /*if(storage[r1]==0)
+                                storage[r1]=ind1;
+                        else
+                                x--;*/
+                        storage.erase(find(storage.begin(),storage.end(),storage[r2]));
+                }
+                else {
+                        /*if(storage[r2]==0)
+                                storage[r2]=ind2;
+                        else
+                                x--;*/
+                        storage.erase(find(storage.begin(),storage.end(),storage[r1]));
+                }
 
-		num--;
-	}
+                num--;
+        }
 
-	/*char buffer[1024];
-	sprintf(buffer,"fff_%i.txt",newGeneration->getGenerationNumber());
-	FILE* fff = fopen(buffer,"w");*/
-	for(iter=storage.begin();iter!=storage.end();iter++) {			//transfer the living individual in the new generation
-		newGeneration->addIndividual(*iter);
-		//fprintf(fff,"%lf\n",(*iter)->getFitness());
-	}
-	//fclose(fff);
+        /*char buffer[1024];
+        sprintf(buffer,"fff_%i.txt",newGeneration->getGenerationNumber());
+        FILE* fff = fopen(buffer,"w");*/
+        for(iter=storage.begin();iter!=storage.end();iter++) {                        //transfer the living individual in the new generation
+                newGeneration->addIndividual(*iter);
+                //fprintf(fff,"%lf\n",(*iter)->getFitness());
+        }
+        //fclose(fff);
 }

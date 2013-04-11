@@ -14,7 +14,7 @@
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
- *                                            * 
+ *                                            *
  *                                                                         *
  *                                                                         *
  ***************************************************************************/
@@ -34,9 +34,9 @@
 struct SoMLConf {
   bool useHiddenContr; ///< use a hidden layer in the controller network?
   /// ratio of motor units and hidden units in the controller (2 -> double amount of hidden unit)
-  double hiddenContrUnitsRatio; 
+  double hiddenContrUnitsRatio;
   bool useHiddenModel; ///< use a hiddenlayer in the model network?
-  /// ratio of motor units and hidden units in the model (2 -> double amount of hidden unit) 
+  /// ratio of motor units and hidden units in the model (2 -> double amount of hidden unit)
   double hiddenModelUnitsRatio;
   bool useS;         ///< direct connection from x_t to xp_t+1
   bool initUnitMatrix; /// if true then the network is initialized with unit matrices
@@ -64,7 +64,7 @@ public:
     c.initUnitMatrix = true;
     return c;
   }
-  
+
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
 
   virtual ~SoML();
@@ -74,15 +74,15 @@ public:
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_motors; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
-  
-  // motor babbling: learn the basic relations from observed sensors/motors 
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
+
+  // motor babbling: learn the basic relations from observed sensors/motors
   virtual void motorBabblingStep(const sensor* , int number_sensors,
                                  const motor* , int number_motors);
 
@@ -91,7 +91,7 @@ public:
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   /// returns controller network (to be added to inspectables of agent)
   virtual ControllerNet* getCNet();
@@ -105,7 +105,7 @@ protected:
    */
   virtual void learn(const matrix::Matrix& x, const matrix::Matrix& y);
 
-  /* learns the model using backprop. It uses the current activation, 
+  /* learns the model using backprop. It uses the current activation,
      the current x and x_tm1 from the buffer */
   virtual void learnModelBP(double factor);
 
@@ -135,11 +135,11 @@ protected:
   paramval discountS;      ///< discount for S part of the model
   paramint s4avg;          ///< # of steps the sensors are averaged (1 means no averaging)
   paramint s4delay;        ///< # of steps the motor values are delayed (1 means no delay)
-  paramval biasnoise;        
+  paramval biasnoise;
   //  parambool logaE;         ///< # use logarithmic error
 
 
-  
+
 };
 
 #endif

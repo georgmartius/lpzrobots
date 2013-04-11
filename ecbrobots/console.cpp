@@ -170,7 +170,7 @@ bool handleConsole(QGlobalData& globalData){
 
   if (!line)
     return rv;
-  
+
 /* Remove leading and trailing whitespace from the line.
      Then, if there is anything left, add it to the history list
      and execute it. */
@@ -294,10 +294,10 @@ char ** console_completion (const char *text, int start, int end) {
   /* If this word is at the start of the line, then it is a command
      to complete.  Otherwise it is the name of a file in the current
      directory. */
- 	try{
-		if (start == 0)
- 	  	 matches = rl_completion_matches (text, command_generator);
-	}catch(...){}
+         try{
+                if (start == 0)
+                    matches = rl_completion_matches (text, command_generator);
+        }catch(...){}
   return (matches);
 }
 
@@ -383,18 +383,18 @@ bool com_set (QGlobalData& globalData, char* line, char* arg) {
       s_param++;
       int id = atoi(arg);
       if(id>=0 && id < (signed)globalData.configs.size()){
-	char* val;
-	i=0;
-	val = strchr(s_param,'=');
-	if(val){ // found =
-	  *val='\0';
-	  double v=strtod(val+1,0);
-	  if (globalData.configs[id]->setParam(s_param,v)){
-	    printf(" %s=\t%f \n", s_param, globalData.configs[id]->getParam(s_param));
-	    changed = true;
-	    *val='='; // remove termination again (for agent notification)
-	  }
-	} else printf("Syntax error! no '=' found\n");
+        char* val;
+        i=0;
+        val = strchr(s_param,'=');
+        if(val){ // found =
+          *val='\0';
+          double v=strtod(val+1,0);
+          if (globalData.configs[id]->setParam(s_param,v)){
+            printf(" %s=\t%f \n", s_param, globalData.configs[id]->getParam(s_param));
+            changed = true;
+            *val='='; // remove termination again (for agent notification)
+          }
+        } else printf("Syntax error! no '=' found\n");
       }else printf("Object with ID: %i not found\n", id);
     }else{
       if(s_param) *s_param=' '; // unterminate arg
@@ -404,20 +404,20 @@ bool com_set (QGlobalData& globalData, char* line, char* arg) {
       i=0;
       val = strchr(s_param,'=');
       if(val){ // found =
-	*val='\0';
-	double v=strtod(val+1,0);
- 	FOREACH(ConfigList, globalData.configs, i){
- 	  if ((*i)->setParam(s_param,v)){
- 	    printf(" %s=\t%f \n", s_param, (*i)->getParam(s_param));
- 	    changed = true;
- 	  }
- 	}
-	*val='='; // remove termination again (for agent notification)
+        *val='\0';
+        double v=strtod(val+1,0);
+         FOREACH(ConfigList, globalData.configs, i){
+           if ((*i)->setParam(s_param,v)){
+             printf(" %s=\t%f \n", s_param, (*i)->getParam(s_param));
+             changed = true;
+           }
+         }
+        *val='='; // remove termination again (for agent notification)
       } else printf("Syntax error! no '=' found\n");
     }
     if(changed){
       FOREACH(AgentList, globalData.agents, i){
-	(*i)->writePlotComment(s_param );
+        (*i)->writePlotComment(s_param );
       }
     }
   }
@@ -433,13 +433,13 @@ bool com_store (QGlobalData& globalData, char* line, char* arg) {
       filename++;
       int id = atoi(arg);
       if(id>=0 && id < (signed)globalData.agents.size()){
-	FILE* f = fopen(filename,"wb");
-	if(f){
-	  if(globalData.agents[id]->getController()->store(f))
-	    printf("Controller stored\n");
-	  else printf("Error occured while storing contoller\n");
-	  fclose(f);
-	}else printf("Cannot open file %s for writing\n", filename);
+        FILE* f = fopen(filename,"wb");
+        if(f){
+          if(globalData.agents[id]->getController()->store(f))
+            printf("Controller stored\n");
+          else printf("Error occured while storing contoller\n");
+          fclose(f);
+        }else printf("Cannot open file %s for writing\n", filename);
       } else printf("Agent with ID: %i not found\n", id);
     }else printf("syntax error , see >help store\n");
   }
@@ -455,13 +455,13 @@ bool com_load (QGlobalData& globalData, char* line, char* arg) {
       filename++;
       int id = atoi(arg);
       if(id>=0 && id < (signed)globalData.agents.size()){
-	FILE* f = fopen(filename,"rb");
-	if(f){
-	  if(globalData.agents[id]->getController()->restore(f))
-	    printf("Controller restored\n");
-	  else printf("Error occured while restoring contoller\n");
-	  fclose(f);
-	}else printf("Cannot open file %s for reading\n", filename);
+        FILE* f = fopen(filename,"rb");
+        if(f){
+          if(globalData.agents[id]->getController()->restore(f))
+            printf("Controller restored\n");
+          else printf("Error occured while restoring contoller\n");
+          fclose(f);
+        }else printf("Cannot open file %s for reading\n", filename);
       } else printf("Agent with ID: %i not found\n", id);
     }else printf("syntax error , see >help load\n");
   }

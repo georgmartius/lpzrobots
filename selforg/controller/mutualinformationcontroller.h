@@ -59,28 +59,28 @@ public:
     assert(index<sensorNumber);
     return MI[index];
   }
-  
+
   virtual double& getH_x(int index) {
     if (!initialized)
       init(numberSensorsPreInitialized,numberMotorsPreInitialized);
     assert(index<sensorNumber);
     return H_x[index];
   }
-  
+
   virtual double& getH_yx(int index) {
     if (!initialized)
       init(numberSensorsPreInitialized,numberMotorsPreInitialized);
     assert(index<sensorNumber);
     return H_yx[index];
   }
-  
+
   virtual double& getH_Xsi(int index) {
     if (!initialized)
       init(numberSensorsPreInitialized,numberMotorsPreInitialized);
     assert(index<sensorNumber);
     return H_Xsi[index];
   }
-  
+
   /**
   * we like to calculate the entropy of the xsi, therefore we need for the (self calculated) update rule
   * x_t+1=-a * tanh(c * x_t) the a and c, which should be set in the main.cpp.
@@ -89,7 +89,7 @@ public:
 
 
   /****************************************************************************/
-  /*	BEGIN methods of AbstractController                                 */
+  /*        BEGIN methods of AbstractController                                 */
   /****************************************************************************/
 
   /** initialisation of the controller with the given sensor/ motornumber
@@ -124,12 +124,12 @@ public:
                               motor* motors, int motornumber);
 
   /****************************************************************************/
-  /*	END methods of AbstractController                                   */
+  /*        END methods of AbstractController                                   */
   /****************************************************************************/
 
 
   /****************************************************************************/
-  /*	BEGIN methods of Inspectable                                          	*/
+  /*        BEGIN methods of Inspectable                                                  */
   /****************************************************************************/
 
   /** The list of the names of all internal parameters given by getInternalParams().
@@ -144,11 +144,11 @@ public:
 //  virtual iparamvallist getInternalParams() const;
 
   /****************************************************************************/
-  /*	END methods of Inspectable                                       	    */
+  /*        END methods of Inspectable                                                   */
   /****************************************************************************/
 
   /****************************************************************************/
-  /*	BEGIN methods of Storeable                                           	*/
+  /*        BEGIN methods of Storeable                                                   */
   /****************************************************************************/
 
   /** stores the object to the given file stream (binary).
@@ -160,12 +160,12 @@ public:
   virtual bool restore(FILE* f) { return true; }
 
   /****************************************************************************/
-  /*	END methods of Storeable                                          	    */
+  /*        END methods of Storeable                                                      */
   /****************************************************************************/
 
 
   /****************************************************************************/
-  /*	BEGIN methods of Configurable                                          	    */
+  /*        BEGIN methods of Configurable                                                      */
   /****************************************************************************/
 
 //  Configurable::paramval getParam(const paramkey& key) const;
@@ -175,7 +175,7 @@ public:
 //  Configurable::paramlist getParamList() const;
 
   /****************************************************************************/
-  /*	END methods of Configurable                                          	    */
+  /*        END methods of Configurable                                                      */
   /****************************************************************************/
 
 
@@ -194,7 +194,7 @@ protected:
   std::list<matrix::Matrix*> freqMatrixList; // stores the number of occurances of t-1 to t (frequency)
   std::list<matrix::Matrix*> probMatrixList; // stores the probability of state to state occurances of t-1 to t
   std::list<matrix::Matrix*> xsiFreqMatrixList; // stores the number of occurances of xsi(x) (frequency)
-  
+
   double* oldSensorStates; // stores the sensor states for previous step (t-1)
   int t; // indicates the step (time)
 
@@ -202,7 +202,7 @@ protected:
   double* H_x; // H(x) = H(X_{t-1})
   double* H_yx; // H(X_t|X_{t-1})
   double* H_Xsi; // H(Xsi)
-  
+
   // the next two variables are only used if Xsi_x is calculated
   double ainit;
   double cinit;
@@ -220,30 +220,30 @@ protected:
    * needs O(n) costs.
    */
   virtual void calculateH_x(double* H);
-  
-  
+
+
   /**
    * Calculates the conditional entropy of y|x
    * This is made by normal formula, which
    * needs O(n²) costs.
    */
   virtual void calculateH_yx(double* H_yx);
-  
-  
+
+
   /**
   * Updates the xsi frequency matrix list
   */
   virtual void updateXsiFreqMatrixList(const sensor* sensors);
-  
+
   /**
    * Calculates the entropy of H(Xsi)
    * This is made by normal formula, which
    * needs O(n) costs.
    */
   virtual void calculateH_Xsi(double* H_Xsi);
-  
-  
-  
+
+
+
   /**
    * Updates the mutual information
    * This is made by a difference term, which

@@ -30,8 +30,8 @@
 namespace lpzrobots {
 
   /**
-   * This is a class, which models a snake like robot with flat ends and a big body in the middle. 
-   * It consists of a number of equal elements, each linked 
+   * This is a class, which models a snake like robot with flat ends and a big body in the middle.
+   * It consists of a number of equal elements, each linked
    * by a universal joint powered by 2 servos
    **/
   class PlattfussSchlange: public SchlangeServo2
@@ -39,13 +39,13 @@ namespace lpzrobots {
 
   public:
     PlattfussSchlange ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			const SchlangeConf& conf, 
-			const std::string& name);
-    
+                        const SchlangeConf& conf,
+                        const std::string& name);
+
     virtual ~PlattfussSchlange();
-	
+
   private:
-    virtual Primitive* createSegment(int index, const OdeHandle& odeHandle); 
+    virtual Primitive* createSegment(int index, const OdeHandle& odeHandle);
   };
 
 }

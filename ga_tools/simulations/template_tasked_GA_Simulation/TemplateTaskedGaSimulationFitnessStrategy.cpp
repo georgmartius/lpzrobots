@@ -29,17 +29,17 @@
 #include <ga_tools/Individual.h>
 
 TemplateTaskedGaSimulationFitnessStrategy::TemplateTaskedGaSimulationFitnessStrategy() {
-	// nothing
+        // nothing
 }
 
 TemplateTaskedGaSimulationFitnessStrategy::~TemplateTaskedGaSimulationFitnessStrategy() {
-	// nothing
+        // nothing
 }
 
 double TemplateTaskedGaSimulationFitnessStrategy::getFitness(const Individual* individual) {
-	// return 0.0000000001 because the most individual have a entropy from zero. And so the inverted fitness strategy return 1/0 = inf!!!
+        // return 0.0000000001 because the most individual have a entropy from zero. And so the inverted fitness strategy return 1/0 = inf!!!
   if(m_storage[individual->getID()]==0.0)
     return 0.0000000001;
 
-	return m_storage[individual->getID()];
+        return m_storage[individual->getID()];
 }

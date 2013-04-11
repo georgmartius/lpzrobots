@@ -29,49 +29,49 @@
 namespace lpzrobots {
 
   class OctaPlayground : public AbstractGround {
-  
+
 
   protected:
     double radius, width, height;
-    
+
     int number_elements;
-    double angle;    
+    double angle;
     double box_length;
 
   public:
-  
 
-    OctaPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		 const Pos& geometry = Pos(7,0.2,0.5), int numberCorners=8, bool createGround=true):
+
+    OctaPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                 const Pos& geometry = Pos(7,0.2,0.5), int numberCorners=8, bool createGround=true):
     AbstractGround::AbstractGround(odeHandle, osgHandle,createGround,2*geometry.x(),2*geometry.x(), geometry.y()) {
     radius = geometry.x();
     width  = geometry.y();
     height = geometry.z();
 
     number_elements=numberCorners;
-    angle= 2*M_PI/number_elements;    
+    angle= 2*M_PI/number_elements;
     //    obst.resize(number_elements);
 
     calcBoxLength();
   };
-  
+
 protected:
 
   virtual void create(){
     createGround();
 
-    // radius for positioning is smaller than radius since we use secants. 
+    // radius for positioning is smaller than radius since we use secants.
     //  r is the smallest distance of the secant to the center of the circle.
     double r = sqrt(pow((1+cos(angle))/2, 2) + pow( sin(angle)/2 ,2)) * radius;
     for (int i=0; i<number_elements; i++){
       Box* box =  new Box(width , box_length , height);
       box->setTextures(getTextures(i));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-      osg::Matrix R = osg::Matrix::rotate(- i*angle, 0,0,1) * 
-	osg::Matrix::translate( cos(M_PI - i*angle) * r, 
-				sin(M_PI - i*angle) * r, 
-				height/2+0.01f /*reduces graphic errors and ode collisions*/
-				)* pose;
+      osg::Matrix R = osg::Matrix::rotate(- i*angle, 0,0,1) *
+        osg::Matrix::translate( cos(M_PI - i*angle) * r,
+                                sin(M_PI - i*angle) * r,
+                                height/2+0.01f /*reduces graphic errors and ode collisions*/
+                                )* pose;
       box->setPose(R);
       obst.push_back(box);
     }
@@ -79,9 +79,9 @@ protected:
   };
 
   virtual void calcBoxLength(){
-    double r = radius+width/2; 
+    double r = radius+width/2;
     //    box_length =1.4 * sqrt( 2 * pow(radius,2) * (1 - cos(angle)) );
-    box_length =  sqrt(pow( 1 - cos(angle), 2) + pow(sin(angle),2)) * r;  
+    box_length =  sqrt(pow( 1 - cos(angle), 2) + pow(sin(angle),2)) * r;
   }
 
 };

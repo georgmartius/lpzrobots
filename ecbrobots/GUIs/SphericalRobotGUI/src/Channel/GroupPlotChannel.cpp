@@ -28,17 +28,17 @@
  *  $Log$
  *  Revision 1.1  2009-04-17 14:17:33  guettler
  *  New PlotChannels and Filters for matrices
- *										   *
+ *                                                                                   *
  *                                                                         *
  **************************************************************************/
 
 #include "GroupPlotChannel.h"
 
 GroupPlotChannel::GroupPlotChannel() {
-	// TODO Auto-generated constructor stub
+        // TODO Auto-generated constructor stub
 
 }
 
 GroupPlotChannel::~GroupPlotChannel() {
-	// TODO Auto-generated destructor stub
+        // TODO Auto-generated destructor stub
 }

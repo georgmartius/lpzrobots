@@ -39,8 +39,8 @@ namespace lpzrobots {
 
     virtual ~HeightField();
     virtual void init(const OdeHandle& odeHandle, double mass,
-		      const OsgHandle& osgHandle,
-		      char mode = Body | Geom | Draw) ;
+                      const OsgHandle& osgHandle,
+                      char mode = Body | Geom | Draw) ;
 
 
     virtual void setPose(const osg::Matrix& pose);

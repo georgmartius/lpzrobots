@@ -38,7 +38,7 @@ namespace lpzrobots {
     Indices(){}
     Indices(dTriIndex a, dTriIndex b, dTriIndex c) { i[0] = a; i[1] = b; i[2] = c; }
     Indices(dTriIndex d[3]) { i[0] = d[0]; i[1] = d[1]; i[2] = d[2]; }
-    
+
     dTriIndex i[3];
   };
 
@@ -46,7 +46,7 @@ namespace lpzrobots {
   struct Vertex {
     Vertex(){}
     Vertex(const osg::Vec3& vec) { v[0] = vec.x(); v[1] = vec.y(); v[2] = vec.z();}
-    
+
     dVector3 v;  // 4th component can be left out, reducing memory usage
   };
 
@@ -54,7 +54,7 @@ namespace lpzrobots {
 
   /******************************************************************************/
 
-  HeightField::HeightField(const std::string& filename, float x_size, float y_size, float height) {    
+  HeightField::HeightField(const std::string& filename, float x_size, float y_size, float height) {
     osgheightfield = new OSGHeightField(filename, x_size, y_size, height);
     data=0;
   }
@@ -66,20 +66,20 @@ namespace lpzrobots {
 
   HeightField::~HeightField(){
     if(data) dGeomTriMeshDataDestroy (data);
-    if(osgheightfield) delete osgheightfield; 
+    if(osgheightfield) delete osgheightfield;
   }
 
   void HeightField::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
-		     char mode) {
+                     char mode) {
     assert(mode & Geom);
     substance = odeHandle.substance;
     this->mode=mode;
     if (mode & Draw){
       osgheightfield->init(osgHandle);
     }
-    if (mode & Geom){          
+    if (mode & Geom){
       const osg::HeightField* f = osgheightfield->getHeightField();
-      int cols = f->getNumColumns(); 
+      int cols = f->getNumColumns();
       int rows = f->getNumRows();
       Vertex* vertices = new Vertex[cols*rows];
       //      Vertex* normales = new Vertex[cols*rows];
@@ -103,11 +103,11 @@ namespace lpzrobots {
       assert(k==(cols-1)*(rows-1)*2);
       data = dGeomTriMeshDataCreate();
       //      dGeomTriMeshDataBuildDouble1 (data, vertices, sizeof(osg::Vec3f) , rows*cols,
-      //				    indices, k, sizeof(Indices), normales);
+      //                                    indices, k, sizeof(Indices), normales);
       dGeomTriMeshDataBuildSimple (data, (dReal*)vertices, rows*cols, (dTriIndex*)indices, k*3);
       geom = dCreateTriMesh (odeHandle.space, data, 0, 0, 0);
       dGeomSetData(geom, (void*)this); // set primitive as geom data
-  
+
 
 // #define VertexCount 5
 // #define IndexCount 12
@@ -121,39 +121,39 @@ namespace lpzrobots {
 //   Size[0] = 25.0f;
 //   Size[1] = 25.0f;
 //   Size[2] = 2.5f;
-  
+
 //   Vertices[0][0] = -Size[0];
 //   Vertices[0][1] = -Size[1];
 //   Vertices[0][2] = Size[2];
-  
+
 //   Vertices[1][0] = Size[0];
 //   Vertices[1][1] = -Size[1];
 //   Vertices[1][2] = Size[2];
-  
+
 //   Vertices[2][0] = Size[0];
 //   Vertices[2][1] = Size[1];
 //   Vertices[2][2] = Size[2];
-  
+
 //   Vertices[3][0] = -Size[0];
 //   Vertices[3][1] = Size[1];
 //   Vertices[3][2] = Size[2];
-  
+
 //   Vertices[4][0] = 0;
 //   Vertices[4][1] = 0;
 //   Vertices[4][2] = 0;
-  
+
 //   Is[0] = 0;
 //   Is[1] = 1;
 //   Is[2] = 4;
-  
+
 //   Is[3] = 1;
 //   Is[4] = 2;
 //   Is[5] = 4;
-  
+
 //   Is[6] = 2;
 //   Is[7] = 3;
 //   Is[8] = 4;
-  
+
 //   Is[9] = 3;
 //   Is[10] = 0;
 //   Is[11] = 4;
@@ -161,7 +161,7 @@ namespace lpzrobots {
 //  data = dGeomTriMeshDataCreate();
 
 //   dGeomTriMeshDataBuildSimple(data, (dReal*)Vertices, VertexCount, Is, IndexCount);
-  
+
 //       geom = dCreateTriMesh (odeHandle.space, data, 0, 0, 0);
 
 
@@ -170,7 +170,7 @@ namespace lpzrobots {
   }
 
   void HeightField::update(){
-    if(mode & Draw) {      
+    if(mode & Draw) {
       osgheightfield->setMatrix(osgPose(geom));
     }
   }

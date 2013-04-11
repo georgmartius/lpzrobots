@@ -29,24 +29,26 @@
 #include "pose.h"
 
 namespace lpzrobots {
-  
+
   /**
-     this is the base-class for objects that exist temporarily like 
-     some indicator of manipulation are a message
+     this is the base-class for objects that exist temporarily like
+     some indicator of manipulation or a message text
    */
   class TmpObject {
   public:
-    TmpObject() 
+    TmpObject()
       : time(0) {} ;
+
+    virtual ~TmpObject() {};
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle) = 0;
-    /// deletes the object 
+    /// deletes the object
     virtual void deleteObject() = 0;
     /// update graphics here
     virtual void update() =0 ;
-    
-    void setExpireTime(double time) { this->time= time; }  
+
+    void setExpireTime(double time) { this->time= time; }
     bool expired(double time) { return this->time < time;}
-    
+
   protected:
     double time;
   };

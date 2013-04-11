@@ -1,7 +1,7 @@
 /************************************************************************/
-/*schlangeforce.h			                            	*/
-/*Snake with torque added to joints                     		*/
-/*									*/
+/*schlangeforce.h                                                            */
+/*Snake with torque added to joints                                     */
+/*                                                                        */
 /************************************************************************/
 /***************************************************************************
  *   Copyright (C) 2005-2011 LpzRobots development team                    *
@@ -34,25 +34,25 @@
 namespace lpzrobots {
 
   /**
-   * This is a class, which models a snake like robot. 
-   * It consists of a number of equal elements, each linked 
+   * This is a class, which models a snake like robot.
+   * It consists of a number of equal elements, each linked
    * by a joint powered by torques added to joints
    **/
   class SchlangeForce: public Schlange
     {
     public:
       SchlangeForce ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      const SchlangeConf& conf, 
-		      const std::string& name, const std::string& revision);
+                      const SchlangeConf& conf,
+                      const std::string& name, const std::string& revision);
 
-    
+
       virtual ~SchlangeForce();
-	
+
       /**
-       *Reads the actual motor commands from an array, 
+       *Reads the actual motor commands from an array,
        *an sets all motors of the snake to this values.
        *It is an linear allocation.
-       *@param motors pointer to the array, motor values are scaled to [-1,1] 
+       *@param motors pointer to the array, motor values are scaled to [-1,1]
        *@param motornumber length of the motor array
        **/
       virtual void setMotors ( const motor* motors, int motornumber );
@@ -64,7 +64,7 @@ namespace lpzrobots {
        *@return number of actually written sensors
        **/
       virtual int getSensors ( sensor* sensors, int sensornumber );
-	
+
       /** returns number of sensors
        */
       virtual int getSensorNumber() { assert(created); return joints.size() * 2; }

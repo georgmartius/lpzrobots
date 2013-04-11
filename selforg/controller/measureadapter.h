@@ -57,7 +57,7 @@ public:
   virtual std::list<ComplexMeasure*> addSensorComplexMeasure(char* measureName, ComplexMeasureMode mode,int numberBins, int stepSize);
 
   /****************************************************************************/
-  /*	BEGIN methods of AbstractController                                 */
+  /*        BEGIN methods of AbstractController                                 */
   /****************************************************************************/
 
   /** initialisation of the controller with the given sensor/ motornumber
@@ -84,25 +84,25 @@ public:
                               motor* motors, int motornumber);
 
   /****************************************************************************/
-  /*	END methods of AbstractController                                 	    */
+  /*        END methods of AbstractController                                             */
   /****************************************************************************/
 
   /****************************************************************************/
-  /*	BEGIN methods of Storeable                                           	*/
-  /****************************************************************************/
-  
-  /****************************************************************************/
-  /*	END methods of Storeable                                          	    */
+  /*        BEGIN methods of Storeable                                                   */
   /****************************************************************************/
 
   /****************************************************************************/
-  /*	BEGIN methods of Inspectable                                          	*/
+  /*        END methods of Storeable                                                      */
+  /****************************************************************************/
+
+  /****************************************************************************/
+  /*        BEGIN methods of Inspectable                                                  */
   /****************************************************************************/
 
   // nothing to overwrite
 
   /****************************************************************************/
-  /*	END methods of Inspectable                                       	    */
+  /*        END methods of Inspectable                                                   */
   /****************************************************************************/
 
 

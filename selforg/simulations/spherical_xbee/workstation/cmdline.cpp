@@ -12,8 +12,8 @@ void showParams(const ConfigList& configs, FILE* f /*= 0*/, const char* linepref
   }
 }
 
-void changeParams(ConfigList& configs, 
-		  void (*onQuit)()){
+void changeParams(ConfigList& configs,
+                  void (*onQuit)()){
   char buffer[1024];
   std::cout << "Type: Parameter=Value\n";
   fgets( buffer, 1024, stdin);
@@ -30,11 +30,11 @@ void changeParams(ConfigList& configs,
   }
   char *p = strchr(buffer,'=');
   if (p){
-    *p=0; // terminate key string 
+    *p=0; // terminate key string
     double v=strtod(p+1,0);
     for(ConfigList::iterator i=configs.begin(); i != configs.end(); i++){
       if ((*i)->setParam(buffer,v)){
-	printf(" %s=\t%f \n", buffer, (*i)->getParam(buffer));
+        printf(" %s=\t%f \n", buffer, (*i)->getParam(buffer));
       }
     }
   }
@@ -44,19 +44,19 @@ vector<string> splitString(const string& str, char seperator){
   vector<string> rv;
   string::const_iterator startword=str.begin();
   for(string::const_iterator i=str.begin(); i<str.end(); i++){
-    if((i+1)==str.end()) 
+    if((i+1)==str.end())
       rv.push_back(string(startword, str.end()));
     else{
       if(*i==seperator){
-	rv.push_back(string(startword, i));
-	while( (*i)==seperator && i<str.end() ){ // skip multiple seperator  
-	  i++; 
-	}
-	startword=i;
+        rv.push_back(string(startword, i));
+        while( (*i)==seperator && i<str.end() ){ // skip multiple seperator
+          i++;
+        }
+        startword=i;
       }
     }
-  } 
-  return rv;  
+  }
+  return rv;
 }
 
 
@@ -64,7 +64,7 @@ vector<string> splitString(const string& str, char seperator){
 int Control_C=0;
 
 void cmd_handler_exit(void){
-  signal(SIGINT,SIG_DFL);    
+  signal(SIGINT,SIG_DFL);
   Control_C=0;
 }
 
@@ -81,7 +81,7 @@ void control_c(int i){
 void cmd_handler_init(){
   signal(SIGINT,control_c);
   atexit(cmd_handler_cleanup);
-  Control_C=0;  
+  Control_C=0;
 }
 
 
@@ -94,6 +94,6 @@ void cmd_begin_input(){
 }
 
 void cmd_end_input(){
-  cmd_handler_init();  
+  cmd_handler_init();
 }
 

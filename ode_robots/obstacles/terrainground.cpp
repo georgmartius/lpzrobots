@@ -33,22 +33,22 @@
 #include <osgDB/ReadFile>
 
 #include "terrainground.h"
- 
+
 namespace lpzrobots {
 
   using namespace osg;
 
-  TerrainGround::TerrainGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-			 const std::string& filename, const std::string& texture, 
-			 double x_size, double y_size, double height,
-			 OSGHeightField::CodingMode coding)
-    :  AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), 
-       filename(filename), texture(texture), 
+  TerrainGround::TerrainGround(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                         const std::string& filename, const std::string& texture,
+                         double x_size, double y_size, double height,
+                         OSGHeightField::CodingMode coding)
+    :  AbstractObstacle::AbstractObstacle(odeHandle, osgHandle),
+       filename(filename), texture(texture),
        x_size(x_size), y_size(y_size), height(height), coding(coding){
-    obstacle_exists=false;    
+    obstacle_exists=false;
   };
 
-  
+
   void TerrainGround::setPose(const osg::Matrix& pose){
     this->pose = pose;
     if (obstacle_exists){
@@ -57,10 +57,10 @@ namespace lpzrobots {
     create();
   }
 
-  void TerrainGround::create(){    
+  void TerrainGround::create(){
     if(strstr(filename.c_str(),".ppm")){
-      heightfield = new HeightField(OSGHeightField::loadFromPPM(filename,height, coding), 
-				    x_size, y_size);
+      heightfield = new HeightField(OSGHeightField::loadFromPPM(filename,height, coding),
+                                    x_size, y_size);
     }else{
       heightfield = new HeightField(filename, x_size, y_size, height);
     }
@@ -71,7 +71,7 @@ namespace lpzrobots {
     obst.push_back(heightfield);
     obstacle_exists=true;
   }
-  
+
 
   void TerrainGround::destroy(){
     if(heightfield) delete(heightfield);

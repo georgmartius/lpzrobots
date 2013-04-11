@@ -50,7 +50,7 @@ namespace lpzrobots {
   }
 
   void Joint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		   bool withVisual, double visualSize, bool ignoreColl){
+                   bool withVisual, double visualSize, bool ignoreColl){
     this->odeHandle = odeHandle;
     // only part 2 is allowed to be a static object
     assert(part1->getBody() && "MSG: only part2 can be static");
@@ -154,7 +154,7 @@ namespace lpzrobots {
     /** initialises (and creates) the joint.
     */
   void FixedJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      bool withVisual, double visualSize, bool ignoreColl){
+                      bool withVisual, double visualSize, bool ignoreColl){
     Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);
     joint = dJointCreateFixed (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody());
@@ -184,7 +184,7 @@ namespace lpzrobots {
 /***************************************************************************/
 
   HingeJoint::HingeJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor,
-			 const Axis& axis1)
+                         const Axis& axis1)
     : OneAxisJoint(part1, part2, anchor, axis1),  visual(0) {
   }
 
@@ -193,7 +193,7 @@ namespace lpzrobots {
   }
 
   void HingeJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			 bool withVisual, double visualSize, bool ignoreColl){
+                         bool withVisual, double visualSize, bool ignoreColl){
     Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);
     joint = dJointCreateHinge (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody());
@@ -248,7 +248,7 @@ namespace lpzrobots {
 /***************************************************************************/
 
   Hinge2Joint::Hinge2Joint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor,
-			   const Axis& axis1, const Axis& axis2)
+                           const Axis& axis1, const Axis& axis2)
     : TwoAxisJoint(part1, part2, anchor, axis1, axis2), visual(0) {
   }
 
@@ -257,7 +257,7 @@ namespace lpzrobots {
   }
 
   void Hinge2Joint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			 bool withVisual, double visualSize, bool ignoreColl){
+                         bool withVisual, double visualSize, bool ignoreColl){
     Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);
     joint = dJointCreateHinge2 (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody());
@@ -328,7 +328,7 @@ namespace lpzrobots {
 /***************************************************************************/
 
   UniversalJoint::UniversalJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor,
-			   const Axis& axis1, const Axis& axis2)
+                           const Axis& axis1, const Axis& axis2)
     : TwoAxisJoint(part1, part2, anchor, axis1, axis2), visual1(0), visual2(0) {
   }
 
@@ -338,7 +338,7 @@ namespace lpzrobots {
   }
 
   void UniversalJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			 bool withVisual, double visualSize, bool ignoreColl){
+                         bool withVisual, double visualSize, bool ignoreColl){
     Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);
     joint = dJointCreateUniversal (odeHandle.world,0);
     dJointAttach (joint, part1->getBody(),part2->getBody());
@@ -420,7 +420,7 @@ namespace lpzrobots {
   }
 
   void BallJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		       bool withVisual, double visualSize, bool ignoreColl){
+                       bool withVisual, double visualSize, bool ignoreColl){
     Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);
     joint = dJointCreateBall(odeHandle.world, 0);
     dJointAttach (joint, part1->getBody(),part2->getBody());
@@ -454,7 +454,7 @@ namespace lpzrobots {
 /***************************************************************************/
 
   SliderJoint::SliderJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor,
-			 const Axis& axis1)
+                         const Axis& axis1)
     : OneAxisJoint(part1, part2, anchor, axis1), visual(0) {
   }
 
@@ -463,7 +463,7 @@ namespace lpzrobots {
   }
 
   void SliderJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			 bool withVisual, double visualSize, bool ignoreColl){
+                         bool withVisual, double visualSize, bool ignoreColl){
     this->osgHandle= osgHandle;
     this->visualSize = visualSize;
     Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);

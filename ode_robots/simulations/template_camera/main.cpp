@@ -104,7 +104,7 @@ public:
 
   AbstractObstacle* playground;
 
-  
+
   // starting function (executed once at the beginning of the simulation loop)
   void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
@@ -118,7 +118,7 @@ public:
 
     // use Playground as boundary:
     playground = new Playground(odeHandle, osgHandle,
-				osg::Vec3(10, .2, 1.4));
+                                osg::Vec3(10, .2, 1.4));
     playground->setTexture("Images/wall.rgb");
     playground->setPosition(osg::Vec3(0,0,0.1));
     global.obstacles.push_back(playground);
@@ -140,7 +140,7 @@ public:
       //    // for example we could exchange the light detection sensor to have 4 sensors
       //    twc.camcfg.processors.pop_back(); // remove the standard LineImgProc
       //    // and add a new one
-      //    twc.camcfg.processors.push_back(new LineImgProc(true,20, 4); 
+      //    twc.camcfg.processors.push_back(new LineImgProc(true,20, 4);
       //    set a different camerasensor
       //    twc.camSensor = new MotionCameraSensor(3);
       OdeRobot* vehicle = new TwoWheeled(odeHandle, osgHandle, twc, "Twowheeled");
@@ -157,7 +157,7 @@ public:
     if(nimm2vision){
       // This code shows how to add a camera to an existing robot.
       // Here we have the most flexibility on which camera sensor we use and so on
-      OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(), 
+      OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, Nimm2::getDefaultConf(),
                                     "Seeing_Nimm2");
       CameraConf camc = Camera::getDefaultConf();
       camc.width = 256;
@@ -167,22 +167,22 @@ public:
       camc.camSize = 0.08;
       camc.processors.push_back(new HSVImgProc(false,1));
       //    camc2.processors.push_back(new BWImageProcessor(true,1, BWImageProcessor::Saturation));
-      camc.processors.push_back(new ColorFilterImgProc(true,.5, 
-						       HSVImgProc::Red+20, 
+      camc.processors.push_back(new ColorFilterImgProc(true,.5,
+                                                       HSVImgProc::Red+20,
                                                        HSVImgProc::Green-20,100));
       CameraSensor* camsensor;
       int sensorType = 4;
       switch(sensorType) {
       case 1: /// Left and right side brighness (of Yellow)
-	camc.processors.push_back(new LineImgProc(true,20, 2));    
-	//camc.processors.push_back(new AvgImgProc(true,20, 15));    	
-	camsensor = new DirectCameraSensor();
+        camc.processors.push_back(new LineImgProc(true,20, 2));
+        //camc.processors.push_back(new AvgImgProc(true,20, 15));
+        camsensor = new DirectCameraSensor();
         break;
       case 2: /// Using the position of Yellow object
-	camsensor = new PositionCameraSensor(PositionCameraSensor::PositionAndSize);
+        camsensor = new PositionCameraSensor(PositionCameraSensor::PositionAndSize);
         break;
       case 3: /// Motion detection (global optical flow if Yellow object(s))
-	camsensor = new MotionCameraSensor(3, MotionCameraSensor::PositionAndSize);
+        camsensor = new MotionCameraSensor(3, MotionCameraSensor::PositionAndSize);
         break;
       case 4: /// Optical flow of raw image
         camc.processors.clear(); // no preprocessing
@@ -192,7 +192,7 @@ public:
         ofc.verbose = 3;
         ofc.maxFlow = 0.12;
         ofc.fieldSize = 24;
-	camsensor = new OpticalFlow(ofc);
+        camsensor = new OpticalFlow(ofc);
         break;
       default:
         assert(0);
@@ -233,12 +233,12 @@ public:
       global.agents.push_back(agent);
     }
 
-    
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
   }
-  
+
   virtual void end(GlobalData& globalData){
   }
 };

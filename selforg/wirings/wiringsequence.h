@@ -46,11 +46,11 @@ protected:
   virtual bool initIntern();
 
   virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
-				 sensor* csensors, int csensornumber,
-				 double noise);
+                                 sensor* csensors, int csensornumber,
+                                 double noise);
 
   virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
-				const motor* cmotors, int cmotornumber);
+                                const motor* cmotors, int cmotornumber);
 
 
 public:
@@ -58,7 +58,7 @@ public:
   /** adds a wiring to the list of wirings*/
   virtual void addWiring(AbstractWiring* wiring);
 
- 
+
 protected:
   std::vector<AbstractWiring*> wirings;
   bool initialised;

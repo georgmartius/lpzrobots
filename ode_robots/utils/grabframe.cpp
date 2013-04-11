@@ -35,8 +35,8 @@ namespace lpzrobots {
     if(isOpen() && !pause) {
       VideoStream * vs = (VideoStream *)this; // this is a dirty hack to get rid of the const
       if(!vs->grabAndWriteFrame(c)) {
-	fprintf(stderr,"Video recording failure!\n");
- 	vs->close();
+        fprintf(stderr,"Video recording failure!\n");
+         vs->close();
        }
     }
   }
@@ -47,7 +47,7 @@ namespace lpzrobots {
     filename = new char[strlen(_filename) + 1];
     strcpy(filename, _filename);
     counter  = 0;
-    opened = true;    
+    opened = true;
   }
 
   void VideoStream::close(){
@@ -59,17 +59,17 @@ namespace lpzrobots {
   bool VideoStream::grabAndWriteFrame(const osg::Camera& camera) {
     if(!opened) return false;
     char name[128];
-    osg::ref_ptr<osg::Image>image = new osg::Image; 
+    osg::ref_ptr<osg::Image>image = new osg::Image;
     // test
-    const osg::Viewport* vp = camera.getViewport();    
-    //    int x, y; 
-    //    camera.getProjectionRectangle(x, y, w, h); 
-    //    image->allocateImage( w, h, 1, GL_RGB, GL_UNSIGNED_BYTE); 
+    const osg::Viewport* vp = camera.getViewport();
+    //    int x, y;
+    //    camera.getProjectionRectangle(x, y, w, h);
+    //    image->allocateImage( w, h, 1, GL_RGB, GL_UNSIGNED_BYTE);
     // the allocation is done by readPixels
-    // image->allocateImage( (int)vp->width(), (int)vp->height(), 1, GL_RGB, GL_UNSIGNED_BYTE); 
-    
-    //    image->readPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE); 
-    image->readPixels( 0, 0, (int)vp->width(), (int)vp->height(), GL_RGB, GL_UNSIGNED_BYTE); 
+    // image->allocateImage( (int)vp->width(), (int)vp->height(), 1, GL_RGB, GL_UNSIGNED_BYTE);
+
+    //    image->readPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE);
+    image->readPixels( 0, 0, (int)vp->width(), (int)vp->height(), GL_RGB, GL_UNSIGNED_BYTE);
     sprintf(name,"%s_%06ld.jpg", filename, counter);
     if(!osgDB::writeImageFile( *(image.get()), name )){
       fprintf(stderr, "VideoStream: Cannot write to file %s\n", name);
@@ -79,74 +79,74 @@ namespace lpzrobots {
     return true;
   }
 
-} 
+}
 
-// bool getGLFrameBuffer( unsigned char *buf, int w, int h){    
+// bool getGLFrameBuffer( unsigned char *buf, int w, int h){
 //   if (!buf)
 //     return false;
 //   glReadPixels(0,0,w,h,GL_RGB,GL_UNSIGNED_BYTE,(GLvoid*)buf);
 //   return true;
-// } 
+// }
 
-// > the best way to capture frames within OSG is to use osg::Image. One 
-// > suggestion is to use a Producer::Camera postDrawCallback. Each frame, 
-// > then, (to quote a current project): 
-// > 
-// > osg::ref_ptr<osg::Image>image = new osg::Image; 
-// > int x, y; 
-// > unsigned int w, h; 
-// > camera.getProjectionRectangle(x,y,w,h); 
-// > image->allocateImage( w, h, 1, GL_RGB, GL_UNSIGNED_BYTE); 
+// > the best way to capture frames within OSG is to use osg::Image. One
+// > suggestion is to use a Producer::Camera postDrawCallback. Each frame,
+// > then, (to quote a current project):
+// >
+// > osg::ref_ptr<osg::Image>image = new osg::Image;
+// > int x, y;
+// > unsigned int w, h;
+// > camera.getProjectionRectangle(x,y,w,h);
+// > image->allocateImage( w, h, 1, GL_RGB, GL_UNSIGNED_BYTE);
 
-// > image->readPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE); 
-// > 
-// > 
-// > char filename[128]; 
-// > sprintf( filename, "ScreenCapture/%04d.bmp", _screenCaptureSequence); 
-// > osgDB::writeImageFile( *(image.get()), filename ); 
+// > image->readPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE);
+// >
+// >
+// > char filename[128];
+// > sprintf( filename, "ScreenCapture/%04d.bmp", _screenCaptureSequence);
+// > osgDB::writeImageFile( *(image.get()), filename );
 // > _screenCaptureSequence++;
 
 
 
 //  And finally, to create mpegs, (I made mpeg1), you simply
 //  use the mpeg_encode with this cfg file encode.stats:
- 
+
 //  PATTERN         ibbpbbpbbpbbpbb
- 
+
 //  SLICES_PER_FRAME        1
- 
+
 //  OUTPUT nb.mpg
- 
+
 //  GOP_SIZE        50
- 
+
 //  INPUT_DIR .
- 
- 
+
+
 //  INPUT_CONVERT   *
- 
+
 //  INPUT
 //  nb*.ppm [0000-3181]
 //  END_INPUT
- 
+
 //  BASE_FILE_FORMAT PPM
- 
+
 //  ERROR           MAD
- 
- 
+
+
 //  PIXEL HALF
- 
+
 //  # means +/- this many pixels
 //  RANGE           10
- 
+
 //  PSEARCH_ALG     EXHAUSTIVE
 //  BSEARCH_ALG     CROSS2
 //  #IQSCALE         8
 //  #PQSCALE         10
 //  #BQSCALE         25
- 
+
 //  IQSCALE         26
 //  PQSCALE         26
 //  BQSCALE         26
- 
+
 //  REFERENCE_FRAME ORIGINAL
- 
+

@@ -66,7 +66,7 @@ namespace lpzrobots {
       if(tau<1.0)
         values[i] = values[i]*(1-tau) + (p1+p2)*(-tau/maxtorque);
       else
-				values[i] = (p1+p2)/(-maxtorque);
+                                values[i] = (p1+p2)/(-maxtorque);
     }
     // debugging:
     // std::cout << "T1:"; t1.print();

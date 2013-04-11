@@ -35,19 +35,19 @@
 
     struct ControlGen : public ControllerGenerator {
       virtual ~ControlGen(){}
-      virtual AbstractController* operator()( int index) { 
+      virtual AbstractController* operator()( int index) {
        AbstractController* c;
-        c= new Sox(0.8);    
+        c= new Sox(0.8);
         c->setParam("epsC",0.02);
         c->setParam("epsA",0.01);
-       return c; 
+       return c;
       }
     };
-    
+
     // to see the values in the inspectable do after
     agent = new OdeAgent(global);
     // this line
-    agent->addInspectable(((OneControllerPerChannel*)controller)->getControllers()[0]); 
+    agent->addInspectable(((OneControllerPerChannel*)controller)->getControllers()[0]);
     ....
     Make sure you initialize the OneControllerPerChannel with sufficiently many initial controller.
 
@@ -65,7 +65,7 @@ struct ControllerGenerator : public std::unary_function< int,  AbstractControlle
  */
 class OneControllerPerChannel : public AbstractController {
 public:
-  
+
   /** @param controllerGenerator generator object for controller
       @param controllerName name
       @param numCtrlCreateBeforeInit number of controller that are generated before the init function is called. Useful if they should be put into the inspectable list of the agent
@@ -87,7 +87,7 @@ public:
                     motor* motors, int motornumber);
 
   virtual void stepNoLearning(const sensor* sensors , int sensornumber,
-	                            motor* motors, int motornumber);
+                                    motor* motors, int motornumber);
 
   virtual int getSensorNumber() const {return sensornumber; }
   virtual int getMotorNumber() const  {return motornumber; }
@@ -95,12 +95,12 @@ public:
   /*********** STORABLE **************/
 
   virtual bool store(FILE* f) const;
-  
+
   virtual bool restore(FILE* f);
 
 
   virtual std::vector<AbstractController*> getControllers() const { return ctrl;}
-  
+
 protected:
   std::vector<AbstractController*> ctrl;
   ControllerGenerator* controllerGenerator;

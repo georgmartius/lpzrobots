@@ -75,7 +75,7 @@ int k=8;
 class ThisSim : public Simulation {
 public:
   Joint* fixator;
-  
+
   CrossMotorCoupling* controller;
   OdeRobot* vehicle;
   matrix::Matrix teaching;
@@ -89,7 +89,7 @@ public:
     setCameraHomePos(Pos(-19.7951, -12.3665, 16.4319),  Pos(-51.7826, -26.772, 0));
 
     global.odeConfig.setParam("noise",0.05);
-    global.odeConfig.setParam("gravity", -9); 
+    global.odeConfig.setParam("gravity", -9);
     global.odeConfig.setParam("controlinterval",2);
     //    global.odeConfig.setParam("realtimefactor",4);
 
@@ -98,13 +98,13 @@ public:
     //conf.motorPower=3;
     conf.frictionJoint=0.05;
     conf.frictionRatio=0.01;
-    
-    //     conf.motorPower=5;    
+
+    //     conf.motorPower=5;
     conf.motorPower=5;
     //    conf.frictionJoint=0.01;
-    //    conf.segmNumber=16;     
-    conf.segmNumber=segmNum;     
-    conf.useServoVel=false;     
+    //    conf.segmNumber=16;
+    conf.segmNumber=segmNum;
+    conf.useServoVel=false;
     //     conf.jointLimit=conf.jointLimit*3;
     // conf.sensorFactor=5;     unused
 
@@ -112,20 +112,20 @@ public:
     //    snakeHandle.substance.toPlastic(0.1);
     snakeHandle.substance.toPlastic(.5);
     vehicle = new SchlangeServo ( snakeHandle, osgHandle.changeColor(Color(0.9, 0.85, 0.05)),
-				  conf, "Schlange1D_" + std::itos(teacher*10000));
+                                  conf, "Schlange1D_" + std::itos(teacher*10000));
 
-    vehicle->place(Pos(0,0,2));    
+    vehicle->place(Pos(0,0,2));
 
 //     Primitive* head = vehicle->getMainPrimitive();
 //     fixator = new BallJoint(head, global.environment, head->getPosition());
 //     fixator->init(odeHandle, osgHandle);
 
 
-    SeMoXConf cc = SeMoX::getDefaultConf();    
+    SeMoXConf cc = SeMoX::getDefaultConf();
     cc.someInternalParams=true;
     cc.modelExt=true;
     cc.cInit=1.0;
-    SeMoX* semox = new SeMoX(cc);  
+    SeMoX* semox = new SeMoX(cc);
     //semox->setParam("adaptrate", 0.0001);
     //    semox->setParam("nomupdate", 0.0001);
     semox->setParam("epsC", 0.02);
@@ -147,15 +147,15 @@ public:
 //     wc.eps=0.25;
 //     wc.derivativeScale=5;
 //     AbstractWiring* wiring = new DerivativeWiring(wc, new WhiteUniformNoise());
-    
+
     //    AbstractWiring* wiring = new FeedbackWiring(new ColorUniformNoise(0.1),
-    //  						FeedbackWiring::Motor, 0.75);
+    //                                                  FeedbackWiring::Motor, 0.75);
 
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
 
-    if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, 
-						 change < 50 ? std::itos(change).c_str() : "uni", 50));
+    if(track) agent->setTrackOptions(TrackRobot(true,false,false, false,
+                                                 change < 50 ? std::itos(change).c_str() : "uni", 50));
     global.agents.push_back(agent);
     global.configs.push_back(controller);
     global.configs.push_back(vehicle);
@@ -164,37 +164,37 @@ public:
       std::list<int> perm;
       int len  = controller->getMotorNumber();
       for(int i=0; i<len; i++){
-	perm.push_back((i+k)%len);
+        perm.push_back((i+k)%len);
       }
       CMC cmc = controller->getPermutationCMC(perm);
       controller->setCMC(cmc);
     }
-      
-    
+
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
 //     if(control && controller) {
 //       if(useSym){
-// 	int k= int(globalData.time/(change*60))%4+1; //  == 0 ? 0 : 1; // turn around every 10 minutes
-// 	std::list<int> perm;
-// 	int len  = controller->getMotorNumber();
-// 	for(int i=0; i<len; i++){
-//  	  perm.push_back((i+k)%len);
-// 	}
-// 	CMC cmc = controller->getPermutationCMC(perm);
-// 	controller->setCMC(cmc);
+//         int k= int(globalData.time/(change*60))%4+1; //  == 0 ? 0 : 1; // turn around every 10 minutes
+//         std::list<int> perm;
+//         int len  = controller->getMotorNumber();
+//         for(int i=0; i<len; i++){
+//            perm.push_back((i+k)%len);
+//         }
+//         CMC cmc = controller->getPermutationCMC(perm);
+//         controller->setCMC(cmc);
 
-// 	matrix::Matrix m = controller->getLastMotorValues();	
-// 	teaching = m;
-// 	int len = m.getM();
-// 	for(int i=0; i<len; i++){
-// 	  double l = m.val((i+k+(len)/2)%len,0);
-// 	  if(fabs(l)>0.4){
-// 	    teaching.val(i,0) = l;
-// 	  }
-// 	}
-// 	controller->setMotorTeaching(teaching);
+//         matrix::Matrix m = controller->getLastMotorValues();
+//         teaching = m;
+//         int len = m.getM();
+//         for(int i=0; i<len; i++){
+//           double l = m.val((i+k+(len)/2)%len,0);
+//           if(fabs(l)>0.4){
+//             teaching.val(i,0) = l;
+//           }
+//         }
+//         controller->setMotorTeaching(teaching);
 //       }
 //    }
   }
@@ -202,25 +202,25 @@ public:
   //Funktion die eingegebene Befehle/kommandos verarbeitet
   virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
-    if (!down) return false;    
+    if (!down) return false;
     bool handled = false;
     switch ( key )
       {
       case 'x':
-	if(fixator) delete (fixator);
-	fixator=0 ;	
-	handled = true; 
-	break;
+        if(fixator) delete (fixator);
+        fixator=0 ;
+        handled = true;
+        break;
       case 'i':
-	k++;
-	std::cout << "connection: " << k << std::endl;
-	handled = true; 
-	break;
+        k++;
+        std::cout << "connection: " << k << std::endl;
+        handled = true;
+        break;
       case 'k':
-	k = max(0,k-1);
-	std::cout << "connection: " << k << std::endl;
-	handled = true; 
-	break;
+        k = max(0,k-1);
+        std::cout << "connection: " << k << std::endl;
+        handled = true;
+        break;
       }
     fflush(stdout);
 
@@ -243,24 +243,24 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   int index = Simulation::contains(argv,argc,"-sym");
   if(index >0 && argc>index){
-    teacher=atof(argv[index]); 
-    useSym = 1;  
+    teacher=atof(argv[index]);
+    useSym = 1;
   }
   index = Simulation::contains(argv,argc,"-change");
   if(index >0 && argc>index){
-    change=atoi(argv[index]); 
+    change=atoi(argv[index]);
   }
   track = Simulation::contains(argv,argc,"-notrack") == 0;
 
   ThisSim sim;
   sim.setGroundTexture("Images/red_velour_wb.rgb");
   sim.setCaption("lpzrobots Simulator               Martius et al, 2009");
-  
+
   return sim.run(argc, argv) ? 0 :  1;
 }
 
- 
- 
+
+

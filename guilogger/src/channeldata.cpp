@@ -34,7 +34,7 @@ ChannelData::ChannelData(int buffersize)
   setBufferSize(buffersize);
 
 }
-  
+
 int ChannelData::getBuffersize(){
   return buffersize;
 }
@@ -46,11 +46,11 @@ void ChannelData::setBufferSize(int newBuffersize){
     for(int i=0; i<buffersize;i++){
       data[i].resize(numchannels);
     }
-    time = 0; 
+    time = 0;
     emit(update());
   }
 }
- 
+
 
 /// sets a new information about a channel (also works before initialization)
 void ChannelData::setChannelInfo(const ChannelInfo& info){
@@ -62,7 +62,7 @@ void ChannelData::setChannelInfo(const ChannelInfo& info){
       channels[index]=info;
     else // if not in known channels then add it to the preset info
       preset[info.name]=info;
-  }  
+  }
 }
 
 // sets the channels (and initialized the data buffer)
@@ -70,12 +70,12 @@ void ChannelData::setChannels(const QStringList& newchannels){
   // if we are allready initialized we do nothing (reinitialization not really supported)
   if(initialized){
     if(newchannels.size() != channels.size()){ // this is not allowed so far
-      fprintf(stderr,"It is not allowed to reinitialize with new number of channels.");      
+      fprintf(stderr,"It is not allowed to reinitialize with new number of channels.");
     }
-    return; 
+    return;
   }else{
     numchannels = newchannels.size();
-    channels.resize(numchannels);    
+    channels.resize(numchannels);
     int i=0;
     QRegExp vectorRE;
     vectorRE.setPatternSyntax(QRegExp::RegExp);
@@ -83,23 +83,23 @@ void ChannelData::setChannels(const QStringList& newchannels){
     QRegExp matrixRE;
     matrixRE.setPatternSyntax(QRegExp::RegExp);
     matrixRE.setPattern(".+\\[\\d+,\\d+\\]"); // regexp for a matrix (e.g. A[0,2])
-    FOREACHC(QStringList, newchannels, n){      
+    FOREACHC(QStringList, newchannels, n){
       if(preset.contains(*n)){
-	channels[i] = preset[*n];
+        channels[i] = preset[*n];
       } else {
-	channels[i].name  = *n;
-	channels[i].descr = "";
-	channels[i].objectName = "";
-	channels[i].type  = AutoDetection;   
+        channels[i].name  = *n;
+        channels[i].descr = "";
+        channels[i].objectName = "";
+        channels[i].type  = AutoDetection;
       }
       if(channels[i].type == AutoDetection){
-	if(vectorRE.exactMatch(*n)){
-	  channels[i].type  = VectorElement; 	  
-	} else if(matrixRE.exactMatch(*n)){
-	  channels[i].type  = MatrixElement; 
-	} else {
-	  channels[i].type  = Single;
-	}
+        if(vectorRE.exactMatch(*n)){
+          channels[i].type  = VectorElement;
+        } else if(matrixRE.exactMatch(*n)){
+          channels[i].type  = MatrixElement;
+        } else {
+          channels[i].type  = Single;
+        }
         //        fprintf(stderr, "Ch %s : %i\n", n->latin1(), channels[i].type);
       }
       channels[i].row = channels[i].column = 0; // will be initialized later
@@ -115,15 +115,15 @@ void ChannelData::setChannels(const QStringList& newchannels){
       multichannelindex[mc.info.name]=nummulti; // store index in hash
       nummulti++;
     }
-    
+
     multichannels.resize(nummulti); // cut down to the size of actual multichannels
     // initialize data buffer
     data.resize(buffersize);
     for(int i=0; i<buffersize;i++){
       data[i].resize(numchannels);
-    }    
+    }
     initialized = true;
-    emit channelsChanged();    
+    emit channelsChanged();
     emit update();
   }
 }
@@ -140,14 +140,14 @@ MultiChannel ChannelData::extractMultiChannel(int* i){
     mc.info=channels[index];
     mc.startindex = index;
     mc.rows=1;
-    mc.columns=1;   
-    mc.size=1;   
-  }else if(channels[index].type == MatrixElement 
-	   || channels[index].type == VectorElement){ // A matrix or vector channel    
+    mc.columns=1;
+    mc.size=1;
+  }else if(channels[index].type == MatrixElement
+           || channels[index].type == VectorElement){ // A matrix or vector channel
 
     QString root = getChannelNameRoot(channels[index].name);
     QString rootwithbracket = root + "[";
-    
+
     mc.info.name = root + "_";
     if(preset.contains(mc.info.name)){
       mc.info.descr= preset[mc.info.name].descr;
@@ -165,28 +165,28 @@ MultiChannel ChannelData::extractMultiChannel(int* i){
       QRegExp matrixRE;
       matrixRE.setPatternSyntax(QRegExp::RegExp);
       matrixRE.setPattern(".+\\[(\\d+),(\\d+)\\]"); // regexp for a matrix (e.g. A[0,2])
-      
+
       // scan through
       while(index<numchannels && channels[index].name.startsWith(rootwithbracket)){ // one pass is assured
-	if(matrixRE.exactMatch(channels[index].name)){
-	  QStringList matches = matrixRE.capturedTexts();	
-	  int col = matches[1].toInt();
-	  int row = matches[2].toInt();
-	  channels[index].row    = row;
-	  channels[index].column = col;
+        if(matrixRE.exactMatch(channels[index].name)){
+          QStringList matches = matrixRE.capturedTexts();
+          int col = matches[1].toInt();
+          int row = matches[2].toInt();
+          channels[index].row    = row;
+          channels[index].column = col;
           if(channels[index].descr.isEmpty()) {
-	    channels[index].descr = (mc.info.descr.isEmpty() ? root : mc.info.descr)
+            channels[index].descr = (mc.info.descr.isEmpty() ? root : mc.info.descr)
               + QString(" elem %1,%2").arg(col+1).arg(row+1);
           }
           if(channels[index].objectName.isEmpty())
             channels[index].objectName = mc.info.objectName;
-	  mc.columns = mc.columns < col+1 ? col+1 : mc.columns;
-	  mc.rows    = mc.rows    < row+1 ? row+1 : mc.rows;	
-	} else {
-	  fprintf(stderr, "error while parsing matrix element %s!",
-		  channels[index].name.latin1());
-	}
-	index++;
+          mc.columns = mc.columns < col+1 ? col+1 : mc.columns;
+          mc.rows    = mc.rows    < row+1 ? row+1 : mc.rows;
+        } else {
+          fprintf(stderr, "error while parsing matrix element %s!",
+                  channels[index].name.latin1());
+        }
+        index++;
       }
     }else{// A vector channel
       QRegExp vectorRE;
@@ -196,22 +196,22 @@ MultiChannel ChannelData::extractMultiChannel(int* i){
       mc.columns=1;
       // scan through
       while(index<numchannels && channels[index].name.startsWith(rootwithbracket)){ // one pass is assured
-	if(vectorRE.exactMatch(channels[index].name)){
-	  QStringList matches = vectorRE.capturedTexts();	
-	  int row = matches[1].toInt();
-	  channels[index].row    = row;
+        if(vectorRE.exactMatch(channels[index].name)){
+          QStringList matches = vectorRE.capturedTexts();
+          int row = matches[1].toInt();
+          channels[index].row    = row;
           if(channels[index].descr.isEmpty()) {
-	    channels[index].descr = (mc.info.descr.isEmpty() ? root : mc.info.descr)
+            channels[index].descr = (mc.info.descr.isEmpty() ? root : mc.info.descr)
               + QString(" elem %1").arg(row+1);
           }
           if(channels[index].objectName.isEmpty())
             channels[index].objectName = mc.info.objectName;
-	  mc.rows    = mc.rows    < row+1 ? row+1 : mc.rows;	
-	} else {
-	  fprintf(stderr, "error while parsing vector element %s!", 
-		  channels[index].name.latin1());
-	}
-	index++;
+          mc.rows    = mc.rows    < row+1 ? row+1 : mc.rows;
+        } else {
+          fprintf(stderr, "error while parsing vector element %s!",
+                  channels[index].name.latin1());
+        }
+        index++;
       }
     }
     mc.size = *i - index;
@@ -220,7 +220,7 @@ MultiChannel ChannelData::extractMultiChannel(int* i){
     fprintf(stderr, "Unknown channel type (%i) !\n", channels[index].type);
     mc.info = channels[index];
   }
-  
+
   return mc;
 }
 
@@ -229,7 +229,7 @@ QString ChannelData::getChannelNameRoot(const ChannelName& name) const {
   if(ending>0)
     return name.left(ending);
   else
-    return name;  
+    return name;
 }
 
 /// returns the channel index (-1) if not found
@@ -246,7 +246,7 @@ const ChannelName& ChannelData::getChannelName(int index) const {
   }else{
     return emptyChannelName;
   }
-  
+
 }
 
 
@@ -270,7 +270,7 @@ void ChannelData::setChannelDescription(const ChannelObjectName& objectName, con
         preset[name].name  = name;
         preset[name].type  = AutoDetection;
       }
-      preset[name].descr = description;    
+      preset[name].descr = description;
       preset[name].objectName = objectName;
     }
   }else{
@@ -289,7 +289,7 @@ void ChannelData::setChannelDescription(const ChannelObjectName& objectName, con
 void ChannelData::setData(const QVector<double>& newdata){
   if(newdata.size() != numchannels) {
     fprintf(stderr,"Number of data entries (%i) does not match number of channels (%i)",
-	    newdata.size(),numchannels);  
+            newdata.size(),numchannels);
   }else{
     time++;
     int index = time%buffersize;
@@ -349,17 +349,17 @@ ChannelVals ChannelData::getData(const QList<ChannelName>& channels, int index) 
 }
 
 
-void ChannelData::receiveRawData(QString data){  
+void ChannelData::receiveRawData(QString data){
   QStringList parsedString = QStringList::split(' ', data.trimmed());  //parse data string with Space as separator
   QString& first = *(parsedString.begin());
   if(first == "#C")   //Channels einlesen
-    {	
+    {
       // printf("GuiLogger:: got channels!\n");
       parsedString.erase(parsedString.begin());
       //transmit channels to GNUPlot
       QStringList channels;
       FOREACH(QStringList, parsedString, s){
-	channels.push_back((*s).stripWhiteSpace());
+        channels.push_back((*s).stripWhiteSpace());
       }
       setChannels(channels);
     }
@@ -403,12 +403,12 @@ void ChannelData::receiveRawData(QString data){
     {
       printf("Guilogger: Received Quit\n");
       emit quit();
-    }	
+    }
   else if( first[0] != '#')  // Daten einlesen
     {
       QVector<double> dat(parsedString.size());
       int i=0;
-      
+
       FOREACH(QStringList, parsedString, s){
         dat[i] = (*s).stripWhiteSpace().toDouble();
         i++;

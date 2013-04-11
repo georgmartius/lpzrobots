@@ -25,7 +25,7 @@
 #define __ODEROBOT_H
 
 #include <vector>
- 
+
 #include <selforg/abstractrobot.h>
 #include <selforg/storeable.h>
 #include "odehandle.h"
@@ -34,9 +34,10 @@
 #include "color.h"
 #include "pos.h"
 #include "osgforwarddecl.h"
+#include "tmpprimitive.h"
 
 namespace lpzrobots {
-  
+
   class Primitive;
   class Joint;
 
@@ -44,7 +45,7 @@ namespace lpzrobots {
 
   /**
    * Abstract class  for ODE robots
-   * 
+   *
    */
   class OdeRobot : public AbstractRobot, public Storeable {
   public:
@@ -55,8 +56,8 @@ namespace lpzrobots {
     /**
      * Constructor
      */
-    OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-	     const std::string& name, const std::string& revision);
+    OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+             const std::string& name, const std::string& revision);
 
     /// calls cleanup()
     virtual ~OdeRobot();
@@ -66,69 +67,69 @@ namespace lpzrobots {
     virtual void update() = 0;
 
     /** sets the vehicle to position pos
-	@param pos desired position of the robot
+        @param pos desired position of the robot
     */
     virtual void place(const Pos& pos);
 
     /** sets the pose of the vehicle
-	@param pose desired 4x4 pose matrix
+        @param pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose) = 0;
 
-    /** @deprecated This function will be removed in 0.8 
-     *  Do not use it anymore, collision control is done automatically. 
-     *  In case of a routine return true 
+    /** @deprecated This function will be removed in 0.8
+     *  Do not use it anymore, collision control is done automatically.
+     *  In case of a routine return true
      *  (collision will be ignored by other objects and the default routine)
-     *  else false (collision is passed to other objects and (if not treated) 
-     *   to the default routine). 
+     *  else false (collision is passed to other objects and (if not treated)
+     *   to the default routine).
      */
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){ return false; };
 
-    /** this function is called each controlstep before control. 
-	This is the place the perform active sensing (e.g. Image processing)
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called each controlstep before control.
+        This is the place the perform active sensing (e.g. Image processing)
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void sense(GlobalData& globalData) {};
 
     /** this function is called in each simulation timestep (always after control). It
-	should perform robot-internal checks and actions
-	like resetting certain sensors or implement velocity dependend friction and the like.
-	The attached Motors should act here.
-	@param globalData structure that contains global data from the simulation environment
+        should perform robot-internal checks and actions
+        like resetting certain sensors or implement velocity dependend friction and the like.
+        The attached Motors should act here.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData) {};
 
     /** sets color of the robot
-	@param col Color struct with desired Color
+        @param col Color struct with desired Color
     */
     virtual void setColor(const Color& col);
 
-    
+
     /*********** BEGIN TRACKABLE INTERFACE ****************/
-    
+
     /** returns position of the object
-	@return vector of position (x,y,z)
+        @return vector of position (x,y,z)
     */
     virtual Position getPosition() const;
-    
+
     /** returns linear speed vector of the object
-	@return vector  (vx,vy,vz)
+        @return vector  (vx,vy,vz)
     */
     virtual Position getSpeed() const;
-    
+
     /** returns angular velocity vector of the object
-	@return vector  (wx,wy,wz)
+        @return vector  (wx,wy,wz)
     */
     virtual Position getAngularSpeed() const;
-    
+
     /** returns the orientation of the object
-	@return 3x3 rotation matrix
+        @return 3x3 rotation matrix
     */
     virtual matrix::Matrix getOrientation() const;
     /*********** END TRACKABLE INTERFACE ****************/
-    
+
     /// return the primitive of the robot that is used for tracking and camera following
-    virtual Primitive* getMainPrimitive() const  { 
+    virtual Primitive* getMainPrimitive() const  {
       if (!objects.empty()) return objects[0]; else return 0;
     };
 
@@ -140,18 +141,31 @@ namespace lpzrobots {
 
     /* ********** STORABLE INTERFACE **************** */
     virtual bool store(FILE* f) const;
-    
-    virtual bool restore(FILE* f);  
+
+    virtual bool restore(FILE* f);
     /* ********** END STORABLE INTERFACE ************ */
 
-    /** relocates robot to new postion (keep current pose)
-        such that lowest body part is at the given position 
-        (the center of it, so the bounding box is not checked)
+    /** relocates robot such its primitive with the given ID
+        is at the new postion (keep current pose).
+        If primitiveID is -1 then the main primitive is used.
+        If primitiveID is -2 then the primitive with the lowest center
+        is used (the center of it, so the bounding box is not checked)
      */
-    virtual void moveToPosition(Pos pos = Pos(0,0,0.5));
+    virtual void moveToPosition(Pos pos = Pos(0,0,0.5), int primitiveID = -1);
+
+    /** fixates the given primitive of the robot at its current position to the world
+        for a certain time.
+        Hint: use moveToPosition() to get the robot relocated
+        @param primitiveID if -1 then the main primitive is used, otherwise the primitive with the given index
+        @param duration time to fixate in seconds (if ==0 then indefinite)
+     */
+    virtual void fixate(GlobalData& global, int primitiveID=-1, double duration = 0);
+    /// release the robot in case it is fixated and return true in this case
+    virtual bool unFixate(GlobalData& global);
+
 
   protected:
-    
+
     static bool isGeomInPrimitiveList(Primitive** ps, int len, dGeomID geom);
     static bool isGeomInPrimitiveList(std::list<Primitive*> ps, dGeomID geom);
 
@@ -164,6 +178,7 @@ namespace lpzrobots {
     /// list of joints (should be populated by subclasses)
     std::vector <Joint*> joints;
 
+    TmpJoint* fixationTmpJoint;
 
     OdeHandle odeHandle;
     OsgHandle osgHandle;
@@ -173,4 +188,4 @@ namespace lpzrobots {
 }
 
 #endif
- 
+

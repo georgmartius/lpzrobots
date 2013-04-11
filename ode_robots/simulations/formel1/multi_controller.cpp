@@ -32,22 +32,22 @@ int MultiController::getMotorNumber() const
 }
 
 
-void MultiController::step(const sensor* sensors, int sensornumber, 
-			   motor* motors, int motornumber)
+void MultiController::step(const sensor* sensors, int sensornumber,
+                           motor* motors, int motornumber)
 {
   (*it_active_controller)->step(sensors, sensornumber, motors, motornumber);
 }
 
 
 void MultiController::stepNoLearning(const sensor* sensors,
-				     int sensornumber, 
-				     motor* motors,
-				     int motornumber)
+                                     int sensornumber,
+                                     motor* motors,
+                                     int motornumber)
 {
   (*it_active_controller)->stepNoLearning(sensors,
-					  sensornumber,
-					  motors,
-					  motornumber);
+                                          sensornumber,
+                                          motors,
+                                          motornumber);
 }
 
 
@@ -80,7 +80,7 @@ bool MultiController::setParam(const paramkey& key, paramval val, bool traverseC
 
 AbstractController::paramlist MultiController::getParamList() const
 {
-  return (*it_active_controller)->getParamList(); 
+  return (*it_active_controller)->getParamList();
 }
 
 

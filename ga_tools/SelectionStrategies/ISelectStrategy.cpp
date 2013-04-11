@@ -27,9 +27,9 @@
 #include "ISelectStrategy.h"
 
 ISelectStrategy::ISelectStrategy() {
-	// nothing
+        // nothing
 }
 
 ISelectStrategy::~ISelectStrategy() {
-	// nothing
+        // nothing
 }

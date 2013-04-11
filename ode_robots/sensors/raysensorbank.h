@@ -29,19 +29,19 @@
 
 namespace lpzrobots {
 
-/** Class for a bank (collection) of ray sensors. 
-    Ray sensors can be registered at the bank. Methods for resetting, 
+/** Class for a bank (collection) of ray sensors.
+    Ray sensors can be registered at the bank. Methods for resetting,
     sensing and reading the sensor values of all sensors are provided.
  */
 class RaySensorBank {
-public:  
+public:
   RaySensorBank();
 
   virtual ~RaySensorBank();
 
   /** initialises sensor bank with handles for ode and osg
    */
-  virtual void init( const OdeHandle& odeHandle, const OsgHandle& osgHandle ); 
+  virtual void init( const OdeHandle& odeHandle, const OsgHandle& osgHandle );
 
   /** registers a new sensor at the sensor bank. The body and the pose have to be provided.
       @param raysensor RaySensor to add
@@ -50,17 +50,17 @@ public:
       @param range maximum sense range of the sensor
       @return index of the sensor
    */
-  virtual unsigned int registerSensor(RaySensor* raysensor, Primitive* body, 
-				      const osg::Matrix& pose, float range,
-				      RaySensor::rayDrawMode drawMode);  
+  virtual unsigned int registerSensor(RaySensor* raysensor, Primitive* body,
+                                      const osg::Matrix& pose, float range,
+                                      RaySensor::rayDrawMode drawMode);
 
-  /** resets all sensors (used for reseting the sensor value to a value of maximal distance) 
+  /** resets all sensors (used for reseting the sensor value to a value of maximal distance)
    */
-  virtual void reset();  
+  virtual void reset();
 
   /// returns the number of sensors
   virtual int size() { return bank.size(); }
-  
+
   /** returns the sensor value of the given sensor (usually in the range [-1,1] )
    */
   virtual double get(unsigned int index);
@@ -81,11 +81,11 @@ public:
   */
   virtual void setRange(unsigned int index, float range);
 
-  /** set the range of all sensors 
+  /** set the range of all sensors
       @param range new length of the sensors
   */
   virtual void setRange(float range);
-  
+
   /** returns the spaceID of the sensor space
    */
   virtual dSpaceID getSpaceID();
@@ -93,7 +93,7 @@ public:
   /** updates the sensor's graphical representation
    */
   virtual void update();
-  
+
   // delete all registered sensors.
   virtual void clear();
 
@@ -105,7 +105,7 @@ protected:
   bool initialized;
 
   OdeHandle odeHandle;
-  OsgHandle osgHandle; 
+  OsgHandle osgHandle;
 };
 
 }

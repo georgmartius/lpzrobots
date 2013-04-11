@@ -49,7 +49,7 @@ class CSerialThread{
   bool m_is_running;
   bool terminated;
   bool m_is_joined;
-	
+
   pthread_t thread;
   bool test_mode;
 
@@ -81,9 +81,9 @@ public:
    * address, i.e. only the 4 lower bits are taken from the 'adr'.
    */
   virtual uint8 makeAddrPacket(uint8 adr);
-  
+
   virtual uint8 makeStopPacket(uint8 adr);
-    
+
   /**
    * This method creates an acknowledge packet 0001xxxx with xxxx indicating the
    * slave address.
@@ -101,7 +101,7 @@ public:
    * i.e. only the 6 lower bits are taken from the paramter cmd.
    */
   virtual uint8 makeCmdPacket(uint8 cmd);
-    
+
   /**
    * This method creates a length packet 10xxxxxx with xxxxxx indicating the length,
    * i.e. only the 6 lower bits are taken from the paramter len.
@@ -118,17 +118,17 @@ public:
   virtual int sendData(uint8 adr, uint8 cmd, uint8 *data, uint8 len);
   virtual void sendAck(uint8 adr);
   virtual void sendNack(uint8 adr);
-    
-        
+
+
   /// thread is running?
   bool is_running(){return m_is_running;};
 
   /// start serial communication
   void start();
   /// stop serial communication and wait for the thread to terminate
-  void stopandwait();    
+  void stopandwait();
   /// stop serial communication (call also be called from inside)
-  void stop();    
+  void stop();
 
   /// set com port
   void comport(const CString& port){ m_port=port; };

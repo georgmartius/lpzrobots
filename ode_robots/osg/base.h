@@ -120,7 +120,7 @@ namespace lpzrobots
 
   protected:
     virtual void setTimeStats(double time, double realtimefactor,
-			      double truerealtimefactor,bool pause);
+                              double truerealtimefactor,bool pause);
 
     /**
      * Changes the currently used shadow technique.

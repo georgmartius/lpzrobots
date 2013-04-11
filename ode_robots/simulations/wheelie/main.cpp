@@ -112,7 +112,7 @@ public:
   double totalReinforcement;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
 
     useReinforcement      = 1;
@@ -129,20 +129,20 @@ public:
     global.odeConfig.setParam("gravity",-3); // normally at -9.81
     //    global.odeConfig.setParam("realtimefactor",1);
     // initialization
-    
+
 //     Playground* playground = new Playground(odeHandle, osgHandle, osg::Vec3(30, 0.2, 1));
 //     playground->setPosition(osg::Vec3(0,0,0.1)); // playground positionieren und generieren
 //     global.obstacles.push_back(playground);
-    
+
 //     for(int i=0; i<5; i++){
-//       PassiveSphere* s = 
-// 	new PassiveSphere(odeHandle, 
-// 			  osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
-//       s->setPosition(Pos(i*0.5-2, i*0.5, 1.0)); 
+//       PassiveSphere* s =
+//         new PassiveSphere(odeHandle,
+//                           osgHandle.changeColor(Color(184 / 255.0, 233 / 255.0, 237 / 255.0)), 0.2);
+//       s->setPosition(Pos(i*0.5-2, i*0.5, 1.0));
 //       s->setTexture("Images/dusty.rgb");
-//       global.obstacles.push_back(s);    
+//       global.obstacles.push_back(s);
 //     }
-        
+
     OdeAgent *agent;
     AbstractWiring *wiring;
 
@@ -151,24 +151,24 @@ public:
       /******* S L I D E R - w H E E L I E *********/
       mySliderWheelieConf.segmNumber=12;
       mySliderWheelieConf.jointLimitIn=M_PI/3;
-      mySliderWheelieConf.motorPower=powerValue; // 2 
-      mySliderWheelieConf.powerRatio=powerRatio; // 2; 
+      mySliderWheelieConf.motorPower=powerValue; // 2
+      mySliderWheelieConf.powerRatio=powerRatio; // 2;
       mySliderWheelieConf.frictionGround=0.5;
       mySliderWheelieConf.sliderLength=0.5;
       mySliderWheelieConf.segmLength=1.4;
       robot = new SliderWheelie(odeHandle, osgHandle, mySliderWheelieConf, "sliderWheelie1");
-      ((OdeRobot*) robot)->place(Pos(-5,-3,3.0)); 
+      ((OdeRobot*) robot)->place(Pos(-5,-3,3.0));
       InvertMotorNStepConf sliderinvertnconf = InvertMotorNStep::getDefaultConf();
       //      sliderinvertnconf.cInit=0.1;
       sliderinvertnconf.cInit=1;
       // sliderinvertnconf.useSD=true;
-      controller = new InvertMotorNStep(sliderinvertnconf);    
+      controller = new InvertMotorNStep(sliderinvertnconf);
       //controller = new SineController();
       controller->setParam("noiseY",0);
       controller->setParam("epsC",eps); // 0.01
       controller->setParam("epsA",eps);
       controller->setParam("adaptrate",0.00);
-      controller->setParam("logaE",3); 
+      controller->setParam("logaE",3);
       controller->setParam("steps",1);
       controller->setParam("factorB",0);
 
@@ -181,10 +181,10 @@ public:
       agent->init(controller, robot, wiring);
       global.agents.push_back(agent);
       global.configs.push_back(controller);
-      global.configs.push_back(robot);   
+      global.configs.push_back(robot);
     }
 
-    
+
 
   }
 
@@ -192,17 +192,17 @@ public:
     static Position lastPos = robot->getPosition();
     if(useReinforcement==1 && control){ // speed reinforcement
       Position pos = robot->getPosition();
-      Position speed = (pos - lastPos) * 
-	(globalData.odeConfig.controlInterval / globalData.odeConfig.simStepSize);
+      Position speed = (pos - lastPos) *
+        (globalData.odeConfig.controlInterval / globalData.odeConfig.simStepSize);
       lastPos=pos;
       double vel = sqrt(speed.x*speed.x + speed.y*speed.y);
-      //	matrix::Matrix m(3,1, speed.toArray());
-      //c->setReinforcement(tanh(sqrt(m.map(sqr).elementSum())/4 - 1)); 
+      //        matrix::Matrix m(3,1, speed.toArray());
+      //c->setReinforcement(tanh(sqrt(m.map(sqr).elementSum())/4 - 1));
       double reinf = tanh(vel/velScale - 1);
-      totalReinforcement += reinf;	
+      totalReinforcement += reinf;
       InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
       if(c){
-	c->setReinforcement(reinf);
+        c->setReinforcement(reinf);
       }
     }
   }
@@ -211,12 +211,12 @@ public:
     FILE* f;
     f = fopen("result","w");
     if(!f) return;
-    //    fprintf(f,"#C power powerRatio eps velScale seed reinf_ps\n"); 
+    //    fprintf(f,"#C power powerRatio eps velScale seed reinf_ps\n");
     fprintf(f,"%f %f %f %f %li %f\n",
-	    powerValue, powerRatio, eps, velScale, 
-	    globalData.odeConfig.getRandomSeed(), 
-	    totalReinforcement/globalData.time); 
-    fclose(f);    
+            powerValue, powerRatio, eps, velScale,
+            globalData.odeConfig.getRandomSeed(),
+            totalReinforcement/globalData.time);
+    fclose(f);
   }
 
   // add own key handling stuff here, just insert some case values
@@ -224,20 +224,20 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
-	  return false;
-	  break;
-	}
+        {
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
-  
+
 };
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   int index = ThisSim::contains(argv,argc,"--vals");
   if(index >0 && argc>index+3) {
@@ -245,10 +245,10 @@ int main (int argc, char **argv)
     powerRatio = atof(argv[index++]);
     eps        = atof(argv[index++]);
     velScale   = atof(argv[index++]);
-    printf("Params: P %f, PF %f, eps %f, VS %f\n", 
-	   powerValue, powerRatio, eps, velScale);
+    printf("Params: P %f, PF %f, eps %f, VS %f\n",
+           powerValue, powerRatio, eps, velScale);
   }
-  
+
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }

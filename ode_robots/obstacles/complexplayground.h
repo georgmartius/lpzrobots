@@ -27,7 +27,7 @@
 #include "mathutils.h"
 #include "abstractground.h"
 #include "pos.h"
- 
+
 namespace lpzrobots {
 
 // Taken from XFIG documentation
@@ -136,13 +136,13 @@ namespace lpzrobots {
   public:
     PolyLine(){};
     /** try to parses a PolyLine at the start of the list of lines and returns the consumed lines
-	1: no success; >=2 success
+        1: no success; >=2 success
      */
     int parse(std::list<char*> lines);
     void print();
 
     int     object_code; //             (always 2)
-    int     sub_type;    //             (we require 1: polyline)                                        
+    int     sub_type;    //             (we require 1: polyline)
     int     line_style;  //             (0: normal wall, 1: border, rest ignored)
     int     thickness;   //             (1/80 inch means factor of .3175 )
     int     depth;       //             (multiple of height)
@@ -162,23 +162,23 @@ namespace lpzrobots {
 
     std::string filename;
     double length, factor, heightfactor;
-    
+
     std::list<PolyLine> polylines;
-   
+
   public:
     /**
        @param factor global factor for the entire playground
-       @heightfactor factor for depth value of xfig line to determine wall height       
-     */  
-    ComplexPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
-		      const std::string filename, 
-		      double factor = 1, double heightfactor=0.02, bool createGround=true);
+       @heightfactor factor for depth value of xfig line to determine wall height
+     */
+    ComplexPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle ,
+                      const std::string filename,
+                      double factor = 1, double heightfactor=0.02, bool createGround=true);
 
     void createPolyline(const PolyLine&);
 
   protected:
-    virtual void create();   
-    
+    virtual void create();
+
   };
 
 }

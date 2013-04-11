@@ -15,7 +15,7 @@
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
- *                                            * 
+ *                                            *
  *                                                                         *
  *   $Log$
  *   Revision 1.1  2009-04-03 10:43:42  fhesse
@@ -50,10 +50,10 @@
 
 
 /**
- * class for robot controller that uses the georg's matrixlib for 
- *  direct matrix inversion for n channels 
+ * class for robot controller that uses the georg's matrixlib for
+ *  direct matrix inversion for n channels
  * (simple one layer networks)
- * 
+ *
  * Implements standart parameters: eps, rho, mu, stepnumber4avg, stepnumber4delay
  */
 class InvertNChannelControllerHebbXsi : public InvertNChannelController {
@@ -68,14 +68,14 @@ public:
   virtual int getSensorNumber() const { return number_all_sensors; }
 
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
 
   // inspectable interface
@@ -85,8 +85,8 @@ public:
 
 
   virtual paramval getParam(const paramkey& key) const{
-    if(key == "eps_hebb") return eps_hebb; 
-    else if(key == "fact_eps_h") return fact_eps_h;     
+    if(key == "eps_hebb") return eps_hebb;
+    else if(key == "fact_eps_h") return fact_eps_h;
     else  return InvertNChannelController::getParam(key) ;
   }
 
@@ -113,8 +113,8 @@ protected:
   bool hebb_inactive; //if true: deactivates hebb learning part and the context sensors, so it is the normal homeokinetic controller (invertnchannelcontroller)
 
   unsigned short number_all_sensors;
-  matrix::Matrix xsi_org;  // modeling error homeokinese 
-  matrix::Matrix xsi_hebb; // modeling error hebb 
+  matrix::Matrix xsi_org;  // modeling error homeokinese
+  matrix::Matrix xsi_hebb; // modeling error hebb
   sensor* all_sensors; //memory for all sensor values (used for hebbian learning)
   matrix::Matrix p; //weights for hebbian learning
   matrix::Matrix sensors_mean; // mean of sensors for hebb learning
@@ -124,7 +124,7 @@ protected:
   sensor old_sensors[10]; //memory of old sensor values (used for hebbian learning)
 
   virtual matrix::Matrix hebb(matrix::Matrix& xsi, sensor* sensors);
-  virtual double calculateEHebb(const matrix::Matrix& x_delay, const matrix::Matrix& y_delay);      
+  virtual double calculateEHebb(const matrix::Matrix& x_delay, const matrix::Matrix& y_delay);
   virtual void learn(const matrix::Matrix& x_delay, const matrix::Matrix& y_delay);
 
 };

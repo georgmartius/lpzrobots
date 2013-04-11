@@ -27,9 +27,9 @@
 #include "osgprimitive.h"
 
 namespace lpzrobots {
-  
-  Sound::~Sound(){ 
-    if(visual) delete visual; 
+
+  Sound::~Sound(){
+    if(visual) delete visual;
   }
 
 
@@ -37,7 +37,7 @@ namespace lpzrobots {
     if(!visual){
       visual = new OSGSphere((intensity+1.0)/4.0);
       visual->init(osgHandle.changeColor(Color(255-int((frequency+1.0)*128.0),
-					       0,int((frequency+1.0)*128.0),0.4)));
+                                               0,int((frequency+1.0)*128.0),0.4)));
       visual->setMatrix(osg::Matrix::translate(pos.x(), pos.y(), pos.z()+1));
     }
   }

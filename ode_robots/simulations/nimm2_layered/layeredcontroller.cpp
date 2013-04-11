@@ -51,7 +51,7 @@
 #include "layeredcontroller.h"
 using namespace matrix;
 using namespace std;
- 
+
 
 LayeredController::LayeredController(int _buffersize, bool _update_only_1/*=false*/) :  AbstractController("LayeredController", "$Id$") {
   layer1 = new Layer1_INCC(_buffersize, _update_only_1);
@@ -71,8 +71,8 @@ LayeredController::~LayeredController(){
 
 void LayeredController::init(int sensornumber, int motornumber, RandGen* randGen){
     if(!randGen) randGen = new RandGen(); // this gives a small memory leak
-  // is a InvertNChannelController 
-  // -> sensornumber must be equal to motornumber 
+  // is a InvertNChannelController
+  // -> sensornumber must be equal to motornumber
   layer1->init(motornumber, motornumber, randGen);
 
   // todo: motornumber is ok, but adapt sensornumber later on
@@ -99,15 +99,15 @@ void LayeredController::init(int sensornumber, int motornumber, RandGen* randGen
   y_buffer = new Matrix[buffersize];
   for (unsigned int k = 0; k < buffersize; k++) {
     x_buffer[k].set(number_channels,1);
-    y_buffer[k].set(number_channels,1);    
+    y_buffer[k].set(number_channels,1);
   }
   */
 }
 
 /// performs one step (includes learning). Calulates motor commands from sensor inputs.
 
-void LayeredController::step(const sensor* x_, int number_sensors, 
-				    motor* y_, int number_motors){
+void LayeredController::step(const sensor* x_, int number_sensors,
+                                    motor* y_, int number_motors){
 
   // divide sensors in sensors vor layer 1 and sensors for layer 2
   sensor l1_sensors[number_motors];
@@ -117,7 +117,7 @@ void LayeredController::step(const sensor* x_, int number_sensors,
   Matrix l1_H=layer1->getH();
   for (int i=0; i<number_sensors; i++){
     if (i<number_motors){
-      l1_sensors[i]=x_[i];  
+      l1_sensors[i]=x_[i];
       l2_sensors[i]=l1_H.val(i,0);
     } else {
       l2_sensors[i]=x_[i];
@@ -131,7 +131,7 @@ void LayeredController::step(const sensor* x_, int number_sensors,
   motor l2_motors[number_motors];
   layer2->setL1_dH(layer1->getdH());
   layer2->step(l2_sensors, number_sensors, l2_motors, number_motors);
-  
+
   lay2_motors=Matrix(number_motors, 1, l2_motors);
   layer1->setH(lay2_motors);
 
@@ -139,7 +139,7 @@ void LayeredController::step(const sensor* x_, int number_sensors,
   // execute step function in layer 1, which determines the
   // output of the whole controller
   layer1->step(l1_sensors,number_motors,y_, number_motors);
-  
+
 
 
 
@@ -151,15 +151,15 @@ void LayeredController::step(const sensor* x_, int number_sensors,
 
 
 /// performs one step without learning. Calulates motor commands from sensor inputs.
-void LayeredController::stepNoLearning(const sensor* x_, int number_sensors, 
-					      motor* y_, int number_motors){
+void LayeredController::stepNoLearning(const sensor* x_, int number_sensors,
+                                              motor* y_, int number_motors){
 
   // divide sensors in sensors vor layer 1 and sensors for layer 2
   sensor l1_sensors[number_motors];
   sensor l2_sensors[number_sensors-number_motors];
   for (int i=0; i<number_sensors; i++){
     if (i<number_motors){
-      l1_sensors[i]=x_[i];  
+      l1_sensors[i]=x_[i];
     } else {
       l2_sensors[i-number_motors]=x_[i];
     }
@@ -168,16 +168,16 @@ void LayeredController::stepNoLearning(const sensor* x_, int number_sensors,
   // execute stepNoLearning function in layer 1, which determines the
   // output of the whole controller
   layer1->stepNoLearning(l1_sensors,number_motors,y_, number_motors);
-  
+
   // update step counter
   t++;
 };
-  
- 
-      
+
+
+
 
 /** stores the controller values to a given file. */
-bool LayeredController::store(FILE* f) const{  
+bool LayeredController::store(FILE* f) const{
   layer1->store(f);
   layer2->store(f);
   /*
@@ -283,14 +283,14 @@ Configurable::paramval LayeredController::getParam(const paramkey& key, bool tra
     std::string key_= key;
     key_.erase(0, 3);
     return layer1->getParam(key_);
-  } 
+  }
   if (n2==0) {
     std::string key_= key;
     key_.erase(0, 3);
     return layer2->getParam(key_);
   }
   return AbstractController::getParam(key) ;
-  
+
 }
 
 bool LayeredController::setParam(const paramkey& key, paramval val, bool traverseChildren){
@@ -336,4 +336,4 @@ Configurable::paramlist LayeredController::getParamList() const{
 
 
 
-  
+

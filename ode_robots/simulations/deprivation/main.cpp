@@ -89,7 +89,7 @@ using namespace matrix;
 Deprivation* controller;
 int zeit = 0;
 
-Matrix straightMotor(const Matrix& _dont_care){  
+Matrix straightMotor(const Matrix& _dont_care){
   Matrix y(_dont_care.getM(),1);
   for(unsigned int i=0; i< y.getM(); i++){
     y.val(i,0) = sin(zeit/100.0)*0.9;
@@ -98,7 +98,7 @@ Matrix straightMotor(const Matrix& _dont_care){
   return y;
 }
 
-void straightController(Matrix& C, Matrix& H ){  
+void straightController(Matrix& C, Matrix& H ){
   double v = 2.4/(C.getM()*C.getN());
   fprintf(stderr, "pla %g\n", v);
   for(unsigned int i=0; i< C.getM(); i++){
@@ -115,7 +115,7 @@ void straightController(Matrix& C, Matrix& H ){
   controller->setParam("epsC", 0.0005);
 }
 
-Matrix turnMotor(const Matrix& _dont_care){  
+Matrix turnMotor(const Matrix& _dont_care){
   Matrix y(_dont_care.getM(),1);
   for(unsigned int i=0; i< y.getM(); i++){
     y.val(i,0) = pow(-1.0,i)*sin(zeit/100.0)*0.9;
@@ -126,9 +126,9 @@ Matrix turnMotor(const Matrix& _dont_care){
 
 double data[2] = {1,0};
 Matrix y(2,1, data);
-Matrix sinMotor(const Matrix& y_controller){  
+Matrix sinMotor(const Matrix& y_controller){
   Matrix A(2,2);
-  double alpha = M_PI/((cos(zeit/1000.0)+1)*10+1); 
+  double alpha = M_PI/((cos(zeit/1000.0)+1)*10+1);
   //  if(zeit%100==0) printf("Alpha: %d\n", int(alpha*180/M_PI));
   A.val(0,0) = cos(alpha);
   A.val(1,0) = sin(alpha);
@@ -144,7 +144,7 @@ class ThisSim : public Simulation {
 public:
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(-5.44372, 7.37141, 3.31768),  Pos(-142.211, -21.1623, 0));
     // initialization
@@ -152,17 +152,17 @@ public:
     global.odeConfig.setParam("noise", 0.01);
     //    global.odeConfig.setParam("gravity", 0);
 
-    Nimm2Conf c = Nimm2::getDefaultConf();    
+    Nimm2Conf c = Nimm2::getDefaultConf();
     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, c,"Robot1");
     //OdeRobot* vehicle = new Nimm4(odeHandle, osgHandle);
     vehicle->place(Pos(0,0,0.0));
 
     // create pointer to controller
     // push controller in global list of configurables
-    //  AbstractController *controller = new InvertNChannelController(10);      
-    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
+    //  AbstractController *controller = new InvertNChannelController(10);
+    InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.cInit=1.0;
-    controller = new Deprivation(straightMotor, straightController, cc);  
+    controller = new Deprivation(straightMotor, straightController, cc);
     controller->setParam("adaptrate", 0.005);
     controller->setParam("nomupdate", 0.002);
     controller->setParam("epsC", 0.0005);
@@ -181,27 +181,27 @@ public:
     global.configs.push_back(controller);
     controller->setExternalControlMode(true);
 
-      
-    
+
+
   }
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet
   virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
-    if (!down) return false;    
+    if (!down) return false;
     bool handled = false;
     switch ( key )
       {
-      case 't' : 	
-	controller->setExternalControlMode(!controller->getExternalControlMode());
-	printf("Control Mode: %i\n", controller->getExternalControlMode());
-	handled = true; break;	
+      case 't' :
+        controller->setExternalControlMode(!controller->getExternalControlMode());
+        printf("Control Mode: %i\n", controller->getExternalControlMode());
+        handled = true; break;
       case 's' :
-	controller->storeToFile("test") && printf("Controller stored\n");
-	handled = true; break;	
+        controller->storeToFile("test") && printf("Controller stored\n");
+        handled = true; break;
       case 'l' :
-	controller->restoreFromFile("test") && printf("Controller loaded\n");
-	handled = true; break;	
+        controller->restoreFromFile("test") && printf("Controller loaded\n");
+        handled = true; break;
       }
     fflush(stdout);
     return handled;
@@ -212,13 +212,13 @@ public:
     au.addKeyboardMouseBinding("Simulation: s","store");
     au.addKeyboardMouseBinding("Simulation: l","load");
   }
- 
+
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

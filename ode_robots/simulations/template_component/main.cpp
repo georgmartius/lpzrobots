@@ -134,7 +134,7 @@ class ThisSim : public Simulation {
 public:
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(4.82909, 6.32486, 3.59017),  Pos(142.709, -23.2136, 0));
     // initialization
@@ -145,10 +145,10 @@ public:
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
-    //   setGeometry(double length, double width, double	height)
+    // - setting geometry for each wall of playground:
+    //   setGeometry(double length, double width, double        height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
     OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(5, 0.2, 0.5), 12);
@@ -161,9 +161,9 @@ public:
     vector <OdeRobot*> arms;
 
     vector <Component*> components;
-    
-//sphere1 
-    sphere = new Sphere ( 0.2 );   
+
+//sphere1
+    sphere = new Sphere ( 0.2 );
     sphere->init ( odeHandle , 1 , osgHandle , Primitive::Body | Primitive::Geom | Primitive::Draw);
 
     ComponentConf cConf = Component::getDefaultConf ();
@@ -176,7 +176,7 @@ public:
     ((SimpleComponent*) components.back ())->setSimplePrimitive ( sphere );
 
     components.back ()->place ( Pos( 0 , 0 , 0.2 ));
-   
+
 //arms
     DerivativeWiring* wiring;
     OdeAgent* agent;
@@ -186,63 +186,63 @@ public:
 
     for ( int n = 0; n < MAX_NUMBER_OF_ARMS; n++ )
     {
-	SchlangeConf sc = Schlange::getDefaultConf ();
-	sc.segmNumber = 2;
-	sc.segmLength = 0.4;
-	sc.segmMass = 0.1;
-	sc.motorPower = 0.4;
-	sc.frictionJoint=0.01;
+        SchlangeConf sc = Schlange::getDefaultConf ();
+        sc.segmNumber = 2;
+        sc.segmLength = 0.4;
+        sc.segmMass = 0.1;
+        sc.motorPower = 0.4;
+        sc.frictionJoint=0.01;
 
-	arms.push_back ( new SchlangeServo ( odeHandle , osgHandle , sc ,  "octopusarm" ) );
+        arms.push_back ( new SchlangeServo ( odeHandle , osgHandle , sc ,  "octopusarm" ) );
 
-	((OdeRobot*)arms[n])->place ( osg::Matrix::rotate ( ((MAX_NUMBER_OF_ARMS/2*M_PI/MAX_NUMBER_OF_ARMS)+(-2*M_PI/MAX_NUMBER_OF_ARMS)*(n)), osg::Vec3 (0,0,1)) * 
-				      osg::Matrix::translate ( sin ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS )*HEAD_ARM_DISTANCE,
-							       cos ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS )*HEAD_ARM_DISTANCE,
-								0 ));
+        ((OdeRobot*)arms[n])->place ( osg::Matrix::rotate ( ((MAX_NUMBER_OF_ARMS/2*M_PI/MAX_NUMBER_OF_ARMS)+(-2*M_PI/MAX_NUMBER_OF_ARMS)*(n)), osg::Vec3 (0,0,1)) *
+                                      osg::Matrix::translate ( sin ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS )*HEAD_ARM_DISTANCE,
+                                                               cos ( (double) n*M_PI*2/MAX_NUMBER_OF_ARMS )*HEAD_ARM_DISTANCE,
+                                                                0 ));
 
-/*	InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-	cc.cInit=2;
+/*        InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+        cc.cInit=2;
 
-	AbstractController *controller = new InvertMotorNStep ( cc );  
-	controller->setParam("adaptrate",0.005);
-	controller->setParam("epsC",0.001);
-	controller->setParam("epsA",0.001);
-	controller->setParam("rootE",1);
-	controller->setParam("s4avg",10);
-	controller->setParam("steps",2);
-
-
-	c = DerivativeWiring::getDefaultConf ();
-	wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
-
-	agent = new OdeAgent ( plotoptions );
-	agent->init(controller , arms[n] , wiring );
-	global.agents.push_back(agent);
-	global.configs.push_back(controller);*/
+        AbstractController *controller = new InvertMotorNStep ( cc );
+        controller->setParam("adaptrate",0.005);
+        controller->setParam("epsC",0.001);
+        controller->setParam("epsA",0.001);
+        controller->setParam("rootE",1);
+        controller->setParam("s4avg",10);
+        controller->setParam("steps",2);
 
 
-	//Components
-	components.push_back ( new RobotComponent ( odeHandle , osgHandle , cConf ) );
-	((RobotComponent*) components.back ())->setRobot ( arms[n] );
-	
-	//creating joint
-	vector <Position> positionlist;
-	((Schlange*) ((RobotComponent*) components.back ())->getRobot ())->getSegmentsPosition ( positionlist );
+        c = DerivativeWiring::getDefaultConf ();
+        wiring = new DerivativeWiring ( c , new ColorUniformNoise(0.1) );
 
-	//schlange has no member getPosition, only the abilitie to give its whole object-list of Primitives, and here the first Primitive is used, to get the Position
-//	components.front ()->getRobot ()->getPosition () - positionlist.front ();//
+        agent = new OdeAgent ( plotoptions );
+        agent->init(controller , arms[n] , wiring );
+        global.agents.push_back(agent);
+        global.configs.push_back(controller);*/
 
-	axis = Axis ( ( components.front ()->getPosition () - positionlist.front ()).toArray() );
-	//axis = Axis ( ( components.front ()->getRobot ()->getPosition () - components.back ()->getRobot()->getPosition ()).toArray() );
-	
-	
-	j1 = new HingeJoint ( components.front ()->getMainPrimitive () , components.back ()->getMainPrimitive () , components.front ()->getPositionbetweenComponents ( components.back () ) , axis );
-	j1->init ( odeHandle , osgHandle , true , 1 );
-	components.front ()->addSubcomponent ( components.back () , j1 , false );
 
-//	components.front ()->setSoftlink ( n , false );
+        //Components
+        components.push_back ( new RobotComponent ( odeHandle , osgHandle , cConf ) );
+        ((RobotComponent*) components.back ())->setRobot ( arms[n] );
 
-	positionlist.clear ();
+        //creating joint
+        vector <Position> positionlist;
+        ((Schlange*) ((RobotComponent*) components.back ())->getRobot ())->getSegmentsPosition ( positionlist );
+
+        //schlange has no member getPosition, only the abilitie to give its whole object-list of Primitives, and here the first Primitive is used, to get the Position
+//        components.front ()->getRobot ()->getPosition () - positionlist.front ();//
+
+        axis = Axis ( ( components.front ()->getPosition () - positionlist.front ()).toArray() );
+        //axis = Axis ( ( components.front ()->getRobot ()->getPosition () - components.back ()->getRobot()->getPosition ()).toArray() );
+
+
+        j1 = new HingeJoint ( components.front ()->getMainPrimitive () , components.back ()->getMainPrimitive () , components.front ()->getPositionbetweenComponents ( components.back () ) , axis );
+        j1->init ( odeHandle , osgHandle , true , 1 );
+        components.front ()->addSubcomponent ( components.back () , j1 , false );
+
+//        components.front ()->setSoftlink ( n , false );
+
+        positionlist.clear ();
 
     }
 
@@ -261,7 +261,7 @@ public:
     controller->setParam("factorB",0);
 
     DerivativeWiringConf c = DerivativeWiring::getDefaultConf ();
-    wiring = new DerivativeWiring ( c , new ColorUniformNoise() );   
+    wiring = new DerivativeWiring ( c , new ColorUniformNoise() );
 
     agent = new OdeAgent ( plotoptions );
     agent->init ( controller , components.front () , wiring );
@@ -269,31 +269,31 @@ public:
     global.configs.push_back ( controller );
 
 
-    
 
-	cout<<"Number of Sensors: "<<components.front()->getSensorNumber ()<<"\n";
-	cout<<"Number of Motors: "<<components.front()->getMotorNumber ()<<"\n";
 
-  } 
+        cout<<"Number of Sensors: "<<components.front()->getSensorNumber ()<<"\n";
+        cout<<"Number of Motors: "<<components.front()->getMotorNumber ()<<"\n";
+
+  }
 
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
-	  return false;
-	  break;
-	}
+        {
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
-  
+
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;

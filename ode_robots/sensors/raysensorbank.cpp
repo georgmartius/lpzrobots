@@ -53,14 +53,14 @@ namespace lpzrobots {
     this->osgHandle = osgHandle;
 
     this->odeHandle.createNewSimpleSpace(odeHandle.space, true);
-    initialized=true; 
-  }; 
+    initialized=true;
+  };
 
-  unsigned int RaySensorBank::registerSensor(RaySensor* raysensor, Primitive* body, 
-					     const osg::Matrix& pose, float range,
-					     RaySensor::rayDrawMode drawMode){
+  unsigned int RaySensorBank::registerSensor(RaySensor* raysensor, Primitive* body,
+                                             const osg::Matrix& pose, float range,
+                                             RaySensor::rayDrawMode drawMode){
     raysensor->init(odeHandle, osgHandle, body, pose, range, drawMode);
-    bank.push_back(raysensor);  
+    bank.push_back(raysensor);
     return bank.size();
   };
 
@@ -72,8 +72,8 @@ namespace lpzrobots {
 
 
 
-  };  
-  
+  };
+
   double RaySensorBank::get(unsigned int index){
     assert(index<bank.size());
     return bank[index]->get();
@@ -94,7 +94,7 @@ namespace lpzrobots {
 
   void RaySensorBank::setRange(unsigned int index, float range){
     assert(index<bank.size());
-    return bank[index]->setRange(range);    
+    return bank[index]->setRange(range);
   }
 
   void RaySensorBank::setRange(float range){
@@ -119,7 +119,7 @@ namespace lpzrobots {
     for (unsigned int i=0; i<bank.size(); i++)
     {
       if(bank[i])
-        delete bank[i];      
+        delete bank[i];
     }
     bank.clear();
     //odeHandle.deleteSpace();
@@ -127,7 +127,7 @@ namespace lpzrobots {
 
 
 }
-  
+
 
 
 

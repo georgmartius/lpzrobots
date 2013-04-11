@@ -18,7 +18,7 @@ double power(void* c, double x){
   return pow(x,*((double*) c));
 }
 
-double power3(double x) {    
+double power3(double x) {
     return x*x*x;
 };
 
@@ -36,7 +36,7 @@ double random_minusone_to_one(void* r, double){
 }
 
 /// clipping function for mapP
-double clip(double r,double x){  
+double clip(double r,double x){
   return clip(x,-r,r);
 }
 
@@ -135,7 +135,7 @@ list<Inspectable::iparamkey> store4x4AndDiagonalFieldNames(const Matrix& m, cons
 }
 
 I store4x4AndDiagonalFieldNames(const Matrix& m, const std::string& matrixName,
-					   char** keylist, I len){
+                                           char** keylist, I len){
   I smalldimM = min(m.getM(), (I)4);
   I smalldimN = min(m.getN(), (I)4);
   I smallerdim = min(m.getM(), m.getN());
@@ -186,7 +186,7 @@ list<Inspectable::iparamkey> storeVectorFieldNames(const Matrix& m, const string
 }
 
 I storeMatrixFieldNames(const Matrix& m, const char* matrixName,
-				   char** keylist, I len){
+                                   char** keylist, I len){
   I dimM = m.getM();
   I dimN = m.getN();
   I written=0;
@@ -204,7 +204,7 @@ I storeMatrixFieldNames(const Matrix& m, const char* matrixName,
 }
 
 I storeVectorFieldNames(const Matrix& m, const char* vectorName,
-				   char** keylist, I len){
+                                   char** keylist, I len){
   I dimM = m.getM()*m.getN();
   I written=0;
   assert(vectorName);
@@ -221,7 +221,7 @@ I storeVectorFieldNames(const Matrix& m, const char* vectorName,
 
 
 Matrix noiseMatrix(I m, I n, NoiseGenerator& ng,
-		   double strength, double unused){
+                   double strength, double unused){
   I len = m*n;
   D* noise = (D*) malloc(len*sizeof(D));
   memset(noise, D_Zero, sizeof(D)*len);
@@ -292,8 +292,8 @@ double min(const matrix::Matrix& v){
 
 
 // minimum function for doubles without templates
-double min(double a, double b) { 
-  return std::min(a,b); 
+double min(double a, double b) {
+  return std::min(a,b);
 }
 
 // returns the largest element
@@ -302,8 +302,8 @@ double max(const matrix::Matrix& v){
 }
 
 // maximum function for doubles without templates
-double max(double a, double b) { 
-  return std::max(a,b); 
+double max(double a, double b) {
+  return std::max(a,b);
 }
 
 // samples from the pdf (rowwise stored with sum = 1)
@@ -346,28 +346,28 @@ double adaptMinMax(double p, double actual, double _min, double _max, double up_
   return result;
 }
 
-	/**
-	 * Helper function for converting an array with double values to a list.
-	 * Is used for the method getInternalParams() interface inspectable.
-	 */
+        /**
+         * Helper function for converting an array with double values to a list.
+         * Is used for the method getInternalParams() interface inspectable.
+         */
 list<Inspectable::iparamval> convertArrayToList(double* array,int arraySize) {
-	std::list<Inspectable::iparamval> l;
-	for(int i=0; i < arraySize; i++){
-		l.push_back(array[i]);
-	}
-	return l;
+        std::list<Inspectable::iparamval> l;
+        for(int i=0; i < arraySize; i++){
+                l.push_back(array[i]);
+        }
+        return l;
 }
 
-	/**
-	 * Helper function for getting the array names of an array
-	 * Is used for the method getInternalParamNames() interface inspectable.
-	 */
+        /**
+         * Helper function for getting the array names of an array
+         * Is used for the method getInternalParamNames() interface inspectable.
+         */
 list<Inspectable::iparamkey> getArrayNames(int arraySize,const char* name) {
-	std::list<Inspectable::iparamkey> nameList;
-	char buffer[32];
-	for(int i=0; i < arraySize; i++){
-		sprintf(buffer,"%s[%d]",name,i);
-		nameList.push_back(std::string(buffer));
-	}
-	return nameList;
+        std::list<Inspectable::iparamkey> nameList;
+        char buffer[32];
+        for(int i=0; i < arraySize; i++){
+                sprintf(buffer,"%s[%d]",name,i);
+                nameList.push_back(std::string(buffer));
+        }
+        return nameList;
 }

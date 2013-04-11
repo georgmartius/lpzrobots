@@ -104,9 +104,9 @@ public:
   //InvertMotorNStep* controller;
   OdeRobot* vehicle;
   double D;
-  
+
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     D=0;
 
@@ -119,10 +119,10 @@ public:
     //    global.odeConfig.setParam("gravity", 0);
 
     for(int i=0; i< 2; i++){
-      PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.,0.,0.)), 
-				     osg::Vec3(1,10,0.3+i*.1),10);
+      PassiveBox* b = new PassiveBox(odeHandle, osgHandle.changeColor(Color(0.,0.,0.)),
+                                     osg::Vec3(1,10,0.3+i*.1),10);
       b->setPosition(osg::Vec3(30+i*7,0,0));
-      global.obstacles.push_back(b);    
+      global.obstacles.push_back(b);
     }
 
 
@@ -138,26 +138,26 @@ public:
     mySliderWheelieConf.sliderLength = 0;
     mySliderWheelieConf.motorType    = SliderWheelieConf::CenteredServo;
     //mySliderWheelieConf.drawCenter   = false;
-    vehicle = new SliderWheelie(odeHandle, osgHandle.changeColor(Color(1,222/255.0,0)), 
-				mySliderWheelieConf, "sliderWheelie_" + std::itos(teacher*10000));
+    vehicle = new SliderWheelie(odeHandle, osgHandle.changeColor(Color(1,222/255.0,0)),
+                                mySliderWheelieConf, "sliderWheelie_" + std::itos(teacher*10000));
 
-    vehicle->place(Pos(0,0,2));    
+    vehicle->place(Pos(0,0,2));
     global.configs.push_back(vehicle);
 
-//     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();    
+//     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
 //     cc.cInit=1.0;
 //     cc.useS=false;
 //     cc.someInternalParams=true;
-//     InvertMotorNStep *semox = new InvertMotorNStep(cc);  
+//     InvertMotorNStep *semox = new InvertMotorNStep(cc);
 //     semox->setParam("steps", 1);
 //     semox->setParam("continuity", 0.005);
 //     semox->setParam("teacher", teacher);
 
-    SeMoXConf cc = SeMoX::getDefaultConf();    
+    SeMoXConf cc = SeMoX::getDefaultConf();
     cc.cInit=1.2;
     cc.modelExt=false;
     cc.someInternalParams=true;
-    SeMoX* semox = new SeMoX(cc);  
+    SeMoX* semox = new SeMoX(cc);
 
 //     AbstractController* controller = new SineController(~0, SineController::Sine);   // local variable!
 // //     // motorpower 20
@@ -182,18 +182,18 @@ public:
 
     //    One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     AbstractWiring* wiring = new FeedbackWiring(new ColorUniformNoise(0.1),
-						FeedbackWiring::Motor, 0.75);
+                                                FeedbackWiring::Motor, 0.75);
     //global.plotoptions.push_back(PlotOption(GuiLogger,Robot,5));
     OdeAgent* agent = new OdeAgent(global);
-    agent->addCallbackable(&stats);	  
+    agent->addCallbackable(&stats);
     agent->init(controller, vehicle, wiring);
-    if(track) agent->setTrackOptions(TrackRobot(true,false,false, false, 
-						 change < 50 ? std::itos(change).c_str() : "uni", 50));
+    if(track) agent->setTrackOptions(TrackRobot(true,false,false, false,
+                                                 change < 50 ? std::itos(change).c_str() : "uni", 50));
     global.agents.push_back(agent);
     global.configs.push_back(controller);
 
     this->getHUDSM()->setColor(Color(1.0,1.0,0));
-    this->getHUDSM()->setFontsize(18);    
+    this->getHUDSM()->setFontsize(18);
     this->getHUDSM()->addMeasure(teacher,"Gamma_s",ID,1);
     this->getHUDSM()->addMeasure(D,"D",ID,1);
 
@@ -202,34 +202,34 @@ public:
 //       std::list<int> perm;
 //       int len  = controller->getMotorNumber();
 //       for(int i=0; i<len; i++){
-// 	perm.push_back((i+k+(len)/2)%len);
+//         perm.push_back((i+k+(len)/2)%len);
 //       }
 //       CMC cmc = controller->getPermutationCMC(perm);
 //       controller->setCMC(cmc);
 //     }
 
 
-    
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(control && controller){
       if(useSym && globalData.time > 45){
-	int k= int(globalData.time/(change))%2 == 0 ? 0 : 1; // turn around every n minutes
-	teacher=0.001;
-	controller->setParam("gamma_teach", teacher);	  
-	D = 2*k-1;
-	std::list<int> perm;
-	int len  = controller->getMotorNumber();
-	for(int i=0; i<len; i++){
- 	  perm.push_back((i+k+(len)/2)%len);
-	}
-	CMC cmc = controller->getPermutationCMC(perm);
-	controller->setCMC(cmc);
+        int k= int(globalData.time/(change))%2 == 0 ? 0 : 1; // turn around every n minutes
+        teacher=0.001;
+        controller->setParam("gamma_teach", teacher);
+        D = 2*k-1;
+        std::list<int> perm;
+        int len  = controller->getMotorNumber();
+        for(int i=0; i<len; i++){
+           perm.push_back((i+k+(len)/2)%len);
+        }
+        CMC cmc = controller->getPermutationCMC(perm);
+        controller->setCMC(cmc);
       }
       if(useSym && globalData.time > 90){
-	teacher=0.005;
-	controller->setParam("gamma_teach", teacher);	  
+        teacher=0.005;
+        controller->setParam("gamma_teach", teacher);
       }
     }
 
@@ -239,7 +239,7 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
 
   ThisSim sim;
   sim.setGroundTexture("Images/red_velour_wb.rgb");
@@ -247,5 +247,5 @@ int main (int argc, char **argv)
   return sim.run(argc, argv) ? 0 :  1;
 }
 
- 
- 
+
+

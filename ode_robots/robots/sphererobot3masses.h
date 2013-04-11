@@ -41,7 +41,7 @@ public:
   double spheremass;
   double pendulardiameter; ///< automatically set
   double pendularmass;
-  double motorpowerfactor; ///< power factor for servos w.r.t. pendularmass 
+  double motorpowerfactor; ///< power factor for servos w.r.t. pendularmass
   double pendularrange;    ///< fraction of the diameter the pendular masses can move to one side
   bool motorsensor;        ///< motor values as sensors
   bool irAxis1;
@@ -58,11 +58,11 @@ public:
   double axesShift; ///< defines how much the axes are shifted from the center
 
   /// function that deletes sensors
-  void destroy(); 
+  void destroy();
   /// list of sensors that are mounted at the robot. (e.g.\ AxisOrientationSensor)
-  std::list<Sensor*> sensors; 
+  std::list<Sensor*> sensors;
   /// adds a sensor to the list of sensors
-  void addSensor(Sensor* s) { sensors.push_back(s); }    
+  void addSensor(Sensor* s) { sensors.push_back(s); }
 } Sphererobot3MassesConf;
 
 /**
@@ -83,7 +83,7 @@ protected:
   OSGPrimitive* axis[servono];
 
   Sphererobot3MassesConf conf;
-  RaySensorBank irSensorBank; ///< a collection of ir sensors  
+  RaySensorBank irSensorBank; ///< a collection of ir sensors
   double transparency;
   bool created;
 
@@ -91,23 +91,23 @@ public:
 
   /**
    *constructor
-   **/ 
+   **/
   Sphererobot3Masses ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		       const Sphererobot3MassesConf& conf, const std::string& name, double transparency=0.5 );
+                       const Sphererobot3MassesConf& conf, const std::string& name, double transparency=0.5 );
 
 protected:
   /**
    *constructor for children
-   **/ 
+   **/
   Sphererobot3Masses ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		       const Sphererobot3MassesConf& conf, 
-		       const std::string& name, const std::string& revision, double transparency);
+                       const Sphererobot3MassesConf& conf,
+                       const std::string& name, const std::string& revision, double transparency);
   /// initialises some internal variables
   void init();
-public:  
+public:
   virtual ~Sphererobot3Masses();
 
-	
+
   /// default configuration
   static Sphererobot3MassesConf getDefaultConf(){
     Sphererobot3MassesConf c;
@@ -116,7 +116,7 @@ public:
     c.pendularmass  = 1.0;
     c.pendularrange  = 0.20; // range of the slider from center in multiple of diameter [-range,range]
     c.motorpowerfactor  = 100;
-    c.motorsensor = true; 
+    c.motorsensor = true;
     c.irAxis1=false;
     c.irAxis2=false;
     c.irAxis3=false;
@@ -124,7 +124,7 @@ public:
     c.irSide=false;
     c.drawIRs=RaySensor::drawAll;
     c.irsensorscale=1.5;
-    c.irCharacter=1;  
+    c.irCharacter=1;
     c.irSensorTempl=0;
     c.motor_ir_before_sensors=false;
     c.axesShift=0;
@@ -136,25 +136,25 @@ public:
   virtual void update();
 
   virtual void place(const osg::Matrix& pose);
-  
+
   virtual void doInternalStuff(GlobalData& globalData);
-	
+
   virtual int getSensors ( sensor* sensors, int sensornumber );
-	
+
   virtual void setMotors ( const motor* motors, int motornumber );
-	
+
   virtual int getMotorNumber();
-  
+
   virtual int getSensorNumber();
-	  
+
   /******** CONFIGURABLE ***********/
   virtual void notifyOnChange(const paramkey& key);
 
 
 protected:
 
-  virtual void create(const osg::Matrix& pose); 
-  virtual void destroy(); 
+  virtual void create(const osg::Matrix& pose);
+  virtual void destroy();
 
 
 };

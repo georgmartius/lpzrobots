@@ -100,10 +100,10 @@
 
 namespace lpzrobots {
 
-  class Primitive; 
-  class Joint;  
-  class OneAxisServo;  
-  class TwoAxisServo;  
+  class Primitive;
+  class Joint;
+  class OneAxisServo;
+  class TwoAxisServo;
 
 
   typedef struct {
@@ -154,7 +154,7 @@ namespace lpzrobots {
 
     double powerfactor; ///< scale factor for maximal forces of the servos
     double dampingfactor; ///< scale factor for damping of the servos
-    
+
     double jointLimitFactor; ///< factor between servo range (XXXJointLimit, see above) and physical joint limit
 
 
@@ -183,22 +183,22 @@ namespace lpzrobots {
   class Skeleton : public OdeRobot, public Inspectable {
   public:
 
-    enum SkelParts {Pole,Pole2, Hip,Trunk_comp,Thorax, Neck, Head_comp, 
-			     Left_Shoulder, Left_Forearm, Left_Hand,
-			     Right_Shoulder, Right_Forearm, Right_Hand, 
-			     Left_Thigh, Left_Shin, Left_Foot,
-			     Right_Thigh, Right_Shin, Right_Foot,
-			     LastPart };
+    enum SkelParts {Pole,Pole2, Hip,Trunk_comp,Thorax, Neck, Head_comp,
+                             Left_Shoulder, Left_Forearm, Left_Hand,
+                             Right_Shoulder, Right_Forearm, Right_Hand,
+                             Left_Thigh, Left_Shin, Left_Foot,
+                             Right_Thigh, Right_Shin, Right_Foot,
+                             LastPart };
 
-  
+
     /**
      * constructor of Skeleton robot
      * @param odeHandle data structure for accessing ODE
      * @param osgHandle ata structure for accessing OSG
      * @param conf configuration object
      */
-    Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, SkeletonConf& conf, 
-	       const std::string& name);
+    Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, SkeletonConf& conf,
+               const std::string& name);
 
     virtual ~Skeleton(){};
 
@@ -285,7 +285,7 @@ namespace lpzrobots {
       SkeletonConf c = getDefaultConf();
 
       c.useVelocityServos = true;
-      c.dampingfactor=0.02; 
+      c.dampingfactor=0.02;
 /*       c.hipDamping= 0.01; */
 /*       c.hip2Damping=0.01; */
 /*       c.neckDamping=0.01; */
@@ -306,20 +306,20 @@ namespace lpzrobots {
 
 
     /** sets the pose of the vehicle
-	@param pose desired pose matrix
+        @param pose desired pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -330,16 +330,16 @@ namespace lpzrobots {
     /** returns number of motors
      */
     virtual int getMotorNumber();
-    /** checks for internal collisions and treats them. 
-     *  In case of a treatment return true (collision will be ignored by other objects 
-     *  and the default routine)  else false (collision is passed to other objects and 
+    /** checks for internal collisions and treats them.
+     *  In case of a treatment return true (collision will be ignored by other objects
+     *  and the default routine)  else false (collision is passed to other objects and
      *  (if not treated) to the default routine).
      */
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) {return false;}
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
@@ -361,15 +361,15 @@ namespace lpzrobots {
   protected:
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */
     virtual void destroy();
 
-    SkeletonConf conf; 
+    SkeletonConf conf;
 
     bool created;      // true if robot was created
 

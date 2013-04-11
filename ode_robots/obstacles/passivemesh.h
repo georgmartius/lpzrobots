@@ -44,18 +44,18 @@ class PassiveMesh : public AbstractObstacle{
   Mesh* mesh;
 
  public:
-  
+
   /**
    * Constructor
    */
   PassiveMesh(const OdeHandle& odeHandle,
-	      const OsgHandle& osgHandle,
-	      const std::string& filename,
-	      double scale = 1.0, double mass = 1.0):
-    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), 
-    filename(filename), scale(scale), mass(mass){       
+              const OsgHandle& osgHandle,
+              const std::string& filename,
+              double scale = 1.0, double mass = 1.0):
+    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle),
+    filename(filename), scale(scale), mass(mass){
     mesh=0;
-    obstacle_exists=false;    
+    obstacle_exists=false;
   };
 
   ~PassiveMesh(){
@@ -72,7 +72,7 @@ class PassiveMesh : public AbstractObstacle{
 /*   virtual void setTexture(const std::string& filename){ */
 /*     if(mesh) mesh->getOSGPrimitive()->setTexture(filename); */
 /*   } */
-  
+
   virtual void setPose(const osg::Matrix& pose){
     this->pose = pose;
     if (obstacle_exists){
@@ -83,7 +83,7 @@ class PassiveMesh : public AbstractObstacle{
 
 
   virtual Primitive* getMainPrimitive() const { return mesh; }
-  
+
  protected:
 
   virtual void create(){
@@ -97,7 +97,7 @@ class PassiveMesh : public AbstractObstacle{
 
 
   virtual void destroy(){
-    if(mesh) delete mesh;    
+    if(mesh) delete mesh;
     obstacle_exists=false;
   };
 

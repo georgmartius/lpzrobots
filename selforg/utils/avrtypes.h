@@ -26,33 +26,33 @@
 
 #ifndef AVR
 
-	// USED IN CONFIGURABLE
-	const uint8_t maxNumberEntries = 5;
-	const uint8_t charLength = 8;
+        // USED IN CONFIGURABLE
+        const uint8_t maxNumberEntries = 5;
+        const uint8_t charLength = 8;
 
-	typedef char charArray[maxNumberEntries];
+        typedef char charArray[maxNumberEntries];
 
-	// CONFIGURABLE
-	typedef charArray paramkey;
-	typedef double paramval;
+        // CONFIGURABLE
+        typedef charArray paramkey;
+        typedef double paramval;
 
-	 struct parampair {
-		 paramkey key;
-		 paramval* val;
-	  };
+         struct parampair {
+                 paramkey key;
+                 paramval* val;
+          };
 
-	 typedef parampair plist[maxNumberEntries];
+         typedef parampair plist[maxNumberEntries];
 
-	/// INSPECTABLE
+        /// INSPECTABLE
    typedef paramkey iparamkey;
    typedef paramval iparamval;
 
-	 struct iparampair {
-		 iparamkey key;
-		 iparamval* val;
-	  };
+         struct iparampair {
+                 iparamkey key;
+                 iparamval* val;
+          };
 
-	 typedef iparampair iplist[maxNumberEntries];
+         typedef iparampair iplist[maxNumberEntries];
 
 
    typedef iparamkey iparamkeylist[maxNumberEntries];

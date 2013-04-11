@@ -44,7 +44,7 @@ typedef struct MultiExpertSuboptConf {
 
 
 /**
- * class for robot controller 
+ * class for robot controller
  * using several feedforward networks (satelite) and one selforg controller
  */
 class MultiExpertSubopt : public  AbstractModel{
@@ -54,7 +54,7 @@ public:
    *     a) only one sat learns, which is least suboptimal                   *
    *     b) learning rates are based on a rank of the suboptimalities        *
    *     c) learning rates are is based on relative suboptimality and softmax*
-   *          (not yet tried)                                                  *   
+   *          (not yet tried)                                                  *
   */
   typedef enum Version {A, B, C};
 
@@ -62,7 +62,7 @@ public:
   typedef struct Sat {
     Sat(InvertableModel* _net, double _eps);
     InvertableModel* net;
-    double eps;  
+    double eps;
     double lifetime;
   } Sat;
 public:
@@ -70,8 +70,8 @@ public:
 
   virtual ~MultiExpertSubopt();
 
-  virtual void init(unsigned int inputDim, unsigned  int outputDim, 
-		    double unit_map = 0.0, RandGen* randGen = 0);
+  virtual void init(unsigned int inputDim, unsigned  int outputDim,
+                    double unit_map = 0.0, RandGen* randGen = 0);
 
   virtual unsigned int getInputDim() const { return inputDim;}
   virtual unsigned int getOutputDim() const  { return outputDim;}
@@ -80,9 +80,9 @@ public:
 
   virtual const matrix::Matrix process (const matrix::Matrix& input);
 
-  virtual const matrix::Matrix learn (const matrix::Matrix& input, 
-				      const matrix::Matrix& nom_output, 
-				      double learnRateFactor = 1);
+  virtual const matrix::Matrix learn (const matrix::Matrix& input,
+                                      const matrix::Matrix& nom_output,
+                                      double learnRateFactor = 1);
 
   // !!!!!!!!!!!!!!!!!!! MISC STUFF !!!!!!!!
   /** minimum dynamics
@@ -92,9 +92,9 @@ public:
    */
   static double mindynamics(void *conf, double m, double e);
 
-  
+
   /// stores the sat networks into seperate files
-  void storeSats(const char* filestem); 
+  void storeSats(const char* filestem);
   /// restore the sat networks from seperate files
   void restoreSats(const std::list<std::string>& filenames);
 
@@ -108,11 +108,11 @@ public:
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   /**** INSPECTABLE ****/
   virtual std::list<iparamkey> getInternalParamNames() const;
-  virtual std::list<iparamval> getInternalParams() const;  
+  virtual std::list<iparamval> getInternalParams() const;
   virtual std::list<ILayer> getStructuralLayers() const;
   virtual std::list<IConnection> getStructuralConnections() const;
 
@@ -120,9 +120,9 @@ public:
     MultiExpertSuboptConf c;
     c.numHidden = 2;
     c.eps0      = 0.05;
-    c.tauF      = 10000; 
-    c.tauE1     = 5; 
-    c.tauE2     = 50; 
+    c.tauF      = 10000;
+    c.tauE1     = 5;
+    c.tauE2     = 50;
     c.numSats   = 20;
     c.lambda_comp = 2;
 
@@ -133,7 +133,7 @@ public:
   }
 
 
-protected:  
+protected:
   int inputDim;
   int outputDim;
 
@@ -147,15 +147,15 @@ protected:
   matrix::Matrix satSubOpt;       ///< suboptimality of sats
   matrix::Matrix satMinErrors;    ///< minimum errors of sats (calculated from avg2)
   matrix::Matrix satEpsMod;       ///< modulated eps of sats
-  
+
   MultiExpertSuboptConf conf;
   bool initialised;
   bool managementInterval;
   int t;
 protected:
   /// satelite networks competition, return vector of prediction errors of sat networks
-  matrix::Matrix compete(const matrix::Matrix& input, 
-			 const matrix::Matrix& nom_output);
+  matrix::Matrix compete(const matrix::Matrix& input,
+                         const matrix::Matrix& nom_output);
 
   void management();
 

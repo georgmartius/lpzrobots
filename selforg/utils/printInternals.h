@@ -23,9 +23,9 @@ void printInspectableNames(FILE* f, const std::list<const Inspectable*>& inspect
     and the internal parameters of the inspectable objects to a file or stream
 */
 void printInternalParameters(FILE* f, double time,
-			     const sensor* x, int sensornumber,
-			     const motor* y,  int motornumber,
-			     const std::list<const Inspectable*>& inspectables);
+                             const sensor* x, int sensornumber,
+                             const motor* y,  int motornumber,
+                             const std::list<const Inspectable*>& inspectables);
 
 /** prints a network description of the structure given by the inspectable object.
     The network description syntax is as follow

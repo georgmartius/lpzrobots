@@ -66,11 +66,11 @@ public:
 
   /** initializes the object with the given controller, robot and wiring
       and initializes the output options.
-      It is also possible to provide a random seed, 
+      It is also possible to provide a random seed,
        if not given (0) rand() is used to create one
   */
-  virtual bool init(AbstractController* controller, AbstractRobot* robot, 
-		    AbstractWiring* wiring, long int seed=0);
+  virtual bool init(AbstractController* controller, AbstractRobot* robot,
+                    AbstractWiring* wiring, long int seed=0);
 
   /** Performs an step of the agent, including sensor reading, pushing sensor values through the wiring,
       controller step, pushing controller outputs (= motorcommands) back through the wiring and sent

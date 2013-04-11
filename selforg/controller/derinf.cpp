@@ -26,9 +26,9 @@
 using namespace matrix;
 using namespace std;
 
-DerInf::DerInf( const DerInfConf& conf) 
+DerInf::DerInf( const DerInfConf& conf)
   : InvertMotorController(conf.buffersize, "DerInf", "$Id$"), conf(conf) {
- 
+
 //   fantControl = 50;
 //   fantControlLen = 0;
 //   fantReset = 5;
@@ -76,31 +76,31 @@ void DerInf::init(int sensornumber, int motornumber, RandGen* randg){
   if (!randg)
     randg = new RandGen();
   number_motors  = motornumber;
-  number_sensors = sensornumber;  
+  number_sensors = sensornumber;
   assert(number_motors && number_sensors);
   ID.set(number_motors, number_motors);
   ID.toId();
   ID_Sensor.set(number_sensors, number_sensors);
   ID_Sensor.toId();
-  
+
   A.set(number_sensors,  number_motors); //TEST
   //     A0.set(number_sensors,  number_motors); //TEST
   A0.set(number_motors,  number_sensors); //TEST
   A=A^0;  //TEST
-  A0=A0^0; 
-  
+  A0=A0^0;
+
     ATA_inv = (A.multTM()+ID*0.1)^-1;//?????????????????????????????
-  
+
     if (conf.useS){
-      S.set(number_sensors, number_sensors); // S gets previous sensor values 
+      S.set(number_sensors, number_sensors); // S gets previous sensor values
       S = (S^0)*.3;
     }
   C.set(number_motors,  number_sensors);
   GSC.set(number_motors,  number_sensors);
 
   // initialise the C matrix with identity + noise (-conf.cNonDiag, conf.cNonDiag) scaled to cInit value
-  //C = ((C^0) + C.map(random_minusone_to_one) * conf.cNonDiag) * conf.cInit;   
-  C = (C^0)  * conf.cInit;   
+  //C = ((C^0) + C.map(random_minusone_to_one) * conf.cNonDiag) * conf.cInit;
+  C = (C^0)  * conf.cInit;
 
    DD.set(number_motors, number_motors);
   DD.toId(); DD *= 0.001; // noise strength estimate
@@ -123,13 +123,13 @@ void DerInf::init(int sensornumber, int motornumber, RandGen* randg){
   CCT_inv.set(number_motors, number_motors);
   CST.set(number_motors, number_sensors);
   //  R=C*A;
-  //   RRT_inv = (R +  ID * 0.2)^-1;  
+  //   RRT_inv = (R +  ID * 0.2)^-1;
 
-  C_updateOld.set(number_motors,  number_sensors); 
+  C_updateOld.set(number_motors,  number_sensors);
   H_updateOld.set(number_sensors,1);
-  HY_updateOld.set(number_motors, 1); 
-  A_updateOld.set(number_sensors,  number_motors); 
-  B_updateOld.set(number_sensors, 1); 
+  HY_updateOld.set(number_motors, 1);
+  A_updateOld.set(number_sensors,  number_motors);
+  B_updateOld.set(number_sensors, 1);
 
   squashSize = .05;
 
@@ -158,14 +158,14 @@ void DerInf::init(int sensornumber, int motornumber, RandGen* randg){
     y_buffer[k].set(number_motors,1);
     eta_buffer[k].set(number_motors,1);
   }
-  y_teaching.set(number_motors, 1); 
+  y_teaching.set(number_motors, 1);
   x_smooth.set(number_sensors,1);
   x_smooth_long.set(number_sensors,1);
 
-  zero_eta.set(number_motors, 1); 
-  eta.set(number_motors, 1); 
-  ups.set(number_motors, 1); 
-  v_smooth.set(number_motors, 1); 
+  zero_eta.set(number_motors, 1);
+  eta.set(number_motors, 1);
+  ups.set(number_motors, 1);
+  v_smooth.set(number_motors, 1);
   y_smooth.set(number_motors, 1);
   y_sat.set(number_motors, 1);
   y_smooth_long.set(number_motors, 1);
@@ -181,17 +181,17 @@ void DerInf::init(int sensornumber, int motornumber, RandGen* randg){
 //*************** End init *******************
 
 /// performs one step (includes learning). Calculates motor commands from sensor inputs.
-void DerInf::step(const sensor* x_, int number_sensors, 
-			   motor* y_, int number_motors){
+void DerInf::step(const sensor* x_, int number_sensors,
+                           motor* y_, int number_motors){
   fillBuffersAndControl(x_, number_sensors, y_, number_motors);
   if(t>buffersize){
-    int delay = max(int(s4delay)-1,0); 
+    int delay = max(int(s4delay)-1,0);
     // learn Model with actual sensors and with effective motors,
     // calc xsi and A;
     //  learnModel(delay);
     // learn controller with effective input/output
     learnController(delay);
-    
+
   }
   // update step counter
   t++;
@@ -199,36 +199,36 @@ void DerInf::step(const sensor* x_, int number_sensors,
 };
 
 /// performs one step without learning. Calulates motor commands from sensor inputs.
-void DerInf::stepNoLearning(const sensor* x, int number_sensors, 
-				     motor*  y, int number_motors ){
+void DerInf::stepNoLearning(const sensor* x, int number_sensors,
+                                     motor*  y, int number_motors ){
   fillBuffersAndControl(x, number_sensors, y, number_motors);
   // update step counter
   t++;
   //  cout << y << endl;
 };
 
-void DerInf::fillBuffersAndControl(const sensor* x_, int number_sensors, 
-					    motor* y_, int number_motors){
-  assert((unsigned)number_sensors == this->number_sensors 
-	 && (unsigned)number_motors == this->number_motors);
+void DerInf::fillBuffersAndControl(const sensor* x_, int number_sensors,
+                                            motor* y_, int number_motors){
+  assert((unsigned)number_sensors == this->number_sensors
+         && (unsigned)number_motors == this->number_motors);
   Matrix x(number_sensors,1,x_);
 
   //   x = (((x*1.3).map(g))*(1/1.3))*(1/sqrt(xsifactor));
        x = (((x*1.3).map(g))*(1/1.3));
-  
+
   //  x += H; //TEST H
-//  if ( t > 60) x = x_intern;//TEST 
+//  if ( t > 60) x = x_intern;//TEST
     x_smooth_long += ( x - x_smooth_long ) * ((0.03 * 3.0)/(double)s4avg);
  //  x -=   x_smooth_long;
 
   // averaging over the last s4avg values of x_buffer
     x_smooth += (x - x_smooth)*(1.0/(double)s4avg);//calculateSmoothValues;
-    
-    putInBuffer(x_buffer, x);
-    //  x_buffer[(t + buffersize)%buffersize] liefert das x zurueck. 
 
-   	
-    /////////Normalverfahren 
+    putInBuffer(x_buffer, x);
+    //  x_buffer[(t + buffersize)%buffersize] liefert das x zurueck.
+
+
+    /////////Normalverfahren
     //    calculate controller values
   //    Matrix y = y_buffer[(t -1 + buffersize)%buffersize];
 //         y += (calculateControllerValues(x) +  noiseMatrix(eta.getM(),eta.getN(), *YNoiseGen, -noiseY, noiseY) - y)*(1.0/(double)s4avg);
@@ -245,39 +245,39 @@ void DerInf::fillBuffersAndControl(const sensor* x_, int number_sensors,
     //   y = ((y + y_integration)*1.2).map(g)*(1/1.2);
 
    y.convertToBuffer(y_, number_motors);
-  // convert y to motor*; y is sent to the motors. 
+  // convert y to motor*; y is sent to the motors.
 
 }
-void DerInf::learnController(int delay){ 
-   
+void DerInf::learnController(int delay){
+
   Matrix C_update(C.getM(), C.getN());
   Matrix H_update(H.getM(), H.getN());
   Matrix HY_update(H.getM(), H.getN());
 
   int sensornumber = C.getN();
 
-  if (!conf.useS) S *= 0; 
-    const Matrix& x = x_buffer[(t + buffersize)%buffersize];//   
-	
-    //    t_delay = 1;   
+  if (!conf.useS) S *= 0;
+    const Matrix& x = x_buffer[(t + buffersize)%buffersize];//
+
+    //    t_delay = 1;
 
    const Matrix& x_delay = x_buffer[(t - delay + buffersize)%buffersize];
 
-   //	    cout << x-x_delay <<endl; 
+   //            cout << x-x_delay <<endl;
 
    // causalfactor = 1; //TEST
- 
-//Iteration Beginn 
+
+//Iteration Beginn
     xx =  (  x_buffer[(t - num_iterations + buffersize)%buffersize]);
     for (int i=0; i < num_iterations; i++){
       if(!conf.useS){
-	xx = A * ((C*xx + C*H + HY).map(g))+B; 
+        xx = A * ((C*xx + C*H + HY).map(g))+B;
       }
       else {
-	xx = A * ((C*xx + C*H + HY).map(g))+B + S*xx; 
+        xx = A * ((C*xx + C*H + HY).map(g))+B + S*xx;
       }
     }
-//Iteration Ende 
+//Iteration Ende
 
     zz = C*xx + C*H + HY;
     yy = zz.map(g);
@@ -288,29 +288,29 @@ void DerInf::learnController(int delay){
   const Matrix g_prime_inv = g_prime.map(one_over);
 
     xsi = x  - B -  A* y;
-    if ( conf.useS ) xsi = x  - B -  A * y - S*x_delay; 
+    if ( conf.useS ) xsi = x  - B -  A * y - S*x_delay;
 
 
      A += xsi * ((y + eta*.000000001)^T) * epsA - A*dampA*epsA;
-     B += xsi * epsA * factorB - B * factorB * epsA*.02;    
+     B += xsi * epsA * factorB - B * factorB * epsA*.02;
      if ( conf.useS )  S += xsi*(x_delay^T)*epsA - S * epsA*dampS;
 
      for ( int i = 0; i<number_motors; i++) {
-       G.val(i,i) = g_prime.val(i,0); 
+       G.val(i,i) = g_prime.val(i,0);
      }
 
      putInBuffer(xsi_buffer,xsi);
-     
+
      // C += (G * (A^T )*xsi*(x^T))*teacher;
      // HY += (G * (A^T )*xsi)*teacher;
 
-//      L = A * G * C; 
+//      L = A * G * C;
 //      if ( conf.useS ) L += S;
     //  eta =  ((A^T) *(
-// 		      L*L* xsi_buffer[(t-2+buffersize)%buffersize]
-// 		     + L* xsi_buffer[(t-1+buffersize)%buffersize]
-// 		     + xsi
-// 		     )).multrowwise(g_prime); 
+//                       L*L* xsi_buffer[(t-2+buffersize)%buffersize]
+//                      + L* xsi_buffer[(t-1+buffersize)%buffersize]
+//                      + xsi
+//                      )).multrowwise(g_prime);
      eta = G*(A^T)*( x - xx );
      const Matrix xsi1=  G*(A^T)*xsi;
      DD += ( eta * (eta^T) - xsi1*(xsi1^T)- DD)*zetaupdate;
@@ -320,37 +320,37 @@ void DerInf::learnController(int delay){
 //      //     DD =      (A^T)*(((G^0)*xsifactor - L * (L^T) )^(-1))*A;
 //      DD = G*(A^T)*
 //        ((RG + ((G^0)*xsifactor -  L * (L^T) )*((G^0)*xsifactor -  L * (L^T) ))
-// 	^(-1))*A*G;
+//         ^(-1))*A*G;
 //     DD = G*(A^T)*((RG + ((ID_Sensor^0) -  L * (L^T) ))^(-1))* A * G; ;
      //    DD = DD  - xsi1*(xsi1^T);
   xsistrength += ((( (xsi^T)*xsi).val(0,0))/sensornumber - xsistrength )*.03;
   //  double Dfactor = 1/(xsistrength + .00001);
-  //  Dinverse = (( ((DD*Dfactor)^-1)*.03 ).map(tanh))*3;  
+  //  Dinverse = (( ((DD*Dfactor)^-1)*.03 ).map(tanh))*3;
   ////   cout << DD.val(0,0)*Dfactor << "Dfactor"<<Dfactor<< endl;
- 
+
 
 
      //  xx = x; yy = y;
     for (int i=0; i<number_motors; i++)  {
      ups.val(i,0) = (DD * C * (C^T)).val(i,i);
-} 
+}
 
     EE = .3/(((eta^T)*eta).val(0,0)+.0000000001);
     //  EE = 1.0/(((ups^T)*ups).val(0,0)+.0000000001);//TEST
-    //  EE = sqrt(EE); 
+    //  EE = sqrt(EE);
     //    EE *= 1+sin(t/80);
 
 
     ups = ups.multrowwise(yy)*-2*sense;
 
-    //Lernen: 
+    //Lernen:
 
     C_update = ((DD * C + ups * (xx^T)))*epsC*EE;
 
     HY_update =  (ups/*.map(g)*/) *(epsC)*EE - yy * creat;
 
     //   C_update = ((DD * C + (DD * C * (C^T) ) * y * (xx^T)*(-2 * xsifactor)).map(g))*epsC*EE;
- 
+
  //    for (int k=0; k<number_motors;k++) for (int l=0; l<number_sensors;l++) {
 
 //          if(k-l>1 || l-k>1) C.val(k,l)=0;
@@ -360,12 +360,12 @@ void DerInf::learnController(int delay){
  if (epsC > 0) {
     C -= (C - (C^0))/* *(C - (C^0)) *(C - (C^0)) */ * dampC;
     H -= (H & H & H) * dampC;
-    HY -= (HY & HY & HY) * .00000001; 
+    HY -= (HY & HY & HY) * .00000001;
 
 
-//     C_update = C_update * gamma + C_updateOld * ( 1 - gamma ); 
-//     H_update = H_update * gamma + H_updateOld * ( 1 - gamma ); 
-//     HY_update = HY_update * gamma + HY_updateOld * ( 1 - gamma ); 
+//     C_update = C_update * gamma + C_updateOld * ( 1 - gamma );
+//     H_update = H_update * gamma + H_updateOld * ( 1 - gamma );
+//     HY_update = HY_update * gamma + HY_updateOld * ( 1 - gamma );
 
 //     C_updateOld = C_update;
 //     H_updateOld = H_update;
@@ -375,28 +375,28 @@ void DerInf::learnController(int delay){
     C += (C_update).map(g)*.01;//weighting;
     //  H += H_update;
     HY += (HY_update).map(g)*.01;//weighting*2;
-//     //    epsC=epsC_old; 
+//     //    epsC=epsC_old;
 
 //      H*=0;
 //       HY*=0;
 
- 
+
 
 }
 
 
-} 
- //   // End  Controlling the learning parameters:  
-       
+}
+ //   // End  Controlling the learning parameters:
+
 
   //  }
- 
 
-/// calculate controller outputs 
-/// @param x_smooth smoothed sensors Matrix(number_channels,1) 
+
+/// calculate controller outputs
+/// @param x_smooth smoothed sensors Matrix(number_channels,1)
 
 Matrix DerInf::calculateControllerValues(const Matrix& x){
-  return (C*x + HY).map(g); 
+  return (C*x + HY).map(g);
 };
 
 
@@ -405,7 +405,7 @@ void DerInf::getLastMotors(motor* motors, int len){
   y.convertToBuffer(motors, len);
 }
 
-Matrix DerInf::calcDerivatives(const matrix::Matrix* buffer,int delay){  
+Matrix DerInf::calcDerivatives(const matrix::Matrix* buffer,int delay){
   const Matrix& xt    = buffer[(t-delay)%buffersize];
   const Matrix& xtm1  = buffer[(t-delay-1)%buffersize];
   const Matrix& xtm2  = buffer[(t-delay-2)%buffersize];
@@ -418,7 +418,7 @@ void DerInf::management(){
 
 
 /** stores the controller values to a given file. */
-bool DerInf::store(FILE* f) const {  
+bool DerInf::store(FILE* f) const {
   // save matrix values
   C.store(f);
   H.store(f);
@@ -451,8 +451,8 @@ list<Inspectable::iparamkey> DerInf::getInternalParamNames() const {
     if(conf.useS) keylist += store4x4AndDiagonalFieldNames(S, "S");
     keylist += store4x4AndDiagonalFieldNames(C, "C");
    //            keylist += store4x4AndDiagonalFieldNames(S, "S");
-//         keylist += store4x4AndDiagonalFieldNames(Q, "Q");   
-	
+//         keylist += store4x4AndDiagonalFieldNames(Q, "Q");
+
   }else{
     keylist += storeMatrixFieldNames(A, "A");
       if(conf.useS) keylist += storeMatrixFieldNames(S, "S");
@@ -466,7 +466,7 @@ list<Inspectable::iparamkey> DerInf::getInternalParamNames() const {
   //  keylist += storeVectorFieldNames(vau_avg, "vau_avg");
   keylist += storeVectorFieldNames(xx, "xx");
  //  if(conf.sat)
-//             keylist += conf.sat->getInternalParamNames();  
+//             keylist += conf.sat->getInternalParamNames();
   //  keylist += storeVectorFieldNames(eta, "eta");
   // keylist += storeVectorFieldNames(xsi, "xsi");
   //  keylist += storeVectorFieldNames(x_smooth_long, "v_smooth");
@@ -481,7 +481,7 @@ list<Inspectable::iparamkey> DerInf::getInternalParamNames() const {
 //   keylist += string("EE");
 //   keylist += string("GrangerError2");
 //   keylist += string("GrangerCausality");
-  return keylist; 
+  return keylist;
 }
 
 list<Inspectable::iparamval> DerInf::getInternalParams() const {
@@ -490,9 +490,9 @@ list<Inspectable::iparamval> DerInf::getInternalParams() const {
     l += store4x4AndDiagonal(A);
    if(conf.useS) l += store4x4AndDiagonal(S);
       l += store4x4AndDiagonal(C);
-  //                 l += store4x4AndDiagonal(S); 
+  //                 l += store4x4AndDiagonal(S);
 //        l += store4x4AndDiagonal(Q);
-       
+
   }else{
     l += A.convertToList();
     //   if(conf.useS) l += S.convertToList();
@@ -500,7 +500,7 @@ list<Inspectable::iparamval> DerInf::getInternalParams() const {
     //      l += R.convertToList();
 //      l += Q.convertToList();
   }
-  
+
   // l += y_integration.convertToList();
 //   l += PID_deriv.convertToList();
   //l += y_teaching.convertToList();
@@ -510,7 +510,7 @@ list<Inspectable::iparamval> DerInf::getInternalParams() const {
    //   l += xsi.convertToList();
   // l += x_buffer[(t - 1 + buffersize )%buffersize].convertToList();
 //   if(conf.sat)
-//           l += conf.sat->getInternalParams();  
+//           l += conf.sat->getInternalParams();
   // l += eta.convertToList();
   //l += xsi.convertToList();
   //  l += x_smooth_long.convertToList();//TEST
@@ -544,7 +544,7 @@ list<Inspectable::IConnection> DerInf::getStructuralConnections() const {
 }
 
 //double clip095(double x){
-// return clip(x,-0.95,0.95); 
+// return clip(x,-0.95,0.95);
 //}
 
 double DerInf::calcMatrixNorm(const Matrix& m){

@@ -103,17 +103,17 @@ class MySimpleController : public AbstractControllerAdapter
       */
       virtual void stepNoLearning ( const sensor* sensors, int number_sensors, motor* motors, int number_motors ) {
 
-	int tilt_0_value = convertToByte(sensors[3]);
-	int tilt_1_value = convertToByte(sensors[4]);
+        int tilt_0_value = convertToByte(sensors[3]);
+        int tilt_1_value = convertToByte(sensors[4]);
 
-	int new_x, new_y;
-	int factor = 1;
+        int new_x, new_y;
+        int factor = 1;
 
 #define TILT_MID_VALUE (350)
 //tilt values: min=150 mid= max=
-	float wanted_tilt_0 = ((float)new_x)*factor;
-	float wanted_tilt_1 = ((float)new_y)*factor;
-        
+        float wanted_tilt_0 = ((float)new_x)*factor;
+        float wanted_tilt_1 = ((float)new_y)*factor;
+
         // halbiere wanted tilt
         if (wanted_tilt_0>TILT_MID_VALUE) {
           wanted_tilt_0 = (wanted_tilt_0-TILT_MID_VALUE)/2+TILT_MID_VALUE;
@@ -129,17 +129,17 @@ class MySimpleController : public AbstractControllerAdapter
         // Sicherheitsabfrage!
         if (wanted_tilt_0 > TILT_MAX_RANGE) wanted_tilt_0 = TILT_MAX_RANGE;
         if (wanted_tilt_0 < TILT_MIN_RANGE) wanted_tilt_0 = TILT_MIN_RANGE;
-        
+
         if (wanted_tilt_1 > TILT_MAX_RANGE) wanted_tilt_1 = TILT_MAX_RANGE;
         if (wanted_tilt_1 < TILT_MIN_RANGE) wanted_tilt_1 = TILT_MIN_RANGE;
-        
+
         // schwerpunktausgleich -> für neutralstellung
         wanted_tilt_0 += 0.;
         wanted_tilt_1 += 75.;
 
         double diff0=0.;
         double diff1=0.;
-        
+
        if (tilt_0_value < wanted_tilt_0){
        // diff wanted_tilt and actual tilt value .. and
        // norm to 0..255 values, because motor values only works within
@@ -148,11 +148,11 @@ class MySimpleController : public AbstractControllerAdapter
          diff1=diff;
        }
        else if (tilt_0_value > wanted_tilt_0){
-	  diff = (((float)tilt_0_value-wanted_tilt_0)/TILT_MAX_VALUE)*255.;
+          diff = (((float)tilt_0_value-wanted_tilt_0)/TILT_MAX_VALUE)*255.;
           diff0=+diff;
           diff1=-diff;
-       } 
-/***********************************************************************/       
+       }
+/***********************************************************************/
        if (tilt_1_value < wanted_tilt_1){
        //diff wanted_tilt and actual tilt value .. and
        //norm to 0..255 values, because motor values only works within
@@ -161,16 +161,16 @@ class MySimpleController : public AbstractControllerAdapter
          diff1-=diff;
        }
        else if (tilt_1_value > wanted_tilt_1){
-	 diff = (((float)tilt_1_value-wanted_tilt_1)/TILT_MAX_VALUE)*255.;
+         diff = (((float)tilt_1_value-wanted_tilt_1)/TILT_MAX_VALUE)*255.;
          diff0+=diff;
          diff1+=diff;
-       } 
+       }
 /*************************************************************************/
          m0=128+(uint8_t)diff0;
          m1=128+(uint8_t)diff1;
-       
-       
-       
+
+
+
         set_data_motorboard(0xB0,MOTOR1_SPEED,((uint8_t*)m0),1);
         set_data_motorboard(0xB0,MOTOR2_SPEED,((uint8_t*)m1),1);
 

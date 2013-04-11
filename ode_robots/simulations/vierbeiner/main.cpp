@@ -137,13 +137,13 @@ public:
 
 
   Joint* fixator;
-  AbstractGround* playground; 
+  AbstractGround* playground;
   double hardness;
   Substance s;
   AbstractController *teachcontroller;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
 
@@ -151,23 +151,23 @@ public:
     // - set noise to 0.0
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
     global.odeConfig.setParam("controlinterval",2);
-    global.odeConfig.setParam("noise",0.1); 
+    global.odeConfig.setParam("noise",0.1);
     global.odeConfig.setParam("realtimefactor",1);
     global.odeConfig.setParam("gravity", -3);
     //    global.odeConfig.setParam("cameraspeed", 250);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
     // use Playground as boundary:
-    s.toPlastic(0.9); 
-    double scale = 20; 
+    s.toPlastic(0.9);
+    double scale = 20;
     double height = 0;
     int anzgrounds=1;
-    // double scale = 1; 
+    // double scale = 1;
     // double height = 1;
     // int anzgrounds=4;
     for (int i=0; i< anzgrounds; i++){
-      playground = new Playground(odeHandle, osgHandle, 
-	     osg::Vec3((4+4*i)*scale, .2, (.15+0.15*i)*height), 1, i==(anzgrounds-1));
+      playground = new Playground(odeHandle, osgHandle,
+             osg::Vec3((4+4*i)*scale, .2, (.15+0.15*i)*height), 1, i==(anzgrounds-1));
       OdeHandle myhandle = odeHandle;
       myhandle.substance.toFoam(10);
       // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
@@ -194,18 +194,18 @@ public:
 
     teachcontroller = new WalkController();
     teachcontroller->init(12,12);
-    for (int i=0; i< 1/*2*/; i++){ //Several dogs 
+    for (int i=0; i< 1/*2*/; i++){ //Several dogs
 
     VierBeinerConf conf = VierBeiner::getDefaultConf();
-	//  conf.hipJointLimit = M_PI/8;        
+        //  conf.hipJointLimit = M_PI/8;
     conf.legNumber = 4; /* for the dog's sake use only even numbers */
 
     conf.drawstupidface=0;
 
     OdeHandle doghandle = odeHandle;
     doghandle.substance.toRubber(10);
-    VierBeiner* dog = new VierBeiner(doghandle, osgHandle,conf, "Dog");     
-    //dog->place(osg::Matrix::translate(0,0,0.15));  
+    VierBeiner* dog = new VierBeiner(doghandle, osgHandle,conf, "Dog");
+    //dog->place(osg::Matrix::translate(0,0,0.15));
     dog->place(osg::Matrix::translate(0,0,.5 + 4*i));
     global.configs.push_back(dog);
 
@@ -219,14 +219,14 @@ public:
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.useS=false;
     AbstractController *controller = new InvertMotorNStep(cc);
-    
+
     //AbstractController *controller = new WalkController();
-    
+
     // AbstractController* controller = new SineController();
 
     //    controller->setParam("sinerate",50);
     //    controller->setParam("phaseshift",1);
-    
+
     controller->setParam("adaptrate",0);
     controller->setParam("rootE",3);
     controller->setParam("epsC",0.1);
@@ -239,31 +239,31 @@ public:
     controller->setParam("dampA",0.00003);
     //    controller->setParam("continuity",0.5);
     //    controller->setParam("kwta",4);
-    //    controller->setParam("inhibition",0.01);        
+    //    controller->setParam("inhibition",0.01);
 
     global.configs.push_back(controller);
-  
+
     // create pointer to one2onewiring
     AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     // feedback connection and blind channels
-    // AbstractWiring* wiring = 
-    //       new WiringSequence(new FeedbackWiring(new ColorUniformNoise(0.1), 
-    // 					    FeedbackWiring::Motor,0.5),
-    // 			 new One2OneWiring(0, false, 2));
+    // AbstractWiring* wiring =
+    //       new WiringSequence(new FeedbackWiring(new ColorUniformNoise(0.1),
+    //                                             FeedbackWiring::Motor,0.5),
+    //                          new One2OneWiring(0, false, 2));
 
-    // create pointer to agent 
+    // create pointer to agent
     // initialize pointer with controller, robot and wiring
-    // push agent in globel list of agents 
+    // push agent in globel list of agents
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, dog, wiring);
     //agent->setTrackOptions(TrackRobot(true,true,false,true,"bodyheight",20)); // position and speed tracking every 20 steps
     global.agents.push_back(agent);
-  
-    //  
+
+    //
     }// Several dogs end
-    
-  
-    
+
+
+
   }
 
 
@@ -274,9 +274,9 @@ public:
       AbstractController* contr = globalData.agents.front()->getController();
       InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(contr);
       if(c){
-	int len = c->getSensorNumber();
-	teachcontroller->step(sensors, len, motors, len);
-	c->setMotorTeachingSignal(motors,len);
+        int len = c->getSensorNumber();
+        teachcontroller->step(sensors, len, motors, len);
+        c->setMotorTeachingSignal(motors,len);
       }
     }
 
@@ -287,32 +287,32 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	case 'x': 
-	  if(fixator) delete fixator;
-	  fixator=0;	 
-	  return true;
-	  break;
-	case 'i': 
-	  if(playground) {	    
-	    s.hardness*=1.5;
-	    cout << "hardness " << s.hardness << endl;
-	    playground->setSubstance(s);
-	  }
-	  return true;
-	  break;
-	case 'j': 
-	  if(playground) {
-	    s.hardness/=1.5;
-	    cout << "hardness " << s.hardness << endl;
-	    playground->setSubstance(s);
-	  }
-	  return true;
-	  break;
-	default:
-	  return false;
-	  break;
-	}
+        {
+        case 'x':
+          if(fixator) delete fixator;
+          fixator=0;
+          return true;
+          break;
+        case 'i':
+          if(playground) {
+            s.hardness*=1.5;
+            cout << "hardness " << s.hardness << endl;
+            playground->setSubstance(s);
+          }
+          return true;
+          break;
+        case 'j':
+          if(playground) {
+            s.hardness/=1.5;
+            cout << "hardness " << s.hardness << endl;
+            playground->setSubstance(s);
+          }
+          return true;
+          break;
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
@@ -320,9 +320,9 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
+

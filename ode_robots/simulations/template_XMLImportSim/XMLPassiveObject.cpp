@@ -28,17 +28,17 @@ void XMLPassiveObject::setPose(const osg::Matrix & pose)
 {
   if (!obstacle_exists)
     create();
-	this->obst[0]->setPose(pose);
+        this->obst[0]->setPose(pose);
 }
 
 
 
 void XMLPassiveObject::create()
 {
-	if (obstacle_exists)
-		destroy();
-	this->obst.push_back(this->xmlEngine.getPrimitiveFactory()->createPrimitive(passiveObjectNode));
-	obstacle_exists = true;
+        if (obstacle_exists)
+                destroy();
+        this->obst.push_back(this->xmlEngine.getPrimitiveFactory()->createPrimitive(passiveObjectNode));
+        obstacle_exists = true;
 }
 
 
@@ -46,7 +46,7 @@ void XMLPassiveObject::create()
 Primitive* XMLPassiveObject::getMainPrimitive() const
 {
   assert(obstacle_exists);
-	return obst[0];
+        return obst[0];
 }
 
 

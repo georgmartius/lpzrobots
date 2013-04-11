@@ -46,7 +46,7 @@ const char* actFun2String(ActivationFunction actfun) {
 }
 
 Layer::Layer(int size, double factor_bias,
-	     ActivationFunction actfun)
+             ActivationFunction actfun)
   : size(size), factor_bias(factor_bias), actfun(actfun) {
   setActFun(actfun);
 }
@@ -75,30 +75,30 @@ void Layer::setActFun(ActivationFunction actfun){
 }
 
 bool Layer::store(FILE* f) const {
-	fprintf(f,"%i %g %s\n", size, factor_bias, actFun2String(actfun));
-	return true;
+        fprintf(f,"%i %g %s\n", size, factor_bias, actFun2String(actfun));
+        return true;
 }
 
 bool Layer::restore(FILE* f){
-	char buffer[128];
-	if((fgets(buffer,128, f))==NULL) return false; // we need to use fgets in order to avoid spurious effects with following matrix (binary)
-	if(sscanf(buffer,"%i %lf %s", &size, &factor_bias, buffer) != 3) return false;
-	if(strcmp(buffer, "linear") == 0) {
-	  actfun    = FeedForwardNN::linear;
-	} else if (strcmp(buffer, "sigmoid") == 0) {
-	  actfun  = FeedForwardNN::sigmoid;
-	}else if (strcmp(buffer, "tanh") == 0) {
-	  actfun  = FeedForwardNN::tanh;
-	}else if (strcmp(buffer, "tanhc") == 0) {
-	  actfun  = FeedForwardNN::tanhc;
-	}else if (strcmp(buffer, "tanhr") == 0) {
-	  actfun  = FeedForwardNN::tanhr;
-	}else {
-	  fprintf(stderr, "unknown activation function \"%s\"!", buffer);
-	  return false;
-	}
-	setActFun(actfun);
-	return true;
+        char buffer[128];
+        if((fgets(buffer,128, f))==NULL) return false; // we need to use fgets in order to avoid spurious effects with following matrix (binary)
+        if(sscanf(buffer,"%i %lf %s", &size, &factor_bias, buffer) != 3) return false;
+        if(strcmp(buffer, "linear") == 0) {
+          actfun    = FeedForwardNN::linear;
+        } else if (strcmp(buffer, "sigmoid") == 0) {
+          actfun  = FeedForwardNN::sigmoid;
+        }else if (strcmp(buffer, "tanh") == 0) {
+          actfun  = FeedForwardNN::tanh;
+        }else if (strcmp(buffer, "tanhc") == 0) {
+          actfun  = FeedForwardNN::tanhc;
+        }else if (strcmp(buffer, "tanhr") == 0) {
+          actfun  = FeedForwardNN::tanhr;
+        }else {
+          fprintf(stderr, "unknown activation function \"%s\"!", buffer);
+          return false;
+        }
+        setActFun(actfun);
+        return true;
 }
 
 

@@ -23,7 +23,7 @@ class CSerialThread{
   bool m_is_running;
   bool terminated;
   bool m_is_joined;
-	
+
   pthread_t thread;
   bool test_mode;
 
@@ -49,7 +49,7 @@ public:
    * On success the net number of bytes (len) is returned, otherwise -1.
    */
   virtual int sendData(uint8 adr, uint8 cmd, uint8 *data, uint8 len);
-        
+
   // read sensors and write motors
   virtual void writeMotors_readSensors() = 0; //const DAT& s) = 0;
 
@@ -64,9 +64,9 @@ public:
   /// start serial communication
   void start();
   /// stop serial communication and wait for the thread to terminate
-  void stopandwait();    
+  void stopandwait();
   /// stop serial communication (call also be called from inside)
-  void stop();    
+  void stop();
 
   /// set com port
   void comport(const CString& port){ m_port=port; };

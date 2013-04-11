@@ -33,13 +33,13 @@ MultiExpertSubopt::Sat::Sat(InvertableModel* _net, double _eps){
 }
 
 
-MultiExpertSubopt::MultiExpertSubopt( const MultiExpertSuboptConf& _conf) 
+MultiExpertSubopt::MultiExpertSubopt( const MultiExpertSuboptConf& _conf)
   : AbstractModel("MultiExpertSubopt", "$Id: "), conf(_conf)
-{  
+{
   runcompetefirsttime=true;
   managementInterval=10;
   winner=0;
-  initialised = false;  
+  initialised = false;
 };
 
 
@@ -51,8 +51,8 @@ MultiExpertSubopt::~MultiExpertSubopt()
 }
 
 
-void MultiExpertSubopt::init(unsigned int inputDim, unsigned  int outputDim, 
-			   double unit_map, RandGen* randGen){
+void MultiExpertSubopt::init(unsigned int inputDim, unsigned  int outputDim,
+                           double unit_map, RandGen* randGen){
   assert(conf.numSats>1);
   this->inputDim  = inputDim;
   this->outputDim = outputDim;
@@ -62,13 +62,13 @@ void MultiExpertSubopt::init(unsigned int inputDim, unsigned  int outputDim,
     if(conf.numHidden!=0)
       layers.push_back(Layer(conf.numHidden, 0.5 , FeedForwardNN::tanh));
     layers.push_back(Layer(1,0.5));
-    MultiLayerFFNN* net = new MultiLayerFFNN(1, layers, 1); // learning rate is set to 1 and modulates each step  
+    MultiLayerFFNN* net = new MultiLayerFFNN(1, layers, 1); // learning rate is set to 1 and modulates each step
     ModelWithMemoryAdapter* netwm = new ModelWithMemoryAdapter(net,conf.satMemory, conf.satTrainPast);
     netwm->init(inputDim, outputDim, 1, randGen);
     Sat sat(netwm, conf.eps0);
     sats.push_back(sat);
   }
-  
+
   satErrors.set(conf.numSats, 1);
   satSubOpt.set(conf.numSats, 1);
   satAvg1Errors.set(conf.numSats, 1);
@@ -76,11 +76,11 @@ void MultiExpertSubopt::init(unsigned int inputDim, unsigned  int outputDim,
   satMinErrors.set(conf.numSats, 1);
   satEpsMod.set(conf.numSats, 1);
   double d = 1;
-  satEpsMod.toMapP(&d,constant); // set all elements to 1;  
+  satEpsMod.toMapP(&d,constant); // set all elements to 1;
   d = 1;
-  satMinErrors.toMapP(&d,constant); // set all elements to 5;  
-  satAvg1Errors.toMapP(&d,constant); // set all elements to 5;  
-  satAvg2Errors.toMapP(&d,constant); // set all elements to 5;    
+  satMinErrors.toMapP(&d,constant); // set all elements to 5;
+  satAvg1Errors.toMapP(&d,constant); // set all elements to 5;
+  satAvg2Errors.toMapP(&d,constant); // set all elements to 5;
 
   addParameter("tauF", &(conf.tauF));
   addParameter("tauE1", &(conf.tauE1));
@@ -99,48 +99,48 @@ const matrix::Matrix MultiExpertSubopt::process (const matrix::Matrix& input){
 }
 
 
-const matrix::Matrix MultiExpertSubopt::learn (const matrix::Matrix& input, 
-					    const matrix::Matrix& nom_output, 
-					    double learnRateFactor){   
+const matrix::Matrix MultiExpertSubopt::learn (const matrix::Matrix& input,
+                                            const matrix::Matrix& nom_output,
+                                            double learnRateFactor){
 
-  const Matrix& errors = compete(input,nom_output);    
+  const Matrix& errors = compete(input,nom_output);
 
   satSubOpt   = errors - satMinErrors;
-  satSubOpt   += errors*0.2; 
-  Matrix out; 
-  
+  satSubOpt   += errors*0.2;
+  Matrix out;
+
   if(conf.version==A){
     // Version a
     winner = argmin(satSubOpt);
     // update min for winner
     satMinErrors.val(winner,0) = std::min(satMinErrors.val(winner,0), satAvg2Errors.val(winner,0));
   // let winner learn
-    out = sats[winner].net->learn(input, nom_output,  
-				  sats[winner].eps*satEpsMod.val(winner,0)); 
+    out = sats[winner].net->learn(input, nom_output,
+                                  sats[winner].eps*satEpsMod.val(winner,0));
   }else if(conf.version==B){
     // Version b
     // winner is only for output and prediction and we take the best one
-    winner = argmin(errors);    
-    out= sats[winner].net->process(input);  
+    winner = argmin(errors);
+    out= sats[winner].net->process(input);
     // However learning is based on ranked suboptimality
     // rank
     vector<pair<double,int> > ranking(errors.getM());
     for(unsigned int i=0; i< satSubOpt.getM(); i++){
       ranking[i].first  = satSubOpt.val(i,0);
-      ranking[i].second = i;      
+      ranking[i].second = i;
     }
     std::sort(ranking.begin(), ranking.end());
     // winner has lowest ranking
     //winner = ranking[0].second;
-    //    out= sats[winner].net->process(input);  
+    //    out= sats[winner].net->process(input);
     for(unsigned int i=0; i< satSubOpt.getM(); i++){
       if(conf.lambda_comp*i >= 6) continue; // no need for learning (eps factor < 1e-3 )
-      //    cout << ranking[i].first << " " << ranking[i].second 
+      //    cout << ranking[i].first << " " << ranking[i].second
       //         << " " << exp(-conf.lambda_comp*i) << "\n";
       sats[ranking[i].second].net->
-	learn(input, nom_output, sats[ranking[i].second].eps * exp(-conf.lambda_comp*i));
-    }    
-    
+        learn(input, nom_output, sats[ranking[i].second].eps * exp(-conf.lambda_comp*i));
+    }
+
     // update min for all
     satMinErrors = Matrix::map2(min, satMinErrors, satAvg2Errors);
     //satMinErrors = Matrix::map2P(&conf, mindynamics, satMinErrors, errors);
@@ -151,7 +151,7 @@ const matrix::Matrix MultiExpertSubopt::learn (const matrix::Matrix& input,
     assert("" == "Not implemented version");
   }
 
-  
+
   if(t%managementInterval==0){
     management();
   }
@@ -169,11 +169,11 @@ double MultiExpertSubopt::mindynamics(void *conf, double m, double e){
 }
 
 
-Matrix MultiExpertSubopt::compete(const matrix::Matrix& input, 
-				const matrix::Matrix& nom_output) {  
+Matrix MultiExpertSubopt::compete(const matrix::Matrix& input,
+                                const matrix::Matrix& nom_output) {
   assert(satErrors.getM()>=sats.size());
 
-  // ask all networks to make their predictions on last timestep, 
+  // ask all networks to make their predictions on last timestep,
   //  compare with real world
   unsigned int i=0;
   FOREACH(vector<Sat>, sats, s){
@@ -183,14 +183,14 @@ Matrix MultiExpertSubopt::compete(const matrix::Matrix& input,
   }
   satAvg1Errors = satAvg1Errors * (1.0-1.0/conf.tauE1) + satErrors * (1.0/conf.tauE1);
   satAvg2Errors = satAvg2Errors * (1.0-1.0/conf.tauE2) + satErrors * (1.0/conf.tauE2);
-    
+
   return satAvg1Errors;
 }
 
 
 void MultiExpertSubopt::management(){
   // decay minima and learning rate modulations
-  double d = 10e-7;   
+  double d = 10e-7;
   satMinErrors.toMap2( max, satMinErrors.mapP(&d, constant));
   satMinErrors *= 1.0+(1.0/conf.tauF);
 }
@@ -214,10 +214,10 @@ Configurable::paramlist MultiExpertSubopt::getParamList() const{
   paramlist keylist = AbstractModel::getParamList();
   keylist += pair<paramkey, paramval>("epsSat",sats[0].eps);
   return keylist;
-} 
+}
 
 
-bool MultiExpertSubopt::store(FILE* f) const {  
+bool MultiExpertSubopt::store(FILE* f) const {
   fprintf(f,"%i\n", conf.numSats);
   fprintf(f,"%i\n", conf.numHidden);
   fprintf(f,"%i\n", runcompetefirsttime);
@@ -234,7 +234,7 @@ bool MultiExpertSubopt::store(FILE* f) const {
   FOREACHC(vector<Sat>, sats, s){
     s->net->store(f);
   }
- 
+
   // save config and controller
   Configurable::print(f,0);
   return true;
@@ -245,9 +245,9 @@ bool MultiExpertSubopt::restore(FILE* f){
     init(2,2);
 
   char buffer[128];
-  if(fscanf(f,"%s\n", buffer) != 1) return false;	
+  if(fscanf(f,"%s\n", buffer) != 1) return false;
   conf.numSats = atoi(buffer);
-  if(fscanf(f,"%s\n", buffer) != 1) return false;	
+  if(fscanf(f,"%s\n", buffer) != 1) return false;
   conf.numHidden = atoi(buffer);
 
  // we need to use fgets in order to avoid spurious effects with following matrix (binary)
@@ -265,16 +265,16 @@ bool MultiExpertSubopt::restore(FILE* f){
   // clean sats array
   sats.clear();
   // restore sats
-  for(int i=0; i < conf.numSats; i++){     
+  for(int i=0; i < conf.numSats; i++){
     // FIXME: load and restore ModelWithMemoryAdapter!
     MultiLayerFFNN* n = new MultiLayerFFNN(0,vector<Layer>());
     n->restore(f);
     sats.push_back(Sat(n,n->eps));
   }
- 
+
   // save config and controller
   Configurable::parse(f);
-  t=0; // set time to zero to ensure proper filling of buffers  
+  t=0; // set time to zero to ensure proper filling of buffers
   return true;
 }
 
@@ -296,8 +296,8 @@ void MultiExpertSubopt::restoreSats(const std::list<std::string>& filenames){
   unsigned int i=0;
   FOREACHC(list<std::string>, filenames, file){
     if(i>= sats.size()) return;
-    FILE* f=fopen(file->c_str(),"rb");    
-    if(!f) 
+    FILE* f=fopen(file->c_str(),"rb");
+    if(!f)
       cerr << "cannot open file " << *file << endl;
     else{
       sats[i].net->restore(f);
@@ -305,12 +305,12 @@ void MultiExpertSubopt::restoreSats(const std::list<std::string>& filenames){
       fclose(f);
     }
     i++;
-  }  
+  }
 }
 
 
 list<Inspectable::iparamkey> MultiExpertSubopt::getInternalParamNames() const {
-  list<iparamkey> keylist;  
+  list<iparamkey> keylist;
   keylist += storeVectorFieldNames(satErrors, "errs");
   keylist += storeVectorFieldNames(satAvg1Errors, "avg1errs");
   keylist += storeVectorFieldNames(satAvg2Errors, "avg2errs");
@@ -319,7 +319,7 @@ list<Inspectable::iparamkey> MultiExpertSubopt::getInternalParamNames() const {
   keylist += storeVectorFieldNames(satEpsMod, "epsmod");
   keylist += string("winner");
   keylist += string("winner_error");
-  return keylist; 
+  return keylist;
 }
 
 list<Inspectable::iparamval> MultiExpertSubopt::getInternalParams() const {

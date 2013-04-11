@@ -230,6 +230,9 @@ namespace lpzrobots {
     nameSensor(BX_pos, "body position sensor x");
     nameSensor(BY_pos, "body position sensor y");
     nameSensor(BZ_pos, "body position sensor z");
+    nameSensor(BX_ori, "body orientation sensor x");
+    nameSensor(BY_ori, "body orientation sensor y");
+    nameSensor(BZ_ori, "body orientation sensor z");
 
     // name the motors
     nameMotor(TR0_m, "TR0 motor");
@@ -534,6 +537,24 @@ namespace lpzrobots {
     }
     //------------------------Add GoalSensor by Ren-------------------
 
+    //------------------------Add Orientation Sensor by Ren-------------------
+
+    std::list<sensor> Ori_lst =  OrientationSensor->get();
+
+    double ori1,ori2,ori3;
+
+    ori1 = Ori_lst.front();
+    Ori_lst.pop_front();
+    ori2 = Ori_lst.front();
+    Ori_lst.pop_front();
+    ori3 = Ori_lst.front();
+    sensors[BX_ori] = ori1; //atan2(ori2,ori1)*180/M_PI;
+    sensors[BY_ori] = ori2;
+    sensors[BZ_ori] = ori3;
+
+    Ori_lst.clear();
+    //------------------------Add Orientation Sensor by Ren-------------------
+
 #ifdef VERBOSE
     std::cerr << "AmosII::getSensors END\n";
 #endif
@@ -578,7 +599,7 @@ namespace lpzrobots {
     }
     // update the graphical representation of the sensorbank
     irSensorBank->update();
-    
+
     for (int i = 0; i < LEG_POS_MAX; i++) {
       if (legContactSensors[LegPos(i)])
         legContactSensors[LegPos(i)]->update();
@@ -665,7 +686,7 @@ namespace lpzrobots {
 
     // color of joint axis
     OsgHandle osgHandleJoint = osgHandle.changeColor("joint");
-    
+
     // change Material substance
     OdeHandle odeHandleBody = odeHandle;
     odeHandleBody.substance.toMetal(3.0);
@@ -714,7 +735,7 @@ namespace lpzrobots {
 
     if (conf.useLocalVelSensor) {
       // create speedsensor
-      speedsensor = new SpeedSensor(1.0, SpeedSensor::TranslationalRel, SpeedSensor::XY);
+      speedsensor = new SpeedSensor(1.0, SpeedSensor::TranslationalRel, SpeedSensor::XYZ);
       //initialize the speedsensor
       speedsensor->init(front);
     }
@@ -1044,25 +1065,25 @@ namespace lpzrobots {
     //-----------------add GoalSensor by Ren------------------------
     if (conf.GoalSensor_references.size()>0)
     {
-    	// Relative position sensor
-    	for (std::vector<Primitive*>::iterator it = conf.GoalSensor_references.begin(); it<conf.GoalSensor_references.end();it++)
-    	{
-    	  // Using 0 as second parameter if exact distance should be given as linear sensor
-    		RelativePositionSensor GoalSensor_tmp(1, 0,Sensor::X|Sensor::Y|Sensor::Z, true);
-    		//max distance for normalization
-    		//exponent for sensor characteristic
-    		//dimensions to sense
-    		//use Z as x-coordinate ( robot was created with vertical capsule or something like that)
-    		//local_coordinates
-    		GoalSensor_tmp.setReference(*it);
-    		GoalSensor.push_back(GoalSensor_tmp);
-    		//sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot, have been declared in sensormotordefinition
-    	}
-    	GoalSensor_active = true;
+            // Relative position sensor
+            for (std::vector<Primitive*>::iterator it = conf.GoalSensor_references.begin(); it<conf.GoalSensor_references.end();it++)
+            {
+              // Using 0 as second parameter if exact distance should be given as linear sensor
+                    RelativePositionSensor GoalSensor_tmp(1, 0,Sensor::X|Sensor::Y|Sensor::Z, true);
+                    //max distance for normalization
+                    //exponent for sensor characteristic
+                    //dimensions to sense
+                    //use Z as x-coordinate ( robot was created with vertical capsule or something like that)
+                    //local_coordinates
+                    GoalSensor_tmp.setReference(*it);
+                    GoalSensor.push_back(GoalSensor_tmp);
+                    //sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot, have been declared in sensormotordefinition
+            }
+            GoalSensor_active = true;
     }
     else
     {
-    	GoalSensor_active =false;
+            GoalSensor_active =false;
     }
     //----------------------Goal Sensor by Ren-----------------------
 
@@ -1074,6 +1095,12 @@ namespace lpzrobots {
       }
     }
     // --------------Add Goal Sensor by Ren -------------------
+
+    //-----------Add Orientation Sensor by Ren----------------
+    OrientationSensor = new AxisOrientationSensor(AxisOrientationSensor::Axis,Sensor::X |Sensor::Y | Sensor::Z);
+    OrientationSensor->init(front);
+    //-----------Add Orientation Sensor by Ren----------------
+
 
     setParam("dummy", 0); // apply all parameters.
 
@@ -1097,7 +1124,7 @@ namespace lpzrobots {
           delete legContactSensors[LegPos(i)];
       }
       legContactSensors.clear();
-      
+
       // remove all ignored pairs (brute force method)
       for (PrimitiveList::iterator i = objects.begin(); i != objects.end(); i++) {
         for (PrimitiveList::iterator j = objects.begin(); j != objects.end(); j++) {
@@ -1144,6 +1171,13 @@ namespace lpzrobots {
       legs.clear();
 
       //------------------ delete GoalSensor here by Ren--------------------
+
+      // deleting pointers to GoalSensor_references
+      for (std::vector<Primitive*>::iterator i = conf.GoalSensor_references.begin(); i != conf.GoalSensor_references.end(); i++) {
+        if (*i)
+          delete *i;
+      }
+
       GoalSensor.clear();
       //------------------ delete GoalSensor here by Ren--------------------
 

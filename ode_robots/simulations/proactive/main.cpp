@@ -28,7 +28,7 @@ public:
 
     // initialization
     global.odeConfig.noise=0.05;
-  
+
     playground = new Playground(odeHandle, osgHandle, osg::Vec3(8, 0.2, 0.5));
     playground->setPosition(plpos); // playground positionieren und generieren
     global.obstacles.push_back(playground);
@@ -39,18 +39,18 @@ public:
     nimm2Conf.irRange=2;
     nimm2Conf.singleMotor=true;
     nimm2Conf.force = 5;
-    //  nimm2Conf.force=nimm2Conf.force*3;  
+    //  nimm2Conf.force=nimm2Conf.force*3;
     OdeRobot* vehicle = new Nimm2(odeHandle, osgHandle, nimm2Conf, "Nimm2");
     vehicle->place(Pos(0,0,0.2));
 
-  
+
     InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
     cc.buffersize=50;
     // cc.useS=true;
     cc.cInit=1.1;
     cc.someInternalParams=false;
-    AbstractController *controller = new ProActive2(1,30, cc);  
-    // AbstractController *controller = new SineController();  
+    AbstractController *controller = new ProActive2(1,30, cc);
+    // AbstractController *controller = new SineController();
     // AbstractController *controller = new InvertMotorNStep(cc);
     //   controller->setParam("steps",2);
     controller->setParam("epsH",100);
@@ -58,10 +58,10 @@ public:
     controller->setParam("adaptrate",0);
     controller->setParam("epsC",0.05);
     controller->setParam("epsA",0.05);
-    controller->setParam("eps",0.1); // eps for delta H net 
-    controller->setParam("s4avg",1); 
+    controller->setParam("eps",0.1); // eps for delta H net
+    controller->setParam("s4avg",1);
     //  global.odeConfig.setParam("realtimefactor",3);
-  
+
     DerivativeWiringConf wconf = DerivativeWiring::getDefaultConf();
     //    wconf.useFirstD = true;
     //    wconf.useSecondD = false;
@@ -74,37 +74,37 @@ public:
     global.agents.push_back(agent);
 
     global.configs.push_back(controller);
-    
+
   }
 
   virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
-    if (!down) return false;    
+    if (!down) return false;
     bool handled = false;
     switch ( key )
       {
-      case 'i' : 
-	plpos = plpos + Pos(0.2,0,0);
-	playground->setPosition(plpos);
-	handled = true; 
-	break;
-      case 'k' : 
-	plpos = plpos - Pos(0.2,0,0);
-	playground->setPosition(plpos);
-	handled = true; 
-	break;	
-      case 'j' : 
-	plpos = plpos + Pos(0,0.2,0);
-	playground->setPosition(plpos);
-	handled = true; 
-	break;
-      case 'l' : 
-	plpos = plpos - Pos(0,0.2,0);
-	playground->setPosition(plpos);
-	handled = true; 
-	break;
+      case 'i' :
+        plpos = plpos + Pos(0.2,0,0);
+        playground->setPosition(plpos);
+        handled = true;
+        break;
+      case 'k' :
+        plpos = plpos - Pos(0.2,0,0);
+        playground->setPosition(plpos);
+        handled = true;
+        break;
+      case 'j' :
+        plpos = plpos + Pos(0,0.2,0);
+        playground->setPosition(plpos);
+        handled = true;
+        break;
+      case 'l' :
+        plpos = plpos - Pos(0,0.2,0);
+        playground->setPosition(plpos);
+        handled = true;
+        break;
       }
-  
+
     fflush(stdout);
     return handled;
   }
@@ -120,11 +120,11 @@ public:
   }
 
 };
-  
-  
+
+
 int main (int argc, char **argv)
-{  
+{
   ProactiveSim sim;
-  return sim.run(argc, argv) ? 0 : 1; 
+  return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

@@ -42,7 +42,7 @@ namespace lpzrobots {
     dJointAttach(motor, p1->getBody(), p2->getBody());
     dJointSetAMotorMode (motor, dAMotorUser);
   }
-  
+
   AngularMotor::~AngularMotor (){
     dJointDestroy(motor);
   }
@@ -76,7 +76,7 @@ namespace lpzrobots {
 /** sets the parameters of the motor
 */
   void AngularMotor::setParam(int parameter, double value) {
-	dJointSetAMotorParam (motor, parameter, value);
+        dJointSetAMotorParam (motor, parameter, value);
   }
 
 /** gets the parameters of the motor
@@ -86,56 +86,56 @@ namespace lpzrobots {
   }
 
   double AngularMotor::getPower(){
-    return dJointGetAMotorParam(motor, dParamFMax);       
+    return dJointGetAMotorParam(motor, dParamFMax);
   }
 
   /*******************************************************************************/
 
   /** Constuct a motor attached to a OneAxisJoint. It will its axis of course.
-      @param power The maximum force or torque that the motor will use to achieve the desired velocity. 
-      This must always be greater than or equal to zero. 
-      Setting this to zero (the default value) turns off the motor.      
+      @param power The maximum force or torque that the motor will use to achieve the desired velocity.
+      This must always be greater than or equal to zero.
+      Setting this to zero (the default value) turns off the motor.
   */
   AngularMotor1Axis::AngularMotor1Axis(const OdeHandle& odeHandle, OneAxisJoint* joint, double power)
     : AngularMotor(odeHandle, joint), joint(joint) {
     dJointSetAMotorNumAxes(motor, 1);
     const Axis& a =joint->getAxis1();
     dJointSetAMotorAxis(motor, 0, FirstBody, a.x(), a.y(), a.z() );
-    dJointSetAMotorParam(motor, dParamFMax, power); 
-    dJointSetAMotorParam(motor, dParamVel, 0); 
+    dJointSetAMotorParam(motor, dParamFMax, power);
+    dJointSetAMotorParam(motor, dParamVel, 0);
   }
-  
-  
+
+
   /** sets the desired speed of the motor at the given axis.
       @param axisNumber is ignored because have only one axis
       @param velocity Desired motor velocity (this will be an angular or linear velocity).
   */
   void AngularMotor1Axis::set(int axisNumber, double velocity){
-    dJointSetAMotorParam(motor, dParamVel, velocity); 
+    dJointSetAMotorParam(motor, dParamVel, velocity);
   }
 
   /** returns the speed (PositionRate) at the given axis, or zero if the axis is out of range
       @param axisNumber is ignored because have only one axis
    */
   double AngularMotor1Axis::get(int axisNumber){
-    return joint->getPosition1Rate(); 
+    return joint->getPosition1Rate();
   }
 
   /**  sets the maximal force the motor has
    */
   void AngularMotor1Axis::setPower(double power){
-    dJointSetAMotorParam(motor, dParamFMax, power);   
+    dJointSetAMotorParam(motor, dParamFMax, power);
   }
 
   /*******************************************************************************/
 
   /** Constuct a motor attached to a TwoAxisJoint. It will its two axis of course.
-      @param power The maximum force or torque that the motor will use to achieve the desired velocity. 
-      This must always be greater than or equal to zero. 
-      Setting this to zero (the default value) turns off the motor.      
+      @param power The maximum force or torque that the motor will use to achieve the desired velocity.
+      This must always be greater than or equal to zero.
+      Setting this to zero (the default value) turns off the motor.
   */
-  AngularMotor2Axis::AngularMotor2Axis(const OdeHandle& odeHandle, TwoAxisJoint* joint, 
-				       double power1, double power2)
+  AngularMotor2Axis::AngularMotor2Axis(const OdeHandle& odeHandle, TwoAxisJoint* joint,
+                                       double power1, double power2)
     : AngularMotor(odeHandle, joint), joint(joint) {
 
     dJointSetAMotorNumAxes(motor, 2);
@@ -145,14 +145,14 @@ namespace lpzrobots {
     dJointSetAMotorAxis(motor, 1, SecondBody, a1.x(), a1.y(), a1.z() );
 
 
-    dJointSetAMotorParam(motor, dParamFMax, power1); 
-    dJointSetAMotorParam(motor, dParamFMax2, power2); 
+    dJointSetAMotorParam(motor, dParamFMax, power1);
+    dJointSetAMotorParam(motor, dParamFMax2, power2);
 
-    dJointSetAMotorParam(motor, dParamVel, 0); 
-    dJointSetAMotorParam(motor, dParamVel2, 0); 
+    dJointSetAMotorParam(motor, dParamVel, 0);
+    dJointSetAMotorParam(motor, dParamVel2, 0);
   }
-  
-  /** sets the desired speed of the motor at the given axis.       
+
+  /** sets the desired speed of the motor at the given axis.
       @param axisNumber either 0 or 1
       @param velocity Desired motor velocity (this will be an angular or linear velocity).
   */
@@ -160,22 +160,22 @@ namespace lpzrobots {
     int param = dParamVel;
     switch (axisNumber) {
     case 0:
-      param = dParamVel; 
+      param = dParamVel;
       break;
     case 1:
-      param = dParamVel2; 
+      param = dParamVel2;
       break;
     }
-    dJointSetAMotorParam(motor, param, velocity); 
+    dJointSetAMotorParam(motor, param, velocity);
   }
 
   /** returns the speed (PositionRate) at the given axis, or zero if the axis is out of range*/
   double AngularMotor2Axis::get(int axisNumber){
     switch (axisNumber) {
     case 0:
-      return joint->getPosition1Rate(); 
+      return joint->getPosition1Rate();
     case 1:
-      return joint->getPosition2Rate(); 
+      return joint->getPosition2Rate();
     default:
       return 0;
     }
@@ -184,107 +184,107 @@ namespace lpzrobots {
   /**  sets the maximal force the motor has
    */
   void AngularMotor2Axis::setPower(double power){
-    dJointSetAMotorParam(motor, dParamFMax, power);   
-    dJointSetAMotorParam(motor, dParamFMax2, power);   
+    dJointSetAMotorParam(motor, dParamFMax, power);
+    dJointSetAMotorParam(motor, dParamFMax2, power);
   }
 
   void AngularMotor2Axis::setPower(double power1, double power2){
-    dJointSetAMotorParam(motor, dParamFMax, power1);   
-    dJointSetAMotorParam(motor, dParamFMax2, power2);       
+    dJointSetAMotorParam(motor, dParamFMax, power1);
+    dJointSetAMotorParam(motor, dParamFMax2, power2);
   }
 
   double AngularMotor2Axis::getPower2(){
-    return dJointGetAMotorParam(motor, dParamFMax2);       
+    return dJointGetAMotorParam(motor, dParamFMax2);
   }
 
   /*******************************************************************************/
 
-  /** Constuct a motor attached to any Joint (not Sliders!). 
-      The axis have to be provided by the user.	
-      @param axis list of axis vectors and power. If empty then the motor is disabled. 
-      Power is the maximum force or torque that the motor will use to achieve the desired velocity. 
-      This must always be greater than or equal to zero. 
-      Setting this to zero (the default value) turns off the motor.      
+  /** Constuct a motor attached to any Joint (not Sliders!).
+      The axis have to be provided by the user.
+      @param axis list of axis vectors and power. If empty then the motor is disabled.
+      Power is the maximum force or torque that the motor will use to achieve the desired velocity.
+      This must always be greater than or equal to zero.
+      Setting this to zero (the default value) turns off the motor.
   */
-  AngularMotorNAxis::AngularMotorNAxis(const OdeHandle& odeHandle, Joint* joint, 
-				       std::list<std::pair<double, Axis > > axis)
+  AngularMotorNAxis::AngularMotorNAxis(const OdeHandle& odeHandle, Joint* joint,
+                                       std::list<std::pair<double, Axis > > axis)
     : AngularMotor(odeHandle, joint), joint(joint) {
-    
+
     int len = axis.size();
-    
+
     dJointSetAMotorNumAxes(motor, len);
     int j=0;
-    for(std::list<std::pair<double, Axis > >::iterator i = axis.begin(); 
-	i!= axis.end(); i++, j++){
+    for(std::list<std::pair<double, Axis > >::iterator i = axis.begin();
+        i!= axis.end(); i++, j++){
       const Axis& a = (*i).second;
       dJointSetAMotorAxis(motor, j, FirstBody, a.x(), a.y(), a.z() );
-      double pwr = (*i).first; 
+      double pwr = (*i).first;
       int param;
       switch (j) {
-      case 0: 
-	param = dParamFMax; break;
-      case 1: 
-	param = dParamFMax2; break;
-      case 2: 
-	param = dParamFMax3; break;	
+      case 0:
+        param = dParamFMax; break;
+      case 1:
+        param = dParamFMax2; break;
+      case 2:
+        param = dParamFMax3; break;
       default:
-	continue;
+        continue;
       }
-      dJointSetAMotorParam(motor, param, pwr); 
+      dJointSetAMotorParam(motor, param, pwr);
 
       switch (j) {
-      case 0: 
-	param = dParamVel; break;
-      case 1: 
-	param = dParamVel2; break;
-      case 2: 
-	param = dParamVel3; break;	
+      case 0:
+        param = dParamVel; break;
+      case 1:
+        param = dParamVel2; break;
+      case 2:
+        param = dParamVel3; break;
       default:
-	continue;
+        continue;
       }
-      dJointSetAMotorParam(motor, param, 0); 
+      dJointSetAMotorParam(motor, param, 0);
     }
   }
-  
+
   /// returns the number of Axis of this Motor
   int AngularMotorNAxis::getNumberOfAxes(){
     return dJointGetAMotorNumAxes(motor);
   }
 
-  /** sets the desired speed of the motor at the given axis.       
+  /** sets the desired speed of the motor at the given axis.
       @param axisNumber either 0 or 1
       @param velocity Desired motor velocity (this will be an angular or linear velocity).
   */
   void AngularMotorNAxis::set(int axisNumber, double velocity){
     int param;
-    switch (axisNumber) {      
+    switch (axisNumber) {
     case 0:
-      param = dParamVel; 
+      param = dParamVel;
       break;
     case 1:
-      param = dParamVel2; 
+      param = dParamVel2;
       break;
     case 2:
-      param = dParamVel3; 
-      break;      
+      param = dParamVel3;
+      break;
     default:
       return;
     }
-    dJointSetAMotorParam(motor, param, velocity); 
+    dJointSetAMotorParam(motor, param, velocity);
   }
 
   /** returns the speed (PositionRate) at the given axis, or zero if the axis is out of range*/
-  double AngularMotorNAxis::get(int axisNumber){    
+  double AngularMotorNAxis::get(int axisNumber){
     int param = dParamVel;
     switch (axisNumber) {
     case 0:
-      param = dParamVel; 
+      param = dParamVel;
       break;
     case 1:
-      param = dParamVel2; 
+      param = dParamVel2;
       break;
     case 2:
-      param = dParamVel3; 
+      param = dParamVel3;
       break;
     }
     return dJointGetAMotorParam(motor, param);
@@ -296,33 +296,33 @@ namespace lpzrobots {
     int param;
     for(int i=0; i<getNumberOfAxes(); i++) {
       switch (i) {
-      case 0: 
-	param = dParamFMax; break;
-      case 1: 
-	param = dParamFMax2; break;
-      case 2: 
-	param = dParamFMax3; break;	
+      case 0:
+        param = dParamFMax; break;
+      case 1:
+        param = dParamFMax2; break;
+      case 2:
+        param = dParamFMax3; break;
       default:
-	continue;
+        continue;
       }
-      dJointSetAMotorParam(motor, param, power);   
+      dJointSetAMotorParam(motor, param, power);
     }
   }
 
   /*******************************************************************************/
 
-    /** Constuct a motor attached to a BallJoint. 
-	@param axis1 axis relative to body 1
-	@param axis3 axis relative to body 2 (must be perpendicular to axis1 
-	(the axis 2 is calculated automatically) 	
-	@param power The maximum force or torque that the motor will use to achieve the desired velocity. 
-	This must always be greater than or equal to zero. 
-	Setting this to zero (the default value) turns off the motor.      
+    /** Constuct a motor attached to a BallJoint.
+        @param axis1 axis relative to body 1
+        @param axis3 axis relative to body 2 (must be perpendicular to axis1
+        (the axis 2 is calculated automatically)
+        @param power The maximum force or torque that the motor will use to achieve the desired velocity.
+        This must always be greater than or equal to zero.
+        Setting this to zero (the default value) turns off the motor.
     */
-  AngularMotor3AxisEuler::AngularMotor3AxisEuler(const OdeHandle& odeHandle, BallJoint* joint, 
-			   const Axis& axis1, const Axis& axis3, double power)
+  AngularMotor3AxisEuler::AngularMotor3AxisEuler(const OdeHandle& odeHandle, BallJoint* joint,
+                           const Axis& axis1, const Axis& axis3, double power)
       : AngularMotor(odeHandle, joint), joint(joint) {
-          
+
     dJointSetAMotorNumAxes(motor, 3);
     dJointSetAMotorMode (motor, dAMotorEuler);
 
@@ -330,42 +330,42 @@ namespace lpzrobots {
     dJointSetAMotorAxis(motor, 2, SecondBody, axis3.x(), axis3.y(), axis3.z() );
 
 
-    dJointSetAMotorParam(motor, dParamFMax, power); 
-    dJointSetAMotorParam(motor, dParamFMax2, power); 
-    dJointSetAMotorParam(motor, dParamFMax3, power);    
+    dJointSetAMotorParam(motor, dParamFMax, power);
+    dJointSetAMotorParam(motor, dParamFMax2, power);
+    dJointSetAMotorParam(motor, dParamFMax3, power);
   }
-  
-  /** sets the desired speed of the motor at the given axis.       
+
+  /** sets the desired speed of the motor at the given axis.
       @param axisNumber either 0 or 1
       @param velocity Desired motor velocity (this will be an angular or linear velocity).
   */
   void AngularMotor3AxisEuler::set(int axisNumber, double velocity){
     int param;
-    switch (axisNumber) {      
+    switch (axisNumber) {
     case 0:
-      param = dParamVel; 
+      param = dParamVel;
       break;
     case 1:
-      param = dParamVel2; 
+      param = dParamVel2;
       break;
     case 2:
-      param = dParamVel3; 
+      param = dParamVel3;
       break;
     default:
       return;
     }
-    dJointSetAMotorParam(motor, param, velocity); 
+    dJointSetAMotorParam(motor, param, velocity);
   }
 
   /** returns the speed (PositionRate) at the given axis, or zero if the axis is out of range*/
-  double AngularMotor3AxisEuler::get(int axisNumber){    
+  double AngularMotor3AxisEuler::get(int axisNumber){
     switch (axisNumber) {
     case 0:
-      return dJointGetAMotorAngleRate(motor, 0); 
+      return dJointGetAMotorAngleRate(motor, 0);
     case 1:
-      return dJointGetAMotorAngleRate(motor, 1); 
+      return dJointGetAMotorAngleRate(motor, 1);
     case 2:
-      return dJointGetAMotorAngleRate(motor, 2); 
+      return dJointGetAMotorAngleRate(motor, 2);
     default:
       return 0;
     }
@@ -374,12 +374,12 @@ namespace lpzrobots {
   /**  sets the maximal force the motor has
    */
   void AngularMotor3AxisEuler::setPower(double power){
-    dJointSetAMotorParam(motor, dParamFMax, power);   
-    dJointSetAMotorParam(motor, dParamFMax2, power);   
-    dJointSetAMotorParam(motor, dParamFMax3, power);   
+    dJointSetAMotorParam(motor, dParamFMax, power);
+    dJointSetAMotorParam(motor, dParamFMax2, power);
+    dJointSetAMotorParam(motor, dParamFMax3, power);
   }
 
-  
+
 }
 
 

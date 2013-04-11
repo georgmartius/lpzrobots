@@ -55,8 +55,8 @@ bool ForceBoostWiring::initIntern(){
   return true;
 }
 
-bool ForceBoostWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
-                                         sensor* csensors, int csensornumber, 
+bool ForceBoostWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber,
+                                         sensor* csensors, int csensornumber,
                                          double noiseStrength){
   assert(rsensornumber == this->rsensornumber);
   assert(csensornumber == this->csensornumber);
@@ -65,11 +65,11 @@ bool ForceBoostWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumb
     csensors[i] = rsensors[i] + noisevals[i];
   }
   sens.set(rsensors);
-  return true;  
+  return true;
 }
 
 bool ForceBoostWiring::wireMotorsIntern(motor* rmotors, int rmotornumber,
-				     const motor* cmotors, int cmotornumber){
+                                     const motor* cmotors, int cmotornumber){
   assert(rmotornumber == this->rmotornumber);
   assert(cmotornumber == this->cmotornumber);
   if(boost>0){

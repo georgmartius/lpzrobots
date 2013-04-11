@@ -390,7 +390,7 @@ public:
     //TrackableMeasure* trackableEntropy = new TrackableMeasure(trackableList,"E upd Nimm2",ENT,playground->getCornerPointsXY(),X | Y, 50);
     //this->getHUDSM()->addMeasure(trackableEntropy);
 
-    
+
     std::cout << "running with cDiag = " << this->cInit << "." << std::endl;
     std::cout << "running with bNonDiag = " << this->bInit << "." << std::endl;
 
@@ -563,22 +563,22 @@ int main (int argc, char **argv)
 
 
     if ((numberSteps!=steps) || (stepInterval!=1)) {
-	if (numberSteps!=steps)
-	    std::cerr << "wrong number of steps! For the choosen parameters please run with " << numberSteps << " steps!" << std::endl;
-	if (stepInterval!=1)
-	    std::cerr << "wrong number of stepInterval! or the choosen parameters please run with -step 1!" << std::endl;
+        if (numberSteps!=steps)
+            std::cerr << "wrong number of steps! For the choosen parameters please run with " << numberSteps << " steps!" << std::endl;
+        if (stepInterval!=1)
+            std::cerr << "wrong number of stepInterval! or the choosen parameters please run with -step 1!" << std::endl;
     } else {
-	double x = startx + ((stepId-firstStep) % ((int)((endx-startx)/stepSizex+1)))*stepSizex;
-	double y = starty + ((stepId-firstStep) / ((int)((endx-startx)/stepSizex+1)))*stepSizey;
-	std::cout << "firstStep    = " << firstStep << std::endl;
-	std::cout << "lastStep     = " << lastStep << std::endl;
-	std::cout << "stepId       = " << stepId << std::endl;
-	std::cout << "steps        = " << steps << std::endl;
-	std::cout << "stepSizex     = " << stepSizex << std::endl;
-	std::cout << "stepSizey     = " << stepSizey << std::endl;
-	std::cout << "cdiag        = " << x << std::endl;
-	std::cout << "bnondiag     = " << y << std::endl;
-	runSim(x,3,argc,argv,y);
+        double x = startx + ((stepId-firstStep) % ((int)((endx-startx)/stepSizex+1)))*stepSizex;
+        double y = starty + ((stepId-firstStep) / ((int)((endx-startx)/stepSizex+1)))*stepSizey;
+        std::cout << "firstStep    = " << firstStep << std::endl;
+        std::cout << "lastStep     = " << lastStep << std::endl;
+        std::cout << "stepId       = " << stepId << std::endl;
+        std::cout << "steps        = " << steps << std::endl;
+        std::cout << "stepSizex     = " << stepSizex << std::endl;
+        std::cout << "stepSizey     = " << stepSizey << std::endl;
+        std::cout << "cdiag        = " << x << std::endl;
+        std::cout << "bnondiag     = " << y << std::endl;
+        runSim(x,3,argc,argv,y);
 
     }
   } else if ( Simulation::contains(argv, argc, "-loop") && (argc >  Simulation::contains(argv, argc, "-last"))){

@@ -30,12 +30,12 @@ using namespace std;
 
 namespace lpzrobots {
 
-  ShortCircuit::ShortCircuit(const OdeHandle& odeHandle, 
-			     const OsgHandle& osgHandle, int sensornumber, int motornumber)
+  ShortCircuit::ShortCircuit(const OdeHandle& odeHandle,
+                             const OsgHandle& osgHandle, int sensornumber, int motornumber)
     : OdeRobot(odeHandle, osgHandle, "ShortCircuit", "$Id$"){
 
-    sensorno = sensornumber; 
-    motorno  = motornumber;  
+    sensorno = sensornumber;
+    motorno  = motornumber;
     motors = (motor*)malloc(motorno * sizeof(motor));
     for(int i=0; i < motorno; i++){
       motors[i]=0.0;
@@ -45,11 +45,11 @@ namespace lpzrobots {
   };
 
   ShortCircuit::~ShortCircuit(){
-    if(motors) free(motors); 
+    if(motors) free(motors);
   }
 
   /** sets actual motorcommands
-      @param _motors motors scaled to [-1,1] 
+      @param _motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
   void ShortCircuit::setMotors(const motor* _motors, int motornumber){
@@ -63,8 +63,8 @@ namespace lpzrobots {
       @return number of actually written sensors
   */
   int ShortCircuit::getSensors(sensor* sensors, int sensornumber){
-    assert(sensornumber == sensorno);  
-    int mini = min(sensorno,motorno); 
+    assert(sensornumber == sensorno);
+    int mini = min(sensorno,motorno);
     for (int i=0; i< mini; i++){
       sensors[i]=motors[i]; // %motorno
     }

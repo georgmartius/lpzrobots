@@ -27,24 +27,24 @@
 #include "one2onewiring.h"
 #include <functional>
 
-/** predicate to select sensors. 
-    First parameter is the index 
+/** predicate to select sensors.
+    First parameter is the index
     and the second parameter is the length (or number of sensors).
 */
-struct select_predicate : public std::binary_function< int,  int, bool> { 
+struct select_predicate : public std::binary_function< int,  int, bool> {
   virtual ~select_predicate(){}
   virtual bool operator()( int index,  int len) { return true; }
 };
 
 struct select_all : public  select_predicate { };
 
-struct select_firsthalf : public  select_predicate {  
+struct select_firsthalf : public  select_predicate {
   virtual ~select_firsthalf(){}
   virtual bool operator()( int index,  int len) { return index < len/2; }
 };
 
 /// select sensors in the range \f[ [from, to] \f] (inclusively)
-struct select_from_to : public  select_predicate {   
+struct select_from_to : public  select_predicate {
   virtual ~select_from_to(){}
   select_from_to( int from,  int to) : from(from), to(to) {}
   virtual bool operator()( int index,  int len) { return (index >= from) && (index <= to); }
@@ -52,15 +52,15 @@ struct select_from_to : public  select_predicate {
   int to;
 };
 
-/** 
- *   Implements a selective one to one wiring of robot sensors to inputs of the controller 
- *   and controller outputs to robot motors. 
+/**
+ *   Implements a selective one to one wiring of robot sensors to inputs of the controller
+ *   and controller outputs to robot motors.
  */
 class SelectiveOne2OneWiring : public One2OneWiring{
 public:
   /** constructor
-      @param noise NoiseGenerator that is used for adding noise to sensor values  
-      @param sel_sensor binary predicate taking the index and the length (number of sensors) 
+      @param noise NoiseGenerator that is used for adding noise to sensor values
+      @param sel_sensor binary predicate taking the index and the length (number of sensors)
              and decides which sensor to select
   */
   SelectiveOne2OneWiring(NoiseGenerator* noise, select_predicate* sel_sensor, int plotMode = Controller, const std::string& name = "SelectiveOne2OneWiring");
@@ -69,11 +69,11 @@ public:
 protected:
   virtual bool initIntern();
 
-  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
-				 sensor* csensors, int csensornumber,
-				 double noise);
+  virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
+                                 sensor* csensors, int csensornumber,
+                                 double noise);
 
-protected:  
+protected:
   select_predicate* sel_sensor;
 
 };

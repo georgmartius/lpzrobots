@@ -29,12 +29,12 @@
 
 /**
  * robot controller for self-organized behaviour using pro-active elements
- * and it is based in InvertMotorNStep. 
+ * and it is based in InvertMotorNStep.
  */
 class ProActive : public InvertMotorNStep {
 
 public:
-  /** @param numberNonContext number of input channels that are not considered as context inputs 
+  /** @param numberNonContext number of input channels that are not considered as context inputs
       (e.g.\ infrared).
       @param tau time window for temporal correlation
       @param conf configuration \ref InvertMotorNStepConf
@@ -56,10 +56,10 @@ public:
   virtual ~ProActive(){
     if (syndyn_buffer){
       delete[] syndyn_buffer;
-    } 
+    }
   }
 
-  virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0){ 
+  virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0){
     assert( numberNonContext <= (unsigned int) sensornumber);
     number_all_sensors = sensornumber;
     InvertMotorNStep::init(numberNonContext, motornumber);
@@ -70,10 +70,10 @@ public:
 
     for (unsigned int k = 0; k < buffersize; k++) {
       syndyn_buffer[k].set(synDynInputNumber,1);
-    }    
+    }
     H_delta.set(motornumber,1);
     H_delta_net.set(motornumber,1);
-    
+
     H_orig.set(motornumber,1);
     H_context.set(motornumber,1);
     h_context_norm_avg=0.01;
@@ -81,20 +81,20 @@ public:
   }
 
   virtual void step(const sensor* x_, int number_sensors, motor* y_, int number_motors){
-    // call InvertMotorNStep just with the non-context sensors    
+    // call InvertMotorNStep just with the non-context sensors
     // column vector with context sensor values
-    x_context.set(number_all_sensors - numberNonContext, 1, x_ + numberNonContext); 
-    InvertMotorNStep::step(x_, numberNonContext, y_, number_motors);    
+    x_context.set(number_all_sensors - numberNonContext, 1, x_ + numberNonContext);
+    InvertMotorNStep::step(x_, numberNonContext, y_, number_motors);
   }
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* x_, int number_sensors, 
-			      motor* y_, int number_motors){
+  virtual void stepNoLearning(const sensor* x_, int number_sensors,
+                              motor* y_, int number_motors){
     x_context.set(number_all_sensors - numberNonContext, 1, x_ + numberNonContext); // column vector with context sensor values
-    // time is increased 
-    InvertMotorNStep::stepNoLearning(x_, numberNonContext, y_, number_motors); 
+    // time is increased
+    InvertMotorNStep::stepNoLearning(x_, numberNonContext, y_, number_motors);
     t--;
-    bufferSynDynInput();    
+    bufferSynDynInput();
     t++;
   }
 
@@ -146,14 +146,14 @@ protected:
     // first the postsynaptic potential and then the context sensors and then the non-context sensors
     //    matrix::Matrix hinput = z.above(x_context*y.val(0,0)); // column vector with z above x_context
     //    const matrix::Matrix& hinput = z.above(x_context); // column vector with z above x_context
-    const matrix::Matrix& hinput = x_context; 
+    const matrix::Matrix& hinput = x_context;
     // put new sensor vector in ring buffer sensor_buffer (all sensors)
     putInBuffer(syndyn_buffer, hinput);
   }
 
   /// calculates xsi for the current time step using the delayed y values
   //  overloaded version which incorporates time smoothing
-  virtual void calcXsi(int delay){ 
+  virtual void calcXsi(int delay){
     InvertMotorNStep::calcXsi(delay);
   }
 
@@ -169,7 +169,7 @@ protected:
 
     // for H-update we use an additional network, which learns the update
     // in case of paint.
-    //  We use delayed y and delayed x values so that the current 
+    //  We use delayed y and delayed x values so that the current
     //   error can be assoziated with previous motor commands.
     matrix::Matrix C_update_delay(C.getM(), C.getN());
     matrix::Matrix H_update_delay(H.getM(), H.getN());
@@ -181,21 +181,21 @@ protected:
       H_delta = H_update_delay.mapP(&squashS, squashP);
       synDyn.learn(hinput_delay, H_delta);
     }
-    
+
     // apply the output of the network to H (use current inputs)
     const matrix::Matrix& hinput = syndyn_buffer[t % buffersize];
     H_delta_net = synDyn.process(hinput);
-    synDyn.damp(dampH);    
-    
+    synDyn.damp(dampH);
+
     H_context = H_delta_net * epsH;
     double h_context_norm = calcMatrixNorm(H_context);
     double decay=0.0001;
     h_context_norm_avg = h_context_norm_avg*(1-decay) + h_context_norm*decay;
-    
+
 
     if(h_context_norm < h_context_norm_avg * 5){
       // normal H dynamic
-      H_orig += H_update.mapP(&squashSize, squashP); 
+      H_orig += H_update.mapP(&squashSize, squashP);
     }else{
       cerr << "pla";
     }
@@ -205,7 +205,7 @@ protected:
 
 
   }
-  
+
 protected:
   OneLayerFFNN synDyn;
 
@@ -214,12 +214,12 @@ protected:
   matrix::Matrix H_context;
   double h_context_norm_avg;
   matrix::Matrix H_orig;
-  
+
   unsigned int tau;
   unsigned int numberNonContext;
   unsigned int number_all_sensors;
-  double dampH; 
-  double epsH; 
+  double dampH;
+  double epsH;
 
   matrix::Matrix H_delta;
   matrix::Matrix H_delta_net;

@@ -31,7 +31,7 @@ namespace lpzrobots {
 
   class Primitive;
   class Joint;
-  
+
   /**
    holding a temporary primitive
    */
@@ -39,30 +39,30 @@ namespace lpzrobots {
   public:
     /** creates a new item from the given primitives and initializes it.
         The lifetime is set when adding it to globalData
-     */    
-    TmpPrimitive(Primitive* p, char mode, double mass, const Pose& pose, 
+     */
+    TmpPrimitive(Primitive* p, char mode, double mass, const Pose& pose,
                  const Color& color);
-    
+
     /// provided for convenience to supply color as name and alpha independently
-    TmpPrimitive(Primitive* p, char mode, double mass, const Pose& pose, 
+    TmpPrimitive(Primitive* p, char mode, double mass, const Pose& pose,
                  const std::string& colorname, float alpha = 1.0);
-    
-    virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle);    
+
+    virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle);
     virtual void deleteObject();
     virtual void update();
-    
+
   private:
-    Primitive* item;  
+    Primitive* item;
     char mode;
     double mass;
-    Pose pose;  
+    Pose pose;
     Color color;
     std::string colorname;
     bool useColorName;
     float alpha;
     bool initialized;
   };
-  
+
   /**
    holding a temporary graphical item
    */
@@ -71,22 +71,22 @@ namespace lpzrobots {
     /** creates a new item from the given primitives and initializes it.
         The lifetime is set when adding it to globalData
      */
-    TmpDisplayItem(OSGPrimitive* p, const Pose& pose, const Color& color, 
+    TmpDisplayItem(OSGPrimitive* p, const Pose& pose, const Color& color,
                    OSGPrimitive::Quality quality = OSGPrimitive::Middle);
 
     /// provided for convenience to supply color as name and alpha independently
-    TmpDisplayItem(OSGPrimitive* p, const Pose& pose, 
-                   const std::string& colorname, float alpha = 1.0, 
+    TmpDisplayItem(OSGPrimitive* p, const Pose& pose,
+                   const std::string& colorname, float alpha = 1.0,
                    OSGPrimitive::Quality quality = OSGPrimitive::Middle);
-    
+
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle);
 
     virtual void deleteObject();
     virtual void update() {} // nothing to be done here, because they do not move
-    
+
   private:
-    OSGPrimitive* item;  
-    Pose pose;  
+    OSGPrimitive* item;
+    Pose pose;
     Color color;
     std::string colorname;
     bool useColorName;
@@ -103,20 +103,20 @@ namespace lpzrobots {
     /** creates a new tmporary object from the given joint and initializes it.
         The lifetime is set when adding it to globalData
      */
-    TmpJoint(Joint* p, const Color& color, bool withVisual = true, double visualSize = 0.2, 
-	     bool ignoreColl = true);
+    TmpJoint(Joint* p, const Color& color, bool withVisual = true, double visualSize = 0.2,
+             bool ignoreColl = true);
 
     /// provided for convenience to supply color as name and alpha independently
     TmpJoint(Joint* p, const std::string& colorname, float alpha = 1.0,
-	     bool withVisual = true, double visualSize = 0.2, bool ignoreColl = true);
-    
+             bool withVisual = true, double visualSize = 0.2, bool ignoreColl = true);
+
     virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle);
 
     virtual void deleteObject();
     virtual void update();
-    
+
   private:
-    Joint* joint;  
+    Joint* joint;
     Color color;
     std::string colorname;
     bool useColorName;

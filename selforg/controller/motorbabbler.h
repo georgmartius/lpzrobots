@@ -36,7 +36,7 @@ class MotorBabbler : public AbstractController {
 public:
   enum function {Sine, SawTooth};
 
-  /**     
+  /**
      @param controlmask bitmask to select channels to control (default all)
      @param function controller function to use
    */
@@ -45,30 +45,30 @@ public:
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
   virtual int getSensorNumber() const {return number_sensors;}
   virtual int getMotorNumber() const {return number_motors;}
-  virtual void step(const sensor* sensors, int sensornumber, 
-		    motor* motors, int motornumber){
+  virtual void step(const sensor* sensors, int sensornumber,
+                    motor* motors, int motornumber){
     stepNoLearning(sensors, sensornumber, motors, motornumber);
   }
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
   // samples a new set of frequencies
   void sampleFrequencies();
-  
+
   /********* STORABLE INTERFACE ******/
   /// @see Storable
-  virtual bool store(FILE* f) const { 
+  virtual bool store(FILE* f) const {
     Configurable::print(f,"");
     return true;
   }
 
   /// @see Storable
-  virtual bool restore(FILE* f) { 
-    Configurable::parse(f);    
+  virtual bool restore(FILE* f) {
+    Configurable::parse(f);
     return true;
   }
 
-  /// sine 
+  /// sine
   static double sine(double x);
   /// saw tooth shape oscillator
   static double sawtooth(double x);
@@ -82,11 +82,11 @@ protected:
   paramint resampling;
   matrix::Matrix phases;
   matrix::Matrix frequencies;
-  
+
   RandGen* randGen;
 
   double (*osci) (double x); // oscillator function
   int t;
 };
 
-#endif 
+#endif

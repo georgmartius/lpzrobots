@@ -44,7 +44,7 @@ using namespace std;
 
 WiredController::WiredController(const PlotOption& plotOption, double noisefactor, const iparamkey& name, const paramkey& revision)
   : Inspectable(name), Configurable(name, revision), noisefactor(noisefactor), plotEngine(plotOption) {
-  internInit();  
+  internInit();
 }
 
 
@@ -80,7 +80,7 @@ WiredController::~WiredController(){
 /// initializes the object with the given controller, robot and wiring
 //  and initializes pipe to guilogger
 bool WiredController::init(AbstractController* controller, AbstractWiring* wiring,
-			   int robotsensornumber, int robotmotornumber, RandGen* randGen){
+                           int robotsensornumber, int robotmotornumber, RandGen* randGen){
   this->controller = controller;
   this->wiring     = wiring;
   assert(controller && wiring);
@@ -104,38 +104,37 @@ bool WiredController::init(AbstractController* controller, AbstractWiring* wirin
 
   Configurable* c_wiring = dynamic_cast<Configurable*>(wiring);
   if(c_wiring) addConfigurable(c_wiring);
-  
+
   plotEngine.init(controller);
 
   initialised = true;
   return true;
 }
 
-void WiredController::startMotorBabblingMode (int steps, 
-					      AbstractController* babblecontroller, bool ){
+void WiredController::startMotorBabblingMode (int steps, AbstractController* babblecontroller){
   if(babblecontroller){
     if(motorBabbler) delete motorBabbler;
     motorBabbler = babblecontroller;
     motorBabbler->init(csensornumber, cmotornumber);
   }else{
     if(!motorBabbler) {
-      motorBabbler = new MotorBabbler(); 
-      motorBabbler->init(csensornumber, cmotornumber);     
+      motorBabbler = new MotorBabbler();
+      motorBabbler->init(csensornumber, cmotornumber);
     }
   }
   motorBabblingSteps=steps;
 }
 
 PlotOption WiredController::addPlotOption(PlotOption& plotOption) {
-  return plotEngine.addPlotOption(plotOption); 
+  return plotEngine.addPlotOption(plotOption);
 }
 
 bool WiredController::addAndInitPlotOption(PlotOption& plotOption) {
-  return plotEngine.addAndInitPlotOption(plotOption); 
+  return plotEngine.addAndInitPlotOption(plotOption);
 }
 
 bool WiredController::removePlotOption(PlotMode mode){
-  return plotEngine.removePlotOption(mode); 
+  return plotEngine.removePlotOption(mode);
 }
 
 void WiredController::writePlotComment(const char* cmt){
@@ -155,13 +154,13 @@ void WiredController::plot(double time){
 //   pushing sensor values through wiring,
 //  controller step, pushing controller steps back through wiring
 void WiredController::step(const sensor* sensors, int sensornumber,
-			   motor* motors, int motornumber,
-			   double noise, double time){
+                           motor* motors, int motornumber,
+                           double noise, double time){
   assert(controller && wiring && sensors && csensors && cmotors && motors);
 
   if(sensornumber != rsensornumber){
     fprintf(stderr, "%s:%i: Got wrong number of sensors, expected %i, got %i!\n", __FILE__, __LINE__,
-	    rsensornumber, sensornumber);
+            rsensornumber, sensornumber);
   }
 
   wiring->wireSensors(sensors, rsensornumber, csensors, csensornumber, noise * noisefactor);

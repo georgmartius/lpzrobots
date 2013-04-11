@@ -31,19 +31,19 @@
 
 namespace lpzrobots {
 
-  /** general servo motor to achieve position control 
+  /** general servo motor to achieve position control
    */
   class OneAxisServo {
   public:
     /** min and max values are understood as travel bounds. Min should be less than 0.*/
-  
-    OneAxisServo(OneAxisJoint* joint, double _min, double _max, 
-		 double power, double damp=0.2, double integration=2, double maxVel=10.0,
-		 double jointLimit = 1.3, bool minmaxCheck = true)
-      : joint(joint), pid(power, integration, damp), maxVel(maxVel), jointLimit(jointLimit) { 
-      assert(joint); 
+
+    OneAxisServo(OneAxisJoint* joint, double _min, double _max,
+                 double power, double damp=0.2, double integration=2, double maxVel=10.0,
+                 double jointLimit = 1.3, bool minmaxCheck = true)
+      : joint(joint), pid(power, integration, damp), maxVel(maxVel), jointLimit(jointLimit) {
+      assert(joint);
       setMinMax(_min,_max);
-      assert(min<max);     
+      assert(min<max);
       assert(!minmaxCheck || min <= 0);
       assert(!minmaxCheck || max >= 0);
       assert(power>=0 && damp >=0 && integration >=0);
@@ -51,24 +51,24 @@ namespace lpzrobots {
 
     virtual ~OneAxisServo(){}
 
-    /** sets the set point of the servo. 
-	Position must be between -1 and 1. It is scaled to fit into min, max
+    /** sets the set point of the servo.
+        Position must be between -1 and 1. It is scaled to fit into min, max
     */
     virtual void set(double pos){
       pos = clip(pos, -1.0, 1.0);
       if(pos > 0){
-	pos *= max; 
+        pos *= max;
       }else{
-	pos *= -min;
+        pos *= -min;
       }
-      pid.setTargetPosition(pos);  
-      
+      pid.setTargetPosition(pos);
+
       double force = pid.step(joint->getPosition1(), joint->odeHandle.getTime());
       force = std::min(pid.KP, std::max(-pid.KP,force));// limit force to 1*KP
       joint->addForce1(force);
       if(maxVel>0){
-	joint->getPart1()->limitLinearVel(maxVel);
-	joint->getPart2()->limitLinearVel(maxVel);
+        joint->getPart1()->limitLinearVel(maxVel);
+        joint->getPart2()->limitLinearVel(maxVel);
       }
     }
 
@@ -76,11 +76,11 @@ namespace lpzrobots {
     virtual double get(){
       double pos =  joint->getPosition1();
       if(pos > 0){
-	pos /= max; 
+        pos /= max;
       }else{
-	pos /= -min;
+        pos /= -min;
       }
-      return pos;    
+      return pos;
     }
 
     virtual void setMinMax(double _min, double _max){
@@ -91,39 +91,39 @@ namespace lpzrobots {
     }
 
     /** adjusts the power of the servo*/
-    virtual void setPower(double power) { 
+    virtual void setPower(double power) {
       pid.KP = power;
     };
 
     /** returns the power of the servo*/
-    virtual double getPower() { 
+    virtual double getPower() {
       return pid.KP;
     };
 
     /** returns the damping of the servo*/
-    virtual double getDamping() { 
+    virtual double getDamping() {
       return pid.KD;
     }
     /** sets the damping of the servo*/
-    virtual void setDamping(double damp) { 
+    virtual void setDamping(double damp) {
       pid.KD = damp;
     };
 
     /** returns the integration term of the PID controller of the servo*/
-    virtual double& offsetCanceling() { 
+    virtual double& offsetCanceling() {
       return pid.KI;
     };
-    
+
     /** adjusts maximal speed of servo*/
-    virtual void setMaxVel(double maxVel) { 
+    virtual void setMaxVel(double maxVel) {
       this->maxVel = maxVel;
     };
     /** adjusts maximal speed of servo*/
-    virtual double getMaxVel() { 
+    virtual double getMaxVel() {
       return maxVel;
     };
 
-  
+
   protected:
     OneAxisJoint* joint;
     double min;
@@ -143,40 +143,40 @@ namespace lpzrobots {
    */
   class OneAxisServoCentered : public OneAxisServo {
   public:
-    /** min and max values are understood as travel bounds. 
-	The zero position is (max-min)/2
+    /** min and max values are understood as travel bounds.
+        The zero position is (max-min)/2
     */
-    OneAxisServoCentered(OneAxisJoint* joint, double _min, double _max, 
-			 double power, double damp=0.2, double integration=2, 
-			 double maxVel=10.0, double jointLimit = 1.3)
-      : OneAxisServo(joint, _min, _max, power, damp, integration, maxVel, jointLimit, false){      
+    OneAxisServoCentered(OneAxisJoint* joint, double _min, double _max,
+                         double power, double damp=0.2, double integration=2,
+                         double maxVel=10.0, double jointLimit = 1.3)
+      : OneAxisServo(joint, _min, _max, power, damp, integration, maxVel, jointLimit, false){
     }
     virtual ~OneAxisServoCentered(){}
 
-    /** sets the set point of the servo. 
-	Position must be between -1 and 1. It is scaled to fit into min, max, 
-	however 0 is just in the center of min and max
+    /** sets the set point of the servo.
+        Position must be between -1 and 1. It is scaled to fit into min, max,
+        however 0 is just in the center of min and max
     */
     virtual void set(double pos){
       pos = clip(pos, -1.0, 1.0);
       pos = (pos+1)*(max-min)/2 + min;
 
-      pid.setTargetPosition(pos);        
-      double force = pid.stepNoCutoff(joint->getPosition1(), joint->odeHandle.getTime());      
+      pid.setTargetPosition(pos);
+      double force = pid.stepNoCutoff(joint->getPosition1(), joint->odeHandle.getTime());
       force = clip(force,-10*pid.KP, 10*pid.KP); // limit force to 10*KP
       joint->addForce1(force);
       if(maxVel>0){
-	joint->getPart1()->limitLinearVel(maxVel);
-	joint->getPart2()->limitLinearVel(maxVel);
+        joint->getPart1()->limitLinearVel(maxVel);
+        joint->getPart2()->limitLinearVel(maxVel);
       }
     }
     /** returns the position of the slider in ranges [-1, 1] (scaled by min, max, centered)*/
     virtual double get(){
       double pos =  joint->getPosition1();
-      
-      return 2*(pos-min)/(max-min) - 1;    
-    }    
-    
+
+      return 2*(pos-min)/(max-min) - 1;
+    }
+
   };
 
   /** general servo motor to achieve position control.
@@ -187,8 +187,8 @@ namespace lpzrobots {
    */
   class OneAxisServoVel : public OneAxisServo {
   public:
-    /** min and max values are understood as travel bounds. 
-	The zero position is (max-min)/2
+    /** min and max values are understood as travel bounds.
+        The zero position is (max-min)/2
         @param power is the maximal torque the servo can generate
         @param maxVel is understood as a speed parameter of the servo.
         @param damp adjusts the power of the servo in dependence of the distance
@@ -197,78 +197,78 @@ namespace lpzrobots {
           1: is servo has full power at the set point: perfectly damped.
 
     */
-    OneAxisServoVel(const OdeHandle& odeHandle, 
-		    OneAxisJoint* joint, double _min, double _max, 
-		    double power, double damp=0.05, double maxVel=20, 
+    OneAxisServoVel(const OdeHandle& odeHandle,
+                    OneAxisJoint* joint, double _min, double _max,
+                    double power, double damp=0.05, double maxVel=20,
                     double jointLimit = 1.3)
       : OneAxisServo(joint, _min, _max, maxVel/2, 0, 0, 0, jointLimit, false),
         // don't wonder! It is correct to give maxVel as a power parameter to the parent.
         motor(odeHandle, joint, power), power(power), damp(clip(damp,0.0,1.0))
-    {            
+    {
     }
 
     virtual ~OneAxisServoVel(){}
 
     /** adjusts the power of the servo*/
-    virtual void setPower(double _power) { 
+    virtual void setPower(double _power) {
       power=_power;
       motor.setPower(power);
     };
     /** returns the power of the servo*/
-    virtual double getPower() {             
+    virtual double getPower() {
       return power;
     };
-    virtual double getDamping() { 
+    virtual double getDamping() {
       return damp;
     };
-    virtual void setDamping(double _damp) { 
+    virtual void setDamping(double _damp) {
       damp = clip(_damp,0.0,1.0);
     };
     /** offetCanceling does not exist for this type of servo */
-    virtual double& offsetCanceling() { 
+    virtual double& offsetCanceling() {
       dummy=0;
       return dummy;
     };
 
     /** adjusts maximal speed of servo*/
-    virtual void setMaxVel(double maxVel) { 
+    virtual void setMaxVel(double maxVel) {
       this->maxVel = maxVel;
       pid.KP=maxVel/2;
     };
     /** adjusts maximal speed of servo*/
-    virtual double getMaxVel() { 
-      return maxVel;      
+    virtual double getMaxVel() {
+      return maxVel;
     };
 
 
-    /** sets the set point of the servo. 
-	Position must be between -1 and 1. It is scaled to fit into min, max, 
-	however 0 is just in the center of min and max
+    /** sets the set point of the servo.
+        Position must be between -1 and 1. It is scaled to fit into min, max,
+        however 0 is just in the center of min and max
     */
     virtual void set(double pos){
       pos = clip(pos, -1.0, 1.0);
       pos = (pos+1)*(max-min)/2 + min;
-      pid.setTargetPosition(pos);   
+      pid.setTargetPosition(pos);
       double vel = pid.stepVelocity(joint->getPosition1(), joint->odeHandle.getTime());
       double e   = fabs(2.0*(pid.error)/(max-min)); // distance from set point
       motor.set(0, vel);
-      // calculate power of servo depending on the damping and distance from set point and 
+      // calculate power of servo depending on the damping and distance from set point and
       // sigmoid ramping of power for damping < 1
       //      motor.setPower(((1.0-damp)*tanh(e)+damp) * power);
       motor.setPower(tanh(e+damp) * power);
     }
-    
+
     /** returns the position of the servo in ranges [-1, 1] (scaled by min, max, centered)*/
     virtual double get(){
-      double pos =  joint->getPosition1();      
-      return 2*(pos-min)/(max-min) - 1;    
-    }    
+      double pos =  joint->getPosition1();
+      return 2*(pos-min)/(max-min) - 1;
+    }
   protected:
-    AngularMotor1Axis motor;         
+    AngularMotor1Axis motor;
     double dummy;
     double power;
     double damp;
   };
-    
+
 }
 #endif

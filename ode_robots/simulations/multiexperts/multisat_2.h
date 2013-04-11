@@ -76,11 +76,11 @@ typedef struct MultiSatConf {
 typedef struct Sat {
   Sat(MultiLayerFFNN* _net, double _eps);
   MultiLayerFFNN* net;
-  double eps;  
+  double eps;
 } Sat;
 
 /**
- * class for robot controller 
+ * class for robot controller
  * using several feedforward networks (satelite) and one selforg controller
  */
 class MultiSat : public AbstractController {
@@ -96,16 +96,16 @@ public:
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_motors; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
   /// stores the sat networks into seperate files
-  void storeSats(const char* filestem); 
+  void storeSats(const char* filestem);
 
 
   /************** CONFIGURABLE ********************************/
@@ -118,11 +118,11 @@ public:
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   /**** INSPECTABLE ****/
   virtual std::list<iparamkey> getInternalParamNames() const;
-  virtual std::list<iparamval> getInternalParams() const;  
+  virtual std::list<iparamval> getInternalParams() const;
   virtual std::list<ILayer> getStructuralLayers() const;
   virtual std::list<IConnection> getStructuralConnections() const;
 
@@ -132,9 +132,9 @@ public:
     c.numHidden = 10;
     c.eps0=0.001;
     c.lambda_comp = 0;
-    c.deltaMin = 1.0/500.0; 
-    c.tauC = 5.0/c.eps0; 
-    c.tauE = 200; 
+    c.deltaMin = 1.0/500.0;
+    c.tauC = 5.0/c.eps0;
+    c.tauE = 200;
     c.numContext=0;
     c.numSomPerDim=5;
     c.numSats=2;
@@ -146,7 +146,7 @@ public:
 protected:
   unsigned short number_sensors;
   unsigned short number_motors;
-  
+
   // sensor, sensor-derivative and motor values storage
   unsigned short buffersize;
   matrix::Matrix* x_buffer;
@@ -167,13 +167,13 @@ protected:
   matrix::Matrix satMinErrors;    ///< minimum errors of sats
 
   SOM* gatingSom;
-  MultiLayerFFNN* gatingNet;  
-  
+  MultiLayerFFNN* gatingNet;
+
   MultiSatConf conf;
   bool initialised;
   int t;
   int managementInterval;       ///< interval between subsequent management calls
-  
+
   /// satelite networks competition, return vector of predicted errors of sat networks
   matrix::Matrix compete();
 
@@ -188,8 +188,8 @@ protected:
 
   /// handles inhibition damping etc.
   virtual void management();
- 
-  /** Calculates first and second derivative and returns both in on matrix (above). 
+
+  /** Calculates first and second derivative and returns both in on matrix (above).
       We use simple discrete approximations:
       \f[ f'(x) = (f(x) - f(x-1)) / 2 \f]
       \f[ f''(x) = f(x) - 2f(x-1) + f(x-2) \f]

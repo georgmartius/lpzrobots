@@ -67,7 +67,7 @@ namespace lpzrobots {
   /** A Robot Camera. Implements a simulated camera with full OpenGL rendering.
    */
   class Camera {
-  public:  
+  public:
     struct PostDrawCallback : public osg::Camera::DrawCallback {
       PostDrawCallback(Camera* cam):
         cam(cam) { }
@@ -90,10 +90,10 @@ namespace lpzrobots {
 
     typedef std::vector<CameraImage > CameraImages;
 
-    /** Creates a camera. 
-        Note that the order in which the image processors are positioned 
+    /** Creates a camera.
+        Note that the order in which the image processors are positioned
          in conf.imageProcessors matters.
-        The resulting CameraImages are stored in a list (see getImages) and 
+        The resulting CameraImages are stored in a list (see getImages) and
         usually the processors use the last image in this list (result of last processing).
      */
 
@@ -116,20 +116,20 @@ namespace lpzrobots {
 
     virtual ~Camera();
 
-    /** initializes the camera. The OSG camera is created and the 
+    /** initializes the camera. The OSG camera is created and the
         raw image and the imageprocessor is initialized.
      */
     virtual void init(const OdeHandle& odeHandle,
-		      const OsgHandle& osgHandle, 
-		      Primitive* body, 
-		      const osg::Matrix& pose);
+                      const OsgHandle& osgHandle,
+                      Primitive* body,
+                      const osg::Matrix& pose);
 
     /// changes the relative pose of the camera
     virtual void setPose(const osg::Matrix& pose);
 
     /// relative pose of the camera
     virtual osg::Matrix getPose();
-  
+
     // virtual bool sense(const GlobalData& globaldata);
 
     /// all images (raw and processed)
@@ -145,7 +145,7 @@ namespace lpzrobots {
     bool isInitialized() { return initialized; }
   private:
     CameraConf conf;
-    
+
     osg::Camera* cam;
     osg::Image* ccd;
     CameraImages cameraImages;
@@ -159,8 +159,8 @@ namespace lpzrobots {
     Transform* transform;
 
     bool initialized;
-  };  
+  };
 
 }
 
-#endif 	    /* __CAMERA_H_ */
+#endif             /* __CAMERA_H_ */

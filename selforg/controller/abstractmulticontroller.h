@@ -42,103 +42,103 @@ class AbstractMultiController : public AbstractControllerAdapter {
 public:
 
   /// contructor (hint: use $ID$ for revision)
-	AbstractMultiController(AbstractController* controller, const std::string& name, const std::string& revision);
+        AbstractMultiController(AbstractController* controller, const std::string& name, const std::string& revision);
 
-	virtual ~AbstractMultiController();
+        virtual ~AbstractMultiController();
 
-	/**
-	 * Adds a passive controller to this MultiController. If the Agent calls step(..)
-	 * or stepNoLearning(..), the MultiController calls not only the active controllers
-	 * step(...) but also the step(...) of all the passive controllers. (same for
-	 * stepNoLearning(..) ).
-	 *
-	 * Note: The initialisation of the MultiController with init(sensornumber, motornumber)
-	 * must be called after all passive controllers are added, otherwise you must
-	 * init the passive controller yourself (not recommended and can generate problems)
-	 */
-	virtual void addPassiveController(AbstractController* passiveController);
-
-/****************************************************************************/
-/*	AbstractMultiController should implement the following classes:        	*/
-/*	AbstractController, Configurable, Inspectable, Storeable	            */
-/****************************************************************************/
-
+        /**
+         * Adds a passive controller to this MultiController. If the Agent calls step(..)
+         * or stepNoLearning(..), the MultiController calls not only the active controllers
+         * step(...) but also the step(...) of all the passive controllers. (same for
+         * stepNoLearning(..) ).
+         *
+         * Note: The initialisation of the MultiController with init(sensornumber, motornumber)
+         * must be called after all passive controllers are added, otherwise you must
+         * init the passive controller yourself (not recommended and can generate problems)
+         */
+        virtual void addPassiveController(AbstractController* passiveController);
 
 /****************************************************************************/
-/*	BEGIN methods of AbstractController                                 	*/
+/*        AbstractMultiController should implement the following classes:                */
+/*        AbstractController, Configurable, Inspectable, Storeable                    */
 /****************************************************************************/
 
-	
+
+/****************************************************************************/
+/*        BEGIN methods of AbstractController                                         */
+/****************************************************************************/
+
+
   /** initialisation of the controller with the given sensor/ motornumber
    * Must NORMALLY be called before use. For all multicontroller
    * call first AbstractMultiController::init(sensornumber,motornumber)
    * if you overwrite this method
    */
-	virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
+        virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
 
-	  /** performs one step (includes learning).
+          /** performs one step (includes learning).
       Calculates motor commands from sensor inputs.
-	@param sensors sensors inputs scaled to [-1,1]
-	@param sensornumber length of the sensor array
-	@param motors motors outputs. MUST have enough space for motor values!
-	@param motornumber length of the provided motor array
+        @param sensors sensors inputs scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @param motors motors outputs. MUST have enough space for motor values!
+        @param motornumber length of the provided motor array
   */
-	virtual void step(const sensor* sensors, int sensornumber,
-	                  motor* motors, int motornumber)=0;
+        virtual void step(const sensor* sensors, int sensornumber,
+                          motor* motors, int motornumber)=0;
 
   /** performs one step without learning.
-	@see step
+        @see step
   */
-	virtual void stepNoLearning(const sensor* sensors , int sensornumber,
-	                            motor* motors, int motornumber)=0;
+        virtual void stepNoLearning(const sensor* sensors , int sensornumber,
+                                    motor* motors, int motornumber)=0;
 
 
 /****************************************************************************/
-/*	END methods of AbstractController                                 	    */
+/*        END methods of AbstractController                                             */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	BEGIN methods of Configurable                                       	*/
+/*        BEGIN methods of Configurable                                               */
 /****************************************************************************/
 
 
 
 /****************************************************************************/
-/*	END methods of Configurable                                      	    */
+/*        END methods of Configurable                                                  */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	BEGIN methods of Inspectable                                          	*/
+/*        BEGIN methods of Inspectable                                                  */
 /****************************************************************************/
 
 // nothing to overwrite
 
 
 /****************************************************************************/
-/*	END methods of Inspectable                                       	    */
+/*        END methods of Inspectable                                                   */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	BEGIN methods of Storeable                                           	*/
+/*        BEGIN methods of Storeable                                                   */
 /****************************************************************************/
 
   /** stores the object to the given file stream (binary).
   */
-	virtual bool store(FILE* f) const;
+        virtual bool store(FILE* f) const;
 
   /** loads the object from the given file stream (binary).
   */
-	virtual bool restore(FILE* f);
+        virtual bool restore(FILE* f);
 
 
 /****************************************************************************/
-/*	END methods of Storeable                                          	    */
+/*        END methods of Storeable                                                      */
 /****************************************************************************/
 
 protected:
-	// The AbstractController* controller is defined in AbstractControllerAdapter!
-	std::list<AbstractController*> controllerList; // stores the other controllers
-	std::list<std::string> controllerNameList; // stores the names of the controllers
+        // The AbstractController* controller is defined in AbstractControllerAdapter!
+        std::list<AbstractController*> controllerList; // stores the other controllers
+        std::list<std::string> controllerNameList; // stores the names of the controllers
 
 };
 

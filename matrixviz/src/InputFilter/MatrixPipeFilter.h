@@ -46,32 +46,32 @@ class MatrixPipeFilter: public AbstractPipeFilter {
   Q_OBJECT
 
 public:
-	MatrixPipeFilter(AbstractPipeReader* apr);
-	virtual ~MatrixPipeFilter();
+        MatrixPipeFilter(AbstractPipeReader* apr);
+        virtual ~MatrixPipeFilter();
 
-	virtual AbstractPlotChannel* createChannel(std::string name);
+        virtual AbstractPlotChannel* createChannel(std::string name);
 
-	virtual std::vector<MatrixPlotChannel*> getMatrixChannels();
-	virtual std::vector<VectorPlotChannel*> getVectorChannels();
+        virtual std::vector<MatrixPlotChannel*> getMatrixChannels();
+        virtual std::vector<VectorPlotChannel*> getVectorChannels();
 
 public slots:
-	/**
-	  * The dataLine from PipeReader will be iterate to set the new channel-value.
-	  * The order of the value-input-list (dataList) is important and the index of it
-	  * must be equal to the indexnumber of the private channelIndexList that was created by
-	  * createChannelList().
-	  *
-	  * If a new sensor is plugged into hardware-ECB, a new descriptionLine will be created and
-	  * the PipeFilter must be reinit to reorder the channelIndexList
-	  */
-	  void updateChannels();
+        /**
+          * The dataLine from PipeReader will be iterate to set the new channel-value.
+          * The order of the value-input-list (dataList) is important and the index of it
+          * must be equal to the indexnumber of the private channelIndexList that was created by
+          * createChannelList().
+          *
+          * If a new sensor is plugged into hardware-ECB, a new descriptionLine will be created and
+          * the PipeFilter must be reinit to reorder the channelIndexList
+          */
+          void updateChannels();
 
 protected:
-	std::vector<MatrixPlotChannel*> matrices; //get
-	std::vector<VectorPlotChannel*> vectors;
+        std::vector<MatrixPlotChannel*> matrices; //get
+        std::vector<VectorPlotChannel*> vectors;
 
 private:
-	static const bool debug = false;
+        static const bool debug = false;
 };
 
 #endif /* MATRIXPIPEFILTER_H_ */

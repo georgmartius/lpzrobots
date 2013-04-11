@@ -27,17 +27,17 @@ using namespace std;
 
 namespace lpzrobots {
 
-  PlattfussSchlange:: 
+  PlattfussSchlange::
   PlattfussSchlange ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      const SchlangeConf& conf, const std::string& name)	      
-    : SchlangeServo2(odeHandle, osgHandle, conf, name, 
-		     "$Id$") 
+                      const SchlangeConf& conf, const std::string& name)
+    : SchlangeServo2(odeHandle, osgHandle, conf, name,
+                     "$Id$")
   {
-    
+
   }
-	
+
   PlattfussSchlange::~PlattfussSchlange() { }
-	
+
 
   Primitive* PlattfussSchlange::createSegment(int index, const OdeHandle& odeHandle){
     Primitive* p;
@@ -45,24 +45,24 @@ namespace lpzrobots {
     /////////// MIDDLE SEGMENT (BODY)
     if ( index*2 == conf.segmNumber-1) {
       //p = new Box(conf.segmLength*1.5,conf.segmLength*1.5, conf.segmLength*.6);
-      //p = new Capsule(conf.segmDia*.8/*2.8*/ , conf.segmLength*1); 
+      //p = new Capsule(conf.segmDia*.8/*2.8*/ , conf.segmLength*1);
 
        //  p = new Capsule(conf.segmLength/2 , conf.segmLength*2);
       p = new Sphere(conf.segmLength*.8);
       p->setTexture("Images/wood.rgb");
-      p->init(odeHandle, conf.segmMass*2, osgHandle);      
-      // p->setPose( osg::Matrix::rotate(M_PI/2, 0, 1, 0)*osg::Matrix::translate( conf.segmDia, 0, 0) );      
+      p->init(odeHandle, conf.segmMass*2, osgHandle);
+      // p->setPose( osg::Matrix::rotate(M_PI/2, 0, 1, 0)*osg::Matrix::translate( conf.segmDia, 0, 0) );
     } /////// FEED
     else if( (index == 0) | (index== conf.segmNumber-1)) {
-      // p = new Capsule(conf.segmDia*.8/*2.8*/ , conf.segmLength*1); 
+      // p = new Capsule(conf.segmDia*.8/*2.8*/ , conf.segmLength*1);
        // p = new Sphere(conf.segmLength/2*2);
       p = new Box(1.8*conf.segmLength,3*conf.segmLength, conf.segmLength*.3);
       p->setTexture("Images/whitemetal_farbig_small.rgb");
-      p->init(odeHandle, conf.segmMass*3, osgHandle);	      
+      p->init(odeHandle, conf.segmMass*3, osgHandle);
     } /////// NORMAL SEGMENT
-    else {	
+    else {
       p = SchlangeServo2::createSegment(index, odeHandle);
-    }  
+    }
     return p;
   }
 

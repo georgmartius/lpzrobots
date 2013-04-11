@@ -31,7 +31,7 @@
 
 /// implements QLearning
 class QLearning : public Configurable, public Storeable {
-public: 
+public:
   /**
      \param eps learning rate (typically 0.1)
      \param discount discount factor for Q-values (typically 0.9)
@@ -39,17 +39,17 @@ public:
      \param eligibility number of steps to update backwards in time
      \param random_initQ if true Q table is filled with small random numbers at the start (default: false)
      \param useSARSA if true, use SARSA strategy otherwise qlearning (default: false)
-     \param tau number of time steps to average over reward for col_rew 
-   */ 
-  QLearning(double eps, double discount, double exploration, int eligibility, 
-	    bool random_initQ = false, bool useSARSA = false, int tau=1000); 
-  
+     \param tau number of time steps to average over reward for col_rew
+   */
+  QLearning(double eps, double discount, double exploration, int eligibility,
+            bool random_initQ = false, bool useSARSA = false, int tau=1000);
+
   virtual ~QLearning();
 
   /** initialisation with the given number of action and states
       @param actionDim number of actions
       @param stateDim number of states
-      @param unit_map if 0 the parametes are choosen randomly. 
+      @param unit_map if 0 the parametes are choosen randomly.
       Otherwise the model is initialised to represent a unit_map with the given response strength.
   */
   virtual void init(unsigned  int stateDim, unsigned int actionDim, RandGen* randGen = 0);
@@ -75,10 +75,10 @@ public:
      \param learnRateFactor can be given to modify eps for this
      learning step
   */
-  virtual double learn (unsigned int state, 
-			unsigned int action,
-			double reward, 
-			double learnRateFactor = 1);
+  virtual double learn (unsigned int state,
+                        unsigned int action,
+                        double reward,
+                        double learnRateFactor = 1);
 
   /** returns the vector of values for all actions given the current state
    */
@@ -103,7 +103,7 @@ public:
 
   /// expects a list of value,range and returns the associated state
   static int valInCrossProd(const std::list<std::pair<int,int> >& vals);
-  
+
   /// expects a list of ranges and a state/action and return the configuration
   static std::list<int> ConfInCrossProd(const std::list<int>& ranges, int val);
 
@@ -111,8 +111,8 @@ public:
   virtual const matrix::Matrix& getQ() const {return Q;} ;
 
   virtual bool store(FILE* f) const;
-    
-  virtual bool restore(FILE* f);  
+
+  virtual bool restore(FILE* f);
 
 
 protected:
@@ -134,7 +134,7 @@ protected:
   int ringbuffersize; // size of ring buffers, eligibility + 1
   double* longrewards; // long ring buffer for rewards for collectedReward
   int t; // time for ring buffers
-  bool initialised; 
+  bool initialised;
   double collectedReward; // sum over collected reward
 
   RandGen* randGen;

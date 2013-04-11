@@ -27,7 +27,7 @@
 #include "mathutils.h"
 #include "abstractground.h"
 #include "primitive.h"
- 
+
 namespace lpzrobots {
 
   class Playground : public AbstractGround {
@@ -38,10 +38,10 @@ namespace lpzrobots {
     double factorlength2;
 
   public:
-  
-    Playground(const OdeHandle& odeHandle, const OsgHandle& osgHandle , 
-	       const osg::Vec3& dimension = osg::Vec3(7.0, 0.2, 0.5) ,
-	       double factorxy = 1, bool createGround=true)
+
+    Playground(const OdeHandle& odeHandle, const OsgHandle& osgHandle ,
+               const osg::Vec3& dimension = osg::Vec3(7.0, 0.2, 0.5) ,
+               double factorxy = 1, bool createGround=true)
       : AbstractGround(odeHandle, osgHandle, createGround, dimension.x(), dimension.x()*factorxy, dimension.y()) {
 
       length=dimension.x();
@@ -57,47 +57,47 @@ namespace lpzrobots {
       this->height  = height;
       this->factorlength2  = factorxy;
       if (obstacle_exists) {
-	destroy();
-	create();
-      }      
+        destroy();
+        create();
+      }
     }
 
   protected:
     virtual void create(){
       createGround();
-      
+
       Box* box;
-      osg::Vec3 offset(0, 
-		       (length/2 * factorlength2 + width/2),		       
-		       height/2+0.01f/*reduces graphic errors and ode collisions*/);
-      box = new Box( length + 2 * width , width, height);      
+      osg::Vec3 offset(0,
+                       (length/2 * factorlength2 + width/2),
+                       height/2+0.01f/*reduces graphic errors and ode collisions*/);
+      box = new Box( length + 2 * width , width, height);
       box->setTextures(getTextures(0));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * pose);
       obst.push_back(box);
 
-      box = new Box( length + 2 * width , width, height);      
+      box = new Box( length + 2 * width , width, height);
       box->setTextures(getTextures(1));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset) * osg::Matrix::rotate(M_PI, 0,0,1) * pose);
       obst.push_back(box);
 
-      osg::Vec3 offset2(0, (length/2 + width/2), 
+      osg::Vec3 offset2(0, (length/2 + width/2),
                        height/2+0.01f/*reduces graphic errors and ode collisions*/);
-      box = new Box( length * factorlength2 , width, height);      
+      box = new Box( length * factorlength2 , width, height);
       box->setTextures(getTextures(2));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
       box->setPose(osg::Matrix::translate(offset2) * osg::Matrix::rotate(M_PI/2.0, 0,0,1) * pose);
       obst.push_back(box);
 
-      box = new Box( length * factorlength2 , width, height);      
+      box = new Box( length * factorlength2 , width, height);
       box->setTextures(getTextures(3));
       box->init(odeHandle, 0, osgHandle, Primitive::Geom | Primitive::Draw);
-      box->setPose(osg::Matrix::translate(offset2) * osg::Matrix::rotate(3.0*M_PI/2.0, 0,0,1) 
-		   * pose);
+      box->setPose(osg::Matrix::translate(offset2) * osg::Matrix::rotate(3.0*M_PI/2.0, 0,0,1)
+                   * pose);
       obst.push_back(box);
 
-    
+
       obstacle_exists=true;
     };
 

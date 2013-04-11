@@ -56,7 +56,7 @@ class RaceGround : public AbstractObstacle {
     setParameters(pose);
   };
 
-  
+
   RaceGround(const OdeHandle& odehandle,const Matrix& pose):
     AbstractObstacle(odehandle) {
     setParameters(pose);
@@ -81,7 +81,7 @@ class RaceGround : public AbstractObstacle {
   }
 
   /**
-   * returns the barcode number of the given point   
+   * returns the barcode number of the given point
    * returns (length,width) (-1,-1) if point is not on the track
    */
    pair<double, double> getPositionOnTrack(const Position& p) {
@@ -90,16 +90,16 @@ class RaceGround : public AbstractObstacle {
     double segmentNumber=-1.0f;
     double width        =-1.0f;
     for(list<AbstractTrackSection*>::iterator it = SegmentList.begin();
-	it!= SegmentList.end(); ++it) {
+        it!= SegmentList.end(); ++it) {
       if((*it)->isInside(p)){
-	double sectionLength = (*it)->getSectionIdValue(p); // between 0..length
-	width = (*it)->getWidthIdValue(p); 
-	if (sectionLength<0.0f ) { // weird isegment is found
-	  printf("Weird! We should be in the segment!\n");
-	}
-	segmentNumber=numberOfBarcodes*
-	  (passedLength+sectionLength)/trackLength;
-	return pair<double, double> (segmentNumber, width);  
+        double sectionLength = (*it)->getSectionIdValue(p); // between 0..length
+        width = (*it)->getWidthIdValue(p);
+        if (sectionLength<0.0f ) { // weird isegment is found
+          printf("Weird! We should be in the segment!\n");
+        }
+        segmentNumber=numberOfBarcodes*
+          (passedLength+sectionLength)/trackLength;
+        return pair<double, double> (segmentNumber, width);
       }
       passedLength+=(*it)->getLength();
     }
@@ -147,12 +147,12 @@ class RaceGround : public AbstractObstacle {
       char* d = (char*)malloc(name.length()*sizeof(char));
       double angle, radius;
       if (sscanf(name.c_str(),"%s %lf %lf",d,&angle,&radius)!=3)
-	std::cout << "parameter parsing invalid!: " << name << "\n";
+        std::cout << "parameter parsing invalid!: " << name << "\n";
       else {
-	std::cout << "parameters " << d << "," << angle << " " << radius << "\n";  
-	// parsing was ok
-	segment->setCurveAngle(angle/180.0*M_PI);
-	segment->setRadius(radius);
+        std::cout << "parameters " << d << "," << angle << " " << radius << "\n";
+        // parsing was ok
+        segment->setCurveAngle(angle/180.0*M_PI);
+        segment->setRadius(radius);
         trackLength+=segment->getLength();
       }
       free(d);
@@ -176,54 +176,54 @@ class RaceGround : public AbstractObstacle {
    */
   virtual void draw(){
     //    double box[3];
-    dsSetTexture (DS_NONE);    
+    dsSetTexture (DS_NONE);
     dsSetColor (color.r, color.g, color.b);
     for(list<AbstractTrackSection*>::iterator it = SegmentList.begin();
-							it!= SegmentList.end(); ++it) {
+                                                        it!= SegmentList.end(); ++it) {
       // call the create function of the segment
       (*it)->draw();
     }
  };
-  
-  
+
+
   virtual void setPosition(double x, double y, double z){
     if (obstacle_exists){
       destroy();
     }
     create();
   };
-  
+
   virtual void getPosition(double& x, double& y, double& z){
     x=0.0f;
     y=0.0f;
     z=0.0f;
   };
-  
-  
+
+
   // normally we don't need this function
   virtual void setGeometry(double length_, double width_, double height_){
     length=length_;
-    width=width_; 
-    height =height_; 
-  }; 
-  
+    width=width_;
+    height =height_;
+  };
+
   virtual void setColor(double r, double g, double b){
     color.r=r;
     color.g=g;
     color.b=b;
   };
-  
-  
+
+
  protected:
   double length;
-  double trackLength; 
-  double width; 
+  double trackLength;
+  double width;
   double height;
   Matrix pose;
   double numberOfBarcodes;
-  
+
   dSpaceID raceground_space;
-  
+
   virtual void setParameters(const Matrix& initpose) {
     pose=initpose;
     obstacle_exists=false;
@@ -235,7 +235,7 @@ class RaceGround : public AbstractObstacle {
   virtual void create(){
     // create raceground space and add it to the top level space
     raceground_space = space;
-	//raceground_space = dSimpleSpaceCreate (space);
+        //raceground_space = dSimpleSpaceCreate (space);
     //     dSpaceSetCleanup (raceground_space,0);
     // todo:
     // go through all list elements

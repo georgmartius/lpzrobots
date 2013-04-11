@@ -51,43 +51,43 @@ SineController::SineController(unsigned long int controlmask, function func)
   }
 
   number_sensors=0;
-  number_motors=0;  
+  number_motors=0;
 };
 
-/** initialisation of the controller with the given sensor/ motornumber 
+/** initialisation of the controller with the given sensor/ motornumber
     Must be called before use.
 */
 void SineController::init(int sensornumber, int motornumber, RandGen* randGen){
   number_sensors=sensornumber;
   number_motors=motornumber;
 };
-  
-void SineController::step(const sensor* sensors, int sensornumber, 
-			  motor* motors, int motornumber) {
+
+void SineController::step(const sensor* sensors, int sensornumber,
+                          motor* motors, int motornumber) {
   stepNoLearning(sensors, sensornumber, motors, motornumber);
 };
 
-void SineController::stepNoLearning(const sensor* sensors, int number_sensors, 
-				    motor* motors, int number_motors) {
-  
+void SineController::stepNoLearning(const sensor* sensors, int number_sensors,
+                                    motor* motors, int number_motors) {
+
   for (int i=0; i<min(number_motors,sizeof(controlmask)*8); i++){
-    if(controlmask & (1<<i)){      
+    if(controlmask & (1<<i)){
       motors[i]=amplitude*osci(phase + i*phaseShift*M_PI/2, impulsWidth);
     }else {
       motors[i]=0;
     }
-  }  
+  }
   if(period!=0){
     phase += 2*M_PI/period;
     if(phase > 2*M_PI) phase -= 2*M_PI;
   }
 };
- 
- 
+
+
 double SineController::sine(double x, double _unused){
   return sin(x);
 }
- 
+
 double SineController::sawtooth(double x, double _unused){
   while(x>M_PI) x-=2*M_PI;
   while(x<-M_PI) x+=2*M_PI;

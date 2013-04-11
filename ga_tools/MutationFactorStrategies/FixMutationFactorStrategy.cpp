@@ -29,17 +29,17 @@
 #include "IValue.h"
 
 FixMutationFactorStrategy::FixMutationFactorStrategy() {
-	// nothing
+        // nothing
 }
 
 FixMutationFactorStrategy::FixMutationFactorStrategy(IValue* value) {
-	m_value = value;
+        m_value = value;
 }
 
 FixMutationFactorStrategy::~FixMutationFactorStrategy() {
-	// nothing
+        // nothing
 }
 
 IValue* FixMutationFactorStrategy::calcMutationFactor(const std::vector<Gen*>& gene) {
-	return m_value;
+        return m_value;
 }

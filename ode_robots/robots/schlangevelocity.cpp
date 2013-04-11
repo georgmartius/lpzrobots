@@ -29,19 +29,19 @@ using namespace std;
 namespace lpzrobots {
 
   SchlangeVelocity::SchlangeVelocity ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-				       const SchlangeConf& conf, const std::string& name) 
+                                       const SchlangeConf& conf, const std::string& name)
     : Schlange(odeHandle, osgHandle, conf, name, "$Id$")
   {
   }
 
 
   SchlangeVelocity::~SchlangeVelocity() { }
-	
+
 
   /**
    *Reads the actual motor commands from an array, and sets all motors (forces) of the snake to this values.
    *It is an linear allocation.
-   *@param motors pointer to the array, motor values are scaled to [-1,1] 
+   *@param motors pointer to the array, motor values are scaled to [-1,1]
    *@param motornumber length of the motor array
    **/
   void SchlangeVelocity::setMotors ( const motor* motors, int motornumber )
@@ -57,10 +57,10 @@ namespace lpzrobots {
       ((UniversalJoint*)joints[i])->setParam ( dParamFMax , conf.motorPower );
       //friction
       ((UniversalJoint*)joints[i])->addForces
- 	(- conf.frictionJoint * ((UniversalJoint*)joints[i])->getPosition1Rate(), 
- 	 - conf.frictionJoint * ((UniversalJoint*)joints[i])->getPosition2Rate());
+         (- conf.frictionJoint * ((UniversalJoint*)joints[i])->getPosition1Rate(),
+          - conf.frictionJoint * ((UniversalJoint*)joints[i])->getPosition2Rate());
     }
-  }	
+  }
 
   /**
    *Writes the sensor values to an array in the memory.
@@ -73,7 +73,7 @@ namespace lpzrobots {
     assert(created);
     // there will always be an even number of senors
     // (two sensors/motors per joint)
-    int len = min(sensornumber/2, (int)joints.size()); 
+    int len = min(sensornumber/2, (int)joints.size());
     // read angle of joints
     /*
       for (int n = 0; n < len; n++) {
@@ -90,40 +90,40 @@ namespace lpzrobots {
   }
 
 
-  /** creates vehicle at desired position 
+  /** creates vehicle at desired position
       @param pos struct Position with desired position
   */
   void SchlangeVelocity::create(const osg::Matrix& pose){
     Schlange::create(pose);
-    
+
     //*****************joint definition***********
-    for ( int n = 0; n < conf.segmNumber-1; n++ ) {		
+    for ( int n = 0; n < conf.segmNumber-1; n++ ) {
 
       Pos p1(objects[n]->getPosition());
       Pos p2(objects[n]->getPosition());
       UniversalJoint* j = new UniversalJoint(objects[n], objects[n+1],
-					     (objects[n]->getPosition() + objects[n+1]->getPosition())/2,
-					     Axis(0,0,1)* pose, Axis(0,1,0)* pose);
+                                             (objects[n]->getPosition() + objects[n+1]->getPosition())/2,
+                                             Axis(0,0,1)* pose, Axis(0,1,0)* pose);
       j->init(odeHandle, osgHandle, true, conf.segmDia * 1.02);
-        
-      // setting stops at universal joints		
+
+      // setting stops at universal joints
       j->setParam(dParamLoStop, -conf.jointLimit*1.5);
       j->setParam(dParamHiStop,  conf.jointLimit*1.5);
       j->setParam(dParamLoStop2, -conf.jointLimit*1.5);
       j->setParam(dParamHiStop2,  conf.jointLimit*1.5);
-    
+
       // making stops bouncy
           j->setParam (dParamBounce, 0.9 );
           j->setParam (dParamBounce2, 0.9 ); // universal
 
-      joints.push_back(j); 
-    }	  
+      joints.push_back(j);
+    }
   }
 
 
   /** destroys vehicle and space
    */
-  void SchlangeVelocity::destroy(){  
+  void SchlangeVelocity::destroy(){
     if (created){
       Schlange::destroy();
     }

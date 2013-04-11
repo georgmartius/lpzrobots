@@ -111,10 +111,10 @@ public:
 
 
   Joint* fixator;
-  AbstractObstacle* playground; 
+  AbstractObstacle* playground;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(-1.64766, 4.48823, 1.71381),  Pos(-158.908, -10.5863, 0));
     // initialization
@@ -128,36 +128,36 @@ public:
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
-    //   setGeometry(double length, double width, double	height)
+    // - setting geometry for each wall of playground:
+    //   setGeometry(double length, double width, double        height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
     playground = new Playground(odeHandle, osgHandle, osg::Vec3(20, 0.2, 0.4));
     playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
     global.obstacles.push_back(playground);
-    //     double diam = .8; 
+    //     double diam = .8;
 //     OctaPlayground* playground3 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/10*diam, .2*diam,/*Height*/ 2), 12,false);
 //       playground3->setColor(Color(.0,0.2,1.0,0.1));
 //       playground3->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
 //      global.obstacles.push_back(playground3);
 
 
-//      OctaPlayground* playground4 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/11.5 *diam,.1,/*Height*/ 1), 12,true); //false heisst ohne Schatten 
+//      OctaPlayground* playground4 = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(/*Diameter*/11.5 *diam,.1,/*Height*/ 1), 12,true); //false heisst ohne Schatten
 //        playground4->setColor(Color(.2,.2,.2,0.1));
 //        playground4->setGroundTexture("Images/really_white.rgb");
 //        playground4->setGroundColor(Color(255.0f/255.0f,200.0f/255.0f,21.0f/255.0f));
 //        playground4->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
 //       global.obstacles.push_back(playground4);
-    
+
 
 
 
     // add passive spheres as obstacles
-    // - create pointer to sphere (with odehandle, osghandle and 
+    // - create pointer to sphere (with odehandle, osghandle and
     //   optional parameters radius and mass,where the latter is not used here) )
-    // - set Pose(Position) of sphere 
+    // - set Pose(Position) of sphere
     // - set a texture for the sphere
     // - add sphere to list of obstacles
     for (int i=0; i< 0/*2*/; i+=2){
@@ -169,11 +169,11 @@ public:
     }
 
     VierBeinerOldConf conf = VierBeinerOld::getDefaultConf();
-    //    conf.hipJointLimit = M_PI/8; 
+    //    conf.hipJointLimit = M_PI/8;
     conf.legNumber = 4;
     conf.motorPower = 5;
     conf.kneePower = 5;
-    VierBeinerOld* dog = new VierBeinerOld(odeHandle, osgHandle,conf, "Dog");    
+    VierBeinerOld* dog = new VierBeinerOld(odeHandle, osgHandle,conf, "Dog");
     dog->place(osg::Matrix::translate(0,0,0.15));
     global.configs.push_back(dog);
 
@@ -198,7 +198,7 @@ public:
     vector<Layer> layers;
     layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
     // size of output layer is automatically set
-    layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
+    layers.push_back(Layer(1,1,FeedForwardNN::linear));
     MultiLayerFFNN* net = new MultiLayerFFNN(0.01, layers, true);
     cc.model=net;
     cc.useS=true;
@@ -215,9 +215,9 @@ public:
     controller->setParam("teacher",0);
     //    controller->setParam("kwta",4);
     //    controller->setParam("inhibition",0.01);
-    
+
     global.configs.push_back(controller);
-  
+
     // create pointer to one2onewiring
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
@@ -227,8 +227,8 @@ public:
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, dog, wiring);
     global.agents.push_back(agent);
-  
-    
+
+
   }
 
   // add own key handling stuff here, just insert some case values
@@ -236,16 +236,16 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	case 'x': 
-	  if(fixator) delete fixator;
-	  fixator=0;	 
-	  return true;
-	  break;
-	default:
-	  return false;
-	  break;
-	}
+        {
+        case 'x':
+          if(fixator) delete fixator;
+          fixator=0;
+          return true;
+          break;
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
@@ -253,9 +253,9 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   return sim.run(argc, argv) ? 0 : 1;
 
 }
- 
+

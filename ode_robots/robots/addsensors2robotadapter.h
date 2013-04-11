@@ -46,10 +46,10 @@ namespace lpzrobots {
      * @param motors list of motors to add
      */
     AddSensors2RobotAdapter( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			     OdeRobot* robot,
-			     const std::list<Sensor*>& sensors = std::list<Sensor*>(),
-			     const std::list<Motor*>& motors  = std::list<Motor*>(),
-			     bool sensors_before_rest = false);
+                             OdeRobot* robot,
+                             const std::list<Sensor*>& sensors = std::list<Sensor*>(),
+                             const std::list<Motor*>& motors  = std::list<Motor*>(),
+                             bool sensors_before_rest = false);
 
     virtual ~AddSensors2RobotAdapter();
 

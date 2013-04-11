@@ -33,7 +33,7 @@
 
 /// multi layer neural network with configurable activation functions
 class MultiLayerFFNN : public FeedForwardNN {
-public:     
+public:
 
   /**
      @param eps learning rate
@@ -42,32 +42,32 @@ public:
      @param someInternalParams if true then only a few parameters are send to plotting
   */
   MultiLayerFFNN(double eps, const std::vector<Layer>& layers, bool useBypass=false,
-		 bool someInternalParams=true);
+                 bool someInternalParams=true);
   virtual ~MultiLayerFFNN(){ }
 
   /** initialisation of the network with the given number of input and output units.
       The dimensionality of the ouputlayer is automatically adjusted.
-      @param unit_map defines the approximate response of the network 
+      @param unit_map defines the approximate response of the network
        after initialisation (if unit_map=1 the weights are unit matrices).
       @param randGen pointer to random generator, if 0 an new one is used
    */
-  virtual void init(unsigned int inputDim, unsigned  int outputDim, 
-		    double unit_map = 0.0, RandGen* randGen = 0); 
+  virtual void init(unsigned int inputDim, unsigned  int outputDim,
+                    double unit_map = 0.0, RandGen* randGen = 0);
 
   /// passive processing of the input
-  virtual const matrix::Matrix process (const matrix::Matrix& input); 
+  virtual const matrix::Matrix process (const matrix::Matrix& input);
 
-  /** performs learning and returns the network output before learning 
+  /** performs learning and returns the network output before learning
       (process should be called before) */
-  virtual const matrix::Matrix learn (const matrix::Matrix& input, 
-				      const matrix::Matrix& nom_output, 
-				      double learnRateFactor = 1);
+  virtual const matrix::Matrix learn (const matrix::Matrix& input,
+                                      const matrix::Matrix& nom_output,
+                                      double learnRateFactor = 1);
 
-  /** response matrix of neural network at given input 
-      
+  /** response matrix of neural network at given input
+
   \f[  J_ij = \frac{\partial y_i}{\partial x_j} \f]
   \f[  J = G_n' W_n G_{n-1}' W_{n-1} ... G_1' W_1 \f]
-  with \f$W_n\f$ is the weight matrix of layer n and 
+  with \f$W_n\f$ is the weight matrix of layer n and
   \f$ G'\f$ is a diagonal matrix with \f$ G'_ii = g'_i \f$ as values on the diagonal.
   ATTENTION: input is ignored! use process before!
   */
@@ -78,18 +78,18 @@ public:
       \f[o+\xi = \psi(i+v)\f]
 
       The result is a vector of dimension inputdim.
-      ATTENTION: input is ignored! use process before!  
+      ATTENTION: input is ignored! use process before!
    */
   virtual const matrix::Matrix inversion(const matrix::Matrix& input, const matrix::Matrix& xsi) const;
 
 
   /// returns the number of input neurons
-  virtual unsigned int getInputDim() const { 
-    return weights[0].getN(); 
+  virtual unsigned int getInputDim() const {
+    return weights[0].getN();
   }
   /// returns the number of output neurons
-  virtual unsigned int getOutputDim() const { 
-    return (weights.rbegin())->getM(); 
+  virtual unsigned int getOutputDim() const {
+    return (weights.rbegin())->getM();
   }
 
   /// returns activation of the given layer. Layer 0 is the first hidden layer
@@ -148,7 +148,7 @@ public:
   /// restores the layer binary from file stream
   bool restore(FILE* f);
 
-  
+
   /// writes the layer ASCII into file stream (not in the storable interface)
   bool write(FILE* f) const;
 
@@ -165,14 +165,14 @@ public:
 
 public:
   double eps; ///< learning rate
-  
+
   /**
   * sets the activation function (and derivative and inversion too) for ALL layers!
   * @param actfun the activation function to be used
   * @return the activation functions which where used until now
   */
   virtual std::vector<ActivationFunction> setActivationFunction(ActivationFunction actfun);
-  
+
 /**
   * sets the activation functions (and derivative and inversion too) for all layers.
   * @note: normally you call setActivationFunction() first and get a list of the used
@@ -180,8 +180,8 @@ public:
   * @param actfunList the list of actfuns to be used
   */
   virtual void setActivationFunctions(std::vector<ActivationFunction> actfunList);
-  
-  
+
+
 protected:
   std::vector<Layer> layers;
   std::vector<matrix::Matrix> weights;

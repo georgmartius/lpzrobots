@@ -63,9 +63,9 @@ typedef struct _DerLinUniversConf {
 
 
 /**
- * class for robot control with sine and cosine 
- * 
- * 
+ * class for robot control with sine and cosine
+ *
+ *
  */
 class DerLinUnivers : public AbstractController {
 public:
@@ -90,46 +90,46 @@ public:
     //   layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
     layers.push_back(Layer(0,1,FeedForwardNN::tanhr)); // motor layer
     // size of output layer is automatically set
-    layers.push_back(Layer(1,0,FeedForwardNN::linear)); 
-    
+    layers.push_back(Layer(1,0,FeedForwardNN::linear));
+
     Elman* e = new Elman(1,layers,false, false, false);
     c.net = e;
     return c;
   }
 
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
-  
+
   virtual int getSensorNumber() const {return number_sensors;}
 
   virtual int getMotorNumber() const {return number_motors;}
 
-  virtual void step(const sensor* sensors, int sensornumber, 
-		    motor* motors, int motornumber);
+  virtual void step(const sensor* sensors, int sensornumber,
+                    motor* motors, int motornumber);
 
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
-  
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
+
 protected:
-  /** puts the sensors in the ringbuffer, 
-      generate controller values (by activating the network) and put them in the 
+  /** puts the sensors in the ringbuffer,
+      generate controller values (by activating the network) and put them in the
       ringbuffer as well */
-  void fillBuffersAndControl(const sensor* x_, int number_sensors, 
-				     motor* y_, int number_motors);
+  void fillBuffersAndControl(const sensor* x_, int number_sensors,
+                                     motor* y_, int number_motors);
 
-  /// calculate time-smoothed values 
-  matrix::Matrix calculateSmoothValues(const matrix::Matrix* buffer, 
-					       int number_steps_for_averaging_);
-  
+  /// calculate time-smoothed values
+  matrix::Matrix calculateSmoothValues(const matrix::Matrix* buffer,
+                                               int number_steps_for_averaging_);
+
   /// calculate controller outputs (and activates inputs)
   matrix::Matrix calculateControllerValues(const matrix::Matrix& x);
-    
+
   // put new value in ring buffer
   void putInBuffer(matrix::Matrix* buffer, const matrix::Matrix& vec, int delay=0){
     buffer[(t-delay)%conf.buffersize] = vec;
   }
 
-  /** calculates the error_factor for       
-      1: square (E=sqrt(e^t*e)) error; 
+  /** calculates the error_factor for
+      1: square (E=sqrt(e^t*e)) error;
       2: logarithmic (E=ln(e^T*e)) or 0 for normal
    */
   static double calcErrorFactor(const matrix::Matrix& e, int Enorm);
@@ -141,7 +141,7 @@ public:
   virtual std::list<iparamval> getInternalParams() const;
   virtual ilayerlist getStructuralLayers() const;
   virtual iconnectionlist getStructuralConnections() const;
-  
+
   /********* STORABLE INTERFACE ******/
   virtual bool store(FILE* f) const;
   virtual bool restore(FILE* f);
@@ -152,7 +152,7 @@ protected:
   unsigned int number_sensors;
   unsigned int number_motors;
   bool initialised;
-  
+
   DerLinUniversConf conf;
   matrix::Matrix* x_buffer;
   matrix::Matrix* y_buffer;
@@ -172,4 +172,4 @@ protected:
   paramval epsDyn;
 };
 
-#endif 
+#endif

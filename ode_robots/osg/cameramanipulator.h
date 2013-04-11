@@ -30,7 +30,7 @@
 #if OPENSCENEGRAPH_MAJOR_VERSION >= 3
 #include <osgGA/CameraManipulator>
 #define OSGCameraManipulator osgGA::CameraManipulator
-#else 
+#else
 #include <osgGA/MatrixManipulator>
 #define OSGCameraManipulator osgGA::MatrixManipulator
 #endif
@@ -60,8 +60,8 @@ namespace lpzrobots {
 
 
       /** returns the classname of the manipulator
-	  it's NECCESSARY to define this funtion, otherwise
-	  the new manipulator WON'T WORK! (but ask me not why)
+          it's NECCESSARY to define this funtion, otherwise
+          the new manipulator WON'T WORK! (but ask me not why)
       */
       virtual const char* className() const { return "Default Camera"; }
 
@@ -70,14 +70,14 @@ namespace lpzrobots {
 
       /** set the position of the matrix manipulator using a 4x4 Matrix.*/
       virtual void setByInverseMatrix(const osg::Matrixd& matrix) {
-	setByMatrix(osg::Matrixd::inverse(matrix));
+        setByMatrix(osg::Matrixd::inverse(matrix));
       }
 
       /** get the position of the manipulator as 4x4 Matrix.*/
       virtual osg::Matrixd getMatrix() const;
 
       /** get the position of the manipulator as a inverse matrix of the manipulator,
-	  typically used as a model view matrix.*/
+          typically used as a model view matrix.*/
       virtual osg::Matrixd getInverseMatrix() const;
 
 
@@ -87,7 +87,7 @@ namespace lpzrobots {
        * the desired pos and view and the actual pos and view.
        */
       /*
-	virtual void computeMovement();*/
+        virtual void computeMovement();*/
 
       virtual void setNode(osg::Node*);
 
@@ -109,12 +109,12 @@ namespace lpzrobots {
       virtual void getUsage(osg::ApplicationUsage& usage) const;
 
       /** updates the camera module at every drawstep
-	  should be called from the simulation loop
+          should be called from the simulation loop
       */
       virtual void update();
 
       /** manipulate agent if Manipulation is active
-	  (should be called every simulation step)
+          (should be called every simulation step)
       */
       virtual void manipulateAgent( OsgHandle& osgHandle);
 
@@ -128,7 +128,7 @@ namespace lpzrobots {
       virtual OdeAgent* getWatchedAgent();
 
       /// called if agents list changed
-      virtual void doOnCallBack(BackCaller* source, BackCaller::CallbackableType type 
+      virtual void doOnCallBack(BackCaller* source, BackCaller::CallbackableType type
                                 = BackCaller::DEFAULT_CALLBACKABLE_TYPE);
 
     protected:
@@ -143,7 +143,7 @@ namespace lpzrobots {
       virtual void computeMatrix();
 
       /** For the give mouse movement calculate the movement of the camera.
-	  Return true is camera has moved and a redraw is required.*/
+          Return true is camera has moved and a redraw is required.*/
       virtual bool calcMovement();
 
       /**
@@ -174,20 +174,20 @@ namespace lpzrobots {
 
 
       /** This manages the robots, switching between them and so on
-	  Is normally called from handle(...)
+          Is normally called from handle(...)
       */
       virtual void manageAgents(const int& fkey);
 
 
       /** This handles robot movements, so that the camera movemenent is right affected.
-	  should normally be overwritten by new cameramanipulator
+          should normally be overwritten by new cameramanipulator
       */
       virtual void calcMovementByAgent();
 
 
       /** Sets the right view and eye if the robot has changed.
-	  Is called from manageRobots();
-	  should be overwritten by new cameramanipulator (if needed)
+          Is called from manageRobots();
+          should be overwritten by new cameramanipulator (if needed)
       */
       virtual void setHomeViewByAgent();
       virtual void setHomeEyeByAgent();

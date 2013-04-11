@@ -6,14 +6,14 @@
 
 SimplePipeReader::SimplePipeReader()
 {
-  
+
 //   signal(SIGPIPE,SIG_IGN);
   std::cout << "new SimplePipeReader()" << std::endl;
   input_line = new QTextStream ( stdin, QIODevice::ReadOnly );
   currentChannelLine = "";
   currentDataLine = "";
-  
-  
+
+
 //   if (dynamic_cast<QFile*>(input_line->device()))
 //      QObject::connect(input_line->device() ,SIGNAL(), this, SLOT());
 }
@@ -34,11 +34,11 @@ void SimplePipeReader::run()
       closing = true;
       break;
     }
-    
+
     if ( line.startsWith ( "#RESET" ) ) {
       std::cout << "SimplePipeReader: have seen #RESET **************************" << std::endl;
-      
-     
+
+
     }
 
     if ( (currentChannelLine.size() > 2) && (currentDescriptionLine.size() > 2) ) {
@@ -60,7 +60,7 @@ void SimplePipeReader::run()
 //         printf("SimplePipeReader currentDescriptionLine: [%s]\r\n",currentDescriptionLine.toStdString().c_str());
       }
     }
-  
+
   std::cout << "SimplePipeReader SIGNAL(finished())" << std::endl;
   emit(finished());
 }
@@ -80,7 +80,7 @@ std::list<std::string> SimplePipeReader::getChannelLine()
 {
 //   std::cout << "SimplePipeReader: getChannelLine()" << std::endl;
   std::list<std::string> tmp_list;
-  
+
   QStringList string_list = currentChannelLine.split ( ' ' );
   for ( int i = 0;i < string_list.size();i++ ) {
 
@@ -96,10 +96,10 @@ std::list<std::string> SimplePipeReader::getDescriptionLine()
 {
 //   std::cout << "SimplePipeReader: getChannelLine()" << std::endl;
   std::list<std::string> tmp_list;
-  
+
   QStringList string_list = currentDescriptionLine.split ( ' ' );
   for ( int i = 0;i < string_list.size();i++ ) {
-    
+
     std::string s = ( ( string_list.at ( i ) ).toAscii() ).data();//toStdString;
 //     std::cout << "SimplePipeReader: getChannelLine[" << s << "]****************" << std::endl;
     if (s.size() > 0)
@@ -107,9 +107,9 @@ std::list<std::string> SimplePipeReader::getDescriptionLine()
   }
 //   std::cout << "SimplePipeReader: getDescriptionLine()..." << tmp_list.size() << std::endl;
   return tmp_list;
-  
+
 }
-  
+
 
 std::list< double > SimplePipeReader::getDataLine()
 {
@@ -117,7 +117,7 @@ std::list< double > SimplePipeReader::getDataLine()
   std::list<double> tmp_list;
   bool success;
   QString s;
-  
+
   QStringList string_list = currentDataLine.split ( ' ' );
   for ( int i = 0;i < string_list.size();i++ ) {
     s = string_list.at ( i );
@@ -134,6 +134,6 @@ std::list< double > SimplePipeReader::getDataLine()
 
 SimplePipeReader:: ~SimplePipeReader()
 {
-	std::cout << "SimplePipeReader: ByeBye()" << std::endl;
+        std::cout << "SimplePipeReader: ByeBye()" << std::endl;
 }
 

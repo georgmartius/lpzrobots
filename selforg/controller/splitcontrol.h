@@ -38,12 +38,12 @@
  */
 class SplitControl : public AbstractController {
 public:
-  
+
   struct Assoziation {
     Assoziation();
     void addSensorIdx(int s) { sensors.push_back(s);}
     void addMotorIdx(int m)  { motors.push_back(m);}
-    
+
     std::list<int> sensors;
     std::list<int> motors;
   };
@@ -57,11 +57,11 @@ public:
        passed to all controllers
    */
   SplitControl(ControllerGenerator* controllerGenerator,
-	       const Assoziations& assoziations,
-	       std::string controllerName,
-	       int numCtrlCreateBeforeInit = 1,
-	       int numContextSensors = 0
-	       );
+               const Assoziations& assoziations,
+               std::string controllerName,
+               int numCtrlCreateBeforeInit = 1,
+               int numContextSensors = 0
+               );
 
   virtual ~SplitControl();
 
@@ -72,7 +72,7 @@ public:
                     motor* motors, int motornumber);
 
   virtual void stepNoLearning(const sensor* sensors , int sensornumber,
-	                            motor* motors, int motornumber);
+                                    motor* motors, int motornumber);
 
   virtual int getSensorNumber() const {return sensornumber; }
   virtual int getMotorNumber() const  {return motornumber; }
@@ -80,16 +80,16 @@ public:
   /*********** STORABLE **************/
 
   virtual bool store(FILE* f) const {return false;}
-  
+
   virtual bool restore(FILE* f) {return false;}
 
 
   virtual std::vector<AbstractController*> getControllers() const { return ctrl;}
-  
+
 protected:
   std::vector<AbstractController*> ctrl;
 
-  
+
   ControllerGenerator* controllerGenerator;
   Assoziations assoz;
   int numCtrlCreateBeforeInit;

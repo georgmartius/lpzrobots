@@ -26,11 +26,11 @@
 #include "controller_misc.h"
 
 
-QLearning::QLearning(double eps, double discount, double exploration, int eligibility, 
-		     bool random_initQ, bool useSARSA, int tau)
-  : Configurable("QLearning", "$Id$"), 
-    eps(eps), discount(discount),  exploration(exploration), 
-    eligibility(eligibility), random_initQ(random_initQ), useSARSA(useSARSA), tau(tau){  
+QLearning::QLearning(double eps, double discount, double exploration, int eligibility,
+                     bool random_initQ, bool useSARSA, int tau)
+  : Configurable("QLearning", "$Id$"),
+    eps(eps), discount(discount),  exploration(exploration),
+    eligibility(eligibility), random_initQ(random_initQ), useSARSA(useSARSA), tau(tau){
   if(eligibility<1) eligibility=1;
   ringbuffersize = eligibility+1;
   actions  = new int[ringbuffersize];
@@ -48,9 +48,9 @@ QLearning::QLearning(double eps, double discount, double exploration, int eligib
   addParameter("eps",&this->eps);
   addParameter("discount",&this->discount);
   addParameter("expl",&this->exploration);
-  addParameter("elig",&this->eligibility);  
+  addParameter("elig",&this->eligibility);
 }
-  
+
 QLearning::~QLearning(){
   if(actions) delete[] actions;
   if(states) delete[] states;
@@ -96,13 +96,13 @@ unsigned int QLearning::select_sample (unsigned int state){
   vals.val(0,  actions[(t-1)%ringbuffersize])+=m/2.0;
   // cut below mean
   double theta=0;
-  vals.toMapP(&theta,lowercutof);  
-  vals *= (1/vals.map(fabs).elementSum()); // normalize		
-  
+  vals.toMapP(&theta,lowercutof);
+  vals *= (1/vals.map(fabs).elementSum()); // normalize
+
   // add exploration and bias to old action
   double e = exploration/vals.size();
   vals.toMapP(e,plus_);
-  vals *= (1/vals.map(fabs).elementSum()); // normalize		
+  vals *= (1/vals.map(fabs).elementSum()); // normalize
   std::cout  << vals << std::endl;
 
   return sample(vals);
@@ -124,7 +124,7 @@ unsigned int QLearning::select_keepold (unsigned int state){
   double m = vals.elementSum() / vals.size();
   r = randGen->rand();
   // keep to 80% old if acceptable
-  if(vals.val(0,  actions[(t-1)%ringbuffersize])>m && r<0.8){ 
+  if(vals.val(0,  actions[(t-1)%ringbuffersize])>m && r<0.8){
     std::cout << "keepold\n";
     return actions[(t-1)%ringbuffersize];
   }else {
@@ -133,7 +133,7 @@ unsigned int QLearning::select_keepold (unsigned int state){
     r = randGen->rand();
     if(r<0.3){
       std::cout << "second best\n";
-      vals.val(0,a)-=1000;    
+      vals.val(0,a)-=1000;
       return argmax(vals);
     }else {
       std::cout << "best\n";
@@ -149,10 +149,10 @@ matrix::Matrix QLearning::getActionValues(unsigned int state){
 }
 
 
-double QLearning::learn (unsigned int state, 
-			 unsigned int action,
-			 double reward, 			 
-			 double learnRateFactor){
+double QLearning::learn (unsigned int state,
+                         unsigned int action,
+                         double reward,
+                         double learnRateFactor){
   assert(initialised);
   actions[t%ringbuffersize] = action;
   states[t%ringbuffersize]  = state;
@@ -173,12 +173,12 @@ double QLearning::learn (unsigned int state,
     double e    = eps*e_factor * learnRateFactor;  // local learning rate
     if(useSARSA)
       Q.val(s_t,a_t) += e*(r_t + discount*Q.val(s_tp1,a_tp1) - Q.val(s_t,a_t));
-    else 
+    else
       Q.val(s_t,a_t) += e*(r_t + discount*max(Q.row(s_tp1)) - Q.val(s_t,a_t));
     e_factor -= 1.0/eligibility;
   }
   t++;
-  return Q.val(state,action);  
+  return Q.val(state,action);
 }
 
 void QLearning::reset(){
@@ -213,7 +213,7 @@ int QLearning::valInCrossProd(const std::list<std::pair<int,int> >& vals){
 
 std::list<int> QLearning::ConfInCrossProd(const std::list<int>& ranges, int val){
   std::list<int> cfg;
-  
+
   for(std::list<int>::const_reverse_iterator r=ranges.rbegin(); r!=ranges.rend(); r++){
     cfg.push_front(val%*r);
     val/=*r;
@@ -231,7 +231,7 @@ bool QLearning::store(FILE* f) const{
 
 bool QLearning::restore(FILE* f) {
   Q.restore(f);
-  Configurable::parse(f);  
+  Configurable::parse(f);
   t=0;
   collectedReward = 0;
   initialised=true;

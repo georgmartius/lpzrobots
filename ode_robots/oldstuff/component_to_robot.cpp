@@ -27,8 +27,8 @@ namespace lpzrobots {
 
 
 ComponentToRobot::ComponentToRobot(IComponent *_p_component,
-				   const OdeHandle &odehandle,
-				   const OsgHandle &osghandle) :
+                                   const OdeHandle &odehandle,
+                                   const OsgHandle &osghandle) :
   OdeRobot(odeHandle, osgHandle),
   p_component(_p_component)
 {
@@ -116,7 +116,7 @@ void ComponentToRobot::setMotors(const motor* motors, int motornumber)
     if(NULL == p_input_wire)
       continue;
 
- 
+
     if(wire_container.end() == it)
       IndexOutOfBoundsException().raise();
 
@@ -138,7 +138,7 @@ int ComponentToRobot::getSensorNumber()
     if(NULL != dynamic_cast<const IOutputWire*>(*(it_wire++)))
       ++output_wire_count;
   }
-  
+
   return output_wire_count;
 }
 
@@ -153,7 +153,7 @@ int ComponentToRobot::getMotorNumber()
     if(NULL != dynamic_cast<const IInputWire*>(*(it_wire++)))
       ++input_wire_count;
   }
-  
+
   return input_wire_count;
 }
 

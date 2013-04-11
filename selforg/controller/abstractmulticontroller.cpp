@@ -52,15 +52,15 @@ void AbstractMultiController::init(int sensornumber, int motornumber, RandGen* r
 }
 
 /****************************************************************************/
-/*	BEGIN methods of Inspectable                                          	*/
+/*        BEGIN methods of Inspectable                                                  */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	END methods of Inspectable                                       	    */
+/*        END methods of Inspectable                                                   */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	BEGIN methods of Storeable                                           	*/
+/*        BEGIN methods of Storeable                                                   */
 /****************************************************************************/
 
 /** stores the object to the given file stream (binary).
@@ -80,5 +80,5 @@ bool AbstractMultiController::restore(FILE* f) {
 }
 
 /****************************************************************************/
-/*	END methods of Storeable                                          	    */
+/*        END methods of Storeable                                                      */
 /****************************************************************************/

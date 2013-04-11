@@ -92,7 +92,7 @@ float camAngle[3] = {180.0f,0.0f,0.0f};
  double robotPoint[3]= {0.0f,0.0f,0.0f};
 
 //Startfunktion die am Anfang der Simulationsschleife, einmal ausgefuehrt wird
-void start(const OdeHandle& odeHandle, GlobalData& global) 
+void start(const OdeHandle& odeHandle, GlobalData& global)
 {
   dsPrint ( "\nWelcome to the virtual ODE - robot simulator of the Robot Group Leipzig\n" );
   dsPrint ( "------------------------------------------------------------------------\n" );
@@ -112,16 +112,16 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   global.obstacles.push_back(playground);
 
   vehicle = new Formel1(odeHandle);
- // vehicle->setTextures(DS_WOOD, chessTexture); 
+ // vehicle->setTextures(DS_WOOD, chessTexture);
   vehicle->place(Position(robotPoint[0],robotPoint[1],robotPoint[2]));
-  
+
   // Controller
-//AbstractController *controller = new InvertNChannelController(10);  
+//AbstractController *controller = new InvertNChannelController(10);
   controller = new SimpleController();
-  
+
   // Wiring for OdeAgent
   One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
-  
+
   // OdeAgent for connecting Controller, Robot and Wiring
   OdeAgent* agent = new OdeAgent(global);
   agent->init(controller, vehicle, wiring);
@@ -130,13 +130,13 @@ void start(const OdeHandle& odeHandle, GlobalData& global)
   // Simulation-Configuration
     configs.push_back(controller);
   showParams(configs);
-  
-  
+
+
 }
 
 
 void end(GlobalData& global){
-	for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
+        for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++){
     delete (*i);
   }
   global.obstacles.clear();
@@ -164,33 +164,33 @@ void command(const OdeHandle& odeHandle, GlobalData& global, int key){
     double shiftStep=0.167;
     switch (key){
     case 'w': // forward
-	controller->setParam("velocity",maxVelocity);
-	break; 
+        controller->setParam("velocity",maxVelocity);
+        break;
     case 's': // backward
-	controller->setParam("velocity",-maxVelocity);
-	break; 
+        controller->setParam("velocity",-maxVelocity);
+        break;
     case 'a': // left
-	val = controller->getParam("leftRightShift");
-	if (val>(shiftStep-maxShift)) 
-		val-=shiftStep;
-	else // so it cant get anymore then -1
-		val=-maxShift;
-	controller->setParam("leftRightShift", val);
-	break; 
+        val = controller->getParam("leftRightShift");
+        if (val>(shiftStep-maxShift))
+                val-=shiftStep;
+        else // so it cant get anymore then -1
+                val=-maxShift;
+        controller->setParam("leftRightShift", val);
+        break;
     case 'd': // right
-	    val = controller->getParam("leftRightShift");
-	    if (val<(maxShift-shiftStep)) 
-		    val+=shiftStep;
-	    else // so it cant get anymore then 1
-		    val=maxShift;
-	    controller->setParam("leftRightShift", val);
-	    break;
+            val = controller->getParam("leftRightShift");
+            if (val<(maxShift-shiftStep))
+                    val+=shiftStep;
+            else // so it cant get anymore then 1
+                    val=maxShift;
+            controller->setParam("leftRightShift", val);
+            break;
     }
 }
 
 
 int main (int argc, char **argv)
-{  
+{
   // initialise the simulation and provide the start, end, and config-function
   simulation_init(&start, &end, &config,&command);
   // start the simulation (returns, if the user closes the simulation)
@@ -198,4 +198,4 @@ int main (int argc, char **argv)
   simulation_close();  // tidy up.
   return 0;
 }
- 
+

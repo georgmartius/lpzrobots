@@ -49,15 +49,15 @@ double camera(double x){
   // basically a smoothed view at the discrete background array
   double xt = (x+1.0)*bgsize/2;
   int pl = (int)floor(xt);
-  int ph = (int)ceil(xt); 
+  int ph = (int)ceil(xt);
   double frac = xt-pl;
-  return int(((1-frac)*background[pl] + frac*background[ph%bgsize])*20.0-10.0)/10.0;  
+  return int(((1-frac)*background[pl] + frac*background[ph%bgsize])*20.0-10.0)/10.0;
 //  return background[int(round(xt))%bgsize]*2.0-1;
 }
 double toEnv(double pos){
   // environment is cyclic
   if(pos>1) pos-=2;
-  if(pos<-1) pos+=2;  
+  if(pos<-1) pos+=2;
   return pos;
 }
 Position toEnv(Position pos){
@@ -102,16 +102,16 @@ public:
     // tactilefunc = tactileupdown;
     tactilefunc = tactilebump;
   }
-  
+
   ~MyRobot(){
     if(x) delete[] x;
     if(y) delete[] y;
   }
-  
+
   // robot interface
-  
+
   /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
+      @param sensors sensors scaled to [-1,1]
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
@@ -122,7 +122,7 @@ public:
   }
 
   /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
+      @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
   virtual void setMotors(const motor* motors, int motornumber){
@@ -130,7 +130,7 @@ public:
     memcpy(y, motors, sizeof(motor) * motornumber);
 
     // motor values are now stored in y, sensor values are expected to be stored in x
-    
+
     // perform robot action here
     /*  simple discrete simulation
         a = F/m - \mu v_0/m // friction approximation
@@ -141,10 +141,10 @@ public:
     a     = (a - speed*mu)*(1/mass);
     speed = a*t + speed;
     pos   = speed*t + pos;
-    
+
     // environment is cyclic
     pos = toEnv(pos);
-    
+
     int len=0;
     //  speed sensor (proprioception)
     for(int i=0; i<1; i++){
@@ -153,7 +153,7 @@ public:
     }
 
     mindist=2;
-    vector< Tactile > touchs; 
+    vector< Tactile > touchs;
     touchs.push_back(Tactile(range,sensorscale * tactilefunc(range,range), 0)); // sense nothing entry
     int k=1;
     //  other agents sensor (tactile or whatever)
@@ -168,7 +168,7 @@ public:
     //    x[len] = 0.1*(touchs.begin()->value) + 0.9* y[1];
     x[len] = (touchs.begin()->value);
     whatDoIFeel = touchs.begin()->what;
-  
+
     len++;
 
 //     // camera
@@ -176,12 +176,12 @@ public:
 //     whatDoIFeel = camera(pos.x)<0;
 //     //x[len] = camera(pos.x);
 //     len++;
-   
-    // position sensor (context) 
+
+    // position sensor (context)
 //     x[len] = sin(pos.x*M_PI);
 //     len++;
     if(len>sensornumber) fprintf(stderr,"something is wrong with the sensornumber\n");
-  }  
+  }
 
   virtual int getSensorNumber(){ return sensornumber; }
   virtual int getMotorNumber() { return motornumber; }
@@ -189,14 +189,14 @@ public:
   virtual Position getSpeed() const {return speed;}
   virtual Position getAngularSpeed() const {return Position(x[1],mindist,whatDoIFeel);}
   virtual matrix::Matrix getOrientation() const {
-    matrix::Matrix m(3,3); m.toId();  return m; 
+    matrix::Matrix m(3,3); m.toId();  return m;
   };
 
   virtual void addOtherRobot(const MyRobot* otherRobot){
     if(otherRobot!=this)
       otherRobots.push_back(otherRobot);
   }
-  
+
   // different tactile sensors
   static double tactilezigzag(double dist, double range){
     if(dist < 0) return -1+fabs((-range/2) - dist)/(range/2);
@@ -205,7 +205,7 @@ public:
 
   static double tactileupdown(double dist, double range){
     // this is a  0-down-0-up-0 curve.
-    // gnuplot> scale = 0.5 
+    // gnuplot> scale = 0.5
     // gnuplot> plot exp(1)*(scale*x)*(exp(-abs(scale*x)))
     double scale = 5/range;
     return exp(1) * scale*dist * exp(-abs(scale*dist));
@@ -228,10 +228,10 @@ public:
     if(dist<mindist) mindist = dist;
     if(dist < -range || dist > range) return;
     else {
-      tactiles.push_back(Tactile(dist,sensorscale * tactilefunc(dist,range), what));      
-    }    
+      tactiles.push_back(Tactile(dist,sensorscale * tactilefunc(dist,range), what));
+    }
   }
-  
+
 private:
   int motornumber;
   int sensornumber;
@@ -243,16 +243,16 @@ private:
   double mu; // friction
   double mass; // mass of the robot, that determines the inertia
   paramval range;// range of tactile sensor (-range..range) measured
-	       // from current position.
-  paramval sensorscale;// factor for tactile sensor 
+               // from current position.
+  paramval sensorscale;// factor for tactile sensor
   Position pos;
   Position speed;
-  list<const MyRobot*> otherRobots;  
+  list<const MyRobot*> otherRobots;
   double (*tactilefunc)(double, double);
 public:
   int whatDoIFeel; // 0 nothing, >0 other agent
   double mindist; // distance to the closest object
-}; 
+};
 
 
 int coord(double x){ return int((x+1.0)/2*80);}
@@ -263,16 +263,16 @@ void printRobots(const list<MyRobot*>& robots){
   memset(line,'_', sizeof(char)*80);
   line[80]=0;
   memset(color,0, sizeof(char)*80);
-  int k=0;  
+  int k=0;
 //   // first scene (wall)
 //   for(int i=0; i<80; i++){
 //     double x = (i/40.0)-1.0;
 //     double c = camera(x);
-//     color[i] = c < 0 ? 1 : 2;   
+//     color[i] = c < 0 ? 1 : 2;
 //   }
 //   k=0;
   // their sensor range
-  FOREACHC(list<MyRobot*>, robots, i) {    
+  FOREACHC(list<MyRobot*>, robots, i) {
     double x = (*i)->getPosition().x;
     int start = coord(x-(*i)->getParam("range"));
     int end = coord(x+(*i)->getParam("range"));
@@ -284,25 +284,25 @@ void printRobots(const list<MyRobot*>& robots){
   k=0;
 
   // robots itself
-  FOREACHC(list<MyRobot*>, robots, i) {    
+  FOREACHC(list<MyRobot*>, robots, i) {
     double x = (*i)->getPosition().x;
     line[coord(x)]='A'+ k;
     k++;
   }
   k=0;
-  
+
   printf("\033[1G");
   for(int i=0; i<80; i++){
     printf("\033[%im%c",color[i]==0 ? 0 : 100+color[i],line[i]);
   }
   printf("\033[0m");
   fflush(stdout);
-  
+
 }
 
 void reinforce(Agent* a){
   MyRobot* r = (MyRobot*)a->getRobot();
-  InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(a->getController()); 
+  InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(a->getController());
   if(c)
     c->setReinforcement(2*(r->whatDoIFeel != 0));
 }
@@ -334,7 +334,7 @@ int main(int argc, char** argv){
   }
 
   list<MyRobot*> robots;
-  
+
   for(int i=0; i<2; i++){
     AbstractController* controller;
     if(i==1 && replay){
@@ -343,33 +343,33 @@ int main(int argc, char** argv){
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       cc.cInit=1.2; //1.4
       //    cc.useS=true;
-      cc.numberContext = 1;    
+      cc.numberContext = 1;
       controller = new InvertMotorNStep(cc);
       controller->setParam("s4delay",3.0);
-      controller->setParam("s4avg",1.0);  
-      controller->setParam("adaptrate",0.0);  
-      controller->setParam("factorB",0.1);  
-      controller->setParam("epsC",0.1);  
-      controller->setParam("epsA",0.1);     
-      //    controller->setParam("logaE",3);     
+      controller->setParam("s4avg",1.0);
+      controller->setParam("adaptrate",0.0);
+      controller->setParam("factorB",0.1);
+      controller->setParam("epsC",0.1);
+      controller->setParam("epsA",0.1);
+      //    controller->setParam("logaE",3);
     }
     // controller = new SineController();
     MyRobot* robot         = new MyRobot("Robot" + itos(i), Position(i*0.3,0,0),0.1);
 //    Agent* agent           = new Agent(i==1 ? plotoptions : list<PlotOption>());
     Agent* agent           = new Agent(plotoptions);
-    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));  
+    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     agent->init(controller, robot, wiring);
-    // if you like, you can keep track of the robot with the following line. 
-    //  this assumes that you robot returns its position, speed and orientation. 
-    //if(i==0) 
+    // if you like, you can keep track of the robot with the following line.
+    //  this assumes that you robot returns its position, speed and orientation.
+    //if(i==0)
     agent->setTrackOptions(TrackRobot(true,true,false, false,"bump_reinf2_5_repl",10));
-    
+
     globaldata.configs.push_back(robot);
     globaldata.configs.push_back(controller);
     robots.push_back(robot);
     globaldata.agents.push_back(agent);
-  }  
-  
+  }
+
   showParams(globaldata.configs);
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
   printf("The output of the program is as follows:\n");
@@ -378,16 +378,16 @@ int main(int argc, char** argv){
 
   // set background
   int bg[bgsize] = {1,1,1,1,1,1,1,0,0,
-		    0,0,0,0,0,0,0,0,0,
-		    1,0,1,0,1,0,0,0,0,
-		    1,1,0,0,1,1,0,0,0,0,0,0,0};
+                    0,0,0,0,0,0,0,0,0,
+                    1,0,1,0,1,0,0,0,0,
+                    1,1,0,0,1,1,0,0,0,0,0,0,0};
   memcpy(background,bg,sizeof(int)*bgsize);
   // connect robots to each other
   FOREACH (list<MyRobot*>, robots, i){
     FOREACH (list<MyRobot*>, robots, k){
       if(*i != *k)
-	(*i)->addOtherRobot(*k);
-    }    
+        (*i)->addOtherRobot(*k);
+    }
   }
 
   cmd_handler_init();
@@ -397,7 +397,7 @@ int main(int argc, char** argv){
       (*i)->step(noise,t/100.0);
       reinforce(*i);
     }
-    if(control_c_pressed()){      
+    if(control_c_pressed()){
       if(!handleConsole(globaldata)){
         stop=1;
       }
@@ -410,9 +410,9 @@ int main(int argc, char** argv){
     if(t%drawinterval==0){
       printRobots(robots);
       usleep(60000);
-    }    
-    if(maxsimtime>0 && t/100.0 > maxsimtime) break;	
-    t++;    
+    }
+    if(maxsimtime>0 && t/100.0 > maxsimtime) break;
+    t++;
   };
 
   FOREACH(AgentList, globaldata.agents, i){

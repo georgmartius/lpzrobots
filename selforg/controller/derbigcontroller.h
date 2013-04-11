@@ -32,20 +32,20 @@ typedef struct DerBigControllerConf {
   int buffersize;  ///< buffersize size of the time-buffer for x,y,eta
   double cInit;    ///< cInit size of the C matrix to initialised with.
   double cNonDiag; ///< cNonDiag is the size of the nondiagonal elements in respect to the diagonal (cInit) ones
-  bool modelInit;  ///< size of the unit-map strenght of the model 
+  bool modelInit;  ///< size of the unit-map strenght of the model
   bool useS;    ///< useS decides whether to use the S matrix in addition to the A matrix
-  bool someInternalParams;  ///< someInternalParams if true only some internal parameters are exported, otherwise all 
-  
+  bool someInternalParams;  ///< someInternalParams if true only some internal parameters are exported, otherwise all
+
   double modelCompliant; ///< learning factor for model (or sensor) compliant learning
   bool useFantasy;           ///< if true fantasising is enabled
 
   InvertableModel* model;   ///< model used as world model
-} DerBigControllerConf; 
+} DerBigControllerConf;
 
 /**
  * class for robot controller is based on InvertMotorNStep
- *  
- * - direct inversion 
+ *
+ * - direct inversion
  *
  * - motor space
  *
@@ -64,43 +64,43 @@ public:
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_motors; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
 
   /**************  STOREABLE **********************************/
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   /************** INSPECTABLE ********************************/
   virtual iparamkeylist getInternalParamNames() const;
-  virtual iparamvallist getInternalParams() const;  
+  virtual iparamvallist getInternalParams() const;
   virtual ilayerlist getStructuralLayers() const;
   virtual iconnectionlist getStructuralConnections() const;
-  
+
   /************** CONFIGURABLE ********************************/
   virtual void notifyOnChange(const paramkey& key);
 
   /**** TEACHING ****/
-  /** The given motor teaching signal is used for this timestep. 
+  /** The given motor teaching signal is used for this timestep.
       It is used as a feed forward teaching signal for the controller.
-      Please note, that the teaching signal has to be given each timestep 
+      Please note, that the teaching signal has to be given each timestep
        for a continuous teaching process.
    */
   virtual void setMotorTeachingSignal(const motor* teaching, int len);
 
-  /** The given sensor teaching signal (distal learning) is used for this timestep. 
+  /** The given sensor teaching signal (distal learning) is used for this timestep.
       First the belonging motor teachung signal is calculated by the inverse model.
       See setMotorTeachingSignal
    */
-  virtual void setSensorTeachingSignal(const sensor* teaching, int len);  
+  virtual void setSensorTeachingSignal(const sensor* teaching, int len);
 
 
   static DerBigControllerConf getDefaultConf(){
@@ -114,7 +114,7 @@ public:
     c.useS = false;
     c.modelCompliant = 0;
     c.model = 0;
-    c.useFantasy = false;    
+    c.useFantasy = false;
     return c;
   }
 
@@ -123,12 +123,12 @@ public:
 protected:
   unsigned short number_sensors;
   unsigned short number_motors;
-  
-  matrix::Matrix A; ///< Model Matrix (motors to sensors) 
+
+  matrix::Matrix A; ///< Model Matrix (motors to sensors)
   matrix::Matrix A_Hat; ///< Model Matrix (motors to sensors) with input shift
-  matrix::Matrix S; ///< additional Model Matrix (sensors to sensors) 
+  matrix::Matrix S; ///< additional Model Matrix (sensors to sensors)
   matrix::Matrix C; ///< Controller Matrix
-  matrix::Matrix GSC; ///< G_Prime times Controller Matrix 
+  matrix::Matrix GSC; ///< G_Prime times Controller Matrix
   matrix::Matrix DD; ///< Noise  Matrix
   matrix::Matrix Dinverse; ///< Inverse  Noise  Matrix
   matrix::Matrix H; ///< Controller Bias
@@ -160,7 +160,7 @@ protected:
   bool useTeaching; ///< flag whether there is an actual teachning signal or not
 
   matrix::Matrix x_intern;  ///< fantasy sensor values
-  int fantControl;     ///< interval length for fantasising 
+  int fantControl;     ///< interval length for fantasising
   int fantControlLen;  ///< length of fantasy control
   int fantReset;       ///< number of fantasy control events before reseting internal state
 
@@ -168,7 +168,7 @@ protected:
   int managementInterval; ///< interval between subsequent management function calls
   paramval inhibition; ///< inhibition strength for sparce kwta strategy (is scaled with epsC)
   paramval kwta;       ///< (int) number of synapses that get strengthend
-  paramval limitRF;    ///< (int) receptive field of motor neurons (number of offcenter sensors) if null then no limitation. Mutual exclusive with inhibition 
+  paramval limitRF;    ///< (int) receptive field of motor neurons (number of offcenter sensors) if null then no limitation. Mutual exclusive with inhibition
   paramval dampS;     ///< damping of S matrix
   paramval dampC;     ///< damping of C matrix
   paramval dampH;     ///< damping of H vector
@@ -176,10 +176,10 @@ protected:
 
   DerBigControllerConf conf;
 
-  /// puts the sensors in the ringbuffer, generate controller values and put them in the 
+  /// puts the sensors in the ringbuffer, generate controller values and put them in the
   //  ringbuffer as well
-  virtual void fillBuffersAndControl(const sensor* x_, int number_sensors, 
-			     motor* y_, int number_motors);
+  virtual void fillBuffersAndControl(const sensor* x_, int number_sensors,
+                             motor* y_, int number_motors);
 
 /** learn values H,C
     This is the implementation uses a better formula for g^-1 using Mittelwertsatz
@@ -188,16 +188,16 @@ protected:
   virtual void learnController(int delay);
 
   /// learn conf.model, (and S) using motors y and corresponding sensors x
-  //  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop 
+  //  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop
   virtual void learnModel(int delay);
 
   /// handles inhibition damping etc.
   virtual void management();
 
   /// returns controller output for given sensor values
-  virtual matrix::Matrix calculateControllerValues(const matrix::Matrix& x_smooth);   
- 
-  /** Calculates first and second derivative and returns both in on matrix (above). 
+  virtual matrix::Matrix calculateControllerValues(const matrix::Matrix& x_smooth);
+
+  /** Calculates first and second derivative and returns both in on matrix (above).
       We use simple discrete approximations:
       \f[ f'(x) = (f(x) - f(x-1)) / 2 \f]
       \f[ f''(x) = f(x) - 2f(x-1) + f(x-2) \f]
@@ -207,9 +207,9 @@ protected:
 
 public:
   /** k-winner take all inhibition for synapses. k largest synapses are strengthed and the rest are inhibited.
-      strong synapes are scaled by 1+(damping/k) and weak synapses are scaled by 1-(damping/(n-k)) where n is the 
+      strong synapes are scaled by 1+(damping/k) and weak synapses are scaled by 1-(damping/(n-k)) where n is the
       number of synapes
-      @param weightmatrix reference to weight matrix. Synapses for a neuron are in one row. 
+      @param weightmatrix reference to weight matrix. Synapses for a neuron are in one row.
              The inhibition is done for all rows independently
       @param k number of synapes to strengthen
       @param damping strength of supression and exitation (typically 0.001)
@@ -217,15 +217,15 @@ public:
   void kwtaInhibition(matrix::Matrix& weightmatrix, unsigned int k, double damping);
 
   /** sets all connections to zero which are further away then rfSize.
-      If rfSize == 1 then only main diagonal is left. 
+      If rfSize == 1 then only main diagonal is left.
       If rfSize = 2: main diagonal and upper and lower side diagonal are kept and so on and so forth.
    */
-  void limitC(matrix::Matrix& weightmatrix, unsigned int rfSize);   
+  void limitC(matrix::Matrix& weightmatrix, unsigned int rfSize);
 
 
   /// calculates the city block distance (abs) norm of the matrix. (abs sum of absolutes / size of matrix)
      virtual double calcMatrixNorm(const matrix::Matrix& m);
- 
+
 };
 
 #endif

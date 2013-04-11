@@ -162,7 +162,7 @@ public:
   Sensor* sensor;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     int num_disci=1;
 
@@ -184,10 +184,10 @@ public:
     double tiltangle = 1 * M_PI/180.0;
     if(normalplayground){
       Playground* playground = new Playground(odeHandle, osgHandle,
-					      osg::Vec3(playgroundsize, 0.1, sin(tiltangle) 
-							* playgroundsize/2 +1 ), 1, false);
+                                              osg::Vec3(playgroundsize, 0.1, sin(tiltangle)
+                                                        * playgroundsize/2 +1 ), 1, false);
       playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
-      playground->setGroundTexture("Images/really_white.rgb");    
+      playground->setGroundTexture("Images/really_white.rgb");
       playground->setColor(Color(255/255.0,200/255.0,21/255.0, 1));
       playground->setPosition(osg::Vec3(0,0,0.05));
       global.obstacles.push_back(playground);
@@ -195,23 +195,23 @@ public:
 
     if(tiltedplanes){
       Primitive* box = new Box(playgroundsize/2,playgroundsize,0.1);
-      box->init(odeHandle, 0, osgHandle.changeColor(Color(255/255.0,200/255.0,0/255.0)), 
-		Primitive::Geom | Primitive::Draw);// no body, because static
-      box->setPose(osg::Matrix::rotate(-tiltangle,osg::Vec3(0,1,0)) * 
-		   osg::Matrix::translate(playgroundsize/4,0,sin(1 * M_PI/180.0) * playgroundsize/4));
+      box->init(odeHandle, 0, osgHandle.changeColor(Color(255/255.0,200/255.0,0/255.0)),
+                Primitive::Geom | Primitive::Draw);// no body, because static
+      box->setPose(osg::Matrix::rotate(-tiltangle,osg::Vec3(0,1,0)) *
+                   osg::Matrix::translate(playgroundsize/4,0,sin(1 * M_PI/180.0) * playgroundsize/4));
       box->update();
       box = new Box(playgroundsize/2,playgroundsize,0.1);
-      box->init(odeHandle, 0, osgHandle.changeColor(Color(255/255.0,200/255.0,0/255.0)), 
-		Primitive::Geom | Primitive::Draw);// no body, because static
-      box->setPose(osg::Matrix::rotate(tiltangle,osg::Vec3(0,1,0)) * 
-		   osg::Matrix::translate(-playgroundsize/4+0.5,0,sin(tiltangle) * playgroundsize/4));
+      box->init(odeHandle, 0, osgHandle.changeColor(Color(255/255.0,200/255.0,0/255.0)),
+                Primitive::Geom | Primitive::Draw);// no body, because static
+      box->setPose(osg::Matrix::rotate(tiltangle,osg::Vec3(0,1,0)) *
+                   osg::Matrix::translate(-playgroundsize/4+0.5,0,sin(tiltangle) * playgroundsize/4));
       box->update();
     }
 
     if(squarecorridor){
       Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(15, 0.2, 1.2 ), 1);
       playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
-      playground->setGroundTexture("Images/really_white.rgb");    
+      playground->setGroundTexture("Images/really_white.rgb");
       playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
       playground->setPosition(osg::Vec3(0,0,0.1));
       global.obstacles.push_back(playground);
@@ -226,14 +226,14 @@ public:
 
     //     for(int i=0; i<5; i++){
     //       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
-    //       s->setPosition(osg::Vec3(5,0,i*3)); 
-    //       global.obstacles.push_back(s);    
+    //       s->setPosition(osg::Vec3(5,0,i*3));
+    //       global.obstacles.push_back(s);
     //     }
-    
+
     /* * * * D I S C I * * * */
     for(int i=0; i< num_disci; i++){
       //****************
-      DiscusConf conf = Discus::getDefaultConf();  
+      DiscusConf conf = Discus::getDefaultConf();
       conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis, Sensor::X | Sensor::Y |Sensor::Z));
       conf.irAxis1=false;
@@ -241,28 +241,28 @@ public:
       conf.irAxis3=false;
       conf.irSide=false;
       conf.irRing=false;
-      robot = new Discus ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
-				    conf, "Discus1", 0.4); 
+      robot = new Discus ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)),
+                                    conf, "Discus1", 0.4);
       robot->place (osg::Matrix::rotate(M_PI/2, 1,0,0)*osg::Matrix::translate(0,0,0.2));
 
       // controller = new SineController();
-      
-//       DerLinInvertConf cc = DerLinInvert::getDefaultConf();    
+
+//       DerLinInvertConf cc = DerLinInvert::getDefaultConf();
 //       vector<Layer> layers;
 //       layers.push_back(Layer(20,0.5,FeedForwardNN::tanh)); // hidden layer
 //       // size of output layer is automatically set
-//       layers.push_back(Layer(1,1,FeedForwardNN::linear)); 
-//       MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass. 
+//       layers.push_back(Layer(1,1,FeedForwardNN::linear));
+//       MultiLayerFFNN* net = new MultiLayerFFNN(0.0, layers, false);// false means no bypass.
 //       cc.model = net;
 
-//       //Elman Net 
+//       //Elman Net
 //       layers.clear();
 //       layers.push_back(Layer(40,0.5,Elman::tanhr)); // hidden layer
 //       // size of output layer is automatically set
-//       layers.push_back(Layer(1,0.5,Elman::tanh)); 
+//       layers.push_back(Layer(1,0.5,Elman::tanh));
 //       Elman* sat = new Elman(1, layers,true,true, false);
 //       cc.sat   = sat;
-      
+
 //       cc.cInit=  1.0;//1.005;
 //       cc.useS=false;
 //       controller = new DerLinInvert(cc);
@@ -285,43 +285,43 @@ public:
       global.agents.push_back ( agent );
       global.configs.push_back ( controller );
     }
-      
-    
+
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
   }
-  
+
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	case 'y' : dBodyAddForce ( robot->getMainPrimitive()->getBody() , 30 ,0 , 0 ); break;
-	case 'Y' : dBodyAddForce ( robot->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
-	case 'x' : dBodyAddTorque ( robot->getMainPrimitive()->getBody() , 0 , 10 , 0 ); break;
-	case 'X' : dBodyAddTorque ( robot->getMainPrimitive()->getBody() , 0 , -10 , 0 ); break;
-	case 'S' : controller->setParam("sinerate", controller->getParam("sinerate")*1.2); 
-	  printf("sinerate : %g\n", controller->getParam("sinerate"));
-	  break;
-	case 's' : controller->setParam("sinerate", controller->getParam("sinerate")/1.2); 
-	  printf("sinerate : %g\n", controller->getParam("sinerate"));
-	  break;
-	default:
-	  return false;
-	  break;
-	}
+        {
+        case 'y' : dBodyAddForce ( robot->getMainPrimitive()->getBody() , 30 ,0 , 0 ); break;
+        case 'Y' : dBodyAddForce ( robot->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
+        case 'x' : dBodyAddTorque ( robot->getMainPrimitive()->getBody() , 0 , 10 , 0 ); break;
+        case 'X' : dBodyAddTorque ( robot->getMainPrimitive()->getBody() , 0 , -10 , 0 ); break;
+        case 'S' : controller->setParam("sinerate", controller->getParam("sinerate")*1.2);
+          printf("sinerate : %g\n", controller->getParam("sinerate"));
+          break;
+        case 's' : controller->setParam("sinerate", controller->getParam("sinerate")/1.2);
+          printf("sinerate : %g\n", controller->getParam("sinerate"));
+          break;
+        default:
+          return false;
+          break;
+        }
     }
     return false;
-  }  
+  }
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   sim.setCaption("Spherical Robot (lpzrobots Simulator)   Martius,Der 2007");
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

@@ -45,7 +45,7 @@ WalkController::WalkController()
   addParameterDef("kneeampl",&kneeamplitude, 0.8);
 
   number_sensors=0;
-  number_motors=0;  
+  number_motors=0;
 };
 
 void WalkController::init(int sensornumber, int motornumber, RandGen* randGen){
@@ -56,33 +56,33 @@ void WalkController::init(int sensornumber, int motornumber, RandGen* randGen){
     exit(1);
   }
 };
-  
-void WalkController::step(const sensor* sensors, int sensornumber, 
-			  motor* motors, int motornumber) {
+
+void WalkController::step(const sensor* sensors, int sensornumber,
+                          motor* motors, int motornumber) {
   stepNoLearning(sensors, sensornumber, motors, motornumber);
 };
 
-void WalkController::stepNoLearning(const sensor* sensors, int number_sensors, 
-				    motor* motors, int number_motors) {
+void WalkController::stepNoLearning(const sensor* sensors, int number_sensors,
+                                    motor* motors, int number_motors) {
   double w = t/speed;
   // Horse Walk from wikipedia
-  /* The walk is a four-beat gait that averages about 4 mph. 
-     When walking, a horse's legs follow this sequence: 
-     left hind leg, left front leg, right hind leg, right front leg, 
+  /* The walk is a four-beat gait that averages about 4 mph.
+     When walking, a horse's legs follow this sequence:
+     left hind leg, left front leg, right hind leg, right front leg,
      in a regular 1-2-3-4 beat. .... */
   double phases[4]= { w + 2*(M_PI/2),
-		      w + 0*(M_PI/2),
-		      w + 3*(M_PI/2),
-		      w + 1*(M_PI/2) };
+                      w + 0*(M_PI/2),
+                      w + 3*(M_PI/2),
+                      w + 1*(M_PI/2) };
 
-  motors[0] = sin(phases[0]+2)*0.8; 
+  motors[0] = sin(phases[0]+2)*0.8;
   motors[1] = 0;
 
-  // hips  
+  // hips
   for(int i=0; i<4; i++)
     motors[i+2]=sin(phases[i])*hipamplitude;
 
-  // knees 
+  // knees
   for(int i=0; i<2; i++){
     motors[i+6]=sin(phases[i]+1.05)*kneeamplitude;
   }
@@ -96,11 +96,11 @@ void WalkController::stepNoLearning(const sensor* sensors, int number_sensors,
 
   //rest sine wave
   for(int i=12; i<number_motors; i++){
-    motors[i]=sin(phases[i%4])*0.77; 
+    motors[i]=sin(phases[i%4])*0.77;
   }
   t++;
 };
-  
-  
+
+
 
 

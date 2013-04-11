@@ -35,7 +35,7 @@ namespace lpzrobots {
 
   OsgHandle::OsgHandle()
     : drawBoundings(false), cfg(0), scene(0), parent(0), color_set(0)
-  {    
+  {
   };
 
 
@@ -48,7 +48,7 @@ namespace lpzrobots {
     cfg->cs = new ColorSchema();
     // load colors....
 
-    
+
     // set up blending for transparent stateset
     osg::StateSet* stateset = new osg::StateSet();
     osg::BlendFunc* transBlend = new osg::BlendFunc;
@@ -57,7 +57,7 @@ namespace lpzrobots {
     stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
     //stateset->setRenderBinDetails(5,"RenderBin");
     stateset->setMode(GL_CULL_FACE,osg::StateAttribute::ON); // disable backface because of problems
-    
+
     cfg->transparentState = stateset;
     cfg->transparentState->ref();
 
@@ -69,7 +69,7 @@ namespace lpzrobots {
     cfg->tesselhints[1]->setDetailRatio(1.0f); // Middle // maybe use 0.5 here
     cfg->tesselhints[2]->setDetailRatio(3.0f); // High
 
-    scene = new OsgScene();     
+    scene = new OsgScene();
 
     color = Color(1,1,1,1);
   }
@@ -81,13 +81,13 @@ namespace lpzrobots {
       cfg->transparentState->unref();
     for(int i=0; i<3; i++) {
       if(cfg->tesselhints[i])
-	cfg->tesselhints[i]->unref();
+        cfg->tesselhints[i]->unref();
     }
     if(cfg->cs) delete cfg->cs;
-    delete cfg;    
+    delete cfg;
     cfg=0;
     // don't delete the camManager because it is deleted automatically (eventhandler)
-    // delete scene->robotCamManager; 
+    // delete scene->robotCamManager;
     if(scene->world) scene->world->unref();
     if(scene->world_noshadow) scene->world_noshadow->unref();
     delete scene;
@@ -95,9 +95,9 @@ namespace lpzrobots {
   }
 
   void OsgHandle::setup(int windowW, int windowH){
-    scene->robotCamManager = new RobotCameraManager(windowW, windowH);    
+    scene->robotCamManager = new RobotCameraManager(windowW, windowH);
   }
-   
+
   OsgHandle::~OsgHandle(){
     // we should not delete any of the refs, because they are global
   }
@@ -124,12 +124,12 @@ namespace lpzrobots {
     OsgHandle copy(*this);
     if(cfg && cfg->cs)
       copy.color = cfg->cs->color(name,color_set);
-    return copy;    
+    return copy;
   }
 
   Color OsgHandle::getColor(const std::string& name) const {
     if(cfg && cfg->cs)
-      return cfg->cs->color(name,color_set);    
+      return cfg->cs->color(name,color_set);
     else {
       return Color();
     }
@@ -138,12 +138,12 @@ namespace lpzrobots {
 
   OsgHandle OsgHandle::changeColorDef(const std::string& name, const Color& defcolor) const{
     OsgHandle copy(*this);
-    if(cfg && cfg->cs){      
+    if(cfg && cfg->cs){
       if(!cfg->cs->color(copy.color, name,color_set)){
         copy.color = defcolor;
       }
     }
-    return copy;        
+    return copy;
   }
 
   ColorSchema* OsgHandle::colorSchema(){
@@ -161,12 +161,12 @@ namespace lpzrobots {
     copy.setColorSet(color_set);
     return copy;
   }
-  
+
   void OsgHandle::setColorSet(int color_set) {
-    if(color_set>0) 
+    if(color_set>0)
       this->color_set=color_set;
   }
 
-  
+
 
 }

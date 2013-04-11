@@ -31,27 +31,27 @@ namespace lpzrobots {
   /** Class for sensing the axis orienation of a primitive (robot)
   */
   class AxisOrientationSensor : public Sensor {
-  public:  
-    /// Sensor mode 
+  public:
+    /// Sensor mode
     enum Mode { /** Z axis (of robot) in word coordinates (relative to body center)
-		    (Dimensions select components of this vector) */
-                OnlyZAxis, 
-		ZProjection, ///< z-component of each axis (Dimension select components of this vector)
-		Axis ///< for each dimension one orienation vector, i.e. for X | Y | Z it is a 3x3 rotation matrix
+                    (Dimensions select components of this vector) */
+                OnlyZAxis,
+                ZProjection, ///< z-component of each axis (Dimension select components of this vector)
+                Axis ///< for each dimension one orienation vector, i.e. for X | Y | Z it is a 3x3 rotation matrix
     };
-    
+
     /**
        @param mode how to measure the axis orientation
-       @param dimensions bit mask for the dimensions to sense. Default: X | Y | Z (all dimensions)       
+       @param dimensions bit mask for the dimensions to sense. Default: X | Y | Z (all dimensions)
        @see Sensor::Dimensions
        @see Mode
      */
     AxisOrientationSensor(Mode mode, short dimensions = X | Y | Z );
     virtual ~AxisOrientationSensor() {}
-    
-    virtual void init(Primitive* own);  
+
+    virtual void init(Primitive* own);
     virtual int getSensorNumber() const;
-  
+
     virtual bool sense(const GlobalData& globaldata);
     virtual std::list<sensor> get() const;
     virtual int get(sensor* sensors, int length) const;

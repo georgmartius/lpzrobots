@@ -33,19 +33,19 @@ using namespace matrix;
 namespace lpzrobots {
 
   SpeedSensor::SpeedSensor(double maxSpeed, Mode mode /* = Translational */,
-			   short dimensions /* = X | Y | Z */ )
+                           short dimensions /* = X | Y | Z */ )
     : maxSpeed(maxSpeed), mode(mode), dimensions (dimensions) {
     own=0;
   }
-  
+
   void SpeedSensor::init(Primitive* own){
     this->own = own;
   }
 
   int SpeedSensor::getSensorNumber() const{
-    return (dimensions & X) + ((dimensions & Y) >> 1)  + ((dimensions & Z) >> 2);    
+    return (dimensions & X) + ((dimensions & Y) >> 1)  + ((dimensions & Z) >> 2);
   }
-  
+
   bool SpeedSensor::sense(const GlobalData& globaldata) { return true; }
 
   std::list<sensor> SpeedSensor::get() const {
@@ -55,8 +55,8 @@ namespace lpzrobots {
 
   int SpeedSensor::get(sensor* sensors, int length) const{
     const Matrix& m = getSenseMatrix()*(1.0/maxSpeed);
-    if(dimensions == (X | Y | Z)) 
-      return m.convertToBuffer(sensors, length); 
+    if(dimensions == (X | Y | Z))
+      return m.convertToBuffer(sensors, length);
     else{
       return selectrows(sensors, length, m, dimensions);
     }
@@ -71,7 +71,7 @@ namespace lpzrobots {
     case Translational:
       m.set(3,1, dBodyGetLinearVel(own->getBody()));
       break;
-    case TranslationalRel:      
+    case TranslationalRel:
       local = osgMatrix2Matrixlib(own->getPose());
       m.set(4,1, dBodyGetLinearVel(own->getBody()));
       m.val(3,0)=0; // we have a vector and not a point (homogeneous coordinates)
@@ -80,16 +80,16 @@ namespace lpzrobots {
       break;
     case Rotational:
       m.set(3,1, dBodyGetAngularVel(own->getBody()));
-      break;      
+      break;
     case RotationalRel:
       local = osgMatrix2Matrixlib(own->getPose());
       m.set(4,1, dBodyGetAngularVel(own->getBody()));
       m.val(3,0)=0; // we have a vector and not a point (homogeneous coordinates)
-      m=local*m;  // this is m^T= m^T*local^T, ode matrix multiplications are the other way around (left sided) 
+      m=local*m;  // this is m^T= m^T*local^T, ode matrix multiplications are the other way around (left sided)
       m.reshape(3,1);
       break;
     }
     return m;
   }
-  
+
 }

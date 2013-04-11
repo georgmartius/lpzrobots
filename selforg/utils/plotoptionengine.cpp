@@ -31,20 +31,20 @@
 #include <assert.h>
 #include <string.h>
 #include <algorithm>
-#include <locale.h> // need to set LC_NUMERIC to have a '.' in the numbers written or piped to gnuplot 
+#include <locale.h> // need to set LC_NUMERIC to have a '.' in the numbers written or piped to gnuplot
 
 using namespace std;
 
 PlotOptionEngine::PlotOptionEngine(const PlotOption& plotOption) : maybe_controller(0), name("") {
-  if(plotOption.mode!=NoPlot) 
+  if(plotOption.mode!=NoPlot)
     plotOptions.push_back(plotOption);
-  initialised = false;  
+  initialised = false;
   t=1;
 }
 
 PlotOptionEngine::PlotOptionEngine(const list<PlotOption>& plotOptions)
   : plotOptions(plotOptions), maybe_controller(0), name("") {
-  initialised = false;  
+  initialised = false;
   t=1;
 }
 
@@ -56,7 +56,7 @@ PlotOptionEngine::~PlotOptionEngine() {
 
 bool PlotOptionEngine::init(AbstractController* maybe_controller){
   setlocale(LC_NUMERIC,"en_US"); // set us type output
-  
+
   this->maybe_controller = maybe_controller;
 #ifdef SIGPIPE // is not defined on windows
   // this prevents the simulation to terminate if the child  closes
@@ -133,9 +133,9 @@ PlotOption& PlotOptionEngine::addPlotOption(PlotOption& plotOption) {
     po.setName(name);
   // if plotoption with the same mode exists -> delete it
   removePlotOption(po.mode);
-  
+
   plotOptions.push_back(po);
-  
+
   return plotOptions.back();
 }
 
@@ -159,11 +159,11 @@ bool PlotOptionEngine::removePlotOption(PlotMode mode) {
   return false;
 }
 
-void PlotOptionEngine::addInspectable(const Inspectable* inspectable, bool front){  
+void PlotOptionEngine::addInspectable(const Inspectable* inspectable, bool front){
   assert(!initialised);
   if(front)
     inspectables.push_front(inspectable);
-  else 
+  else
     inspectables.push_back(inspectable);
 }
 
@@ -206,16 +206,16 @@ void PlotOptionEngine::plot(double time)
 // GEORG: it is better to plot it at initialization time!
 // void PlotOptionEngine::plotNames()
 // {
-// 	  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++)
-// 	  {
-// 	    if( ((*i).pipe) && ((*i).interval>0) && (t % (*i).interval == 0) )
-// 	    {
-// 	    	if (!(*i).namesPlotted)
-// 	    	{
-// 	    		fprintf((*i).pipe,"#C t");
-// 	    		printInspectableNames((*i).pipe,inspectables);
-// 	    		(*i).namesPlotted = true;
-// 	    	}
-// 	    }
-// 	  }
+//           for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++)
+//           {
+//             if( ((*i).pipe) && ((*i).interval>0) && (t % (*i).interval == 0) )
+//             {
+//                     if (!(*i).namesPlotted)
+//                     {
+//                             fprintf((*i).pipe,"#C t");
+//                             printInspectableNames((*i).pipe,inspectables);
+//                             (*i).namesPlotted = true;
+//                     }
+//             }
+//           }
 // }

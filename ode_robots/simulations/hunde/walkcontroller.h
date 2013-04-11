@@ -44,28 +44,28 @@ public:
 
   WalkController();
 
-  virtual void init(int sensornumber, int motornumber);  
+  virtual void init(int sensornumber, int motornumber);
   virtual int getSensorNumber() const {return number_sensors;}
   virtual int getMotorNumber() const {return number_motors;}
-  virtual void step(const sensor* sensors, int sensornumber, 
-		    motor* motors, int motornumber);
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
-  
+  virtual void step(const sensor* sensors, int sensornumber,
+                    motor* motors, int motornumber);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
+
   virtual std::list<iparamkey> getInternalParamNames()const  { return std::list<iparamkey>(); }
 
   virtual std::list<iparamval> getInternalParams() const { return std::list<iparamval>(); }
-    
+
   /********* STORABLE INTERFACE ******/
   /// @see Storable
-  virtual bool store(FILE* f) const { 
+  virtual bool store(FILE* f) const {
     Configurable::print(f,"");
     return true;
   }
 
   /// @see Storable
-  virtual bool restore(FILE* f) { 
-    Configurable::parse(f);    
+  virtual bool restore(FILE* f) {
+    Configurable::parse(f);
     return true;
   }
 
@@ -83,4 +83,4 @@ protected:
   paramval hipamplitude;
 };
 
-#endif 
+#endif

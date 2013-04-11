@@ -29,33 +29,33 @@
 PlotInfo::PlotInfo(const ChannelData& cd)
   : channelData(cd), isVisisble(true), reference1(-1), reference2(-1),
     initialized(false) {
-  
+
 }
 
-void PlotInfo::setReference1(const ChannelName& ref1){  
+void PlotInfo::setReference1(const ChannelName& ref1){
   if(!initialized)
     presetReference1 = ref1;
   else {
-    int index = channelData.getChannelIndex(ref1);  
+    int index = channelData.getChannelIndex(ref1);
     setReference1(index);
   }
 }
 
-void PlotInfo::setReference1(int ref1){  
-  reference1=ref1;  
+void PlotInfo::setReference1(int ref1){
+  reference1=ref1;
 }
 
 void PlotInfo::setReference2(const ChannelName& ref2){
   if(!initialized)
     presetReference2 = ref2;
   else {
-    int index = channelData.getChannelIndex(ref2);  
+    int index = channelData.getChannelIndex(ref2);
     setReference2(index);
   }
 }
 
 void PlotInfo::setReference2(int ref2){
-  reference2=ref2;  
+  reference2=ref2;
 }
 
 
@@ -71,7 +71,7 @@ const ChannelName& PlotInfo::getReference2Name() const {
 void PlotInfo::setChannelShow(int index, bool on){
   if(index >=0 && index < channels.size()){
     if(on){
-      // make sure it is in the list of visible channels    
+      // make sure it is in the list of visible channels
       if(!visiblechannels.contains(index)){
         // insertation sort
         bool inserted=false;
@@ -90,16 +90,16 @@ void PlotInfo::setChannelShow(int index, bool on){
                                             visiblechannels.end(), index);
       if (it != visiblechannels.end()){
         visiblechannels.erase(it);
-      }      
+      }
     }
   }
 }
 
-void PlotInfo::setChannelShow(const ChannelName& name, bool on){  
+void PlotInfo::setChannelShow(const ChannelName& name, bool on){
   if(!initialized){
     preset[name]=on;
   } else {
-    int index = channelData.getChannelIndex(name);  
+    int index = channelData.getChannelIndex(name);
     setChannelShow(index, on);
   }
 }
@@ -118,22 +118,22 @@ bool PlotInfo::getChannelShow(int index) const {
 }
 
 void PlotInfo::setStyle(const ChannelName& channel, PlotStyle style){
-  int index = channelData.getChannelIndex(channel);  
+  int index = channelData.getChannelIndex(channel);
   setStyle(index, style);
 }
 void PlotInfo::setStyle(int channel, PlotStyle style){
   if(channel >=0 && channel < channels.size()){
     channels[channel].style = style;
   }
-}; 
+};
 
 void PlotInfo::setIsVisible(bool enable){
-  isVisisble = enable;  
+  isVisisble = enable;
 }
 
 
 void PlotInfo::channelsChanged(){
-  if(!initialized){    
+  if(!initialized){
     channels.resize(channelData.getNumChannels());
     setAllChannelShow(false);
     int i=0;
@@ -141,15 +141,15 @@ void PlotInfo::channelsChanged(){
     FOREACHC(QVector<ChannelInfo>, channelData.getInfos(), c){
       channels[i] = ChannelPlotInfo(PS_DEFAULT);
       //
-//       	    QRegExp re;
-// 	    re.setPattern(qv);
-// 	    if(qv==(cr->getChannelName()) || re.exactMatch(cr->getChannelName())) 
+//                   QRegExp re;
+//             re.setPattern(qv);
+//             if(qv==(cr->getChannelName()) || re.exactMatch(cr->getChannelName()))
       if(preset.contains(c->name)){
         setChannelShow(c->name, preset[c->name]);
       }
       i++;
-    }    
-    preset.clear();    
+    }
+    preset.clear();
     setReference1(presetReference1);
     setReference2(presetReference2);
   }

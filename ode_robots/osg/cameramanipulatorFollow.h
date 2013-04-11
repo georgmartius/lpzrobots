@@ -31,7 +31,7 @@ namespace lpzrobots {
 
   /**
      CameraManipulatorFollow is a MatrixManipulator which provides Flying simulator-like
-     updating of the camera position & orientation. 
+     updating of the camera position & orientation.
      Left mouse button: Pan and tilt
      Right mouse button: forward and sideways
      Middle mouse button: up and sideways
@@ -40,33 +40,33 @@ namespace lpzrobots {
   class CameraManipulatorFollow : public CameraManipulator {
 
     /** returns the classname of the manipulator
-	it's NECCESSARY to define this funtion, otherwise
-	the new manipulator WON'T WORK! (but ask me not why)
+        it's NECCESSARY to define this funtion, otherwise
+        the new manipulator WON'T WORK! (but ask me not why)
      */
     virtual const char* className() const { return "Following Camera"; }
 
   public:
-    
+
     CameraManipulatorFollow(osg::Node* node,GlobalData& global, CameraHandle& cameraHandle);
-      
+
   protected:
 
     virtual ~CameraManipulatorFollow();
 
     /** This handles robot movements, so that the camera movemenent is right affected.
-	should be overwritten by new cameramanipulator
+        should be overwritten by new cameramanipulator
     */
     virtual void calcMovementByAgent();
 
 
     /** Sets the right view and eye if the robot has changed.
-	Is called from manageRobots();
-	should be overwritten by new cameramanipulator if needed
+        Is called from manageRobots();
+        should be overwritten by new cameramanipulator if needed
     */
         virtual void setHomeViewByAgent();
 
-    
-   
+
+
   };
 }
 

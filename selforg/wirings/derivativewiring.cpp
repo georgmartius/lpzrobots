@@ -27,23 +27,23 @@
 using namespace std;
 
 /// constructor
-DerivativeWiring::DerivativeWiring(const DerivativeWiringConf& conf, 
-				   NoiseGenerator* noise, const std::string& name)
+DerivativeWiring::DerivativeWiring(const DerivativeWiringConf& conf,
+                                   NoiseGenerator* noise, const std::string& name)
   : AbstractWiring::AbstractWiring(noise, Controller, name), conf(conf){
 
   time     = buffersize;
   first    = 0;
   second   = 0;
-  blindMotors = 0;    
+  blindMotors = 0;
   //  this->conf.derivativeScale*= 1/this->conf.eps+0.01;
   // delay    = min(buffersize/2-1, int(0.25/(conf.eps+0.01))+1);
   // make sure that at least id is on.
-  if ((!conf.useFirstD) && (!conf.useSecondD)) this->conf.useId=true; 
+  if ((!conf.useFirstD) && (!conf.useSecondD)) this->conf.useId=true;
 }
 
 DerivativeWiring::~DerivativeWiring(){
   for(int i=0 ; i<buffersize; i++){
-    if(sensorbuffer[i]) free(sensorbuffer[i]); 
+    if(sensorbuffer[i]) free(sensorbuffer[i]);
   }
   //  if(id) free(id);
   if(first) free(first);
@@ -52,11 +52,11 @@ DerivativeWiring::~DerivativeWiring(){
 }
 
 
-bool DerivativeWiring::initIntern(){  
+bool DerivativeWiring::initIntern(){
   csensornumber = rsensornumber*( (int)conf.useId+(int)conf.useFirstD+(int)conf.useSecondD)
     + conf.blindMotors;
   cmotornumber  = rmotornumber + conf.blindMotors;
-    
+
   for(int i=0; i<buffersize; i++){
     sensorbuffer[i]      = (sensor*) malloc(sizeof(sensor) * this->rsensornumber);
     for(int k=0; k < rsensornumber; k++){
@@ -76,35 +76,35 @@ bool DerivativeWiring::initIntern(){
   return true;
 }
 
-/// Realizes a wiring from robot sensors to controller sensors. 
-//   @param rsensors pointer to array of sensorvalues from robot 
+/// Realizes a wiring from robot sensors to controller sensors.
+//   @param rsensors pointer to array of sensorvalues from robot
 //   @param rsensornumber number of sensors from robot
 //   @param csensors pointer to array of sensorvalues for controller (includes derivatives if specified)
 //   @param csensornumber number of sensors to controller
 //   @param noise size of the noise added to the sensors
-bool DerivativeWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber, 
-					 sensor* csensors, int csensornumber, 
-					 double noise){
+bool DerivativeWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber,
+                                         sensor* csensors, int csensornumber,
+                                         double noise){
   if(rsensornumber != this->rsensornumber || this->csensornumber != csensornumber){
-    fprintf(stderr, "%s:%i: Wrong sensornumbers! Robot: Expected: %i, Got: %i Controller: Expected: %i, Got: %i \n", 
-	    __FILE__, __LINE__,
-	    this->rsensornumber, rsensornumber,
-	    this->csensornumber, csensornumber);
+    fprintf(stderr, "%s:%i: Wrong sensornumbers! Robot: Expected: %i, Got: %i Controller: Expected: %i, Got: %i \n",
+            __FILE__, __LINE__,
+            this->rsensornumber, rsensornumber,
+            this->csensornumber, csensornumber);
     return false;
   }
-  int index = (time) % buffersize;  
-  int lastIndex = (time-1) % buffersize;  
- 
+  int index = (time) % buffersize;
+  int lastIndex = (time-1) % buffersize;
+
   if(conf.useFirstD || conf.useSecondD){ // calc smoothed sensor values
-    for(int i=0; i < this->rsensornumber; i++ ){ 
-      sensorbuffer[index][i] = (1-conf.eps)*sensorbuffer[lastIndex][i] + conf.eps*rsensors[i]; 
+    for(int i=0; i < this->rsensornumber; i++ ){
+      sensorbuffer[index][i] = (1-conf.eps)*sensorbuffer[lastIndex][i] + conf.eps*rsensors[i];
     }
   }
 
   if(conf.useId) { // normal sensors values
     memcpy(csensors, rsensors, sizeof(sensor) * this->rsensornumber);
-  }   
-  
+  }
+
   if(conf.useFirstD) { // first derivative
     calcFirstDerivative();
     int offset = conf.useId*this->rsensornumber;
@@ -114,31 +114,31 @@ bool DerivativeWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumb
     calcSecondDerivative();
     int offset = (conf.useId + conf.useFirstD)*this->rsensornumber;
     memcpy(csensors+offset, second, sizeof(sensor) * this->rsensornumber);
-  }      
+  }
 
 
 //   int blocksize = conf.useId + conf.useFirstD + conf.useSecondD;
 //   if(conf.useId) { // normal sensors values
 //     memcpy(id, rsensors, sizeof(sensor) * this->rsensornumber);
-//     for(int i=0; i < this->rsensornumber; i++ ){ 
+//     for(int i=0; i < this->rsensornumber; i++ ){
 //       csensors[i*blocksize] = id[i];
 //     }
-//   }   
-  
+//   }
+
 //   if(conf.useFirstD) { // first derivative
 //     calcFirstDerivative();
 //     int offset = conf.useId;
-//     for(int i=0; i < this->rsensornumber; i++ ){ 
+//     for(int i=0; i < this->rsensornumber; i++ ){
 //       csensors[i*blocksize+offset] = first[i];
 //     }
 //   }
 //   if(conf.useSecondD) { // second derivative
 //     calcSecondDerivative();
 //     int offset = conf.useId + conf.useFirstD;
-//     for(int i=0; i < this->rsensornumber; i++ ){ 
+//     for(int i=0; i < this->rsensornumber; i++ ){
 //       csensors[i*blocksize+offset] = second[i];
 //     }
-//   }      
+//   }
 
   // add noise only to first used sensors
   for(int i=0; i< rsensornumber; i++){
@@ -146,10 +146,10 @@ bool DerivativeWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumb
   }
 
   if(conf.blindMotors > 0) { // shortcircuit of blind motors
-    int offset = (conf.useId + conf.useFirstD + conf.useSecondD)*this->rsensornumber;    
+    int offset = (conf.useId + conf.useFirstD + conf.useSecondD)*this->rsensornumber;
     memcpy(csensors+offset, blindMotors, sizeof(sensor) * conf.blindMotors);
-  }      
-  
+  }
+
   time++;
   return true;
 }
@@ -161,25 +161,25 @@ void DerivativeWiring::reset(){
 }
 
 
-/// Realizes wiring from controller motor outputs to robot motors. 
-//   @param rmotors pointer to array of motorvalues for robot 
-//   @param rmotornumber number of robot motors 
-//   @param cmotors pointer to array of motorvalues from controller  
+/// Realizes wiring from controller motor outputs to robot motors.
+//   @param rmotors pointer to array of motorvalues for robot
+//   @param rmotornumber number of robot motors
+//   @param cmotors pointer to array of motorvalues from controller
 //   @param cmotornumber number of motorvalues from controller
 bool DerivativeWiring::wireMotorsIntern(motor* rmotors, int rmotornumber,
-					const motor* cmotors, int cmotornumber){
+                                        const motor* cmotors, int cmotornumber){
 
   assert( (this->cmotornumber==cmotornumber) && ((rmotornumber + (signed)conf.blindMotors) == cmotornumber)) ;
   memcpy(rmotors, cmotors, sizeof(motor)*rmotornumber);
   if(conf.blindMotors>0){
-    memcpy(blindMotors, cmotors + rmotornumber, sizeof(motor)*conf.blindMotors);      
+    memcpy(blindMotors, cmotors + rmotornumber, sizeof(motor)*conf.blindMotors);
   }
-  return true;  
+  return true;
 }
 
 /// f'(x) = (f(x+1) - f(x-1)) / 2
 //  since we do not have f(x+1) we go one timestep in the past
-void DerivativeWiring::calcFirstDerivative(){  
+void DerivativeWiring::calcFirstDerivative(){
   sensor* t   = sensorbuffer[time%buffersize];
   sensor* tmdelay = sensorbuffer[(time-1)%buffersize];
   for(int i=0; i < rsensornumber; i++){
@@ -193,7 +193,7 @@ void DerivativeWiring::calcSecondDerivative(){
   sensor* tmdelay = sensorbuffer[(time-1)%buffersize];
   sensor* tm2delay = sensorbuffer[(time-2)%buffersize];
   for(int i=0; i < rsensornumber; i++){
-    second[i] = (t[i] - 2*tmdelay[i] + tm2delay[i])*conf.derivativeScale*conf.derivativeScale; 
+    second[i] = (t[i] - 2*tmdelay[i] + tm2delay[i])*conf.derivativeScale*conf.derivativeScale;
   }
 }
 

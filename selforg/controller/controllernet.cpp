@@ -32,8 +32,8 @@ using namespace std;
 
 ControllerNet::ControllerNet(const std::vector<Layer>& layers, bool useBypass)
   : Configurable("controllernet", "0.7"),
-    layers(layers), useBypass(useBypass) { 
-  
+    layers(layers), useBypass(useBypass) {
+
   initialised = false;
   addParameterDef("lambda",&lambda, 0.001);
 }
@@ -88,7 +88,7 @@ const Matrix ControllerNet::process (const Matrix& input) {
   assert(weights.size() == layernum);
   assert(bias.size() == layernum);
   this->input = input;
-  
+
   for(unsigned int i = 0; i < layernum; i++) {
     if(i==0)
       z[i] = weights[i] * this->input + bias[i];
@@ -114,7 +114,7 @@ const Matrix ControllerNet::processX (const Matrix& input, const Matrix& injecti
   assert(weights.size() == layernum);
   assert(bias.size() == layernum);
   this->input = input;
-  
+
   for(unsigned int i = 0; i < layernum; i++) {
     if(i==0)
       z[i] = weights[i] * this->input + bias[i];
@@ -126,7 +126,7 @@ const Matrix ControllerNet::processX (const Matrix& input, const Matrix& injecti
     if(i == injectInLayer)
       y[i] = injection;
     else
-      y[i] = z[i].map(layers[i].actfun);      
+      y[i] = z[i].map(layers[i].actfun);
   }
 
   calcResponseIntern();
@@ -136,22 +136,22 @@ const Matrix ControllerNet::processX (const Matrix& input, const Matrix& injecti
 
 
 
-const Matrix ControllerNet::forwardpropagation(const matrix::Matrix& error, 
+const Matrix ControllerNet::forwardpropagation(const matrix::Matrix& error,
                                                 Matrices* errors, Matrices* zetas) const {
   assert(initialised);
   unsigned int layernum  = layers.size();
-  
+
   bool errorsgiven = errors != NULL;
   bool zetasgiven  = zetas  != NULL;
   if(!errorsgiven) errors = new Matrices(layernum+1);
   else errors->resize(layernum+1);
   if(!zetasgiven)  zetas  = new Matrices(layernum);
   else zetas->resize(layernum);
-  
+
   (*errors)[0] = error;
-  
+
   for(unsigned int i=0; i<=layernum-1; i++){
-    (*zetas)[i]    = weights[i] * (*errors)[i];     
+    (*zetas)[i]    = weights[i] * (*errors)[i];
     if(i==layernum-1 && useBypass){
       (*zetas)[i] += bypassWeights * (*errors)[0];
     }
@@ -165,40 +165,40 @@ const Matrix ControllerNet::forwardpropagation(const matrix::Matrix& error,
   return result;
 }
 
-// const Matrix ControllerNet::forwardprojection(const matrix::Matrix& error, 
-//                                                Matrices* errors, Matrices* zetas) const {   
+// const Matrix ControllerNet::forwardprojection(const matrix::Matrix& error,
+//                                                Matrices* errors, Matrices* zetas) const {
 //   assert(initialised);
 //   if(useBypass) {
-//     return forwardprojectionBP(error,errors,zetas); 
+//     return forwardprojectionBP(error,errors,zetas);
 //   }
 //   unsigned int layernum  = layers.size();
-  
+
 //   bool errorsgiven = errors != NULL;
 //   bool zetasgiven  = zetas  != NULL;
 //   if(!errorsgiven) errors = new Matrices(layernum+1);
 //   else errors->resize(layernum+1);
 //   if(!zetasgiven)  zetas  = new Matrices(layernum);
 //   else zetas->resize(layernum);
-  
+
 //   (*errors)[0] = error;
 
 //   for(unsigned int i=0; i<=layernum-1; i++){
-//     (*zetas)[i]    = (weights[i]^T).pseudoInverse(lambda) * (*errors)[i];     
+//     (*zetas)[i]    = (weights[i]^T).pseudoInverse(lambda) * (*errors)[i];
 //     // 1/g' o (W^T)^-1 * error (rowwise multiplication)
 //     (*errors)[i+1] =  gp[i].map(one_over) & (*zetas)[i];
 //   }
-  
+
 //   Matrix result = (*errors)[layernum];
 //   if(!errorsgiven) delete errors;
 //   if(!zetasgiven) delete zetas;
 //   return result;
 // }
 
-const Matrix ControllerNet::forwardprojection(const matrix::Matrix& error, 
+const Matrix ControllerNet::forwardprojection(const matrix::Matrix& error,
                                                 Matrices* errors, Matrices* zetas) const {
   assert(initialised);
   unsigned int layernum  = layers.size();
-  
+
   bool errorsgiven = errors != NULL;
   bool zetasgiven  = zetas  != NULL;
   if(!errorsgiven) errors = new Matrices(layernum+1);
@@ -216,16 +216,16 @@ const Matrix ControllerNet::forwardprojection(const matrix::Matrix& error,
   }
 
   for(unsigned int i=0; i<=layernum-1; i++){
-    (*zetas)[i]    = (weights[i]^T).pseudoInverse(lambda) * (*errors)[i];     
+    (*zetas)[i]    = (weights[i]^T).pseudoInverse(lambda) * (*errors)[i];
     if(i==layernum-1 && useBypass){
-      // the bypass branch gets      
-      const Matrix& errorBP     = ((Linv*bypassWeights)^T)*error*.5;        
+      // the bypass branch gets
+      const Matrix& errorBP     = ((Linv*bypassWeights)^T)*error*.5;
       (*zetas)[i] += (bypassWeights^T).pseudoInverse(lambda) * errorBP;
     }
     // 1/g' o (W^T)^-1 * error (rowwise multiplication)
     (*errors)[i+1] =  gp[i].map(one_over) & (*zetas)[i];
   }
-  
+
   Matrix result = (*errors)[layernum];
   if(!errorsgiven) delete errors;
   if(!zetasgiven) delete zetas;
@@ -234,7 +234,7 @@ const Matrix ControllerNet::forwardprojection(const matrix::Matrix& error,
 
 
 
-const Matrix ControllerNet::backpropagation(const Matrix& error, 
+const Matrix ControllerNet::backpropagation(const Matrix& error,
                                             Matrices* errors, Matrices* zetas) const {
   assert(initialised);
   int layernum  = (int)layers.size();
@@ -245,17 +245,17 @@ const Matrix ControllerNet::backpropagation(const Matrix& error,
   else errors->resize(layernum+1);
   if(!zetasgiven)  zetas  = new Matrices(layernum);
   else zetas->resize(layernum);
-  
+
   (*errors)[layernum] = error;
-  
+
   for(int i=layernum-1; i>=0; i--){
     // error o g' (rowwise multiplication)
     (*zetas)[i]  = (*errors)[i+1] & gp[i];
-    // W^T * (error o g')      
-    (*errors)[i] = (weights[i]^T) * (*zetas)[i]; 
+    // W^T * (error o g')
+    (*errors)[i] = (weights[i]^T) * (*zetas)[i];
   }
   if(useBypass){
-    (*errors)[0]+= (bypassWeights^T) * (*zetas)[layernum-1];    
+    (*errors)[0]+= (bypassWeights^T) * (*zetas)[layernum-1];
   }
   Matrix result = (*errors)[0];
   if(!errorsgiven) delete errors;
@@ -263,7 +263,7 @@ const Matrix ControllerNet::backpropagation(const Matrix& error,
   return result;
 }
 
-const Matrix ControllerNet::backpropagationX(const Matrix& error, 
+const Matrix ControllerNet::backpropagationX(const Matrix& error,
                                              Matrices* errors, Matrices* zetas,
                                              int startWithLayer
                                              ) const {
@@ -278,19 +278,19 @@ const Matrix ControllerNet::backpropagationX(const Matrix& error,
   else errors->resize(layernum+1);
   if(!zetasgiven)  zetas  = new Matrices(layernum);
   else zetas->resize(layernum);
-  
+
   (*errors)[startWithLayer+1] = error;
-  
+
   for(int i=startWithLayer; i>=0; i--){
     // error o g' (rowwise multiplication)
     (*zetas)[i]  = (*errors)[i+1] & gp[i];
-    // W^T * (error o g')      
-    (*errors)[i] = (weights[i]^T) * (*zetas)[i]; 
+    // W^T * (error o g')
+    (*errors)[i] = (weights[i]^T) * (*zetas)[i];
   }
   if(useBypass && (startWithLayer == layernum-1)){
     // here we take the unmodified error
     const Matrix& zetabypass = error & gp[layernum-1];
-    (*errors)[0]+= (bypassWeights^T) * zetabypass;    
+    (*errors)[0]+= (bypassWeights^T) * zetabypass;
   }
   Matrix result = (*errors)[0];
   if(!errorsgiven) delete errors;
@@ -298,11 +298,11 @@ const Matrix ControllerNet::backpropagationX(const Matrix& error,
   return result;
 }
 
-// const Matrix ControllerNet::backprojection(const Matrix& error, 
+// const Matrix ControllerNet::backprojection(const Matrix& error,
 //                                               Matrices* errors, Matrices* zetas) const {
 //   assert(initialised);
 //   if(useBypass) {
-//     return backprojectionBP(error,errors,zetas); 
+//     return backprojectionBP(error,errors,zetas);
 //   }
 //   int layernum  = (int)layers.size();
 //   bool errorsgiven = errors != NULL;
@@ -311,13 +311,13 @@ const Matrix ControllerNet::backpropagationX(const Matrix& error,
 //   else errors->resize(layernum+1);
 //   if(!zetasgiven)  zetas  = new Matrices(layernum);
 //   else zetas->resize(layernum);
-  
+
 //   (*errors)[layernum] = error;
-  
+
 //   for(int i=layernum-1; i>=0; i--){
 //     // 1/g' o error (rowwise multiplication)
 //     (*zetas)[i]  = gp[i].map(one_over) & (*errors)[i+1];
-//     // W^-1 * (1/g' o error)      
+//     // W^-1 * (1/g' o error)
 //     (*errors)[i] = weights[i].pseudoInverse(lambda) * (*zetas)[i];
 //   }
 
@@ -327,7 +327,7 @@ const Matrix ControllerNet::backpropagationX(const Matrix& error,
 //   return result;
 // }
 
-const Matrix ControllerNet::backprojection(const Matrix& error, 
+const Matrix ControllerNet::backprojection(const Matrix& error,
                                            Matrices* errors, Matrices* zetas) const {
   assert(initialised);
   int layernum  = (int)layers.size();
@@ -337,31 +337,31 @@ const Matrix ControllerNet::backprojection(const Matrix& error,
   else errors->resize(layernum+1);
   if(!zetasgiven)  zetas  = new Matrices(layernum);
   else zetas->resize(layernum);
-  
+
   // TODO here we can optimize using the sandwiching
   Matrix Linv;
   if(useBypass)
     Linv = L.pseudoInverse(lambda);
 
   (*errors)[layernum] = error;
-  
+
   for(int i=layernum-1; i>=0; i--){
     // 1/g' o error (rowwise multiplication)
     (*zetas)[i]  = gp[i].map(one_over) & (*errors)[i+1];
     if(i==layernum-1 && useBypass){
-      const Matrix& zetaNormal = (L-bypassWeights)*Linv*(*zetas)[i]*.5;      
+      const Matrix& zetaNormal = (L-bypassWeights)*Linv*(*zetas)[i]*.5;
       (*errors)[i] = weights[i].pseudoInverse(lambda) * zetaNormal;
     }else{
-      // W^-1 * (1/g' o error)      
+      // W^-1 * (1/g' o error)
       (*errors)[i] = weights[i].pseudoInverse(lambda) * (*zetas)[i];
     }
   }
   if(useBypass){
     // the bypass branch gets
-    const Matrix& zetaBP     = (bypassWeights)*Linv*(*zetas)[layernum-1]*.5;        
-    (*errors)[0]+= bypassWeights.pseudoInverse(lambda) * zetaBP;    
+    const Matrix& zetaBP     = (bypassWeights)*Linv*(*zetas)[layernum-1]*.5;
+    (*errors)[0]+= bypassWeights.pseudoInverse(lambda) * zetaBP;
   }
-  
+
   Matrix result = (*errors)[0];
   if(!errorsgiven) delete errors;
   if(!zetasgiven) delete zetas;
@@ -402,14 +402,14 @@ void ControllerNet::calcResponseIntern() {
   }
 }
 
-Matrix ControllerNet::responsePart(int from, int to) const{  
+Matrix ControllerNet::responsePart(int from, int to) const{
   assert(initialised);
   int layernum  = (int)layers.size();
   Matrix Res;
   assert(from>=-1 && from < layernum-1);
   from++;
   if(to<0) to = layernum+to;
-  assert(to>=0 && to < layernum);  
+  assert(to>=0 && to < layernum);
   // initialisation of jacobian
   Res  = weights[from] & gp[from];
   // loop over layers
@@ -434,73 +434,73 @@ void ControllerNet::damp(double damping){
 }
 
 bool ControllerNet::store(FILE* f) const {
-	int layernum = layers.size();
-	fprintf(f,"%i\n", layernum);
-	for(int i=0; i<layernum; i++){
-		layers[i].store(f);
-	}
-	int weightsnum = weights.size();
-	fprintf(f,"%i\n#", weightsnum);
-	for(int i=0; i<weightsnum; i++){
-		weights[i].store(f);
-		bias[i].store(f);
-	}
-	fwrite(&useBypass, sizeof(bool), 1, f);
-	if(useBypass)
-	  bypassWeights.store(f);
-	return true;
+        int layernum = layers.size();
+        fprintf(f,"%i\n", layernum);
+        for(int i=0; i<layernum; i++){
+                layers[i].store(f);
+        }
+        int weightsnum = weights.size();
+        fprintf(f,"%i\n#", weightsnum);
+        for(int i=0; i<weightsnum; i++){
+                weights[i].store(f);
+                bias[i].store(f);
+        }
+        fwrite(&useBypass, sizeof(bool), 1, f);
+        if(useBypass)
+          bypassWeights.store(f);
+        return true;
 }
 
 bool ControllerNet::write(FILE* f) const {
-	int layernum = layers.size();
-	fprintf(f,"%i\n", layernum);
-	for(int i=0; i<layernum; i++){
-		layers[i].store(f);
-	}
-	int weightsnum = weights.size();
-	fprintf(f,"%i\n#", weightsnum);
-	for(int i=0; i<weightsnum; i++){
-		weights[i].write(f);
-		bias[i].write(f);
-	}
-	fwrite(&useBypass, sizeof(bool), 1, f);
-	if(useBypass)
-	  bypassWeights.write(f);
-	return true;
+        int layernum = layers.size();
+        fprintf(f,"%i\n", layernum);
+        for(int i=0; i<layernum; i++){
+                layers[i].store(f);
+        }
+        int weightsnum = weights.size();
+        fprintf(f,"%i\n#", weightsnum);
+        for(int i=0; i<weightsnum; i++){
+                weights[i].write(f);
+                bias[i].write(f);
+        }
+        fwrite(&useBypass, sizeof(bool), 1, f);
+        if(useBypass)
+          bypassWeights.write(f);
+        return true;
 }
 
 
 bool ControllerNet::restore(FILE* f){
-	unsigned int layernum;
-	layers.clear();
-	if(fscanf(f,"%i\n", &layernum) != 1) return false;
-	for(unsigned int i=0; i<layernum; i++){
-		Layer l(1);
-		l.restore(f);
-		layers.push_back(l);
-	}
-	y.resize(layernum);
-	z.resize(layernum);
-	for(unsigned int i = 0; i < layernum; i++) {
-	  y[i].set(layers[i].size, 1);
-	  z[i].set(layers[i].size, 1);
-	}
+        unsigned int layernum;
+        layers.clear();
+        if(fscanf(f,"%i\n", &layernum) != 1) return false;
+        for(unsigned int i=0; i<layernum; i++){
+                Layer l(1);
+                l.restore(f);
+                layers.push_back(l);
+        }
+        y.resize(layernum);
+        z.resize(layernum);
+        for(unsigned int i = 0; i < layernum; i++) {
+          y[i].set(layers[i].size, 1);
+          z[i].set(layers[i].size, 1);
+        }
 
-	unsigned int weightsnum;
-	weights.clear();
-	bias.clear();
-	if(fscanf(f,"%i\n#", &weightsnum) != 1) return false;
-	for(unsigned int i=0; i<weightsnum; i++){
-		Matrix m;
-		if(!m.restore(f)) return false;
-		weights.push_back(m);
-		if(!m.restore(f)) return false;
-		bias.push_back(m);
-	}
-	if(fread(&useBypass, sizeof(bool), 1, f)!=1) return false;
-	if(useBypass)
-	  bypassWeights.restore(f);
+        unsigned int weightsnum;
+        weights.clear();
+        bias.clear();
+        if(fscanf(f,"%i\n#", &weightsnum) != 1) return false;
+        for(unsigned int i=0; i<weightsnum; i++){
+                Matrix m;
+                if(!m.restore(f)) return false;
+                weights.push_back(m);
+                if(!m.restore(f)) return false;
+                bias.push_back(m);
+        }
+        if(fread(&useBypass, sizeof(bool), 1, f)!=1) return false;
+        if(useBypass)
+          bypassWeights.restore(f);
 
-	initialised = true;
-	return true;
+        initialised = true;
+        return true;
 }

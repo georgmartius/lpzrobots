@@ -70,9 +70,9 @@ namespace matrix{
     Matrix()
       : m(0), n(0), buffersize(0), data(0) {};
     /** constucts a matrix with the given size.
-	If _data is null then the matrix is filled with zeros.
-	otherwise matrix will be filled with _data in a row-wise manner.
-	In this case _data must be at least _m*_n elements long
+        If _data is null then the matrix is filled with zeros.
+        otherwise matrix will be filled with _data in a row-wise manner.
+        In this case _data must be at least _m*_n elements long
     */
     Matrix(I _m, I _n, const D* _data=0);
     /** constucts a matrix with the given size and fills it with the default value
@@ -98,7 +98,7 @@ namespace matrix{
       return data[i*n+j];
     };
     /** @return reference to element at position i,j
-	(can be used as left side value) */
+        (can be used as left side value) */
     inline D& val(I i, I j) {
       assert( i<m && j<n);
       return data[i*n+j];
@@ -107,13 +107,13 @@ namespace matrix{
     /** @return element at position i,j (row, column index) and 0 if out of bounds */
     inline D valDef0(I i, I j) const {
       if(i<m && j<n)
-	return data[i*n+j];
+        return data[i*n+j];
       else return 0;
     };
 
     /** sets the size of the matrix and maybe the data if given (row-wise).
         If data=null then the matrix is set to zero
-	@see toZero()
+        @see toZero()
         @see constructor Matrix(m,n,data)
     */
     void set(I _m, I _n, const D* _data=0);
@@ -124,24 +124,24 @@ namespace matrix{
     /** @return row-vector(as 1xN matrix) containing the index'th row */
     Matrix row(I index) const;
     /** @returns submatrix (as KxN matrix)
-	containing row from startindex to endindex inclusively (K=stopindex-endindex)
-	indices can be out of bounds, they are clipped in any case
+        containing row from startindex to endindex inclusively (K=stopindex-endindex)
+        indices can be out of bounds, they are clipped in any case
     */
     Matrix rows(I startindex, I endindex) const;
     /** @returns column-vector(as Mx1 matrix) containing the index'th column */
     Matrix column(I index) const;
     /** @returns submatrix (as MxK matrix)
-	containing column from startindex to endindex inclusively (K=endindex-startindex)
-	indices can be out of bounds, they are clipped in any case
+        containing column from startindex to endindex inclusively (K=endindex-startindex)
+        indices can be out of bounds, they are clipped in any case
     */
     Matrix columns(I startindex, I endindex) const;
 
 
     /** stores the content of the matrix (row-wise) in the given buffer
-	@param buffer Buffer for storing the elements (should have the length given by len)
-	@param len Length of the provided buffer.
+        @param buffer Buffer for storing the elements (should have the length given by len)
+        @param len Length of the provided buffer.
                In any case only min(len, getM()*getN()) elements are copied.
-	@return number of actually written elements
+        @return number of actually written elements
      */
     int convertToBuffer(D* buffer, I len) const;
 
@@ -189,15 +189,15 @@ namespace matrix{
     bool isVector() const;
 
     /** bytewise comparison (compares data buffer bytewise, which implies that
-	n1*m1 == n2*m2 but not necessarily n1==n2) */
+        n1*m1 == n2*m2 but not necessarily n1==n2) */
     bool equals(const Matrix& a) const;
 
     /** calculates the pseudoinverse, depending on the shape of the matrix
-	the left or right pseudoinverse is used.
-	If the matrix has more columns than rows then we use
-	\f[A^{+} = (A^T A + \lambda \mathbb I)^{-1}A^T\f]
-	otherwise
-	\f[A^{+} = A^T(A A^T + \lambda \mathbb I)^{-1}\f]
+        the left or right pseudoinverse is used.
+        If the matrix has more columns than rows then we use
+        \f[A^{+} = (A^T A + \lambda \mathbb I)^{-1}A^T\f]
+        otherwise
+        \f[A^{+} = A^T(A A^T + \lambda \mathbb I)^{-1}\f]
      */
     Matrix pseudoInverse(const D& lambda = 1e-8) const ;
 
@@ -212,11 +212,11 @@ namespace matrix{
 
 
     /**  maps the matrix to a new matrix
-	 with all elements mapped with the given function
+         with all elements mapped with the given function
     */
     Matrix map(D (*fun)(D)) const;
     /**  like map but with additional double parameter for the mapping function
-	 (first argument of fun is parameter, the second is the value)*/
+         (first argument of fun is parameter, the second is the value)*/
     Matrix mapP(D param, D (*fun)(D, D)) const;
     /**  like map but with additional arbitrary parameter for the mapping function */
     Matrix mapP(void* param, D (*fun)(void*, D)) const;
@@ -229,9 +229,9 @@ namespace matrix{
     static Matrix map2( D (*fun)(D,D), const Matrix& a, const Matrix& b);
 
     /** like map2 but with additional parameter.
-	The first argument of fun is the parameter and the second and third
-	comes from the matrix elements.
-	In haskell this would something like: map (uncurry . (fun p)) $ zip a b
+        The first argument of fun is the parameter and the second and third
+        comes from the matrix elements.
+        In haskell this would something like: map (uncurry . (fun p)) $ zip a b
      */
     static Matrix map2P( D param, D (*fun)(D, D,D), const Matrix& a, const Matrix& b);
     /** like map2P but with arbitrary paramters (void*) instead of double
@@ -241,11 +241,11 @@ namespace matrix{
 
 
     /** row-wise multiplication
-	@param factors column vector (Mx1) of factors, one for each row
+        @param factors column vector (Mx1) of factors, one for each row
     */
     Matrix multrowwise(const Matrix& factors) const;
     /** column-wise multiplication
-	@param factors column vector (Mx1) of factors, one for each column
+        @param factors column vector (Mx1) of factors, one for each column
     */
     Matrix multcolwise(const Matrix& factors) const;
 
@@ -282,10 +282,10 @@ namespace matrix{
     /** product with scalar (D) (only right side) */
     Matrix operator *  (const D& fac) const;
     /** special matrix potence:
-	@param exponent -1 -> inverse;
-	               0 -> Identity Matrix;
-	            1 -> itself;
-	            T -> Transpose
+        @param exponent -1 -> inverse;
+                       0 -> Identity Matrix;
+                    1 -> itself;
+                    T -> Transpose
     */
     Matrix operator ^ (int exponent) const;
     /// row-wise multiplication
@@ -341,11 +341,11 @@ namespace matrix{
     Matrix& toMult(const D& fac);
 
     /** special inplace matrix power:
-	@param exponent -1 -> inverse; (matrix MUST be SQUARE and NONZERO)
+        @param exponent -1 -> inverse; (matrix MUST be SQUARE and NONZERO)
                     0 -> Identity Matrix;
-	            1 -> itself;
-	            n -> n-th power;
-	            T -> Transpose
+                    1 -> itself;
+                    n -> n-th power;
+                    T -> Transpose
     */
     Matrix& toExp(int exponent);
     /**  inplace mapping of matrix elements (element-wise application) */
@@ -365,11 +365,11 @@ namespace matrix{
 
     // Exotic operations
     /** Inplace row-wise multiplication
-	@param factors column vector of factors, one for each row
+        @param factors column vector of factors, one for each row
     */
     Matrix& toMultrowwise(const Matrix& factors);
     /** Inplace column-wise multiplication
-	@param factors column vector of factors, one for each column
+        @param factors column vector of factors, one for each column
     */
     Matrix& toMultcolwise(const Matrix& factors);
 
@@ -382,9 +382,9 @@ namespace matrix{
     Matrix& toSort();
 
     /** reshapes the matrix without destroying the data.
-	Remember: The data is stored rowwise.
+        Remember: The data is stored rowwise.
 
-	Only shrinking is allowed i.e. m*n must be lower or equal to getM()*getN()
+        Only shrinking is allowed i.e. m*n must be lower or equal to getM()*getN()
     */
     Matrix& reshape(I m, I n);
 
@@ -428,7 +428,7 @@ namespace matrix{
 
 
     /** removes one or more rows of the existing matrix,
-	same as reshape(getM()-numberRows, getN());
+        same as reshape(getM()-numberRows, getN());
      * @param numberRows number of rows to remove (this reduces m)
      * @return the address of the matrix itself
      */
@@ -452,8 +452,8 @@ namespace matrix{
   private: // internals
     void allocate();  //internal allocation
     /*inplace matrix invertation:
-	Matrix must be SQARE, in addition, all DIAGONAL ELEMENTS MUST BE NONZERO
-	(positive definite)
+        Matrix must be SQARE, in addition, all DIAGONAL ELEMENTS MUST BE NONZERO
+        (positive definite)
     */
 
 #ifndef AVR

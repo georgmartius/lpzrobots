@@ -61,23 +61,23 @@
 
 /**
  * class for robot controll with sine and cosine
- * 
- * 
+ *
+ *
  */
 class DemoController : public AbstractController {
 public:
 
   DemoController();
 
-  /** initialisation of the controller with the given sensor/ motornumber 
+  /** initialisation of the controller with the given sensor/ motornumber
       Must be called before use.
   */
   virtual void init(int sensornumber, int motornumber);
 
   /// returns the name of the object (with version number)
-  //  virtual constparamkey getName() const {return name; } 
-  virtual paramkey getName() const {return name; } 
-  
+  //  virtual constparamkey getName() const {return name; }
+  virtual paramkey getName() const {return name; }
+
   /// @return Number of sensors the controller was initialised with or 0 if not initialised
   virtual int getSensorNumber() const {return number_sensors;}
 
@@ -85,21 +85,21 @@ public:
   /// @return Number of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const {return number_motors;}
 
-  /** performs one step (includes learning). 
+  /** performs one step (includes learning).
       Calculates motor commands from sensor inputs.
       @param sensor sensors inputs scaled to [-1,1]
       @param sensornumber length of the sensor array
       @param motor motors outputs. MUST have enough space for motor values!
       @param motornumber length of the provided motor array
   */
-  virtual void step(const sensor* sensors, int sensornumber, 
-		    motor* motors, int motornumber);
-  /** performs one step without learning. 
+  virtual void step(const sensor* sensors, int sensornumber,
+                    motor* motors, int motornumber);
+  /** performs one step without learning.
       @see step
   */
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
-  
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
+
   /** The list of the names of all internal parameters given by getInternalParams().
       @param: keylist (do NOT free it! It is a pointer to an internal structure)
       @return: length of the lists
@@ -109,7 +109,7 @@ public:
   /** The list of the names of all internal parameters given by getInternalParams().
    */
   virtual list<iparamval> getInternalParams() const {return list<iparamval>();}
-  
+
   virtual paramval getParam(const paramkey& key, bool traverseChildren=true) const;
   virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
   virtual paramlist getParamList() const ;

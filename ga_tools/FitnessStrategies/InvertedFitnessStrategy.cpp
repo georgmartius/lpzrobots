@@ -27,17 +27,17 @@
 #include "InvertedFitnessStrategy.h"
 
 InvertedFitnessStrategy::InvertedFitnessStrategy() {
-	// nothing
+        // nothing
 }
 
 InvertedFitnessStrategy::InvertedFitnessStrategy(IFitnessStrategy* strategy) : m_strategy(strategy) {
-	// nothing
+        // nothing
 }
 
 InvertedFitnessStrategy::~InvertedFitnessStrategy() {
-	m_strategy = 0;
+        m_strategy = 0;
 }
 
 double InvertedFitnessStrategy::getFitness(const Individual* individual) {
-	return 1.0 / m_strategy->getFitness(individual);
+        return 1.0 / m_strategy->getFitness(individual);
 }

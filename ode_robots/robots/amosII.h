@@ -31,6 +31,7 @@
 //-------------Add by Ren relativepositionsensor.h-------
 #include <ode_robots/relativepositionsensor.h>
 #include <ode_robots/amosiisensormotordefinition.h>
+#include <ode_robots/axisorientationsensor.h>
 
 /**
  * forward declarations
@@ -289,6 +290,7 @@ namespace lpzrobots {
       std::vector<Primitive*> GoalSensor_references;
       //-----------Add GoalSensor by Ren------------------------
 
+
       // Internal variable storing the currently used version
       int amos_version;
 
@@ -496,6 +498,10 @@ namespace lpzrobots {
       typedef std::vector<Primitive*> PrimitiveList;
       typedef std::vector<Joint*> JointList;
       typedef std::vector<OneAxisServo*> ServoList;
+
+      //-----------Add Orientation Sensor by Ren----------------
+      AxisOrientationSensor* OrientationSensor;
+      //-----------Add Orientation Sensor by Ren----------------
 
       AmosIIConf conf;
       bool created; // true if robot was created

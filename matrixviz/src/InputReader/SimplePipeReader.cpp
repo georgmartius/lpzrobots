@@ -143,6 +143,6 @@ std::list< double > SimplePipeReader::getDataLine()
 
 SimplePipeReader:: ~SimplePipeReader()
 {
-	std::cout << "SimplePipeReader: ByeBye()" << std::endl;
+        std::cout << "SimplePipeReader: ByeBye()" << std::endl;
 }
 

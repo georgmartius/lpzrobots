@@ -38,32 +38,32 @@
 #define STANDART_FACTOR_FOR_UNKNOWN_DATA_TYP 0.0
 
 EuclidicDistanceFitnessStrategy::EuclidicDistanceFitnessStrategy() {
-	// nothing
+        // nothing
 }
 
 EuclidicDistanceFitnessStrategy::~EuclidicDistanceFitnessStrategy() {
-	// nothing
+        // nothing
 }
 
 double EuclidicDistanceFitnessStrategy::getFitness(const Individual* individual) {
-	double sum = 0.0;					//the sum and later the result and so the fitness of the individual.
-	int num = individual->getSize();	//number of gens inside the individual
-	Gen* gen;							//the actual used gen
-	IValue* value;						//the value of the gen
-	TemplateValue<double>* tValue;		//the casted value of the gen (double gen)
+        double sum = 0.0;                                        //the sum and later the result and so the fitness of the individual.
+        int num = individual->getSize();        //number of gens inside the individual
+        Gen* gen;                                                        //the actual used gen
+        IValue* value;                                                //the value of the gen
+        TemplateValue<double>* tValue;                //the casted value of the gen (double gen)
 
-	// take all gens
-	for(int x=0; x<num; x++) {
-		gen = individual->getGen(x);	//become gen from individual
-		value = gen->getValue();		//become the value from the gen
-		tValue = dynamic_cast<TemplateValue<double>* >(value);	//cast the value to a double gen
-		if(tValue == 0) { //UNKNOWN DATA TYP	//test if it is really a double gen
-			sum += STANDART_FACTOR_FOR_UNKNOWN_DATA_TYP;
-		}
-		else {
-			sum += tValue->getValue() * tValue->getValue();		//euclid = sqrt(a²+b²+c²+...) so calculate first the sum of the ²
-		}
-	}
+        // take all gens
+        for(int x=0; x<num; x++) {
+                gen = individual->getGen(x);        //become gen from individual
+                value = gen->getValue();                //become the value from the gen
+                tValue = dynamic_cast<TemplateValue<double>* >(value);        //cast the value to a double gen
+                if(tValue == 0) { //UNKNOWN DATA TYP        //test if it is really a double gen
+                        sum += STANDART_FACTOR_FOR_UNKNOWN_DATA_TYP;
+                }
+                else {
+                        sum += tValue->getValue() * tValue->getValue();                //euclid = sqrt(a²+b²+c²+...) so calculate first the sum of the ²
+                }
+        }
 
-	return sqrt(sum);			// as next calculate the sqrt from the sum an return
+        return sqrt(sum);                        // as next calculate the sqrt from the sum an return
 }

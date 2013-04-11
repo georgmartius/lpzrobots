@@ -19,7 +19,7 @@
 #ifndef __INVERTMOTORSPACE_H
 #define __INVERTMOTORSPACE_H
 
-#include "invertmotorcontroller.h" 
+#include "invertmotorcontroller.h"
 #include <assert.h>
 #include <cmath>
 
@@ -27,10 +27,10 @@
 #include <selforg/noisegenerator.h>
 
 /**
- * class for robot controller that uses the georg's matrixlib for 
- *  direct matrix inversion for n channels 
+ * class for robot controller that uses the georg's matrixlib for
+ *  direct matrix inversion for n channels
  * (simple one layer networks)
- * 
+ *
  * Implements standart parameters: eps, rho, mu, stepnumber4avg, stepnumber4delay
  */
 class InvertMotorSpace : public InvertMotorController {
@@ -46,29 +46,29 @@ public:
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_motors; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
   /**** STOREABLE ****/
   /** stores the controller values to a given file (binary).  */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file (binary). */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   // inspectable interface
   virtual std::list<ILayer> getStructuralLayers() const;
   virtual std::list<IConnection> getStructuralConnections() const;
-  
+
 
 protected:
   unsigned short number_sensors;
   unsigned short number_motors;
-  
+
   matrix::Matrix A; // Model Matrix
   matrix::Matrix C; // Controller Matrix
   matrix::Matrix R; // C*A
@@ -81,11 +81,11 @@ protected:
 
   bool someInternalParams;
   double cInit;
-  
-  /// puts the sensors in the ringbuffer, generate controller values and put them in the 
+
+  /// puts the sensors in the ringbuffer, generate controller values and put them in the
   //  ringbuffer as well
-  void fillBuffersAndControl(const sensor* x_, int number_sensors, 
-			     motor* y_, int number_motors);
+  void fillBuffersAndControl(const sensor* x_, int number_sensors,
+                             motor* y_, int number_motors);
 
   /// learn h,C, delayed motors y and corresponding sensors x
   virtual void learnController(const matrix::Matrix& x, const matrix::Matrix& x_smooth, int delay);
@@ -95,7 +95,7 @@ protected:
 
   /// returns controller output for given sensor values
   virtual matrix::Matrix calculateControllerValues(const matrix::Matrix& x_smooth);
-    
+
 };
 
 #endif

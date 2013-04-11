@@ -1,8 +1,8 @@
 /**************************************************************************/
-/*schlangeservo.h							  */
-/*Snake with PID Servo motors (just motor per joint)     		  */
-/*@author Georg Martius 						  */
-/*								     	  */
+/*schlangeservo.h                                                          */
+/*Snake with PID Servo motors (just motor per joint)                       */
+/*@author Georg Martius                                                   */
+/*                                                                               */
 /**************************************************************************/
 /***************************************************************************
  *   Copyright (C) 2005-2011 LpzRobots development team                    *
@@ -37,8 +37,8 @@
 namespace lpzrobots {
 
   /**
-   * This is a class, which models a snake like robot. 
-   * It consists of a number of equal elements, each linked 
+   * This is a class, which models a snake like robot.
+   * It consists of a number of equal elements, each linked
    * by a joint powered by 2 servos
    **/
   class CaterPillar : public DefaultCaterPillar
@@ -49,15 +49,15 @@ namespace lpzrobots {
 
   public:
       CaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      const CaterPillarConf& conf, const std::string& name);
-    
+                      const CaterPillarConf& conf, const std::string& name);
+
       virtual ~CaterPillar();
-	
+
     /**
-     *Reads the actual motor commands from an array, 
+     *Reads the actual motor commands from an array,
      *an sets all motors of the snake to this values.
      *It is an linear allocation.
-     *@param motors pointer to the array, motor values are scaled to [-1,1] 
+     *@param motors pointer to the array, motor values are scaled to [-1,1]
      *@param motornumber length of the motor array
      **/
     virtual void setMotors ( const motor* motors, int motornumber );
@@ -69,7 +69,7 @@ namespace lpzrobots {
      *@return number of actually written sensors
      **/
     virtual int getSensors ( sensor* sensors, int sensornumber );
-	
+
     /** returns number of sensors
      */
     virtual int getSensorNumber() { assert(created); return 2*universalServos.size()+sliderServos.size(); }

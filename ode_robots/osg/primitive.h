@@ -100,8 +100,8 @@ public:
       @param mode is a conjuction of Modes.
    */
   virtual void init(const OdeHandle& odeHandle, double mass,
-		    const OsgHandle& osgHandle,
-		    char mode = Body | Geom | Draw)  = 0 ;
+                    const OsgHandle& osgHandle,
+                    char mode = Body | Geom | Draw)  = 0 ;
 
   /** Updates the OSG nodes with ODE coordinates.
       This function must be overloaded (usually calls setMatrix of OsgPrimitives)
@@ -168,8 +168,8 @@ public:
     \param I  3x3 interia tensor
   */
   void setMass(double mass, double cgx, double cgy, double cgz,
-	       double I11, double I22, double I33,
-	       double I12, double I13, double I23);
+               double I11, double I22, double I33,
+               double I12, double I13, double I23);
 
   /// returns ODE geomID if there
   dGeomID getGeom() const { return geom; }
@@ -250,8 +250,8 @@ public:
   Plane();
   virtual ~Plane();
   virtual void init(const OdeHandle& odeHandle, double mass,
-		    const OsgHandle& osgHandle,
-		    char mode = Body | Geom | Draw) ;
+                    const OsgHandle& osgHandle,
+                    char mode = Body | Geom | Draw) ;
 
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
@@ -273,8 +273,8 @@ public:
   virtual ~Box();
 
   virtual void init(const OdeHandle& odeHandle, double mass,
-		    const OsgHandle& osgHandle,
-		    char mode = Body | Geom | Draw) ;
+                    const OsgHandle& osgHandle,
+                    char mode = Body | Geom | Draw) ;
 
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
@@ -292,8 +292,8 @@ public:
   virtual ~Sphere();
 
   virtual void init(const OdeHandle& odeHandle, double mass,
-		    const OsgHandle& osgHandle,
-		    char mode = Body | Geom | Draw) ;
+                    const OsgHandle& osgHandle,
+                    char mode = Body | Geom | Draw) ;
 
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
@@ -310,8 +310,8 @@ public:
   Capsule(float radius, float height);
   virtual ~Capsule();
   virtual void init(const OdeHandle& odeHandle, double mass,
-		    const OsgHandle& osgHandle,
-		    char mode = Body | Geom | Draw) ;
+                    const OsgHandle& osgHandle,
+                    char mode = Body | Geom | Draw) ;
 
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
@@ -328,8 +328,8 @@ public:
   Cylinder(float radius, float height);
   virtual ~Cylinder();
   virtual void init(const OdeHandle& odeHandle, double mass,
-		    const OsgHandle& osgHandle,
-		    char mode = Body | Geom | Draw) ;
+                    const OsgHandle& osgHandle,
+                    char mode = Body | Geom | Draw) ;
 
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
@@ -346,6 +346,9 @@ protected:
 */
 class Ray : public Primitive {
 public:
+  /**
+     @param thickness if thickness == 0 then a line is used and not a box
+   */
   Ray(double range, float thickness, float length);
   virtual ~Ray();
   virtual void init(const OdeHandle& odeHandle, double mass,
@@ -361,7 +364,7 @@ protected:
   double range;
   float thickness;
   float length;
-  OSGBox* osgbox;
+  OSGPrimitive* osgprimitive;
 };
 
 
@@ -373,8 +376,8 @@ public:
   Mesh(const std::string& filename,float scale);
   virtual ~Mesh();
   virtual void init(const OdeHandle& odeHandle, double mass,
-		    const OsgHandle& osgHandle,
-		    char mode = Body | Geom | Draw) ;
+                    const OsgHandle& osgHandle,
+                    char mode = Body | Geom | Draw) ;
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
   virtual float getRadius();
@@ -422,8 +425,8 @@ public:
       @param mode is the mode for the child, except that Body bit is ignored (child can't have a body)
    */
   virtual void init(const OdeHandle& odeHandle, double mass,
-		    const OsgHandle& osgHandle,
-		    char mode = Body | Geom | Draw);
+                    const OsgHandle& osgHandle,
+                    char mode = Body | Geom | Draw);
 
   virtual void update();
   virtual OSGPrimitive* getOSGPrimitive();
@@ -449,7 +452,7 @@ public:
     geom=0;
   }
   virtual void init(const OdeHandle& odeHandle, double mass,
-		    const OsgHandle& osgHandle, char mode = Body | Geom | Draw) {
+                    const OsgHandle& osgHandle, char mode = Body | Geom | Draw) {
   }
   virtual void update() {}
   virtual OSGPrimitive* getOSGPrimitive() { return 0; }

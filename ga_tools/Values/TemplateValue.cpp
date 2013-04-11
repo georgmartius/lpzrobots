@@ -27,79 +27,79 @@
 #include "TemplateValue.h"
 
 /*template<class Typ> TemplateValue<Typ>::TemplateValue() : IValue() {
-	// nothing
+        // nothing
 }
 
 template<class Typ> TemplateValue<Typ>::TemplateValue(Typ value) : IValue(), m_value(value) {
 }
 
 template<class Typ> TemplateValue<Typ>::~TemplateValue() {
-	// nothing
+        // nothing
 }
 
 template<class Typ> IValue* TemplateValue<Typ>::operator*(const IValue& value)const {
-	TemplateValue<Typ>* newValue;
+        TemplateValue<Typ>* newValue;
 
-	const TemplateValue<Typ> castValue = dynamic_cast<const TemplateValue<Typ> >(value);
-	if(castValue==0)
-		return 0;
+        const TemplateValue<Typ> castValue = dynamic_cast<const TemplateValue<Typ> >(value);
+        if(castValue==0)
+                return 0;
 
-	newValue = new TemplateValue<Typ>(castValue.getValue()*m_value);
+        newValue = new TemplateValue<Typ>(castValue.getValue()*m_value);
 
-	return newValue;
+        return newValue;
 }*/
 
 /*template<class Typ> IValue* TemplateValue::operator+(const IValue& value)const {
-	TemplateValue<Typ>* newValue;
+        TemplateValue<Typ>* newValue;
 
-	const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
-	if(castValue==0)
-		return 0;
+        const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
+        if(castValue==0)
+                return 0;
 
-	newValue = new TemplateValue<Typ>(castValue.getValue()+m_value);
+        newValue = new TemplateValue<Typ>(castValue.getValue()+m_value);
 }
 
 template<class Typ> IValue* TemplateValue::operator-(const IValue& value)const {
-	TemplateValue<Typ>* newValue;
+        TemplateValue<Typ>* newValue;
 
-	const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
-	if(castValue==0)
-		return 0;
+        const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
+        if(castValue==0)
+                return 0;
 
-	newValue = new TemplateValue<Typ>(m_value-castValue.getValue());
+        newValue = new TemplateValue<Typ>(m_value-castValue.getValue());
 }
 
 template<class Typ> IValue* TemplateValue::abs(void)const {
-	TemplateValue<Typ>* newValue;
-	Typ wert1;
+        TemplateValue<Typ>* newValue;
+        Typ wert1;
 
-	wert = m_value;
-	if(wert<0)
-		wert*=-1.0;
+        wert = m_value;
+        if(wert<0)
+                wert*=-1.0;
 
-	newValue = new TemplateValue<Typ>(wert);
+        newValue = new TemplateValue<Typ>(wert);
 }
 
 template<class Typ> IValue* TemplateValue::operator/(const IValue& value)const {
-	TemplateValue<Typ>* newValue;
+        TemplateValue<Typ>* newValue;
 
-	const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
-	if(castValue==0)
-		return 0;
+        const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
+        if(castValue==0)
+                return 0;
 
-	newValue = new TemplateValue<Typ>(m_value/castValue.getValue());
+        newValue = new TemplateValue<Typ>(m_value/castValue.getValue());
 
-	return newValue;
+        return newValue;
 }
 
 template<class Typ> IValue* TemplateValue::operator/(double value)const {
-	TemplateValue<Typ>* newValue;
+        TemplateValue<Typ>* newValue;
 
-	const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
-	if(castValue==0)
-		return 0;
+        const TemplateValue<Typ>& castValue = dynamic_cast<const TemplateValue<Typ>& >(value);
+        if(castValue==0)
+                return 0;
 
-	newValue = new TemplateValue<Typ>(m_value/value);
+        newValue = new TemplateValue<Typ>(m_value/value);
 
-	return newValue;
+        return newValue;
 }*/

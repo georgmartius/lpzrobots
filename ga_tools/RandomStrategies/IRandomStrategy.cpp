@@ -27,9 +27,9 @@
 #include "IRandomStrategy.h"
 
 IRandomStrategy::IRandomStrategy() {
-	// nothing
+        // nothing
 }
 
 IRandomStrategy::~IRandomStrategy() {
-	// nothing
+        // nothing
 }

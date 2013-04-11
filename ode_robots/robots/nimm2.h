@@ -47,7 +47,7 @@ typedef struct {
   double massFactor;
   bool sphereWheels;
   double wheelSize; ///< size of the wheels in body diameters
-  double wheelSlip; 
+  double wheelSlip;
   std::string wheelTexture;
   bool bumper;
   bool cigarMode;
@@ -66,14 +66,14 @@ typedef struct {
     2 wheels and a cylinder like body
 
     wheel order: left, right
-    IR order: front left, front right, right, right rear, 
+    IR order: front left, front right, right, right rear,
               rear right, rear left, left rear, left
 */
 class Nimm2 : public OdeRobot /*, public Inspectable*/ {
 public:
 
   Nimm2(const OdeHandle& odehandle, const OsgHandle& osgHandle,
-	const Nimm2Conf& conf, const std::string& name);
+        const Nimm2Conf& conf, const std::string& name);
 
   static Nimm2Conf getDefaultConf(){
     Nimm2Conf conf;
@@ -149,9 +149,9 @@ public:
    */
   virtual void doInternalStuff(GlobalData& globalData);
 
-	virtual double& getSumForce() { return sumForce; }
+        virtual double& getSumForce() { return sumForce; }
 
-	virtual double& getContactPoints() { return contactPoints; }
+        virtual double& getContactPoints() { return contactPoints; }
 
 protected:
 
@@ -170,18 +170,18 @@ protected:
   virtual void destroy();
   static void mycallback(void *data, dGeomID o1, dGeomID o2);
 
-	/**
-	 * Inspectable interface
-	 */
-	/*
-	virtual std::list<iparamkey> getInternalParamNames() const  { return std::list<iparamkey>(); }
+        /**
+         * Inspectable interface
+         */
+        /*
+        virtual std::list<iparamkey> getInternalParamNames() const  { return std::list<iparamkey>(); }
 
-	virtual std::list<iparamval> getInternalParams() const { return std::list<iparamval>(); }*/
-	/*
-	virtual std::list<Inspectable::iparamkey> getInternalParamNames() const;
+        virtual std::list<iparamval> getInternalParams() const { return std::list<iparamval>(); }*/
+        /*
+        virtual std::list<Inspectable::iparamkey> getInternalParamNames() const;
 
-	virtual std::list<Inspectable::iparamval> getInternalParams() const;
-	*/
+        virtual std::list<Inspectable::iparamval> getInternalParams() const;
+        */
 
   Nimm2Conf conf;
 
@@ -204,8 +204,8 @@ protected:
 
   RaySensorBank irSensorBank; // a collection of ir sensors
 
-	bool visForce; // decides if contact force is made visible in guilogger
-	double sumForce; // stores the contact force made by collisions with external objects
+        bool visForce; // decides if contact force is made visible in guilogger
+        double sumForce; // stores the contact force made by collisions with external objects
 
 };
 

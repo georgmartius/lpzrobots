@@ -55,7 +55,7 @@
  *
  *   Revision 1.7  2005/11/09 13:28:24  fhesse
  *   GPL added
- *                                                                * 
+ *                                                                *
  ***************************************************************************/
 #include <stdio.h>
 
@@ -92,17 +92,17 @@ public:
     Arm2SegmConf arm_conf=Arm2Segm::getDefaultConf();
     Arm2Segm* vehicle = new Arm2Segm(odeHandle, osgHandle, arm_conf, "arm");
     ((OdeRobot* )vehicle)->place(Position(0,0,0));
-    //AbstractController *controller = new InvertNChannelController(10);  
-    AbstractController *controller = new SineController();  
+    //AbstractController *controller = new InvertNChannelController(10);
+    AbstractController *controller = new SineController();
     global.configs.push_back(vehicle);
-  
+
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
 
     global.configs.push_back(controller);
-    
+
   }
 
   // add own key handling stuff here, just insert some case values
@@ -110,19 +110,19 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
-	  return false;
-	  break;
-	}
+        {
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
-  
+
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;

@@ -46,122 +46,119 @@
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;
 
+bool track=false; // whether to track the robot (set by cmdline parameter)
 
 class ThisSim : public Simulation {
 public:
   AbstractController* controller;
-  Sphererobot3Masses* sphere1;
+  OdeRobot* robot;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(5.2728, 7.2112, 3.31768), Pos(140.539, -13.1456, 0));
     // initialization
-    // - set global noise to 0.1
-    global.odeConfig.setParam("noise",0.1);
+    // - set global noise sensor to 0.05
+    global.odeConfig.setParam("noise",0.05);
     //  global.odeConfig.setParam("gravity", 0); // no gravity
 
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
     // - setting initial position of the playground: setPosition(osg::Vec3(double x, double y, double z))
     // - push playground to the global list of obstacles (global list comes from simulation.cpp)
     OctaPlayground* playground = new OctaPlayground(odeHandle, osgHandle, osg::Vec3(10, 0.2, 1), 12);
-    playground->setPosition(osg::Vec3(0,0,0)); // playground positionieren und generieren
+    playground->setPosition(osg::Vec3(0,0,0)); // place and create playground
     global.obstacles.push_back(playground);
 
     // add passive spheres as obstacles
-    // - create pointer to sphere (with odehandle, osghandle and 
+    // - create pointer to sphere (with odehandle, osghandle and
     //   optional parameters radius and mass,where the latter is not used here) )
-    // - set Pose(Position) of sphere 
+    // - set Pose(Position) of sphere
     // - add sphere to list of obstacles
     for(int i=0; i<8; i++){
       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
-      s->setPosition(osg::Vec3(5,0,i*3)); 
-      global.obstacles.push_back(s);    
+      s->setPosition(osg::Vec3(5,0,i*3));
+      global.obstacles.push_back(s);
     }
 
-    
+
     // Spherical Robot with axis (gyro) sensors:
     // - get default configuration for robot
     // - create pointer to spherical robot (with odeHandle, osgHandle and configuration)
     // - place robot (unfortunatelly there is a type cast necessary, which is not quite understandable)
-    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
+    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
     conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
     conf.diameter=1.0;
     conf.pendularrange= 0.35;
-    sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)), 
-				       conf, "Sphere1", 0.2);     
-    ((OdeRobot*)sphere1)->place ( Pos( 0 , 0 , 0.1 ));
+    robot = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)),
+                                       conf, "Spherical", 0.2);
+    (robot)->place ( Pos( 0 , 0 , 0.1 ));
 
-    // Selforg - Controller
+    // Selforg - Controller (Note there are several: use Sos or Sox now)
     // create pointer to controller
     // set some parameters
     // push controller in global list of configurables
-    controller = new InvertMotorSpace(10);  
+    controller = new InvertMotorSpace(10);
     controller->setParam("epsA",0.05); // model learning rate
     controller->setParam("epsC",0.2); // controller learning rate
     controller->setParam("rootE",3);    // model and contoller learn with square rooted error
     global.configs.push_back ( controller );
 
-    //  SineController (produces just sine waves)
-    // controller = new SineController();  
-    // controller->setParam("sinerate", 40);  
+    // SineController (produces just sine waves)
+    // controller = new SineController();
+    // controller->setParam("sinerate", 40);
     // controller->setParam("phaseshift", 0.0);
-    
-    // create pointer to one2onewiring which uses colored-noise 
+
+    // create pointer to one2onewiring which uses colored-noise
     One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
 
-    // create pointer to agent 
+    // create pointer to agent
     // initialize pointer with controller, robot and wiring
-    // push agent in globel list of agents    
+    // push agent in globel list of agents
     OdeAgent* agent = new OdeAgent ( global );
-    agent->init ( controller , sphere1 , wiring );
-    // the following line will enable a position tracking of the robot, which is written into a file
-    // agent->setTrackOptions(TrackRobot(true, false, false, "Sphere_zaxis", 50)); 
+    agent->init ( controller , robot , wiring );
+    if(track){
+      // the following line will enables a position tracking of the robot, which is written into a file
+      // you can customize what is logged with the TrackRobotConf
+      TrackRobotConf tc = TrackRobot::getDefaultConf();
+      tc.scene = "zaxis";
+      tc.displayTrace = true;
+      agent->setTrackOptions(TrackRobot(tc));
+    }
     global.agents.push_back ( agent );
   }
 
-  /** is called if a key was pressed. 
+  /** is called if a key was pressed.
       For keycodes see: osgGA::GUIEventAdapter
       @return true if the key was handled
   */
-  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, 
-		       int key, bool down) { 
+  virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData,
+                       int key, bool down) {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key ) {
-      case 'X' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , 30 ,0 , 0 ); break;
-      case 'x' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
-      case 'T' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 0 , 3 ); break;
-      case 't' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 0 , -3 ); break;
-//       case 'S' : controller->setParam("sineRate", controller->getParam("sineRate")*1.2); 
-// 	printf("sineRate : %g\n", controller->getParam("sineRate"));
-//       break;
-//       case 's' : controller->setParam("sineRate", controller->getParam("sineRate")/1.2); 
-// 	printf("sineRate : %g\n", controller->getParam("sineRate"));
-// 	break;      
+      case 'T' : robot->getMainPrimitive()->applyTorque(0 , 0 , 3 ); break;
+      case 't' : robot->getMainPrimitive()->applyTorque(0 , 0 , -3 ); break;
       default:
-	return false;	
+        return false;
       }
       return true;
     } else return false;
-  }  
-
-  virtual void bindingDescription(osg::ApplicationUsage & au) const {
-    au.addKeyboardMouseBinding("Simulation: X","Push robot to right (positive x)");
-    au.addKeyboardMouseBinding("Simulation: x","Push robot to left (negative x)");
-    au.addKeyboardMouseBinding("Simulation: T","Spin robot counter-clockwise");
-    au.addKeyboardMouseBinding("Simulation: t","Spin robot clockwise");
-    //    au.addKeyboardMouseBinding("Controller: S","Increase sine frequency");
-    //    au.addKeyboardMouseBinding("Controller: s","Decrease sine frequency");
   }
 
+  virtual void bindingDescription(osg::ApplicationUsage & au) const {
+    au.addKeyboardMouseBinding("Simulation: T","Spin robot counter-clockwise");
+    au.addKeyboardMouseBinding("Simulation: t","Spin robot clockwise");
+  }
+
+  virtual void usage() const {
+    printf("\t-track\tenable tracking of the position of the robot\n");
+  }
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
+  track = sim.contains(argv, argc, "-track"); // check whether cmd-line contains -track
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
- 

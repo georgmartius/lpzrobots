@@ -26,88 +26,88 @@
 #include <string>
 
 InspectableProxy::InspectableProxy(const iparamkey& name) : Inspectable(name) {
-	// nothing
+        // nothing
 }
 
 InspectableProxy::InspectableProxy(const std::list<Inspectable*>& list, const iparamkey& name) : Inspectable(name) {
-	//add all parameters of the inspectable in the own list.
-	for(std::list<Inspectable*>::const_iterator iter = list.begin(); iter!=list.end(); iter++) {
-		//m_list.push_back(*iter);
-		std::list<std::string> names = (*iter)->getInternalParamNames();
-		std::list<double const*> values = (*iter)->getInternalParamsPtr();
-		std::list<std::string>::iterator namesIter = names.begin();
-		std::list<double const*>::iterator valuesIter = values.begin();
-		unsigned int num = names.size();
+        //add all parameters of the inspectable in the own list.
+        for(std::list<Inspectable*>::const_iterator iter = list.begin(); iter!=list.end(); iter++) {
+                //m_list.push_back(*iter);
+                std::list<std::string> names = (*iter)->getInternalParamNames();
+                std::list<double const*> values = (*iter)->getInternalParamsPtr();
+                std::list<std::string>::iterator namesIter = names.begin();
+                std::list<double const*>::iterator valuesIter = values.begin();
+                unsigned int num = names.size();
 
-		for(unsigned int i = 0; i < num; i++) {
-			addInspectableValue(*namesIter,*valuesIter);
-			namesIter++;
-			valuesIter++;
-		}
-	}
+                for(unsigned int i = 0; i < num; i++) {
+                        addInspectableValue(*namesIter,*valuesIter);
+                        namesIter++;
+                        valuesIter++;
+                }
+        }
 }
 
 InspectableProxy::~InspectableProxy() {
-	// nothing
-	//clear all
-	/*while(mapOfValues.size()>0){
-		std::list<std::pair<std::string,double*> >::iterator i = mapOfValues.begin();
-		free(const_cast<std::string>(i->first));
-		i->second = 0;
-		mapOfValues.erase(i);
-	}*/
-	/*m_list.clear();
-	mapOfValues.clear();
-	mapOfMatrices.clear();*/
+        // nothing
+        //clear all
+        /*while(mapOfValues.size()>0){
+                std::list<std::pair<std::string,double*> >::iterator i = mapOfValues.begin();
+                free(const_cast<std::string>(i->first));
+                i->second = 0;
+                mapOfValues.erase(i);
+        }*/
+        /*m_list.clear();
+        mapOfValues.clear();
+        mapOfMatrices.clear();*/
 }
 
 bool InspectableProxy::replaceList(const std::list<Inspectable*>& list) {
-	//needs the same parameter count
-	//if(m_list.size() != list.size())
-		//return false;
+        //needs the same parameter count
+        //if(m_list.size() != list.size())
+                //return false;
 
-	//clear all
-	/*while(mapOfValues.size()>0){
-		std::list<std::pair<std::string,double*> >::iterator i = mapOfValues.begin();
-		free(const_cast<std::string>(i->first));
-		i->second = 0;
-		mapOfValues.erase(i);
-	}*/
-	/*m_list.clear();
-	mapOfValues.clear();
-	mapOfMatrices.clear();
+        //clear all
+        /*while(mapOfValues.size()>0){
+                std::list<std::pair<std::string,double*> >::iterator i = mapOfValues.begin();
+                free(const_cast<std::string>(i->first));
+                i->second = 0;
+                mapOfValues.erase(i);
+        }*/
+        /*m_list.clear();
+        mapOfValues.clear();
+        mapOfMatrices.clear();
 
-	//add the new parameters
-	for(std::list<Inspectable*>::const_iterator iter = list.begin(); iter!=list.end(); iter++) {
-		m_list.push_back(*iter);
-		std::list<std::string> names = (*iter)->getInternalParamNames();
-		std::list<double*> values = (*iter)->getInternalParamsPtr();
-		std::list<std::string>::iterator namesIter = names.begin();
-		std::list<double*>::iterator valuesIter = values.begin();
-		unsigned int num = names.size();
+        //add the new parameters
+        for(std::list<Inspectable*>::const_iterator iter = list.begin(); iter!=list.end(); iter++) {
+                m_list.push_back(*iter);
+                std::list<std::string> names = (*iter)->getInternalParamNames();
+                std::list<double*> values = (*iter)->getInternalParamsPtr();
+                std::list<std::string>::iterator namesIter = names.begin();
+                std::list<double*>::iterator valuesIter = values.begin();
+                unsigned int num = names.size();
 
-		for(unsigned int i = 0; i < num; i++) {
-			addInspectableValue(*namesIter,*valuesIter);
-			namesIter++;
-			valuesIter++;
-		}
-	}*/
+                for(unsigned int i = 0; i < num; i++) {
+                        addInspectableValue(*namesIter,*valuesIter);
+                        namesIter++;
+                        valuesIter++;
+                }
+        }*/
 
-	FOREACHC(std::list<Inspectable*>,list,i) {
-		std::list<std::string> names = (*i)->getInternalParamNames();
-		std::list<double const *> values = (*i)->getInternalParamsPtr();
-		std::list<double const*>::iterator l = values.begin();
+        FOREACHC(std::list<Inspectable*>,list,i) {
+                std::list<std::string> names = (*i)->getInternalParamNames();
+                std::list<double const *> values = (*i)->getInternalParamsPtr();
+                std::list<double const*>::iterator l = values.begin();
 
-		FOREACH(std::list<std::string>,names,j) {
-			FOREACH(Inspectable::iparampairlist,mapOfValues,k) {
-				if(!k->first.compare(*j)){
-					k->second = *l;
-					break;
-				}
-			}
-			l++;
-		}
-	}
+                FOREACH(std::list<std::string>,names,j) {
+                        FOREACH(Inspectable::iparampairlist,mapOfValues,k) {
+                                if(!k->first.compare(*j)){
+                                        k->second = *l;
+                                        break;
+                                }
+                        }
+                        l++;
+                }
+        }
 
-	return true;
+        return true;
 }

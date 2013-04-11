@@ -34,16 +34,16 @@ namespace lpzrobots {
   class Ray;
 
 
-  /** Class for IR sensors. 
-      IR sensors are based on distance measurements using the ODE geom class Ray. 
+  /** Class for IR sensors.
+      IR sensors are based on distance measurements using the ODE geom class Ray.
       The sensor value is obtained by collisions, which are handled by the simulation
-      environement. The information of a collision comes to the sensor via the 
+      environement. The information of a collision comes to the sensor via the
       collision callback of the substance used for the ray (actually for the transform).
-      However of no collision is detected the sensor needs to ajust its output as well. 
+      However of no collision is detected the sensor needs to ajust its output as well.
       Therefore a reset function is provided.
   */
   class IRSensor : public RaySensor {
-  public:  
+  public:
     /**
        @param exponent exponent of the sensor characteritic (default: 1 (linear))
     */
@@ -52,21 +52,21 @@ namespace lpzrobots {
     virtual ~IRSensor();
 
     virtual void init(const OdeHandle& odeHandle,
-		      const OsgHandle& osgHandle, 
-		      Primitive* body, 
-		      const osg::Matrix pose, float range,
-		      rayDrawMode drawMode = drawSensor);
+                      const OsgHandle& osgHandle,
+                      Primitive* body,
+                      const osg::Matrix pose, float range,
+                      rayDrawMode drawMode = drawSensor);
 
-    virtual void reset();  
- 
+    virtual void reset();
+
     /** returns the sensor value in the range [0,1];
-	0 means nothing no object in the sensor distance range
-	1 means contact with another object
-	@see characteritic()
+        0 means nothing no object in the sensor distance range
+        1 means contact with another object
+        @see characteritic()
      */
     virtual double get();
     virtual void update();
-  
+
     virtual void setRange(float range);
 
     virtual void setLength(float len);
@@ -74,15 +74,15 @@ namespace lpzrobots {
     virtual RaySensor* clone() const;
 
     /// returns the exponent of the sensor characteritic (default: 1 (linear))
-    double getExponent () const { return exponent;} 
+    double getExponent () const { return exponent;}
 
     /// sets the exponent of the sensor characteritic (default: 1 (linear))
     void   setExponent (float exp) { exponent = exp;}
 
   protected:
-    /** describes the sensor characteritic 
-	An exponential curve is used.
-	@see setExponent()
+    /** describes the sensor characteritic
+        An exponential curve is used.
+        @see setExponent()
     */
     virtual float characteritic(float len);
 
@@ -91,7 +91,7 @@ namespace lpzrobots {
     float len;   // last measured length
     float value; // actual sensor value
     float lastvalue; // last value
-    float exponent; // exponent of the sensor characteritic 
+    float exponent; // exponent of the sensor characteritic
 
     double size; // size of graphical sensor
 

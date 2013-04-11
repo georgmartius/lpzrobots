@@ -57,7 +57,7 @@ namespace lpzrobots {
   // constructor:
   // - give handle for ODE and OSG stuff
   Hexapod::Hexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		   const HexapodConf& c, const std::string& name)
+                   const HexapodConf& c, const std::string& name)
     : OdeRobot(odeHandle, osgHandle, name, "HexaPod 0.9"), Inspectable(name), conf(c)
   {
     // robot is not created till now
@@ -426,93 +426,93 @@ namespace lpzrobots {
     if(conf.irSensors == true){
       for(int i = -1; i < 2; i+=2){
 
-	irbox = new Box(0.1,0.1,0.1);
-	irbox->setTexture(trunkTex);
-	irbox->init(odeHandle, 0.00001, osgHandle);
-	irbox->setPose(ROTM(M_PI/4,0,0,1) * TRANSM(i*conf.size/2,0,theight/2)*trunkPos);
-	objects.push_back(irbox);
-	fixedJoint = new FixedJoint(trunk,irbox);
-	fixedJoint->init(odeHandle, osgHandleJ, true, 0.04);
-	joints.push_back(fixedJoint);
+        irbox = new Box(0.1,0.1,0.1);
+        irbox->setTexture(trunkTex);
+        irbox->init(odeHandle, 0.00001, osgHandle);
+        irbox->setPose(ROTM(M_PI/4,0,0,1) * TRANSM(i*conf.size/2,0,theight/2)*trunkPos);
+        objects.push_back(irbox);
+        fixedJoint = new FixedJoint(trunk,irbox);
+        fixedJoint->init(odeHandle, osgHandleJ, true, 0.04);
+        joints.push_back(fixedJoint);
 
       }
 
       for(int i = -1; i < 2; i+=2){
 
-	irbox = new Box(0.1,0.1,0.15);
-	irbox->setTexture(trunkTex);
-	irbox->init(odeHandle, 0.00001, osgHandle);
-	irbox->setPose(TRANSM(0,i*twidth/2,theight/2 + 0.05)*trunkPos);
-	objects.push_back(irbox);
-	fixedJoint = new FixedJoint(trunk,irbox);
-	fixedJoint->init(odeHandle, osgHandleJ, true, 0.04);
-	joints.push_back(fixedJoint);
+        irbox = new Box(0.1,0.1,0.15);
+        irbox->setTexture(trunkTex);
+        irbox->init(odeHandle, 0.00001, osgHandle);
+        irbox->setPose(TRANSM(0,i*twidth/2,theight/2 + 0.05)*trunkPos);
+        objects.push_back(irbox);
+        fixedJoint = new FixedJoint(trunk,irbox);
+        fixedJoint->init(odeHandle, osgHandleJ, true, 0.04);
+        joints.push_back(fixedJoint);
       }
 
 
       irSensorBank.init(odeHandle, osgHandle);
 
       if (conf.irFront){ // add front left and front right infrared sensor to sensorbank if required
-     	IRSensor* sensor = new IRSensor();
-     	irSensorBank.registerSensor(sensor, objects[2],
-     				    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
-     				    Matrix::translate(1*0.05,0,0),
-     				    conf.irRangeFront, RaySensor::drawAll);
-       	IRSensor* sensor2 = new IRSensor();
-       	irSensorBank.registerSensor(sensor2, objects[2],
-				    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
-				    Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
-				    Matrix::translate(0,-0.05,0),
-				    conf.irRangeFront, RaySensor::drawAll);
+             IRSensor* sensor = new IRSensor();
+             irSensorBank.registerSensor(sensor, objects[2],
+                                         Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
+                                         Matrix::translate(1*0.05,0,0),
+                                         conf.irRangeFront, RaySensor::drawAll);
+               IRSensor* sensor2 = new IRSensor();
+               irSensorBank.registerSensor(sensor2, objects[2],
+                                    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
+                                    Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
+                                    Matrix::translate(0,-0.05,0),
+                                    conf.irRangeFront, RaySensor::drawAll);
 
       }
       if (conf.irBack){ // add front left and front right infrared sensor to sensorbank if required
 
-      	IRSensor* sensor = new IRSensor();
-       	irSensorBank.registerSensor(sensor, objects[1],
-       				    Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
-       				    Matrix::translate(-1*0.05,0,0),
-       				    conf.irRangeBack, RaySensor::drawAll);
+              IRSensor* sensor = new IRSensor();
+               irSensorBank.registerSensor(sensor, objects[1],
+                                           Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
+                                           Matrix::translate(-1*0.05,0,0),
+                                           conf.irRangeBack, RaySensor::drawAll);
 
-	IRSensor* sensor2 = new IRSensor();
-	irSensorBank.registerSensor(sensor2, objects[1],
-				    Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
-				    Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
-				    Matrix::translate(0,0.05,0),
-				    conf.irRangeBack, RaySensor::drawAll);
+        IRSensor* sensor2 = new IRSensor();
+        irSensorBank.registerSensor(sensor2, objects[1],
+                                    Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
+                                    Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
+                                    Matrix::translate(0,0.05,0),
+                                    conf.irRangeBack, RaySensor::drawAll);
       }
       if(conf.irLeft){
-	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, objects[3],
-				    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
-				    Matrix::rotate(-M_PI/2, Vec3(0,0,1)) *
-				    Matrix::translate(0,-0.05,0.05),
-				    conf.irRangeLeft, RaySensor::drawAll);
+        IRSensor* sensor = new IRSensor();
+        irSensorBank.registerSensor(sensor, objects[3],
+                                    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
+                                    Matrix::rotate(-M_PI/2, Vec3(0,0,1)) *
+                                    Matrix::translate(0,-0.05,0.05),
+                                    conf.irRangeLeft, RaySensor::drawAll);
 
-    	/* IRSensor* sensor2 = new IRSensor();
-	   irSensorBank.registerSensor(sensor2, objects[3],
-	   Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
-	   Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
-	   Matrix::translate(0,-0.05,0),
-	   conf.irRangeLeft, RaySensor::drawAll);
+            /* IRSensor* sensor2 = new IRSensor();
+           irSensorBank.registerSensor(sensor2, objects[3],
+           Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
+           Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
+           Matrix::translate(0,-0.05,0),
+           conf.irRangeLeft, RaySensor::drawAll);
         */
       }
 
       if(conf.irRight){
-	IRSensor* sensor = new IRSensor();
-	irSensorBank.registerSensor(sensor, objects[4],
-				    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
-				    Matrix::rotate(M_PI/2, Vec3(0,0,1)) *
-				    Matrix::translate(0,0.05,0.05),
-				    conf.irRangeLeft, RaySensor::drawAll);
+        IRSensor* sensor = new IRSensor();
+        irSensorBank.registerSensor(sensor, objects[4],
+                                    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
+                                    Matrix::rotate(M_PI/2, Vec3(0,0,1)) *
+                                    Matrix::translate(0,0.05,0.05),
+                                    conf.irRangeLeft, RaySensor::drawAll);
 
 
-	/* IRSensor* sensor2 = new IRSensor();
-	   irSensorBank.registerSensor(sensor2, objects[4],
-	   Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
-	   Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
-	   Matrix::translate(0,0.05,0),
-	   conf.irRangeRight, RaySensor::drawAll);
+        /* IRSensor* sensor2 = new IRSensor();
+           irSensorBank.registerSensor(sensor2, objects[4],
+           Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
+           Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
+           Matrix::translate(0,0.05,0),
+           conf.irRangeRight, RaySensor::drawAll);
         */
       }
     }
@@ -670,20 +670,20 @@ namespace lpzrobots {
           osg::Matrix m5;
 
           if(n < 2){
-            m5 =  	        TRANSM(0,0,-lengthS/2) *
+            m5 =                  TRANSM(0,0,-lengthS/2) *
               ROTM(n%2==0 ? angle : -angle,0,n%2==0 ? -1 : 1,0) *
               ROTM(n%2==0 ? angle : -angle,1,0,0) *
               TRANSM(0,0,-length/2) *
               m4;
           }else if(n > 3){
-            m5 =  		     TRANSM(0,0,-lengthS/2) *
+            m5 =                       TRANSM(0,0,-lengthS/2) *
               ROTM(n%2==0 ? -angle : angle,0,n%2==0 ? -1 : 1,0) *
               ROTM(n%2==0 ? angle : -angle,1,0,0) *
               TRANSM(0,0,-length/2) *
               m4;
 
           }else{
-            m5 = 			    TRANSM(0,0,-lengthS/2) *
+            m5 =                             TRANSM(0,0,-lengthS/2) *
               ROTM(n%2==0 ? angle : -angle,1,0,0) *
               TRANSM(0,0,-length/2) *
               m4;

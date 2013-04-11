@@ -33,8 +33,8 @@ enum Mode {NORMAL, SWING, EXTRASINE};
 
 
 /** This robot emulates different systems based on the mode
-    parameter. 
-    This is usually some kind of short-circuit with inertia, 
+    parameter.
+    This is usually some kind of short-circuit with inertia,
      additional inputs/outputs ...
     */
 class MyRobot : public AbstractRobot {
@@ -70,7 +70,7 @@ public:
 
     x[0]=1;
     //0: no interia, 1: only inertia, no control, a good value is 0.9
-    addParameterDef("inertia",      &inertia,      0.0); 
+    addParameterDef("inertia",      &inertia,      0.0);
     // if not 0 then the last sensor is set to 0 (only noise remains)
     //  this usually kills the controller after some time, because
     //  the C value for the input goes to infinity and eventually
@@ -81,11 +81,11 @@ public:
     // 1: normal delay, >1 additional delay in the loop, use s4del of
     // controllers in this situaltion
     addParameterDef("delay",        &delay,        1.0);
-    
+
     // parameter that defines the speed of the simulation
-    addParameter("realtimefactor",&realtimefactor); // actually a global parameter 
+    addParameter("realtimefactor",&realtimefactor); // actually a global parameter
     // noise level
-    addParameter("noise", &noise);               // actually a global parameter 
+    addParameter("noise", &noise);               // actually a global parameter
   }
 
   ~MyRobot(){
@@ -93,7 +93,7 @@ public:
     if(y) delete[] y;
     if(x_buffer) {
       for (unsigned int k = 0; k < buffersize; k++)
-	if(x_buffer[k]) delete [] x_buffer[k];
+        if(x_buffer[k]) delete [] x_buffer[k];
       delete[] x_buffer;
     }
   }
@@ -101,7 +101,7 @@ public:
   // robot interface
 
   /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
+      @param sensors sensors scaled to [-1,1]
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
@@ -114,7 +114,7 @@ public:
   }
 
   /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
+      @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
   virtual void setMotors(const motor* motors, int motornumber){
@@ -122,16 +122,16 @@ public:
     memcpy(y, motors, sizeof(motor) * this->motornumber);
     switch(mode){
     case SWING: swing(); break;
-    case NORMAL: 
+    case NORMAL:
     default: normal(); break;
     }
     if(mode == EXTRASINE){
       extraSineInput();
     }
     // copy the sensor values into the buffer
-    memcpy(x_buffer[t%buffersize],x,sizeof(sensor)*sensornumber); 
-    t++;    
-  } 
+    memcpy(x_buffer[t%buffersize],x,sizeof(sensor)*sensornumber);
+    t++;
+  }
 
   /** returns number of sensors */
   virtual int getSensorNumber(){ return sensornumber; }
@@ -145,23 +145,23 @@ public:
   virtual matrix::Matrix getOrientation() const {
     matrix::Matrix m(3,3);
     m.toId();
-    return m; 
+    return m;
   };
 
   // different Systems:
-  
+
   // additional input, that is a sine wave (tau is
   // period)
   void extraSineInput(){
-    x[sensornumber-1]=sin(t/tau);    
+    x[sensornumber-1]=sin(t/tau);
   }
 
   // system with damping, correlation of subsequent channels (cyclic),
   // and delay (the delay is actually done by getSensors()
   void normal(){
     for(int i=0; i<motornumber; i++){
-      x[i] = x[i]*inertia + y[i]*(1-inertia) + correlation*x[(i+1)%motornumber]; 
-    }    
+      x[i] = x[i]*inertia + y[i]*(1-inertia) + correlation*x[(i+1)%motornumber];
+    }
     if(disablesensor!=0.0)
       x[motornumber-1]= 0;
   }
@@ -170,13 +170,13 @@ public:
   // system that is swingable, and possible correlation of subsequent channels (cyclic),
   // and delay (the delay is actually done by getSensors()
   void swing(){
-    //    double* x_tm1 = x_buffer[(t-1+buffersize)%buffersize];    
+    //    double* x_tm1 = x_buffer[(t-1+buffersize)%buffersize];
     for(int i=0; i<motornumber; i++){
       // x_{t+1} = f(x) + x_t - x_{t-1} +  correlation
       // x_{t+1} = f(x) - (1-1/m)* x_t - x_{t-1}
       cout <<      x[i] << endl;
       //      x[i] = tanh(x[i] - (1-1/(inertia+0.5))*x[i] - x_tm1[i]);
-    }    
+    }
     if(disablesensor!=0.0)
       x[motornumber-1]= 0;
   }
@@ -201,7 +201,7 @@ private:
   paramval delay;
   int t;
 
-}; 
+};
 
 
 void printRobot(MyRobot* robot){
@@ -215,10 +215,10 @@ void printRobot(MyRobot* robot){
     x=clip(x,-1.0,1.0);
     line[int((x+1.0)/2.0*80.0)%80]='0'+ i;
   }
-  
+
   printf("\033[1G%s",line);
   fflush(stdout);
-  
+
 }
 
 // Helper
@@ -251,7 +251,7 @@ int main(int argc, char** argv){
   }
   index = contains(argv,argc,"-d");
   if(index >0 && argc>index)
-    dim=atoi(argv[index]); 
+    dim=atoi(argv[index]);
   if(contains(argv,argc,"-h")!=0) {
     printf("Usage: %s [-g N] [-f] [-n] [-m MODE] [d DIM]\n",argv[0]);
     printf("\t-g N\tstart guilogger with interval N\n\t-f\twrite logfile\n");
@@ -267,7 +267,7 @@ int main(int argc, char** argv){
   Agent* agent;
   initializeConsole();
 
-// Different controllers    
+// Different controllers
 //   SeMoXConf cc = SeMoX::getDefaultConf();
 //   cc.modelExt=false;
 //   //cc.useS=true;
@@ -287,8 +287,8 @@ int main(int argc, char** argv){
 //   layers.push_back(Layer(5,0.5,FeedForwardNN::tanh)); // hidden layer
 //   layers.push_back(Layer(0,1,FeedForwardNN::tanhr)); // motor layer
 //   // size of output layer is automatically set
-//   layers.push_back(Layer(1,0,FeedForwardNN::linear)); 
-  
+//   layers.push_back(Layer(1,0,FeedForwardNN::linear));
+
 //   Elman* e = new Elman(1,layers,false, false, false);
 //   cc.net = e;
 //   cc.init = 1;
@@ -303,28 +303,28 @@ int main(int argc, char** argv){
 
   //AbstractController* controller = new SineController();
   //AbstractController* controller = new Homeokinesis();
-  
+
   //AbstractController* controller = new MotorBabbler();
   AbstractController* controller = new TcpController("Test", 4000);
 
 
   controller->setParam("epsC",     0.1);
-  
+
   robot         = new MyRobot(string("Robot_") + string(modestr), mode, dim);
   agent         = new Agent(plotoptions);
-  AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.2), 
-					     AbstractWiring::Controller | AbstractWiring::Noise);  
-  // AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise(),true);  
+  AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.2),
+                                             AbstractWiring::Controller | AbstractWiring::Noise);
+  // AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise(),true);
   agent->init(controller, robot, wiring);
-  // if you like, you can keep track of the robot with the following line. 
-  //  this assumes that you robot returns its position, speed and orientation. 
+  // if you like, you can keep track of the robot with the following line.
+  //  this assumes that you robot returns its position, speed and orientation.
   // agent->setTrackOptions(TrackRobot(true,false,false, false,"systemtest"));
-  
+
   globaldata.agents.push_back(agent);
   globaldata.configs.push_back(robot);
   globaldata.configs.push_back(controller);
- 
-  
+
+
   showParams(globaldata.configs);
   printf("\nPress Ctrl-c to invoke parameter input shell (and again Ctrl-c to quit)\n");
   printf("The output of the program is more fun then useful ;-).\n");
@@ -337,7 +337,7 @@ int main(int argc, char** argv){
 
     agent->step(noise,t);
 
-    if(control_c_pressed()){      
+    if(control_c_pressed()){
       if(!handleConsole(globaldata)){
         stop=1;
       }
@@ -350,7 +350,7 @@ int main(int argc, char** argv){
     if(t%drawinterval==0){
       printRobot(robot);
       usleep(60000);
-    }    
+    }
     t++;
   };
   delete agent;

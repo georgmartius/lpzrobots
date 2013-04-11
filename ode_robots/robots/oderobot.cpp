@@ -35,10 +35,11 @@ namespace lpzrobots {
    * Constructor
    * @param odehandle structure with all global ODE variables
    */
-  OdeRobot::OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-		     const std::string& name,const std::string& revision)
+  OdeRobot::OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                     const std::string& name,const std::string& revision)
     : AbstractRobot(name, revision), odeHandle(odeHandle), osgHandle(osgHandle) {
     parentspace = odeHandle.space;
+    fixationTmpJoint = 0;
   };
 
   OdeRobot::~OdeRobot(){
@@ -70,34 +71,42 @@ namespace lpzrobots {
   void OdeRobot::place(const Pos& pos){
     place(osg::Matrix::translate(pos));
   }
-  
 
-  bool OdeRobot::isGeomInPrimitiveList(Primitive** ps, int len, dGeomID geom){  
+
+  bool OdeRobot::isGeomInPrimitiveList(Primitive** ps, int len, dGeomID geom){
     for(int i=0; i < len; i++){
       if(geom == ps[i]->getGeom()) return true;
     }
     return false;
   }
 
-  bool OdeRobot::isGeomInPrimitiveList(std::list<Primitive*> ps, dGeomID geom){  
+  bool OdeRobot::isGeomInPrimitiveList(std::list<Primitive*> ps, dGeomID geom){
     for(list<Primitive*>::iterator i=ps.begin(); i != ps.end(); i++){
       if(geom == (*i)->getGeom()) return true;
     }
     return false;
   }
 
-  void OdeRobot::moveToPosition(Pos pos){
+  void OdeRobot::moveToPosition(Pos pos, int primitiveID){
     const vector<Primitive*>& ps = this->getAllPrimitives();
-    double min=10e8;
-    Pos robpos; // reference position of robot (we use the lowest body part)
-    // find lowest body part and its position
-    FOREACHC(vector<Primitive*>, ps, p){
-      double z = (*p)->getPosition().z();
-      if(z<min){
-        z=min;
-        robpos=(*p)->getPosition();
-      }
-    }
+    Pos robpos; // reference position of robot
+    if(primitiveID==-1){
+      if(!getMainPrimitive()) return;
+      robpos = getMainPrimitive()->getPosition();
+    }else if(primitiveID==-2){
+        double min=10e8;
+        // find lowest body part and its position
+        FOREACHC(vector<Primitive*>, ps, p){
+          double z = (*p)->getPosition().z();
+          if(z<min){
+            z=min;
+            robpos=(*p)->getPosition();
+          }
+        }
+    }else if(primitiveID>=0 && primitiveID < (signed)ps.size()){
+        if(!ps[primitiveID]) return;
+        robpos=ps[primitiveID]->getPosition();
+    }else return;
     // move robot
     FOREACHC(vector<Primitive*>, ps, p){
       Pos local = (*p)->getPosition() - robpos; // relative local position of that primitive
@@ -105,19 +114,46 @@ namespace lpzrobots {
     }
   }
 
+  void OdeRobot::fixate(GlobalData& global, int primitiveID, double duration){
+    Primitive* p; // primitive to fix
+    if(primitiveID==-1){
+      p = getMainPrimitive();
+    }else{
+      const vector<Primitive*>& ps = this->getAllPrimitives();
+      if(primitiveID>=0 && primitiveID < (signed)ps.size()){
+        if(!ps[primitiveID]) return;
+        p = ps[primitiveID];
+      }else return;
+    }
+    if(p){
+      unFixate(global); // unfixate in case we are already fixated
+      fixationTmpJoint = new TmpJoint(new FixedJoint(p, global.environment), "robot1");
+      if(duration<=0) duration=1e12; // some large number will do
+      global.addTmpObject(fixationTmpJoint, duration);
+    }
+  }
+
+  bool OdeRobot::unFixate(GlobalData& global){
+    bool fixed=false;
+    if(fixationTmpJoint){
+      fixed=global.removeTmpObject(fixationTmpJoint);
+      fixationTmpJoint=0;
+    }
+    return fixed;
+  }
 
   /*********** BEGIN TRACKABLE INTERFACE ****************/
-  
+
   /** returns position of the object
 @return vector of position (x,y,z)
   */
 Position OdeRobot::getPosition() const {
-  const Primitive* o = getMainPrimitive();    
-    // using the Geom has maybe the advantage to get the position of transform objects 
+  const Primitive* o = getMainPrimitive();
+    // using the Geom has maybe the advantage to get the position of transform objects
     // (e.g. hand of muscledArm)
   if (o){
     return o->getPosition().toPosition();
-  }else   
+  }else
     return Position(0,0,0);
 }
 
@@ -125,35 +161,35 @@ Position OdeRobot::getSpeed() const {
   const Primitive* o = getMainPrimitive();
   if(o)
     return o->getVel().toPosition();
-  else 
+  else
     return Position(0,0,0);
 }
 
 Position OdeRobot::getAngularSpeed() const {
   const Primitive* o = getMainPrimitive();
-  if (o)    
+  if (o)
     return o->getAngularVel().toPosition();
-  else 
+  else
     return Position(0,0,0);
 }
 
 matrix::Matrix OdeRobot::getOrientation() const {
   const Primitive* o = getMainPrimitive();
   if (o && o->getBody()){
-    return odeRto3x3RotationMatrix(dBodyGetRotation(o->getBody())); 
+    return odeRto3x3RotationMatrix(dBodyGetRotation(o->getBody()));
   } else {
-    matrix::Matrix R(3,3); 
+    matrix::Matrix R(3,3);
     return R^0; // identity
   }
 }
-  
+
 
 
   /*********** END TRACKABLE INTERFACE ****************/
 
 
   bool OdeRobot::store(FILE* f) const{
-    /* we do here a typecase to OdeRobot* get rid of the const, 
+    /* we do here a typecase to OdeRobot* get rid of the const,
        but the primitives are not changed anyway, so it is okay */
     if(!f) return false;
     fwrite("ROBOT", sizeof(char), 5, f); // maybe also print name
@@ -161,11 +197,11 @@ matrix::Matrix OdeRobot::getOrientation() const {
     cout << ps.size() << endl;
     FOREACHC(vector<Primitive*>,ps,p){
       if(*p)
-        if(!(*p)->store(f)) return false;      
+        if(!(*p)->store(f)) return false;
     }
     return true;
   }
-  
+
   bool OdeRobot::restore(FILE* f){
     if(!f) return false;
     char robotstring[5];
@@ -176,7 +212,7 @@ matrix::Matrix OdeRobot::getOrientation() const {
     const vector<Primitive*>& ps = getAllPrimitives();
     FOREACHC(vector<Primitive*>,ps,p){
       if(*p)
-        if(!(*p)->restore(f)) return false;      
+        if(!(*p)->restore(f)) return false;
     }
     return true;
   }

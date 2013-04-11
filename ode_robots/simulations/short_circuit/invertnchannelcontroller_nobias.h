@@ -15,7 +15,7 @@
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *
- *                                            * 
+ *                                            *
  *                                                                         *
  *   $Log$
  *   Revision 1.1  2007-04-20 12:31:16  martius
@@ -69,10 +69,10 @@
 #include <selforg/matrix.h>
 
 /**
- * class for robot controller that uses the georg's matrixlib for 
- *  direct matrix inversion for n channels 
+ * class for robot controller that uses the georg's matrixlib for
+ *  direct matrix inversion for n channels
  * (simple one layer networks)
- * 
+ *
  * Implements standart parameters: eps, rho, mu, stepnumber4avg, stepnumber4delay
  */
 class InvertNChannelController_NoBias : public InvertController {
@@ -84,34 +84,34 @@ public:
   virtual ~InvertNChannelController_NoBias();
 
   /// returns the name of the object (with version number)
-  virtual paramkey getName() const {return name; } 
+  virtual paramkey getName() const {return name; }
   /// returns the number of sensors the controller was initialised with or 0 if not initialised
   virtual int getSensorNumber() const { return number_channels; }
   /// returns the mumber of motors the controller was initialised with or 0 if not initialised
   virtual int getMotorNumber() const  { return number_channels; }
 
-  /// performs one step (includes learning). 
+  /// performs one step (includes learning).
   /// Calulates motor commands from sensor inputs.
   virtual void step(const sensor* , int number_sensors, motor* , int number_motors);
 
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
-  virtual void stepNoLearning(const sensor* , int number_sensors, 
-			      motor* , int number_motors);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
 
 
   /***** STOREABLE ****/
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   // inspectable interface
   virtual std::list<iparamkey> getInternalParamNames() const;
   virtual std::list<iparamval> getInternalParams() const;
   virtual std::list<ILayer> getStructuralLayers() const;
   virtual std::list<IConnection> getStructuralConnections() const;
-  
+
 
 protected:
   unsigned short number_channels;
@@ -126,13 +126,13 @@ protected:
   matrix::Matrix* y_buffer;
   int t;
   paramkey name;
-  
+
 
 /*   virtual void iteration(double *column, */
-/* 			 double dommy[NUMBER_CHANNELS][NUMBER_CHANNELS], */
-/* 			 double *improvment); */
+/*                          double dommy[NUMBER_CHANNELS][NUMBER_CHANNELS], */
+/*                          double *improvment); */
 
-  virtual double calculateE(const matrix::Matrix& x_delay, const matrix::Matrix& y_delay);      
+  virtual double calculateE(const matrix::Matrix& x_delay, const matrix::Matrix& y_delay);
 
   /// learn values h,C
   virtual void learn(const matrix::Matrix& x_delay, const matrix::Matrix& y_delay);
@@ -140,13 +140,13 @@ protected:
   virtual void learnmodel( const matrix::Matrix& y_delay);
 
   /// calculate delayed values
-  virtual matrix::Matrix calculateDelayedValues(const matrix::Matrix* buffer, 
-					unsigned int number_steps_of_delay_);
-  virtual matrix::Matrix calculateSmoothValues(const matrix::Matrix* buffer, 
-				       unsigned int number_steps_for_averaging_);
+  virtual matrix::Matrix calculateDelayedValues(const matrix::Matrix* buffer,
+                                        unsigned int number_steps_of_delay_);
+  virtual matrix::Matrix calculateSmoothValues(const matrix::Matrix* buffer,
+                                       unsigned int number_steps_for_averaging_);
 
   matrix::Matrix calculateControllerValues(const matrix::Matrix& x_smooth);
-    
+
   // put new value in ring buffer
   void putInBuffer(matrix::Matrix* buffer, const matrix::Matrix& vec);
 

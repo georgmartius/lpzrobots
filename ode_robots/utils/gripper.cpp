@@ -116,7 +116,7 @@ namespace lpzrobots {
           g->last = o2;
           g->gripStartTime=globaldata.time;
         }
-	return 0;
+        return 0;
       }
     }
     return 1;

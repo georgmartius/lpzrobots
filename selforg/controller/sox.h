@@ -95,11 +95,11 @@ public:
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
   virtual void stepNoLearning(const sensor* , int number_sensors,
-			      motor* , int number_motors);
+                              motor* , int number_motors);
 
   /// called during babbling phase
   virtual void motorBabblingStep(const sensor* , int number_sensors,
-				 const motor* , int number_motors);
+                                 const motor* , int number_motors);
 
   /***** STOREABLE ****/
   /** stores the controller values to a given file. */

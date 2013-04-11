@@ -25,31 +25,31 @@
 #define __PID_H
 
 namespace lpzrobots {
-    
+
   class PID
   {
     //*********************attributes***************
     //private:
   public:
-		
+
     double position;
     double lastposition;
     double last2position;
-		
+
     double error;
     double lasterror;
     double derivative;
     double targetposition;
-		
+
     double KP;
     double KI;
     double KD;
     double tau;
-	       	
+
     double P;
     double D;
     double I;
-	
+
     double force;
     double lasttime;  // last update time (to calc stepsize)
 
@@ -57,13 +57,13 @@ namespace lpzrobots {
   public :
     /// KP is used as a general koefficient. KI and KD can be tuned without dependence of KP
     PID ( double KP = 100 , double KI = 2.0 , double KD = 0.3 );
- 
+
     void setKP(double KP);
- 
+
     void setTargetPosition ( double newpos );
-		
+
     double getTargetPosition ();
-	
+
     /// perform one step of the PID controller with cutoff for large forces
     double step ( double newsensorval, double time);
     /// perform one step of the PID controller without cutoffs used for Center-Servos
@@ -72,7 +72,7 @@ namespace lpzrobots {
         Meaning the misfit is in position space but the output is
         the nominal velocity. The velocity is also limited. such that
         the maximal velocity cannot be so that the error is overcompenstated
-        in one timestep.        
+        in one timestep.
      */
     double stepVelocity ( double newsensorval, double time);
 

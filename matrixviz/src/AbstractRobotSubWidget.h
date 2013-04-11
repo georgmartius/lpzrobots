@@ -38,18 +38,18 @@ class AbstractPlotChannel;
 class AbstractRobotSubWidget: public QWidget
 {
 
-	Q_OBJECT
+        Q_OBJECT
 
 public:
-	AbstractRobotSubWidget(QWidget *parent = 0) : QWidget(parent)
-	{
-		//      channelList.clear();
-	};
+        AbstractRobotSubWidget(QWidget *parent = 0) : QWidget(parent)
+        {
+                //      channelList.clear();
+        };
 
-	void addPlotChannel(AbstractPlotChannel* c)
-	{ // default variant
-		this->channelList.push_back(c);
-	}
+        void addPlotChannel(AbstractPlotChannel* c)
+        { // default variant
+                this->channelList.push_back(c);
+        }
 
 public slots:
 
@@ -59,7 +59,7 @@ public slots:
 virtual void updateViewableChannels() = 0;
 
 protected:
-	std::list<AbstractPlotChannel*> channelList;
+        std::list<AbstractPlotChannel*> channelList;
 
 private:
 

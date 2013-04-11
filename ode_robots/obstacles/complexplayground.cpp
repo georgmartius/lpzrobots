@@ -39,31 +39,31 @@ namespace lpzrobots {
     list<char*>::iterator l = lines.begin();
     if(lines.size()<2) return 1;
     int r = sscanf(*l,"%i %i %i %i %i %i %i", &object_code, &sub_type,&line_style, &thickness,
-		   &pen_color, &fill_color, &depth);
+                   &pen_color, &fill_color, &depth);
     int i=0;
     int dat[2];
     if(r==7 && object_code==2){
       l++;
       int linecnt=1;
       while(l!=lines.end()){
-	char* line = *l;
-	if(line[0]=='\t'){
-	  char* p;
-	  p=strtok(line+1," ");
-	  if(!p) return false;
-	  dat[i] = atoi(p);
-	  i++;
-	  while((p=strtok(NULL," "))!=NULL )  {
-	    dat[i] = atoi(p);
-	    i++;
-	    if(i==2){
-	      points.push_back(Pos(dat[0]/450.0,-dat[1]/450.0,0));
-	      i=0;
-	    }
-	  };
-	}else break;
-	l++;
-	linecnt++;
+        char* line = *l;
+        if(line[0]=='\t'){
+          char* p;
+          p=strtok(line+1," ");
+          if(!p) return false;
+          dat[i] = atoi(p);
+          i++;
+          while((p=strtok(NULL," "))!=NULL )  {
+            dat[i] = atoi(p);
+            i++;
+            if(i==2){
+              points.push_back(Pos(dat[0]/450.0,-dat[1]/450.0,0));
+              i=0;
+            }
+          };
+        }else break;
+        l++;
+        linecnt++;
       }
       return linecnt;
     }else return 1;
@@ -81,9 +81,9 @@ namespace lpzrobots {
 
 
   ComplexPlayground::ComplexPlayground(const OdeHandle& odeHandle,
-				       const OsgHandle& osgHandle ,
-				       const std::string filename,
-				       double factor, double heightfactor, bool createGround)
+                                       const OsgHandle& osgHandle ,
+                                       const std::string filename,
+                                       double factor, double heightfactor, bool createGround)
     : AbstractGround(odeHandle, osgHandle, createGround, 1,1,0.1),
       filename(filename), factor(factor), heightfactor(heightfactor) {
 
@@ -102,11 +102,11 @@ namespace lpzrobots {
       PolyLine p;
       int consumed = p.parse(lines);
       if(consumed>1){
-	polylines.push_back(p);
+        polylines.push_back(p);
       }
       for(int i=0; i<consumed; i++){
-	free(*lines.begin());
-	lines.pop_front();
+        free(*lines.begin());
+        lines.pop_front();
       }
     }
 //     FOREACH(list<PolyLine>, polylines, p){
@@ -120,9 +120,9 @@ namespace lpzrobots {
     bool hasboundary=false;
     FOREACH(list<PolyLine>, polylines, p){
       if(p->line_style==1){
-	boundary = *p;
-	hasboundary=true;
-	break;
+        boundary = *p;
+        hasboundary=true;
+        break;
       }
     }
     if(hasboundary){
@@ -131,8 +131,8 @@ namespace lpzrobots {
       Matrix ys(l,1);
       int i=0;
       FOREACH(list<Pos>, boundary.points, p){
-	xs.val(i,0)=p->x();
-	ys.val(i,0)=p->y();
+        xs.val(i,0)=p->x();
+        ys.val(i,0)=p->y();
       }
       double xsize = max(xs.map(fabs));
       double ysize = max(ys.map(fabs));
@@ -143,7 +143,7 @@ namespace lpzrobots {
 
     FOREACH(list<PolyLine>, polylines, p){
       if(p->depth>0){
-	createPolyline(*p);
+        createPolyline(*p);
       }
     }
     obstacle_exists=true;
@@ -157,7 +157,7 @@ namespace lpzrobots {
     FOREACHC(list<Pos>, polyline.points, p){
       ps[i%2]=*p;
       if(i>=1){
-	pairs.push_back(pair<Pos, Pos>(ps[(i-1)%2]*factor, ps[i%2]*factor));
+        pairs.push_back(pair<Pos, Pos>(ps[(i-1)%2]*factor, ps[i%2]*factor));
       }
       i++;
     }

@@ -47,14 +47,14 @@ using namespace std;
 
 namespace lpzrobots {
 
-  NeuronWorld::NeuronWorld(const OdeHandle& odeHandle, 
-			     const OsgHandle& osgHandle, int sensornumber, int motornumber, const NeuronWorldConf& conf, const std::string& name)
+  NeuronWorld::NeuronWorld(const OdeHandle& odeHandle,
+                             const OsgHandle& osgHandle, int sensornumber, int motornumber, const NeuronWorldConf& conf, const std::string& name)
     : OdeRobot(odeHandle, osgHandle, name, "$Id$"),conf(conf){
 
     assert(sensornumber == motornumber);
 
-    sensorno = sensornumber; 
-    motorno  = motornumber;  
+    sensorno = sensornumber;
+    motorno  = motornumber;
     motors = (motor*)malloc(motorno * sizeof(motor));
     for(int i=0; i < motorno; i++){
       motors[i]=0.0;
@@ -69,9 +69,9 @@ namespace lpzrobots {
     gamma.set(sensornumber, 1);
 
     addParameter("theta_const", &conf.theta_const);
-    addParameter("gamma", &conf.gamma); 
-    addParameter("w", &conf.w); 
-    
+    addParameter("gamma", &conf.gamma);
+    addParameter("w", &conf.w);
+
     /*
       Initialisierung
       testhalber erstmal nur für ein Neuron!
@@ -84,11 +84,11 @@ namespace lpzrobots {
 
 
   NeuronWorld::~NeuronWorld(){
-    if(motors) free(motors); 
+    if(motors) free(motors);
   }
 
   /** sets actual motorcommands
-      @param _motors motors scaled to [-1,1] 
+      @param _motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
   void NeuronWorld::setMotors(const motor* _motors, int motornumber){
@@ -102,15 +102,15 @@ namespace lpzrobots {
       @return number of actually written sensors
   */
   int NeuronWorld::getSensors(sensor* sensors, int sensornumber){
-    assert(sensornumber == sensorno); 
+    assert(sensornumber == sensorno);
 
     if (conf.neuron_type == schmitt_trigger){
       for (int i=0; i< motorno; i++){
         // many DOF:
-        //theta.val(i,0)= theta_const.val(i,0) +motors[i]; 
+        //theta.val(i,0)= theta_const.val(i,0) +motors[i];
         // singel DOF !!!
         assert(sensornumber == 1);
-        theta.val(i,0)= conf.theta_const +motors[i]; 
+        theta.val(i,0)= conf.theta_const +motors[i];
       }
       // many DOF:
       //a=gamma*a + theta + W*a.map(g);
@@ -118,8 +118,8 @@ namespace lpzrobots {
       // singel DOF !!!
       assert(sensornumber == 1);
       a.val(0,0)=((double)conf.gamma)*a.val(0,0) + theta.val(0,0) + ((double)conf.w)*g(a.val(0,0));
- 
-      int mini = min(sensorno,motorno); 
+
+      int mini = min(sensorno,motorno);
       for (int i=0; i< mini; i++){
         sensors[i]=g(a.val(i,0)); // %motorno
       }
@@ -129,7 +129,7 @@ namespace lpzrobots {
       // singel DOF !!!
       assert(sensornumber == 1);
       a.val(0,0)= ((double)conf.w)*motors[0]  + theta.val(0,0);
-      int mini = min(sensorno,motorno); 
+      int mini = min(sensorno,motorno);
       for (int i=0; i< mini; i++){
         sensors[i]=a.val(i,0); // %motorno
       }

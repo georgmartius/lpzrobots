@@ -28,26 +28,26 @@
 #include "stl_map.h"
 
 /**
- *  Class for calculating lyapunov exponents          
- *   online, over several time horizons, from given Jacobi matrices 
+ *  Class for calculating lyapunov exponents
+ *   online, over several time horizons, from given Jacobi matrices
 */
 class Lyapunov {
 public:
   /// holds a matrix that is the result of a sliding window multiplication
   struct SlidingMatrix {
     /** @param dim dimension of the system (matrix is (dim x dim))
-	@param horizon for sliding window
+        @param horizon for sliding window
      */
     SlidingMatrix(int dim, int horizon);
-    void step(int t, const matrix::Matrix* buffer, 
-	      const matrix::Matrix* invbuffer, int buffersize);
-    /** nominal size of sliding window 
-	(if <=0 then infinite and absolute value stands for the size so far) */
-    int horizon;    
+    void step(int t, const matrix::Matrix* buffer,
+              const matrix::Matrix* invbuffer, int buffersize);
+    /** nominal size of sliding window
+        (if <=0 then infinite and absolute value stands for the size so far) */
+    int horizon;
     matrix::Matrix M;   ///<  accumulated Matrix
     matrix::Matrix Exp; ///< Lyapunov exponents
   };
-  
+
   typedef HashMap< int, SlidingMatrix* > Horizons;
 
 public:
@@ -60,12 +60,12 @@ public:
    */
   void init(const std::list<int>& horizons, int dim);
 
-  /** provides the current Jacobi matrix. 
+  /** provides the current Jacobi matrix.
       Internally the sliding windows and the exponents are generated
    */
   void step(const matrix::Matrix& jacobi);
 
-  /** returns the lyapunov matrix at the given horizon 
+  /** returns the lyapunov matrix at the given horizon
    */
   const matrix::Matrix& getLyapunovMatrix(int horizon);
 
@@ -78,7 +78,7 @@ protected:
   matrix::Matrix* invbuffer; // buffer for inverses
   int buffersize;
   long int t;
-  
+
   Horizons horizons;
 };
 

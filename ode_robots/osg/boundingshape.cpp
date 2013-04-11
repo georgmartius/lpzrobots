@@ -41,14 +41,14 @@ namespace lpzrobots {
      capsule radius height (x,y,z) (alpha, beta, gamma)
      box length width height (x,y,z) (alpha, beta, gamma)
      (x,y,z) is the position vector and (alpha, beta, gamma) are
-     the rotation angles about x,y,z axis respectively        
+     the rotation angles about x,y,z axis respectively
   */
 
   BoundingShape::BoundingShape(const std::string& filename, Mesh* parent)
     : filename(filename), active(false), parent(parent), attachedToParentBody(true) {
     parent->setBoundingShape(this);
   }
-  
+
   BoundingShape::~BoundingShape(){
     // TODO: destroy created Primitives and Transforms
   }
@@ -68,8 +68,8 @@ namespace lpzrobots {
   }
 
   bool BoundingShape::readBBoxFile(std::string& filename,
-				   const OdeHandle& _odeHandle, const OsgHandle& osgHandle,
-				   double scale, char mode){
+                                   const OdeHandle& _odeHandle, const OsgHandle& osgHandle,
+                                   double scale, char mode){
     odeHandle = OdeHandle(_odeHandle);
     parentSpace = odeHandle.space;
     odeHandle.createNewSimpleSpace(parentSpace,true);
@@ -80,47 +80,47 @@ namespace lpzrobots {
       float r,h,x,y,z,l,w;
       double a,b,c;
       while(fgets(buffer,128,f)){
-	if(strstr(buffer,"sphere")==buffer){
-	  if(sscanf(buffer+7, "%g (%g,%g,%g)", &r, &x, &y, &z)==4){
-	    Sphere* s = new Sphere(r * scale);
-	    Primitive* Trans = new Transform(parent,s,osgRotate(a*M_PI/180.0f,b*M_PI/180.0f,c*M_PI/180.0f)
-					     *osg::Matrix::translate(scale*x,scale*y,scale*z));
-	    Trans->init(odeHandle, 0, osgHandle,mode);
-	    active=true;
-	  } else{ fprintf(stderr, "Syntax error : %s", buffer); }
-	} else if(strstr(buffer,"capsule")==buffer){
-	  if(sscanf(buffer+7, "%g %g (%g,%g,%g) (%lg,%lg,%lg)", &r, &h, &x, &y, &z, &a, &b, &c)==8){
-	    Capsule* ca = new Capsule(r * scale,h * scale);
-	    Primitive* Trans = new Transform(parent,ca,osgRotate(a*M_PI/180.0f,b*M_PI/180.0f,c*M_PI/180.0f)
-					     *osg::Matrix::translate(scale*x,scale*y,scale*z));
-	    Trans->init(odeHandle, 0, osgHandle,mode);
-	    active=true;
-	  } else{ fprintf(stderr, "Syntax error : %s", buffer); }
-	} else if(strstr(buffer,"cylinder")==buffer){
-	  if(sscanf(buffer+8, "%g %g (%g,%g,%g) (%lg,%lg,%lg)", &r, &h, &x, &y, &z, &a, &b, &c)==8){
-	    Cylinder* cy = new Cylinder(r * scale,h * scale);
-	    Primitive* Trans = new Transform(parent,cy,osgRotate(a*M_PI/180.0f,b*M_PI/180.0f,c*M_PI/180.0f)
-					     *osg::Matrix::translate(scale*x,scale*y,scale*z));
-	    Trans->init(odeHandle, 0, osgHandle,mode);
-	    active=true;
-	  } else{ fprintf(stderr, "Syntax error : %s", buffer); }
-	} else if(strstr(buffer,"box")==buffer){
-	  if(sscanf(buffer+3, "%g %g %g (%g,%g,%g) (%lg,%lg,%lg)", &l, &w, &h, &x, &y, &z, &a, &b, &c)==9){
-	    Box* box = new Box(l * scale,w * scale, h * scale);
-	    Primitive* Trans = new Transform(parent,box,osgRotate(a*M_PI/180.0f,b*M_PI/180.0f,c*M_PI/180.0f)
-					     *osg::Matrix::translate(scale*x,scale*y,scale*z));
-	    Trans->init(odeHandle, 0, osgHandle,mode);
-	    active=true;
-	  } else{ fprintf(stderr, "Syntax error : %s", buffer); }
-	}else {
-	  fprintf(stderr, "Unknown Line: %s", buffer);
-	}
+        if(strstr(buffer,"sphere")==buffer){
+          if(sscanf(buffer+7, "%g (%g,%g,%g)", &r, &x, &y, &z)==4){
+            Sphere* s = new Sphere(r * scale);
+            Primitive* Trans = new Transform(parent,s,osgRotate(a*M_PI/180.0f,b*M_PI/180.0f,c*M_PI/180.0f)
+                                             *osg::Matrix::translate(scale*x,scale*y,scale*z));
+            Trans->init(odeHandle, 0, osgHandle,mode);
+            active=true;
+          } else{ fprintf(stderr, "Syntax error : %s", buffer); }
+        } else if(strstr(buffer,"capsule")==buffer){
+          if(sscanf(buffer+7, "%g %g (%g,%g,%g) (%lg,%lg,%lg)", &r, &h, &x, &y, &z, &a, &b, &c)==8){
+            Capsule* ca = new Capsule(r * scale,h * scale);
+            Primitive* Trans = new Transform(parent,ca,osgRotate(a*M_PI/180.0f,b*M_PI/180.0f,c*M_PI/180.0f)
+                                             *osg::Matrix::translate(scale*x,scale*y,scale*z));
+            Trans->init(odeHandle, 0, osgHandle,mode);
+            active=true;
+          } else{ fprintf(stderr, "Syntax error : %s", buffer); }
+        } else if(strstr(buffer,"cylinder")==buffer){
+          if(sscanf(buffer+8, "%g %g (%g,%g,%g) (%lg,%lg,%lg)", &r, &h, &x, &y, &z, &a, &b, &c)==8){
+            Cylinder* cy = new Cylinder(r * scale,h * scale);
+            Primitive* Trans = new Transform(parent,cy,osgRotate(a*M_PI/180.0f,b*M_PI/180.0f,c*M_PI/180.0f)
+                                             *osg::Matrix::translate(scale*x,scale*y,scale*z));
+            Trans->init(odeHandle, 0, osgHandle,mode);
+            active=true;
+          } else{ fprintf(stderr, "Syntax error : %s", buffer); }
+        } else if(strstr(buffer,"box")==buffer){
+          if(sscanf(buffer+3, "%g %g %g (%g,%g,%g) (%lg,%lg,%lg)", &l, &w, &h, &x, &y, &z, &a, &b, &c)==9){
+            Box* box = new Box(l * scale,w * scale, h * scale);
+            Primitive* Trans = new Transform(parent,box,osgRotate(a*M_PI/180.0f,b*M_PI/180.0f,c*M_PI/180.0f)
+                                             *osg::Matrix::translate(scale*x,scale*y,scale*z));
+            Trans->init(odeHandle, 0, osgHandle,mode);
+            active=true;
+          } else{ fprintf(stderr, "Syntax error : %s", buffer); }
+        }else {
+          fprintf(stderr, "Unknown Line: %s", buffer);
+        }
       }
       return true;
     }
-      
+
     bool BoundingShape::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      double scale, char mode){
+                      double scale, char mode){
       return readBBoxFile(filename, odeHandle, osgHandle, scale, mode);
     }
 

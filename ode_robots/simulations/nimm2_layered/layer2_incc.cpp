@@ -80,7 +80,7 @@ void Layer2_INCC::init(int sensornumber, int motornumber, RandGen* randGen){
 
 
 
-/// same as in InvertNChannelControllerHebbH, 
+/// same as in InvertNChannelControllerHebbH,
 /// except that Hebb is learned here with dH from layer 1 of LayeredController
 /// learn values C,A as normal
 /// learn h with additional hebb
@@ -91,10 +91,10 @@ void Layer2_INCC::learn(const Matrix& x_delay, const Matrix& y_delay){
   for (int i=0; i<number_channels; i++){
     h_update.val(i,0)=0.0;
   }
-  double E_0 = calculateE(x_delay,  y_delay);    
+  double E_0 = calculateE(x_delay,  y_delay);
 
   x_delay_=x_delay;
-  
+
 
   //std::cout<<"x_delay 0,0="<<x_delay.val(0,0)<<std::endl;
 
@@ -121,7 +121,7 @@ void Layer2_INCC::learn(const Matrix& x_delay, const Matrix& y_delay){
     {
       C.val(i,j) += delta;
       C_update.val(i,j)  = - eps *  (calculateE(x_delay, y_delay) - E_0) / delta ;
-      C_update.val(i,j) -= damping_c*C.val(i,j) ;  // damping term  
+      C_update.val(i,j) -= damping_c*C.val(i,j) ;  // damping term
       C.val(i,j) -= delta;
       //A[i][j] += delta;
       //A_update[i][j] = -eps * (calculateE(x_delay, y_delay,eita) - E_0) / delta;
@@ -136,23 +136,23 @@ void Layer2_INCC::learn(const Matrix& x_delay, const Matrix& y_delay){
   //  std::cout<<"h_u 0,0"<<h_update.val(0,0)<<std::endl;
 
   //----------------------------------------------------------------------------------------------------------------------------
-  
+
   if(!hebb_inactive){
     /////////////////////
     /**
      * learn dH
      */
     // learn hebb layer to predict dH (h_update.val)
-    Matrix context_effective = calculateDelayedValues(context_buffer, int(s4delay));    
+    Matrix context_effective = calculateDelayedValues(context_buffer, int(s4delay));
     learnHebb(context_effective, L1_dh);
     /////////////////////
-    
+
     /**
      * learn Xi
      * /
     // learn hebb layer to predict Xi
     xsi_org = x_buffer[t%buffersize] - A * y_delay;
-    Matrix context_effective = calculateDelayedValues(context_buffer, int(s4delay));    
+    Matrix context_effective = calculateDelayedValues(context_buffer, int(s4delay));
     learnHebb(context_effective, xsi_org);
     /////////////////////
     */
@@ -160,11 +160,11 @@ void Layer2_INCC::learn(const Matrix& x_delay, const Matrix& y_delay){
     h_pred_update=predictHebb(context_buffer[t%buffersize]);
 
 
-    // add predicted dH 
+    // add predicted dH
     if (use_hebb==1){ // only if use_hebb==1
       h += h_pred_update.map(squash);
     }
-    
+
     /*
      * choose if and how to limit H
      */
@@ -174,52 +174,52 @@ void Layer2_INCC::learn(const Matrix& x_delay, const Matrix& y_delay){
     if (cutAt0_80) {
       // h should not be larger than 0.8
       for (unsigned int i = 0; i < number_motors; i++){
-	if (h.val(i,0)>0.8){
-	  h.val(i,0)=0.8;
-	}
-	if (h.val(i,0)<-0.8){
-	  h.val(i,0)=-0.8;
-	}
+        if (h.val(i,0)>0.8){
+          h.val(i,0)=0.8;
+        }
+        if (h.val(i,0)<-0.8){
+          h.val(i,0)=-0.8;
+        }
       }
     }
 
     if (useTanhForH){
       for (unsigned int i = 0; i < number_motors; i++){
-	h.val(i,0)=tanh(h.val(i,0));
-      }   
+        h.val(i,0)=tanh(h.val(i,0));
+      }
     }
 
 
 
 
 //  does not work, condition never fulfilled for all sensors
-//     // set h to 0 if no context sensor is active, 
+//     // set h to 0 if no context sensor is active,
 //     // but at least 1 context sensor was active in the previous time step
 //     bool set_zero=true;
 //     for (int i=0; i<number_context_sensors; i++){
 //       if ( (context_buffer[(t-1)%buffersize].val(i,0)>0.15) && (context_buffer[(t)%buffersize].val(i,0)<0.15) ){
-// 	// previous contextsensorvalue was active, current one inactive -> set_zero should remain true
-// 	std::cout<<"reset_h "<<i<<std::endl;
+//         // previous contextsensorvalue was active, current one inactive -> set_zero should remain true
+//         std::cout<<"reset_h "<<i<<std::endl;
 //       } else {
-// 	set_zero=false;
+//         set_zero=false;
 //       }
 //     }
 
 
-    // set h to 0 if one context sensor is deactived, 
+    // set h to 0 if one context sensor is deactived,
     // even if other sensors stay active
     bool set_zero=false;
     for (int i=0; i<number_context_sensors; i++){
       if ( (context_buffer[(t-1)%buffersize].val(i,0)>0.15) && (context_buffer[(t)%buffersize].val(i,0)<0.15) ){
-	// previous contextsensorvalue was active, current one inactive -> set_zero true
-	set_zero=true;
+        // previous contextsensorvalue was active, current one inactive -> set_zero true
+        set_zero=true;
       }
     }
 
     // only set H back if setHbackto0 is set
     if ( (setHbackto0==1) && (set_zero) ){
       for (unsigned int i = 0; i < number_motors; i++){
-	h.val(i,0)=0.0;
+        h.val(i,0)=0.0;
       }
     }
 
@@ -235,5 +235,5 @@ void Layer2_INCC::learn(const Matrix& x_delay, const Matrix& y_delay){
 
 
 void Layer2_INCC::setL1_dH(Matrix tmp){
-  L1_dh=tmp;  
+  L1_dh=tmp;
 };

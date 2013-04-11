@@ -37,7 +37,7 @@ namespace lpzrobots {
   // constructor:
   // - give handle for ODE and OSG stuff
   RobotChain::RobotChain(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-	   const RobotChainConf& c, const std::string& name)
+           const RobotChainConf& c, const std::string& name)
     : OdeRobot(odeHandle, osgHandle, name, "1.0"), conf(c)
   {
     created=false;
@@ -186,7 +186,7 @@ namespace lpzrobots {
   void RobotChain::destroy(){
     if (created){
       FOREACH(vector<OdeRobot*>, robots, r){
-	if(*r) delete *r;
+        if(*r) delete *r;
       }
       robots.clear();
       cleanup();

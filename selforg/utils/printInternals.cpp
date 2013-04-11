@@ -41,9 +41,9 @@ void printNetworkDescription(FILE* f, const string& name, const Inspectable* ins
     fprintf(f, "#N layer %s %i\n", l.layername.c_str(), l.rank);
     for(int n = 0; n < l.dimension; n++){
       if(l.biasname.empty()){
-	fprintf(f, "#N neuron %s[%i]\n", l.vectorname.c_str(), n);
+        fprintf(f, "#N neuron %s[%i]\n", l.vectorname.c_str(), n);
       }else {
-	fprintf(f, "#N neuron %s[%i] %s[%i]\n", l.vectorname.c_str(), n, l.biasname.c_str(), n);
+        fprintf(f, "#N neuron %s[%i] %s[%i]\n", l.vectorname.c_str(), n, l.biasname.c_str(), n);
       }
     }
   }
@@ -63,8 +63,8 @@ void printNetworkDescription(FILE* f, const string& name, const Inspectable* ins
     Inspectable::ILayer& l2 = (*l2it);
     for(int j=0; j < l1.dimension; j++){
       for(int k=0; k < l2.dimension; k++){
-	fprintf(f, "#N connection %s[%i,%i] %s[%i] %s[%i]\n",
-		c.matrixname.c_str(), k, j, l1.vectorname.c_str(), j, l2.vectorname.c_str(), k);
+        fprintf(f, "#N connection %s[%i,%i] %s[%i] %s[%i]\n",
+                c.matrixname.c_str(), k, j, l1.vectorname.c_str(), j, l2.vectorname.c_str(), k);
       }
     }
   }
@@ -73,7 +73,7 @@ void printNetworkDescription(FILE* f, const string& name, const Inspectable* ins
 
 }
 
-void printInspectableNames(FILE* f, const list<const Inspectable*>& inspectables) 
+void printInspectableNames(FILE* f, const list<const Inspectable*>& inspectables)
 {
   if (!f)
     return;
@@ -83,7 +83,7 @@ void printInspectableNames(FILE* f, const list<const Inspectable*>& inspectables
       // then the internal parameters
       list<Inspectable::iparamkey> l = (*insp)->getInternalParamNames();
       for(list<Inspectable::iparamkey>::iterator i = l.begin(); i != l.end(); i++){
-	fprintf(f, " %s", (*i).c_str());
+        fprintf(f, " %s", (*i).c_str());
       }
       printInspectableNames(f, (*insp)->getInspectables());
     }
@@ -103,8 +103,8 @@ void printInspectableInfoLines(FILE* f, const list<const Inspectable*>& inspecta
 }
 
 void printInternalParameterNames(FILE* f,
-				int sensornumber, int motornumber,
-				const list<const Inspectable*>& inspectables) {
+                                int sensornumber, int motornumber,
+                                const list<const Inspectable*>& inspectables) {
   fprintf(f,"#C t");
   for(int i = 0; i < sensornumber; i++){
     fprintf(f, " x[%i]", i);
@@ -137,9 +137,9 @@ void printInspectables(FILE* f, const std::list<const Inspectable*>& inspectable
 }
 
 void printInternalParameters(FILE* f, double time,
-			     const sensor* x, int sensornumber,
-			     const motor* y,  int motornumber,
-			     const list<const Inspectable*>& inspectables)
+                             const sensor* x, int sensornumber,
+                             const motor* y,  int motornumber,
+                             const list<const Inspectable*>& inspectables)
 {
   if (!f)
     return;

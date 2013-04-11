@@ -183,7 +183,7 @@
 using namespace lpzrobots;
 using namespace std;
 
-bool calm=false;      
+bool calm=false;
 
 
 class MySphere : public Sphererobot3Masses {
@@ -191,7 +191,7 @@ public:
   MySphere( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
             const Sphererobot3MassesConf& conf, const std::string& name, double transparency=0.5)
     : Sphererobot3Masses(odeHandle, osgHandle, conf, name,transparency) {};
-            
+
   virtual Position getPosition() const {
     Position p = Sphererobot3Masses::getPosition();
     p.z = -0.03;
@@ -208,7 +208,7 @@ public:
   Sensor* sensor;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     int num_barrels=0;
     int num_barrels_test=0;
@@ -216,7 +216,7 @@ public:
     useReinforcement=0;
     sensor=0;
 
-    bool labyrint=false;      
+    bool labyrint=false;
     bool squarecorridor=false;
     bool normalplayground=false;
 
@@ -232,7 +232,7 @@ public:
       Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(20, 0.01, 0.01 ), 1);
       //      playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
       playground->setGroundColor(Color(255/255.0,255/255.0,255/255.0));
-      playground->setGroundTexture("Images/really_white.rgb");    
+      playground->setGroundTexture("Images/really_white.rgb");
       playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
       playground->setTexture("");
       playground->setPosition(osg::Vec3(0,0,0.05));
@@ -243,7 +243,7 @@ public:
     if(squarecorridor){
       Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(15, 0.2, 1.2 ), 1);
       playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
-      playground->setGroundTexture("Images/really_white.rgb");    
+      playground->setGroundTexture("Images/really_white.rgb");
       playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
       playground->setPosition(osg::Vec3(0,0,0.1));
       playground->setTexture("");
@@ -260,7 +260,7 @@ public:
       double radius=7.5;
       Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(radius*2+1, 0.2, 5 ), 1);
       playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
-      playground->setGroundTexture("Images/really_white.rgb");    
+      playground->setGroundTexture("Images/really_white.rgb");
       playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.1));
       playground->setPosition(osg::Vec3(0,0,0.1));
       playground->setTexture("");
@@ -269,27 +269,27 @@ public:
       OsgHandle rotOsgHandle = osgHandle.changeColor(Color(255/255.0, 47/255.0,0/255.0));
       OsgHandle gruenOsgHandle = osgHandle.changeColor(Color(0,1,0));
       for(int i=0; i<obstanz; i++){
-	PassiveBox* s = new PassiveBox(odeHandle, (i%2)==0 ? rotOsgHandle : gruenOsgHandle, 
-				       osg::Vec3(random_minusone_to_one(0)+1.2, 
-						 random_minusone_to_one(0)+1.2 ,1),5);
-	s->setPose(osg::Matrix::translate(radius/(obstanz+10)*(i+10),0,i) 
-		   * osg::Matrix::rotate(2*M_PI/obstanz*i,0,0,1)); 
-	global.obstacles.push_back(s);    
+        PassiveBox* s = new PassiveBox(odeHandle, (i%2)==0 ? rotOsgHandle : gruenOsgHandle,
+                                       osg::Vec3(random_minusone_to_one(0)+1.2,
+                                                 random_minusone_to_one(0)+1.2 ,1),5);
+        s->setPose(osg::Matrix::translate(radius/(obstanz+10)*(i+10),0,i)
+                   * osg::Matrix::rotate(2*M_PI/obstanz*i,0,0,1));
+        global.obstacles.push_back(s);
       }
     }
 
     //     for(int i=0; i<5; i++){
     //       PassiveSphere* s = new PassiveSphere(odeHandle, osgHandle.changeColor(Color(0.0,1.0,0.0)), 0.5);
-    //       s->setPosition(osg::Vec3(5,0,i*3)); 
-    //       global.obstacles.push_back(s);    
+    //       s->setPosition(osg::Vec3(5,0,i*3));
+    //       global.obstacles.push_back(s);
     //     }
-    
+
     /* * * * BARRELS * * * */
     for(int i=0; i< num_barrels; i++){
       //****************
-      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.15; 
-      conf.motorpowerfactor  = 150; 
+      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
+      conf.pendularrange  = 0.15;
+      conf.motorpowerfactor  = 150;
       conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection, Sensor::X | Sensor::Y));
       //      conf.addSensor(new SpeedSensor(10, SpeedSensor::Translational, Sensor::X ));
@@ -298,29 +298,29 @@ public:
       conf.irAxis3=false;
       conf.spheremass   = 1;
       //      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,5.0)),
-      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(2,0.0,0.0)), 
-				    conf, "Barrel1", 0.2); 
+      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(2,0.0,0.0)),
+                                    conf, "Barrel1", 0.2);
       sphere1->place (osg::Matrix::rotate(M_PI/2, 1,0,0)*osg::Matrix::translate(0,0,0.2));
 
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       cc.cInit=1;
-      controller = new InvertMotorNStep(cc);    
+      controller = new InvertMotorNStep(cc);
 
       ///> test with fixed C
-      // controller = new InvertNChannelController_NoBias(40,0.45f);  
+      // controller = new InvertNChannelController_NoBias(40,0.45f);
       //      controller->setParam("eps",0.00);
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
 
-      controller->setParam("steps", 1);    
-      //    controller->setParam("adaptrate", 0.001);    
-      controller->setParam("epsC", 0.1);    
-      controller->setParam("epsA", 0.05);    
-      // controller->setParam("epsC", 0.001);    
-      // controller->setParam("epsA", 0.001);    
-      //    controller->setParam("rootE", 1);    
-      //    controller->setParam("logaE", 2);    
-      controller->setParam("rootE", 3);    
-      controller->setParam("logaE", 0);    
+      controller->setParam("steps", 1);
+      //    controller->setParam("adaptrate", 0.001);
+      controller->setParam("epsC", 0.1);
+      controller->setParam("epsA", 0.05);
+      // controller->setParam("epsC", 0.001);
+      // controller->setParam("epsA", 0.001);
+      //    controller->setParam("rootE", 1);
+      //    controller->setParam("logaE", 2);
+      controller->setParam("rootE", 3);
+      controller->setParam("logaE", 0);
 
       //       DerivativeWiringConf dc = DerivativeWiring::getDefaultConf();
       //       dc.useId=true;
@@ -342,21 +342,21 @@ public:
     for(int i=0; i< num_barrels_test; i++){
       global.odeConfig.setParam("realtimefactor",1);
       //****************
-      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.15; 
+      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
+      conf.pendularrange  = 0.15;
       conf.motorsensor=true;
       conf.irAxis1=false;
       conf.irAxis2=false;
       conf.irAxis3=false;
       conf.spheremass   = 1;
-      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
-				    conf, "Barrel1", 0.4); 
+      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)),
+                                    conf, "Barrel1", 0.4);
       sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
 
-      controller = new SineController();  
-      controller->setParam("sinerate", 15);  
+      controller = new SineController();
+      controller->setParam("sinerate", 15);
       controller->setParam("phaseshift", 0.45);
-    
+
       //       DerivativeWiringConf dc = DerivativeWiring::getDefaultConf();
       //       dc.useId=true;
       //       dc.useFirstD=false;
@@ -373,19 +373,19 @@ public:
     /* * * * SPHERES * * * */
     for(int i=0; i< num_spheres; i++){
       //****************
-      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      OdeHandle sphereOdeHandle = odeHandle;      
+      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
+      OdeHandle sphereOdeHandle = odeHandle;
       if(!calm){
-        conf.pendularrange  = 0.25; //0.15 
-        conf.motorpowerfactor  = 150;     
+        conf.pendularrange  = 0.25; //0.15
+        conf.motorpowerfactor  = 150;
         //      conf.spheremass = 1;
         conf.spheremass = 0.4;
-        //      conf.motorpowerfactor  = 50;    
+        //      conf.motorpowerfactor  = 50;
         sphereOdeHandle.substance.roughness=10;
       }
 
       conf.motorsensor=false;
-      sensor = new AxisOrientationSensor(AxisOrientationSensor::ZProjection);      
+      sensor = new AxisOrientationSensor(AxisOrientationSensor::ZProjection);
       conf.addSensor(sensor);
       sensor = new SpeedSensor(5, SpeedSensor::RotationalRel);
       conf.addSensor(sensor);
@@ -396,33 +396,33 @@ public:
       //      conf.spheremass   = 1;
       // conf.irRing=true;
       // conf.irSide=true;
-      //      sphere1 = new Sphererobot3Masses ( sphereOdeHandle, 
-      sphere1 = new MySphere ( sphereOdeHandle, 
-                                         //					 osgHandle.changeColor(Color(2,0.0,0.0)), 
-					 osgHandle.changeColor(Color(0,0.0,0x72/255.0)), 
-					 conf, "Sphere", 0.5);       
+      //      sphere1 = new Sphererobot3Masses ( sphereOdeHandle,
+      sphere1 = new MySphere ( sphereOdeHandle,
+                                         //                                         osgHandle.changeColor(Color(2,0.0,0.0)),
+                                         osgHandle.changeColor(Color(0,0.0,0x72/255.0)),
+                                         conf, "Sphere", 0.5);
       sphere1->place ( osg::Matrix::translate(0,0,0.01));
 
 
       if(calm){
-        SeMoXConf cc = SeMoX::getDefaultConf();    
+        SeMoXConf cc = SeMoX::getDefaultConf();
         cc.modelExt=true;
-        controller = new SeMoX(cc);  
-        
+        controller = new SeMoX(cc);
+
         controller->setParam("epsC", 0.1);
-        controller->setParam("epsA", 0.1);        
+        controller->setParam("epsA", 0.1);
         controller->setParam("rootE", 0);
         controller->setParam("steps", 1);
         controller->setParam("s4avg", 1);
         controller->setParam("dampModel", 0.9e-5);
         controller->setParam("discountS", 0.01);
-      }else{            
-        SeMoXConf cc = SeMoX::getDefaultConf();    
+      }else{
+        SeMoXConf cc = SeMoX::getDefaultConf();
         cc.modelExt=true;
-        controller = new SeMoX(cc);  
-        
+        controller = new SeMoX(cc);
+
         controller->setParam("epsC", 0.2);
-        controller->setParam("epsA", 0.2);        
+        controller->setParam("epsA", 0.2);
         controller->setParam("rootE", 3);
         controller->setParam("steps", 1);
         controller->setParam("s4avg", 1);
@@ -431,29 +431,29 @@ public:
         // InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
         // cc.cInit=1.0;
         // cc.useSD=true;
-        // controller = new InvertMotorNStep(cc);    
-        // controller->setParam("steps", 1);    
-        // controller->setParam("adaptrate", 0.0);    
+        // controller = new InvertMotorNStep(cc);
+        // controller->setParam("steps", 1);
+        // controller->setParam("adaptrate", 0.0);
         // if(useReinforcement){
-        //   controller->setParam("epsC", 0.2);    
-        //   controller->setParam("epsA", 0.4); 
+        //   controller->setParam("epsC", 0.2);
+        //   controller->setParam("epsA", 0.4);
         // }else{
-        //   controller->setParam("epsC", 0.1);    
-        //   controller->setParam("epsA", 0.2); // 0.5    	
+        //   controller->setParam("epsC", 0.1);
+        //   controller->setParam("epsA", 0.2); // 0.5
         // }
-        // controller->setParam("rootE", 3);    
-        // controller->setParam("logaE", 0);    
+        // controller->setParam("rootE", 3);
+        // controller->setParam("logaE", 0);
       }
-    
+
       //      One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.1) );
-      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.1), 
-                                                         // AbstractWiring* wiring = new SelectiveOne2OneWiring(new WhiteUniformNoise(), 
-         						  new select_from_to(0,2), 
+      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.1),
+                                                         // AbstractWiring* wiring = new SelectiveOne2OneWiring(new WhiteUniformNoise(),
+                                                           new select_from_to(0,2),
                                                           AbstractWiring::Robot);
 
       //      std::list<PlotOption> l;
       //      l.push_back(PlotOption(GuiLogger, 5));
-      //      l.push_back(PlotOption(File, 1));      
+      //      l.push_back(PlotOption(File, 1));
       OdeAgent* agent = new OdeAgent ( global);
 
       //       OdeAgent* agent = new OdeAgent ( plotoptions);
@@ -462,33 +462,33 @@ public:
       global.agents.push_back ( agent );
       global.configs.push_back ( controller );
     }
-      
-    
+
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     if(useReinforcement==3){ // spinning around one particilar axis not too fast
       InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
       if(c && sensor){
- 	double dat[5];
-	//sensor->get(dat, 3);
-	std::cerr << "test: " << sensor->get(dat, 5) << std::endl;
-	for(int i=0; i<3; i++) dat[i]=fabs(dat[i]);
- 	std::sort(dat,dat+3);
- 	double penalty = (dat[0] + dat[1])/(dat[2]+0.01);
-	// 	double penalty = dat[0] + dat[1] + 0.5*sqr(dat[2]-1.2);
- 	c->setReinforcement(1.0 - penalty); 
+         double dat[5];
+        //sensor->get(dat, 3);
+        std::cerr << "test: " << sensor->get(dat, 5) << std::endl;
+        for(int i=0; i<3; i++) dat[i]=fabs(dat[i]);
+         std::sort(dat,dat+3);
+         double penalty = (dat[0] + dat[1])/(dat[2]+0.01);
+        //         double penalty = dat[0] + dat[1] + 0.5*sqr(dat[2]-1.2);
+         c->setReinforcement(1.0 - penalty);
       }
     }
     if(useReinforcement==2){ // spinning around axis 1
       InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
       if(c && sensor){
- 	double dat[3];
-	sensor->get(dat, 3);
-	for(int i=0; i<3; i++) dat[i]=fabs(dat[i]);
- 	double penalty = (dat[1] + dat[2])/(dat[0]+0.01);
-	// 	double penalty = dat[0] + dat[1] + 0.5*sqr(dat[2]-1.2);
- 	c->setReinforcement(1.0 - penalty); 
+         double dat[3];
+        sensor->get(dat, 3);
+        for(int i=0; i<3; i++) dat[i]=fabs(dat[i]);
+         double penalty = (dat[1] + dat[2])/(dat[0]+0.01);
+        //         double penalty = dat[0] + dat[1] + 0.5*sqr(dat[2]-1.2);
+         c->setReinforcement(1.0 - penalty);
       }
     }
   }
@@ -498,26 +498,26 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	case 'y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , 30 ,0 , 0 ); break;
-	case 'Y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
-	case 'x' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 10 , 0 ); break;
-	case 'X' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , -10 , 0 ); break;
-	case 'S' : controller->setParam("sinerate", controller->getParam("sinerate")*1.2); 
-	  printf("sinerate : %g\n", controller->getParam("sinerate"));
-	  break;
-	case 's' : controller->setParam("sinerate", controller->getParam("sinerate")/1.2); 
-	  printf("sinerate : %g\n", controller->getParam("sinerate"));
-	  break;
-	default:
-	  return false;
-	  break;
-	}
+        {
+        case 'y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , 30 ,0 , 0 ); break;
+        case 'Y' : dBodyAddForce ( sphere1->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
+        case 'x' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , 10 , 0 ); break;
+        case 'X' : dBodyAddTorque ( sphere1->getMainPrimitive()->getBody() , 0 , -10 , 0 ); break;
+        case 'S' : controller->setParam("sinerate", controller->getParam("sinerate")*1.2);
+          printf("sinerate : %g\n", controller->getParam("sinerate"));
+          break;
+        case 's' : controller->setParam("sinerate", controller->getParam("sinerate")/1.2);
+          printf("sinerate : %g\n", controller->getParam("sinerate"));
+          break;
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
 
-//   virtual Node* makeGround(){ // is NOT used for shadowing!    
+//   virtual Node* makeGround(){ // is NOT used for shadowing!
 //     float ir = 2000.0f;
 //     float texscale =0.1;
 //     Vec3Array *coords = new Vec3Array(4);
@@ -534,7 +534,7 @@ public:
 //     (*tcoords)[1].set(-texscale*ir, texscale*ir);
 //     (*tcoords)[2].set( texscale*ir, texscale*ir);
 //     (*tcoords)[3].set( texscale*ir,-texscale*ir);
-    
+
 
 //     Geometry *geom = new Geometry;
 
@@ -562,7 +562,7 @@ public:
 //     //     // clear the depth to the far plane.
 //     //     osg::Depth* depth = new osg::Depth;
 //     //     depth->setFunction(osg::Depth::ALWAYS);
-//     //     depth->setRange(1.0,1.0);   
+//     //     depth->setRange(1.0,1.0);
 //     //     dstate->setAttributeAndModes(depth,StateAttribute::ON );
 
 //     dstate->setRenderBinDetails(-1,"RenderBin");
@@ -580,11 +580,11 @@ public:
 //     return geode;
 //   }
 
-  
+
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
 
   if(sim.contains(argv,argc,"-calm")!=0) {
@@ -596,4 +596,4 @@ int main (int argc, char **argv)
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

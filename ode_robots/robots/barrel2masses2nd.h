@@ -37,24 +37,24 @@ namespace lpzrobots {
 /*
   parameters for nice rolling modes:
 
-    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-    conf.pendularrange  = 0.3; 
+    Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
+    conf.pendularrange  = 0.3;
     conf.motorsensor=false;
     conf.axisZsensor=true;
     conf.axisXYZsensor=false;
     conf.spheremass   = 1;
-    sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
-				  conf, "Barrel1", 0.2); 
+    sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)),
+                                  conf, "Barrel1", 0.2);
     sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
 
-    controller = new InvertMotorNStep();    
-    controller->setParam("steps", 2);    
-    controller->setParam("adaptrate", 0.0);    
-    controller->setParam("epsC", 0.03);    
-    controller->setParam("epsA", 0.05);    
-    controller->setParam("rootE", 3);    
-    controller->setParam("logaE", 0);    
-    
+    controller = new InvertMotorNStep();
+    controller->setParam("steps", 2);
+    controller->setParam("adaptrate", 0.0);
+    controller->setParam("epsC", 0.03);
+    controller->setParam("epsA", 0.05);
+    controller->setParam("rootE", 3);
+    controller->setParam("logaE", 0);
+
     One2OneWiring* wiring = new One2OneWiring ( new ColorUniformNoise() );
 
 */
@@ -69,15 +69,15 @@ class Barrel2Masses2nd : public Sphererobot3Masses
 public:
 
   /**
-   * Constructor. It is configured with the configuration object of Sphererobot3Masses. 
+   * Constructor. It is configured with the configuration object of Sphererobot3Masses.
    Just two of the 3 axis are used. The worldZaxissensor  and irAxis3 has no meaning here.
-   **/ 
+   **/
   Barrel2Masses2nd ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		       const Sphererobot3MassesConf& conf, const std::string& name, double transparency=0.5 );
-  
+                       const Sphererobot3MassesConf& conf, const std::string& name, double transparency=0.5 );
+
   virtual ~Barrel2Masses2nd();
-	
-  /** default configuration. It has no sensors. 
+
+  /** default configuration. It has no sensors.
       Use addSensor(new AxisOrientationSensor(ZProjectionXY) for example.*/
   static Sphererobot3MassesConf getDefaultConf(){
     Sphererobot3MassesConf c;
@@ -85,22 +85,22 @@ public:
     c.spheremass   = .3;// 0.1
     c.pendularmass  = 1.0;
     c.pendularrange  = 0.25; // range of the slider from center in multiple of diameter [-range,range]
-    c.motorsensor = false;  
+    c.motorsensor = false;
     c.irAxis1=false;
     c.irAxis2=false;
     c.irAxis3=false;
     c.drawIRs=RaySensor::drawAll;
     c.irsensorscale=1.5;
-    c.irCharacter=1;  
+    c.irCharacter=1;
     return c;
   }
-	
+
   virtual int getSensors ( sensor* sensors, int sensornumber );
-	
+
 protected:
 
   /// The cylinder (main body) lies on the ground, that it is rotating about the z-axis
-  virtual void create(const osg::Matrix& pose); 
+  virtual void create(const osg::Matrix& pose);
 
 };
 

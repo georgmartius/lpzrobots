@@ -166,16 +166,16 @@ public:
   AbstractGround* playground;
   Sensor* sensor;
   int useReinforcement;
-  
+
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     int num_barrels=0;
     int num_spheres=1;
-    useReinforcement=0; 
-    
-    int num_4wheel=0;          
-    //    useReinforcement=4; 
+    useReinforcement=0;
+
+    int num_4wheel=0;
+    //    useReinforcement=4;
 
     controller=0;
     multisat=0;
@@ -186,16 +186,16 @@ public:
     global.odeConfig.setParam("noise",0.05);
     //  global.odeConfig.setParam("gravity",-10);
     global.odeConfig.setParam("controlinterval",2);
-    
-    bool longsquarecorridor=false; 
 
-    playground=0;    
+    bool longsquarecorridor=false;
+
+    playground=0;
     sensor=0;
     if(longsquarecorridor){
-      playground = new Playground(odeHandle, osgHandle,osg::Vec3(500, 0.2, 1.2 ), 
-				  5000/500, false);
+      playground = new Playground(odeHandle, osgHandle,osg::Vec3(500, 0.2, 1.2 ),
+                                  5000/500, false);
       playground->setGroundColor(Color(255/255.0,200/255.0,0/255.0));
-      playground->setGroundTexture("Images/dusty.rgb");    
+      playground->setGroundTexture("Images/dusty.rgb");
       playground->setColor(Color(255/255.0,200/255.0,21/255.0, 0.6));
       playground->setPosition(osg::Vec3(0,0,0.1));
       playground->setTexture("");
@@ -205,8 +205,8 @@ public:
     /* * * * BARRELS * * * */
     for(int i=0; i< num_barrels; i++){
       //****************
-      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.15; 
+      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
+      conf.pendularrange  = 0.15;
       conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection, Sensor::X | Sensor::Y));
       //      conf.addSensor(new SpeedSensor(5, SpeedSensor::Translational, Sensor::X ));
@@ -215,15 +215,15 @@ public:
       conf.irAxis2=false;
       conf.irAxis3=false;
       conf.spheremass   = 0.3; // 1
-      robot = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
-				   conf, "Multi4_4h_Barrel", 0.4); 
+      robot = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)),
+                                   conf, "Multi4_4h_Barrel", 0.4);
       robot->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
-      
+
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       cc.cInit=0.5;
       cc.useSD=true;
       AbstractController* controller = new InvertMotorNStep(cc); // selforg controller
-      //AbstractController* controller = new SineController(); 
+      //AbstractController* controller = new SineController();
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
       MultiSatConf msc = MultiSat::getDefaultConf();
       msc.controller = controller;
@@ -231,18 +231,18 @@ public:
       msc.numHidden = 4;
       msc.numSats = 4;
       multisat = new MultiSat(msc);
-      
-      controller->setParam("steps", 2);    
-      //    controller->setParam("adaptrate", 0.001);    
-      controller->setParam("adaptrate", 0.0);    
-      controller->setParam("nomupdate", 0.005);    
-      //      controller->setParam("epsC", 0.03);    
-      //      controller->setParam("epsA", 0.05);    
-      controller->setParam("epsC", 0.02);    
-      controller->setParam("epsA", 0.03);    
-      controller->setParam("rootE", 3);    
-      controller->setParam("logaE", 0);    
-    
+
+      controller->setParam("steps", 2);
+      //    controller->setParam("adaptrate", 0.001);
+      controller->setParam("adaptrate", 0.0);
+      controller->setParam("nomupdate", 0.005);
+      //      controller->setParam("epsC", 0.03);
+      //      controller->setParam("epsA", 0.05);
+      controller->setParam("epsC", 0.02);
+      controller->setParam("epsA", 0.03);
+      controller->setParam("rootE", 3);
+      controller->setParam("logaE", 0);
+
       //       DerivativeWiringConf dc = DerivativeWiring::getDefaultConf();
       //       dc.useId=true;
       //       dc.useFirstD=false;
@@ -250,7 +250,7 @@ public:
       //      AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(), new select_from_to(0,1));
       AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.2));
       //      OdeAgent* agent = new OdeAgent ( PlotOption(File, Robot, 1) );
-      OdeAgent* agent = new OdeAgent ( plotoptions );
+      OdeAgent* agent = new OdeAgent ( global );
       agent->addInspectable(controller); // add selforg controller to list of inspectables
       agent->init ( multisat , robot , wiring );
       //  agent->setTrackOptions(TrackRobot(true, false, false, "ZSens_Ring10_11", 50));
@@ -269,38 +269,38 @@ public:
       const char* replayfilename="Sphere_slow_07-07-18.sel.log";
       //   const char* replayfilename="Sphere_long_rich_07-07-18.sel.log";
       // const char* replayfilename="Sphere_long_rich_2_07-07-31.sel.log";
-      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.30; 
-      conf.brake          = 0.1; 
-      //      conf.pendularrange  = 0.15; 
-      //      conf.motorpowerfactor  = 150;    
-      // conf.spheremass  = 1;      
-      //      conf.spheremass  = 0.3;    
+      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
+      conf.pendularrange  = 0.30;
+      conf.brake          = 0.1;
+      //      conf.pendularrange  = 0.15;
+      //      conf.motorpowerfactor  = 150;
+      // conf.spheremass  = 1;
+      //      conf.spheremass  = 0.3;
       conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
       conf.addSensor(new SpeedSensor(5, SpeedSensor::RotationalRel));
 
       robot = new Sphererobot3Masses(odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)),
-				     conf, "Multi20_h_Sphereslow_v5_noy_sqrt", 0.3);
-      //	conf, "Multi16_2h_Sphere_long_rich2", 0.3); 
-      robot->place ( osg::Matrix::translate(0,0,0.2)); 
-      
+                                     conf, "Multi20_h_Sphereslow_v5_noy_sqrt", 0.3);
+      //        conf, "Multi16_2h_Sphere_long_rich2", 0.3);
+      robot->place ( osg::Matrix::translate(0,0,0.2));
+
       if(!replay){
-	InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-	//      DerControllerConf cc = DerController::getDefaultConf();
-	cc.cInit=1.0;
-	//      cc.useSD=true;
-	//controller = new DerController(cc);    
-	controller = new InvertMotorNStep(cc);  
-      }else 
-	controller = new ReplayController(replayfilename,true);     
+        InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+        //      DerControllerConf cc = DerController::getDefaultConf();
+        cc.cInit=1.0;
+        //      cc.useSD=true;
+        //controller = new DerController(cc);
+        controller = new InvertMotorNStep(cc);
+      }else
+        controller = new ReplayController(replayfilename,true);
 
       MultiSatConf msc = MultiSat::getDefaultConf();
       msc.controller = controller;
       msc.numContext = 3;
       msc.numHidden = 4;
-      msc.numSats   = 48; 
+      msc.numSats   = 48;
       msc.eps0      = 0.1;
       //      msc.numSomPerDim = 3;
       msc.tauE1     = 50;
@@ -314,24 +314,24 @@ public:
       multisat = new MultiSat(msc);
 
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
-      controller->setParam("steps", 1);    
-      //    controller->setParam("adaptrate", 0.001);    
-      controller->setParam("adaptrate", 0.0);    
-      controller->setParam("nomupdate", 0.005);    
-      controller->setParam("epsC", 0.1);    
-      controller->setParam("epsA", 0.2);    
-      controller->setParam("rootE", 3);    
-      controller->setParam("logaE", 0);    
-      controller->setParam("sinerate", 15);  
+      controller->setParam("steps", 1);
+      //    controller->setParam("adaptrate", 0.001);
+      controller->setParam("adaptrate", 0.0);
+      controller->setParam("nomupdate", 0.005);
+      controller->setParam("epsC", 0.1);
+      controller->setParam("epsA", 0.2);
+      controller->setParam("rootE", 3);
+      controller->setParam("logaE", 0);
+      controller->setParam("sinerate", 15);
       controller->setParam("phaseshift", 0.45);
-    
+
       // AbstractWiring* wiring = new SelectiveOne2OneWiring(new ColorUniformNoise(0.2), new select_from_to(0,2));
       //OdeAgent* agent = new OdeAgent ( PlotOption(GuiLogger, Robot, 5) );
       //     agent->init ( controller , robot , wiring );
       global.configs.push_back ( controller );
 
       AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.20) );
-      OdeAgent* agent = new OdeAgent ( plotoptions );
+      OdeAgent* agent = new OdeAgent ( global );
       agent->addInspectable(controller);
       agent->init ( multisat , robot , wiring );
       global.configs.push_back ( multisat );
@@ -350,30 +350,30 @@ public:
       //       fwc.irFront=true;
       //       fwc.irBack=true;
       //       fwc.irSide=true;
-      OdeRobot* nimm4 = new FourWheeled ( odeHandle, osgHandle, fwc, "Multi8_2h_Nimm4_nogat_noy_sqrt");        
-      AddSensors2RobotAdapter* addsensorrobot = 
-	new AddSensors2RobotAdapter(odeHandle, osgHandle, nimm4);
+      OdeRobot* nimm4 = new FourWheeled ( odeHandle, osgHandle, fwc, "Multi8_2h_Nimm4_nogat_noy_sqrt");
+      AddSensors2RobotAdapter* addsensorrobot =
+        new AddSensors2RobotAdapter(odeHandle, osgHandle, nimm4);
       sensor = new SpeedSensor(1,SpeedSensor::TranslationalRel, Sensor::Z);
       addsensorrobot->addSensor(sensor);
       addsensorrobot->addSensor(new SpeedSensor(1,SpeedSensor::RotationalRel, Sensor::X));
       robot = addsensorrobot;
-      robot->place ( osg::Matrix::translate(0,0,0.2)); 
-            
+      robot->place ( osg::Matrix::translate(0,0,0.2));
+
       if(!replay){
-	InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-	//      DerControllerConf cc = DerController::getDefaultConf();
-	cc.cInit=1.0;
-	//      cc.useSD=true;
-	//controller = new DerController(cc);    
-	controller = new InvertMotorNStep(cc);    
-      }else 
-	controller = new ReplayController(replayfilename,true);     
+        InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+        //      DerControllerConf cc = DerController::getDefaultConf();
+        cc.cInit=1.0;
+        //      cc.useSD=true;
+        //controller = new DerController(cc);
+        controller = new InvertMotorNStep(cc);
+      }else
+        controller = new ReplayController(replayfilename,true);
 
       MultiSatConf msc = MultiSat::getDefaultConf();
       msc.controller = controller;
       msc.numContext = 2;
       msc.numHidden = 2;
-      msc.numSats   = 8; 
+      msc.numSats   = 8;
       msc.eps0      = 0.01;
       //      msc.numSomPerDim = 3;
       msc.tauE1     = 20;
@@ -385,17 +385,17 @@ public:
       multisat = new MultiSat(msc);
 
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
-      controller->setParam("steps", 1);    
-      controller->setParam("adaptrate", 0.0);    
-      controller->setParam("epsC", 0.05);    
-      controller->setParam("epsA", 0.05);    
-      controller->setParam("rootE", 0);    
-      controller->setParam("logaE", 0);    
-    
+      controller->setParam("steps", 1);
+      controller->setParam("adaptrate", 0.0);
+      controller->setParam("epsC", 0.05);
+      controller->setParam("epsA", 0.05);
+      controller->setParam("rootE", 0);
+      controller->setParam("logaE", 0);
+
       global.configs.push_back ( controller );
 
       AbstractWiring* wiring = new One2OneWiring ( new ColorUniformNoise(0.20) );
-      OdeAgent* agent = new OdeAgent ( plotoptions );
+      OdeAgent* agent = new OdeAgent ( global );
       agent->addInspectable(controller);
       agent->init ( multisat , robot , wiring );
       global.configs.push_back ( multisat );
@@ -403,81 +403,81 @@ public:
       global.agents.push_back ( agent );
     }
 
-      
-    
+
+
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
 //     InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
 //     if(c){
-//       matrix::Matrix m(3,1, dBodyGetLinearVel( sphere->getMainPrimitive()->getBody())); 
-//       c->setReinforcement(m.map(abs).elementSum()/3 - 1); 
+//       matrix::Matrix m(3,1, dBodyGetLinearVel( sphere->getMainPrimitive()->getBody()));
+//       c->setReinforcement(m.map(abs).elementSum()/3 - 1);
 //     }
     if(useReinforcement==4){ // for FourWheelie
       InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
       if(c && sensor){
- 	double dat[1];
-	sensor->get(dat, 1); 	
- 	c->setReinforcement(fabs(dat[0])); 
+         double dat[1];
+        sensor->get(dat, 1);
+         c->setReinforcement(fabs(dat[0]));
       }
     }
 
 
   }
-  
+
   // add own key handling stuff here, just insert some case values
   virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
     char filename[256];
-    if (down) { // only when key is pressed, not when released      
+    if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	case 'y' : dBodyAddForce ( robot->getMainPrimitive()->getBody() , 30 ,0 , 0 ); break;
-	case 'Y' : dBodyAddForce ( robot->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
-	  //	case 'x' : dBodyAddTorque ( robot->getMainPrimitive()->getBody() , 0 , 10 , 0 ); break;
-	  //	case 'X' : dBodyAddTorque ( robot->getMainPrimitive()->getBody() , 0 , -10 , 0 ); break;
-	case 'x' : dBodyAddTorque ( robot->getMainPrimitive()->getBody() , 0 , 0, 30); break;
-	case 'X' : dBodyAddTorque ( robot->getMainPrimitive()->getBody() , 0 , 0,-30); break;
-	case 'n' : 
-	  std::cout << "Please type a filename stem:";
-	  std::cin >> filename;
-	  if(multisat) multisat->storeSats(filename); 
-	  break;
-	case 'l' : 
-	  if(controller){
-	    std::cout << "Controller filename: ";
-	    std::cin >> filename;
-	    {
-	      FILE* f = fopen(filename,"rb");
-	      if(f && controller->restore(f)){
-		printf("Controller restored\n");
-		controller->setParam("epsC",0);
-	      }
-	      else printf("Error occured while restoring contoller\n");	
-	    }
-	  }	  
-	  break;
-	default:
-	  return false;
-	  break;
-	}
+        {
+        case 'y' : dBodyAddForce ( robot->getMainPrimitive()->getBody() , 30 ,0 , 0 ); break;
+        case 'Y' : dBodyAddForce ( robot->getMainPrimitive()->getBody() , -30 , 0 , 0 ); break;
+          //        case 'x' : dBodyAddTorque ( robot->getMainPrimitive()->getBody() , 0 , 10 , 0 ); break;
+          //        case 'X' : dBodyAddTorque ( robot->getMainPrimitive()->getBody() , 0 , -10 , 0 ); break;
+        case 'x' : dBodyAddTorque ( robot->getMainPrimitive()->getBody() , 0 , 0, 30); break;
+        case 'X' : dBodyAddTorque ( robot->getMainPrimitive()->getBody() , 0 , 0,-30); break;
+        case 'n' :
+          std::cout << "Please type a filename stem:";
+          std::cin >> filename;
+          if(multisat) multisat->storeSats(filename);
+          break;
+        case 'l' :
+          if(controller){
+            std::cout << "Controller filename: ";
+            std::cin >> filename;
+            {
+              FILE* f = fopen(filename,"rb");
+              if(f && controller->restore(f)){
+                printf("Controller restored\n");
+                controller->setParam("epsC",0);
+              }
+              else printf("Error occured while restoring contoller\n");
+            }
+          }
+          break;
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
 
-  
+
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+
 // with this seed the sphere does all sorts of things
 //Use random number seed: 1181308527
 
 // nice regular behaving sphere
 // Use random number seed: 1181566764
- 
+

@@ -1,7 +1,7 @@
 /************************************************************************/
-/*schlangevelocity.h			                            	*/
+/*schlangevelocity.h                                                            */
 /*Snake with powered by setting angular velocities                      */
-/*									*/
+/*                                                                        */
 /************************************************************************/
 /***************************************************************************
  *   Copyright (C) 2005-2011 LpzRobots development team                    *
@@ -34,8 +34,8 @@
 namespace lpzrobots {
 
   /**
-   * This is a class, which models a snake like robot. 
-   * It consists of a number of equal elements, each linked 
+   * This is a class, which models a snake like robot.
+   * It consists of a number of equal elements, each linked
    * by a joint powered by directly setting the angular velocities of the joints
    **/
   class SchlangeVelocity: public Schlange
@@ -48,26 +48,26 @@ namespace lpzrobots {
 
     public:
       SchlangeVelocity ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		      const SchlangeConf& conf, const std::string& name);
+                      const SchlangeConf& conf, const std::string& name);
 
       static SchlangeConf getDefaultConf(){
-	SchlangeConf conf;
-	conf.segmNumber = 10;      //  number of snake elements
-	conf.segmLength = 0.8;     // length of one snake element
-	conf.segmDia    = 0.2;     //  diameter of a snake element
-	conf.segmMass   = 0.4;     //  mass of one snake element
-	conf.motorPower = 0.3;     //  power of motors
-	conf.jointLimit =  M_PI/4;	
-	return conf;
+        SchlangeConf conf;
+        conf.segmNumber = 10;      //  number of snake elements
+        conf.segmLength = 0.8;     // length of one snake element
+        conf.segmDia    = 0.2;     //  diameter of a snake element
+        conf.segmMass   = 0.4;     //  mass of one snake element
+        conf.motorPower = 0.3;     //  power of motors
+        conf.jointLimit =  M_PI/4;
+        return conf;
       }
 
       virtual ~SchlangeVelocity();
-	
+
       /**
-       *Reads the actual motor commands from an array, 
+       *Reads the actual motor commands from an array,
        *an sets all motors of the snake to this values.
        *It is an linear allocation.
-       *@param motors pointer to the array, motor values are scaled to [-1,1] 
+       *@param motors pointer to the array, motor values are scaled to [-1,1]
        *@param motornumber length of the motor array
        **/
       virtual void setMotors ( const motor* motors, int motornumber );
@@ -79,7 +79,7 @@ namespace lpzrobots {
        *@return number of actually written sensors
        **/
       virtual int getSensors ( sensor* sensors, int sensornumber );
-	
+
       /** returns number of sensors
        */
       virtual int getSensorNumber() { assert(created); return joints.size() * 2; }

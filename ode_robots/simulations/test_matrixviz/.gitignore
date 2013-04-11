@@ -1,9 +1,0 @@
-Makefile.depend
-start
-*.log
-start_opt
-.history
-video0*
-start_prof
-MatrixViz
-Makefile

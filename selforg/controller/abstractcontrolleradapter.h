@@ -42,7 +42,7 @@
  *
  * This is an abstract adapter class, it's useful for implementing adapters such as the
  * DescreteController, which can be used with all Controllers.
- * 
+ *
  * Note that the configureable and inspectable classes are registered at this
  *  adapter class.
  *
@@ -63,13 +63,13 @@ public:
   virtual ~AbstractControllerAdapter() {}
 
   /****************************************************************************/
-  /*	AbstractControllerAdapter must implement the following classes:        	*/
-  /*	AbstractController, Configurable, Inspectable, Storeable	            */
+  /*        AbstractControllerAdapter must implement the following classes:                */
+  /*        AbstractController, Configurable, Inspectable, Storeable                    */
   /****************************************************************************/
-  
-  
+
+
   /****************************************************************************/
-  /*	BEGIN methods of AbstractController                                 	*/
+  /*        BEGIN methods of AbstractController                                         */
   /****************************************************************************/
 
   /** initialisation of the controller with the given sensor/ motornumber
@@ -84,11 +84,11 @@ public:
   /** @return Number of sensors the controller
       was initialised with or 0 if not initialised */
   virtual int getSensorNumber() const { return controller->getSensorNumber();}
-  
+
   /** @return Number of motors the controller
       was initialised with or 0 if not initialised */
   virtual int getMotorNumber() const {  return controller->getMotorNumber();}
-  
+
   /** performs one step (includes learning).
       Calculates motor commands from sensor inputs.
       @param sensors sensors inputs scaled to [-1,1]
@@ -97,66 +97,66 @@ public:
       @param motornumber length of the provided motor array
   */
   virtual void step(const sensor* sensors, int sensornumber,
-		    motor* motors, int motornumber) { 
-    controller->step(sensors, sensornumber, motors,  motornumber); 
+                    motor* motors, int motornumber) {
+    controller->step(sensors, sensornumber, motors,  motornumber);
   }
-  
+
   /** performs one step without learning.
       @see step
   */
   virtual void stepNoLearning(const sensor* sensors , int sensornumber,
-			      motor* motors, int motornumber) { 
-    controller->stepNoLearning(sensors,sensornumber,motors,motornumber); 
+                              motor* motors, int motornumber) {
+    controller->stepNoLearning(sensors,sensornumber,motors,motornumber);
   }
-  
+
   /****************************************************************************/
-  /*	END methods of AbstractController                                 	    */
+  /*        END methods of AbstractController                                             */
   /****************************************************************************/
-  
+
   /****************************************************************************/
-  /*	BEGIN methods of Configurable                                       	*/
+  /*        BEGIN methods of Configurable                                               */
   /****************************************************************************/
-  
+
   // nothing needed to be overwrited
 
   /****************************************************************************/
-  /*	END methods of Configurable                                      	    */
+  /*        END methods of Configurable                                                  */
   /****************************************************************************/
-  
+
   /****************************************************************************/
-  /*	BEGIN methods of Inspectable                                          	*/
+  /*        BEGIN methods of Inspectable                                                  */
   /****************************************************************************/
-  
+
   // nothing needed to be overwrited
-  
+
   /****************************************************************************/
-  /*	END methods of Inspectable                                       	    */
+  /*        END methods of Inspectable                                                   */
   /****************************************************************************/
-  
+
   /****************************************************************************/
-  /*	BEGIN methods of Storable                                       	*/
+  /*        BEGIN methods of Storable                                               */
   /****************************************************************************/
-  
+
   /********* STORABLE INTERFACE ******/
   /// @see Storable
-  virtual bool store(FILE* f) const { 
+  virtual bool store(FILE* f) const {
     return controller->store(f);
   }
-  
+
   /// @see Storable
-  virtual bool restore(FILE* f) { 
+  virtual bool restore(FILE* f) {
     return controller->restore(f);
   }
-  
-  
+
+
   /****************************************************************************/
-  /*	END methods of Storable                                        	    */
+  /*        END methods of Storable                                                    */
   /****************************************************************************/
-  
-  
+
+
 protected:
   AbstractController* controller; // the controller for the adapter to handle
-  
+
 };
 
 #endif

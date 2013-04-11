@@ -187,7 +187,7 @@ namespace lpzrobots{
   Pose Primitive::getPose() const {
     if(!geom) {
       if (!body)
-	return Pose::translate(0.0f,0.0f,0.0f); // fixes init bug
+        return Pose::translate(0.0f,0.0f,0.0f); // fixes init bug
       else
         return osgPose(dBodyGetPosition(body), dBodyGetRotation(body));
     }
@@ -234,8 +234,8 @@ namespace lpzrobots{
     \b I are parts of the 3x3 interia tensor
   */
   void Primitive::setMass(double mass, double cgx, double cgy, double cgz,
-			  double I11, double I22, double I33,
-			  double I12, double I13, double I23){
+                          double I11, double I22, double I33,
+                          double I12, double I13, double I23){
     dMass mass0;
     dMassSetParameters(&mass0, mass, cgx, cgy, cgz, I11, I22, I33, I12, I13, I23);
     dBodySetMass(body, &mass0);
@@ -361,7 +361,7 @@ namespace lpzrobots{
   OSGPrimitive* Plane::getOSGPrimitive() { return osgplane; }
 
   void Plane::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
-		   char mode) {
+                   char mode) {
     assert(mode & Body || mode & Geom);
     this->mode=mode;
     QMP_CRITICAL(0);
@@ -382,9 +382,9 @@ namespace lpzrobots{
   void Plane:: update(){
     if(mode & Draw) {
       if(body)
-	osgplane->setMatrix(osgPose(body));
+        osgplane->setMatrix(osgPose(body));
       else
-	osgplane->setMatrix(osgPose(geom));
+        osgplane->setMatrix(osgPose(geom));
     }
   }
 
@@ -415,7 +415,7 @@ namespace lpzrobots{
   OSGPrimitive* Box::getOSGPrimitive() { return osgbox; }
 
   void Box::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
-		 char mode) {
+                 char mode) {
     assert((mode & Body) || (mode & Geom));
     if (!substanceManuallySet)
       substance = odeHandle.substance;
@@ -439,9 +439,9 @@ namespace lpzrobots{
   void Box:: update(){
     if(mode & Draw) {
       if(body)
-	osgbox->setMatrix(osgPose(body));
+        osgbox->setMatrix(osgPose(body));
       else
-	osgbox->setMatrix(osgPose(geom));
+        osgbox->setMatrix(osgPose(geom));
     }
   }
 
@@ -468,7 +468,7 @@ namespace lpzrobots{
   OSGPrimitive* Sphere::getOSGPrimitive() { return osgsphere; }
 
   void Sphere::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
-		    char mode) {
+                    char mode) {
     assert(mode & Body || mode & Geom);
     if (!substanceManuallySet)
       substance = odeHandle.substance;
@@ -491,9 +491,9 @@ namespace lpzrobots{
   void Sphere::update(){
     if(mode & Draw) {
       if(body)
-	osgsphere->setMatrix(osgPose(body));
+        osgsphere->setMatrix(osgPose(body));
       else
-	osgsphere->setMatrix(osgPose(geom));
+        osgsphere->setMatrix(osgPose(geom));
     }
   }
 
@@ -519,7 +519,7 @@ namespace lpzrobots{
   OSGPrimitive* Capsule::getOSGPrimitive() { return osgcapsule; }
 
   void Capsule::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
-		     char mode) {
+                     char mode) {
     assert(mode & Body || mode & Geom);
     if (!substanceManuallySet)
       substance = odeHandle.substance;
@@ -542,9 +542,9 @@ namespace lpzrobots{
   void Capsule::update(){
     if(mode & Draw) {
       if(body)
-	osgcapsule->setMatrix(osgPose(body));
+        osgcapsule->setMatrix(osgPose(body));
       else
-	osgcapsule->setMatrix(osgPose(geom));
+        osgcapsule->setMatrix(osgPose(geom));
     }
   }
 
@@ -571,7 +571,7 @@ namespace lpzrobots{
   OSGPrimitive* Cylinder::getOSGPrimitive() { return osgcylinder; }
 
   void Cylinder::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
-		     char mode) {
+                     char mode) {
     assert(mode & Body || mode & Geom);
     if (!substanceManuallySet)
       substance = odeHandle.substance;
@@ -594,9 +594,9 @@ namespace lpzrobots{
   void Cylinder::update(){
     if(mode & Draw) {
       if(body)
-	osgcylinder->setMatrix(osgPose(body));
+        osgcylinder->setMatrix(osgPose(body));
       else
-	osgcylinder->setMatrix(osgPose(geom));
+        osgcylinder->setMatrix(osgPose(geom));
     }
   }
 
@@ -614,17 +614,23 @@ namespace lpzrobots{
   Ray::Ray(double range, float thickness, float length)
     : range(range), thickness(thickness), length(length)
   {
-    osgbox = new OSGBox(thickness, thickness, length);
+    if(thickness==0){
+      std::list<osg::Vec3> pnts;
+      pnts.push_back(osg::Vec3(0,0,-length/2));
+      pnts.push_back(osg::Vec3(0,0,length/2));
+      osgprimitive = new OSGLine(pnts);
+    } else
+      osgprimitive = new OSGBox(thickness, thickness, length);
   }
 
   Ray::~Ray(){
-    if(osgbox) delete osgbox;
+    if(osgprimitive) delete osgprimitive;
   }
 
-  OSGPrimitive* Ray::getOSGPrimitive() { return osgbox; }
+  OSGPrimitive* Ray::getOSGPrimitive() { return osgprimitive; }
 
   void Ray::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
-		 char mode) {
+                 char mode) {
     assert(!(mode & Body) && (mode & Geom));
     if (!substanceManuallySet)
       substance = odeHandle.substance;
@@ -634,7 +640,7 @@ namespace lpzrobots{
     attachGeomAndSetColliderFlags();
 
     if (mode & Draw){
-      osgbox->init(osgHandle);
+      osgprimitive->init(osgHandle);
     }
     QMP_END_CRITICAL(5);
   }
@@ -642,13 +648,22 @@ namespace lpzrobots{
   void Ray::setLength(float len){
     length=len;
     if (mode & Draw){
-      osgbox->setDim(osg::Vec3(thickness,thickness,length));
+      OSGBox* b = dynamic_cast<OSGBox*>(osgprimitive);
+      if(b)
+        b->setDim(osg::Vec3(thickness,thickness,length));
+      else{
+        OSGLine* l = dynamic_cast<OSGLine*>(osgprimitive);
+        std::list<osg::Vec3> pnts;
+        pnts.push_back(osg::Vec3(0,0,-length/2));
+        pnts.push_back(osg::Vec3(0,0,length/2));
+        l->setPoints(pnts);
+      }
     }
   }
 
   void Ray::update(){
     if(mode & Draw) {
-      osgbox->setMatrix(Pose::translate(0,0,length/2)*osgPose(geom));
+      osgprimitive->setMatrix(Pose::translate(0,0,length/2)*osgPose(geom));
     }
   }
 
@@ -671,7 +686,7 @@ namespace lpzrobots{
   OSGPrimitive* Transform::getOSGPrimitive() { return 0; }
 
   void Transform::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
-		       char mode) {
+                       char mode) {
     // Primitive::body is ignored (removed) from mode
     assert(parent && parent->getBody() != 0 && child); // parent and child must exist
     assert(child->getBody() == 0 && child->getGeom() == 0); // child should not be initialised
@@ -731,7 +746,7 @@ namespace lpzrobots{
   OSGPrimitive* Mesh::getOSGPrimitive() { return osgmesh; }
 
   void Mesh::init(const OdeHandle& odeHandle, double mass, const OsgHandle& osgHandle,
-		     char mode) {
+                     char mode) {
     // 20100307; guettler: sometimes the Geom is created later (XMLBoundingShape),
     // if no body is created, this Mesh seems to be static. Then the BoundingShape must not attach
     // any Primitive to the body of the Mesh by a Transform.

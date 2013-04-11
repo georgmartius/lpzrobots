@@ -24,21 +24,21 @@
 
 #include "arm2segm.h"
 
-using namespace std; 
+using namespace std;
 
 namespace lpzrobots{
 
   Arm2Segm::Arm2Segm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const Arm2SegmConf armConf):
-    OdeRobot(odeHandle, osgHandle,"Arm2Segm", "$Id$"), conf(armConf){ 
+    OdeRobot(odeHandle, osgHandle,"Arm2Segm", "$Id$"), conf(armConf){
 
     parentspace=odeHandle.space;
 
     speed=1.0;
     factorSensors=2.0;
-    sensorno=conf.segmentsno; 
+    sensorno=conf.segmentsno;
     motorno=conf.segmentsno;
     this->osgHandle.color = Color(1, 0, 0, 1.0f);
-   
+
     addParameterDef("speed", &speed, 1.0, 0,10);
     addParameterDef("factorSensors", &factorSensors, 2, 0,10);
 
@@ -46,27 +46,27 @@ namespace lpzrobots{
   };
 
   /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
+      @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
   void Arm2Segm::setMotors(const motor* motors, int motornumber){
     assert(created); // robot must exist
     // the number of controlled motors is minimum of
-    // "number of motorcommands" (motornumber) and 
+    // "number of motorcommands" (motornumber) and
     // "number of motors inside the robot" (motorno)
     int len = (motornumber < motorno)? motornumber : motorno;
 
     // for each motor the motorcommand (between -1 and 1) multiplied with speed
     // is set (maximal force defined by amotors, see create() below)
-    for (int i=0; i<len; i++){ 
+    for (int i=0; i<len; i++){
       amotors[i]->set(1, motors[i]*speed);
     }
-  
+
     // another possibility is to set half of the difference between last set speed
     // and the actual desired speed as new speed;
     /*
     double tmp;
-    for (int i=0; i<len; i++){ 
+    for (int i=0; i<len; i++){
       tmp=amotors[i]->get(1);
       amotors[i]->set(1,tmp + 0.5*(motors[i]*speed-tmp) );
     }
@@ -83,18 +83,18 @@ namespace lpzrobots{
     assert(created); // robot must exist
 
     // the number of sensors to read is the minimum of
-    // "number of sensors requested" (sensornumber) and 
+    // "number of sensors requested" (sensornumber) and
     // "number of sensors inside the robot" (sensorno)
     int len = (sensornumber < sensorno)? sensornumber : sensorno;
 
-    // for each sensor the anglerate of the joint is red and scaled with 1/speed 
+    // for each sensor the anglerate of the joint is red and scaled with 1/speed
     for (int i=0; i<len; i++){
       sensors[i]=amotors[i]->get(1);  // is equal to: ((HingeJoint*)joints[i])->getPosition1Rate()
       // or read angle of each joint:
       // sensors[i]=((HingeJoint*)joints[i])->getPosition1();
       sensors[i]/=speed;  //scaling
     }
-    // the number of red sensors is returned 
+    // the number of red sensors is returned
     return len;
   };
 
@@ -104,41 +104,41 @@ namespace lpzrobots{
   void Arm2Segm::place(const osg::Matrix& pose){
     // the position of the robot is the center of the base
     // to set it on the ground when the z component of the position is 0
-    // base_length*0.5 is added (without this half of the base will be in the ground)    
+    // base_length*0.5 is added (without this half of the base will be in the ground)
     osg::Matrix p2;
-    p2 = pose 
+    p2 = pose
       // TODO: create is not robust enough to endure this pose !!
-      //      * osg::Matrix::rotate(M_PI/2, 0, 0, 1) 
-      * osg::Matrix::translate(osg::Vec3(0, 0, conf.base_length* 0.5)); 
+      //      * osg::Matrix::rotate(M_PI/2, 0, 0, 1)
+      * osg::Matrix::translate(osg::Vec3(0, 0, conf.base_length* 0.5));
     create(p2);
 
 
       // p->setPose(osg::Matrix::rotate(M_PI/2, 0, 0, 1) *
-// 		 osg::Matrix::translate((n-half)*conf.segmLength, 0 , conf.segmDia/2) * 
-// 		 pose);
+//                  osg::Matrix::translate((n-half)*conf.segmLength, 0 , conf.segmDia/2) *
+//                  pose);
 
   };
 
 
   /** returns a vector with the positions of all segments of the robot
-      @param poslist vector of positions (of all robot segments) 
+      @param poslist vector of positions (of all robot segments)
       @return length of the list
   */
   int Arm2Segm::getSegmentsPosition(std::vector<Position> &poslist){
     for (int i=0; i<conf.segmentsno; i++){
       Pos p = objects[i]->getPosition();
       poslist.push_back(p.toPosition());
-    } 
+    }
     return conf.segmentsno;
-  };  
+  };
 
 
   void Arm2Segm::update(){
     assert(created); // robot must exist
-    for (vector<Primitive*>::iterator i = objects.begin(); i!=objects.end(); i++) { 
+    for (vector<Primitive*>::iterator i = objects.begin(); i!=objects.end(); i++) {
       if (*i) (*i)->update();
     }
-    for (vector<Joint*>::iterator i = joints.begin(); i!=joints.end(); i++) { 
+    for (vector<Joint*>::iterator i = joints.begin(); i!=joints.end(); i++) {
       if (*i) (*i)->update();
     }
   };
@@ -146,22 +146,22 @@ namespace lpzrobots{
 
   void Arm2Segm::doInternalStuff(GlobalData& globalData){
   };
-  
 
-  Primitive* Arm2Segm::getMainPrimitive() const{ 
+
+  Primitive* Arm2Segm::getMainPrimitive() const{
     // at the moment returning position of last arm,
     // better would be a tip at the end of this arm, as in muscledArm
-    return objects[conf.segmentsno-1]; 
+    return objects[conf.segmentsno-1];
   }
 
 
-  /** creates vehicle at desired position 
+  /** creates vehicle at desired position
   */
   void Arm2Segm::create(const osg::Matrix& pose){
     if (created) {
       destroy();
     }
-    
+
     // create vehicle space and add it to parentspace
     odeHandle.createNewSimpleSpace(parentspace,false);
 
@@ -170,7 +170,7 @@ namespace lpzrobots{
     //o->getOSGPrimitive()->setTexture("Images/wood.rgb");
     o -> init(odeHandle, conf.base_mass, osgHandle);
     o->setPose( pose); // set base to given pose
-    
+
     objects.push_back(o);
 
     // create arms
@@ -179,12 +179,12 @@ namespace lpzrobots{
       o -> init(odeHandle, conf.arm_mass, osgHandle);
       // move arms to desired places
       o -> setPose(osg::Matrix::translate(osg::Vec3(// shift (armlength -JOINT_OFFSET) to have overlapp
-						    (i+0.5)*conf.arm_length - (i+1)*conf.joint_offset,
-						    // shift to have place between arms
-						    (i+1)*conf.arm_offset 
-						    + (i+0.5)*conf.arm_width + 0.5*conf.base_width,
-						    // height is ok, no shift
-						    0) ) * pose);
+                                                    (i+0.5)*conf.arm_length - (i+1)*conf.joint_offset,
+                                                    // shift to have place between arms
+                                                    (i+1)*conf.arm_offset
+                                                    + (i+0.5)*conf.arm_width + 0.5*conf.base_width,
+                                                    // height is ok, no shift
+                                                    0) ) * pose);
       objects.push_back(o);
     }
 
@@ -209,7 +209,7 @@ namespace lpzrobots{
     for (int i=2; i<conf.segmentsno; i++) {
       Pos po1(objects[i-1]->getPosition());
       Pos po2(objects[i]->getPosition());
-      Pos po3( (po1+po2)/2);  
+      Pos po3( (po1+po2)/2);
       j = new HingeJoint(objects[i-1], objects[i], po3, osg::Vec3(0,1,0) /** pose*/);
       j -> init(odeHandle, osgHandle,/*withVisual*/true);
       joints.push_back(j);
@@ -224,10 +224,10 @@ namespace lpzrobots{
     Primitive* o1 = new Sphere(conf.arm_width*0.8);
     Primitive* o2 = new Transform(objects[objects.size()-1], o1, osg::Matrix::translate(0, conf.arm_length*0.5, 0) * ps);
     o2->init(odeHandle, /*mass*/0, osgHandle, /*withBody*/ false);
-// --------------    
+// --------------
 
     created=true;
-  }; 
+  };
 
 
   /** destroys vehicle and space
@@ -235,15 +235,15 @@ namespace lpzrobots{
   void Arm2Segm::destroy(){
     if (created){
       for (vector<AngularMotor1Axis*>::iterator i=amotors.begin(); i!=amotors.end(); i++){
-	if (*i) delete *i;
+        if (*i) delete *i;
       }
       amotors.clear();
       for (vector<Joint*>::iterator i=joints.begin(); i!=joints.end(); i++){
-	if (*i) delete *i;
+        if (*i) delete *i;
       }
       joints.clear();
       for (vector<Primitive*>::iterator i=objects.begin(); i!=objects.end(); i++){
-	if (*i) delete *i;
+        if (*i) delete *i;
       }
       objects.clear();
       odeHandle.deleteSpace();

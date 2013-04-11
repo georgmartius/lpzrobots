@@ -36,22 +36,22 @@
 
 QLogViewWidget::QLogViewWidget()
 {
-	setPalette(QPalette(QColor(220, 230, 220)));
-	setAutoFillBackground(true);
+        setPalette(QPalette(QColor(220, 230, 220)));
+        setAutoFillBackground(true);
 
-	QGridLayout *grid = new QGridLayout();
-	this->setLayout(grid);
+        QGridLayout *grid = new QGridLayout();
+        this->setLayout(grid);
 
 
-	// Das Textfeld
-	textEdit_LogView = new QTextEdit();
-	QPalette palette = textEdit_LogView->palette();
-	palette.setColor(QPalette::Active, QPalette::Base, QColor(220, 230, 220));
-	palette.setColor(QPalette::Inactive, QPalette::Base, QColor(200, 210, 200));
-	textEdit_LogView->setAutoFillBackground(true);
-	textEdit_LogView->setPalette(palette);
-	textEdit_LogView->setTextInteractionFlags(Qt::TextSelectableByMouse);
-	grid->addWidget(textEdit_LogView, 0, 0);
+        // Das Textfeld
+        textEdit_LogView = new QTextEdit();
+        QPalette palette = textEdit_LogView->palette();
+        palette.setColor(QPalette::Active, QPalette::Base, QColor(220, 230, 220));
+        palette.setColor(QPalette::Inactive, QPalette::Base, QColor(200, 210, 200));
+        textEdit_LogView->setAutoFillBackground(true);
+        textEdit_LogView->setPalette(palette);
+        textEdit_LogView->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        grid->addWidget(textEdit_LogView, 0, 0);
 
 }
 
@@ -59,9 +59,9 @@ QLogViewWidget::~QLogViewWidget() {}
 
 //------------------------------------------------------------------------------------------------------
 void QLogViewWidget::clearLogViewText(){
-	textEdit_LogView->clear();}
+        textEdit_LogView->clear();}
 void QLogViewWidget::appendLogViewText(QString text){
-	textEdit_LogView->append(text);}
+        textEdit_LogView->append(text);}
 //------------------------------------------------------------------------------------------------------
 
 

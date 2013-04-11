@@ -51,14 +51,14 @@
 using namespace matrix;
 using namespace std;
 
-SeMoXIgnoreNull::SeMoXIgnoreNull( const SeMoXIgnoreNullConf& conf) 
-  : HomeokinBase(conf.buffersize, "SeMoXIgnoreNull", "0.1"), 
+SeMoXIgnoreNull::SeMoXIgnoreNull( const SeMoXIgnoreNullConf& conf)
+  : HomeokinBase(conf.buffersize, "SeMoXIgnoreNull", "0.1"),
     conf(conf) {
-  
+
 
   addParameterDef("dampModel",&dampModel,0);
   addParameterDef("dampController",&dampController,0);
-  addParameterDef("modelNoise",&modelNoise,0);  
+  addParameterDef("modelNoise",&modelNoise,0);
   addParameterDef("gamma_cont",&gamma_cont,0);
   addParameterDef("gamma_teach",&gamma_teach,0);
   addParameterDef("discountS",&discountS,0.001);
@@ -70,11 +70,11 @@ SeMoXIgnoreNull::SeMoXIgnoreNull( const SeMoXIgnoreNullConf& conf)
   addInspectableMatrix("C", &C, conf.someInternalParams, "controller matrix");
   addInspectableMatrix("R", &R, conf.someInternalParams, "linear Response matrix");
   addInspectableMatrix("yteach", &y_teaching, false, "motor teaching signal");
-  
+
   addInspectableMatrix("H", &H, false, "controller bias");
   addInspectableMatrix("B", &B, false, "model bias");
   if(!conf.someInternalParams){
-    addInspectableMatrix("v", &v, false, "postdiction error");  
+    addInspectableMatrix("v", &v, false, "postdiction error");
   }
   addInspectableValue("xsi_norm", &xsi_norm, "1-norm of prediction error");
   addInspectableValue("xsi_norm_avg", &xsi_norm_avg, "averaged 1-norm of prediction error");
@@ -96,25 +96,25 @@ SeMoXIgnoreNull::~SeMoXIgnoreNull(){
 
 
 void SeMoXIgnoreNull::init(int sensornumber, int motornumber,
-			      RandGen* randGen){
+                              RandGen* randGen){
 
   number_motors  = motornumber;
-  number_sensors = sensornumber - conf.numContext;  
-  
+  number_sensors = sensornumber - conf.numContext;
+
   A.set(number_sensors, number_motors);
   A = (A^0) * conf.aInit; // set A to identity matrix;
   B.set(number_sensors, 1);
   if (conf.modelExt) {
     S.set(number_sensors, number_sensors  + conf.numContext );
-    S = (S^0) * conf.sInit;   
+    S = (S^0) * conf.sInit;
   }
 
   if(conf.initialC.getM() != number_motors || conf.initialC.getN() != number_sensors ){
-    if(!conf.initialC.isNulltimesNull()) 
+    if(!conf.initialC.isNulltimesNull())
       cerr << "dimension of initialC are not correct, default is used! \n";
-    C.set(number_motors,  number_sensors);    
+    C.set(number_motors,  number_sensors);
     // initialise the C matrix with identity + noise scaled to cInit value
-    C = ((C^0) + C.mapP(randGen, random_minusone_to_one) * conf.cNonDiag) * conf.cInit;   
+    C = ((C^0) + C.mapP(randGen, random_minusone_to_one) * conf.cNonDiag) * conf.cInit;
   }else{
     C=conf.initialC; // use given matrix
   }
@@ -144,7 +144,7 @@ void SeMoXIgnoreNull::init(int sensornumber, int motornumber,
     x_c_buffer[k].set(number_sensors + conf.numContext,1);
     y_buffer[k].set(number_motors,1);
   }
-  y_teaching.set(number_motors, 1); 
+  y_teaching.set(number_motors, 1);
 
   t_rand = rand()%managementInterval;
   initialised = true;
@@ -152,15 +152,15 @@ void SeMoXIgnoreNull::init(int sensornumber, int motornumber,
 
 
 /// performs one step (includes learning). Calculates motor commands from sensor inputs.
-void SeMoXIgnoreNull::step(const sensor* x_, int number_sensors, 
-			    motor* y_, int number_motors){
+void SeMoXIgnoreNull::step(const sensor* x_, int number_sensors,
+                            motor* y_, int number_motors){
   fillBuffersAndControl(x_, number_sensors, y_, number_motors);
   if(t>buffersize){
-    int delay = max(int(s4delay)-1,0);   
-    calcXsi(delay);            // calculate the error (use delayed y values)        
+    int delay = max(int(s4delay)-1,0);
+    calcXsi(delay);            // calculate the error (use delayed y values)
     // learn controller with effective input/output
     learnController();
-    
+
     // learn Model with actual sensors and with effective motors;
     learnModel(delay);
   }
@@ -169,29 +169,29 @@ void SeMoXIgnoreNull::step(const sensor* x_, int number_sensors,
 };
 
 /// performs one step without learning. Calulates motor commands from sensor inputs.
-void SeMoXIgnoreNull::stepNoLearning(const sensor* x, int number_sensors, 
-				            motor*  y, int number_motors ){
+void SeMoXIgnoreNull::stepNoLearning(const sensor* x, int number_sensors,
+                                            motor*  y, int number_motors ){
   fillBuffersAndControl(x, number_sensors, y, number_motors);
   // update step counter
   t++;
 };
 
 
-void SeMoXIgnoreNull::fillBuffersAndControl(const sensor* x_, int number_sensors, 
-					      motor* y_, int number_motors){
-  assert((unsigned)number_sensors == (this->number_sensors + (unsigned)conf.numContext) 
-	 && (unsigned)number_motors == this->number_motors);
-  
+void SeMoXIgnoreNull::fillBuffersAndControl(const sensor* x_, int number_sensors,
+                                              motor* y_, int number_motors){
+  assert((unsigned)number_sensors == (this->number_sensors + (unsigned)conf.numContext)
+         && (unsigned)number_motors == this->number_motors);
+
   Matrix x(this->number_sensors,1,x_);
   Matrix x_c(this->number_sensors + conf.numContext,1,x_);
-  
+
   // put new input vector in ring buffer x_buffer
   putInBuffer(x_buffer, x);
   putInBuffer(x_c_buffer, x_c);
-  
+
   // averaging over the last s4avg values of x_buffer
   const Matrix& x_smooth = calculateSmoothValues(x_buffer, t < s4avg ? 1 : int(max(1.0,s4avg)));
-  
+
   // calculate controller values based on smoothed input values
   const Matrix& y = calculateControllerValues(x_smooth);
 
@@ -201,14 +201,14 @@ void SeMoXIgnoreNull::fillBuffersAndControl(const sensor* x_, int number_sensors
   // put new output vector in ring buffer y_buffer
   putInBuffer(y_buffer, y);
 
-  // convert y to motor* 
+  // convert y to motor*
   y.convertToBuffer(y_, number_motors);
 }
 
 // calculates xsi for the current time step using the delayed y values
-//  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop 
+//  @param delay 0 for no delay and n>0 for n timesteps delay in the time loop
 // NEW: does not learn if sensor value is zero
-void SeMoXIgnoreNull::calcXsi(int delay){ 
+void SeMoXIgnoreNull::calcXsi(int delay){
   const Matrix& x     = x_buffer[t% buffersize];
   const Matrix& y     = y_buffer[(t - 1 - delay) % buffersize];
   xsi = x -  model(x_buffer, 1 , y);
@@ -224,14 +224,14 @@ void SeMoXIgnoreNull::calcXsi(int delay){
 Matrix SeMoXIgnoreNull::model(const Matrix* x_buffer, int delay, const matrix::Matrix& y){
   if(conf.modelExt){
     const Matrix& x_c_tm1 = x_c_buffer[(t - 1) % buffersize];
-    return A * y + S * x_c_tm1 + B;        
+    return A * y + S * x_c_tm1 + B;
   } else {
-    return A * y + B; 
+    return A * y + B;
   }
 }
 
 /// learn controller paramters C and H
-void SeMoXIgnoreNull::learnController(){ 
+void SeMoXIgnoreNull::learnController(){
   // prepare update matrices
   Matrix C_update(C.getM(), C.getN());
   Matrix H_update(H.getM(), H.getN());
@@ -243,18 +243,18 @@ void SeMoXIgnoreNull::learnController(){
     H_updateTeaching.set(H.getM(), H.getN());
   }
 
-  
-  // eta = A^-1 xsi (first shift in motor-space at current time) 
+
+  // eta = A^-1 xsi (first shift in motor-space at current time)
   //  we use pseudoinverse eta = U^-1 A^T xsi, with U=A^T A + \lambda I
   //  it is additionally clipped to -1 to 1 via g (arbitrary choice)
-  const Matrix& eta = (A.pseudoInverse(0.001) * xsi).map(g); 
-  
+  const Matrix& eta = (A.pseudoInverse(0.001) * xsi).map(g);
+
   const Matrix& x          = x_buffer[(t-1)%buffersize];
   const Matrix& z          = C * x + H;
   const Matrix g_prime     = Matrix::map2(g_s, z, eta);
   const Matrix g_prime_inv = g_prime.map(one_over);
   const Matrix g_2p_div_p  = Matrix::map2(g_ss_div_s, z, eta);
-  
+
   const Matrix zeta = eta.multrowwise(g_prime_inv); // G'(Z)^-1 * (eta+v)
   R                 = C * A;
   const Matrix chi  = ((R.multMT()+SmallID)^-1) * zeta;
@@ -264,7 +264,7 @@ void SeMoXIgnoreNull::learnController(){
   double size = 3;
   v = v.mapP(&size,squash);
   const Matrix rho  = g_2p_div_p.multrowwise(chi.multrowwise(zeta)) * -1;
-  
+
   C_update += ( chi*(v^T)*(A^T) - rho*(x^T) ) * epsC;
   H_update += rho * -epsC;
 
@@ -282,7 +282,7 @@ void SeMoXIgnoreNull::learnController(){
       C_updateTeaching += ( LLT_I * delta *(x^T) ) * (gamma_cont * epsC);
       H_updateTeaching += LLT_I * delta * (gamma_cont * epsC);
     }
-    if(intern_useTeaching && gamma_teach!=0){    
+    if(intern_useTeaching && gamma_teach!=0){
       const Matrix& y = y_buffer[(t-1)% buffersize];
       const Matrix& xsi = y_teaching - y;
       const Matrix& delta = xsi.multrowwise(g_prime);
@@ -291,8 +291,8 @@ void SeMoXIgnoreNull::learnController(){
       intern_useTeaching=false; // after we applied teaching signal it is switched off until new signal is given
     }
   }
-   
-  double error_factor = calcErrorFactor(v, (logaE & 1) !=0, (rootE & 1) !=0); 
+
+  double error_factor = calcErrorFactor(v, (logaE & 1) !=0, (rootE & 1) !=0);
   C_update *= error_factor;
   H_update *= error_factor;
   if(teaching){
@@ -312,23 +312,23 @@ void SeMoXIgnoreNull::learnModel(int delay){
 
   if(!pain) {
     double error_factor = calcErrorFactor(xsi, (logaE & 2) != 0, (rootE & 2) != 0);
-    Matrix A_update;  
+    Matrix A_update;
     Matrix S_update;
     Matrix B_update;
-    
+
     // new hierarchical learning
-    if(conf.modelExt){                 
+    if(conf.modelExt){
       const Matrix& x = x_buffer[t % buffersize];
       const Matrix& x_c_tm1 = x_c_buffer[(t - 1) % buffersize];
       // first learn A on error with discounted S
-      Matrix zeta = x -  (A*y_tm1 + B + (S*x_c_tm1)*(1-discountS));	
+      Matrix zeta = x -  (A*y_tm1 + B + (S*x_c_tm1)*(1-discountS));
       zeta = Matrix::map2(_checkZero, zeta, x);
 
-      
-      A_update=(( zeta*(y_tm1^T) ) * (epsA * error_factor)); 
+
+      A_update=(( zeta*(y_tm1^T) ) * (epsA * error_factor));
       S_update=(( xsi*(x_c_tm1^T) ) * (epsA * error_factor));// as usual with full error
     }else{
-      A_update=(( xsi*(y_tm1^T) ) * (epsA * error_factor)); 
+      A_update=(( xsi*(y_tm1^T) ) * (epsA * error_factor));
     }
 
     B_update=( xsi * (epsA * factorB * error_factor));
@@ -342,18 +342,18 @@ void SeMoXIgnoreNull::learnModel(int delay){
   }
 };
 
-/// calculate controller outputs 
-/// @param x_smooth smoothed sensors Matrix(number_channels,1) 
+/// calculate controller outputs
+/// @param x_smooth smoothed sensors Matrix(number_channels,1)
 Matrix SeMoXIgnoreNull::calculateControllerValues(const Matrix& x_smooth){
-  return (C*x_smooth+H).map(g); 
+  return (C*x_smooth+H).map(g);
 };
 
 
 void SeMoXIgnoreNull::management(){
-  if(dampModel > 0){    
+  if(dampModel > 0){
     A *= 1 - dampModel * managementInterval;
-    B *= 1 - dampModel * managementInterval;    
-    S *= 1 - dampModel * managementInterval;    
+    B *= 1 - dampModel * managementInterval;
+    S *= 1 - dampModel * managementInterval;
   }
   if(dampController > 0){
     Matrix oldC = C;
@@ -366,7 +366,7 @@ void SeMoXIgnoreNull::management(){
 }
 
 
-bool SeMoXIgnoreNull::store(FILE* f) const {  
+bool SeMoXIgnoreNull::store(FILE* f) const {
   // save matrix values
   C.store(f);
   H.store(f);
@@ -409,27 +409,27 @@ list<Inspectable::IConnection> SeMoXIgnoreNull::getStructuralConnections() const
 ///////// TEACHABLE ////////////////
 
 void SeMoXIgnoreNull::setMotorTeaching(const matrix::Matrix& teaching){
-  assert(teaching.getM() == number_motors && teaching.getN() == 1);  
-  // Note: through the clipping the otherwise effectless 
-  //  teaching with old motor value has now an effect, 
-  //  namely to drive out of the saturation region. 
+  assert(teaching.getM() == number_motors && teaching.getN() == 1);
+  // Note: through the clipping the otherwise effectless
+  //  teaching with old motor value has now an effect,
+  //  namely to drive out of the saturation region.
   y_teaching= teaching.mapP(0.90,clip);
   intern_useTeaching=true;
 }
 
 void SeMoXIgnoreNull::setSensorTeaching(const matrix::Matrix& teaching){
-  assert(teaching.getM() == number_sensors && teaching.getN() == 1);  
+  assert(teaching.getM() == number_sensors && teaching.getN() == 1);
   // // way one
   // // use inverse of derivative for small errors
   // const Matrix& error = teaching - getLastSensorValues();
   // //  const Matrix& eta   = (A.pseudoInverse(0.001)*error).mapP(0.2,clip);
   // const Matrix& eta   = (A.pseudoInverse(0.001)*error).mapP(0.2,clip); // small errors only
-  // y_teaching = (getLastMotorValues() + eta).mapP(0.90, clip); 
+  // y_teaching = (getLastMotorValues() + eta).mapP(0.90, clip);
 
   // way two
   // invert the model absolutely
-  y_teaching = (A.pseudoInverse(0.001) * (teaching-B)).mapP(0.90, clip); 
-  intern_useTeaching=true;  
+  y_teaching = (A.pseudoInverse(0.001) * (teaching-B)).mapP(0.90, clip);
+  intern_useTeaching=true;
 }
 
 matrix::Matrix SeMoXIgnoreNull::getLastMotorValues(){

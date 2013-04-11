@@ -54,7 +54,7 @@ namespace lpzrobots{
 
   class Arm2Segm : public OdeRobot{
   public:
-  
+
     Arm2Segm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const Arm2SegmConf);
 
     virtual ~Arm2Segm(){};
@@ -68,7 +68,7 @@ namespace lpzrobots{
       conf.base_width= 0.1;   // width of base segment
       conf.arm_mass=0.1;      // mass of arm elements
       conf.arm_width=0.2;     // width (thickness) of arms
-      conf.arm_length = 1.2;  // length of arms 
+      conf.arm_length = 1.2;  // length of arms
       conf.arm_offset= 0.03;  // offset between arms (so that they do not touch)
       conf.joint_offset=0.2;  // overlapping of arms (to have area for joints)
       return conf;
@@ -78,20 +78,20 @@ namespace lpzrobots{
     virtual void update();
 
     /** sets the pose of the vehicle
-	@param pose desired 4x4 pose matrix
+        @param pose desired 4x4 pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -108,23 +108,23 @@ namespace lpzrobots{
     };
 
     /** returns a vector with the positions of all segments of the robot
-	@param poslist vector of positions (of all robot segments) 
-	@return length of the list
+        @param poslist vector of positions (of all robot segments)
+        @return length of the list
     */
     virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const;
-    
+
     virtual void doInternalStuff(GlobalData& globalData);
 
   protected:
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
- 
+    virtual void create(const osg::Matrix& pose);
+
     /** destroys vehicle and space
      */
     virtual void destroy();
@@ -133,17 +133,17 @@ namespace lpzrobots{
 
     Arm2SegmConf conf;
 
-    
-    
+
+
     std::vector <AngularMotor1Axis*> amotors;
 
-    std::string name;    
+    std::string name;
     paramval speed;
     paramval factorSensors;
 
     int sensorno;      //number of sensors
     int motorno;       // number of motors
-    
+
     bool created;      // true if robot was created
   };
 };

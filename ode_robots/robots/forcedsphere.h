@@ -39,26 +39,26 @@ namespace lpzrobots {
     ~ForcedSphereConf();
     /// deletes sensors
     void destroy();
-    
+
     double radius; //< radius of the sphere
     double maxForce; ///< maximal force applied to the sphere
     /// if true, the robot is powered to reach the given speed (force is calculated)
-    bool speedDriven;     
+    bool speedDriven;
     double maxSpeed; ///< maximum speed of the robot when in speedDriven mode
-    
+
     /// bit mask for selecting the dimensions for the forces (see ForcedSphere::Dimensions)
-    short drivenDimensions; 
+    short drivenDimensions;
     /// whether to use a cylinder as body (like a puck) or the normal sphere
-    bool cylinderBody; 
+    bool cylinderBody;
     /// list of sensors that are mounted at the robot. (e.g.\ AxisOrientationSensor)
-    std::list<Sensor*> sensors; 
+    std::list<Sensor*> sensors;
     /// adds a sensor to the list of sensors
-    void addSensor(Sensor* s) { sensors.push_back(s); }    
+    void addSensor(Sensor* s) { sensors.push_back(s); }
     /// list of motors that are mounted at the robot. (e.g.\ Speaker)
-    std::list<Motor*> motors; 
+    std::list<Motor*> motors;
     /// adds a motor to the list of motors
-    void addMotor(Motor* m) { motors.push_back(m); }    
-    
+    void addMotor(Motor* m) { motors.push_back(m); }
+
   };
 
   class ForcedSphere : public OdeRobot
@@ -69,48 +69,48 @@ namespace lpzrobots {
     ForcedSphereConf conf;
 
   public:
-  
+
     enum Dimensions { X = 1, Y = 2, Z = 4 };
 
     /**
      * constructor
-     * 
-     * use getDefaultConf() to obtain a configuration with default values, which can be altered 
+     *
+     * use getDefaultConf() to obtain a configuration with default values, which can be altered
      *  to personal needs.
-     **/ 
+     **/
     ForcedSphere ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		   const ForcedSphereConf& ForcedSphereConf, const std::string& name);
-  
+                   const ForcedSphereConf& ForcedSphereConf, const std::string& name);
+
     virtual ~ForcedSphere();
-	
+
     static ForcedSphereConf getDefaultConf(){
       ForcedSphereConf c;
       c.radius = 1;
-      c.maxForce = 1;     
+      c.maxForce = 1;
       c.drivenDimensions = X | Y;
       c.cylinderBody = false;
       c.speedDriven=false;
       c.maxSpeed = 5;
-      return c;      
+      return c;
     }
 
     virtual void update();
 
     virtual void place(const osg::Matrix& pose);
-  
+
     virtual void doInternalStuff(GlobalData& globalData);
-	
+
     virtual int getSensors ( sensor* sensors, int sensornumber );
     virtual void setMotors ( const motor* motors, int motornumber );
     virtual int getMotorNumber();
     virtual int getSensorNumber();
-	 
+
     virtual Primitive* getMainPrimitive() const { return object[0]; }
 
   protected:
 
-    virtual void create(const osg::Matrix& pose); 
-    virtual void destroy(); 
+    virtual void create(const osg::Matrix& pose);
+    virtual void destroy();
 
 
   };

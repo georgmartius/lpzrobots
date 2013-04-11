@@ -76,5 +76,5 @@ std::list<double> BufferedPipeReader::getDataLine()
 BufferedPipeReader::~ BufferedPipeReader()
 {
 
-	std::cout << "BuferedPipeReader: ByeBye()" << std::endl;
+        std::cout << "BuferedPipeReader: ByeBye()" << std::endl;
 }

@@ -173,7 +173,7 @@ public:
   Joint* fixator;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(9.48066, -6.96316, 9.95062),  Pos(56.9904, -10.8096, 0));
 
@@ -187,7 +187,7 @@ public:
 
     // adding hand
     OdeRobot *hand;
-    HandConf conf = Hand::getDefaultConf();  
+    HandConf conf = Hand::getDefaultConf();
     conf.velocity = 0.02;
     conf.irRange = 1.0; //0.7;
     conf.set_typ_of_motor = Without_servo_motor;//With_servo_motor;
@@ -206,26 +206,26 @@ public:
     conf.initWithOpenHand=true;
     hand = new Hand(odeHandle, osgHandle,conf,"Hand");
     hand->setColor(Color(1.0,0.5,1.0));
-	{
-	double matODE[12];
-	matODE[0] = 1.0f;
-	matODE[1] = 0.5;
-	matODE[2] = 1.0f;
-	matODE[3] =0.0f;
-	matODE[4] = 0.1f;
-	matODE[5] = 1.0f;
-	matODE[6] = 1.0f;
-	matODE[7] =0.0f;
-	matODE[8] = 1.0f;
-	matODE[9] = 1.0f;
-	matODE[10] = 1.0f;
-	matODE[11] =0.0f;
-	double Pos[3];
-	Pos[0]=0;
-	Pos[1]=0;
-	Pos[2]=5;
-	//hand->place(osgPose( Pos , matODE ) );
-	}
+        {
+        double matODE[12];
+        matODE[0] = 1.0f;
+        matODE[1] = 0.5;
+        matODE[2] = 1.0f;
+        matODE[3] =0.0f;
+        matODE[4] = 0.1f;
+        matODE[5] = 1.0f;
+        matODE[6] = 1.0f;
+        matODE[7] =0.0f;
+        matODE[8] = 1.0f;
+        matODE[9] = 1.0f;
+        matODE[10] = 1.0f;
+        matODE[11] =0.0f;
+        double Pos[3];
+        Pos[0]=0;
+        Pos[1]=0;
+        Pos[2]=5;
+        //hand->place(osgPose( Pos , matODE ) );
+        }
     //hand->place(Pos(2.5,1.26,0));
     hand->place(Pos(0,0,6));
     //hand->place(Pos(2,3,1));
@@ -236,35 +236,35 @@ public:
     AbstractController *controller;
     //    InvertMotorNStepConf cc5 = InvertMotorNStep::getDefaultConf();
     //    cc5.cInit=1.5;
-    //controller = new InvertMotorNStep(cc5); 
-    //controller = new SineController();//InvertMotorNStep(cc5);  
-    //    controller = new InvertMotorSpace(10);  
-    //    controller = new InvertNChannelController(20); 
-    //        controller = new InvertNChannelControllerHebbXsi(/*buffersize*/10, 
-    //		     /*update_only_1*/false, 
-    //		     /*inactivate_hebb*/false);
-    // controller = new InvertNChannelControllerHebbXsiHand(/*buffersize*/10, 
-    //						 /*update_only_1*/false, 
-    //						 /*inactivate_hebb*/false);
+    //controller = new InvertMotorNStep(cc5);
+    //controller = new SineController();//InvertMotorNStep(cc5);
+    //    controller = new InvertMotorSpace(10);
+    //    controller = new InvertNChannelController(20);
+    //        controller = new InvertNChannelControllerHebbXsi(/*buffersize*/10,
+    //                     /*update_only_1*/false,
+    //                     /*inactivate_hebb*/false);
+    // controller = new InvertNChannelControllerHebbXsiHand(/*buffersize*/10,
+    //                                                 /*update_only_1*/false,
+    //                                                 /*inactivate_hebb*/false);
 
-//     controller = new InvertNChannelControllerHebbHHand(/*buffersize*/100, 
-//      						       /*update_only_1*/false, 
-// 						       /*inactivate_hebb*/false);
+//     controller = new InvertNChannelControllerHebbHHand(/*buffersize*/100,
+//                                                             /*update_only_1*/false,
+//                                                        /*inactivate_hebb*/false);
 /*
     controller->setParam("eps", 0.01);
     controller->setParam("eps_hebb", 0.00005);
     controller->setParam("factor_a", 0.1);
     controller->setParam("s4avg", 10);
     controller->setParam("s4delay", 4);
-  */  
+  */
 
-    controller = new InvertNChannelControllerHebbH(/*buffersize*/100, 
-     						       /*update_only_1*/false, 
-						       /*inactivate_hebb*/false);
+    controller = new InvertNChannelControllerHebbH(/*buffersize*/100,
+                                                            /*update_only_1*/false,
+                                                       /*inactivate_hebb*/false);
     controller->setParam("s4avg", 10);
 
 
-    global.configs.push_back(controller); 
+    global.configs.push_back(controller);
 
 
 
@@ -300,15 +300,15 @@ public:
 
     /*
     PassiveCapsule* c = new PassiveCapsule(odeHandle, osgHandle, 1,1,5);
-    c->setPosition(Pos(0,0,6.7)); 
+    c->setPosition(Pos(0,0,6.7));
     c->setColor(Color(1.0f,0.2f,0.2f,0.5f));
     //c->setTexture("Images/light_chess.rgb");
     //c->setTexture("Images/dusty.rgb");
     //c->setTexture("Images/sandyground.rgb");
     c->setTexture("Images/furry_toy.jpg");
-    global.obstacles.push_back(c); 
+    global.obstacles.push_back(c);
     */
-    
+
     box = new PassiveBox(odeHandle, osgHandle, osg::Vec3(1.0,5,0.5),10);
     box->setColor(Color(1.0f,0.2f,0.2f,1.0f));
     //c->setTexture("Images/light_chess.rgb");
@@ -316,116 +316,116 @@ public:
     //c->setTexture("Images/sandyground.rgb");
     //box->setTexture("Images/furry_toy.jpg");
     box->setTexture("Images/my/skin.jpg");
-    box->setPosition(Pos(0,0,6.7)); 
-    global.obstacles.push_back(box); 
-    
-    
+    box->setPosition(Pos(0,0,6.7));
+    global.obstacles.push_back(box);
+
+
   }
 
   //Funktion die eingegebene Befehle/kommandos verarbeitet
   virtual bool command (const OdeHandle&, const OsgHandle&, GlobalData& globalData, int key, bool down)
   {
-    if (!down) return false;    
+    if (!down) return false;
     bool handled = false;
     switch ( key )
       {
-	case 'x': 
-	  if(fixator) delete fixator;
-	  fixator=0;	 
-	  handled = true;
-	  break;
+        case 'x':
+          if(fixator) delete fixator;
+          fixator=0;
+          handled = true;
+          break;
       case 's' :
-	/*	controller->store("test") && printf("Controller stored\n");
-		handled = true; 	*/
-	break;
+        /*        controller->store("test") && printf("Controller stored\n");
+                handled = true;         */
+        break;
       case 'L' :
-	/*	controller->restore("test") && printf("Controller loaded\n");
-		handled = true; */
-	break;	
+        /*        controller->restore("test") && printf("Controller loaded\n");
+                handled = true; */
+        break;
       case 'r' : // replace box
-        box->setPosition(Pos(0,0,6.7)); 
-	break;
+        box->setPosition(Pos(0,0,6.7));
+        break;
       case 'e' : // replace box
-	box->setPosition(Pos(0,0,0)); 
-	break;
+        box->setPosition(Pos(0,0,0));
+        break;
 
       case 'c' :{
-	PassiveCapsule* c =  new PassiveCapsule(odeHandle, osgHandle, 1,1,5);
-      	c->setColor(Color(1.0f,0.2f,0.2f,1.0f));
-      	c->setTexture("Images/furry_toy.jpg");
-      	c->setPosition(Pos(0-1.75,0.05+0.75,0.5+2.4+4)); 
-      	globalData.obstacles.push_back(c); }
-	handled = true;
-	break;
+        PassiveCapsule* c =  new PassiveCapsule(odeHandle, osgHandle, 1,1,5);
+              c->setColor(Color(1.0f,0.2f,0.2f,1.0f));
+              c->setTexture("Images/furry_toy.jpg");
+              c->setPosition(Pos(0-1.75,0.05+0.75,0.5+2.4+4));
+              globalData.obstacles.push_back(c); }
+        handled = true;
+        break;
       case 'v' :
         ClosedPlayground* playground=(ClosedPlayground* )globalData.obstacles.back();
-	playground->setColor(Color(1.0f,0.0f,0.26f,0.0f));
-	handled = true;
-	break;
- 	
-	/*      
-		case 'a': case'A':
-		finger_force -= 0.3;
-		handled = true; break;	
-		case 'y': case 'Y':
-		finger_force += 0.3;
-		handled = true; break;	
-		case ',':
-		palm_torque += 0.3;
-		handled = true; break;	
-		case '.':
-		palm_torque -= 0.3;
-		handled = true; break;	
-		case ' ':
-		finger_force = 0;
-		palm_torque = 0;
-		thumb1=0;
-		thumb2=0;
-		thumb3=0;
-		handled = true; break;	
+        playground->setColor(Color(1.0f,0.0f,0.26f,0.0f));
+        handled = true;
+        break;
 
-		case '1':
-		thumb1 -= 0.3;
-		handled = true; break;	
-		case '2':
-		thumb1 += 0.3;
-		handled = true; break;	
-		case '3':
-		thumb2 -= 0.3;
-		handled = true; break;	
-		case '4':
-		thumb2 += 0.3;
-		handled = true; break;	
-		case '5':
-		thumb3 -= 0.3;
-		handled = true; break;	
-		case '6':
-		thumb3 += 0.3;
-		handled = true; break;	
+        /*
+                case 'a': case'A':
+                finger_force -= 0.3;
+                handled = true; break;
+                case 'y': case 'Y':
+                finger_force += 0.3;
+                handled = true; break;
+                case ',':
+                palm_torque += 0.3;
+                handled = true; break;
+                case '.':
+                palm_torque -= 0.3;
+                handled = true; break;
+                case ' ':
+                finger_force = 0;
+                palm_torque = 0;
+                thumb1=0;
+                thumb2=0;
+                thumb3=0;
+                handled = true; break;
 
-		case 'm':
-		if ( (gripmode==lateral) && (dJointGetHingeAngle(joint[palm_index])<0.1) ){
-		gripmode=precision;
-		handled = true; break;	
-		}
-		if ( (gripmode==precision) && (dJointGetHingeAngle(joint[palm_index])<0.1) ){
-		gripmode=lateral;
-		handled = true; break;	
-		}
-	
-		handled = true; break;	
-	*/
+                case '1':
+                thumb1 -= 0.3;
+                handled = true; break;
+                case '2':
+                thumb1 += 0.3;
+                handled = true; break;
+                case '3':
+                thumb2 -= 0.3;
+                handled = true; break;
+                case '4':
+                thumb2 += 0.3;
+                handled = true; break;
+                case '5':
+                thumb3 -= 0.3;
+                handled = true; break;
+                case '6':
+                thumb3 += 0.3;
+                handled = true; break;
+
+                case 'm':
+                if ( (gripmode==lateral) && (dJointGetHingeAngle(joint[palm_index])<0.1) ){
+                gripmode=precision;
+                handled = true; break;
+                }
+                if ( (gripmode==precision) && (dJointGetHingeAngle(joint[palm_index])<0.1) ){
+                gripmode=lateral;
+                handled = true; break;
+                }
+
+                handled = true; break;
+        */
 
 
-	/*
-	  case '10': {
-	  FILE *f = fopen ("state.dif","wt");
-	  if (f) {
-	  dWorldExportDIF (world,f,"");
-	  fclose (f);
-	  }
-	  }
-	*/
+        /*
+          case '10': {
+          FILE *f = fopen ("state.dif","wt");
+          if (f) {
+          dWorldExportDIF (world,f,"");
+          fclose (f);
+          }
+          }
+        */
       }
     /*
       std::cout<<"thumb_b pos: "<<dGeomGetPosition(beam[thumb_b].geom)[0]<<", "<<dGeomGetPosition(beam[thumb_b].geom)[1]<<", "<<dGeomGetPosition(beam[thumb_b].geom)[2]<<std::endl;
@@ -451,16 +451,16 @@ public:
       au.addKeyboardMouseBinding("Finger_Force: y or Y","increment");
       au.addKeyboardMouseBinding("Palm_Torque: .","decrement");
       au.addKeyboardMouseBinding("Palm_Torque: ,","increment");
-      au.addKeyboardMouseBinding("Change_AMotor_Value of thumb_motor_joint on 1-st 		axis : 1","decrement");
-      au.addKeyboardMouseBinding("Change_AMotor_Value of thumb_motor_joint on 1-st 		axis : 2","increment");
-      au.addKeyboardMouseBinding("Change_AMotor_Value of thumb_motor_joint on 2-d 		axis : 3","decrement");
-      au.addKeyboardMouseBinding("Change_AMotor_Value of thumb_motor_joint on 2-d 		axis : 4","increment");
-      au.addKeyboardMouseBinding("Change_AMotor_Value of thumb_motor_joint on 3-d 		axis : 5","decrement");
-      au.addKeyboardMouseBinding("Change_AMotor_Value of thumb_motor_joint on 3-d 		axis : 6","increment");
+      au.addKeyboardMouseBinding("Change_AMotor_Value of thumb_motor_joint on 1-st                 axis : 1","decrement");
+      au.addKeyboardMouseBinding("Change_AMotor_Value of thumb_motor_joint on 1-st                 axis : 2","increment");
+      au.addKeyboardMouseBinding("Change_AMotor_Value of thumb_motor_joint on 2-d                 axis : 3","decrement");
+      au.addKeyboardMouseBinding("Change_AMotor_Value of thumb_motor_joint on 2-d                 axis : 4","increment");
+      au.addKeyboardMouseBinding("Change_AMotor_Value of thumb_motor_joint on 3-d                 axis : 5","decrement");
+      au.addKeyboardMouseBinding("Change_AMotor_Value of thumb_motor_joint on 3-d                 axis : 6","increment");
 
-      au.addKeyboardMouseBinding	("Finger_Force,Palm_Torque,AMotors_ofthumb_motor_joint:  ","Set to zero");
- 
-      au.addKeyboardMouseBinding("Gripmodes lateral or precision: m","toggle 		 	gripmode");
+      au.addKeyboardMouseBinding        ("Finger_Force,Palm_Torque,AMotors_ofthumb_motor_joint:  ","Set to zero");
+
+      au.addKeyboardMouseBinding("Gripmodes lateral or precision: m","toggle                          gripmode");
     */
     au.addKeyboardMouseBinding("Teachung: x","toggle mode");
     au.addKeyboardMouseBinding("Teaching: u","forward");
@@ -470,13 +470,13 @@ public:
     au.addKeyboardMouseBinding("Simulation: c","add new capsule above hand");
   }
 
-  
+
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   // run simulation
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

@@ -56,7 +56,7 @@ namespace lpzrobots {
 
   // struct containing geom and body for each beam (= box, (cappped)cylinder, sphere)
   typedef struct {
-    
+
     public:
     double velocity;
     double power;       // used when non-servo motor is used
@@ -71,7 +71,7 @@ namespace lpzrobots {
     double fingerJointBendAngle;
     bool initWithOpenHand; // init hand with open or half closed hand
 
-    //---------------InfrarRedSensor--------------------------  
+    //---------------InfrarRedSensor--------------------------
     double irRange;
     bool ir_sensor_used;
     bool irs_at_fingertip;
@@ -87,8 +87,8 @@ namespace lpzrobots {
   };
 
   /**
-   * Artificial Hand 
-   * 
+   * Artificial Hand
+   *
    */
   class Hand : public OdeRobot{
   public:
@@ -103,58 +103,58 @@ namespace lpzrobots {
 
     static HandConf getDefaultConf()
       {
-	HandConf conf;
-	conf.velocity = 0.2;
-	conf.power = 5;
-	conf.servo_motor_Power = 0.1;
-	conf.show_contacts = true;
-	conf.set_typ_of_motor = Without_servo_motor;
-	conf.irRange = 2;
-	conf.ir_sensor_used=true;
-	conf.irs_at_fingerbottom=true;
-	conf.irs_at_fingercenter=true;
-	conf.irs_at_fingertop =true;
-	conf.irs_at_fingertip =false;
-	conf.ray_draw_mode=RaySensor::drawAll;
-	conf.factorSensor=1.0;
-	conf.fix_palm_joint=true;
-	conf.one_finger_as_one_motor=false;
-	conf.draw_joints=false;
-	conf.showFingernails=true;
-	conf.fingerJointBendAngle=M_PI/2;
-	conf.initWithOpenHand=true; // init with open hand
-	return conf;
+        HandConf conf;
+        conf.velocity = 0.2;
+        conf.power = 5;
+        conf.servo_motor_Power = 0.1;
+        conf.show_contacts = true;
+        conf.set_typ_of_motor = Without_servo_motor;
+        conf.irRange = 2;
+        conf.ir_sensor_used=true;
+        conf.irs_at_fingerbottom=true;
+        conf.irs_at_fingercenter=true;
+        conf.irs_at_fingertop =true;
+        conf.irs_at_fingertip =false;
+        conf.ray_draw_mode=RaySensor::drawAll;
+        conf.factorSensor=1.0;
+        conf.fix_palm_joint=true;
+        conf.one_finger_as_one_motor=false;
+        conf.draw_joints=false;
+        conf.showFingernails=true;
+        conf.fingerJointBendAngle=M_PI/2;
+        conf.initWithOpenHand=true; // init with open hand
+        return conf;
       }
 
-  
-    /** 
+
+    /**
      * update the subcomponents
      */
     virtual void update();
 
-    /** 
+    /**
      * sets the pose of the vehicle
      * @param pose desired 4x4 pose matrix
      */
     virtual void place(const osg::Matrix& pose);
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
-  
+
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -167,45 +167,45 @@ namespace lpzrobots {
     virtual int getMotorNumber();
 
     /** returns a vector with the positions of all segments of the robot
-	@param poslist vector of positions (of all robot segments) 
-	@return length of the list
+        @param poslist vector of positions (of all robot segments)
+        @return length of the list
     */
     //  virtual int getSegmentsPosition(vector<Position> &poslist);
-  
+
     /******** CONFIGURABLE ***********/
     virtual void notifyOnChange(const paramkey& key);
 
 
   protected:
-    /** 
-     * Returns the palm as the main object of the robot, 
+    /**
+     * Returns the palm as the main object of the robot,
      * which is used for position and speed tracking.
      */
     virtual Primitive* getMainPrimitive() const {
       if(!objects.empty()){
-	return (objects[0]); // returns forearm for fixation
-	//return (objects[1]); // returns palm
+        return (objects[0]); // returns forearm for fixation
+        //return (objects[1]); // returns palm
       }else return 0;
     }
 
 
   private:
 
-    /** 
+    /**
      * creates the hand at the desired pose
      * @param pose 4x4 pose matrix
      */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
-    /** 
+    /**
      * destroys robot and space
      */
     virtual void destroy();
 
     static void mycallback(void *data, dGeomID o1, dGeomID o2);
-       
+
     /** true if robot was created */
-    bool created;      
+    bool created;
 
   protected:
 
@@ -224,7 +224,7 @@ namespace lpzrobots {
     //objects.reserve(number_beams);
 
     /** vector of the joints used in hand */
-    
+
 
     /** vector of the angular motors */
     std::vector <AngularMotor*> frictionmotors;
@@ -233,11 +233,11 @@ namespace lpzrobots {
     std::vector <HingeServo*> servos;
 
     /**  a collection of ir sensors */
-    RaySensorBank irSensorBank; 
+    RaySensorBank irSensorBank;
 
 
     /** space containing the hand */
-    dSpaceID hand_space;     
+    dSpaceID hand_space;
 
     //Beam beam[number_beams]; // array of elements (rectangle and cylinders)
     //dJointID joint[number_joints];  // array containg "normal" joints for connecting the elementsconf
@@ -267,12 +267,12 @@ namespace lpzrobots {
 
 
     /** for handling lateral and precision grip modes */
-    GripMode gripmode; 
+    GripMode gripmode;
 
 
 
     /** initial position of robot */
-    Position initial_pos;    
+    Position initial_pos;
 
 
     Pos oldp;
@@ -282,13 +282,13 @@ namespace lpzrobots {
     int sensor_number;
     paramval factorForce;
     paramval frictionGround;
-    
+
     double velocity;
 
- 
+
   };
 
 }
 
 #endif
- 
+

@@ -28,15 +28,15 @@
 #ifndef __IRSENSOR_WALL_H
 #define __IRSENSOR_WALL_H
 
-#include "irsensor.h"
+#include <ode_robots/irsensor.h>
 
 namespace lpzrobots {
 
 
-  /** Class for IR sensors, that not collides with the ground. 
+  /** Class for IR sensors, that not collides with the ground.
   */
   class IRSensorWall : public IRSensor {
-  public:  
+  public:
     /**
        @param exponent exponent of the sensor characteritic (default: 1 (linear))
     */
@@ -47,10 +47,10 @@ namespace lpzrobots {
     virtual RaySensor* clone() const;
 
     virtual void init(const OdeHandle& odeHandle,
-		      const OsgHandle& osgHandle, 
-		      Primitive* body, 
-		      const osg::Matrix pose, float range,
-		      rayDrawMode drawMode = drawSensor);
+                      const OsgHandle& osgHandle,
+                      Primitive* body,
+                      const osg::Matrix pose, float range,
+                      rayDrawMode drawMode = drawSensor);
   public:
     std::list<dGeomID> avoids;
   };

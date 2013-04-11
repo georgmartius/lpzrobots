@@ -148,10 +148,10 @@ public:
   MultiSatCheck *multisat;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     int num_barrels=0;
-    int num_spheres=1;          
+    int num_spheres=1;
     controller=0;
     multisat=0;
     sphere1=0;
@@ -161,13 +161,13 @@ public:
     global.odeConfig.setParam("noise",0.05);
     //  global.odeConfig.setParam("gravity",-10);
     global.odeConfig.setParam("controlinterval",2);
-    
+
 
     /* * * * BARRELS * * * */
     for(int i=0; i< num_barrels; i++){
       //****************
-      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.15; 
+      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
+      conf.pendularrange  = 0.15;
       conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection, Sensor::X | Sensor::Y));
       //      conf.addSensor(new SpeedSensor(5, SpeedSensor::Translational, Sensor::X ));
@@ -176,15 +176,15 @@ public:
       conf.irAxis2=false;
       conf.irAxis3=false;
       conf.spheremass   = 0.3; // 1
-      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)), 
-				    conf, "Multi4_4h_Barrel", 0.4); 
+      sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)),
+                                    conf, "Multi4_4h_Barrel", 0.4);
       sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
-      
+
       InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
       cc.cInit=0.5;
       cc.useSD=true;
       AbstractController* controller = new InvertMotorNStep(cc); // selforg controller
-      //AbstractController* controller = new SineController(); 
+      //AbstractController* controller = new SineController();
       //controller = new FFNNController("models/barrel/controller/nonoise.cx1-10.net", 10, true);
       MultiSatCheckConf msc = MultiSatCheck::getDefaultConf();
       msc.controller = controller;
@@ -192,18 +192,18 @@ public:
       msc.numHidden = 4;
       msc.numSats = 4;
       multisat = new MultiSatCheck(msc);
-      
-      controller->setParam("steps", 2);    
-      //    controller->setParam("adaptrate", 0.001);    
-      controller->setParam("adaptrate", 0.0);    
-      controller->setParam("nomupdate", 0.005);    
-      //      controller->setParam("epsC", 0.03);    
-      //      controller->setParam("epsA", 0.05);    
-      controller->setParam("epsC", 0.02);    
-      controller->setParam("epsA", 0.03);    
-      controller->setParam("rootE", 3);    
-      controller->setParam("logaE", 0);    
-    
+
+      controller->setParam("steps", 2);
+      //    controller->setParam("adaptrate", 0.001);
+      controller->setParam("adaptrate", 0.0);
+      controller->setParam("nomupdate", 0.005);
+      //      controller->setParam("epsC", 0.03);
+      //      controller->setParam("epsA", 0.05);
+      controller->setParam("epsC", 0.02);
+      controller->setParam("epsA", 0.03);
+      controller->setParam("rootE", 3);
+      controller->setParam("logaE", 0);
+
 //       DerivativeWiringConf dc = DerivativeWiring::getDefaultConf();
 //       dc.useId=true;
 //       dc.useFirstD=false;
@@ -226,32 +226,32 @@ public:
       bool replay=true;
       global.odeConfig.setParam("noise", replay ? 0 : 0.1);
       //****************
-      const char* replayfilename="../Sphere_reinforce_axis_rot.sel.log"; 
+      const char* replayfilename="../Sphere_reinforce_axis_rot.sel.log";
       //const char* replayfilename="Sphere_slow_07-07-18.sel.log";
       //   const char* replayfilename="Sphere_long_rich_07-07-18.sel.log";
       //      const char* replayfilename="../Sphere_long_rich_2_07-07-31.sel.log";
-      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();  
-      conf.pendularrange  = 0.15; 
-      conf.motorpowerfactor  = 150;    
-      conf.spheremass  = 1;    
+      Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
+      conf.pendularrange  = 0.15;
+      conf.motorpowerfactor  = 150;
+      conf.spheremass  = 1;
       conf.motorsensor=false;
       conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
       //      conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::Axis));
       conf.addSensor(new SpeedSensor(5, SpeedSensor::RotationalRel));
 
-      sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)), 
-					 conf, "Multi20_2h_Sphere_satcheck", 0.3);     
-      sphere1->place ( osg::Matrix::translate(0,0,0.2)); 
-      
+      sphere1 = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(0,0.0,2.0)),
+                                         conf, "Multi20_2h_Sphere_satcheck", 0.3);
+      sphere1->place ( osg::Matrix::translate(0,0,0.2));
+
       if(!replay){
-	InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
-	//      DerControllerConf cc = DerController::getDefaultConf();
-	cc.cInit=1.0;
-	//      cc.useSD=true;
-	//controller = new DerController(cc);    
-	controller = new InvertMotorNStep(cc);    
-      }else 
-	controller = new ReplayController(replayfilename,true);     
+        InvertMotorNStepConf cc = InvertMotorNStep::getDefaultConf();
+        //      DerControllerConf cc = DerController::getDefaultConf();
+        cc.cInit=1.0;
+        //      cc.useSD=true;
+        //controller = new DerController(cc);
+        controller = new InvertMotorNStep(cc);
+      }else
+        controller = new ReplayController(replayfilename,true);
 
       MultiSatCheckConf msc = MultiSatCheck::getDefaultConf();
       msc.controller = controller;
@@ -271,14 +271,14 @@ public:
       fclose(f);
 
     }
-      
-    
+
+
   }
-    
+
 };
 
 int main (int argc, char **argv)
-{ 
+{
   ThisSim sim;
   // run simulation
   if(argc<2) {
@@ -288,4 +288,4 @@ int main (int argc, char **argv)
   file = argv[1];
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

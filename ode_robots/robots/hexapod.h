@@ -67,7 +67,7 @@ namespace lpzrobots {
     double legSpreading;   ///< angle at which legs are spread to the front and back
     double backLegFactor;   ///< size factor for back legs
 
-    bool tarsus;		  ///< whether to use a tarsus or not
+    bool tarsus;                  ///< whether to use a tarsus or not
     int numTarsusSections; ///< the number of sections in the tarsus
     bool useTarsusJoints; ///< whether to use joints on the tarsus
     bool useBigBox;       ///< whether to use a big invisible box on the back of the robot
@@ -116,7 +116,7 @@ namespace lpzrobots {
      * @param conf configuration object
      */
     Hexapod(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const HexapodConf& conf,
-	       const std::string& name);
+               const std::string& name);
 
     virtual ~Hexapod(){ destroy(); };
 
@@ -182,20 +182,20 @@ namespace lpzrobots {
 
 
     /** sets the pose of the vehicle
-	@param pose desired pose matrix
+        @param pose desired pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1]
-	@param sensornumbHexapod::getDefaultConf()er length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumbHexapod::getDefaultConf()er length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1]
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -208,8 +208,8 @@ namespace lpzrobots {
     virtual int getMotorNumber();
 
     /** this function is called in each timestep. It should perform robot-internal checks,
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
@@ -232,7 +232,7 @@ namespace lpzrobots {
     virtual double getMassOfRobot();
 
     virtual double *getPosition(){
-    	return position;
+            return position;
     }
 
     /******** CONFIGURABLE ***********/
@@ -247,7 +247,7 @@ namespace lpzrobots {
   protected:
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
     virtual void create(const osg::Matrix& pose);
 
@@ -258,14 +258,14 @@ namespace lpzrobots {
 public:
     HexapodConf conf;
     double legmass;    // leg mass
-    int	countt;
+    int        countt;
     bool created;      // true if robot was created
     RaySensorBank irSensorBank; // a collection of ir sensors
 
   public:
     double costOfTran;
     double* energyOneStep; ///< energy consumption for one time step
-    double E_t;	///< energy consumption over a period t;
+    double E_t;        ///< energy consumption over a period t;
     bool recordGait;
     double *heights;
     double *angles;

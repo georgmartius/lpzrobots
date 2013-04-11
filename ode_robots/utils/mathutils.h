@@ -38,7 +38,7 @@ namespace lpzrobots {
 /*     { return clampBelow(clampAbove(v,minimum),maximum); } */
 
 /*template<typename T> */
-/*	inline T abs(T v) */
+/*        inline T abs(T v) */
 /*{ return ((v>0)?v:-v); } */
 
   template<typename T>

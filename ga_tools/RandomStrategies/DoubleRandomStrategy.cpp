@@ -29,14 +29,14 @@
 #include "TemplateValue.h"
 
 DoubleRandomStrategy::DoubleRandomStrategy() {
-	// nothing
+        // nothing
 }
 
 DoubleRandomStrategy::DoubleRandomStrategy(RandGen* random, double base, double factor, double epsilon) {
-	m_random = random;
-	m_base = base;
-	m_factor = factor;
-	m_epsilon = epsilon;
+        m_random = random;
+        m_base = base;
+        m_factor = factor;
+        m_epsilon = epsilon;
 }
 
 DoubleRandomStrategy::~DoubleRandomStrategy() {
@@ -44,10 +44,10 @@ DoubleRandomStrategy::~DoubleRandomStrategy() {
 }
 
 IValue* DoubleRandomStrategy::getRandomValue(void) {
-	double value = (m_random->rand()*m_factor)+m_base;								//create a random double in the
-																					//interval [m_base,m_factor+m_base]
-	return new TemplateValue<double>(value + (value>0?m_epsilon:-1.0*m_epsilon));	//if the value negative move it
-																					//-m_epsilon else move it +m_epsilon
-																					//and return it as IValue
-																					//(TemplateValue<double>)
+        double value = (m_random->rand()*m_factor)+m_base;                                                                //create a random double in the
+                                                                                                                                                                        //interval [m_base,m_factor+m_base]
+        return new TemplateValue<double>(value + (value>0?m_epsilon:-1.0*m_epsilon));        //if the value negative move it
+                                                                                                                                                                        //-m_epsilon else move it +m_epsilon
+                                                                                                                                                                        //and return it as IValue
+                                                                                                                                                                        //(TemplateValue<double>)
 }

@@ -31,24 +31,24 @@
 using namespace std;
 
 namespace lpzrobots {
-  
-  TwoWheeled::TwoWheeled(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-			 TwoWheeledConf conf, const std::string& name)
+
+  TwoWheeled::TwoWheeled(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+                         TwoWheeledConf conf, const std::string& name)
     : Nimm2(odeHandle, osgHandle, conf.n2cfg, name), conf(conf)
   {
     if(conf.useCamera){
       cam = new Camera(this->conf.camcfg);
       if(!conf.camSensor)
         conf.camSensor = new DirectCameraSensor();
-      
-      conf.camSensor->setInitData( cam, this->odeHandle, 
-                                   this->osgHandle.changeColor(Color(0.2,0.2,0.2)), 
+
+      conf.camSensor->setInitData( cam, this->odeHandle,
+                                   this->osgHandle.changeColor(Color(0.2,0.2,0.2)),
                                    conf.camPos);
-      
+
       this->conf.sensors.push_back(conf.camSensor);
     }else{ // delete the processors
-      FOREACH(ImageProcessors, conf.camcfg.processors, ip){      
-	if(*ip) delete *ip;
+      FOREACH(ImageProcessors, conf.camcfg.processors, ip){
+        if(*ip) delete *ip;
       }
       conf.camcfg.processors.clear();
     }
@@ -59,11 +59,11 @@ namespace lpzrobots {
     destroy();
     FOREACH(list<Sensor*>, conf.sensors, i){
       if(*i) delete *i;
-    }    
+    }
     conf.sensors.clear();
   }
 
-  int TwoWheeled::getSensorNumber(){ 
+  int TwoWheeled::getSensorNumber(){
     int s=0;
     FOREACHC(list<Sensor*>, conf.sensors, i){
       s += (*i)->getSensorNumber();

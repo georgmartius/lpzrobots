@@ -36,18 +36,18 @@ class OneActiveMultiPassiveController : public AbstractMultiController {
 public:
 
   /// contructor (hint: use $ID$ for revision)
-	OneActiveMultiPassiveController(AbstractController* controller, const std::string& name = "1ActXPassController", const std::string& revision = "$ID$");
+        OneActiveMultiPassiveController(AbstractController* controller, const std::string& name = "1ActXPassController", const std::string& revision = "$ID$");
 
-	virtual ~OneActiveMultiPassiveController();
-
-/****************************************************************************/
-/*	AbstractMultiController should implement the following classes:        	*/
-/*	AbstractController, Configurable, Inspectable, Storeable	            */
-/****************************************************************************/
-
+        virtual ~OneActiveMultiPassiveController();
 
 /****************************************************************************/
-/*	BEGIN methods of AbstractController                                 	*/
+/*        AbstractMultiController should implement the following classes:                */
+/*        AbstractController, Configurable, Inspectable, Storeable                    */
+/****************************************************************************/
+
+
+/****************************************************************************/
+/*        BEGIN methods of AbstractController                                         */
 /****************************************************************************/
 
   /** initialisation of the controller with the given sensor/ motornumber
@@ -55,63 +55,63 @@ public:
    * call first AbstractMultiController::init(sensornumber,motornumber)
    * if you overwrite this method
    */
-	virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
+        virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
 
 
-	  /** performs one step (includes learning).
+          /** performs one step (includes learning).
       Calculates motor commands from sensor inputs.
-	@param sensors sensors inputs scaled to [-1,1]
-	@param sensornumber length of the sensor array
-	@param motors motors outputs. MUST have enough space for motor values!
-	@param motornumber length of the provided motor array
+        @param sensors sensors inputs scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @param motors motors outputs. MUST have enough space for motor values!
+        @param motornumber length of the provided motor array
   */
-	virtual void step(const sensor* sensors, int sensornumber,
-	                  motor* motors, int motornumber);
+        virtual void step(const sensor* sensors, int sensornumber,
+                          motor* motors, int motornumber);
 
   /** performs one step without learning.
-	@see step
+        @see step
   */
-	virtual void stepNoLearning(const sensor* sensors , int sensornumber,
-	                            motor* motors, int motornumber);
+        virtual void stepNoLearning(const sensor* sensors , int sensornumber,
+                                    motor* motors, int motornumber);
 
 
 /****************************************************************************/
-/*	END methods of AbstractController                                 	    */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
-/*	BEGIN methods of Configurable                                       	*/
-/****************************************************************************/
-
-/****************************************************************************/
-/*	END methods of Configurable                                      	    */
+/*        END methods of AbstractController                                             */
 /****************************************************************************/
 
 
 
 /****************************************************************************/
-/*	BEGIN methods of Inspectable                                          	*/
+/*        BEGIN methods of Configurable                                               */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	END methods of Inspectable                                       	    */
+/*        END methods of Configurable                                                  */
 /****************************************************************************/
 
 
 
 /****************************************************************************/
-/*	BEGIN methods of Storeable                                           	*/
+/*        BEGIN methods of Inspectable                                                  */
 /****************************************************************************/
 
 /****************************************************************************/
-/*	END methods of Storeable                                          	    */
+/*        END methods of Inspectable                                                   */
+/****************************************************************************/
+
+
+
+/****************************************************************************/
+/*        BEGIN methods of Storeable                                                   */
+/****************************************************************************/
+
+/****************************************************************************/
+/*        END methods of Storeable                                                      */
 /****************************************************************************/
 
 
 protected:
-	motor* passiveMotors;
+        motor* passiveMotors;
 };
 
 #endif

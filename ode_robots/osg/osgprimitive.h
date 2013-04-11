@@ -1,4 +1,4 @@
- 
+
 /***************************************************************************
  *   Copyright (C) 2005-2011 LpzRobots development team                    *
  *    Georg Martius  <georg dot martius at web dot de>                     *
@@ -36,8 +36,8 @@
 namespace lpzrobots {
 
   /**
-     holds texture file and repeat information. 
-     
+     holds texture file and repeat information.
+
    */
   class TextureDescr {
   public:
@@ -46,12 +46,12 @@ namespace lpzrobots {
        If repeatOnX is negativ then it is used as a unit length for the texture.
     */
     TextureDescr(const std::string& filename, double repeatOnR, double repeatOnS)
-      : filename(filename), repeatOnR(repeatOnR), repeatOnS(repeatOnS) 
-    {      
+      : filename(filename), repeatOnR(repeatOnR), repeatOnS(repeatOnS)
+    {
     }
     std::string filename;
     double repeatOnR;
-    double repeatOnS;    
+    double repeatOnS;
   };
 
   /**
@@ -66,7 +66,7 @@ namespace lpzrobots {
     OSGPrimitive ();
     virtual ~OSGPrimitive ();
     /** Initialisation of the primitive. Must in order to place the object into the scene.
-	This function should be overloaded */
+        This function should be overloaded */
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle) = 0;
     /// Sets the transformation matrix of this object (position and orientation)
     virtual void setMatrix( const osg::Matrix& m4x4 );
@@ -99,10 +99,10 @@ namespace lpzrobots {
     virtual void applyTextures();
 
     osg::ref_ptr<osg::Geode> geode;
-    osg::ref_ptr<osg::MatrixTransform> transform;  
+    osg::ref_ptr<osg::MatrixTransform> transform;
     osg::ref_ptr<osg::ShapeDrawable> shape;
 
-    std::vector<TextureDescr > textures; 
+    std::vector<TextureDescr > textures;
 
     OsgHandle osgHandle;
   };
@@ -120,7 +120,7 @@ namespace lpzrobots {
     virtual void setTexture(const std::string& filename);
     virtual void setColor(const Color& color);
     /// returns a osg transformation object;
-    virtual osg::Transform* getTransform();  
+    virtual osg::Transform* getTransform();
   };
 
 
@@ -147,7 +147,7 @@ namespace lpzrobots {
 
     virtual osg::Vec3 getDim();
     virtual void setDim(osg::Vec3);
-  
+
   protected:
     osg::Vec3 dim;
     osg::Box* box;
@@ -165,7 +165,7 @@ namespace lpzrobots {
 
     virtual osg::Vec3 getDim() const { return dim;}
     virtual void setDim(const osg::Vec3& _dim) { dim = _dim;}
-      
+
     virtual void setColor(const Color& color);
 
   protected:
@@ -189,7 +189,7 @@ namespace lpzrobots {
 
     float getRadius() { return radius; }
   protected:
-    float radius;  
+    float radius;
   };
 
   /**
@@ -221,10 +221,31 @@ namespace lpzrobots {
     float getRadius() { return radius; }
     float getHeight() { return height; }
   protected:
-    float radius;  
+    float radius;
     float height;
   };
 
+  class OSGLine : public OSGPrimitive {
+  public:
+    // the list of points is considered pairwise, start-end points of each line segment
+    OSGLine(const std::list<osg::Vec3>& points);
+
+    virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
+
+    virtual void applyTextures(){}
+
+    virtual void setColor(const Color& color);
+
+    // use the new points
+    virtual void setPoints(const std::list<osg::Vec3>& points);
+
+  protected:
+    std::list<osg::Vec3> points;
+    osg::Geometry *geometry;
+
+    virtual void updatePoints();
+
+  };
 
   /**
      Graphical Mesh or arbitrary OSG model.
@@ -234,7 +255,7 @@ namespace lpzrobots {
     /**
        Constuctor
        @param filename filename of the model file (search path is osg data path)
-       @param scale scale factor used for scaling the model 
+       @param scale scale factor used for scaling the model
        @param options for model reader
      */
     OSGMesh(const std::string& filename, float scale = 1, const osgDB::ReaderWriter::Options* options = 0);
@@ -251,13 +272,13 @@ namespace lpzrobots {
 
   protected:
     std::string filename;
-    float scale;  
-    const osgDB::ReaderWriter::Options* options;        
+    float scale;
+    const osgDB::ReaderWriter::Options* options;
     osg::ref_ptr<osg::Node> mesh;
     osg::ref_ptr<osg::MatrixTransform> scaletrans;
 
     virtual void internInit(const OsgHandle& osgHandle, bool loadAndDisplayMesh, Quality quality = Middle);
-        
+
   };
 
   /**
@@ -265,17 +286,17 @@ namespace lpzrobots {
   */
   class OSGText : public OSGPrimitive {
   public:
-    OSGText(const std::string& text, int fontsize = 12, 
+    OSGText(const std::string& text, int fontsize = 12,
             osgText::Text::AlignmentType align = osgText::Text::LEFT_BASE_LINE);
 
-    virtual ~OSGText(); 
+    virtual ~OSGText();
 
     virtual void init(const OsgHandle& osgHandle, Quality quality = Middle);
     virtual void setMatrix( const osg::Matrix& m4x4 );
     virtual osg::Group* getGroup();
     virtual void setColor(const Color& color);
     /// returns a osg transformation object;
-    virtual osg::Transform* getTransform();  
+    virtual osg::Transform* getTransform();
   private:
     osgText::Text* osgText;
   };

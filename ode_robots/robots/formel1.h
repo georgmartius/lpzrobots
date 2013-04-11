@@ -32,13 +32,13 @@ namespace lpzrobots {
   class Joint;
 
   /** Robot that looks like a Nimm 2 Bonbon :-)
-      4 wheels and a capsule like body   
+      4 wheels and a capsule like body
   */
   class Formel1 : public OdeRobot{
   public:
-  
-    Formel1(const OdeHandle& odeHandle, const OsgHandle& osgHandle, 
-	  double size=1, double force=3, double speed=15, bool sphereWheels=true);
+
+    Formel1(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+          double size=1, double force=3, double speed=15, bool sphereWheels=true);
 
     virtual ~Formel1(){};
 
@@ -49,20 +49,20 @@ namespace lpzrobots {
 
 
     /** sets the pose of the vehicle
-	@param pose desired pose matrix
+        @param pose desired pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -78,9 +78,9 @@ namespace lpzrobots {
       return motorno;
     };
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
@@ -90,9 +90,9 @@ namespace lpzrobots {
     virtual Primitive* getMainPrimitive() const { return object[0]; }
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */
@@ -106,14 +106,14 @@ namespace lpzrobots {
     double width;  // chassis width
     double height;   // chassis height
     double radius;  // wheel radius
-    double wheelthickness; // thickness of the wheels  
+    double wheelthickness; // thickness of the wheels
     bool sphereWheels; // draw spherical wheels?
     double cmass;    // chassis mass
     double wmass;    // wheel mass
     int sensorno;      //number of sensors
     int motorno;       // number of motors
     int segmentsno;    // number of motorsvehicle segments
-    double speed;    // 
+    double speed;    //
 
     double max_force;        // maximal force for motors
 

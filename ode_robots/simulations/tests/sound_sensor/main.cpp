@@ -121,7 +121,7 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
+        {
         case 'k':
           value+=.1;
           speaker->set(&value,1);
@@ -132,10 +132,10 @@ public:
           speaker->set(&value,1);
           std::cout << "quiter" << std::endl;
           break;
-	default:
-	  return false;
-	  break;
-	}
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }

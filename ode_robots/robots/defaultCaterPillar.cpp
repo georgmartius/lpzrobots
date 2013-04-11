@@ -30,28 +30,28 @@ using namespace std;
 namespace lpzrobots {
 
   DefaultCaterPillar::DefaultCaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-					   const CaterPillarConf& conf, 
-					   const std::string& name, const std::string& revision)
+                                           const CaterPillarConf& conf,
+                                           const std::string& name, const std::string& revision)
     : OdeRobot( odeHandle, osgHandle, name, revision), conf(conf) {
     addParameter("frictionground",&this->conf.frictionGround,0,2);
     addParameter("motorpower", &this->conf.motorPower,0,20);
     addParameter("sensorfactor", &this->conf.sensorFactor,0,5);
-    addParameter("frictionjoint",&this->conf.frictionJoint,0,5);   
+    addParameter("frictionjoint",&this->conf.frictionJoint,0,5);
 
     created=false;
   }
-	
+
   DefaultCaterPillar::~DefaultCaterPillar()
-  {  
+  {
     if(created) destroy();
   }
 
-       
+
   void DefaultCaterPillar::place(const osg::Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
-    // width*0.6 is added (without this the wheels and half of the robot will be in the ground)    
-    create(pose * osg::Matrix::translate(osg::Vec3(0, 0, conf.segmDia/2))); 
+    // width*0.6 is added (without this the wheels and half of the robot will be in the ground)
+    create(pose * osg::Matrix::translate(osg::Vec3(0, 0, conf.segmDia/2)));
   }
 
   void DefaultCaterPillar::update(){
@@ -65,35 +65,35 @@ namespace lpzrobots {
   }
 
 
-  void DefaultCaterPillar::notifyOnChange(const paramkey& key){    
-    if(key == "frictionjoint") {       
+  void DefaultCaterPillar::notifyOnChange(const paramkey& key){
+    if(key == "frictionjoint") {
       for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
-	if (*i) (*i)->setPower(conf.frictionJoint);	
-      }         
+        if (*i) (*i)->setPower(conf.frictionJoint);
+      }
     }
   }
-  
-  
+
+
   int DefaultCaterPillar::getSegmentsPosition(std::vector<Position> &poslist){
     assert(created);
     for(int n = 0; n < conf.segmNumber; n++){
       Pos p(objects[n]->getPosition());
       poslist.push_back(p.toPosition());
     }
-    return conf.segmNumber;    
+    return conf.segmNumber;
   }
 
 
 
-  /** creates vehicle at desired position 
+  /** creates vehicle at desired position
   */
   void DefaultCaterPillar::create(const osg::Matrix& pose) {
     if (created) {
       destroy();
     }
-    
+
     odeHandle.createNewSimpleSpace(parentspace,false);
-	
+
     int half = conf.segmNumber/2;
 
     // linear positioning (snake-like)
@@ -102,8 +102,8 @@ namespace lpzrobots {
       p->setTexture("Images/dusty.rgb");
       p->init(odeHandle, conf.segmMass, osgHandle);
       p->setPose(osg::Matrix::rotate(M_PI/2, 0, 1, 0) *
-		 osg::Matrix::translate((n-half)*conf.segmLength*0.7, 0, conf.segmDia/2) * // made boxes overlapping for not seeing any gaps (*0.7)
-		 pose);      
+                 osg::Matrix::translate((n-half)*conf.segmLength*0.7, 0, conf.segmDia/2) * // made boxes overlapping for not seeing any gaps (*0.7)
+                 pose);
       objects.push_back(p);
     }
 
@@ -115,7 +115,7 @@ namespace lpzrobots {
   void DefaultCaterPillar::destroy(){
     if (created){
       for (vector<AngularMotor*>::iterator i = frictionmotors.begin(); i!= frictionmotors.end(); i++){
-	if(*i) delete *i;
+        if(*i) delete *i;
       }
       frictionmotors.clear();
       cleanup();
@@ -133,10 +133,10 @@ namespace lpzrobots {
 //     for (int i=0; i<2; i++){
 //       skyJoints.push_back( dJointCreateHinge ( world , 0 ) );
 //       dJointAttach ( skyJoints.back(), objektliste[0].body , 0 );
-//       dJointSetUniversalAnchor ( skyJoints.back(), 
-// 				 dBodyGetPositionAll ( objektliste[0].body , 1 ) , 
-// 				 dBodyGetPositionAll ( objektliste[0].body , 2 ) , 
-// 				 dBodyGetPositionAll ( objektliste[0].body , 3 ) ); 
+//       dJointSetUniversalAnchor ( skyJoints.back(),
+//                                  dBodyGetPositionAll ( objektliste[0].body , 1 ) ,
+//                                  dBodyGetPositionAll ( objektliste[0].body , 2 ) ,
+//                                  dBodyGetPositionAll ( objektliste[0].body , 3 ) );
 //       if (i==0) dJointSetHingeAxis(skyJoints.back(),1,0,0);
 //       if (i==1) dJointSetHingeAxis(skyJoints.back(),0,1,0);
 //       dJointSetFixed(skyJoints.back());
@@ -144,16 +144,16 @@ namespace lpzrobots {
 //     /*
 //       jointliste.push_back( dJointCreateHinge ( world , 0 ) );
 //       dJointAttach ( jointliste.back() , objektliste[0].body , 0 );
-//       dJointSetUniversalAnchor ( jointliste.back() , 
-//       dBodyGetPositionAll ( objektliste[0].body , 1 ) , 
-//       dBodyGetPositionAll ( objektliste[0].body , 2 ) , 
-//       dBodyGetPositionAll ( objektliste[0].body , 3 ) ); 
+//       dJointSetUniversalAnchor ( jointliste.back() ,
+//       dBodyGetPositionAll ( objektliste[0].body , 1 ) ,
+//       dBodyGetPositionAll ( objektliste[0].body , 2 ) ,
+//       dBodyGetPositionAll ( objektliste[0].body , 3 ) );
 //       dJointSetHingeAxis(jointliste.back(),0,1,0);
 //       dJointSetFixed(jointliste.back());
 //     */
 //   };
 
-	
+
 }
 
 

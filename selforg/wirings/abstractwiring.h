@@ -39,7 +39,7 @@ class AbstractWiring : public Inspectable {
 public:
   typedef double sensor;
   typedef double motor;
-  
+
   enum PlotTypes {Nothing=0, Robot=1, Controller=4, Noise=8};
 
 
@@ -66,7 +66,7 @@ public:
   /** Initializes the  number of sensors and motors from robot
    *  (to be precise the internal parameters rsensornumber and rmotornumber!),
    *  calculates the number of sensors and motors on controller side.
-   *  The internal version initIntern() is called from here and 
+   *  The internal version initIntern() is called from here and
    *   be overloaded to calculate and provide the appropriate numbers
    *  controllersensornumber (csensornumber), controllermotornumber (cmotornumber)
    *  The number of noise channels (noisenumber) can also be changed.
@@ -76,7 +76,7 @@ public:
   virtual bool init(int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
 
   /** Realizes wiring from robot sensors to controller sensors.
-   *   The internal version wireSensorsIntern() is called from here and 
+   *   The internal version wireSensorsIntern() is called from here and
    *    must be overloaded in order to implement the appropriate mapping.
    *   Noise values of the right size are then accessible via the noisevals array.
    *   @param rsensors pointer to array of sensorvalues from robot
@@ -87,11 +87,11 @@ public:
    *   @return returns false on error, otherwise true
    */
   virtual bool wireSensors(const sensor* rsensors, int rsensornumber,
-			   sensor* csensors, int csensornumber,
-			   double noiseStrength);
+                           sensor* csensors, int csensornumber,
+                           double noiseStrength);
 
   /** Realizes wiring from controller motor outputs to robot motors.
-   *   The internal version wireMotorsIntern() is called from here and 
+   *   The internal version wireMotorsIntern() is called from here and
    *    must be overloaded in order to implement the appropriate mapping.
    *   @param rmotors pointer to array of motorvalues for robot
    *   @param rmotornumber number of robot motors
@@ -100,7 +100,7 @@ public:
    *   @return returns false if error, else true
    */
   virtual bool wireMotors(motor* rmotors, int rmotornumber,
-			  const motor* cmotors, int cmotornumber);
+                          const motor* cmotors, int cmotornumber);
 
   /** Returns the number of sensors on robot side.
    */
@@ -126,27 +126,27 @@ protected:
       The rsensornumber and rmotornumber are already stored
       in the member variables. The random values are to be accessed
       via the noiseGenerator.
-      @see init() 
+      @see init()
    */
   virtual bool initIntern() = 0;
 
   /** to be overloaded by subclasses
-      @see wireSensors() 
+      @see wireSensors()
    */
   virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
-				 sensor* csensors, int csensornumber,
-				 double noiseStrength) = 0;
+                                 sensor* csensors, int csensornumber,
+                                 double noiseStrength) = 0;
 
   /** to be overloaded by subclasses
-      @see wireMotors() 
+      @see wireMotors()
    */
   virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
-				const motor* cmotors, int cmotornumber)  = 0;
+                                const motor* cmotors, int cmotornumber)  = 0;
 
 
 
   /// using plotTypes this variables defines what is plotted
-  int plotMode; 
+  int plotMode;
 
   /// for storing the noise values
   matrix::Matrix mNoise;
@@ -157,7 +157,7 @@ protected:
   /// number of sensors at robot side
   int rsensornumber;
   /// copy of the last robot sensors
-  matrix::Matrix mRsensors; 
+  matrix::Matrix mRsensors;
 
   /// number of motors at robot side
   int rmotornumber;

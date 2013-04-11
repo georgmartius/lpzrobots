@@ -25,8 +25,8 @@
 ** Started on  Mon Oct 22 10:50:47 2007 Georg Martius
 ** Last update Mon Oct 22 10:50:47 2007 Georg Martius
 */
-#ifndef   	WIREDCONTROLLER_H_
-#define   	WIREDCONTROLLER_H_
+#ifndef     WIREDCONTROLLER_H_
+#define     WIREDCONTROLLER_H_
 
 #include "plotoptionengine.h"
 #include "backcaller.h"
@@ -92,16 +92,14 @@ public:
   */
   virtual void step(const sensor* sensors, int sensornumber,
                     motor* motors, int motornumber,
-		    double noise, double time=-1);
+                    double noise, double time=-1);
 
   /** Enables the motor babbling mode for given number of steps (typically 1000).
       Optionally a controller can be
       given that is used for the babbling (default is MotorBabbler) (deleted automatically).
       During motor babbling the function motorbabbling of the normal controller is called instead of step.
-      The parameter fixRobot is intended for simulations
    */
-  virtual void startMotorBabblingMode (int steps, AbstractController* babblecontroller = 0, 
-				       bool fixRobot = true);
+  virtual void startMotorBabblingMode (int steps, AbstractController* babblecontroller = 0);
 
   virtual AbstractController* getMotorBabbler() { return motorBabbler; }
 
@@ -109,7 +107,7 @@ public:
   virtual void stopMotorBabblingMode () { motorBabblingSteps = 0; }
   /// returns true if in motorbabbling mode
   virtual bool getMotorBabblingMode()  { return motorBabblingSteps > 0; }
-  
+
 
   /** adds the PlotOptions to the list of plotoptions
       If a plotoption with the same Mode exists, then the old one is deleted first
@@ -182,4 +180,4 @@ protected:
   long int t;
 };
 
-#endif 	    /* !WIREDCONTROLLER_H_ */
+#endif       /* !WIREDCONTROLLER_H_ */

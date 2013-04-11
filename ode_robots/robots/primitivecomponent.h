@@ -38,31 +38,31 @@ namespace lpzrobots
 class PrimitiveComponent : public Component
 {
  public:
-  
+
   PrimitiveComponent( Primitive* p, const OdeHandle &odeHandle, const OsgHandle &osgHandle, const ComponentConf& conf);
-  
+
   ~PrimitiveComponent ();
-  
+
  public:
-  
-  virtual void 	update ();
-  virtual void 	place (const Pos &pos);
-  virtual void 	place (const osg:Matrix&);
-  
-  
-  // virtual void 	setColor (const Color &col); 	sets color of the robot; not nessecary
-  
+
+  virtual void         update ();
+  virtual void         place (const Pos &pos);
+  virtual void         place (const osg:Matrix&);
+
+
+  // virtual void         setColor (const Color &col);         sets color of the robot; not nessecary
+
   virtual Position getPosition () const; //returns position of the object; relates to the robot or Primitive belonging to the component
- 
+
   /**
    *return reference to the simple Primitive, or to the main Primitive of the robot assigend to the component. If nothimng is assigned, NULL is returned.
    **/
   virtual Primitive* getMainPrimitive () const;
-  
+
  protected:
-  Primitive* primitive; 
-  
+  Primitive* primitive;
+
 };
- 
+
 }
 #endif

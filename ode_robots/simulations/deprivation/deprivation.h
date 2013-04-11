@@ -60,8 +60,8 @@
 #include <selforg/matrix.h>
 
 /**
- * robot controller for self-organized behaviour 
- * just like invertmotornstep, 
+ * robot controller for self-organized behaviour
+ * just like invertmotornstep,
  *  just that is enables us to execute the same motor commands for a long time
  */
 class Deprivation : public InvertMotorNStep {
@@ -74,8 +74,8 @@ public:
 
   /**
    */
-  Deprivation(MotorCallback motorCallback, ControllerCallback controllerCallback =0, 
-	      const InvertMotorNStepConf& conf = getDefaultConf())
+  Deprivation(MotorCallback motorCallback, ControllerCallback controllerCallback =0,
+              const InvertMotorNStepConf& conf = getDefaultConf())
     : InvertMotorNStep(conf), motorCallback(motorCallback), controllerCallback(controllerCallback) {
     assert(motorCallback);
     // prepare name;
@@ -91,32 +91,32 @@ public:
     this->useExternal=useExternal;
     if(controllerCallback && initialised){
       controllerCallback(C, H);
-    }    
+    }
   }
   virtual bool getExternalControlMode(){
     return useExternal;
   }
-  
-  
+
+
 protected:
-  /// overloaded 
+  /// overloaded
   virtual void learnController(){
-    if(!useExternal){      
+    if(!useExternal){
       InvertMotorNStep::learnController();
     }
   }
 
   /// calculate controller outputs (only of nop external value is set)
-  /// @param x_smooth smoothed sensors Matrix(number_channels,1) 
+  /// @param x_smooth smoothed sensors Matrix(number_channels,1)
   virtual matrix::Matrix calculateControllerValues(const matrix::Matrix& x_smooth){
     matrix::Matrix y = InvertMotorNStep::calculateControllerValues(x_smooth);
     if(useExternal){
-      return motorCallback(y);      
+      return motorCallback(y);
     }
     else
       return y;
   };
-  
+
 protected:
   bool useExternal;
 

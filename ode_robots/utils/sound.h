@@ -22,8 +22,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef   	SOUND_H_
-# define   	SOUND_H_
+#ifndef           SOUND_H_
+# define           SOUND_H_
 
 #include "pos.h"
 
@@ -31,17 +31,17 @@ namespace lpzrobots {
 
   class OSGSphere;
   class OsgHandle;
-  
+
   /// Object that represents a sound signal in the simulator
   class Sound {
   public:
     Sound(double time, const Pos& pos, float intensity, float frequency, void* sender)
-      : time(time), pos(pos), 
+      : time(time), pos(pos),
       intensity(intensity), frequency(frequency), sender(sender),
       visual(0) {}
 
     ~Sound();
-    
+
     /// nice predicate function for finding old sound signals
     struct older_than : public std::unary_function<const Sound&, bool> {
       older_than(double time) : time(time) {}
@@ -56,12 +56,12 @@ namespace lpzrobots {
     float intensity; ///< intensity -1..1
     float frequency; ///< frequency -1..1
     void* sender;    ///< pointer to the sender (can be used for self
-		     ///detection)
-    
+                     ///detection)
+
   private:
-    OSGSphere* visual;    
+    OSGSphere* visual;
   };
 
 } // end namespace
 
-#endif 	    /* !SOUND_H_ */
+#endif             /* !SOUND_H_ */

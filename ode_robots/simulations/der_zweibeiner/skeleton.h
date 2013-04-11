@@ -47,10 +47,10 @@
 
 namespace lpzrobots {
 
-  class Primitive; 
-  class Joint;  
-  class OneAxisServo;  
-  class TwoAxisServo;  
+  class Primitive;
+  class Joint;
+  class OneAxisServo;
+  class TwoAxisServo;
 
   typedef struct {
   public:
@@ -77,7 +77,7 @@ namespace lpzrobots {
     double pelvisPower;   ///< maximal force for at pelvis joint motor
     double pelvisDamping; ///< damping of pelvis joint servo
     double pelvisJointLimit; ///< angle range of pelvis joint
-    
+
     bool onlyPrimaryFunctions; ///< true: only leg and arm are controlable, false: all joints
 
   } SkeletonConf;
@@ -87,15 +87,15 @@ namespace lpzrobots {
    */
   class Skeleton : public OdeRobot {
   public:
-  
+
     /**
      * constructor of Skeleton robot
      * @param odeHandle data structure for accessing ODE
      * @param osgHandle ata structure for accessing OSG
      * @param conf configuration object
      */
-    Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const SkeletonConf& conf, 
-	       const std::string& name);
+    Skeleton(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const SkeletonConf& conf,
+               const std::string& name);
 
     virtual ~Skeleton(){};
 
@@ -145,20 +145,20 @@ namespace lpzrobots {
 
 
     /** sets the pose of the vehicle
-	@param pose desired pose matrix
+        @param pose desired pose matrix
     */
     virtual void place(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
-	@param sensors sensors scaled to [-1,1] 
-	@param sensornumber length of the sensor array
-	@return number of actually written sensors
+        @param sensors sensors scaled to [-1,1]
+        @param sensornumber length of the sensor array
+        @return number of actually written sensors
     */
     virtual int getSensors(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
-	@param motors motors scaled to [-1,1] 
-	@param motornumber length of the motor array
+        @param motors motors scaled to [-1,1]
+        @param motornumber length of the motor array
     */
     virtual void setMotors(const motor* motors, int motornumber);
 
@@ -169,26 +169,26 @@ namespace lpzrobots {
     /** returns number of motors
      */
     virtual int getMotorNumber();
-    /** checks for internal collisions and treats them. 
-     *  In case of a treatment return true (collision will be ignored by other objects 
-     *  and the default routine)  else false (collision is passed to other objects and 
+    /** checks for internal collisions and treats them.
+     *  In case of a treatment return true (collision will be ignored by other objects
+     *  and the default routine)  else false (collision is passed to other objects and
      *  (if not treated) to the default routine).
      */
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) {return false;}
 
-    /** this function is called in each timestep. It should perform robot-internal checks, 
-	like space-internal collision detection, sensor resets/update etc.
-	@param globalData structure that contains global data from the simulation environment
+    /** this function is called in each timestep. It should perform robot-internal checks,
+        like space-internal collision detection, sensor resets/update etc.
+        @param globalData structure that contains global data from the simulation environment
     */
     virtual void doInternalStuff(const GlobalData& globalData);
 
-    
+
     /** The list of all parameters with there value as allocated lists.
      */
     virtual paramlist getParamList() const;
-    
+
     virtual paramval getParam(const paramkey& key, bool traverseChildren=true) const;;
-    
+
     virtual bool setParam(const paramkey& key, paramval val, bool traverseChildren=true);
 
     /** the main object of the robot, which is used for position and speed tracking */
@@ -196,24 +196,24 @@ namespace lpzrobots {
   protected:
 
     /** creates vehicle at desired pose
-	@param pose 4x4 pose matrix
+        @param pose 4x4 pose matrix
     */
-    virtual void create(const osg::Matrix& pose); 
+    virtual void create(const osg::Matrix& pose);
 
     /** destroys vehicle and space
      */
     virtual void destroy();
 
-    SkeletonConf conf; 
+    SkeletonConf conf;
 
     bool created;      // true if robot was created
 
-    typedef enum SkelParts {Pole, Hip,Trunk_comp,Neck, Head_comp, 
-			     Left_Shoulder, Left_Forearm, Left_Hand,
-			     Right_Shoulder, Right_Forearm, Right_Hand, 
-			     Left_Thigh, Left_Shin, Left_Foot,
-			     Right_Thigh, Right_Shin, Right_Foot,
-			     LastPart };
+    typedef enum SkelParts {Pole, Hip,Trunk_comp,Neck, Head_comp,
+                             Left_Shoulder, Left_Forearm, Left_Hand,
+                             Right_Shoulder, Right_Forearm, Right_Hand,
+                             Left_Thigh, Left_Shin, Left_Foot,
+                             Right_Thigh, Right_Shin, Right_Foot,
+                             LastPart };
     std::vector<Primitive*>    objects;  // all the objects
     std::vector<Joint*>        joints; // joints legs
     std::vector<TwoAxisServo*> hipservos; // motors

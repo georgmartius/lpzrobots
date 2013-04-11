@@ -12,12 +12,12 @@
 
 class XMLObject {
 public:
-	XMLObject(XMLParserEngine& xmlEngine) : xmlEngine(xmlEngine) {}
+        XMLObject(XMLParserEngine& xmlEngine) : xmlEngine(xmlEngine) {}
 
-	virtual ~XMLObject();
+        virtual ~XMLObject();
 
 protected:
-	XMLParserEngine& xmlEngine;
+        XMLParserEngine& xmlEngine;
 };
 
 #endif /* XMLOBJECT_H_ */

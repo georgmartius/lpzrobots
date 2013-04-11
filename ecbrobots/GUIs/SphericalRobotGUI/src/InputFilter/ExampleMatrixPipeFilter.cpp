@@ -28,7 +28,7 @@
  *  $Log$
  *  Revision 1.1  2009-04-17 14:17:32  guettler
  *  New PlotChannels and Filters for matrices
- *										   *
+ *                                                                                   *
  *                                                                         *
  **************************************************************************/
 
@@ -37,40 +37,40 @@
 #include "MatrixElementPlotChannel.h"
 
 ExampleMatrixPipeFilter::ExampleMatrixPipeFilter() {
-	// TODO Auto-generated constructor stub
+        // TODO Auto-generated constructor stub
 
 }
 
 ExampleMatrixPipeFilter::~ExampleMatrixPipeFilter() {
-	// TODO Auto-generated destructor stub
+        // TODO Auto-generated destructor stub
 }
 
 virtual AbstractPlotChannel* ExampleMatrixPipeFilter::createChannel(std::string name)
 {
     //if (name.find("A[0,1]")==0) return (new MotorSpeedPlotChannel("motorCspeedX"));
-	if (/*ERSTER BUCHSTABE IN name großgeschrieben*/)
-	{ // Matrix element found!
-		bool isNewChannel = false;
-		// suche richtiges MatrixPlotChannel
-		MatrixPlotChannel* matrixChannel;
-		// wenn noch nicht in Liste:
-		isNewChannel = true;
-		matrixChannel = new MatrixPlotChannel(/*Großbuchstabe*/name.substr(0,1));
-		this.matrixPlotChannels.push_back(matrixChannel);
-		// eigentlichen Channel hinzufügen
-		MatrixElementPlotChannel* elementChannel = new MatrixElementPlotChannel(/*Index*/"1");
-		matrixChannel.addPlotChannel(elementChannel);
-		// überlegen: evtl. Dimension der Matrix in der Hierarchie berücksichtigen (mxn)
-		// addRow(GroupChannel*) verwenden usw.
+        if (/*ERSTER BUCHSTABE IN name großgeschrieben*/)
+        { // Matrix element found!
+                bool isNewChannel = false;
+                // suche richtiges MatrixPlotChannel
+                MatrixPlotChannel* matrixChannel;
+                // wenn noch nicht in Liste:
+                isNewChannel = true;
+                matrixChannel = new MatrixPlotChannel(/*Großbuchstabe*/name.substr(0,1));
+                this.matrixPlotChannels.push_back(matrixChannel);
+                // eigentlichen Channel hinzufügen
+                MatrixElementPlotChannel* elementChannel = new MatrixElementPlotChannel(/*Index*/"1");
+                matrixChannel.addPlotChannel(elementChannel);
+                // überlegen: evtl. Dimension der Matrix in der Hierarchie berücksichtigen (mxn)
+                // addRow(GroupChannel*) verwenden usw.
 
-		// Wenn das MatrixChannel grade erstellt, gib ihn zurück,
-		// wenn bereits vorhanden (also nur Element hinzugefügt), dann gib null zurück
-		if (isNewChannel)
-			return matrixChannel;
-		else
-			return NULL;
-	}
-	else // default
-		return new DefaultPlotChannel(name);
+                // Wenn das MatrixChannel grade erstellt, gib ihn zurück,
+                // wenn bereits vorhanden (also nur Element hinzugefügt), dann gib null zurück
+                if (isNewChannel)
+                        return matrixChannel;
+                else
+                        return NULL;
+        }
+        else // default
+                return new DefaultPlotChannel(name);
 }
 

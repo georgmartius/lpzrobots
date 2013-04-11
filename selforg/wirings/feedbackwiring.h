@@ -32,7 +32,7 @@
      with a feedback strength.
     It is possible to generate virtual motors for context sensors.
 
-    In order to change the feedback strength after initialisation 
+    In order to change the feedback strength after initialisation
     use the following code
     \code
     matrix::Matrix rs = wiring->getFeedbackRatio();
@@ -59,11 +59,11 @@ protected:
   virtual bool initIntern();
 
   virtual bool wireSensorsIntern(const sensor* rsensors, int rsensornumber,
-				 sensor* csensors, int csensornumber,
-				 double noise);
+                                 sensor* csensors, int csensornumber,
+                                 double noise);
 
   virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
-				const motor* cmotors, int cmotornumber);
+                                const motor* cmotors, int cmotornumber);
 
 public:
 

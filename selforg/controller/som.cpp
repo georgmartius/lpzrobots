@@ -36,14 +36,14 @@ SOM::SOM(const std::string& name, const std::string& revision) : AbstractModel(n
 }
 
 SOM::SOM(unsigned int dimensions, double sigma, double eps, double rbfsize,
-	 const std::string& name, const std::string& revision)
+         const std::string& name, const std::string& revision)
   : AbstractModel(name, revision), eps(eps), dimensions(dimensions),  sigma(sigma), rbfsize(rbfsize){
   addParameter("eps",&eps);
   initialised=false;
 }
 
 void SOM::init(unsigned int inputDim, unsigned int outputDim,
-	       double unit_map, RandGen* randGen){
+               double unit_map, RandGen* randGen){
   if(!randGen) randGen = new RandGen(); // this gives a small memory leak
   double s = pow(outputDim,1.0/dimensions);
   size = (int)round(s);
@@ -168,8 +168,8 @@ const Matrix SOM::process (const Matrix& input){
 }
 
 const Matrix SOM::learn (const Matrix& input,
-			 const Matrix& nom_output,
-			 double learnRateFactor ){
+                         const Matrix& nom_output,
+                         double learnRateFactor ){
   //  unsigned int s = weights.size();
   // "activation" of network already done in process
   // select minimum

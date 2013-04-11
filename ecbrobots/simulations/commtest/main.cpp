@@ -60,31 +60,31 @@ using namespace lpzrobots;
 
 class ECBTestCommunicator : public ECBCommunicator {
 public:
-// 	GlobalData* global;
-	
-	ECBTestCommunicator(GlobalData& global) : ECBCommunicator(global) {}
+//         GlobalData* global;
 
-	virtual ~ECBTestCommunicator(){}
+        ECBTestCommunicator(GlobalData& global) : ECBCommunicator(global) {}
 
-	virtual bool testModeCallback() {
-	  commData data;
-	  data.destinationAddress = 1;
-	  data.sourceAddress = 0;
-	  data.command = CPING; //CCOMTEST
-	  data.dataLength = 1;
-	  data.data[0] = 23;
-	  if (!globalData->commchannel->sendData(data)) {
-    	    cerr << "Error while sending motor values for ECB " << 1 << "." << endl;
-	  }
-	  commData result = globalData->commchannel->receiveData();
-	printf("command(hex): %x,\r\n",result.command);
-	  for(int i=0;i<result.dataLength;i++) {
-    		std::cout << "result: " << result.data[i] << std::endl;
-  	  }
+        virtual ~ECBTestCommunicator(){}
 
-	
-	return true;
-	}	
+        virtual bool testModeCallback() {
+          commData data;
+          data.destinationAddress = 1;
+          data.sourceAddress = 0;
+          data.command = CPING; //CCOMTEST
+          data.dataLength = 1;
+          data.data[0] = 23;
+          if (!globalData->commchannel->sendData(data)) {
+                cerr << "Error while sending motor values for ECB " << 1 << "." << endl;
+          }
+          commData result = globalData->commchannel->receiveData();
+        printf("command(hex): %x,\r\n",result.command);
+          for(int i=0;i<result.dataLength;i++) {
+                    std::cout << "result: " << result.data[i] << std::endl;
+            }
+
+
+        return true;
+        }
 
 };
 
@@ -110,9 +110,9 @@ class MyECBManager : public ECBManager {
       global.maxFailures=4;
       global.serialReadTimeout=50;
       global.verbose = true;
-	global.testMode= true;
+        global.testMode= true;
 
-	global.debug = true;
+        global.debug = true;
 
 
       return true;

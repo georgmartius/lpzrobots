@@ -45,12 +45,12 @@ typedef struct MultiExpertPairConf {
 typedef struct Sat {
   Sat(InvertableModel* _net, double _eps);
   InvertableModel* net;
-  double eps;  
+  double eps;
   double lifetime;
 } Sat;
 
 /**
- * class for robot controller 
+ * class for robot controller
  * using several feedforward networks (satelite) and one selforg controller
  */
 class MultiExpertPair : public  AbstractModel{
@@ -60,8 +60,8 @@ public:
 
   virtual ~MultiExpertPair();
 
-  virtual void init(unsigned int inputDim, unsigned  int outputDim, 
-		    double unit_map = 0.0, RandGen* randGen = 0);
+  virtual void init(unsigned int inputDim, unsigned  int outputDim,
+                    double unit_map = 0.0, RandGen* randGen = 0);
 
   virtual unsigned int getInputDim() const { return inputDim;}
   virtual unsigned int getOutputDim() const  { return outputDim;}
@@ -70,14 +70,14 @@ public:
 
   virtual const matrix::Matrix process (const matrix::Matrix& input);
 
-  virtual const matrix::Matrix learn (const matrix::Matrix& input, 
-				      const matrix::Matrix& nom_output, 
-				      double learnRateFactor = 1);
+  virtual const matrix::Matrix learn (const matrix::Matrix& input,
+                                      const matrix::Matrix& nom_output,
+                                      double learnRateFactor = 1);
 
   // !!!!!!!!!!!!!!!!!!! MISC STUFF !!!!!!!!
-    
+
   /// stores the sat networks into seperate files
-  void storeSats(const char* filestem); 
+  void storeSats(const char* filestem);
   /// restore the sat networks from seperate files
   void restoreSats(const std::list<std::string>& filenames);
 
@@ -91,11 +91,11 @@ public:
   /** stores the controller values to a given file. */
   virtual bool store(FILE* f) const;
   /** loads the controller values from a given file. */
-  virtual bool restore(FILE* f);  
+  virtual bool restore(FILE* f);
 
   /**** INSPECTABLE ****/
   virtual std::list<iparamkey> getInternalParamNames() const;
-  virtual std::list<iparamval> getInternalParams() const;  
+  virtual std::list<iparamval> getInternalParams() const;
   virtual std::list<ILayer> getStructuralLayers() const;
   virtual std::list<IConnection> getStructuralConnections() const;
 
@@ -104,11 +104,11 @@ public:
     c.numHidden = 2;
     c.eps0=0.005;
     c.lambda_w = 0.05; // 5%
-    // c.tauC = 10.0/c.eps0; 
-    c.tauE1 = 20; 
-    c.tauE2 = 200; 
-    c.tauW  = 1000; 
-    c.tauI  = 50000; 
+    // c.tauC = 10.0/c.eps0;
+    c.tauE1 = 20;
+    c.tauE2 = 200;
+    c.tauW  = 1000;
+    c.tauI  = 50000;
     c.numSats=4;
     c.maxSats=32;
     c.mature=0.2;
@@ -117,7 +117,7 @@ public:
   }
 
 
-protected:  
+protected:
   int inputDim;
   int outputDim;
 
@@ -135,15 +135,15 @@ protected:
   matrix::Matrix satEpsMod;       ///< modulated eps of sats
 
   matrix::Matrix errorCov;        ///< error covariance matrix
-  
+
   MultiExpertPairConf conf;
   bool initialised;
   bool managementInterval;
   int t;
 protected:
   /// satelite networks competition, return vector of prediction errors of sat networks
-  matrix::Matrix compete(const matrix::Matrix& input, 
-			 const matrix::Matrix& nom_output);
+  matrix::Matrix compete(const matrix::Matrix& input,
+                         const matrix::Matrix& nom_output);
 
   /** adds a new Sat network to the system and returns its index
       @param copySat index of existing sat network to copy

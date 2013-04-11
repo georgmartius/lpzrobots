@@ -43,11 +43,11 @@ struct TrackRobotConf {
   bool   trackOrientation;
   bool   displayTrace;
   double displayTraceDur;       ///< duration in second to display the trace
-  double displayTraceThickness;
+  double displayTraceThickness; ///< if thickkness is 0 (default) then a line is used otherwise a cylinder
   bool   writeFile;             ///< whether to write a log file
 
   int interval;
-  std::string scene;  
+  std::string scene;
   int id;
 };
 
@@ -77,8 +77,8 @@ public:
     conf.trackSpeed            = false;
     conf.trackOrientation      = false;
     conf.displayTrace          = false;
-    conf.displayTraceDur       = 60; 
-    conf.displayTraceThickness = 0.05;
+    conf.displayTraceDur       = 60;
+    conf.displayTraceThickness = 0.0;
     conf.interval              = 1;
     conf.writeFile             = true;
     //    conf.scene           = "";
@@ -97,44 +97,22 @@ public:
       @param interval timesteps between consequent logging events (default 1)
    */
   TrackRobot(bool trackPos, bool trackSpeed, bool trackOrientation, bool displayTrace,
-	     const char* scene = "", int interval = 1)
+             const char* scene = "", int interval = 1)
   {
     conf = getDefaultConf();
     conf.trackPos         = trackPos;
-    conf.trackSpeed	  = trackSpeed;
+    conf.trackSpeed          = trackSpeed;
     conf.trackOrientation = trackOrientation;
     conf.displayTrace     = displayTrace;
-    conf.interval	  = interval;
+    conf.interval          = interval;
     conf.scene            = scene;
-    conf.id               = 0;
+    conf.id               = -1; // whole robot, not individual parts
     file = 0;
     cnt  = 1;
   }
 
-  // TrackRobot(const TrackRobot &rhs)
-  // {    
-  //   deepcopy(*this, rhs);
-  // }
-
-  // const TrackRobot& operator=(const TrackRobot &rhs)
-  // {
-  //   if ( this != &rhs )
-  //   {
-  //     if (file)
-  //       fclose(file);
-  //     file=0;
-
-  //     deepcopy(*this, rhs);
-  //   }
-
-  //   return *this;
-  // }
-
   ~TrackRobot()
   {
-    // if (file)
-    //   fclose(file);
-    // file = 0;    
   }
 
   /// returns whether tracing is activated
@@ -156,8 +134,6 @@ public:
   FILE* file;
   long cnt;
 
- // private:
- //   static void deepcopy (TrackRobot &lhs, const TrackRobot &rhs);
 
 };
 

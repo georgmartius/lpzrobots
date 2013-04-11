@@ -180,7 +180,7 @@ public:
     bool useExternalMeshFile;
 
   // starting function (executed once at the beginning of the simulation loop)
-  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global) 
+  void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
   {
     setCameraHomePos(Pos(5.77213, -1.65879, 2.31173),  Pos(67.1911, -18.087, 0));
     // initialization
@@ -191,10 +191,10 @@ public:
     //  int chessTexture = dsRegisterTexture("chess.ppm");
 
     // use Playground as boundary:
-    // - create pointer to playground (odeHandle contains things like world and space the 
+    // - create pointer to playground (odeHandle contains things like world and space the
     //   playground should be created in; odeHandle is generated in simulation.cpp)
-    // - setting geometry for each wall of playground: 
-    //   setGeometry(double length, double width, double	height)
+    // - setting geometry for each wall of playground:
+    //   setGeometry(double length, double width, double        height)
     // - setting initial position of the playground: setPosition(double x, double y, double z)
     // - push playground in the global list of obstacles(globla list comes from simulation.cpp)
     Playground* playground = new Playground(odeHandle, osgHandle.changeColor(Color(1,1,1,0.1)), osg::Vec3(10, 0.2, 1.0f));
@@ -203,16 +203,16 @@ public:
 
 
     PassiveMesh* myMesh = new PassiveMesh(odeHandle,osgHandle,
-				   "Meshes/cow.osg", // the filename of the mesh
- 					   0.1, // the scale factor to be used
- 					   1.0); // the mass of the mesh
+                                   "Meshes/cow.osg", // the filename of the mesh
+                                            0.1, // the scale factor to be used
+                                            1.0); // the mass of the mesh
      myMesh->setPosition(osg::Vec3(1.0,0.2,1.0f));
      global.obstacles.push_back(myMesh);
-     
+
      myMesh = new PassiveMesh(odeHandle,osgHandle,
-				   "Meshes/tree1.osg", // the filename of the mesh
- 					   0.01, // the scale factor to be used
- 					   1000.0); // the mass of the mesh
+                                   "Meshes/tree1.osg", // the filename of the mesh
+                                            0.01, // the scale factor to be used
+                                            1000.0); // the mass of the mesh
      myMesh->setPosition(osg::Vec3(-1.0,0.2,0.4f));
      global.obstacles.push_back(myMesh);
 
@@ -230,9 +230,9 @@ public:
 
 
     // add passive spheres as obstacles
-    // - create pointer to sphere (with odehandle, osghandle and 
+    // - create pointer to sphere (with odehandle, osghandle and
     //   optional parameters radius and mass,where the latter is not used here) )
-    // - set Pose(Position) of sphere 
+    // - set Pose(Position) of sphere
     // - set a texture for the sphere
     // - add sphere to list of obstacles
     for (int i=0; i<= 1/*2*/; i+=2){
@@ -246,20 +246,20 @@ public:
     OsgHandle osgHandle_orange = osgHandle.changeColor(Color(2, 156/255.0, 0));
 
     OdeRobot* vehicle = new TruckMesh(odeHandle, osgHandle_orange, // ODE- and OSGHandle
-				      "Truck 1", // the final name of the Meshrobot in the simulation
-				      1.2, // scale factor (size) of the robot
-				      2, // the force of the motors (scales automatically with size)
-				      5, // the max speed of the vehicle
-				      1); // the mass of the vehicle (scales automatically with size)
+                                      "Truck 1", // the final name of the Meshrobot in the simulation
+                                      1.2, // scale factor (size) of the robot
+                                      2, // the force of the motors (scales automatically with size)
+                                      5, // the max speed of the vehicle
+                                      1); // the mass of the vehicle (scales automatically with size)
      vehicle->place(Pos(1.5,0,0.1));
 
     // create pointer to controller
     // push controller in global list of configurables
-    //  AbstractController *controller = new InvertNChannelController(10);  
-    AbstractController *controller = new InvertMotorSpace(15);  
+    //  AbstractController *controller = new InvertNChannelController(10);
+    AbstractController *controller = new InvertMotorSpace(15);
     controller->setParam("s4avg",10);
     global.configs.push_back(controller);
-  
+
     // create pointer to one2onewiring
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
@@ -269,8 +269,8 @@ public:
     OdeAgent* agent = new OdeAgent(global);
     agent->init(controller, vehicle, wiring);
     global.agents.push_back(agent);
-  
-    
+
+
 
     XMLParserEngine* xmlEngine = new XMLParserEngine(global,odeHandle,osgHandle,this);
 
@@ -283,11 +283,11 @@ public:
   {
     if (down) { // only when key is pressed, not when released
       switch ( (char) key )
-	{
-	default:
-	  return false;
-	  break;
-	}
+        {
+        default:
+          return false;
+          break;
+        }
     }
     return false;
   }
@@ -298,7 +298,7 @@ public:
 
 
 int main (int argc, char **argv)
-{ 
+{
   int index = Simulation::contains(argv, argc, "-meshfile");
   ThisSim sim;
   if(index &&  (argc > index))
@@ -312,4 +312,4 @@ int main (int argc, char **argv)
   }
   return sim.run(argc, argv) ? 0 : 1;
 }
- 
+

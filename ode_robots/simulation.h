@@ -66,8 +66,8 @@ namespace lpzrobots {
     virtual ~Simulation();
 
     /** starts the Simulation. Do not overload it.
-	This function returns of the simulation is terminated.
-	@return: true if closed regulary, false on error
+        This function returns of the simulation is terminated.
+        @return: true if closed regulary, false on error
     */
     bool run(int argc, char** argv);
 
@@ -91,15 +91,15 @@ namespace lpzrobots {
     /// end() is called at the end and should tidy up
     virtual void end(GlobalData& globalData);
     /** config() is called when the user presses Ctrl-C
-	@return false to exit program, true otherwise
+        @return false to exit program, true otherwise
     */
     virtual bool config(GlobalData& globalData);
     /** is called if a key was pressed.
-	For keycodes see: osgGA::GUIEventAdapter
-	@return true if the key was handled
+        For keycodes see: osgGA::GUIEventAdapter
+        @return true if the key was handled
     */
     virtual bool command(const OdeHandle&, const OsgHandle&, GlobalData& globalData,
-			 int key, bool down) { return false; };
+                         int key, bool down) { return false; };
 
     /** this can be used to describe the key bindings used by command()
      */
@@ -110,16 +110,16 @@ namespace lpzrobots {
     virtual void usage() const {};
 
     /** collCallback() can be used to overload the standart collision handling.
-	However it is called after the robots collision handling.
-	@return true if collision is treated, false otherwise
+        However it is called after the robots collision handling.
+        @return true if collision is treated, false otherwise
     */
     virtual bool collCallback(const OdeHandle&, void* data, dGeomID o1, dGeomID o2) { return false;};
 
     /** optional additional callback function which is called every simulation step.
-	Called between physical simulation step and drawing.
-	@param draw indicates that objects are drawn in this timestep
-	@param pause always false (only called of simulation is running)
-	@param control indicates that robots have been controlled this timestep
+        Called between physical simulation step and drawing.
+        @param draw indicates that objects are drawn in this timestep
+        @param pause always false (only called of simulation is running)
+        @param control indicates that robots have been controlled this timestep
      */
     virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {};
 
@@ -146,8 +146,8 @@ namespace lpzrobots {
     virtual void updateGraphics(); ///< update the graphics objects
 
     /** define the home position and view orientation of the camera.
-	view.x is the heading angle in degree. view.y is the tilt angle in degree (nick),
-	view.z is ignored
+        view.x is the heading angle in degree. view.y is the tilt angle in degree (nick),
+        view.z is ignored
     */
     void setCameraHomePos(const osg::Vec3& eye, const osg::Vec3& view);
 
@@ -167,6 +167,9 @@ namespace lpzrobots {
      * @param agent to set
      */
     void setWatchedAgent(OdeAgent* agent);
+
+    /// returns the watched agent (or 0)
+    OdeAgent* getWatchedAgent() const;
 
     static void nearCallback_TopLevel(void *data, dGeomID o1, dGeomID o2);
     static void nearCallback(void *data, dGeomID o1, dGeomID o2);
@@ -219,6 +222,7 @@ namespace lpzrobots {
     long simtimeoffset;
     double truerealtimefactor; // calculated true speed
     bool justresettimes;      // true if we just reset sync times
+    bool drawContacts;
 
     paramint windowWidth;
     paramint windowHeight;

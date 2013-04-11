@@ -30,7 +30,7 @@
 
 /// constructor
 FeedbackWiring::FeedbackWiring(NoiseGenerator* noise, Mode mode,
-			       double feedbackratio,  const std::string& name)
+                               double feedbackratio,  const std::string& name)
   : AbstractWiring(noise, Controller, name), mode(mode), defaultfeedbackratio(feedbackratio) {
   motors=0;
   initialised=false;
@@ -70,8 +70,8 @@ bool FeedbackWiring::initIntern(){
 }
 
 bool FeedbackWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber,
-				       sensor* csensors, int csensornumber,
-				       double noiseStrength){
+                                       sensor* csensors, int csensornumber,
+                                       double noiseStrength){
   assert(rsensornumber==csensornumber);
   // noisevals are set in AbstractWiring
   int fi=0;
@@ -82,7 +82,7 @@ bool FeedbackWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber
   }else{
     for(int i=0; i< rmotornumber; i++, fi++){
       csensors[i] = feedbackratio.val(fi,0)*motors[i] +
-	(1-feedbackratio.val(fi,0))*(rsensors[i] + noisevals[i]);
+        (1-feedbackratio.val(fi,0))*(rsensors[i] + noisevals[i]);
     }
   }
   if((mode & Context) == 0){
@@ -92,14 +92,14 @@ bool FeedbackWiring::wireSensorsIntern(const sensor* rsensors, int rsensornumber
   }else{
     for(int i=rmotornumber; i< rmotornumber+vmotornumber; i++, fi++){
       csensors[i] = feedbackratio.val(fi,0)*motors[i] +
-	(1-feedbackratio.val(fi,0))*(rsensors[i] + noisevals[i]);
+        (1-feedbackratio.val(fi,0))*(rsensors[i] + noisevals[i]);
     }
   }
   return true;
 }
 
 bool FeedbackWiring::wireMotorsIntern(motor* rmotors, int rmotornumber,
-				      const motor* cmotors, int cmotornumber){
+                                      const motor* cmotors, int cmotornumber){
   if (rmotornumber != cmotornumber-vmotornumber)
     return false;
   else{

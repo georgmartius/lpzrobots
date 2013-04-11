@@ -27,9 +27,9 @@
 #include "IMutationStrategy.h"
 
 IMutationStrategy::IMutationStrategy() {
-	// nothing
+        // nothing
 }
 
 IMutationStrategy::~IMutationStrategy() {
-	// nothing
+        // nothing
 }

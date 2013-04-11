@@ -30,11 +30,11 @@
 using namespace std;
 
 MatrixPlotChannel::MatrixPlotChannel(string name) : GroupPlotChannel(name) {
-	// TODO Auto-generated constructor stub
+        // TODO Auto-generated constructor stub
 }
 
 MatrixPlotChannel::~MatrixPlotChannel() {
-	// TODO Auto-generated destructor stub
+        // TODO Auto-generated destructor stub
 }
 
 
@@ -45,13 +45,13 @@ MatrixPlotChannel::~MatrixPlotChannel() {
 */
 int MatrixPlotChannel::getDimension(int dim)
 {
-	assert(dim < 2);
+        assert(dim < 2);
 
-	if( dim == 0 ) return channelsOfGroup.size();
-	else{
-	  MatrixPlotChannel* chan = dynamic_cast<MatrixPlotChannel*> (channelsOfGroup.front());
-	  if(chan == 0) { return 0; }else return chan->getDimension(0);
-	}
+        if( dim == 0 ) return channelsOfGroup.size();
+        else{
+          MatrixPlotChannel* chan = dynamic_cast<MatrixPlotChannel*> (channelsOfGroup.front());
+          if(chan == 0) { return 0; }else return chan->getDimension(0);
+        }
 }
 
 double MatrixPlotChannel::getValue(int row, int column)
@@ -92,5 +92,5 @@ GroupPlotChannel* MatrixPlotChannel::getLastRow(){
 }
 
 void MatrixPlotChannel::addRow(GroupPlotChannel* gc){
-	channelsOfGroup.push_back(gc);
+        channelsOfGroup.push_back(gc);
 }

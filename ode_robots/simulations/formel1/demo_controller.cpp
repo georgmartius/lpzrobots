@@ -48,7 +48,7 @@
  *   Revision 1.1  2005/08/08 11:14:54  robot1
  *   simple control for moving robot with keyboard
  *
- *                                                                         * 
+ *                                                                         *
  *                                                                         *
  ***************************************************************************/
 
@@ -69,11 +69,11 @@ DemoController::DemoController()
 
   // disable the camerahandling
   cameraHandlingDefined=0;
-  
+
 };
 
 
-/** initialisation of the controller with the given sensor/ motornumber 
+/** initialisation of the controller with the given sensor/ motornumber
     Must be called before use.
 */
 void DemoController::init(int sensornumber, int motornumber){
@@ -82,15 +82,15 @@ void DemoController::init(int sensornumber, int motornumber){
 };
 
 
-/** performs one step (includes learning). 
+/** performs one step (includes learning).
     Calculates motor commands from sensor inputs.
     @param sensor sensors inputs scaled to [-1,1]
     @param sensornumber length of the sensor array
     @param motor motors outputs. MUST have enough space for motor values!
     @param motornumber length of the provided motor array
 */
-void DemoController::step(const sensor* sensors, int sensornumber, 
-			  motor* motors, int motornumber) {
+void DemoController::step(const sensor* sensors, int sensornumber,
+                          motor* motors, int motornumber) {
   stepNoLearning(sensors, sensornumber, motors, motornumber);
 };
 
@@ -101,7 +101,7 @@ double sign(double v)
     return 1.0;
   else if(v < 0.0)
     return -1.0;
-  else 
+  else
     return 0.0;
 }
 
@@ -118,13 +118,13 @@ double amplify(double v)
   return result;
 }
 
-/** performs one step without learning. 
+/** performs one step without learning.
     @see step
 */
 void DemoController::stepNoLearning(const sensor* pa_sensor,
-				      int sensor_count, 
-				      motor* pa_motor,
-				      int motor_count) {
+                                      int sensor_count,
+                                      motor* pa_motor,
+                                      int motor_count) {
   // std::cout << "\x1b[32;1mHERE\x1b[0m\n";
   /**
   std::cout << sensor_count << "\n";
@@ -134,7 +134,7 @@ void DemoController::stepNoLearning(const sensor* pa_sensor,
   std::cout << "\n";
   **/
   // std::cout << sensor_count << "\n";
-  // 
+  //
 
   // sensor 8: wants the car to turn left
 
@@ -161,15 +161,15 @@ void DemoController::stepNoLearning(const sensor* pa_sensor,
   left_force /= 2.0;
   /*
   std::cout << "\x1b[32;1m"
-	    << left_force
-	    << " --- "
-	    << right_force
-	    << "\x1b[0m\n"; // red
+            << left_force
+            << " --- "
+            << right_force
+            << "\x1b[0m\n"; // red
   */
 
   // check if the max_forward_speed needs to be reduces because of an
   // obstacle
-  double b = pa_sensor[6] + pa_sensor[7] + pa_sensor[8]; 
+  double b = pa_sensor[6] + pa_sensor[7] + pa_sensor[8];
   b /= 3.0;
 
   //max_forward_speed *= 1.0 - break_f * pa_sensor[6];
@@ -189,11 +189,11 @@ void DemoController::stepNoLearning(const sensor* pa_sensor,
     //    std::cout << "\x1b[31;1mhere - GREEN\x1b[0m\n"; // red
     /*
     std::cout << "\x1b[31;1m"
-	      << "GREEN"
-	      << velocity_left
-	      << " --- "
-	      << velocity_right
-	      << "\x1b[0m\n"; // green
+              << "GREEN"
+              << velocity_left
+              << " --- "
+              << velocity_right
+              << "\x1b[0m\n"; // green
     */
   }
   else {
@@ -207,10 +207,10 @@ void DemoController::stepNoLearning(const sensor* pa_sensor,
   // front sensors
   /*
     std::cout << "\x1b[36;1m"
-	      << left_force
-	      << " --- "
-	      << right_force
-	      << "\x1b[0m\n"; // red
+              << left_force
+              << " --- "
+              << right_force
+              << "\x1b[0m\n"; // red
   */
   if(left_force >= 0.3 || right_force >= 0.3) {
     if((right_force - left_force) > 0.0) {
@@ -225,7 +225,7 @@ void DemoController::stepNoLearning(const sensor* pa_sensor,
       velocity_right =  max_rotate_speed;
       //     std::cout << "\x1b[32;1mBLUH\x1b[0m\n";
     }
-    
+
   }
 
 
@@ -254,7 +254,7 @@ void DemoController::stepNoLearning(const sensor* pa_sensor,
   double r_minus = pa_sensor[8] * 2.0;
   */
 
-  // 
+  //
   // 3 - 2
   // 1 - 0
   // set motors to constant speed
@@ -272,18 +272,18 @@ void DemoController::stepNoLearning(const sensor* pa_sensor,
   for(int i = 0; i < motor_count; ++i)
     pa_motor[i] *= 1.0;
 };
-  
+
 
 Configurable::paramval DemoController::getParam(const paramkey& key, bool traverseChildren) const{
-  if(key == "velocity") return velocity; 
-  else if(key == "leftRightShift") return leftRightShift; 
+  if(key == "velocity") return velocity;
+  else if(key == "leftRightShift") return leftRightShift;
   else  return AbstractController::getParam(key) ;
 }
 
 
 bool DemoController::setParam(const paramkey& key, paramval val, bool traverseChildren){
   if(key == "velocity") velocity=val;
-  else if(key == "leftRightShift") leftRightShift=val; 
+  else if(key == "leftRightShift") leftRightShift=val;
   else return AbstractController::setParam(key, val);
   return true;
 }
@@ -301,7 +301,7 @@ Configurable::paramlist DemoController::getParamList() const{
       and view.
    */
  /*  void SimpleController::setCameraHandling(void (*handling)()) {
-	   cameraHandlingFunction=handling;
-  	   // enable the camerahandling
-	   cameraHandlingDefined=1;
+           cameraHandlingFunction=handling;
+             // enable the camerahandling
+           cameraHandlingDefined=1;
 };*/

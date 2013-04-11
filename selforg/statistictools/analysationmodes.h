@@ -35,34 +35,34 @@
  *  see method StatisticMeasure::step() !
  */
 enum AnalysationMode {
- 	/// returns the average value
-		AM_AVG,
-	/// returns the median value
-		AM_MED,
-	/// returns the minimum value
-		AM_MIN,
-	/// returns the maximum value
-		AM_MAX,
-	/// returns the range of the values
-		AM_RANGE,
-	/// returns the quartile Q_(1/4) value
-		AM_Q1,
-	/// returns the quartile Q_(3/4) value
-		AM_Q3,
-	/// returns the whisker (1.5*IQR) value
-		AM_WHISKER,
-	/// returns the whisker1 value
-		AM_W1,
-	/// returns the whisker3 value
-		AM_W3,
-	/// returns the inter quartile range (IQR) value
-		AM_IQR,
-	/// returns the count of extreme values
-		AM_NUM_EXT,
-	/// returns the special extreme value
-		AM_EXT,
-	/// returns the best value
-		AM_BEST
+         /// returns the average value
+                AM_AVG,
+        /// returns the median value
+                AM_MED,
+        /// returns the minimum value
+                AM_MIN,
+        /// returns the maximum value
+                AM_MAX,
+        /// returns the range of the values
+                AM_RANGE,
+        /// returns the quartile Q_(1/4) value
+                AM_Q1,
+        /// returns the quartile Q_(3/4) value
+                AM_Q3,
+        /// returns the whisker (1.5*IQR) value
+                AM_WHISKER,
+        /// returns the whisker1 value
+                AM_W1,
+        /// returns the whisker3 value
+                AM_W3,
+        /// returns the inter quartile range (IQR) value
+                AM_IQR,
+        /// returns the count of extreme values
+                AM_NUM_EXT,
+        /// returns the special extreme value
+                AM_EXT,
+        /// returns the best value
+                AM_BEST
 };
 
 #endif //_ANALYSATIONMODES_H

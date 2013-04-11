@@ -21,20 +21,20 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
-#ifndef   	MOTOR_H_
-# define   	MOTOR_H_
+#ifndef           MOTOR_H_
+# define           MOTOR_H_
 
 namespace lpzrobots {
-  
+
   /**
-      Abstact base class for attachable motors 
+      Abstact base class for attachable motors
   */
   class Motor{
-  public: 
+  public:
     Motor() {
     }
     virtual ~Motor() {};
-    
+
     /** initialises motor with body of robot
     */
     virtual void init(Primitive* own)=0;
@@ -43,15 +43,15 @@ namespace lpzrobots {
     virtual int getMotorNumber() const =0;
 
     /** performs the actions, This is usually called in
-	doInternalStuff() from the robot */
+        doInternalStuff() from the robot */
     virtual bool act(GlobalData& globaldata) = 0;
 
     /** sends the action commands to the motor.
-	It returns the number of used values. (should be equal to
-	getMotorNumber)
+        It returns the number of used values. (should be equal to
+        getMotorNumber)
      */
-    virtual int set(const motor* values, int length) = 0;    
+    virtual int set(const motor* values, int length) = 0;
   };
 }
 
-#endif 	    /* !MOTOR_H_ */
+#endif             /* !MOTOR_H_ */

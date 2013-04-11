@@ -56,21 +56,21 @@ namespace lpzrobots {
     double sliderLength;  ///< length of the slider in segmLength (0 for no sliders)
     MotorType motorType;  ///< whether to use servos or angular motors
     bool   showCenter;    ///< whether to show the virtual center
-    
+
     std::string texture;  ///< texture for segments
   } SliderWheelieConf;
-  
+
 
   /**
-   * This is a class, which models an annular robot. 
-   * It consists of a number of equal elements, each linked 
+   * This is a class, which models an annular robot.
+   * It consists of a number of equal elements, each linked
    * by a joint powered by 1 servo
    **/
   class SliderWheelie : public OdeRobot
   {
   private:
     bool created;
-      
+
  std::vector <AngularMotor*> angularMotors;
     SliderWheelieConf conf;
 
@@ -81,11 +81,11 @@ namespace lpzrobots {
     DummyPrimitive* dummycenter; // virtual center object (here we can also update velocity)
   public:
     SliderWheelie(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-		  const SliderWheelieConf& conf, const std::string& name, 
-		  const std::string& revision = "");
-    
+                  const SliderWheelieConf& conf, const std::string& name,
+                  const std::string& revision = "");
+
     virtual ~SliderWheelie();
-	
+
     static SliderWheelieConf getDefaultConf(){
       SliderWheelieConf conf;
       conf.segmNumber = 8;       //  number of snake elements
@@ -100,7 +100,7 @@ namespace lpzrobots {
       conf.frictionJoint   = 0.0; // friction within joint
       conf.jointLimitIn    =  M_PI/3;
       conf.jointLimitOut   =  -1; // automatically set to 2*M_PI/segm_num
-      conf.sliderLength    =  1;  
+      conf.sliderLength    =  1;
       conf.motorType       = SliderWheelieConf::CenteredServo; // use centered servos
       conf.showCenter      = false;
       conf.texture         = "";
@@ -108,7 +108,7 @@ namespace lpzrobots {
     }
 
     virtual void place(const osg::Matrix& pose);
-    
+
     virtual void update();
 
     void doInternalStuff(GlobalData& global);
@@ -116,21 +116,21 @@ namespace lpzrobots {
     virtual void setMotors ( const motor* motors, int motornumber );
 
     virtual int getSensors ( sensor* sensors, int sensornumber );
-	
-    virtual int getSensorNumber() { assert(created); 
+
+    virtual int getSensorNumber() { assert(created);
       return hingeServos.size()+angularMotors.size()+sliderServos.size(); }
 
-    virtual int getMotorNumber(){ assert(created); 
+    virtual int getMotorNumber(){ assert(created);
       return hingeServos.size()+angularMotors.size()+sliderServos.size(); }
 
     virtual Primitive* getMainPrimitive() const {
       if(dummycenter) return dummycenter;
       else if(!objects.empty()){
-	return (objects[0]);
+        return (objects[0]);
       }else return 0;
-    } 
-    
-    virtual std::vector<Primitive*> getAllPrimitives() const { return objects;}    
+    }
+
+    virtual std::vector<Primitive*> getAllPrimitives() const { return objects;}
 
     /******** CONFIGURABLE ***********/
     virtual void notifyOnChange(const paramkey& key);

@@ -42,7 +42,7 @@ namespace lpzrobots {
   // constructor:
   // - give handle for ODE and OSG stuff
   VierBeiner::VierBeiner(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-	   const VierBeinerConf& c, const std::string& name)
+           const VierBeinerConf& c, const std::string& name)
     : OdeRobot(odeHandle, osgHandle, name, "0.7"), conf(c)
   {
     // robot is not created till now
@@ -224,15 +224,15 @@ namespace lpzrobots {
     neck->init(odeHandle, headmass/2, osgHandle);
     Pos neckpos(conf.size/2.05,0,conf.legLength);
     neck->setPose(TRANSM(0,0,necklength/2) *
-		  ROTM(M_PI/4,0,1,0) *
-		  TRANSM(neckpos)*pose);
+                  ROTM(M_PI/4,0,1,0) *
+                  TRANSM(neckpos)*pose);
     objects.push_back(neck);
     Primitive* head;
     head = new Capsule(neckwidth,theight);
     head->setTexture("Images/fur4.jpg");
     headtrans = new Transform(neck, head, TRANSM(0, 0, -headlength/2)
-			  * ROTM(-M_PI/2,0,1,0)
-			  * TRANSM(0, 0, necklength));
+                          * ROTM(-M_PI/2,0,1,0)
+                          * TRANSM(0, 0, necklength));
     headtrans->init(odeHandle, headmass/2, osgHandle);
     objects.push_back(headtrans);
     ///ignore collision between box on top of dog and head and also between head and body
@@ -259,8 +259,8 @@ namespace lpzrobots {
     ear_r = new Box(0.05*neckwidth,0.9*neckwidth,0.9*neckwidth);
     ear_r->setTexture("Images/fur4.jpg");
     ear_r_trans = new Transform(neck,ear_r, TRANSM(0, headlength/1.3,0)
-			  * ROTM(-M_PI/4,M_PI/5,1,0)
-			  * TRANSM(-1.0*headlength, 0, 2.5*headlength));
+                          * ROTM(-M_PI/4,M_PI/5,1,0)
+                          * TRANSM(-1.0*headlength, 0, 2.5*headlength));
     ear_r_trans->init(odeHandle, headmass/20, osgHandle);
     objects.push_back(ear_r_trans);
     if(conf.useBigBox)
@@ -269,8 +269,8 @@ namespace lpzrobots {
     ear_l = new Box(0.05*neckwidth,0.9*neckwidth,0.9*neckwidth);
     ear_l->setTexture("Images/fur4.jpg");
     ear_l_trans = new Transform(neck,ear_l, TRANSM(0, -headlength/1.3,0)
-			  * ROTM(-M_PI/4,-M_PI/5,1,0)
-			  * TRANSM(-1.0*headlength, 0, 2.5*headlength));
+                          * ROTM(-M_PI/4,-M_PI/5,1,0)
+                          * TRANSM(-1.0*headlength, 0, 2.5*headlength));
     ear_l_trans->init(odeHandle, headmass/20, osgHandle);
     objects.push_back(ear_l_trans);
     if(conf.useBigBox)
@@ -317,8 +317,8 @@ namespace lpzrobots {
     tail->init(odeHandle, headmass/2, osgHandle);
     Pos tailpos(-conf.size/1.96,0,conf.legLength+theight/3);
     tail->setPose(TRANSM(0,0,taillength/2) *
-		  ROTM(M_PI/2.2,0,-1,0) *
-		  TRANSM(tailpos)*pose);
+                  ROTM(M_PI/2.2,0,-1,0) *
+                  TRANSM(tailpos)*pose);
     objects.push_back(tail);
     j = new HingeJoint(trunk, tail, tailpos * pose, Axis(0,1,0) * pose);
     j->init(odeHandle, osgHandleJ, true, tailwidth * 2.05);
@@ -353,8 +353,8 @@ namespace lpzrobots {
       // upper limp
       Primitive* p1;
       Pos pos = Pos(-conf.size/(2+0.2) + ((int)n/2) * legdist,
-		    n%2==0 ? - twidth/2 : twidth/2,
-		    n<2 ? conf.legLength  : conf.legLength - theight/3);
+                    n%2==0 ? - twidth/2 : twidth/2,
+                    n<2 ? conf.legLength  : conf.legLength - theight/3);
       osg::Matrix m = TRANSM(pos) * pose;
 
       p1 = new Capsule(t1, l1);
@@ -369,7 +369,7 @@ namespace lpzrobots {
       j->init(odeHandle, osgHandleJ, true, t1 * 2.1);
       joints.push_back(j);
       servo =  new HingeServo(j,hiplowstop, hiphighstop,
-			      conf.hipPower, conf.hipDamping,0 );
+                              conf.hipPower, conf.hipDamping,0 );
       hipservos.push_back(servo);
 
       // lower limp
@@ -378,7 +378,7 @@ namespace lpzrobots {
       p2->setTexture("Images/toy_fur3.jpg");
       p2->init(odeHandle, legmass*0.3, osgHandle);
       osg::Matrix m2 = TRANSM(0,0,-l2/2) * ROTM(kneeangle,0, 1,0) *
-	TRANSM(0,0,-l1/2) * m1;
+        TRANSM(0,0,-l1/2) * m1;
       p2->setPose(m2);
       objects.push_back(p2);
       // powered knee joint
@@ -397,28 +397,28 @@ namespace lpzrobots {
 
 
       if(n<2){
-	// feet
-	Primitive* p3;
-	p3 = new Capsule(t3, l3);
-	p3->setTexture("Images/toy_fur3.jpg");
-	p3->init(odeHandle, legmass*0.2, osgHandle);
-	osg::Matrix m3 = TRANSM(0,0,-l3/2) * ROTM(ankleangle,0, 1,0) *
-	  TRANSM(0,0,-l2/2) * m2;
-	p3->setPose(m3);
-	objects.push_back(p3);
-	// powered ankle joint
-	j = new HingeJoint(p2, p3, Pos(0,0,-l2/2) * m2, Axis(0,1,0) * m2);
-	j->init(odeHandle, osgHandleJ, true, t2 * 2.1);
-	joints.push_back(j);
-	// feet should not collide with body!
+        // feet
+        Primitive* p3;
+        p3 = new Capsule(t3, l3);
+        p3->setTexture("Images/toy_fur3.jpg");
+        p3->init(odeHandle, legmass*0.2, osgHandle);
+        osg::Matrix m3 = TRANSM(0,0,-l3/2) * ROTM(ankleangle,0, 1,0) *
+          TRANSM(0,0,-l2/2) * m2;
+        p3->setPose(m3);
+        objects.push_back(p3);
+        // powered ankle joint
+        j = new HingeJoint(p2, p3, Pos(0,0,-l2/2) * m2, Axis(0,1,0) * m2);
+        j->init(odeHandle, osgHandleJ, true, t2 * 2.1);
+        joints.push_back(j);
+        // feet should not collide with body!
         if(!conf.legBodyCollisions){
           legparts.push_back(p3);
           odeHandle.addIgnoredPair(trunk,p3);
         }
 
-	// servo used as a spring
-	servo =  new HingeServo(j, anklelowstop, anklehighstop, conf.anklePower, conf.ankleDamping, 0);
-	ankleservos.push_back(servo);
+        // servo used as a spring
+        servo =  new HingeServo(j, anklelowstop, anklehighstop, conf.anklePower, conf.ankleDamping, 0);
+        ankleservos.push_back(servo);
       }
 
     }
@@ -457,24 +457,24 @@ namespace lpzrobots {
     }
       hipservos.clear();
       FOREACH(vector<HingeServo*>, kneeservos, i){
-	if(*i) delete *i;
+        if(*i) delete *i;
       }
       kneeservos.clear();
       FOREACH(vector<HingeServo*>, ankleservos, i){
-	if(*i) delete *i;
+        if(*i) delete *i;
       }
       ankleservos.clear();
       FOREACH(vector<HingeServo*>, headtailservos, i){
-	if(*i) delete *i;
+        if(*i) delete *i;
       }
       headtailservos.clear();
 
       for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-	if(*i) delete *i;
+        if(*i) delete *i;
       }
       joints.clear();
       for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-	if(*i) delete *i;
+        if(*i) delete *i;
       }
       objects.clear();
 

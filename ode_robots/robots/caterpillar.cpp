@@ -30,25 +30,25 @@ using namespace std;
 namespace lpzrobots {
 
   CaterPillar::CaterPillar ( const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-			     const CaterPillarConf& conf, const std::string& n) 
+                             const CaterPillarConf& conf, const std::string& n)
     : DefaultCaterPillar(odeHandle, osgHandle, conf, n, "$Id$")
   {
   }
-	
+
   CaterPillar::~CaterPillar() {
   }
-	
+
 
   /**
    *Reads the actual motor commands from an array, and sets all motors (forces) of the snake to this values.
    *It is a linear allocation.
-   *@param motors pointer to the array, motor values are scaled to [-1,1] 
+   *@param motors pointer to the array, motor values are scaled to [-1,1]
    *@param motornumber length of the motor array
    **/
   void CaterPillar::setMotors(const motor* motors, int motornumber) {
    assert(created);
    unsigned int len = min(motornumber, getMotorNumber())/2;
-   // controller output as torques 
+   // controller output as torques
    for(unsigned int i=0; (i<len) && (i<sliderServos.size()); i++) {
     sliderServos[i]->set(motors[i]);
    }
@@ -84,7 +84,7 @@ namespace lpzrobots {
   }
 
 
-  /** creates vehicle at desired position 
+  /** creates vehicle at desired position
       @param pos struct Position with desired position
   */
   void CaterPillar::create(const osg::Matrix& pose) {
@@ -114,8 +114,8 @@ namespace lpzrobots {
 
      // normal servos creating //
      UniversalJoint* j = new UniversalJoint(objects[n], objects[n+1],
-					    (p1 + p2)/2,
-					    Axis(0,0,1)*pose, Axis(0,1,0)*pose);
+                                            (p1 + p2)/2,
+                                            Axis(0,0,1)*pose, Axis(0,1,0)*pose);
      j->init(odeHandle, osgHandle, true, conf.segmDia/2 * 1.02);
 
      // setting stops at universal joints
@@ -124,7 +124,7 @@ namespace lpzrobots {
      joints.push_back(j);
 
      UniversalServo* servo =  new UniversalServo(j, -conf.jointLimit, conf.jointLimit, conf.motorPower,
-					         -conf.jointLimit, conf.jointLimit, conf.motorPower);
+                                                 -conf.jointLimit, conf.jointLimit, conf.motorPower);
      universalServos.push_back(servo);
      frictionmotors.push_back(new AngularMotor2Axis(odeHandle, j, conf.frictionJoint, conf.frictionJoint));
      // end of normal servos //
@@ -143,7 +143,7 @@ namespace lpzrobots {
    */
   void CaterPillar::destroy() {
    if(created) {
-    DefaultCaterPillar::destroy();  
+    DefaultCaterPillar::destroy();
     for (vector<UniversalServo*>::iterator i = universalServos.begin(); i!= universalServos.end(); i++) {
      if(*i) delete *i;
     }
