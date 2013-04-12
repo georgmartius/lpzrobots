@@ -73,14 +73,14 @@ namespace lpzrobots {
     return n;
   }
 
-/** sets the parameters of the motor
-*/
+  /** sets the parameters of the motor
+   */
   void AngularMotor::setParam(int parameter, double value) {
-        dJointSetAMotorParam (motor, parameter, value);
+    dJointSetAMotorParam (motor, parameter, value);
   }
 
-/** gets the parameters of the motor
-*/
+  /** gets the parameters of the motor
+   */
   double AngularMotor::getParam(int parameter){
      return dJointGetAMotorParam(motor, parameter);
   }

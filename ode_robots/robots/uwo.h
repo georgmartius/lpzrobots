@@ -44,6 +44,7 @@ namespace lpzrobots {
     double relLegmass; ///< relative overall leg mass
     double jointLimit; ///< angle range for legs
     double motorPower; ///< maximal force for motors
+    double sliderPower; ///< maximal power of slider motors
   } UwoConf;
 
 
@@ -74,6 +75,7 @@ namespace lpzrobots {
       c.useSliders = true;
       c.relLegmass = 1;
       c.motorPower = 0.5;
+      c.sliderPower = 18;
       c.jointLimit = M_PI/12; // +- 15 degree
       c.radialLegs = true;
       return c;

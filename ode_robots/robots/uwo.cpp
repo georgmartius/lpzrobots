@@ -54,6 +54,7 @@ namespace lpzrobots {
     conf.legLength *= conf.size;
     legmass=conf.mass * conf.relLegmass / conf.legNumber;    // mass of each legs
     addParameter("motorpower",&conf.motorPower,0,100);
+    addParameter("sliderpower",&conf.sliderPower,0,100);
   };
 
 
@@ -175,17 +176,20 @@ namespace lpzrobots {
 
       if(conf.useSliders){
         Primitive* f;
-        f = new Sphere(conf.legLength/8);
-        f->init(odeHandle, legmass/8, osgHandle);
-        Pos pos = Pos(0,0,-(conf.legLength/2+0.2));
+        double sliderlen = conf.legLength/4.0;
+        f = new Sphere(conf.legLength/8.0);
+        f->init(odeHandle, legmass/8.0, osgHandle);
+        Pos pos = Pos(0,0,-(conf.legLength/2+sliderlen));
         f->setPose( osg::Matrix::translate(pos) * p->getPose());
         objects.push_back(f);
         SliderJoint* sj = new SliderJoint(p, f, pos * p->getPose(), Axis(0,0,1)* p->getPose());
-        sj->init(odeHandle, osgHandle, true, 0.2);
+        sj->init(odeHandle, osgHandle, true, sliderlen);
         joints.push_back(sj);
-        OneAxisServoVel* sliderservo =  new OneAxisServoVel(odeHandle,
-                                                            sj, -0.1, 0.1,
-                                                            conf.motorPower);
+        //        OneAxisServo* sliderservo =  new OneAxisServo( sj, -sliderlen/2.0, sliderlen/2.0,
+        //                                                       conf.sliderPower );
+        OneAxisServo* sliderservo =  new OneAxisServoVel(odeHandle,
+                                                         sj, -sliderlen/2.0, sliderlen/2.0,
+                                                         conf.sliderPower );
         sliderservos.push_back(sliderservo);
       }
 
@@ -206,7 +210,7 @@ namespace lpzrobots {
         if(*i) delete *i;
       }
       servos.clear();
-      sliderservo.clear();
+      sliderservos.clear();
       cleanup();
       odeHandle.deleteSpace();
     }
@@ -216,11 +220,11 @@ namespace lpzrobots {
 
 
   void  Uwo::notifyOnChange(const paramkey& key){
-    for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
+    FOREACH(vector<UniversalServo*>, servos, i){
       if(*i) (*i)->setPower(conf.motorPower, conf.motorPower);
     }
-    for (vector<OneAxisServo*>::iterator i = sliderservos.begin(); i!= sliderservos.end(); i++){
-      if(*i) (*i)->setPower(conf.motorPower);
+    FOREACH(vector<OneAxisServo*>, sliderservos, i){
+      if(*i) (*i)->setPower(conf.sliderPower);
     }
   }
 

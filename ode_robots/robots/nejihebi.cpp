@@ -21,6 +21,8 @@
 
 #include "nejihebi.h"
 
+// for clip
+#include <selforg/controller_misc.h>
 // include primitives (box, spheres, cylinders ...)
 #include <ode_robots/primitive.h>
 // include joints
