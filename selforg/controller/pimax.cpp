@@ -42,7 +42,8 @@ PiMax::PiMax(const PiMaxConf& conf_)
                     "smoothing (number of steps)");
     addParameter("s4delay", &conf.steps4Delay,   1, buffersize-1,
                     "delay  (number of steps)");
-    addParameter("epsSigma", &epsSigma,  0,  1, "update rate for cov matrix");
+    if(conf.useSigma)
+      addParameter("epsSigma", &epsSigma,  0,  1, "update rate for cov matrix");
     addParameter("factorH", &factorH,  0,  10, "learning rate factor for h");
   }
 
@@ -60,8 +61,8 @@ PiMax::PiMax(const PiMaxConf& conf_)
   addInspectableMatrix("h", &h, conf.someInternalParams, "controller bias");
   addInspectableMatrix("b", &b, conf.someInternalParams, "model bias");
   addInspectableMatrix("ds0", &ds0, conf.someInternalParams, "ds0");
-
-  addInspectableMatrix("Sigma", &Sigma, conf.someInternalParams, "covariance matrix of noise");
+  if(conf.useSigma)
+    addInspectableMatrix("Sigma", &Sigma, conf.someInternalParams, "covariance matrix of noise");
 
 
   intern_isTeaching = false;
@@ -254,20 +255,27 @@ void PiMax::learn(){
   // this means the array of ds is expands backwards in time
   ds[tau].set(number_sensors,1); // vector of zeros;
   for(int l=tau-1; l>=0; l--){
-    ds[l] = (L_buffer[(t-(l+1))%buffersize]*ds[l+1] + xi_buffer[(t-l)%buffersize]
-             );
+    ds[l] = (L_buffer[(t-(l+1))%buffersize]*ds[l+1] + xi_buffer[(t-l)%buffersize]);
   }
   ds[0] = ds[0].mapP(0.1,clip);
-  Sigma += (ds[0].multMT()-Sigma)*epsSigma;
+  if(conf.useSigma){
+    Sigma += (ds[0].multMT()-Sigma)*epsSigma;
+  }
   ds0 = ds[0];
 
   vector<Matrix> du;
-  double lambda = 0.000001;
-  const Matrix& sigma_ds_t = ((Sigma + (Sigma^0)*lambda)^(-1))*ds[0];
-  du.resize(tau+1);
   //semantic: du[l] == \delta u_{t-l+1}
   // \delta u_{t-l+1} = L^{l-1}(t-l)Sigma^{-1} \delta s_{t}
-  du[1] = sigma_ds_t;
+  du.resize(tau+1);
+  if(conf.useSigma){
+    //    double lambda = 0.000001;
+    double lambda = 0.0001;
+    const Matrix& sigma_ds_t = ((Matrix(Sigma).pluslambdaI(lambda))^(-1))*ds[0];
+    du[1] = sigma_ds_t;
+  }else{
+    du[1] = ds[0];
+  }
+
   for(int l=2; l<tau; l++){
     du[l] = (L_buffer[(t-l)%buffersize]^T) * du[l-1];
   }

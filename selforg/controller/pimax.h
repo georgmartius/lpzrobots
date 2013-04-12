@@ -33,6 +33,8 @@
 struct PiMaxConf {
   double initFeedbackStrength;  ///< initial strength of sensor to motor connection
   bool   useExtendedModel;      ///< if true, the extended model (S matrix) is used
+  /// if true, the covariance matrix is learned otherwise a unit matrix is used
+  bool   useSigma;
   /// if true the controller can be taught see teachable interface
   bool   useTeaching;
   /// # of steps the sensors are averaged (1 means no averaging)
@@ -68,6 +70,7 @@ public:
     PiMaxConf conf;
     conf.initFeedbackStrength = 1.0;
     conf.useExtendedModel     = false;
+    conf.useSigma             = true;
     conf.useTeaching          = false;
     conf.steps4Averaging      = 1;
     conf.steps4Delay          = 1;
