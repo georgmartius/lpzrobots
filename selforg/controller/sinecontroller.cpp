@@ -31,7 +31,7 @@
 using namespace std;
 
 SineController::SineController(unsigned long int controlmask, function func)
-  : AbstractController("sinecontroller", "$Id$"),
+  : AbstractController("sinecontroller", "1.0"),
     controlmask(controlmask) {
   phase=0;
   addParameterDef("period", &period,50);
@@ -114,5 +114,44 @@ double SineController::impuls(double x, double impulsWidth){
     return 0;
 }
 
+
+MultiSineController::MultiSineController(unsigned long int controlmask, function func)
+  : SineController(controlmask, func) {
+  Configurable::setName("multisinecontroller");
+  Inspectable::setNameOfInspectable("multisinecontroller");
+  t=0;
+};
+
+/** initialisation of the controller with the given sensor/ motornumber
+    Must be called before use.
+*/
+void MultiSineController::init(int sensornumber, int motornumber, RandGen* randGen){
+  SineController::init(sensornumber, motornumber, randGen);
+  periods     = new double[motornumber];
+  phaseShifts = new double[motornumber];
+  amplitudes  = new double[motornumber];
+  offsets     = new double[motornumber];
+  for (int i=0; i<min(number_motors,sizeof(controlmask)*8); i++){
+    if(controlmask & (1<<i)){
+      addParameterDef("period"     + itos(i), periods+i, 50);
+      addParameterDef("phaseshift" + itos(i), phaseShifts+i, 0);
+      addParameterDef("amplitude"  + itos(i), amplitudes+i, 1);
+      addParameterDef("offset"     + itos(i), offsets+i, 0);
+    }
+  }
+};
+
+void MultiSineController::stepNoLearning(const sensor* sensors, int number_sensors,
+                                         motor* motors, int number_motors) {
+
+  for (int i=0; i<min(number_motors,sizeof(controlmask)*8); i++){
+    if(controlmask & (1<<i) && periods[i]!=0){
+      motors[i]=amplitudes[i]*osci(t*2*M_PI/periods[i] + phaseShifts[i]*M_PI/2, impulsWidth) + offsets[i];
+    }else {
+      motors[i]=0;
+    }
+  }
+  t++;
+};
 
 

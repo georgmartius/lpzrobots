@@ -42,7 +42,7 @@ public:
      @param controlmask bitmask to select channels to control (default all)
      @param function controller function to use
    */
-  SineController(unsigned long int controlmask = (~0), function func = Sine );
+  SineController(unsigned long int controlmask = (~0), function func = Sine);
 
   /** initialisation of the controller with the given sensor/ motornumber
       Must be called before use.
@@ -100,6 +100,7 @@ protected:
   int number_sensors;
   int number_motors;
   unsigned long int controlmask; // bitmask to select channels. (the others are set to 0)
+  bool individual;
 
   paramval period;
   paramval phaseShift;
@@ -109,5 +110,21 @@ protected:
 
   double (*osci) (double x, double param); // oscillator function
 };
+
+class MultiSineController : public SineController {
+public:
+  MultiSineController(unsigned long int controlmask = (~0), function func = Sine);
+  virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
+protected:
+  double* periods;
+  double* phaseShifts;
+  double* amplitudes;
+  double* offsets;
+  long t;
+};
+
+
 
 #endif

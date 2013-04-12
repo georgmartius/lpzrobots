@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2005-2011 by                                            *
+ *   Copyright (C) 2013 by                                                 *
  *    Georg Martius  <georg dot martius at web dot de>                     *
  *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
@@ -46,13 +46,18 @@ struct PiMaxConf {
 
 /**
  * This controller implements the predictive information maximization
-   described in paper: to be published
-   TODO: insert paper
- */
+   described in paper: to be published in PLoS ONE 2013
+   ArXiv preprint: http://arxiv.org/abs/1301.7473
+
+   Note: the notation is for the model matrices is different than in the paper:
+   A -> V
+   S -> T
+   The code contains more functionality than is described in the paper
+     e.g. the teaching and motor babbling is not used.
+*/
 class PiMax : public AbstractController, public Teachable {
 
 public:
-  /// constructor
   PiMax(const PiMaxConf& conf = getDefaultConf());
 
   virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
@@ -62,7 +67,7 @@ public:
   static PiMaxConf getDefaultConf(){
     PiMaxConf conf;
     conf.initFeedbackStrength = 1.0;
-    conf.useExtendedModel     = true;
+    conf.useExtendedModel     = false;
     conf.useTeaching          = false;
     conf.steps4Averaging      = 1;
     conf.steps4Delay          = 1;
@@ -83,11 +88,11 @@ public:
 
   /// performs one step without learning. Calulates motor commands from sensor inputs.
   virtual void stepNoLearning(const sensor* , int number_sensors,
-                              motor* , int number_motors);
+			      motor* , int number_motors);
 
   /// called during babbling phase
   virtual void motorBabblingStep(const sensor* , int number_sensors,
-                                 const motor* , int number_motors);
+				 const motor* , int number_motors);
 
   /***** STOREABLE ****/
   /** stores the controller values to a given file. */
@@ -112,7 +117,7 @@ public:
 protected:
   unsigned short number_sensors;
   unsigned short number_motors;
-  static const unsigned short buffersize = 10;
+  static const unsigned short buffersize = 20;
 
   matrix::Matrix A; // Model Matrix
   matrix::Matrix C; // Controller Matrix
@@ -123,18 +128,18 @@ protected:
 
   matrix::Matrix Sigma; // noise covariance matrix
 
-  matrix::Matrix R; //
+  matrix::Matrix ds0; //
   matrix::Matrix C_native; // Controller Matrix obtained from motor babbling
   matrix::Matrix A_native; // Model Matrix obtained from motor babbling
 
   matrix::Matrix a_buffer[buffersize]; // buffer needed for delay
   matrix::Matrix s_buffer[buffersize]; // buffer of sensor values
   matrix::Matrix xi_buffer[buffersize]; // buffer of pred errors
+  matrix::Matrix gs_buffer[buffersize]; // buffer of g'
   matrix::Matrix L_buffer[buffersize]; // buffer of Jacobians
 
   matrix::Matrix s;        // current sensor value vector
   matrix::Matrix s_smooth; // time average of s values
-
   PiMaxConf conf; ///< configuration objects
 
   int t;
@@ -144,19 +149,17 @@ protected:
   matrix::Matrix a_teaching; // motor teaching  signal
 
   bool useMetric;
-  paramval creativity;
-  paramval sense;
-  paramval harmony;
   paramval causeaware;
-  paramint pseudo;
+  paramval sense;
   paramval epsC;
   paramval epsA;
   paramval epsSigma;
+  paramval factorH;
   paramval damping;
   paramval gamma;          // teaching strength
 
-  // calculates the pseudo inverse of L in different ways, depending on pseudo
-  matrix::Matrix pseudoInvL(const matrix::Matrix& L, const matrix::Matrix& A, const matrix::Matrix& C);
+  paramint tau;            // length of time window
+
 
   /// learn values model and controller (A,b,C,h)
   virtual void learn();
@@ -171,7 +174,7 @@ protected:
   static double g_s(double z)
   {
     double k=tanh(z);
-    return 1.0 - k*k;
+    return 1.05 - k*k; // regularized
   };
 
   /// function that clips the second argument to the interval [-first,first]
