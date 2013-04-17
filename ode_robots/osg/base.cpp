@@ -648,6 +648,15 @@ namespace lpzrobots {
     //    std::cout << "GROUND: " << ground << std::endl;
   }
 
+  Substance Base::getGroundSubstance(){
+    if(plane) return plane->substance;
+    else return Substance();
+  }
+
+  void Base::setGroundSubstance(const Substance& substance){
+    if(plane) plane->setSubstance(substance);
+  }
+
 
   Node* Base::makeGround(const OsgConfig& config){ // the old ground, is NOT used for shadowing except for shadow mode 3!
     float ir = 1000.0f;

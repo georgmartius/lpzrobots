@@ -97,6 +97,9 @@ namespace lpzrobots
       this->groundTexture = filename;
     }
 
+    virtual Substance getGroundSubstance();
+    virtual void setGroundSubstance(const Substance& substance);
+
     /// sets the cpation that is printed at the right of the status line
     virtual void setCaption(const std::string& caption);
 
