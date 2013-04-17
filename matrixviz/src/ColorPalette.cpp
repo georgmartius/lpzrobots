@@ -32,7 +32,7 @@
 #include <QtXml/QDomElement>
 #include <QFile>
 #include <QFileDialog>
-#include <QtAlgorithms> 
+#include <QtAlgorithms>
 
 using namespace std;
 
@@ -42,12 +42,18 @@ ColorPalette::ColorPalette(QWidget *parent)
   if( debug) cout << "in CP Konstrunktor" << endl;
   setMaximumWidth(30);
   setMouseTracking(true); // enables tooltips while mousemoving over widget
-  if( debug) cout << "push_back" << endl;
-  this->stops.push_back(STOP(QColor(128,0,128), -2));
-  this->stops.push_back(STOP(Qt::red,   -1));
+  //  this->stops.push_back(STOP(QColor(128,0,128), -2));
+  //  this->stops.push_back(STOP(Qt::red,   -1));
+  //  this->stops.push_back(STOP(Qt::white, 0));
+  //  this->stops.push_back(STOP(Qt::blue,  1));
+  //  this->stops.push_back(STOP(QColor(0,0,128),  2));
+  this->stops.push_back(STOP(QColor(0,0,128), -2));
+  this->stops.push_back(STOP(Qt::blue,  -1));
+  this->stops.push_back(STOP(QColor(192,255,192), -0.05));
   this->stops.push_back(STOP(Qt::white, 0));
-  this->stops.push_back(STOP(Qt::blue,  1));
-  this->stops.push_back(STOP(QColor(0,0,128),  2));
+  this->stops.push_back(STOP(QColor(255,255,192),  0.05));
+  this->stops.push_back(STOP(Qt::red,   1));
+  this->stops.push_back(STOP(QColor(128,0,128),  2));
   if( debug) cout << "initMaxMin" << endl;
   initMaxMin();
   currentPath = "";
@@ -239,15 +245,15 @@ QWidget* ColorPalette::makeConfigBox(){
 //redraws the stoplist in the optionwidget
 void ColorPalette::updateList(){
   if ( debug) cout << "in updateList" << endl;
-  // Georg: I implented this completely new. The old version is below. 
+  // Georg: I implented this completely new. The old version is below.
   //  I do no delete the QTWidgets because this causes crashes.
   //  You deleted them from a signal that they called themselves, this is quite a problem.
 
   qSort(stops); // sort the list
-  
+
   if ( debug) cout << "stoplist update" << endl;
   for(int i = 0; i < stops.size(); i++){
-    if ( debug) cout << "i: " << i << endl;    
+    if ( debug) cout << "i: " << i << endl;
     if(i >= stopList->count()){
       QListWidgetItem *item = new QListWidgetItem("", stopList);
       item->setSizeHint(QSize(150,30)); //itemwidget wont show up without that (qtbug)
@@ -265,17 +271,17 @@ void ColorPalette::updateList(){
         w->color = stops[i].color;
         w->pos = stops[i].pos;
         w->updateFromData();
-              // maybe call some update      
+              // maybe call some update
       }
-    }        
+    }
   }
-  // remove the listentires that are too much  
+  // remove the listentires that are too much
   for(int i = stops.size(); i < stopList->count() ; i++){
     QListWidgetItem *item = stopList->takeItem(i);
     delete item;
-    i--;     
+    i--;
   }
-  
+
 
   // OLD VERSION
   // stopList->clear();
@@ -313,7 +319,7 @@ void ColorPalette::changeStopColor(int i, const QColor& color){ //SLOT
 }
 
 // change the stopposition in the stoplist and redraw the list in the optionwidget
-void ColorPalette::changeStopPos(int i, double pos){ //SLOTdelete stopList->takeItem(i);  
+void ColorPalette::changeStopPos(int i, double pos){ //SLOTdelete stopList->takeItem(i);
   if (debug) cout << "in ColorPaletteDialog::changeStopPos()..." << endl;
   stops[i].pos = pos;
 
@@ -406,7 +412,7 @@ void ColorPalette::loadStopListFromFile(QString filename) {
     }
     n = n.nextSibling();
   }
-  if (debug) cout << "updatelist" << endl;  
+  if (debug) cout << "updatelist" << endl;
   updateList();
   autoSetMinMax();
   if (debug) cout << "loading complete" << endl;
