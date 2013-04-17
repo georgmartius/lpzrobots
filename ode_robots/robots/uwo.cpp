@@ -49,7 +49,7 @@ namespace lpzrobots {
     created=false;
 
     // choose color here a pastel white is used
-    this->osgHandle.color = Color(1.0, 156/255.0, 156/255.0, 1.0f);
+    this->osgHandle.color = osgHandle.getColor("robot1");
     conf.motorPower *= conf.mass;
     conf.legLength *= conf.size;
     legmass=conf.mass * conf.relLegmass / conf.legNumber;    // mass of each legs
@@ -142,12 +142,13 @@ namespace lpzrobots {
     trunk->setPose(osg::Matrix::translate(0,0,conf.legLength / 5)*pose);
     objects.push_back(trunk);
 
+    OsgHandle legOsgHandle = osgHandle.changeColor("robot2");
 
     for ( int n = 0; n < conf.legNumber; n++ ) {
       double alpha = 2*M_PI*n/(double)conf.legNumber;
       Primitive* p;
       p = new Capsule(conf.legLength/8, conf.legLength);
-      p->init(odeHandle, legmass, osgHandle);
+      p->init(odeHandle, legmass, legOsgHandle);
       Pos pos = Pos(sin(alpha) * radius * 0.8,
                     cos(alpha) * radius * 0.8,
                     -conf.legLength/2);
@@ -185,8 +186,6 @@ namespace lpzrobots {
         SliderJoint* sj = new SliderJoint(p, f, pos * p->getPose(), Axis(0,0,1)* p->getPose());
         sj->init(odeHandle, osgHandle, true, sliderlen);
         joints.push_back(sj);
-        //        OneAxisServo* sliderservo =  new OneAxisServo( sj, -sliderlen/2.0, sliderlen/2.0,
-        //                                                       conf.sliderPower );
         OneAxisServo* sliderservo =  new OneAxisServoVel(odeHandle,
                                                          sj, -sliderlen/2.0, sliderlen/2.0,
                                                          conf.sliderPower );

@@ -120,7 +120,7 @@ public:
 
     UwoConf conf = Uwo::getDefaultConf();
     conf.motorPower = 1;
-    conf.legNumber = 1;
+    conf.legNumber = 4;
     Uwo* vehicle = new Uwo(odeHandle, osgHandle,conf, "Uwo1");
     vehicle->place(osg::Matrix::translate(2,0,0));
     global.configs.push_back(vehicle);

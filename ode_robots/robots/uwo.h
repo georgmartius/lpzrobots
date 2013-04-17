@@ -74,8 +74,8 @@ namespace lpzrobots {
       c.mass       = 1;
       c.useSliders = true;
       c.relLegmass = 1;
-      c.motorPower = 0.5;
-      c.sliderPower = 18;
+      c.motorPower = 1;
+      c.sliderPower = 10;
       c.jointLimit = M_PI/12; // +- 15 degree
       c.radialLegs = true;
       return c;
