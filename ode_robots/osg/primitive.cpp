@@ -312,7 +312,7 @@ namespace lpzrobots{
     return v*getPose();
   }
 
-  void Primitive::setSubstance(Substance substance) {
+  void Primitive::setSubstance(const Substance& substance) {
     this->substance = substance;
     substanceManuallySet = true;
   }

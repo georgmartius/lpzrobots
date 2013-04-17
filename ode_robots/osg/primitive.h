@@ -214,7 +214,7 @@ public:
 
   int getNumVelocityViolations(){ return numVelocityViolations; }
 
-  void setSubstance(Substance substance);
+  void setSubstance(const Substance& substance);
 
   /* **** storable interface *******/
   virtual bool store(FILE* f) const;
