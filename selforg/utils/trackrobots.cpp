@@ -41,16 +41,23 @@ bool TrackRobot::open(const Trackable* robot){
       fclose(file);
     }
 
-    char date[128];
-    char filename[256];
-    time_t t = time(0);
-    strftime(date, 128, "%F_%H-%M-%S", localtime(&t));
-    if(conf.id>=0)
-      sprintf(filename, "%s_track_%s_%i_%s.log",
-              robot->getTrackableName().c_str(), conf.scene.c_str(), conf.id, date);
-    else
-      sprintf(filename, "%s_track_%s_%s.log",
-              robot->getTrackableName().c_str(), conf.scene.c_str(), date);
+    char filename[1024];
+    if(conf.autoFilename){
+      char date[128];
+      time_t t = time(0);
+      strftime(date, 128, "%F_%H-%M-%S", localtime(&t));
+      if(conf.id>=0)
+        sprintf(filename, "%s_track_%s_%i_%s.log",
+                robot->getTrackableName().c_str(), conf.scene.c_str(), conf.id, date);
+      else
+        sprintf(filename, "%s_track_%s_%s.log",
+                robot->getTrackableName().c_str(), conf.scene.c_str(), date);
+    }else{
+      if(conf.id>=0)
+        sprintf(filename, "%s_%i.log", conf.scene.c_str(), conf.id);
+      else
+        sprintf(filename, "%s.log", conf.scene.c_str());
+    }
 
     file = fopen(filename, "w");
 

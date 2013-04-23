@@ -194,7 +194,7 @@ matrix::Matrix OdeRobot::getOrientation() const {
     if(!f) return false;
     fwrite("ROBOT", sizeof(char), 5, f); // maybe also print name
     const vector<Primitive*>& ps = this->getAllPrimitives();
-    cout << ps.size() << endl;
+    // cout << ps.size() << endl;
     FOREACHC(vector<Primitive*>,ps,p){
       if(*p)
         if(!(*p)->store(f)) return false;

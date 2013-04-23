@@ -44,10 +44,11 @@ struct TrackRobotConf {
   bool   displayTrace;
   double displayTraceDur;       ///< duration in second to display the trace
   double displayTraceThickness; ///< if thickkness is 0 (default) then a line is used otherwise a cylinder
-  bool   writeFile;             ///< whether to write a log file
 
-  int interval;
-  std::string scene;
+  bool   writeFile;             ///< whether to write a log file
+  int    interval;              ///< every how many control steps a record is written
+  std::string scene;            ///< used as part of the filename (used as is (+id), if autoFilename=false)
+  bool   autoFilename;          ///< whether to create a unique filename with date, scene and robotname
   int id;
 };
 
@@ -83,6 +84,7 @@ public:
     conf.writeFile             = true;
     //    conf.scene           = "";
     conf.id                    = -1; // disabled
+    conf.autoFilename          = true;
     return conf;
   }
 
