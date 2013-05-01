@@ -552,6 +552,9 @@ namespace lpzrobots {
     sensors[BY_ori] = ori2;
     sensors[BZ_ori] = ori3;
 
+    //Adding for Ren simulated annealing experiment
+    sensors[G0angleyaw_s] = atan2(ori2,ori1)*180/M_PI;
+
     Ori_lst.clear();
     //------------------------Add Orientation Sensor by Ren-------------------
 

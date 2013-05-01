@@ -544,6 +544,11 @@ namespace lpzrobots {
         ori2 = Ori_lst.front();
         Ori_lst.pop_front();
         ori3 = Ori_lst.front();
+
+        sensors[BX_ori] = ori1; //atan2(ori2,ori1)*180/M_PI;
+        sensors[BY_ori] = ori2;
+        sensors[BZ_ori] = ori3;
+
         sensors[G0angleyaw_s] = atan2(ori2,ori1)*180/M_PI;
         Ori_lst.clear();
         //------------------------Add Orientation Sensor by Ren------------------
