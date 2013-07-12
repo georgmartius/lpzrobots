@@ -189,6 +189,12 @@ namespace lpzrobots {
     //      (((1.0-damp)*tanh(e)+damp) * power);
     joint->setParam(dParamFMax, tanh(e+damp) * power);
 
+    if(maxVel >0 ){ // we limit the maximal velocity (like a air-friction)
+                    // this hinders the simulation from disintegrating.
+      joint->getPart1()->limitLinearVel(5*maxVel);
+      joint->getPart2()->limitLinearVel(5*maxVel);
+    }
+
   }
 
   double OneAxisServoVel::get(){
