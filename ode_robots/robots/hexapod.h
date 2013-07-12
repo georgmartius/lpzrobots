@@ -72,8 +72,8 @@ namespace lpzrobots {
     bool useTarsusJoints; ///< whether to use joints on the tarsus
     bool useBigBox;       ///< whether to use a big invisible box on the back of the robot
 
+    bool useWhiskers;         ///< if true add whiskers to robot
     bool useActiveWhisker;    ///< if true whiskers have motorized joints, otherwise springs
-
     double whiskerSpread;   ///< angle by which the wiskers are spread
 
     double T; ///< T is the for the time for calculating the cost of transport over time
@@ -122,55 +122,56 @@ namespace lpzrobots {
 
     static HexapodConf getDefaultConf(){
       HexapodConf c;
-      c.size       = 1;
-      c.width      = 1.0/3.0; //1.0/1.5
-      c.height     = 1.0/8.0; //1.0/4.0
-      c.legNumber  = 6;
-      c.legLength  = 0.6;
+      c.size               = 1;
+      c.width              = 1.0/3.0; //1.0/1.5
+      c.height             = 1.0/8.0; //1.0/4.0
+      c.legNumber          = 6;
+      c.legLength          = 0.6;
       c.percentageBodyMass = 0.7;
-      c.mass       = 1.0;
-      c.v = new double[1];
-      c.relLegmass = 1;
-      c.coxaPower  = 1;
-      c.coxaJointLimitV = M_PI/8.0;  ///< angle range for vertical direction of legs
-      c.coxaJointLimitH = M_PI/4.0;
-      c.coxaDamping = 0.0; // Georg: no damping required for new servos
-      c.coxaSpeed   = 30; // The speed calculates how it works
-      c.T = 1.0;
+      c.mass               = 1.0;
+      c.v                  = new double[1];
+      c.relLegmass         = 1;
+      c.coxaPower          = 1;
+      c.coxaJointLimitV    = M_PI/8.0; ///< angle range for vertical direction of legs
+      c.coxaJointLimitH    = M_PI/4.0;
+      c.coxaDamping        = 0.0; // Georg: no damping required for new servos
+      c.coxaSpeed          = 30; // The speed calculates how it works
+      c.T                  = 1.0;
 
-      c.legSpreading=M_PI/12.0;
-      c.backLegFactor=1.0;
+      c.legSpreading  = M_PI/12.0;
+      c.backLegFactor = 1.0;
 
-      c.useTebiaJoints = true;
-      c.useTebiaMotors = false;
-      c.tebiaPower = 1.2;
+      c.useTebiaJoints  = true;
+      c.useTebiaMotors  = false;
+      c.tebiaPower      = 1.2;
       c.tebiaJointLimit = M_PI/4; // +- 45 degree
-      c.tebiaDamping = 0.01; // Georg: the damping reduces the swinging of the system
-      c.tebiaOffset = 0.0;
+      c.tebiaDamping    = 0.01; // Georg: the damping reduces the swinging of the system
+      c.tebiaOffset     = 0.0;
 
-      c.tarsus = true;
+      c.tarsus            = true;
       c.numTarsusSections = 2;
-      c.useTarsusJoints=true;
-      c.useBigBox=true;
+      c.useTarsusJoints   = true;
+      c.useBigBox         = true;
 
-      c.whiskerSpread=M_PI/10.0;
-      c.useActiveWhisker=false;
+      c.whiskerSpread    = M_PI/10.0;
+      c.useWhiskers      = true;
+      c.useActiveWhisker = false;
 
-      c.ignoreInternalCollisions=true;
+      c.ignoreInternalCollisions = true;
 
-      c.calculateEnergy=false;
+      c.calculateEnergy = false;
 
-      c.useContactSensors=false;
-      c.legContacts = new int[6];
-      c.irSensors=false;
-      c.irFront=false;
-      c.irBack=false;
-      c.irLeft=false;
-      c.irRight=false;
-      c.irRangeFront=3;
-      c.irRangeBack=2;
-      c.irRangeLeft=2;
-      c.irRangeRight=2;
+      c.useContactSensors  = false;
+      c.legContacts        = new int[6];
+      c.irSensors          = false;
+      c.irFront            = false;
+      c.irBack             = false;
+      c.irLeft             = false;
+      c.irRight            = false;
+      c.irRangeFront       = 3;
+      c.irRangeBack        = 2;
+      c.irRangeLeft        = 2;
+      c.irRangeRight       = 2;
       //      c.elasticity = 10;
       return c;
     }

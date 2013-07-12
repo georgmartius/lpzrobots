@@ -122,7 +122,10 @@ namespace lpzrobots {
 
     // Georg: you can also add inspectables here to see them in the logfile/guilogger
     // e.g.
-    addInspectableValue("Energy", &E_t, "Energy over several timesteps");
+    if(conf.calculateEnergy){
+      E_t=0;
+      addInspectableValue("Energy", &E_t, "Energy over several timesteps");
+    }
 
   };
 
@@ -720,54 +723,54 @@ namespace lpzrobots {
     }
 
     // New: wiskers
-    for ( int n = -1; n < 2; n+=2 ) {
-      double l1 = conf.legLength*0.5;
-      double t1 = conf.legLength/30;
+    if(conf.useWhiskers){
+      for ( int n = -1; n < 2; n+=2 ) {
+        double l1 = conf.legLength*0.5;
+        double t1 = conf.legLength/30;
 
-      Primitive* whisker;
-      Pos pos = Pos(conf.size/(2)+t1,
-                    n*twidth/4,
-                    conf.legLength + theight/5);
+        Primitive* whisker;
+        Pos pos = Pos(conf.size/(2)+t1,
+                      n*twidth/4,
+                      conf.legLength + theight/5);
 
-      osg::Matrix m = ROTM(conf.whiskerSpread, n,0,0) * ROTM(M_PI/2+M_PI/10, 0,-1,0) * TRANSM(pos) * pose;
-      whisker = new Capsule(t1, l1);
-      whisker->init(odeHandle, legmass/10, osgHTarsus);
-      osg::Matrix m1 = TRANSM(0,0,-l1/2) * m;
-      whisker->setPose(m1);
-      objects.push_back(whisker);
-
-
-      //FixedJoint* k = new FixedJoint(trunk, whisker);
-      //k->init(odeHandle, osgHandle, false, 0);
-      HingeJoint* k = new HingeJoint(trunk, whisker, Pos(0,0,0) * m,
-                                     Axis(1,0,0) * m);
-      k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
-      // servo used as a spring
-      spring = new HingeServo(k, -M_PI/6, M_PI/6, .1, 0.01,0);
-      whiskerservos.push_back(spring);
-      joints.push_back(k);
-
-      Primitive* whisker2;
-      whisker2 = new Capsule(t1/2, l1);
-      whisker2->init(odeHandle, legmass/10, osgHTarsus);
-      osg::Matrix m2 = TRANSM(0,0,-l1/2)
-        * ROTM(M_PI/10, n,0,0)
-        * ROTM(M_PI/10, 0,1,0) * TRANSM(0,0,-l1/2) * m1;
-      whisker2->setPose(m2);
-      objects.push_back(whisker2);
+        osg::Matrix m = ROTM(conf.whiskerSpread, n,0,0) * ROTM(M_PI/2+M_PI/10, 0,-1,0) * TRANSM(pos) * pose;
+        whisker = new Capsule(t1, l1);
+        whisker->init(odeHandle, legmass/10, osgHTarsus);
+        osg::Matrix m1 = TRANSM(0,0,-l1/2) * m;
+        whisker->setPose(m1);
+        objects.push_back(whisker);
 
 
-      //      k = new FixedJoint(whisker, whisker2);
-      //      k->init(odeHandle, osgHandleJ, false, 0);
-      k = new HingeJoint(whisker, whisker2, Pos(0,0,-l1/2) * m1,
-                         Axis(0,1,0) * m1);
-      k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
-      // servo used as a spring
-      spring = new HingeServo(k, -M_PI/6, M_PI/6, .05, 0.01,0);
-      whiskerservos.push_back(spring);
-      joints.push_back(k);
+        //FixedJoint* k = new FixedJoint(trunk, whisker);
+        //k->init(odeHandle, osgHandle, false, 0);
+        HingeJoint* k = new HingeJoint(trunk, whisker, Pos(0,0,0) * m,
+                                       Axis(1,0,0) * m);
+        k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
+        // servo used as a spring
+        spring = new HingeServo(k, -M_PI/6, M_PI/6, .1, 0.01,0);
+        whiskerservos.push_back(spring);
+        joints.push_back(k);
+
+        Primitive* whisker2;
+        whisker2 = new Capsule(t1/2, l1);
+        whisker2->init(odeHandle, legmass/10, osgHTarsus);
+        osg::Matrix m2 = TRANSM(0,0,-l1/2)
+          * ROTM(M_PI/10, n,0,0)
+          * ROTM(M_PI/10, 0,1,0) * TRANSM(0,0,-l1/2) * m1;
+        whisker2->setPose(m2);
+        objects.push_back(whisker2);
 
 
+        //      k = new FixedJoint(whisker, whisker2);
+        //      k->init(odeHandle, osgHandleJ, false, 0);
+        k = new HingeJoint(whisker, whisker2, Pos(0,0,-l1/2) * m1,
+                           Axis(0,1,0) * m1);
+        k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
+        // servo used as a spring
+        spring = new HingeServo(k, -M_PI/6, M_PI/6, .05, 0.01,0);
+        whiskerservos.push_back(spring);
+        joints.push_back(k);
+      }
     }
 
     notifyOnChange("dummy"); // apply all parameters.
