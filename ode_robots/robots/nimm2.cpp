@@ -25,6 +25,7 @@
 #include <ode-dbl/ode.h>
 #include <assert.h>
 #include <osg/Matrix>
+#include <selforg/controller_misc.h>
 
 #include "nimm2.h"
 #include "irsensor.h"
@@ -73,14 +74,22 @@ namespace lpzrobots {
 
     if (conf.cigarMode){
       length=conf.size*conf.cigarLength;    // long body
-      wheeloffset= -length/4.0+radius+.1;  // wheels at the end of the cylinder, and the opposite endas the bumper
+      if(conf.wheelOffset<0) { // automatic mode
+        wheeloffset= -length/4.0+radius+.1;  // wheels at the end of the cylinder, and the opposite endas the bumper
+      }else{
+        wheeloffset= -conf.wheelOffset*length;
+      }
       // was wheeloffset= -length/4
       number_bumpers=2;        // if wheels not at center only one bumper
       max_force   = 2*conf.force*conf.size*conf.size;
     }
     else{
       length=conf.size/2;     // short body
-      wheeloffset=0.0;        // wheels at center of body
+      if(conf.wheelOffset<0) { // automatic mode
+        wheeloffset=0.0;        // wheels at center of body
+      }else{
+        wheeloffset= -conf.wheelOffset*length;
+      }
       number_bumpers=2;       // if wheels at center 2 bumpers (one at each end)
     }
 
@@ -111,13 +120,13 @@ namespace lpzrobots {
     assert(created);
     assert(motornumber == motorno);
     if(conf.singleMotor){ // set the same motorcommand to both wheels
-      joints[0]->setParam(dParamVel2, motors[0]*conf.speed); // set velocity
+      joints[0]->setParam(dParamVel2, clip(motors[0],-1.,1.)*conf.speed); // set velocity
       joints[0]->setParam(dParamFMax2,max_force);            // set maximal force
-      joints[1]->setParam(dParamVel2, motors[0]*conf.speed);
+      joints[1]->setParam(dParamVel2, clip(motors[0],-1.,1.)*conf.speed);
       joints[1]->setParam(dParamFMax2,max_force);
     } else {
       for (int i=0; i<2; i++){ // set different motorcommands to the wheels
-        joints[i]->setParam(dParamVel2, motors[i]*conf.speed);
+        joints[i]->setParam(dParamVel2, clip(motors[i],-1.,1.)*conf.speed);
         joints[i]->setParam(dParamFMax2,max_force);
       }
     }

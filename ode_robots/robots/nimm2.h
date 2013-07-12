@@ -48,6 +48,7 @@ typedef struct {
   bool sphereWheels;
   double wheelSize; ///< size of the wheels in body diameters
   double wheelSlip;
+  double wheelOffset; ///< offset of the wheel position in body length (not size) (<0 automatic)
   std::string wheelTexture;
   bool bumper;
   bool cigarMode;
@@ -83,6 +84,7 @@ public:
     conf.massFactor=1;
     conf.sphereWheels=true;
     conf.wheelSize=1;
+    conf.wheelOffset=-1.0; // disabled
     conf.wheelSlip=0;
     conf.bumper=false;
     conf.cigarMode=false;
