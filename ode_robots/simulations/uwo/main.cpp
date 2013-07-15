@@ -89,7 +89,7 @@ public:
     // initialization
     // - set noise to 0.1
     // - register file chess.ppm as a texture called chessTexture (used for the wheels)
-    global.odeConfig.noise=0.0;
+    global.odeConfig.noise=0.1;
     //    global.odeConfig.setParam("gravity", 0);
     global.odeConfig.setParam("cameraspeed", 250);
     //  int chessTexture = dsRegisterTexture("chess.ppm");
@@ -120,7 +120,7 @@ public:
 
     UwoConf conf = Uwo::getDefaultConf();
     conf.motorPower = 1;
-    conf.legNumber = 4;
+    conf.legNumber = 6;
     Uwo* vehicle = new Uwo(odeHandle, osgHandle,conf, "Uwo1");
     vehicle->place(osg::Matrix::translate(2,0,0));
     global.configs.push_back(vehicle);
@@ -133,12 +133,12 @@ public:
 
     // create pointer to controller
     // push controller in global list of configurables
-    AbstractController *controller = new SineController();
-    // SoxConf sc = Sox::getDefaultConf();
-    // sc.useExtendedModel=false;
-    // AbstractController *controller = new Sox(sc);
-    // //AbstractController *controller = new InvertMotorNStep();
-    // global.configs.push_back(controller);
+    //AbstractController *controller = new SineController();
+    SoxConf sc = Sox::getDefaultConf();
+    sc.useExtendedModel=false;
+    AbstractController *controller = new Sox(sc);
+    //AbstractController *controller = new InvertMotorNStep();
+    global.configs.push_back(controller);
 
     // create pointer to one2onewiring
     One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));

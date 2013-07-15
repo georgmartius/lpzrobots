@@ -24,12 +24,12 @@
 #ifndef __SERVO1_H
 #define __SERVO1_H
 
+#include "joint.h"
 #include "pid.h"
-#include "odehandle.h"
+#include "angularmotor.h"
+#include <selforg/controller_misc.h>
 
 namespace lpzrobots {
-
-  class OneAxisJoint;
 
   /** general servo motor to achieve position control
    */
@@ -38,7 +38,8 @@ namespace lpzrobots {
     /** min and max values are understood as travel bounds. Min should be less than 0.*/
 
     OneAxisServo(OneAxisJoint* joint, double _min, double _max,
-                 double power, double damp=0.2, double integration=2, double maxVel=10.0,
+                 double power, double damp=0.2, double integration=2,
+                 double maxVel=10.0,
                  double jointLimit = 1.3, bool minmaxCheck = true);
 
     virtual ~OneAxisServo();
@@ -48,31 +49,56 @@ namespace lpzrobots {
     */
     virtual void set(double pos);
 
-    /** returns the position of the slider in ranges [-1, 1] (scaled by min, max)*/
-    virtual double get();
+    /** returns the position of the joint in the range [-1, 1] (scaled by min, max)*/
+    virtual double get(){
+      double pos =  joint->getPosition1();
+      if(pos > 0){
+        pos /= max;
+      }else{
+        pos /= -min;
+      }
+      return pos;
+    }
 
-    virtual void setMinMax(double _min, double _max);
+    virtual void setMinMax(double _min, double _max){
+      min=_min;
+      max=_max;
+      joint->setParam(dParamLoStop, min  - abs(min) * (jointLimit-1));
+      joint->setParam(dParamHiStop, max  + abs(max) * (jointLimit-1));
+    }
 
     /** adjusts the power of the servo*/
-    virtual void setPower(double power);
+    virtual void setPower(double power) {
+      pid.KP = power;
+    };
 
     /** returns the power of the servo*/
-    virtual double getPower();
+    virtual double getPower() {
+      return pid.KP;
+    };
 
     /** returns the damping of the servo*/
-    virtual double getDamping();
-
+    virtual double getDamping() {
+      return pid.KD;
+    }
     /** sets the damping of the servo*/
-    virtual void setDamping(double damp);
+    virtual void setDamping(double damp) {
+      pid.KD = damp;
+    };
 
     /** returns the integration term of the PID controller of the servo*/
-    virtual double& offsetCanceling();
+    virtual double& offsetCanceling() {
+      return pid.KI;
+    };
 
     /** adjusts maximal speed of servo*/
-    virtual void setMaxVel(double maxVel);
-
+    virtual void setMaxVel(double maxVel) {
+      this->maxVel = maxVel;
+    };
     /** adjusts maximal speed of servo*/
-    virtual double getMaxVel();
+    virtual double getMaxVel() {
+      return maxVel;
+    };
 
 
   protected:
@@ -101,7 +127,7 @@ namespace lpzrobots {
                          double power, double damp=0.2, double integration=2,
                          double maxVel=10.0, double jointLimit = 1.3);
 
-    virtual ~OneAxisServoCentered();
+    virtual ~OneAxisServoCentered(){}
 
     /** sets the set point of the servo.
         Position must be between -1 and 1. It is scaled to fit into min, max,
@@ -110,7 +136,11 @@ namespace lpzrobots {
     virtual void set(double pos);
 
     /** returns the position of the slider in ranges [-1, 1] (scaled by min, max, centered)*/
-    virtual double get();
+    virtual double get(){
+      double pos =  joint->getPosition1();
+
+      return 2*(pos-min)/(max-min) - 1;
+    }
 
   };
 
@@ -127,10 +157,10 @@ namespace lpzrobots {
         @param power is the maximal torque the servo can generate
         @param maxVel is understood as a speed parameter of the servo.
         @param damp adjusts the power of the servo in dependence of the distance
-         to the set point. This regulates the stiffness and the body feeling
+         to the set point (current control error).
+         This regulates the stiffness and the body feeling
           0: the servo has no power at the set point (maximal body feeling);
-          1: is servo has full power at the set point: perfectly damped.
-
+          1: is servo has full power at the set point: maximal stiffness, perfectly damped.
     */
     OneAxisServoVel(const OdeHandle& odeHandle,
                     OneAxisJoint* joint, double _min, double _max,
@@ -143,20 +173,30 @@ namespace lpzrobots {
     virtual void setPower(double _power);
 
     /** returns the power of the servo*/
-    virtual double getPower();
-
-    virtual double getDamping();
-
-    virtual void setDamping(double _damp);
-
+    virtual double getPower() {
+      return power;
+    };
+    virtual double getDamping() {
+      return damp;
+    };
+    virtual void setDamping(double _damp) {
+      damp = clip(_damp,0.0,1.0);
+    };
     /** offetCanceling does not exist for this type of servo */
-    virtual double& offsetCanceling();
+    virtual double& offsetCanceling() {
+      dummy=0;
+      return dummy;
+    };
 
     /** adjusts maximal speed of servo*/
-    virtual void setMaxVel(double maxVel);
-
+    virtual void setMaxVel(double maxVel) {
+      this->maxVel = maxVel;
+      pid.KP=maxVel/2;
+    };
     /** adjusts maximal speed of servo*/
-    virtual double getMaxVel();
+    virtual double getMaxVel() {
+      return maxVel;
+    };
 
     /** sets the set point of the servo.
         Position must be between -1 and 1. It is scaled to fit into min, max,
@@ -165,7 +205,81 @@ namespace lpzrobots {
     virtual void set(double pos);
 
     /** returns the position of the servo in ranges [-1, 1] (scaled by min, max, centered)*/
-    virtual double get();
+    virtual double get(){
+      double pos =  joint->getPosition1();
+      return 2*(pos-min)/(max-min) - 1;
+    }
+  protected:
+    AngularMotor1Axis motor;
+    double dummy;
+    double power;
+    double damp;
+  };
+
+
+  /** Servo for sliders to achieve position control. Like OneAxisServoVel but
+   *  suitable for sliders
+   * @see OneAxisServoVel
+   */
+  class SliderServoVel : public OneAxisServo {
+  public:
+    /** min and max values are understood as travel bounds.
+        The zero position is (max-min)/2
+        @param power is the maximal torque the servo can generate
+        @param maxVel is understood as a speed parameter of the servo.
+        @param damp adjusts the power of the servo in dependence of the distance
+         to the set point (current control error).
+         This regulates the stiffness and the body feeling
+          0: the servo has no power at the set point (maximal body feeling);
+          1: is servo has full power at the set point: maximal stiffness, perfectly damped.
+    */
+    SliderServoVel(const OdeHandle& odeHandle,
+                   OneAxisJoint* joint, double _min, double _max,
+                   double power, double damp=0.05, double maxVel=20,
+                   double jointLimit = 1.3);
+
+    virtual ~SliderServoVel();
+
+    /** adjusts the power of the servo*/
+    virtual void setPower(double _power);
+
+    /** returns the power of the servo*/
+    virtual double getPower() {
+      return power;
+    };
+    virtual double getDamping() {
+      return damp;
+    };
+    virtual void setDamping(double _damp) {
+      damp = clip(_damp,0.0,1.0);
+    };
+    /** offetCanceling does not exist for this type of servo */
+    virtual double& offsetCanceling() {
+      dummy=0;
+      return dummy;
+    };
+
+    /** adjusts maximal speed of servo*/
+    virtual void setMaxVel(double maxVel) {
+      this->maxVel = maxVel;
+      pid.KP=maxVel/2;
+    };
+    /** adjusts maximal speed of servo*/
+    virtual double getMaxVel() {
+      return maxVel;
+    };
+
+    /** sets the set point of the servo.
+        Position must be between -1 and 1. It is scaled to fit into min, max,
+        however 0 is just in the center of min and max
+    */
+    virtual void set(double pos);
+
+    /** returns the position of the servo in ranges [-1, 1] (scaled by min, max, centered)*/
+    virtual double get(){
+      double pos =  joint->getPosition1();
+      return 2*(pos-min)/(max-min) - 1;
+    }
 
   protected:
     double dummy;

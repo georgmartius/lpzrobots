@@ -24,12 +24,12 @@
 #ifndef __SERVO2_H
 #define __SERVO2_H
 
+#include "joint.h"
 #include "pid.h"
-#include "odehandle.h"
+#include "angularmotor.h"
+#include <selforg/controller_misc.h>
 
 namespace lpzrobots {
-
-  class TwoAxisJoint;
 
   /** general servo motor for 2 axis joints
    */
@@ -50,58 +50,116 @@ namespace lpzrobots {
     virtual void set(double pos1, double pos2);
 
     /** returns the position of the servo (joint) of 1. axis in ranges [-1, 1] (scaled by min1, max1)*/
-    virtual double get1();
+    virtual double get1(){
+      double pos =  joint->getPosition1();
+      if(pos > 0){
+        pos /= max1;
+      }else{
+        pos /= -min1;
+      }
+      return pos;
+    }
 
     /** returns the position of the servo (joint) of 2. axis in ranges [-1, 1] (scaled by min2, max2)*/
-    virtual double get2();
+    virtual double get2(){
+      double pos =  joint->getPosition2();
+      if(pos > 0){
+        pos /= max2;
+      }else{
+        pos /= -min2;
+      }
+      return pos;
+    }
 
     /** returns the positions of the joint in ranges [-1, 1] (scaled by min, max)*/
-    void get(double& p1, double& p2);
+    void get(double& p1, double& p2){
+      p1=get1();
+      p2=get2();
+    }
+
 
     /** adjusts the power of the servo*/
-    virtual void setPower(double power1, double power2);
+    virtual void setPower(double power1, double power2) {
+      pid1.KP = power1;
+      pid2.KP = power2;
+    };
 
     /** returns the power of the servo*/
-    virtual void setPower1(double power1);
+    virtual void setPower1(double power1) {
+      pid1.KP = power1;
+    };
 
     /** returns the power of the servo*/
-    virtual void setPower2(double power2);
+    virtual void setPower2(double power2) {
+      pid2.KP = power2;
+    };
 
     /** returns the power of the servo*/
-    virtual double getPower1();
-
+    virtual double getPower1() {
+      return pid1.KP;
+    };
     /** returns the power of the servo*/
-    virtual double getPower2();
+    virtual double getPower2() {
+      return pid2.KP;
+    };
 
     /** returns the damping of the servo (axis 1) */
-    virtual double getDamping1();
+    virtual double getDamping1() {
+      return pid1.KD;
+    };
 
     /** returns the damping of the servo (axis 2) */
-    virtual double getDamping2();
+    virtual double getDamping2() {
+      return pid2.KD;
+    };
 
-    virtual TwoAxisJoint* getJoint();
+    virtual TwoAxisJoint* getJoint() {
+      return joint;
+    }
 
     /** sets the damping of the servo (axis 1) */
-    virtual void setDamping1(double damp);
+    virtual void setDamping1(double damp) {
+      pid1.KD = damp;
+    };
 
     /** sets the damping of the servo (axis 1) */
-    virtual void setDamping2(double damp);
+    virtual void setDamping2(double damp) {
+      pid2.KD = damp;
+    };
 
     /** sets the damping of the servo (both axis) */
-    virtual void setDamping(double _damp);
+    virtual void setDamping(double _damp) {
+      setDamping1(_damp);
+      setDamping2(_damp);
+    };
 
     /** returns the damping of the servo*/
-    virtual double& offsetCanceling();
+    virtual double& offsetCanceling() {
+      return pid1.KI;
+    };
 
-    virtual void setMinMax1(double _min, double _max);
+    virtual void setMinMax1(double _min, double _max){
+      min1=_min;
+      max1=_max;
+      joint->setParam(dParamLoStop, _min  - abs(_min) * (jointLimit-1));
+      joint->setParam(dParamHiStop, _max  + abs(_max) * (jointLimit-1));
+    }
 
-    virtual void setMinMax2(double _min, double _max);
+    virtual void setMinMax2(double _min, double _max){
+      min2=_min;
+      max2=_max;
+      joint->setParam(dParamLoStop2, _min  - abs(_min) * (jointLimit-1));
+      joint->setParam(dParamHiStop2, _max  + abs(_max) * (jointLimit-1));
+    }
 
     /** adjusts maximal speed of servo*/
-    virtual void setMaxVel(double maxVel);
-
+    virtual void setMaxVel(double maxVel) {
+      this->maxVel = maxVel;
+    };
     /** adjusts maximal speed of servo*/
-    virtual double getMaxVel();
+    virtual double getMaxVel() {
+      return maxVel;
+    };
 
 
   protected:
@@ -141,11 +199,18 @@ namespace lpzrobots {
 
     /** returns the position of the servo (joint) of 1. axis in ranges [-1, 1]
         (scaled by min1, max1, centered)*/
-    virtual double get1();
+    virtual double get1(){
+      double pos =  joint->getPosition1();
+      return 2*(pos-min1)/(max1-min1) - 1;
+    }
+
 
     /** returns the position of the servo (joint) of 2. axis in ranges [-1, 1]
         (scaled by min2, max2, centered)*/
-    virtual double get2();
+    virtual double get2(){
+      double pos =  joint->getPosition2();
+      return 2*(pos-min2)/(max2-min2) - 1;
+    }
 
   };
 
@@ -180,26 +245,42 @@ namespace lpzrobots {
 
     virtual void setPower2(double _power2);
 
-    virtual double getPower1();
+    virtual double getPower1() {
+      return power1;
+    };
+    virtual double getPower2() {
+      return power2;
+    };
 
-    virtual double getPower2();
-
-    virtual double getDamping1();
-
-    virtual double getDamping2();
-
-    virtual void setDamping1(double _damp);
-
-    virtual void setDamping2(double _damp);
+    virtual double getDamping1() {
+      return damp;
+    };
+    virtual double getDamping2() {
+      return damp;
+    };
+    virtual void setDamping1(double _damp) {
+      damp = clip(_damp,0.0,1.0);
+    };
+    virtual void setDamping2(double _damp) {
+      setDamping1(_damp);
+    };
 
     /** offetCanceling does not exist for this type of servo */
-    virtual double& offsetCanceling();
+    virtual double& offsetCanceling() {
+      dummy=0;
+      return dummy;
+    };
 
     /** adjusts maximal speed of servo*/
-    virtual void setMaxVel(double maxVel);
-
+    virtual void setMaxVel(double maxVel) {
+      this->maxVel = maxVel;
+      pid1.KP=maxVel/2;
+      pid2.KP=maxVel/2;
+    };
     /** adjusts maximal speed of servo*/
-    virtual double getMaxVel();
+    virtual double getMaxVel() {
+      return maxVel;
+    };
 
 
     /** sets the set point of the servo.
@@ -209,7 +290,7 @@ namespace lpzrobots {
     virtual void set(double pos1, double pos2);
 
   protected:
-    //    AngularMotor2Axis motor;
+    AngularMotor2Axis motor;
     double dummy;
     double damp;
     double power1;

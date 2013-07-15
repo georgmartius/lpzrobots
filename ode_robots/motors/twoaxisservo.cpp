@@ -75,117 +75,6 @@ namespace lpzrobots {
   }
 
 
-  double TwoAxisServo::get1(){
-    double pos =  joint->getPosition1();
-    if(pos > 0){
-      pos /= max1;
-    }else{
-      pos /= -min1;
-    }
-    return pos;
-  }
-
-
-  double TwoAxisServo::get2(){
-    double pos =  joint->getPosition2();
-    if(pos > 0){
-      pos /= max2;
-    }else{
-      pos /= -min2;
-    }
-    return pos;
-  }
-
-
-  void TwoAxisServo::get(double& p1, double& p2){
-    p1=get1();
-    p2=get2();
-  }
-
-
-
-  void TwoAxisServo::setPower(double power1, double power2) {
-    pid1.KP = power1;
-    pid2.KP = power2;
-  };
-
-
-  void TwoAxisServo::setPower1(double power1) {
-    pid1.KP = power1;
-  };
-
-
-  void TwoAxisServo::setPower2(double power2) {
-    pid2.KP = power2;
-  };
-
-
-  double TwoAxisServo::getPower1() {
-    return pid1.KP;
-  };
-
-  double TwoAxisServo::getPower2() {
-    return pid2.KP;
-  };
-
-
-  double TwoAxisServo::getDamping1() {
-    return pid1.KD;
-  };
-
-
-  double TwoAxisServo::getDamping2() {
-    return pid2.KD;
-  };
-
-  TwoAxisJoint* TwoAxisServo::getJoint() {
-    return joint;
-  }
-
-
-  void TwoAxisServo::setDamping1(double damp) {
-    pid1.KD = damp;
-  };
-
-
-  void TwoAxisServo::setDamping2(double damp) {
-    pid2.KD = damp;
-  };
-
-
-  void TwoAxisServo::setDamping(double _damp) {
-    setDamping1(_damp);
-    setDamping2(_damp);
-  };
-
-
-  double& TwoAxisServo::offsetCanceling() {
-    return pid1.KI;
-  };
-
-  void TwoAxisServo::setMinMax1(double _min, double _max){
-    min1=_min;
-    max1=_max;
-    joint->setParam(dParamLoStop, _min  - abs(_min) * (jointLimit-1));
-    joint->setParam(dParamHiStop, _max  + abs(_max) * (jointLimit-1));
-  }
-
-  void TwoAxisServo::setMinMax2(double _min, double _max){
-    min2=_min;
-    max2=_max;
-    joint->setParam(dParamLoStop2, _min  - abs(_min) * (jointLimit-1));
-    joint->setParam(dParamHiStop2, _max  + abs(_max) * (jointLimit-1));
-  }
-
-
-  void TwoAxisServo::setMaxVel(double maxVel) {
-    this->maxVel = maxVel;
-  };
-
-  double TwoAxisServo::getMaxVel() {
-    return maxVel;
-  };
-
   TwoAxisServoCentered::TwoAxisServoCentered(TwoAxisJoint* joint,
                                              double _min1, double _max1, double power1,
                                              double _min2, double _max2, double power2,
@@ -219,18 +108,6 @@ namespace lpzrobots {
     }
   }
 
-  double TwoAxisServoCentered::get1(){
-    double pos =  joint->getPosition1();
-    return 2*(pos-min1)/(max1-min1) - 1;
-  }
-
-
-  double TwoAxisServoCentered::get2(){
-    double pos =  joint->getPosition2();
-    return 2*(pos-min2)/(max2-min2) - 1;
-  }
-
-
   TwoAxisServoVel::TwoAxisServoVel(const OdeHandle& odeHandle,
                                    TwoAxisJoint* joint, double _min1, double _max1, double power1,
                                    double _min2, double _max2, double power2,
@@ -238,58 +115,26 @@ namespace lpzrobots {
     : TwoAxisServoCentered(joint, _min1, _max1, maxVel/2, _min2, _max2, maxVel/2,
                            0, 0, 0, jointLimit),
       // don't wonder! It is correct to give maxVel as a power parameter to the normal servo (PID).
+      motor(odeHandle, joint, power1, power2),
       damp(clip(damp,0.0,1.0)), power1(power1), power2(power2)
   {
   }
   TwoAxisServoVel::~TwoAxisServoVel(){}
 
   void TwoAxisServoVel::setPower(double _power1, double _power2) {
+    motor.setPower(_power1,_power2);
     power1=_power1;
     power2=_power2;
   };
   void TwoAxisServoVel::setPower1(double _power1) {
     power1=_power1;
+    motor.setPower(power1,motor.getPower2());
+
   };
   void TwoAxisServoVel::setPower2(double _power2) {
     power2=_power2;
+    motor.setPower(motor.getPower(),power2);
   };
-  double TwoAxisServoVel::getPower1() {
-    return power1;
-  };
-  double TwoAxisServoVel::getPower2() {
-    return power2;
-  };
-
-  double TwoAxisServoVel::getDamping1() {
-    return damp;
-  };
-  double TwoAxisServoVel::getDamping2() {
-    return damp;
-  };
-  void TwoAxisServoVel::setDamping1(double _damp) {
-    damp = clip(_damp,0.0,1.0);
-  };
-  void TwoAxisServoVel::setDamping2(double _damp) {
-    setDamping1(_damp);
-  };
-
-
-  double& TwoAxisServoVel::offsetCanceling() {
-    dummy=0;
-    return dummy;
-  };
-
-
-  void TwoAxisServoVel::setMaxVel(double maxVel) {
-    this->maxVel = maxVel;
-    pid1.KP=maxVel/2;
-    pid2.KP=maxVel/2;
-  };
-
-  double TwoAxisServoVel::getMaxVel() {
-    return maxVel;
-  };
-
 
   void TwoAxisServoVel::set(double pos1, double pos2){
     pos1 = clip(pos1, -1.0, 1.0);
@@ -305,22 +150,23 @@ namespace lpzrobots {
     double vel2 = pid2.stepVelocity(joint->getPosition2(), joint->odeHandle.getTime());
     double e2 = fabs(2.0*(pid2.error)/(max2-min2)); // distance from set point
 
-    joint->setParam(dParamVel,  vel1);
-    joint->setParam(dParamVel2, vel2);
-
+    motor.set(0, vel1);
+    motor.set(1, vel2);
     // calculate power of servo depending on distance from setpoint and damping
     // sigmoid ramping of power for damping < 1
-    //      (((1.0-damp)*tanh(e1)+damp) * power1,
-    //       ((1.0-damp)*tanh(e2)+damp) * power2);
-    joint->setParam(dParamFMax,  tanh(e1+damp) * power1);
-    joint->setParam(dParamFMax2, tanh(e2+damp) * power2);
+    //      motor.setPower(((1.0-damp)*tanh(e1)+damp) * power1,
+    //                     ((1.0-damp)*tanh(e2)+damp) * power2);
+    motor.setPower(tanh(e1+damp) * power1,
+                   tanh(e2+damp) * power2);
 
-    if(maxVel >0 ){ // we limit the maximal velocity (like a air-friction)
-                    // this hinders the simulation from disintegrating.
-      joint->getPart1()->limitLinearVel(5*maxVel);
-      joint->getPart2()->limitLinearVel(5*maxVel);
-    }
-
+    /*
+       // This does not work as well as the amotor, at least for one-axis,
+       // so we keep the amotor version
+       joint->setParam(dParamVel,  vel1);
+       joint->setParam(dParamVel2, vel2);
+       joint->setParam(dParamFMax,  tanh(e1+damp) * power1);
+       joint->setParam(dParamFMax2, tanh(e2+damp) * power2);
+    */
 
   }
 

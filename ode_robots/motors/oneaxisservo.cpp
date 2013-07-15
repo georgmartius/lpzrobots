@@ -60,51 +60,6 @@ namespace lpzrobots {
     }
   }
 
-  double OneAxisServo::get(){
-    double pos =  joint->getPosition1();
-    if(pos > 0){
-      pos /= max;
-    }else{
-      pos /= -min;
-    }
-    return pos;
-  }
-
-  void OneAxisServo::setMinMax(double _min, double _max){
-    min=_min;
-    max=_max;
-    joint->setParam(dParamLoStop, min  - abs(min) * (jointLimit-1));
-    joint->setParam(dParamHiStop, max  + abs(max) * (jointLimit-1));
-  }
-
-  void OneAxisServo::setPower(double power) {
-    pid.KP = power;
-  };
-
-  double OneAxisServo::getPower() {
-    return pid.KP;
-  };
-
-  double OneAxisServo::getDamping() {
-    return pid.KD;
-  }
-
-  void OneAxisServo::setDamping(double damp) {
-    pid.KD = damp;
-  };
-
-  double& OneAxisServo::offsetCanceling() {
-    return pid.KI;
-  };
-
-  void OneAxisServo::setMaxVel(double maxVel) {
-    this->maxVel = maxVel;
-  };
-
-  double  OneAxisServo::getMaxVel() {
-    return maxVel;
-  };
-
 
   OneAxisServoCentered::OneAxisServoCentered(OneAxisJoint* joint, double _min, double _max,
                                              double power, double damp, double integration,
@@ -112,7 +67,6 @@ namespace lpzrobots {
     : OneAxisServo(joint, _min, _max, power, damp, integration, maxVel, jointLimit, false){
   }
 
-  OneAxisServoCentered::~OneAxisServoCentered(){}
 
   void OneAxisServoCentered::set(double pos){
     pos = clip(pos, -1.0, 1.0);
@@ -127,11 +81,7 @@ namespace lpzrobots {
       joint->getPart2()->limitLinearVel(maxVel);
     }
   }
-  double OneAxisServoCentered::get(){
-    double pos =  joint->getPosition1();
 
-    return 2*(pos-min)/(max-min) - 1;
-  }
 
   OneAxisServoVel::OneAxisServoVel(const OdeHandle& odeHandle,
                                    OneAxisJoint* joint, double _min, double _max,
@@ -139,45 +89,55 @@ namespace lpzrobots {
                                    double jointLimit)
     : OneAxisServo(joint, _min, _max, maxVel/2, 0, 0, 0, jointLimit, false),
       // don't wonder! It is correct to give maxVel as a power parameter to the parent.
-      /*motor(odeHandle, joint, power),*/ power(power), damp(clip(damp,0.0,1.0))
+      motor(odeHandle, joint, power), power(power), damp(clip(damp,0.0,1.0))
   {
-
   }
 
   OneAxisServoVel::~OneAxisServoVel(){}
 
   void OneAxisServoVel::setPower(double _power) {
     power=_power;
-    // motor.setPower(power);
-  };
-
-  double OneAxisServoVel::getPower() {
-    return power;
-  };
-
-  double OneAxisServoVel::getDamping() {
-    return damp;
-  };
-
-  void OneAxisServoVel::setDamping(double _damp) {
-    damp = clip(_damp,0.0,1.0);
-  };
-
-  double& OneAxisServoVel::offsetCanceling() {
-    dummy=0;
-    return dummy;
-  };
-
-  void OneAxisServoVel::setMaxVel(double maxVel) {
-    this->maxVel = maxVel;
-    pid.KP=maxVel/2;
-  };
-
-  double OneAxisServoVel::getMaxVel() {
-    return maxVel;
+    motor.setPower(power);
   };
 
   void OneAxisServoVel::set(double pos){
+    pos = clip(pos, -1.0, 1.0);
+    pos = (pos+1)*(max-min)/2 + min;
+    pid.setTargetPosition(pos);
+    double vel = pid.stepVelocity(joint->getPosition1(), joint->odeHandle.getTime());
+    double e   = fabs(2.0*(pid.error)/(max-min)); // distance from set point
+    motor.set(0, vel);
+    // calculate power of servo depending on the damping and distance from set point and
+    // sigmoid ramping of power for damping < 1
+    //      motor.setPower(((1.0-damp)*tanh(e)+damp) * power);
+    motor.setPower(tanh(e+damp) * power);
+
+    /*if(maxVel >0 ){ // we limit the maximal velocity (like a air-friction)
+    // this hinders the simulation from disintegrating.
+    // Not required for velocity servos
+    joint->getPart1()->limitLinearVel(5*maxVel);
+    joint->getPart2()->limitLinearVel(5*maxVel);
+    }
+    */
+  }
+
+  SliderServoVel::SliderServoVel(const OdeHandle& odeHandle,
+                                   OneAxisJoint* joint, double _min, double _max,
+                                   double power, double damp, double maxVel,
+                                   double jointLimit)
+    : OneAxisServo(joint, _min, _max, maxVel/2, 0, 0, 0, jointLimit, false),
+      // don't wonder! It is correct to give maxVel as a power parameter to the parent.
+      power(power), damp(clip(damp,0.0,1.0))
+  {
+  }
+
+  SliderServoVel::~SliderServoVel(){}
+
+  void SliderServoVel::setPower(double _power) {
+    power=_power;
+  };
+
+  void SliderServoVel::set(double pos){
     pos = clip(pos, -1.0, 1.0);
     pos = (pos+1)*(max-min)/2 + min;
     pid.setTargetPosition(pos);
@@ -194,13 +154,6 @@ namespace lpzrobots {
       joint->getPart1()->limitLinearVel(5*maxVel);
       joint->getPart2()->limitLinearVel(5*maxVel);
     }
-
   }
-
-  double OneAxisServoVel::get(){
-    double pos =  joint->getPosition1();
-    return 2*(pos-min)/(max-min) - 1;
-  }
-
 }
 
