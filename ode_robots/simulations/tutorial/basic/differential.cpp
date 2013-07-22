@@ -16,6 +16,8 @@ namespace lpzrobots{
 
 
   void Differential::place(const Matrix& pose){
+    // Configuration check: wheels have to be bigger than the body
+    assert(2. * conf.wheelRadio > conf.bodyHeight);
     // Movig robot upward so wheel are not stuck on the ground
     Matrix initialPose;
     initialPose = Matrix::translate(Vec3(0, 0, conf.wheelRadio) * pose);
@@ -24,105 +26,147 @@ namespace lpzrobots{
   }
 
 
-  void Differential::create(const Matrix& pose) {
-    /* Creating body */
-    // Cylinder geometry primitive as body
-    Primitive* body = new Cylinder(conf.bodyRadio, conf.bodyHeight);
-    // Setting texture from Image library
-    body->setTexture("Images/purple_velour.jpg");
-    // Initializing the primitive
-    body->init(odeHandle, conf.bodyMass, osgHandle);
-    // Setting the pose of the primitive
-    body->setPose(pose);
-    // Adding the primitive to the list of objects
-    objects.push_back(body);
+    void Differential::create(const Matrix& pose) {
+      /* Creating body */
+      // Cylinder geometry primitive as body
+      Primitive* body = new Cylinder(conf.bodyRadio, conf.bodyHeight);
+      // Setting texture from Image library
+      body->setTexture("Images/purple_velour.jpg");
+      // Initializing the primitive
+      body->init(odeHandle, conf.bodyMass, osgHandle);
+      // Setting the pose of the primitive
+      body->setPose(pose);
+      // Adding the primitive to the list of objects
+      objects.push_back(body);
 
-    /* Creating the left wheel */
-    Primitive* lWheel = new Cylinder(conf.wheelRadio, conf.wheelHeight);
-    // Setting texture from Images library
-    lWheel->setTexture("Images/chess.rgb");
-    lWheel->init(odeHandle, conf.wheelMass, osgHandle);
-    // The cylinder is rotated 90º on the Y axis
-    // then translated outside the radio of the body plus half of 
-    // its own height
-    // -- All transformations have to be relative to the position so 
-    // the robot can be initialised in any position --
-    Matrix lWheelPose = Matrix::rotate(M_PI / 2.0, 0, 1, 0) * 
-      Matrix::translate(conf.bodyRadio + conf.wheelHeight / 2.0, .0, .0) *
-      pose;
-    // Setting the pose of the wheel
-    lWheel->setPose(lWheelPose);
-    // adding the wheel to the list of objects
-    objects.push_back(lWheel);
-    // Joining the wheel to the body by a hingejoint
-    // objecst[0] is the body, objects[1] is the left wheel
-    // the anchor comes from the wheel and the axis of rotation
-    // is relative to the pose of the left wheel
-    HingeJoint* bodyLeftWheelJoint = new HingeJoint(objects[0], objects[1],
-        lWheel->getPosition(),
-        Axis(0, 0, 1) * lWheelPose);
-    // Initializing the joint
-    bodyLeftWheelJoint->init(odeHandle, osgHandle);
-    // Adding the joint to the list of joints
-    joints.push_back(bodyLeftWheelJoint);
+      /* Creating the left wheel */
+      Primitive* lWheel = new Cylinder(conf.wheelRadio, conf.wheelHeight);
+      // Setting texture from Images library
+      lWheel->setTexture("Images/chess.rgb");
+      lWheel->init(odeHandle, conf.wheelMass, osgHandle);
+      // The cylinder is rotated 90º on the Y axis
+      // then translated outside the radio of the body plus half of 
+      // its own height
+      // -- All transformations have to be relative to the position so 
+      // the robot can be initialised in any position --
+      Matrix lWheelPose = 
+        Matrix::rotate(M_PI / 2.0, 0, 1, 0) * 
+        Matrix::translate(conf.bodyRadio + conf.wheelHeight / 2.0, .0, .0) *
+        pose;
+      // Setting the pose of the wheel
+      lWheel->setPose(lWheelPose);
+      // adding the wheel to the list of objects
+      objects.push_back(lWheel);
+      // Joining the wheel to the body by a hingejoint
+      // objecst[0] is the body, objects[1] is the left wheel
+      // the anchor comes from the wheel and the axis of rotation
+      // is relative to the pose of the left wheel
+      HingeJoint* bodyLeftWheelJoint = new HingeJoint(objects[0], objects[1],
+          lWheel->getPosition(),
+          Axis(0, 0, 1) * lWheelPose);
+      // Initializing the joint
+      bodyLeftWheelJoint->init(odeHandle, osgHandle);
+      // Adding the joint to the list of joints
+      joints.push_back(bodyLeftWheelJoint);
 
-    /* Creating the right wheel */
-    // Analog to left wheel but changing translation direction
-    Primitive* rWheel = new Cylinder(conf.wheelRadio, conf.wheelHeight);
-    rWheel->setTexture("Images/chess.rgb");
-    rWheel->init(odeHandle, conf.wheelMass, osgHandle);
-    Matrix rWheelPose = Matrix::rotate(M_PI / 2.0, 0, 1, 0) * 
-      Matrix::translate(-(conf.bodyRadio + conf.wheelHeight / 2.0), .0, .0) *
-      pose;
-    rWheel->setPose(rWheelPose);
-    objects.push_back(rWheel);
-    // objects[2] is the right wheel
-    HingeJoint* bodyRightWheelJoint = new HingeJoint(objects[0], objects[2],
-        rWheel->getPosition(),
-        Axis(0, 0, 1) * rWheelPose);
-    bodyRightWheelJoint->init(odeHandle, osgHandle);
-    joints.push_back(bodyRightWheelJoint);
+      /* Creating the right wheel */
+      // Analog to left wheel but changing translation direction
+      Primitive* rWheel = new Cylinder(conf.wheelRadio, conf.wheelHeight);
+      rWheel->setTexture("Images/chess.rgb");
+      rWheel->init(odeHandle, conf.wheelMass, osgHandle);
+      Matrix rWheelPose = Matrix::rotate(M_PI / 2.0, 0, 1, 0) * 
+        Matrix::translate(-(conf.bodyRadio + conf.wheelHeight / 2.0), .0, .0) *
+        pose;
+      rWheel->setPose(rWheelPose);
+      objects.push_back(rWheel);
+      // objects[2] is the right wheel
+      HingeJoint* bodyRightWheelJoint = new HingeJoint(objects[0], objects[2],
+          rWheel->getPosition(),
+          Axis(0, 0, 1) * rWheelPose);
+      bodyRightWheelJoint->init(odeHandle, osgHandle);
+      joints.push_back(bodyRightWheelJoint);
 
-    /* Motors */
-    // Left wheel motor, the OdeHandle, the joint and the maximun 
-    // power that motor will be used to achieve desired speed
-    AngularMotor1Axis* lWheelMotor = new AngularMotor1Axis(odeHandle, bodyLeftWheelJoint,
-      conf.wheelMotorPower);
-    wheelMotors.push_back(lWheelMotor);
-    // Right wheel motor
-    AngularMotor1Axis* rWheelMotor = new AngularMotor1Axis(odeHandle, bodyRightWheelJoint,
-      conf.wheelMotorPower);
-    wheelMotors.push_back(rWheelMotor);
+      /* Motors */
+      // Left wheel motor, the OdeHandle, the joint and the maximun 
+      // power that motor will be used to achieve desired speed
+      AngularMotor1Axis* lWheelMotor = new AngularMotor1Axis(odeHandle, bodyLeftWheelJoint,
+        conf.wheelMotorPower);
+      wheelMotors.push_back(lWheelMotor);
+      // Right wheel motor
+      AngularMotor1Axis* rWheelMotor = new AngularMotor1Axis(odeHandle, bodyRightWheelJoint,
+        conf.wheelMotorPower);
+      wheelMotors.push_back(rWheelMotor);
 
-    /* Infra-red sensors */
-    // Initialising infra-red sensor bank
-    irSensorBank.init(odeHandle, osgHandle);
-    // New infra-red left sensor 
-    IRSensor* leftIrSensor = new IRSensor();
-    // Registering the sensor in the bank, fixed to body (objects[0])
-    // first rotation to point frontward
-    // second rotation to point around 10 o'clock
-    // translation from center of body to outside and middle of height
-    // all relative to original pose,
-    // Maximum range of measure
-    // drawAll will display a line in the rendered scene
-    irSensorBank.registerSensor(leftIrSensor, objects[0],
-      Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
-      Matrix::rotate(M_PI / 4.0, 0, 0, 1) *
-      Matrix::translate(0, conf.bodyRadio, -conf.bodyHeight / 2.0) * 
-      pose,
+      /* Infra-red sensors */
+      // Initialising infra-red sensor bank
+      irSensorBank.init(odeHandle, osgHandle);
+      // New infra-red sensor array
+      IRSensor* irSensor[7];
+      // Registering the sensor in the bank, fixed to body (objects[0])
+      // For the first sensor it is rotated to point frontward
+      // translation from center of body to outside and middle of height
+      // pose is relative to the parent body - no need to multiply by 'pose'.
+      // Maximum range of measure.
+      // drawAll will display a line in the rendered scene.
+      irSensor[0] = new IRSensor();
+      irSensorBank.registerSensor(irSensor[0], objects[0],
+          Matrix::rotate(-M_PI / 2.0, 1, 0, 0) * 
+          Matrix::rotate( M_PI / 2.0, 0, 0, 1) *
+          Matrix::translate(-conf.bodyRadio * sin(M_PI * .4), conf.bodyRadio * cos(M_PI * .4), conf.bodyHeight / 2.0),
+        conf.irRange, 
+        RaySensor::drawAll);
+
+      irSensor[1] = new IRSensor();
+      irSensorBank.registerSensor(irSensor[1], objects[0],
+          Matrix::rotate(-M_PI / 2.0, 1, 0, 0) * 
+          Matrix::rotate( M_PI / 3.5, 0, 0, 1) *
+          Matrix::translate(-conf.bodyRadio * sin(M_PI * .25), conf.bodyRadio * cos(M_PI * .25), conf.bodyHeight / 2.0),
+        conf.irRange, 
+        RaySensor::drawAll);
+      
+      irSensor[2] = new IRSensor();
+      irSensorBank.registerSensor(irSensor[2], objects[0],
+          Matrix::rotate(-M_PI / 2.0, 1, 0, 0) * 
+          Matrix::translate(-conf.bodyRadio * sin(M_PI * .05), conf.bodyRadio * cos(M_PI * .05), conf.bodyHeight / 2.0),
+        conf.irRange, 
+        RaySensor::drawAll);
+
+      irSensor[3] = new IRSensor();
+      irSensorBank.registerSensor(irSensor[3], objects[0],
+          Matrix::rotate(-M_PI / 2.0, 1, 0, 0) * 
+          Matrix::translate(conf.bodyRadio * sin(M_PI * .05), conf.bodyRadio * cos(M_PI * .05), conf.bodyHeight / 2.0),
+        conf.irRange, 
+        RaySensor::drawAll);
+
+      irSensor[4] = new IRSensor();
+      irSensorBank.registerSensor(irSensor[4], objects[0],
+          Matrix::rotate(-M_PI / 2.0, 1, 0, 0) * 
+          Matrix::rotate(-M_PI / 3.5, 0, 0, 1) *
+          Matrix::translate(conf.bodyRadio * sin(M_PI * .25), conf.bodyRadio * cos(M_PI * .25), conf.bodyHeight / 2.0),
+        conf.irRange, 
+        RaySensor::drawAll);
+
+      irSensor[5] = new IRSensor();
+      irSensorBank.registerSensor(irSensor[5], objects[0],
+          Matrix::rotate(-M_PI / 2.0, 1, 0, 0) * 
+          Matrix::rotate(-M_PI / 2.0, 0, 0, 1) *
+          Matrix::translate(conf.bodyRadio * sin(M_PI * .4), conf.bodyRadio * cos(M_PI * .4), conf.bodyHeight / 2.0),
+        conf.irRange, 
+        RaySensor::drawAll);
+
+      irSensor[6] = new IRSensor();
+      irSensorBank.registerSensor(irSensor[6], objects[0],
+          Matrix::rotate(M_PI / 2.0, 1, 0, 0) * 
+          Matrix::translate(-conf.bodyRadio * sin(M_PI * .9), conf.bodyRadio * cos(M_PI * .9), conf.bodyHeight / 2.0),
+        conf.irRange, 
+        RaySensor::drawAll);
+
+      irSensor[7] = new IRSensor();
+      irSensorBank.registerSensor(irSensor[7], objects[0],
+          Matrix::rotate(M_PI / 2.0, 1, 0, 0) * 
+          Matrix::translate(conf.bodyRadio * sin(M_PI * .9), conf.bodyRadio * cos(M_PI * .9), conf.bodyHeight / 2.0),
       conf.irRange, 
       RaySensor::drawAll);
-    // New right infra-red sensor 
-    IRSensor* rightIrSensor = new IRSensor();
-    irSensorBank.registerSensor(rightIrSensor, objects[0],
-      Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
-      Matrix::rotate(-M_PI / 4.0, 0, 0, 1) *
-      Matrix::translate(0, conf.bodyRadio, -conf.bodyHeight / 2.0) * 
-      pose,
-      conf.irRange, 
-      RaySensor::drawAll);
-
 
   }
 

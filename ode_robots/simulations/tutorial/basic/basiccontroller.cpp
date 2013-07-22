@@ -27,23 +27,21 @@ int BasicController::getMotorNumber() const {
 void BasicController::step(const sensor* sensors, int sensornumber,
     motor* motors, int motornumber) {
 
-  if ((sensors[2] > .5) && (sensors[3] <= .5)) {
-    motors[0] = .2;
+  double threshold = 0.2;
+  // Sensors index 0 and 1 are wheel speeds
+  // Sensors index from 2 to 9 are the infra red sensors.
+  if (sensors[2] > threshold || sensors[3] > threshold || sensors[4] > threshold) {
+    motors[0] = .1;
     motors[1] = 1.0;
   }
-  else if ((sensors[2] <= .5) && (sensors[3] > .5)) {
+  else if (sensors[5] > threshold || sensors[6] > threshold || sensors[7] > threshold) {
     motors[0] = 1.0;
-    motors[1] = .2;
-  }
-  else if ((sensors[2] > .5) && (sensors[3] > .5)) {
-    motors[0] = -1.0;
-    motors[1] = 1.0;
+    motors[1] = .1;
   }
   else {
     motors[0] = 1.0;
     motors[1] = 1.0;
   }
-
 }
 
 void BasicController::stepNoLearning(const sensor* , int number_sensors,

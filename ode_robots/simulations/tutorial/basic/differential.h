@@ -55,14 +55,14 @@ namespace lpzrobots{
       static DifferentialConf getDefaultConf(){
         DifferentialConf conf;
         conf.bodyRadio          = 1.0;
-        conf.bodyHeight         = .5;
+        conf.bodyHeight         = .3;
         conf.bodyMass           = 1.0;
         conf.wheelRadio         = .3;
         conf.wheelHeight        = .1;
         conf.wheelMass          = 5.0;
         conf.wheelMotorPower    = 5.0;
         conf.wheelMotorMaxSpeed = 5.0;
-        conf.irRange            = 5.0;
+        conf.irRange            = 2.0;
         return conf;
       }
 
