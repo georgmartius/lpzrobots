@@ -1,3 +1,26 @@
+/***************************************************************************
+ *   Copyright (C) 2005-2013 LpzRobots development team                    *
+ *   Authors:                                                              *
+ *    Simón Smith <artificialsimon at ed dot ac dot uk>                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                         *
+ ***************************************************************************/
+
 // Header guard
 #ifndef __DIFFERENTIAL_H
 #define __DIFFERENTIAL_H
@@ -23,16 +46,16 @@ namespace lpzrobots{
 
   // structure to hold configuration of the robot
   typedef struct{
-    double bodyRadio; // Radio of the cylinder defining the body
-    double bodyHeight; // Height of the cylinder defining the body
-    double bodyMass; // Mass of the body
-    double wheelRadio; // Radio of the cylinder defining the wheel
-    double wheelHeight; // Height of the cylinder defining the wheel
-    double wheelMass; // Mass of the wheel
-    double wheelMotorPower; // Maximum power allowed to the motor to reach MaxSpeed
-    double wheelMotorMaxSpeed; // Maximum speed of the wheel
-    double irRange; // Range (max distance) of the infra-red sensors
-  } DifferentialConf; 
+    double bodyRadius;          // Radius of the cylinder defining the body
+    double bodyHeight;          // Height of the cylinder defining the body
+    double bodyMass;            // Mass of the body
+    double wheelRadius;         // Radius of the cylinder defining the wheel
+    double wheelHeight;         // Height of the cylinder defining the wheel
+    double wheelMass;           // Mass of the wheel
+    double wheelMotorPower;     // Maximum power allowed to the motor to reach MaxSpeed
+    double wheelMotorMaxSpeed;  // Maximum speed of the wheel
+    double irRange;             // Range (max distance) of the infra-red sensors
+  } DifferentialConf;
 
   /**
    * Differential robot: two separated wheel on each side of the body
@@ -47,17 +70,18 @@ namespace lpzrobots{
        * Contrustructor
        */
       Differential(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
-          const DifferentialConf &conf, const std::string& name);
+                   const DifferentialConf &conf = getDefaultConf(),
+                   const std::string& name = "Differential");
 
       /**
        * Default configuration of the robot
        */
       static DifferentialConf getDefaultConf(){
         DifferentialConf conf;
-        conf.bodyRadio          = 1.;
+        conf.bodyRadius         = 1.;
         conf.bodyHeight         = .5;
         conf.bodyMass           = 1.;
-        conf.wheelRadio         = .3;
+        conf.wheelRadius        = .3;
         conf.wheelHeight        = .1;
         conf.wheelMass          = 5.;
         conf.wheelMotorPower    = 5.;

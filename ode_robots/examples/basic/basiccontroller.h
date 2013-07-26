@@ -1,3 +1,25 @@
+/***************************************************************************
+ *   Copyright (C) 2005-2013 LpzRobots development team                    *
+ *   Authors:                                                              *
+ *    Simón Smith <artificialsimon at ed dot ac dot uk>                    *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                         *
+ ***************************************************************************/
+
 // Header guard
 #ifndef __BASIC_CONTROLLER_H
 #define __BASIC_CONTROOLER_H
@@ -38,19 +60,19 @@ class BasicController : public AbstractController{
       */
     virtual void stepNoLearning(const sensor* , int number_sensors,
         motor* , int number_motors);
-    /** stores the object to the given file stream (binary). 
+    /** stores the object to the given file stream (binary).
     */
     virtual bool store(FILE* f) const;
 
-    /** loads the object from the given file stream (binary). 
+    /** loads the object from the given file stream (binary).
     */
-    virtual bool restore(FILE* f);  
+    virtual bool restore(FILE* f);
 
   private:
-
     double nSensors;
     double nMotors;
     bool initialised;
+    double threshold;
 };
 
 #endif // Header guard

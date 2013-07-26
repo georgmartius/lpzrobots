@@ -1,3 +1,26 @@
+/***************************************************************************
+ *   Copyright (C) 2005-2013 LpzRobots development team                    *
+ *   Authors:                                                              *
+ *    Simón Smith <artificialsimon at ed dot ac dot uk>                    *
+ *    Georg Martius  <georg dot martius at web dot de>                     *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                         *
+ ***************************************************************************/
+
 // Simulation
 #include <ode_robots/simulation.h>
 // Noise generator
@@ -20,18 +43,17 @@ using namespace lpzrobots;
 class ThisSim : public Simulation
 {
   public:
-    BasicController* controller;
-    Differential* robot;
+    ThisSim() { }
+    ~ThisSim() { }
 
     /// start() is called at the start and should create all the object (obstacles, agents...).
     virtual void start(const OdeHandle& odeHandle, const OsgHandle& osgHandle, GlobalData& global)
     {
-      // Initial position and orientation of the camera
-      setCameraHomePos(Pos(8., 8., 8.), Pos(.0, .0, .0));
+      // Initial position and orientation of the camera (use 'p' in graphical window to find out)
+      setCameraHomePos(Pos(-14,14, 10),  Pos(-135, -24, 0));
       // Some simulation parameters can be set here
       global.odeConfig.setParam("controlinterval", 1);
       global.odeConfig.setParam("gravity", -9.8);
-      global.odeConfig.setParam("realtimefactor", 1);
 
       /** New robot instance */
       // Get the default configuration of the robot
@@ -39,11 +61,12 @@ class ThisSim : public Simulation
       // Values can be modified locally
       conf.wheelMass = .5;
       // Instantiating the robot
-      robot = new Differential(odeHandle, osgHandle, conf, "Differential robot");
+      OdeRobot* robot = new Differential(odeHandle, osgHandle, conf, "Differential robot");
       // Placing the robot in the scene
       ((OdeRobot*)robot)->place(Pos(.0, .0, .2));
       // Instantiatign the controller
-      controller = new BasicController("Basic Controller", "$ID$");
+
+      AbstractController* controller = new BasicController("Basic Controller", "$ID$");
       // Create the wiring with color noise
       AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(.1));
       // Create Agent
@@ -52,27 +75,26 @@ class ThisSim : public Simulation
       agent->init(controller, robot, wiring);
       // Adding the agent to the agents list
       global.agents.push_back(agent);
-      //global.configs.push_back(controller);
-      global.configs.push_back(robot);
+      global.configs.push_back(agent);
 
       /** Environment and obstacles */
       // New playground
       Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(15., .2, 1.2), 1);
       // Set colours
       playground->setGroundColor(Color(.784, .784, .0));
-      playground->setColor(Color(1., .784, .082, .1));
+      playground->setColor(Color(1., .784, .082, .3));
       // Set position
       playground->setPosition(osg::Vec3(.0, .0, .1));
       // Adding playground to obstacles list
       global.obstacles.push_back(playground);
-     
-      // Add a new box obstacle
+
+      // Add a new box obstacle (or use 'o' to drop random obstacles)
       //PassiveBox* box = new PassiveBox(odeHandle, osgHandle, osg::Vec3(1., 1., 1.), 2.);
       //box->setPose(osg::Matrix::translate(-.5, 4., .7));
-      //global.obstacles.push_back(box);    
+      //global.obstacles.push_back(box);
     }
 
-    /* Functions not used in this tutorial but needed by interface */
+    /* Functions not used in this tutorial but typically useful */
     virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     }
 
@@ -82,21 +104,14 @@ class ThisSim : public Simulation
 
     virtual void bindingDescription(osg::ApplicationUsage & au) const {
     }
-    
-    ThisSim() {
-    }
-
-    ~ThisSim() {
-    }
-
 };
 
 int main (int argc, char **argv)
 {
   // New simulation
   ThisSim sim;
-  // Caption set
-  sim.setCaption("BASIC SIM");
+  // set Title of simulation
+  sim.setTitle("BASIC SIM by Simon");
   // Simulation begins
   return sim.run(argc, argv) ? 0 : 1;
 }
