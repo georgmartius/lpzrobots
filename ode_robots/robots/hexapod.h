@@ -48,8 +48,7 @@ namespace lpzrobots {
     double width;      ///< body with in units of size
     double height;     ///< body with in units of size
     double mass;       ///< chassis mass
-    double relLegmass; ///< relative overall leg mass
-    double percentageBodyMass;
+    double percentageBodyMass; ///< relation between bodymass(trunk) and rest
 
     double coxaPower; ///< maximal force for at hip joint motors
     double coxaJointLimitV; ///< angle range for vertical direction of legs
@@ -130,7 +129,6 @@ namespace lpzrobots {
       c.percentageBodyMass = 0.7;
       c.mass               = 1.0;
       c.v                  = new double[1];
-      c.relLegmass         = 1;
       c.coxaPower          = 1;
       c.coxaJointLimitV    = M_PI/8.0; ///< angle range for vertical direction of legs
       c.coxaJointLimitH    = M_PI/4.0;

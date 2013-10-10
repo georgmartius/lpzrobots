@@ -9,7 +9,6 @@
 #include <selforg/agent.h>
 #include <selforg/abstractrobot.h>
 #include <selforg/invertnchannelcontroller.h>
-#include <selforg/homeokinesis.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/motorbabbler.h>

@@ -427,14 +427,14 @@ namespace matrix{
     Matrix& addColumns(I numberColumns, const Matrix& dataMatrix);
 
 
-    /** removes one or more rows of the existing matrix,
+    /** removes one or more rows from the end if an existing matrix (inplace!),
         same as reshape(getM()-numberRows, getN());
-     * @param numberRows number of rows to remove (this reduces m)
+     * @param numberRows number of rows to remove (from the end) (this reduces m)
      * @return the address of the matrix itself
      */
     Matrix& removeRows(I numberRows);
 
-    /** removes one or more columns of the existing matrix
+    /** removes one or more columns from the end of the existing matrix (inplace!)
      * resets the size of the matrix and deletes the appropiate data.
      * @param numberColumns number of columns to remove (this reduces n)
      * @return the address of the matrix itself

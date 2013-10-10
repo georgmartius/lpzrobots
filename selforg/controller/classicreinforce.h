@@ -38,7 +38,7 @@ typedef struct ClassicReinforceConf {
 
 /**
  * class for robot controller
- * using several feedforward networks (satelite) and one selforg controller
+ * using Q-learning algorithm. Needs to be inherited from to overwrite calcReinforcement()
  */
 class ClassicReinforce : public AbstractController {
 

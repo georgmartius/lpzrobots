@@ -713,7 +713,7 @@ namespace matrix {
 
   Matrix& Matrix::removeRows ( I numberRows ) {
     assert ( m>numberRows && "to much rows to remove" );
-    return reshape(numberRows, n);
+    return reshape(m-numberRows, n);
   }
 
   Matrix& Matrix::removeColumns ( I numberColumns ) {

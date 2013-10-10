@@ -15,8 +15,7 @@ which inherits methods for configuration and disposal of internal
 parameter as well as serialization from the classes \ref Configurable, \ref Inspectable and \ref Storeable.
 Each controller realizes this interface to ensure collaboration.
 
-For easy use in the beginning use \ref InvertNChannelController 
-(which requires the same number of sensors and motors) and look at the examples
+For easy use in the beginning use \ref Sos and look at the examples
 in the \ref selforg/examples  directory.
 You can also start with a copy of one of the templates in the \ref lpzrobots/ode_robots/simulations directory and you can see how things work.
  */

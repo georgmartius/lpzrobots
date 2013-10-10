@@ -295,7 +295,7 @@ void PiMax::learn(){
 
       C += ((( dmu * (ds[l]^T) - (epsrel & al) * (sl^T)) & metric) * epsCN
             ).mapP(.015, clip);
-      h += ((((epsrel & a)) & metric) * (-epsCN*factorH) ).mapP(.05, clip);
+      h += ((((epsrel & al)) & metric) * (-epsCN*factorH) ).mapP(.05, clip);
 
     }
     if(damping)

@@ -10,7 +10,6 @@
 #include <selforg/abstractrobot.h>
 // #include <selforg/invertmotorspace.h>
 #include <selforg/invertmotornstep.h>
-#include <selforg/homeokinesis.h>
 #include <selforg/sinecontroller.h>
 #include <selforg/one2onewiring.h>
 #include <selforg/feedbackwiring.h>
