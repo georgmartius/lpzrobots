@@ -44,7 +44,7 @@ else #Todo print error to stderr
 fi
 
 ## use -pg for profiling
-CBASEFLAGS="-pthread -std=c++0x -I/usr/X11R6/include $ODEFLAGS LINUXORMAC( ,-I/opt/local/include)"
+CBASEFLAGS="-pthread -std=c++0x -std=c++11 -I/usr/X11R6/include $ODEFLAGS LINUXORMAC( ,-I/opt/local/include)"
 CPPFLAGS="$CBASEFLAGS"
 INTERNFLAGS="-g -O"
 LIBS="-lm -losgShadow -losgText -losgUtil -losgViewer -losgGA -losgDB -lOpenThreads -losg -lGL -lGLU -lglut -lpthread"
