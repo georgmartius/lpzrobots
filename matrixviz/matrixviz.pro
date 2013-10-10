@@ -22,8 +22,8 @@ INCLUDEPATH += . \
                src/tools \
                src/visualisations
 CONFIG += qt
+# debug
 CONFIG -= app_bundle
-#debug
 
 LIBS += -lGLU
 
@@ -64,7 +64,7 @@ HEADERS += src/AbstractRobotGUI.h \
            src/visualisations/LandscapeVisualisation.h \
            src/visualisations/TextureVisualisation.h \
            src/visualisations/VectorPlotVisualisation.h \
-           src/visualisations/BarVisualisation.h 
+           src/visualisations/BarVisualisation.h
 SOURCES += src/AbstractRobotGUI.cpp \
            src/ColorPalette.cpp \
            src/ListEntity.cpp \
@@ -92,6 +92,6 @@ SOURCES += src/AbstractRobotGUI.cpp \
            src/visualisations/LandscapeVisualisation.cpp \
            src/visualisations/TextureVisualisation.cpp \
            src/visualisations/VectorPlotVisualisation.cpp \
-           src/visualisations/BarVisualisation.cpp 
+           src/visualisations/BarVisualisation.cpp
 QT+=opengl xml
 # debug

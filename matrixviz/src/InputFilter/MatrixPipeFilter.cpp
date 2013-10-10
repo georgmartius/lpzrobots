@@ -78,10 +78,10 @@ AbstractPlotChannel* MatrixPipeFilter::createChannel(std::string name)
     /*
      * Looking for new matrix _A_[x,y]
      */
-    if (hasBrace && hasComma && name.at(0) == toupper(name.at(0))) {
+          if (hasBrace && hasComma /*&& name.at(0) == toupper(name.at(0))*/ ) {
       // empty vector or new matrix
       if (debug)
-        cout << "test new matrix" << endl;
+        cout << "test new matrix: " << name << endl;
       if (matrices.size() == 0 || name.substr(0, bracePos) != matrices.back()->getChannelName().substr(0, bracePos)) {
         MatrixPlotChannel* maPloChannel = new MatrixPlotChannel(name.substr(0, bracePos));
         matrices.push_back(maPloChannel);

@@ -85,6 +85,9 @@ GroupPlotChannel* MatrixPlotChannel::getRow(int row){
 }
 
 GroupPlotChannel* MatrixPlotChannel::getLastRow(){
+  if(channelsOfGroup.back() == 0){
+    return 0;
+  }
   GroupPlotChannel* gPlotCh = dynamic_cast<GroupPlotChannel*> (channelsOfGroup.back());
   if(gPlotCh == 0){
     return 0;
