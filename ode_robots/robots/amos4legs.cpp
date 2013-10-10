@@ -46,7 +46,7 @@
 #include <ode_robots/mathutils.h>
 
 // include header file
-#include "amosII.h"
+#include "amos4legs.h"
 
 // rotation and translation matrixes (to make the code shorter)
 #define ROTM osg::Matrix::rotate
@@ -54,7 +54,7 @@
 
 namespace lpzrobots {
 
-  AmosII::Leg::Leg() {
+  AmosFour::Leg::Leg() {
     tcJoint = 0;
     ctrJoint = 0;
     ftiJoint = 0;
@@ -74,12 +74,12 @@ namespace lpzrobots {
   // - give handle for ODE and OSG stuff
   // also initialize AmosII.conf with the configuration in the argument of
   // the constructor
-  AmosII::AmosII(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const AmosIIConf& c, const std::string& name) :
+  AmosFour::AmosFour(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const AmosFourConf& c, const std::string& name) :
           OdeRobot(odeHandle, osgHandle, name, "AMOSII 0.1"), conf(c) {
-    legPosUsage[L0] = LEG;
+//    legPosUsage[L0] = LEG;
     legPosUsage[L1] = LEG;
     legPosUsage[L2] = LEG;
-    legPosUsage[R0] = LEG;
+//    legPosUsage[R0] = LEG;
     legPosUsage[R1] = LEG;
     legPosUsage[R2] = LEG;
 
@@ -111,40 +111,40 @@ namespace lpzrobots {
     }
 
     // name the sensors
-    nameSensor(TR0_as, "*TR0 angle sensor");
-    nameSensor(TR0_as, "*TR0 angle sensor");
-    nameSensor(TR1_as, "*TR1 angle sensor");
-    nameSensor(TR2_as, "*TR2 angle sensor");
-    nameSensor(TL0_as, "*TL0 angle sensor");
-    nameSensor(TL1_as, "*TL1 angle sensor");
-    nameSensor(TL2_as, "*TL2 angle sensor");
-    nameSensor(CR0_as, "*CR0 angle sensor");
-    nameSensor(CR1_as, "*CR1 angle sensor");
-    nameSensor(CR2_as, "*CR2 angle sensor");
-    nameSensor(CL0_as, "*CL0 angle sensor");
-    nameSensor(CL1_as, "*CL1 angle sensor");
-    nameSensor(CL2_as, "*CL2 angle sensor");
-    nameSensor(FR0_as, "*FR0 angle sensor");
-    nameSensor(FR1_as, "*FR1 angle sensor");
-    nameSensor(FR2_as, "*FR2 angle sensor");
-    nameSensor(FL0_as, "*FL0 angle sensor");
-    nameSensor(FL1_as, "*FL1 angle sensor");
-    nameSensor(FL2_as, "*FL2 angle sensor");
-    nameSensor(BJ_as, "*BJ angle sensor ");
-    nameSensor(R0_fs, "*R0 foot contact sensor");
-    nameSensor(R1_fs, "*R1 foot contact sensor");
-    nameSensor(R2_fs, "*R2 foot contact sensor");
-    nameSensor(L0_fs, "*L0 foot contact sensor");
-    nameSensor(L1_fs, "*L1 foot contact sensor");
-    nameSensor(L2_fs, "*L2 foot contact sensor");
-    nameSensor(FR_us, "*Front Ultrasonic sensors right");
-    nameSensor(FL_us, "*Front Ultrasonic sensors left");
-    nameSensor(R0_irs, "*R0 IR sensor");
-    nameSensor(R1_irs, "*R1 IR sensor");
-    nameSensor(R2_irs, "*R2 IR sensor");
-    nameSensor(L0_irs, "*L0 IR sensor");
-    nameSensor(L1_irs, "*L1 IR sensor");
-    nameSensor(L2_irs, "*L2 IR sensor");
+    nameSensor(TR0_as, "TR0 angle sensor");
+    nameSensor(TR0_as, "TR0 angle sensor");
+    nameSensor(TR1_as, "TR1 angle sensor");
+    nameSensor(TR2_as, "TR2 angle sensor");
+    nameSensor(TL0_as, "TL0 angle sensor");
+    nameSensor(TL1_as, "TL1 angle sensor");
+    nameSensor(TL2_as, "TL2 angle sensor");
+    nameSensor(CR0_as, "CR0 angle sensor");
+    nameSensor(CR1_as, "CR1 angle sensor");
+    nameSensor(CR2_as, "CR2 angle sensor");
+    nameSensor(CL0_as, "CL0 angle sensor");
+    nameSensor(CL1_as, "CL1 angle sensor");
+    nameSensor(CL2_as, "CL2 angle sensor");
+    nameSensor(FR0_as, "FR0 angle sensor");
+    nameSensor(FR1_as, "FR1 angle sensor");
+    nameSensor(FR2_as, "FR2 angle sensor");
+    nameSensor(FL0_as, "FL0 angle sensor");
+    nameSensor(FL1_as, "FL1 angle sensor");
+    nameSensor(FL2_as, "FL2 angle sensor");
+    nameSensor(BJ_as, "BJ angle sensor ");
+    nameSensor(R0_fs, "R0 foot contact sensor");
+    nameSensor(R1_fs, "R1 foot contact sensor");
+    nameSensor(R2_fs, "R2 foot contact sensor");
+    nameSensor(L0_fs, "L0 foot contact sensor");
+    nameSensor(L1_fs, "L1 foot contact sensor");
+    nameSensor(L2_fs, "L2 foot contact sensor");
+    nameSensor(FR_us, "Front Ultrasonic sensors right");
+    nameSensor(FL_us, "Front Ultrasonic sensors left");
+    nameSensor(R0_irs, "R0 IR sensor");
+    nameSensor(R1_irs, "R1 IR sensor");
+    nameSensor(R2_irs, "R2 IR sensor");
+    nameSensor(L0_irs, "L0 IR sensor");
+    nameSensor(L1_irs, "L1 IR sensor");
+    nameSensor(L2_irs, "L2 IR sensor");
     nameSensor(R0_us, "R0 ultrasonic sensor");
     nameSensor(R1_us, "R1 ultrasonic sensor");
     nameSensor(L0_us, "L0 ultrasonic sensor");
@@ -174,25 +174,25 @@ namespace lpzrobots {
     nameSensor(L_ps, "photo sensor left");
     nameSensor(M_ps, "photo sensor middle");
     nameSensor(R_ps, "photo sensor right");
-    nameSensor(G0x_s, "*goal0 orientation x");
-    nameSensor(G0y_s, "*goal0 orientation y");
-    nameSensor(G0z_s, "*goal0 orientation z");
+    nameSensor(G0x_s, "goal0 orientation x");
+    nameSensor(G0y_s, "goal0 orientation y");
+    nameSensor(G0z_s, "goal0 orientation z");
     nameSensor(A_cs, "average motor current sensor");
     nameSensor(BX_spd, "body speed sensor x");
     nameSensor(BY_spd, "body speed sensor y");
     nameSensor(BZ_spd, "body speed sensor z");
     nameSensor(G0angleroll_s, "goal0 angle roll (x)");
     nameSensor(G0anglepitch_s, "goal0 angle pitch (y)");
-    nameSensor(G0angleyaw_s, "*goal0 angle roll (z)");
-    nameSensor(G1x_s, "*goal1 orientation x");
-    nameSensor(G1y_s, "*goal1 orientation y");
-    nameSensor(G1z_s, "*goal1 orientation z");
+    nameSensor(G0angleyaw_s, "goal0 angle roll (z)");
+    nameSensor(G1x_s, "goal1 orientation x");
+    nameSensor(G1y_s, "goal1 orientation y");
+    nameSensor(G1z_s, "goal1 orientation z");
     nameSensor(G1angleroll_s, "goal1 angle roll (x)");
     nameSensor(G1anglepitch_s, "goal1 angle pitch (y)");
     nameSensor(G1angleyaw_s, "goal1 angle roll (z)");
-    nameSensor(G2x_s, "*goal2 orientation x");
-    nameSensor(G2y_s, "*goal2 orientation y");
-    nameSensor(G2z_s, "*goal2 orientation z");
+    nameSensor(G2x_s, "goal2 orientation x");
+    nameSensor(G2y_s, "goal2 orientation y");
+    nameSensor(G2z_s, "goal2 orientation z");
     nameSensor(G2angleroll_s, "goal2 angle roll (x)");
     nameSensor(G2anglepitch_s, "goal2 angle pitch (y)");
     nameSensor(G2angleyaw_s, "goal2 angle roll (z)");
@@ -227,12 +227,12 @@ namespace lpzrobots {
     nameSensor(Microphone2_s, "microphone 2");
     nameSensor(In_x, "inclinometer x");
     nameSensor(In_y, "inclinometer y");
-    nameSensor(BX_pos, "*body position sensor x");
-    nameSensor(BY_pos, "*body position sensor y");
-    nameSensor(BZ_pos, "*body position sensor z");
-    nameSensor(BX_ori, "*body orientation sensor x");
-    nameSensor(BY_ori, "*body orientation sensor y");
-    nameSensor(BZ_ori, "*body orientation sensor z");
+    nameSensor(BX_pos, "body position sensor x");
+    nameSensor(BY_pos, "body position sensor y");
+    nameSensor(BZ_pos, "body position sensor z");
+    nameSensor(BX_ori, "body orientation sensor x");
+    nameSensor(BY_ori, "body orientation sensor y");
+    nameSensor(BZ_ori, "body orientation sensor z");
 
     // name the motors
     nameMotor(TR0_m, "TR0 motor");
@@ -262,11 +262,11 @@ namespace lpzrobots {
 
   }
 
-  AmosII::~AmosII() {
+  AmosFour::~AmosFour() {
     destroy();
   }
 
-  int AmosII::getMotorNumber() {
+  int AmosFour::getMotorNumber() {
     return AMOSII_MOTOR_MAX;
   }
   ;
@@ -279,7 +279,7 @@ namespace lpzrobots {
    *        the SensorName enum)
    * @param name human readable name for the sensor
    */
-  void AmosII::nameSensor(const int sensorNo, const char* name) {
+  void AmosFour::nameSensor(const int sensorNo, const char* name) {
 #ifdef VERBOSE
     std::cerr << "AmosII::nameSensor BEGIN\n";
 #endif
@@ -297,7 +297,7 @@ namespace lpzrobots {
    *        the MotorName enum)
    * @param name human readable name for the motor
    */
-  void AmosII::nameMotor(const int motorNo, const char* name) {
+  void AmosFour::nameMotor(const int motorNo, const char* name) {
 #ifdef VERBOSE
     std::cerr << "AmosII::nameMotor BEGIN\n";
 #endif
@@ -311,7 +311,7 @@ namespace lpzrobots {
    @param motors motors scaled to [-1,1]
    @param motornumber length of the motor array
    */
-  void AmosII::setMotors(const motor* motors, int motornumber) {
+  void AmosFour::setMotors(const motor* motors, int motornumber) {
 #ifdef VERBOSE
     std::cerr << "AmosII::setMotors BEGIN\n";
 #endif
@@ -331,7 +331,7 @@ namespace lpzrobots {
   }
   ;
 
-  int AmosII::getSensorNumber() {
+  int AmosFour::getSensorNumber() {
 #ifdef VERBOSE
     std::cerr << "AmosII::getSensorNumber BEGIN\n";
 #endif
@@ -347,7 +347,7 @@ namespace lpzrobots {
    @param sensornumber length of the sensor array
    @return number of actually written sensors
    */
-  int AmosII::getSensors(sensor* sensors, int sensornumber) {
+  int AmosFour::getSensors(sensor* sensors, int sensornumber) {
 #ifdef VERBOSE
     std::cerr << "AmosII::getSensors BEGIN\n";
 #endif
@@ -378,10 +378,10 @@ namespace lpzrobots {
 
     // foot contact sensors
     if (conf.legContactSensorIsBinary) { // No scaling since binary signals are already in the range of [0,..,1]
-      sensors[R0_fs] = legContactSensors[R0] ? legContactSensors[R0]->get() : 0;
+//      sensors[R0_fs] = legContactSensors[R0] ? legContactSensors[R0]->get() : 0;
       sensors[R1_fs] = legContactSensors[R1] ? legContactSensors[R1]->get() : 0;
       sensors[R2_fs] = legContactSensors[R2] ? legContactSensors[R2]->get() : 0;
-      sensors[L0_fs] = legContactSensors[L0] ? legContactSensors[L0]->get() : 0;
+//      sensors[L0_fs] = legContactSensors[L0] ? legContactSensors[L0]->get() : 0;
       sensors[L1_fs] = legContactSensors[L1] ? legContactSensors[L1]->get() : 0;
       sensors[L2_fs] = legContactSensors[L2] ? legContactSensors[L2]->get() : 0;
     } else { // Scaling since analog signals are used then we scale them to the range of [0,..,1]
@@ -414,14 +414,14 @@ namespace lpzrobots {
         min.push_back(0.0);
         min.push_back(0.0);
       }
-      sensors[R0_fs] =
-          legContactSensors[R0] ? ((legContactSensors[R0]->get() - min.at(0)) / (max.at(0) - min.at(0))) : 0;
+//      sensors[R0_fs] =
+//          legContactSensors[R0] ? ((legContactSensors[R0]->get() - min.at(0)) / (max.at(0) - min.at(0))) : 0;
       sensors[R1_fs] =
           legContactSensors[R1] ? ((legContactSensors[R1]->get() - min.at(1)) / (max.at(1) - min.at(1))) : 0;
       sensors[R2_fs] =
           legContactSensors[R2] ? ((legContactSensors[R2]->get() - min.at(2)) / (max.at(2) - min.at(2))) : 0;
-      sensors[L0_fs] =
-          legContactSensors[L0] ? ((legContactSensors[L0]->get() - min.at(3)) / (max.at(3) - min.at(3))) : 0;
+//      sensors[L0_fs] =
+//          legContactSensors[L0] ? ((legContactSensors[L0]->get() - min.at(3)) / (max.at(3) - min.at(3))) : 0;
       sensors[L1_fs] =
           legContactSensors[L1] ? ((legContactSensors[L1]->get() - min.at(4)) / (max.at(4) - min.at(4))) : 0;
       sensors[L2_fs] =
@@ -438,10 +438,10 @@ namespace lpzrobots {
     sensors[FL_us] = usSensorFrontLeft->get();
 
     // IR sensors at the legs
-    sensors[R0_irs] = irLegSensors[R0] ? irLegSensors[R0]->get() : 0;
+//    sensors[R0_irs] = irLegSensors[R0] ? irLegSensors[R0]->get() : 0;
     sensors[R1_irs] = irLegSensors[R1] ? irLegSensors[R1]->get() : 0;
     sensors[R2_irs] = irLegSensors[R2] ? irLegSensors[R2]->get() : 0;
-    sensors[L0_irs] = irLegSensors[L0] ? irLegSensors[L0]->get() : 0;
+//    sensors[L0_irs] = irLegSensors[L0] ? irLegSensors[L0]->get() : 0;
     sensors[L1_irs] = irLegSensors[L1] ? irLegSensors[L1]->get() : 0;
     sensors[L2_irs] = irLegSensors[L2] ? irLegSensors[L2]->get() : 0;
 
@@ -497,13 +497,12 @@ namespace lpzrobots {
     sensors[BY_spd] = speedsens[1];
     sensors[BZ_spd] = speedsens[2];
 
+     // Body position sensors
+     sensors[BX_pos] = position.x;
+     sensors[BY_pos] = position.y;
+     sensors[BZ_pos] = position.z;
 
-    // Body position sensors
-    sensors[BX_pos] = position.x;
-    sensors[BY_pos] = position.y;
-    sensors[BZ_pos] = position.z;
-
-//------------------------Add GoalSensor by Ren-------------------
+    //------------------------Add GoalSensor by Ren-------------------
     if (GoalSensor_active) {
       //the first goal
       std::vector<RelativePositionSensor>::iterator it = GoalSensor.begin(); //we only use one goal sensor
@@ -538,25 +537,21 @@ namespace lpzrobots {
     //------------------------Add GoalSensor by Ren-------------------
 
     //------------------------Add Orientation Sensor by Ren-------------------
+        std::list<sensor> Ori_lst =  OrientationSensor->get();
+        double ori1,ori2,ori3;
+        ori1 = Ori_lst.front();
+        Ori_lst.pop_front();
+        ori2 = Ori_lst.front();
+        Ori_lst.pop_front();
+        ori3 = Ori_lst.front();
 
-    std::list<sensor> Ori_lst =  OrientationSensor->get();
+        sensors[BX_ori] = ori1; //atan2(ori2,ori1)*180/M_PI;
+        sensors[BY_ori] = ori2;
+        sensors[BZ_ori] = ori3;
 
-    double ori1,ori2,ori3;
-
-    ori1 = Ori_lst.front();
-    Ori_lst.pop_front();
-    ori2 = Ori_lst.front();
-    Ori_lst.pop_front();
-    ori3 = Ori_lst.front();
-    sensors[BX_ori] = ori1; //atan2(ori2,ori1)*180/M_PI;
-    sensors[BY_ori] = ori2;
-    sensors[BZ_ori] = ori3;
-
-    //Adding for Ren simulated annealing experiment
-    sensors[G0angleyaw_s] = atan2(ori2,ori1)*180/M_PI;
-
-    Ori_lst.clear();
-    //------------------------Add Orientation Sensor by Ren-------------------
+        sensors[G0angleyaw_s] = atan2(ori2,ori1)*180/M_PI;
+        Ori_lst.clear();
+        //------------------------Add Orientation Sensor by Ren------------------
 
 #ifdef VERBOSE
     std::cerr << "AmosII::getSensors END\n";
@@ -565,7 +560,7 @@ namespace lpzrobots {
   }
   ;
 
-  void AmosII::place(const osg::Matrix& pose) {
+  void AmosFour::place(const osg::Matrix& pose) {
 #ifdef VERBOSE
     std::cerr << "AmosII::place BEGIN\n";
 #endif
@@ -585,7 +580,7 @@ namespace lpzrobots {
   /**
    * updates the osg notes
    */
-  void AmosII::update() {
+  void AmosFour::update() {
 #ifdef VERBOSE
     std::cerr << "AmosII::update BEGIN\n";
 #endif
@@ -614,7 +609,7 @@ namespace lpzrobots {
   }
   ;
 
-  double AmosII::getMassOfRobot() {
+  double AmosFour::getMassOfRobot() {
 
     double totalMass = 0.0;
 
@@ -634,7 +629,7 @@ namespace lpzrobots {
    * @param global structure that contains global data from the simulation
    * environment
    */
-  void AmosII::doInternalStuff(GlobalData& global) {
+  void AmosFour::doInternalStuff(GlobalData& global) {
 
 #ifdef VERBOSE
     std::cerr << "AmosII::doInternalStuff BEGIN\n";
@@ -663,7 +658,7 @@ namespace lpzrobots {
 #endif
   }
 
-  Primitive* AmosII::getMainPrimitive() const {
+  Primitive* AmosFour::getMainPrimitive() const {
     return center;
   }
 
@@ -672,7 +667,7 @@ namespace lpzrobots {
    *
    * @param pos struct Position with desired position
    */
-  void AmosII::create(const osg::Matrix& pose) {
+  void AmosFour::create(const osg::Matrix& pose) {
 #ifdef VERBOSE
     std::cerr << "AmosII::create BEGIN\n";
 #endif
@@ -703,44 +698,52 @@ namespace lpzrobots {
     /** central position of the trunk */
     const osg::Matrix trunkPos = pose;
 
-    if (conf.useBack) {
-      front = new Box(conf.frontLength, conf.width, conf.height);
-      front->setTexture(conf.bodyTexture);
-      front->init(odeHandleBody, conf.frontMass, osgHandle.changeColor("robot2"));
-      osg::Matrix frontPos = TRANSM(conf.size / 2 - conf.frontLength / 2, 0, 0) * trunkPos;
-      front->setPose(frontPos);
-      objects.push_back(front);
+//    if (conf.useBack) {
+//      front = new Box(conf.frontLength, conf.width, conf.height);
+//      front->setTexture(conf.bodyTexture);
+//      front->init(odeHandleBody, conf.frontMass, osgHandle.changeColor("robot2"));
+//      osg::Matrix frontPos = TRANSM(conf.size / 2 - conf.frontLength / 2, 0, 0) * trunkPos;
+//      front->setPose(frontPos);
+//      objects.push_back(front);
+//
+//      center = new Box(conf.size - conf.frontLength, conf.width, conf.height);
+//      center->setTexture(conf.bodyTexture);
+//      center->init(odeHandleBody, conf.trunkMass - conf.frontMass, osgHandle.changeColor("robot2"));
+//      osg::Matrix centerPos = TRANSM(-conf.size / 2 + (conf.size - conf.frontLength) / 2, 0, 0) * trunkPos;
+//      center->setPose(centerPos);
+//      objects.push_back(center);
+//      const Axis axis = Axis(0, 1, 0) * frontPos;
+//      // create the joint from front to center part of trunk
+//      HingeJoint* k = new HingeJoint(front, center, nullpos * TRANSM(-conf.frontLength / 2, 0, 0) * frontPos, axis);
+//      k->init(odeHandle, osgHandleJoint, true, conf.width * 1.05);
+//      joints.push_back(k);
+//      // parameters are set later
+//      OneAxisServo* servo = new OneAxisServoVel(odeHandle, k, -1, 1, 1, 0.01, 0, 1.0);
+//      servos[BJ_m] = servo;
+//      backboneServo = servo;
+//    } else {
+//      trunk = new Box(conf.size, conf.width, conf.height);
+//      trunk->setTexture(conf.bodyTexture);
+//      trunk->init(odeHandleBody, conf.trunkMass, osgHandle.changeColor("robot2"));
+//      trunk->setPose(trunkPos);
+//      objects.push_back(trunk);
+//      front = trunk;
+//      center = trunk;
+//    }
 
-      center = new Box(conf.size - conf.frontLength, conf.width, conf.height);
-      center->setTexture(conf.bodyTexture);
-      center->init(odeHandleBody, conf.trunkMass - conf.frontMass, osgHandle.changeColor("robot2"));
-      osg::Matrix centerPos = TRANSM(-conf.size / 2 + (conf.size - conf.frontLength) / 2, 0, 0) * trunkPos;
-      center->setPose(centerPos);
-      objects.push_back(center);
-      const Axis axis = Axis(0, 1, 0) * frontPos;
-      // create the joint from front to center part of trunk
-      HingeJoint* k = new HingeJoint(front, center, nullpos * TRANSM(-conf.frontLength / 2, 0, 0) * frontPos, axis);
-      k->init(odeHandle, osgHandleJoint, true, conf.width * 1.05);
-      joints.push_back(k);
-      // parameters are set later
-      OneAxisServo* servo = new OneAxisServoVel(odeHandle, k, -1, 1, 1, 0.01, 0, 1.0);
-      servos[BJ_m] = servo;
-      backboneServo = servo;
-    } else {
-      trunk = new Box(conf.size, conf.width, conf.height);
-      trunk->setTexture(conf.bodyTexture);
-      trunk->init(odeHandleBody, conf.trunkMass, osgHandle.changeColor("robot2"));
-      trunk->setPose(trunkPos);
-      objects.push_back(trunk);
-      front = trunk;
-      center = trunk;
-    }
+    center = new Box(conf.size - conf.frontLength, conf.width, conf.height);
+    center->setTexture(conf.bodyTexture);
+    center->init(odeHandleBody, conf.trunkMass - conf.frontMass, osgHandle.changeColor("robot2"));
+//    osg::Matrix centerPos = TRANSM(-conf.size / 2 + (conf.size - conf.frontLength) / 2, 0, 0) * trunkPos;
+//    center->setPose(centerPos);
+    center->setPose(trunkPos);
+    objects.push_back(center);
 
     if (conf.useLocalVelSensor) {
       // create speedsensor
-      speedsensor = new SpeedSensor(1.0, SpeedSensor::TranslationalRel, SpeedSensor::XYZ);
+      speedsensor = new SpeedSensor(1.0, SpeedSensor::TranslationalRel, SpeedSensor::XY);
       //initialize the speedsensor
-      speedsensor->init(front);
+      speedsensor->init(center);
     }
 
     // initialize the infrared sensors
@@ -749,15 +752,15 @@ namespace lpzrobots {
 
     // ultrasonic sensors at Front part
     usSensorFrontRight = new IRSensor();
-    irSensorBank->registerSensor(usSensorFrontRight, front,
+    irSensorBank->registerSensor(usSensorFrontRight, center,
         ROTM(M_PI / 2, conf.usAngleX, conf.usAngleY, 0)
-        * TRANSM(0.5 * (conf.useBack ? conf.frontLength : conf.size), -0.25 * conf.width, -0.115 * conf.height),
+        * TRANSM(0.3 * (conf.useBack ? conf.frontLength : conf.size), -0.25 * conf.width, -0.45 * conf.height),
         conf.usRangeFront, RaySensor::drawRay);
 
     usSensorFrontLeft = new IRSensor();
-    irSensorBank->registerSensor(usSensorFrontLeft, front,
+    irSensorBank->registerSensor(usSensorFrontLeft, center,
         ROTM(M_PI / 2, (conf.usParallel ? 1 : -1) * conf.usAngleX, conf.usAngleY, 0)
-        * TRANSM(0.5 * (conf.useBack ? conf.frontLength : conf.size), 0.25 * conf.width, -0.115 * conf.height),
+        * TRANSM(0.3 * (conf.useBack ? conf.frontLength : conf.size), 0.25 * conf.width, -0.45 * conf.height),
         conf.usRangeFront, RaySensor::drawRay);
 
     /************************************
@@ -784,13 +787,13 @@ namespace lpzrobots {
       LegPos leg = LegPos(i);
 
       // +1 for L1,L2,L3, -1 for R1,R2,R3
-      const double lr = (leg == L0 || leg == L1 || leg == L2) - (leg == R0 || leg == R1 || leg == R2);
+      const double lr = (leg == L1 || leg == L2) - (leg == R1 || leg == R2);
       // create 3d-coordinates for the leg-trunk connection:
       Pos pos = Pos(
           // from (0,0,0) we go down x-axis, make two legs then up
           // legdist1 and so on
-          -conf.size * 16.5 / 43.0 + (leg == L2 || leg == R2) * 0 + (leg == L1 || leg == R1) * conf.legdist1
-          + (leg == L0 || leg == R0) * (conf.legdist1 + conf.legdist2),
+          -conf.size * 10 / 43.0 + (leg == L2 || leg == R2) * 0 + (leg == L1 || leg == R1) * conf.legdist1,
+//          + (leg == L0 || leg == R0) * (conf.legdist1 + conf.legdist2),
           // switch left or right side of trunk for each leg
           lr * conf.width / 2,
           // height of leg fixation to trunk (trunk bottom sits at
@@ -806,10 +809,10 @@ namespace lpzrobots {
       // transformation from the trunk center to the trunk-shoulder
       // connections. we need it because we need the coordinates relative
       // to the trunk to create one body including the shoulders
-      if (conf.useBack)
-        shouldertrunkconnections[leg] = ROTM(M_PI / 2, lr, 0, 0)
-        * TRANSM(conf.frontLength / 2.0 - (leg == L0 || leg == R0) * conf.size / 2.0, 0, 0) * TRANSM(pos);
-      else
+//      if (conf.useBack)
+//        shouldertrunkconnections[leg] = ROTM(M_PI / 2, lr, 0, 0)
+//        * TRANSM(conf.frontLength / 2.0 - (leg == L0 || leg == R0) * conf.size / 2.0, 0, 0) * TRANSM(pos);
+//      else
         shouldertrunkconnections[leg] = ROTM(M_PI / 2, lr, 0, 0) * TRANSM(pos);
     }
 
@@ -822,10 +825,10 @@ namespace lpzrobots {
             * ROTM(conf.mLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[R1];
     legtrunkconnections[L1] = ROTM(conf.mLegRotAngle, 0, 0, -1) * ROTM(conf.mLegTrunkAngleH, -1, 0, 0)
             * ROTM(conf.mLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[L1];
-    legtrunkconnections[R0] = ROTM(conf.fLegRotAngle, 0, 0, 1) * ROTM(conf.fLegTrunkAngleH, 1, 0, 0)
-            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[R0];
-    legtrunkconnections[L0] = ROTM(conf.fLegRotAngle, 0, 0, -1) * ROTM(conf.fLegTrunkAngleH, -1, 0, 0)
-            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[L0];
+//    legtrunkconnections[R0] = ROTM(conf.fLegRotAngle, 0, 0, 1) * ROTM(conf.fLegTrunkAngleH, 1, 0, 0)
+//            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[R0];
+//    legtrunkconnections[L0] = ROTM(conf.fLegRotAngle, 0, 0, -1) * ROTM(conf.fLegTrunkAngleH, -1, 0, 0)
+//            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[L0];
 
     // also the relative coordinates for the shoulders
     shouldertrunkconnections[R2] = ROTM(conf.rLegRotAngle, 0, 0, 1) * ROTM(conf.rLegTrunkAngleH, 1, 0, 0)
@@ -836,10 +839,10 @@ namespace lpzrobots {
             * ROTM(conf.mLegTrunkAngleV, 0, 1, 0) * shouldertrunkconnections[R1];
     shouldertrunkconnections[L1] = ROTM(conf.mLegRotAngle, 0, 0, -1) * ROTM(conf.mLegTrunkAngleH, -1, 0, 0)
             * ROTM(conf.mLegTrunkAngleV, 0, 1, 0) * shouldertrunkconnections[L1];
-    shouldertrunkconnections[R0] = ROTM(conf.fLegRotAngle, 0, 0, 1) * ROTM(conf.fLegTrunkAngleH, 1, 0, 0)
-            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * shouldertrunkconnections[R0];
-    shouldertrunkconnections[L0] = ROTM(conf.fLegRotAngle, 0, 0, -1) * ROTM(conf.fLegTrunkAngleH, -1, 0, 0)
-            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * shouldertrunkconnections[L0];
+//    shouldertrunkconnections[R0] = ROTM(conf.fLegRotAngle, 0, 0, 1) * ROTM(conf.fLegTrunkAngleH, 1, 0, 0)
+//            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * shouldertrunkconnections[R0];
+//    shouldertrunkconnections[L0] = ROTM(conf.fLegRotAngle, 0, 0, -1) * ROTM(conf.fLegTrunkAngleH, -1, 0, 0)
+//            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * shouldertrunkconnections[L0];
 
     // create the legs
     for (int i = 0; i < LEG_POS_MAX; i++) {
@@ -849,7 +852,7 @@ namespace lpzrobots {
         const Pos nullpos(0, 0, 0);
 
         // +1 for R1,R2,R3, -1 for L1,L2,L3
-        const double pmrl = (leg == R0 || leg == R1 || leg == R2) - (leg == L0 || leg == L1 || leg == L2);
+        const double pmrl = (leg == R1 || leg == R2) - (leg == L1 || leg == L2);
 
         osg::Matrix c1;
 
@@ -866,7 +869,7 @@ namespace lpzrobots {
           // add shoulder to trunk body
           // the shoulder's pose has to be given relative to the trunk's pose
           // add the first four shoulders to center the other two to front
-          Primitive * trans = new Transform((leg == L0 || leg == R0) ? front : center, should,
+          Primitive * trans = new Transform(center, should,
               TRANSM(0, 0, -l0 / 2) * shouldertrunkconnections[leg]);
           trans->init(odeHandle, conf.shoulderMass, osgHandle);
           legs[leg].shoulder = trans;
@@ -915,7 +918,7 @@ namespace lpzrobots {
           odeHandle.addIgnoredPair(legs[leg].shoulder, coxaThorax);
         }
         // powered hip joint of trunk to first limb
-        HingeJoint* j = new HingeJoint((leg == L0 || leg == R0) ? front : center, coxaThorax, anchor1, -axis1);
+        HingeJoint* j = new HingeJoint(center, coxaThorax, anchor1, -axis1);
         j->init(odeHandle, osgHandleJoint, true, t1 * 2.1);
         joints.push_back(j);
         // create motor, overwrite the jointLimit argument with 1.0
@@ -958,33 +961,9 @@ namespace lpzrobots {
 
         // IR sensor at each leg
         IRSensor* sensor = new IRSensor();
-        if (pmrl == 1) {
-          if (leg == R0) {
-            irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, M_PI / 180 * 25, 1, 0) * TRANSM(
-                t3 /*+ 0.0045*/, -0.8 * t3, -0.175 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
-          }
-          if (leg == R1) {
-            irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, M_PI / 180 * 5, 1, 0) * TRANSM(
-                t3 /*+ 0.0045*/, -0.8 * t3, -0.175 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
-          }
-          if (leg == R2) {
-            irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, M_PI / 180 * (-15), 1, 0) * TRANSM(
-                t3 /*+ 0.0045*/, -0.8 * t3, -0.175 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
-          }
-        } else {
-          if (leg == L0) {
-            irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, -M_PI / 180 * 25, 1, 0) * TRANSM(
-                t3 /*+ 0.0045*/, 0.8 * t3, -0.175 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
-          }
-          if (leg == L1) {
-            irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 2, -M_PI / 180 * 5, 1, 0) * TRANSM(t3 /*+ 0.0045*/,
-                0.8 * t3, -0.175 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
-          }
-          if (leg == L2) {
-            irSensorBank->registerSensor(sensor, tebia, ROTM(M_PI / 180 * 90, -M_PI / 180 * (-15), 1, 0) * TRANSM(
-                t3 /*+ 0.0045*/, 0.8 * t3, -0.175 * conf.tebiaLength), conf.irRangeLeg, RaySensor::drawRay);
-          }
-        }
+        irSensorBank->registerSensor(sensor, tebia,
+            ROTM(M_PI / 2, 0, 1, 0) * TRANSM(1.01 * t3, 0, -0.2 * conf.tebiaLength), conf.irRangeLeg,
+            RaySensor::drawRay);
         irLegSensors[leg] = sensor;
 
         // springy knee joint
@@ -1043,12 +1022,12 @@ namespace lpzrobots {
         OsgHandle bosghandle = osgHandle;
         wheel->init(odeHandle, conf.wheel_mass, // mass
             bosghandle.changeColor("robot2"));
-        const double pmlr = (leg == L0 || leg == L1 || leg == L2) - (leg == R0 || leg == R1 || leg == R2);
+        const double pmlr = (leg == L1 || leg == L2) - (leg == R1 || leg == R2);
         Pos pos = Pos(
             // from (0,0,0) we go down x-axis, make two legs then up
             // legdist1 and so on
-            -conf.size * 16.5 / 43.0 + (leg == L2 || leg == R2) * 0 + (leg == L1 || leg == R1) * conf.legdist1
-            + (leg == L0 || leg == R0) * (conf.legdist1 + conf.legdist2),
+            -conf.size * 16.5 / 43.0 + (leg == L2 || leg == R2) * 0 + (leg == L1 || leg == R1) * conf.legdist1,
+//            + (leg == L0 || leg == R0) * (conf.legdist1 + conf.legdist2),
             // switch left or right side of trunk for each leg
             pmlr * conf.width,
             // height of wheel fixation to trunk
@@ -1068,25 +1047,25 @@ namespace lpzrobots {
     //-----------------add GoalSensor by Ren------------------------
     if (conf.GoalSensor_references.size()>0)
     {
-            // Relative position sensor
-            for (std::vector<Primitive*>::iterator it = conf.GoalSensor_references.begin(); it<conf.GoalSensor_references.end();it++)
-            {
-              // Using 0 as second parameter if exact distance should be given as linear sensor
-                    RelativePositionSensor GoalSensor_tmp(1, 0,Sensor::X|Sensor::Y|Sensor::Z, true);
-                    //max distance for normalization
-                    //exponent for sensor characteristic
-                    //dimensions to sense
-                    //use Z as x-coordinate ( robot was created with vertical capsule or something like that)
-                    //local_coordinates
-                    GoalSensor_tmp.setReference(*it);
-                    GoalSensor.push_back(GoalSensor_tmp);
-                    //sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot, have been declared in sensormotordefinition
-            }
-            GoalSensor_active = true;
+      // Relative position sensor
+      for (std::vector<Primitive*>::iterator it = conf.GoalSensor_references.begin(); it<conf.GoalSensor_references.end();it++)
+      {
+        // Using 0 as second parameter if exact distance should be given as linear sensor
+        RelativePositionSensor GoalSensor_tmp(1, 0,Sensor::X|Sensor::Y|Sensor::Z, true);
+        //max distance for normalization
+        //exponent for sensor characteristic
+        //dimensions to sense
+        //use Z as x-coordinate ( robot was created with vertical capsule or something like that)
+        //local_coordinates
+        GoalSensor_tmp.setReference(*it);
+        GoalSensor.push_back(GoalSensor_tmp);
+        //sensorno += rpos_sens_tmp.getSensorNumber(); // increase sensornumber of robot, have been declared in sensormotordefinition
+      }
+      GoalSensor_active = true;
     }
     else
     {
-            GoalSensor_active =false;
+      GoalSensor_active =false;
     }
     //----------------------Goal Sensor by Ren-----------------------
 
@@ -1094,16 +1073,12 @@ namespace lpzrobots {
     // Relative position sensor
     if (GoalSensor_active) {
       for (std::vector<RelativePositionSensor>::iterator it = GoalSensor.begin(); it < GoalSensor.end(); it++) {
-        it->init(front); // connect sensor to main body
+        it->init(center); // connect sensor to main body
       }
     }
-    // --------------Add Goal Sensor by Ren -------------------
-
-    //-----------Add Orientation Sensor by Ren----------------
     OrientationSensor = new AxisOrientationSensor(AxisOrientationSensor::Axis,Sensor::X |Sensor::Y | Sensor::Z);
-    OrientationSensor->init(front);
-    //-----------Add Orientation Sensor by Ren----------------
-
+    OrientationSensor->init(center);
+    // --------------Add Goal Sensor by Ren -------------------
 
     setParam("dummy", 0); // apply all parameters.
 
@@ -1116,7 +1091,7 @@ namespace lpzrobots {
 
   /** destroys vehicle and space
    */
-  void AmosII::destroy() {
+  void AmosFour::destroy() {
     if (created) {
 #ifdef VERBOSE
       std::cerr << "begin AmosII::destroy\n";
@@ -1174,13 +1149,6 @@ namespace lpzrobots {
       legs.clear();
 
       //------------------ delete GoalSensor here by Ren--------------------
-
-      // deleting pointers to GoalSensor_references
-      for (std::vector<Primitive*>::iterator i = conf.GoalSensor_references.begin(); i != conf.GoalSensor_references.end(); i++) {
-        if (*i)
-          delete *i;
-      }
-
       GoalSensor.clear();
       //------------------ delete GoalSensor here by Ren--------------------
 
@@ -1193,7 +1161,7 @@ namespace lpzrobots {
     created = false;
   }
 
-  bool AmosII::setParam(const paramkey& key, paramval val) {
+  bool AmosFour::setParam(const paramkey& key, paramval val) {
 #ifdef VERBOSE
     std::cerr << "AmosII::setParam BEGIN\n";
 #endif
@@ -1220,8 +1188,8 @@ namespace lpzrobots {
           tc->setMinMax(conf.rcoxaJointLimitF, conf.rcoxaJointLimitB);
         if (it->first == L1 || it->first == R1)
           tc->setMinMax(conf.mcoxaJointLimitF, conf.mcoxaJointLimitB);
-        if (it->first == L0 || it->first == R0)
-          tc->setMinMax(conf.fcoxaJointLimitF, conf.fcoxaJointLimitB);
+//        if (it->first == L0 || it->first == R0)
+//          tc->setMinMax(conf.fcoxaJointLimitF, conf.fcoxaJointLimitB);
       }
 
       OneAxisServo * ctr = it->second.ctrServo;
@@ -1266,13 +1234,13 @@ namespace lpzrobots {
    * @return the motor name value or AMOSII_MOTOR_MAX if parameters are
    *         invalid
    */
-  AmosII::MotorName AmosII::getMotorName(LegPos leg, LegJointType joint) {
-    if (leg == L0 && joint == TC)
-      return TL0_m;
-    if (leg == L0 && joint == CTR)
-      return CL0_m;
-    if (leg == L0 && joint == FTI)
-      return FL0_m;
+  AmosFour::MotorName AmosFour::getMotorName(LegPos leg, LegJointType joint) {
+//    if (leg == L0 && joint == TC)
+//      return TL0_m;
+//    if (leg == L0 && joint == CTR)
+//      return CL0_m;
+//    if (leg == L0 && joint == FTI)
+//      return FL0_m;
     if (leg == L1 && joint == TC)
       return TL1_m;
     if (leg == L1 && joint == CTR)
@@ -1285,12 +1253,12 @@ namespace lpzrobots {
       return CL2_m;
     if (leg == L2 && joint == FTI)
       return FL2_m;
-    if (leg == R0 && joint == TC)
-      return TR0_m;
-    if (leg == R0 && joint == CTR)
-      return CR0_m;
-    if (leg == R0 && joint == FTI)
-      return FR0_m;
+//    if (leg == R0 && joint == TC)
+//      return TR0_m;
+//    if (leg == R0 && joint == CTR)
+//      return CR0_m;
+//    if (leg == R0 && joint == FTI)
+//      return FR0_m;
     if (leg == R1 && joint == TC)
       return TR1_m;
     if (leg == R1 && joint == CTR)
@@ -1315,7 +1283,7 @@ namespace lpzrobots {
    * @return joint type controlled by this motor or JOINT_TYPE_MAX if
    *         MotorName is invalid
    */
-  AmosII::LegJointType AmosII::getLegJointType(MotorName name) {
+  AmosFour::LegJointType AmosFour::getLegJointType(MotorName name) {
     assert(name!=AMOSII_MOTOR_MAX);
     switch (name) {
       case TR0_m:
@@ -1354,13 +1322,13 @@ namespace lpzrobots {
    * @return the leg on which this motor operates or LEG_POS_MAX if
    *         MotorName is invalid
    */
-  AmosII::LegPos AmosII::getMotorLegPos(MotorName name) {
+  AmosFour::LegPos AmosFour::getMotorLegPos(MotorName name) {
     assert(name!=AMOSII_MOTOR_MAX);
     switch (name) {
-      case TR0_m:
-      case CR0_m:
-      case FR0_m:
-        return R0;
+//      case TR0_m:
+//      case CR0_m:
+//      case FR0_m:
+//        return R0;
       case TR1_m:
       case CR1_m:
       case FR1_m:
@@ -1369,10 +1337,10 @@ namespace lpzrobots {
       case CR2_m:
       case FR2_m:
         return R2;
-      case TL0_m:
-      case CL0_m:
-      case FL0_m:
-        return L0;
+//      case TL0_m:
+//      case CL0_m:
+//      case FL0_m:
+//        return L0;
       case TL1_m:
       case CL1_m:
       case FL1_m:
@@ -1387,17 +1355,17 @@ namespace lpzrobots {
     }
   }
 
-  void AmosII::setLegPosUsage(LegPos leg, LegPosUsage usage) {
+  void AmosFour::setLegPosUsage(LegPos leg, LegPosUsage usage) {
     legPosUsage[leg] = usage;
   }
 
-  AmosIIConf AmosII::getDefaultConf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack) {
+  AmosFourConf AmosFour::getDefaultConf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack) {
     return getAmosIIv2Conf(_scale, _useShoulder, _useFoot, _useBack);
   }
 
-  AmosIIConf AmosII::getAmosIIv2Conf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack) {
+  AmosFourConf AmosFour::getAmosIIv2Conf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack) {
 
-    AmosIIConf c;
+    AmosFourConf c;
 
     // "Internal" variable storing the currently used version
     c.amos_version = 2;
@@ -1590,13 +1558,13 @@ namespace lpzrobots {
     c.tebiaMaxVel = 1.7 * 1.961 * M_PI;
     c.footMaxVel = 1.7 * 1.961 * M_PI;
 
-    c.usRangeFront = 0.93 * c.size;
-    c.irRangeLeg = 0.03 * c.size;
+    c.usRangeFront = 0.3 * c.size;
+    c.irRangeLeg = 0.2 * c.size;
 
     //Values by Dennis
     // 1 is parallel, -1 is antiparallel
     c.usParallel = false;
-    c.usAngleX = 0.25;
+    c.usAngleX = 0.5;
     c.usAngleY = 1;
 
     c.texture = "Images/whiteground.rgb";
@@ -1609,10 +1577,10 @@ namespace lpzrobots {
     return c;
   }
 
-  AmosIIConf AmosII::getAmosIIv1Conf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack) {
+  AmosFourConf AmosFour::getAmosIIv1Conf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack) {
     // Take basic configuration from amosiiv2
     // and then make necessary changes
-    AmosIIConf c = getAmosIIv2Conf(_scale, _useShoulder, _useFoot, _useBack);
+    AmosFourConf c = getAmosIIv2Conf(_scale, _useShoulder, _useFoot, _useBack);
 
     // "Internal" variable storing the currently used version
     c.amos_version = 1;

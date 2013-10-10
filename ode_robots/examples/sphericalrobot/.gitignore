@@ -1,1 +1,5 @@
-Makefile.depend start* *.log Makefile
+Makefile.depend 
+start* 
+*.log 
+Makefile
+
