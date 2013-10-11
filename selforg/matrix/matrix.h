@@ -153,11 +153,12 @@ namespace matrix{
     const double* unsafeGetData() const{return data;}
 
     /*       STOREABLE       */
-    /** stores the Matrix into the given file stream (binary)
+    /** stores the Matrix into the given file stream (same as write)
      */
     bool store(FILE* f) const;
 
-    /** reads a Matrix from the given file stream (binary)
+    /** reads a Matrix from the given file stream
+        uses read (or old binary format)
      */
     bool restore(FILE* f);
 
@@ -167,7 +168,7 @@ namespace matrix{
 
     /** reads a Matrix from the given file stream (ascii)
      */
-    bool read(FILE* f);
+    bool read(FILE* f, bool skipIdentifier = false);
 
 
   public:
@@ -191,6 +192,9 @@ namespace matrix{
     /** bytewise comparison (compares data buffer bytewise, which implies that
         n1*m1 == n2*m2 but not necessarily n1==n2) */
     bool equals(const Matrix& a) const;
+
+    /// @return true of a and this have the same size
+    bool hasSameSizeAs(const Matrix& a) const { return n==a.getN() && m==a.getM(); };
 
     /** calculates the pseudoinverse, depending on the shape of the matrix
         the left or right pseudoinverse is used.

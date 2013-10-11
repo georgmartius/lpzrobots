@@ -33,21 +33,21 @@
 class Storeable {
 public:
   virtual ~Storeable(){}
-  /** stores the object to the given file stream (binary). 
+  /** stores the object to the given file stream (ASCII preferred).
   */
   virtual bool store(FILE* f) const = 0;
-  
-  /** loads the object from the given file stream (binary). 
-  */
-  virtual bool restore(FILE* f) = 0;  
 
-  /** Provided for convenience. 
-      Stores the object into a new file with the given filename (binary)     
+  /** loads the object from the given file stream (ASCII preferred).
+  */
+  virtual bool restore(FILE* f) = 0;
+
+  /** Provided for convenience.
+      Stores the object into a new file with the given filename
    */
   bool storeToFile(const char* filename) const;
 
-  /** Provided for convenience. 
-      restores the object from the file given by filename (binary)     
+  /** Provided for convenience.
+      restores the object from the file given by filename
    */
   bool restoreFromFile(const char* filename);
 

@@ -165,62 +165,73 @@ namespace matrix {
 
   bool Matrix::write ( FILE* f ) const {
     fprintf ( f, "MATRIX %i %i\n", m, n );
-    for ( I i = 0; i < m*n; i++ ) {
-      fprintf ( f, "%f ", data[i] );
+    for ( I i = 0; i < m; i++ ) {
+      for ( I j = 0; j < n; j++ ) {
+        fprintf ( f, "%f ", VAL(i,j) );
+      }
+      fprintf ( f, "\n");
     }
-    fprintf ( f, "\n" );
     return true;
   }
 
-  bool Matrix::read ( FILE* f ) {
+  bool Matrix::read ( FILE* f, bool skipIdentifier ) {
     char buffer[128];
-    if ( fscanf ( f, "MATRIX %u %u\n", &m, &n ) != 2 )  return false;
+    if(!skipIdentifier){
+      if ( fscanf ( f, "MATRIX %u %u\n", &m, &n ) != 2 )  return false;
+    } else {
+      if ( fscanf ( f, "%u %u\n", &m, &n ) != 2 )  return false;
+    }
     allocate();
     for ( I i = 0; i < m*n; i++ ) {
       if ( fscanf ( f, "%s ", buffer ) != 1 ) return false;
       data[i] = atof ( buffer );
     }
-    fscanf ( f, "\n" );
+    if( fscanf ( f, "\n" ) != 0) return false;
     return true;
   }
 
-  /** stores the Matrix into the given file stream (binary)
+  /** stores the Matrix into the given file stream ASCII
    */
   bool Matrix::store ( FILE* f ) const {
-    I dim[2] = { m, n };
-    I len = m * n;
-    bool rval = false;
-    if ( fwrite ( dim, sizeof ( I ), 2, f ) == 2 )
-      if ( fwrite ( data, sizeof ( D ), len, f ) == len )
-        rval = true;
-    return rval;
+    return write(f);
+    // I dim[2] = { m, n };
+    // I len = m * n;
+    // bool rval = false;
+    // if ( fwrite ( dim, sizeof ( I ), 2, f ) == 2 )
+    //   if ( fwrite ( data, sizeof ( D ), len, f ) == len )
+    //     rval = true;
+    // return rval;
   }
 
-  /** reads a Matrix from the given file stream (binary)
+  /** reads a Matrix from the given file stream ASCII (can load old binary format)
    */
   bool Matrix::restore ( FILE* f ) {
-    I dim[2];
+    char buffer[7];
     bool rval = false;
-    if ( fread ( dim, sizeof ( I ), 2, f ) == 2 ) {
-      char* buffer = ( char* ) dim; // hack to check for no-binary format
-      if ( buffer[0] == 'M' && buffer[1] == 'A' && buffer[2] == 'T' && buffer[3] == 'R' && buffer[4] == 'I' && buffer[5] == 'X' ) {
-        fseek ( f, -sizeof ( I ) *2, SEEK_CUR );
-        return read ( f );
-      } else {
-        m = dim[0];
-        n = dim[1];
-        allocate();
-        I len = m * n;
-        if ( fread ( data, sizeof ( D ), len, f ) == len ) {
-          rval = true;
-        } else fprintf ( stderr, "Matrix::restore: cannot read matrix data\n" );
+    if ( fread ( buffer, 7, 1, f ) == 1 ) {
+      if ( buffer[0] == 'M' && buffer[1] == 'A' && buffer[2] == 'T'
+           && buffer[3] == 'R' && buffer[4] == 'I' && buffer[5] == 'X' ) {
+        return read ( f, true );
+      }else{
+        fseek ( f, -7, SEEK_CUR );
+        I dim[2];
+        if ( fread ( dim, sizeof ( I ), 2, f ) == 2 ) {
+          m = dim[0];
+          n = dim[1];
+          allocate();
+          I len = m * n;
+          if ( fread ( data, sizeof ( D ), len, f ) == len ) {
+            rval = true;
+          } else fprintf ( stderr, "Matrix::restore: (binary) cannot read matrix data\n" );
+        } else {
+          fprintf ( stderr, "Matrix::restore: (binary) cannot read dimension\n" );
+        }
       }
-    } else {
-      fprintf ( stderr, "Matrix::restore: cannot read dimension\n" );
+    }else{
+      fprintf ( stderr, "Matrix::restore: cannot read MATRIX identifier/binary dimension\n" );
     }
     return rval;
   }
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
