@@ -36,6 +36,8 @@ namespace matrix {
     // the multiplication with -1 causes a descending ordering
     Matrix m_eval = fromGSL(eval) * -1 ;
     m_eval.toSort();
+    gsl_matrix_free(m_gsl);
+    gsl_vector_free(eval);
     return m_eval * -1;
   }
 
@@ -54,6 +56,9 @@ namespace matrix {
                           GSL_EIGEN_SORT_ABS_DESC);
     eigenvalues = fromGSL(eval);
     eigenvectors = fromGSL(evec);
+    gsl_matrix_free(m_gsl);
+    gsl_vector_free(eval);
+    gsl_matrix_free(evec);
     return true;
   }
 
@@ -72,6 +77,8 @@ namespace matrix {
     gsl_vector_view eval_imag = gsl_vector_complex_imag(eval);
     real = fromGSL(&eval_real.vector);
     imag = fromGSL(&eval_imag.vector);
+    gsl_matrix_free(m_gsl);
+    gsl_vector_complex_free(eval);
     return true;
   }
 

@@ -5,14 +5,26 @@
 #include<string>
 #include<algorithm>
 #include<vector>
+#include<functional>
 
 // iterators for stl containers. Do not use for removal because the end is determined at the beginning.
+//  use C++11 syntax now: for( auto &val : coll)
 #define FOREACH(colltype, coll, it) for( colltype::iterator it = (coll).begin(), __end=(coll).end(); it!= __end; it++)
+
 // Iteration with index
 // unfortunatelly we cannot initialize the index within the for loop (different type than iterator)
 #define FOREACHI(colltype, coll, it, index) int index=0; for( colltype::iterator it = (coll).begin(), __end=(coll).end(); it!= __end; it++, index++)
+// using C++11 auto typing!
+#define FOREACHIa(coll, it, index) int index=0; for( auto it = (coll).begin(), __end=(coll).end(); it!= __end; it++, index++)
+
+
 #define FOREACHC(colltype, coll, it) for( colltype::const_iterator it = (coll).begin(), __end=(coll).end(); it!= __end ; it++ )
 #define FOREACHCI(colltype, coll, it, index) int index=0;for( colltype::const_iterator it = (coll).begin(), __end=(coll).end(); it!= __end; it++, index++)
+
+// using C++11 auto typing!
+#define FOREACH2(coll1,coll2, it1,it2) \
+  for( auto it1 = (coll1).begin(), __end1=(coll1).end(), it2 = (coll2).begin(), __end2=(coll2).end(); it1!= __end1 && it2!= __end2; it1++ , it2++)
+
 
 
 /// contains some additions to the standard template library
@@ -45,23 +57,11 @@ namespace std {
     return rv;
   }
 
-  /// returns a list with a single element
-  template <typename T>
-  std::list<T> _1tolist(T a){ std::list<T> l; l.push_back(a); return l; }
-
-  /// returns a list with two elements
-  template <typename T>
-  std::list<T> _2tolist(T a1,T a2){ std::list<T> l; l.push_back(a1); l.push_back(a2); return l; }
-  /// returns a list with tree elements
-  template <typename T>
-  std::list<T> _3tolist(T a1,T a2,T a3){
-    std::list<T> l; l.push_back(a1); l.push_back(a2); l.push_back(a3); return l;
-  }
-  /// returns a list with four elements
-  template <typename T>
-  std::list<T> _4tolist(T a1,T a2,T a3, T a4){
-    std::list<T> l; l.push_back(a1); l.push_back(a2); l.push_back(a3); l.push_back(a4); return l;
-  }
+  // These initializer are obsolete with C11 use list initializers {a1,a2,...}
+  // returns a list with a single element
+  //  template <typename T>
+  // std::list<T> _1tolist(T a){ std::list<T> l; l.push_back(a); return l; }
+  // ...
 
 
   /// integer to string with default formating
@@ -103,6 +103,22 @@ namespace std {
     T joined;
     int count;
   };
+
+  template <typename A, typename E>
+  A reduceList(std::list<E> list, A acc, std::function<A(A,E)> f){
+    for (auto i: list){
+      acc = f(acc,i);
+    }
+    return acc;
+  }
+
+  template <typename O, typename I>
+  std::list<O> mapList(const std::list<I>& l, std::function<O (const I&)> fun){
+    std::list<O> res;
+    for (auto& p : l)
+      res.push_back(fun(p));
+    return res;
+  }
 
 }
 
