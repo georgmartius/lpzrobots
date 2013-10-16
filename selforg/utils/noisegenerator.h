@@ -88,6 +88,16 @@ public:
     }
   }
 
+  virtual unsigned int getDimension() const {
+    return dimension;
+  }
+
+  virtual void setDimension(unsigned int dim){
+    if(dimension!=dim){
+      init(dim, randGen);
+    }
+  }
+
 protected:
   //generates white (no averaging) uniformly distributed random number between "min" and "max"
   double uniform(double min=-0.1, double max=0.1){
