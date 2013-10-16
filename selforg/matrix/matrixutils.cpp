@@ -9,7 +9,7 @@
 #ifndef NO_GSL
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_eigen.h>
-     
+
 namespace matrix {
   /// copies our matrix into a gsl matrix (don't forget gsl_matrix_free)
   gsl_matrix* toGSL(const Matrix& src);
@@ -25,14 +25,14 @@ namespace matrix {
   Matrix eigenValuesRealSym(const Matrix &m){
     // check if m is square
     assert(m.getM() == m.getN());
-    gsl_matrix* m_gsl = toGSL(m); 
+    gsl_matrix* m_gsl = toGSL(m);
 
-    gsl_eigen_symm_workspace* w = gsl_eigen_symm_alloc (m.getM());    
+    gsl_eigen_symm_workspace* w = gsl_eigen_symm_alloc (m.getM());
     gsl_vector *eval = gsl_vector_alloc (m.getM());
-     
-    gsl_eigen_symm (m_gsl, eval,  w);     
-    gsl_eigen_symm_free (w);     
-    
+
+    gsl_eigen_symm (m_gsl, eval,  w);
+    gsl_eigen_symm_free (w);
+
     // the multiplication with -1 causes a descending ordering
     Matrix m_eval = fromGSL(eval) * -1 ;
     m_eval.toSort();
@@ -42,15 +42,15 @@ namespace matrix {
   bool eigenValuesVectorsRealSym(const Matrix &m, Matrix& eigenvalues, Matrix& eigenvectors){
     // check if m is square
     assert(m.getM() == m.getN());
-    gsl_matrix* m_gsl = toGSL(m); 
+    gsl_matrix* m_gsl = toGSL(m);
 
-    gsl_eigen_symmv_workspace* w = gsl_eigen_symmv_alloc (m.getM());    
+    gsl_eigen_symmv_workspace* w = gsl_eigen_symmv_alloc (m.getM());
     gsl_vector *eval = gsl_vector_alloc (m.getM());
     gsl_matrix *evec = gsl_matrix_alloc (m.getM(), m.getM());
-     
-    gsl_eigen_symmv (m_gsl, eval, evec, w);     
-    gsl_eigen_symmv_free (w);     
-    gsl_eigen_symmv_sort (eval, evec, 
+
+    gsl_eigen_symmv (m_gsl, eval, evec, w);
+    gsl_eigen_symmv_free (w);
+    gsl_eigen_symmv_sort (eval, evec,
                           GSL_EIGEN_SORT_ABS_DESC);
     eigenvalues = fromGSL(eval);
     eigenvectors = fromGSL(evec);
@@ -60,13 +60,13 @@ namespace matrix {
   bool eigenValues(const Matrix &m, Matrix& real, Matrix& imag){
     // check if m is square
     assert(m.getM() == m.getN());
-    gsl_matrix* m_gsl = toGSL(m); 
+    gsl_matrix* m_gsl = toGSL(m);
 
-    gsl_eigen_nonsymm_workspace* w = gsl_eigen_nonsymm_alloc (m.getM());    
+    gsl_eigen_nonsymm_workspace* w = gsl_eigen_nonsymm_alloc (m.getM());
     gsl_vector_complex *eval = gsl_vector_complex_alloc (m.getM());
-     
-    gsl_eigen_nonsymm (m_gsl, eval,  w);     
-    gsl_eigen_nonsymm_free (w);     
+
+    gsl_eigen_nonsymm (m_gsl, eval,  w);
+    gsl_eigen_nonsymm_free (w);
     gsl_eigen_nonsymmv_sort (eval, 0, GSL_EIGEN_SORT_ABS_DESC);
     gsl_vector_view eval_real = gsl_vector_complex_real(eval);
     gsl_vector_view eval_imag = gsl_vector_complex_imag(eval);
@@ -75,27 +75,31 @@ namespace matrix {
     return true;
   }
 
-  bool eigenValuesVectors(const Matrix &m, Matrix& vals_real, Matrix& vals_imag, 
+  bool eigenValuesVectors(const Matrix &m, Matrix& vals_real, Matrix& vals_imag,
                           Matrix& vecs_real, Matrix& vecs_imag){
     // check if m is square
     assert(m.getM() == m.getN());
-    gsl_matrix* m_gsl = toGSL(m); 
+    gsl_matrix* m_gsl = toGSL(m);
 
-    gsl_eigen_nonsymmv_workspace* w = gsl_eigen_nonsymmv_alloc (m.getM());    
+    gsl_eigen_nonsymmv_workspace* w = gsl_eigen_nonsymmv_alloc (m.getM());
     gsl_vector_complex *eval = gsl_vector_complex_alloc (m.getM());
     gsl_matrix_complex *evec = gsl_matrix_complex_alloc (m.getM(), m.getM());
-     
-    gsl_eigen_nonsymmv (m_gsl, eval, evec, w);     
-    gsl_eigen_nonsymmv_free (w);     
+
+    gsl_eigen_nonsymmv (m_gsl, eval, evec, w);
+    gsl_eigen_nonsymmv_free (w);
     gsl_eigen_nonsymmv_sort (eval, evec, GSL_EIGEN_SORT_ABS_DESC);
     gsl_vector_view eval_real = gsl_vector_complex_real(eval);
-    gsl_vector_view eval_imag = gsl_vector_complex_imag(eval);    
+    gsl_vector_view eval_imag = gsl_vector_complex_imag(eval);
     vals_real = fromGSL(&eval_real.vector);
     vals_imag = fromGSL(&eval_imag.vector);
     vecs_real = fromGSL_real(evec);
     vecs_imag = fromGSL_imag(evec);
+
+    gsl_matrix_free(m_gsl);
+    gsl_vector_complex_free(eval);
+    gsl_matrix_complex_free(evec);
     return true;
-    
+
   }
 
 /******************** local functions *************************************/
@@ -109,9 +113,9 @@ namespace matrix {
       memcpy(m->data, src.unsafeGetData(), m->size1*m->size2* sizeof(D));
     }else{ // otherwise we have to copy it rowwise
       for (unsigned int i = 0; i < m->size1; i++){
-        memcpy(m->data + i*m->tda, src.unsafeGetData() + i*src.getN(), 
+        memcpy(m->data + i*m->tda, src.unsafeGetData() + i*src.getN(),
                m->size2 * sizeof(D));
-      }        
+      }
     }
     return m;
   }
@@ -122,14 +126,14 @@ namespace matrix {
     Matrix m;
     // if the tda (row length) is equal to N (size2) then we can copy the data right away
     if(src->tda == src->size2){
-      m.set(src->size1, src->size2, src->data); 
+      m.set(src->size1, src->size2, src->data);
     }else{
       m.set(src->size1, src->size2);
       for (unsigned int i = 0; i < src->size1; i++){
-        memcpy(&m.val(i,0), src->data + i*src->tda, 
+        memcpy(&m.val(i,0), src->data + i*src->tda,
                src->size2 * sizeof(D));
-      }        
-      
+      }
+
     }
     return m;
   }
@@ -139,14 +143,14 @@ namespace matrix {
     Matrix m;
     // if the stride == 1 (stepsize in memory) we can copy the data right away
     if(src->stride == 1){
-      m.set(src->size, 1, src->data); 
+      m.set(src->size, 1, src->data);
     }else{ // copy all elements one by one (slow)
       m.set(src->size, 1);
       for (unsigned int i = 0; i < src->size; i++){
         m.val(i,0) = gsl_vector_get(src,i);
-      }              
+      }
     }
-    return m;    
+    return m;
   }
 
   Matrix fromGSL_real(const gsl_matrix_complex* src){
@@ -155,7 +159,7 @@ namespace matrix {
     for (unsigned int i = 0; i < src->size1; i++){
       for (unsigned int j = 0; j < src->size2; j++){
         m.val(i,j) = GSL_REAL(gsl_matrix_complex_get(src, i, j));
-      }              
+      }
     }
     return m;
   }
@@ -166,7 +170,7 @@ namespace matrix {
     for (unsigned int i = 0; i < src->size1; i++){
       for (unsigned int j = 0; j < src->size2; j++){
         m.val(i,j) = GSL_IMAG(gsl_matrix_complex_get(src, i, j));
-      }              
+      }
     }
     return m;
 
@@ -180,19 +184,19 @@ namespace matrix {
     assert("Not implemented!");
     return Matrix();
   }
-  
-  bool eigenValuesVectorsRealSym(const Matrix &m, Matrix& eigenvalues, 
+
+  bool eigenValuesVectorsRealSym(const Matrix &m, Matrix& eigenvalues,
                                  Matrix& eigenvectors){
     assert("Not implemented!");
     return false;
   }
-  
+
   bool eigenValues(const Matrix &m, Matrix& real, Matrix& imag){
     assert("Not implemented!");
     return false;
   }
 
-  bool eigenValuesVectors(const Matrix &m, Matrix& vals_real, Matrix& vals_imag, 
+  bool eigenValuesVectors(const Matrix &m, Matrix& vals_real, Matrix& vals_imag,
                           Matrix& vecs_real, Matrix& vecs_imag){
     assert("Not implemented!");
     return false;

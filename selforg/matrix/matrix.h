@@ -150,7 +150,7 @@ namespace matrix{
     std::list<D> convertToList() const;
 
     /// returns a pointer to the data. UNSAFE!!!
-    const double* unsafeGetData() const{return data;}
+    const D* unsafeGetData() const{return data;}
 
     /*       STOREABLE       */
     /** stores the Matrix into the given file stream (same as write)
