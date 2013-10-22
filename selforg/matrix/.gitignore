@@ -1,1 +1,4 @@
-Makefile.depend unittests unittests_debug
+Makefile.depend
+unittests
+unittests_debug
+unittests_sse

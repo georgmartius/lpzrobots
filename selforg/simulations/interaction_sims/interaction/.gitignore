@@ -1,3 +1,5 @@
-*.depend
-start
 Makefile
+start*
+Makefile.depend
+*.log
+guilogger.cfg

@@ -1,4 +1,5 @@
 Makefile.depend
-dlbcon
-Makefile
 dblcon
+Makefile
+*.log
+guilogger.cfg
