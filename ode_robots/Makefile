@@ -35,10 +35,10 @@ include Makefile.conf
 BUILD_DIR=build
 
 find_files = $(wildcard $(dir)/*.cpp)
-CPPFILES   := $(filter-out _flymake, $(foreach dir,$(dirs),$(find_files)))
+CPPFILES   := $(filter-out %flymake.cpp, $(foreach dir,$(dirs),$(find_files)))
 OFILES     := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(CPPFILES))
 find_h_files = $(wildcard $(dir)/*.h)
-HFILES   := $(filter-out _flymake, $(foreach dir,$(dirs),$(find_h_files)))
+HFILES   := $(filter-out %flymake.h, $(foreach dir,$(dirs),$(find_h_files)))
 
 UTILS = install_prefix.conf
 

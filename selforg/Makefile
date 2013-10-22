@@ -30,9 +30,9 @@ endif
 BUILD_DIR=build
 
 find_cpp_files = $(wildcard $(dir)/*.cpp)
-CPPFILES   := $(filter-out _flymake,$(foreach dir,$(dirs),$(find_cpp_files)))
+CPPFILES   := $(filter-out %flymake.cpp,$(foreach dir,$(dirs),$(find_cpp_files)))
 find_h_files = $(wildcard $(dir)/*.h)
-HFILES   := $(filter-out _flymake,$(foreach dir,$(dirs),$(find_h_files)))
+HFILES   := $(filter-out %flymake.h,$(foreach dir,$(dirs),$(find_h_files)))
 OFILES     := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(CPPFILES))
 
 # additional inc paths
