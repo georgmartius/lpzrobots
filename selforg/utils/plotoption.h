@@ -30,6 +30,7 @@
 #include <list>
 #include <utility>
 #include <string>
+#include <regex>
 
 class Configurable;
 class Inspectable;
@@ -67,7 +68,12 @@ public:
   friend class WiredController;
   friend class PlotOptionEngine;
 
-  PlotOption(){ mode=NoPlot; interval=1; pipe=0; parameter="";}
+  PlotOption()
+    : pipe(0), interval(1), mode(NoPlot),  parameter("")
+  {
+    mask.resize(256);
+  }
+
   /**
      creates a new plotting object
      @param mode output type @see PlotMode
@@ -75,15 +81,24 @@ public:
      @param parameter free parameters for plotting tool
      Note: the argument whichSensor is removed. You can adjust this in the wirings now.
    */
-  PlotOption( PlotMode mode, int interval = 1, std::string parameter="")
-    : interval(interval), mode(mode), parameter(parameter)
+  PlotOption( PlotMode mode, int interval = 1, std::string parameter=std::string(), std::string filter=std::string())
+    : pipe(0), interval(interval), mode(mode), parameter(parameter)
   {
-    pipe=0;
+    if(!filter.empty()){
+      setFilter(filter);
+    }
+    mask.resize(256);
   }
 
   virtual ~PlotOption(){}
 
   virtual PlotMode getPlotOptionMode() const { return mode; }
+
+  /// sets a filter to this plotoption: To export only selected channels
+  virtual void setFilter(const std::list<std::regex>& accept, const std::list<std::regex>& ignore);
+  /// sets a filter to this plotoption: syntax: +acceptregexp -ignoreregexp ...
+  virtual void setFilter(const std::string filter);
+
   // flushes pipe (depending on mode)
   virtual void flush(long step);
 
@@ -102,15 +117,47 @@ public:
   bool open(); ///< opens the connections to the plot tool
   void close();///< closes the connections to the plot tool
 
+  virtual bool useChannel(const std::string& name);
+
+  virtual int printInspectables(const std::list<const Inspectable*>& inspectables, int cnt=0);
+
+  virtual int printInspectableNames(const std::list<const Inspectable*>& inspectables, int cnt=0);
+
+  virtual void printInspectableInfoLines( const std::list<const Inspectable*>& inspectables);
+
+  /** prints a network description of the structure given by the inspectable object. (mostly unused now)
+    The network description syntax is as follow
+    \code
+    #N neural_net NETWORKNAME
+    #N layer LAYERNAME1 RANK?
+    #N neuron N0 BIASN0?
+    #N neuron N1 BIASN1?
+    #N layer LAYERNAME2 RANK?
+    #N neuron K0 BIASK0?
+    #N neuron K1 BIASK1?
+    ...
+    #N connection C00 N0 K0
+    #N connection C10 N0 K1
+    #N connection C01 N1 K0
+    #N connection C11 N1 K1
+    ...
+    #N nn_end
+    \endcode
+    All identifiers are alphanumeric without spaces.
+  */
+  void printNetworkDescription(const std::string& name, const Inspectable* inspectable);
+
   FILE* pipe;
   long t;
   int interval;
   std::string name;
 
 private:
-
   PlotMode mode;
   std::string parameter; ///< additional parameter for external command
+  std::list<std::regex> accept; ///< channels to accept (use) (empty means all)
+  std::list<std::regex> ignore; ///< channels not ignore      (empty means ignore non)
+  std::vector<bool> mask; ///< mask for accepting channels (calculated from accept and ignore)
 };
 
 #endif /* PLOTOPTION_H_ */

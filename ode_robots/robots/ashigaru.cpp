@@ -998,7 +998,7 @@ namespace lpzrobots {
 
   // constructor of struct trunk
   Ashigaru::Trunk::Trunk():
-                  tPlate({0}),tTrans({0}){
+    tPlate{0},tTrans{0}{
   }
 
 }

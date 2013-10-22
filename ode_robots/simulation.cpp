@@ -1037,6 +1037,13 @@ namespace lpzrobots {
     argv=nargv; // this is definite memory loss
   }
 
+  string getFilterOption(int argc, char** argv, int index){
+    if(index<argc){
+      // check for filter
+      if(argv[index][0]=='/') return string(argv[index]).substr(1,strlen(argv[index])-2);
+    }
+    return string();
+  }
 
   bool Simulation::processCmdLine(int argc, char** argv) {
     if(contains(argv, argc, "-h") || contains(argv, argc, "--help")){
@@ -1051,24 +1058,29 @@ namespace lpzrobots {
     if(index) {
       if(argc > index)
         guiloggerinterval=atoi(argv[index]);
-      if (guiloggerinterval<1) // avoids a bug
+      if (guiloggerinterval<1) // no negative/zero intervals allowed
         guiloggerinterval=5; // default value
+      index++;
+      std::string filter=getFilterOption(argc,argv,index);
       plotoptions.push_back(PlotOption(GuiLogger, guiloggerinterval,
-                                       "-geometry +" + std::itos(windowWidth+12) + "+0"));
+                                       "-geometry +" + std::itos(windowWidth+12) + "+0", filter));
     }
 
-// logging to file
+    // logging to file
     filelogginginterval=5;
     index = contains(argv, argc, "-f");
     if(index) {
       if(argc > index)
         filelogginginterval=atoi(argv[index]);
-      if (filelogginginterval<1) // avoids a bug
+      if (filelogginginterval<1) // no negative/zero intervals allowed
         filelogginginterval=5; // default value
       std::string parameter="";
-      if (contains(argv, argc, "ntst")) //no date and time in name of logfile
-        parameter="no_time_in_filename";
-      plotoptions.push_back(PlotOption(File, filelogginginterval, parameter));
+      index++;
+      std::string filter=getFilterOption(argc,argv,index);
+      if(!filter.empty()) index++;
+      if(index<argc && argv[index][0]!='-')
+        parameter=argv[index];
+      plotoptions.push_back(PlotOption(File, filelogginginterval, parameter, filter));
     }
 
     // start configurator
@@ -1080,9 +1092,11 @@ namespace lpzrobots {
     if(index) {
       if(argc > index)
         matrixvizinterval=atoi(argv[index]);
-      if (matrixvizinterval<1) // avoids a bug
+      if (matrixvizinterval<1) // no negative/zero intervals allowed
         matrixvizinterval=10; // default value
-      plotoptions.push_back(PlotOption(MatrixViz, matrixvizinterval));
+      index++;
+      std::string filter=getFilterOption(argc,argv,index);
+      plotoptions.push_back(PlotOption(MatrixViz, matrixvizinterval, "", filter));
     }
 
     // using SoundMan for acustic output
@@ -1372,15 +1386,16 @@ namespace lpzrobots {
 
 
   void Simulation::main_usage(const char* progname) {
-    printf("Usage: %s [-g [interval]] [-f [interval] [ntst]] [-r seed] [-x WxH] [-fs] \n", progname);
+    printf("Usage: %s [-f [interval] [filter] [name]] [-{g|m} [interval] [filter]]\n", progname);
+    printf("    \t [-r seed] [-x WxH] [-fs] [-allkeys] [-video NAME]\n");
     printf("    \t [-pause] [-shadow N] [-noshadow] [-drawboundings] [-simtime [min]] [-rtf X]\n");
-    printf("    \t [-threads N] [-odethread] [-osgthread] [-savecfg] [-h|--help]\n");
+    printf("    \t [-threads N] [-odethread] [-osgthread] [-savecfg] [-h|--help] ...\n");
     printf("    -conf\t\tuse Configurator\n");
-    printf("    -g interval\t\tuse guilogger (default interval 1)\n");
-    printf("    -f interval ntst\twrite logging file (default interval 5),\n\
-    \t\t\tif ntst (no_time_stamp in log file name)\n");
-    printf("    \t\t\tis given logfile names are generated without timestamp\n");
-    printf("    -m interval\t\tuse matrixviz (default interval 10)\n");
+    printf("    -g interval filter\t\tuse guilogger (default interval 1)\n");
+    printf("    \t\t filter: \"/+regexp -regexp/\"\n");
+    printf("    -f interval filter name\twrite logging file (default interval 5),\n");
+    printf("    \t\t\tname: instead of the timestamp the name is attached to logfile name\n");
+    printf("    -m interval  filter\t\tuse matrixviz (default interval 10)\n");
     printf("    -s \"-disc|ampl|freq val\"\n    \t\t\tuse soundMan \n");
     printf("    -r seed\t\trandom number seed\n");
     printf("    -x WxH\t\t* window size of width(W) x height(H) is used (default 800x600)\n");

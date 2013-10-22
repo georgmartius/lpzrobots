@@ -26,7 +26,6 @@
 #include "plotoption.h"
 #include "inspectable.h"
 #include <signal.h>
-#include "printInternals.h"
 #include <string>
 #include <assert.h>
 #include <string.h>
@@ -80,7 +79,7 @@ bool PlotOptionEngine::initPlotOption(PlotOption& po){
       fprintf(po.pipe, "#IN %s\n", po.getName().c_str());
     // print network description given by the structural information of the controller
     if(maybe_controller){
-      printNetworkDescription(po.pipe, maybe_controller->getName(), maybe_controller);
+      po.printNetworkDescription(maybe_controller->getName(), maybe_controller);
     }
     // print interval
     fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
@@ -90,12 +89,12 @@ bool PlotOptionEngine::initPlotOption(PlotOption& po){
     }
     // print infolines of all inspectables
     fprintf(po.pipe,"#I D t time (s)\n"); // add description for time
-    printInspectableInfoLines(po.pipe, inspectables);
+    po.printInspectableInfoLines(inspectables);
 
     fprintf(po.pipe,"#######\n");
     // print head line with all parameter names
     fprintf(po.pipe,"#C t");
-    printInspectableNames(po.pipe, inspectables);
+    po.printInspectableNames(inspectables,0);
     fprintf(po.pipe,"\n"); // terminate line
     return true;
   } else {
@@ -194,13 +193,15 @@ void PlotOptionEngine::plot(double time)
     if ( ((*i).pipe) && ((*i).interval>0) && (t % (*i).interval == 0) )
     {
       fprintf((*i).pipe, "%f", time);
-      printInspectables((*i).pipe, inspectables);
+      i->printInspectables(inspectables,0);
       fprintf((*i).pipe,"\n"); // terminate line
       (*i).flush(t);
     }
   }
   t++;
 }
+
+
 
 
 // GEORG: it is better to plot it at initialization time!

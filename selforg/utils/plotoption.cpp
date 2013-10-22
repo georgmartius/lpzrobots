@@ -25,9 +25,14 @@
 #include "plotoption.h"
 #include <iostream>
 #include <signal.h>
+#include <assert.h>
 #include <string.h>
 #include <stdlib.h>
 #include <quickmp.h>
+#include <selforg/stl_adds.h>
+#include <selforg/inspectable.h>
+
+using namespace std;
 
 bool PlotOption::open(){
   QMP_CRITICAL(601);
@@ -41,8 +46,8 @@ bool PlotOption::open(){
       time(&tnow);
       t = localtime(&tnow);
       char logfilename[255];
-      if (parameter=="no_time_in_filename"){
-        sprintf(logfilename,"%s.log",name.c_str());
+      if (!parameter.empty()){
+        sprintf(logfilename,"%s_%s.log",name.c_str(), parameter.c_str());
       } else{
         sprintf(logfilename,"%s_%02i-%02i-%02i_%02i-%02i-%02i.log",
               name.c_str(), t->tm_year%100, t->tm_mon+1 , t->tm_mday,
@@ -154,3 +159,166 @@ void PlotOption::flush(long step){
   }
   QMP_END_CRITICAL(603);
 }
+
+void PlotOption::setFilter(const list<regex>& accept, const list<regex>& ignore){
+  this->accept = accept;
+  this->ignore = ignore;
+}
+
+/// sets a filter to this plotoption: syntax: +acceptregexp -ignoreregexp ...
+void PlotOption::setFilter(const std::string filter){
+  cout << filter << endl;
+  istringstream iss(filter);
+  do {
+    string reg;
+    iss >> reg;
+    if(!reg.empty()){
+      bool flag = !(reg[0]=='-');
+      if(reg[0]=='+' || reg[0]=='-')
+        reg = reg.substr(1);
+      if(!reg.empty()){
+        try{
+          std::regex r = std::regex(reg);
+          if(flag){
+            accept += r;
+            //            cout << "accept: " << reg << endl;
+          }else{
+            ignore += r;
+            //            cout << "ignore: " << reg << endl;
+          }
+        }catch(std::regex_error& e){
+          std::cerr << "Error in regular expression: " << reg << " code:" << e.code() << endl;
+        }
+      }
+    }
+  } while (iss);
+}
+
+bool PlotOption::useChannel(const string& name){
+  bool rv= accept.size()==0 ? true : false;
+  for (auto& r:accept){
+    if (regex_match(name, r)){
+      rv=true;
+      break;
+    }
+  }
+  for (auto& r:ignore){
+    if (regex_match(name, r)){
+      rv=false;
+    }
+  }
+  return rv;
+}
+
+int PlotOption::printInspectableNames(const list<const Inspectable*>& inspectables, int cnt) {
+  if (!pipe)
+    return cnt;
+  // here we also set the mask array
+  FOREACHC(list<const Inspectable*>, inspectables, insp){
+    if(*insp){
+      // then the internal parameters
+      list<Inspectable::iparamkey> l = (*insp)->getInternalParamNames();
+      for(list<Inspectable::iparamkey>::iterator i = l.begin(); i != l.end(); i++){
+        const string& str = (*i);
+        if((int)mask.size()<=cnt) {
+          mask.resize(cnt*2);
+        }
+        if(useChannel(str)){
+          fprintf(pipe, " %s", str.c_str());
+          mask[cnt]=true;
+        }else
+          mask[cnt]=false;
+        cnt++;
+      }
+      cnt += printInspectableNames((*insp)->getInspectables(),cnt);
+    }
+  }
+  return cnt;
+}
+
+int PlotOption::printInspectables(const std::list<const Inspectable*>& inspectables, int cnt)
+{
+  if (!pipe)
+    return cnt;
+
+  // internal parameters ( we allocate one place more to be able to realise when the number raises)
+  Inspectable::iparamvallist l;
+  FOREACHC(list<const Inspectable*>, inspectables, insp)
+  {
+    if(*insp)
+    {
+      l = (*insp)->getInternalParams();
+      FOREACHC(Inspectable::iparamvallist, l, i )
+      {
+        if(cnt >= (int)mask.size() || cnt<0) {
+          fprintf(stderr, "PlotOption: mask to short: %lu <= %i", mask.size(),cnt); // should not happen
+        }else{
+          if(mask[cnt])
+            fprintf(pipe, " %f", (*i));
+        }
+        cnt++;
+      }
+      cnt += printInspectables((*insp)->getInspectables(), cnt);
+    }
+  }
+  return cnt;
+}
+
+void PlotOption::printInspectableInfoLines(const list<const Inspectable*>& inspectables) {
+  if (!pipe)
+    return;
+  FOREACHC(list<const Inspectable*>, inspectables, insp) {
+    const list<string>& infoLines = (*insp)->getInfoLines();
+    FOREACHC(list<string>, infoLines, infoLine) {
+      fprintf(pipe,"#I [%s] %s\n", (*insp)->getNameOfInspectable().c_str(), (*infoLine).c_str());
+    }
+    printInspectableInfoLines((*insp)->getInspectables());
+  }
+}
+
+
+
+void PlotOption::printNetworkDescription(const string& name, const Inspectable* inspectable){
+  assert(inspectable);
+  if (!pipe)
+    return;
+  fprintf(pipe,"#N neural_net %s\n", name.c_str());
+  list< Inspectable::ILayer> layers      = inspectable->getStructuralLayers();
+  list< Inspectable::IConnection> conns  = inspectable->getStructuralConnections();
+  // print layers with neurons
+  for(list<Inspectable::ILayer>::iterator i = layers.begin(); i != layers.end(); i++){
+    Inspectable::ILayer& l = (*i);
+    fprintf(pipe, "#N layer %s %i\n", l.layername.c_str(), l.rank);
+    for(int n = 0; n < l.dimension; n++){
+      if(l.biasname.empty()){
+        fprintf(pipe, "#N neuron %s[%i]\n", l.vectorname.c_str(), n);
+      }else {
+        fprintf(pipe, "#N neuron %s[%i] %s[%i]\n", l.vectorname.c_str(), n, l.biasname.c_str(), n);
+      }
+    }
+  }
+
+  // print connections
+  for(list<Inspectable::IConnection>::iterator i = conns.begin(); i != conns.end(); i++){
+    Inspectable::IConnection& c = (*i);
+    // find the layers refered in the connection description
+    list<Inspectable::ILayer>::iterator l1it
+      = find_if(layers.begin(), layers.end(), Inspectable::matchName(c.vector1) );
+    list<Inspectable::ILayer>::iterator l2it
+      = find_if(layers.begin(), layers.end(), Inspectable::matchName(c.vector2) );
+    assert(l1it != layers.end()); // we need to find them otherwise
+    assert(l2it != layers.end());
+
+    Inspectable::ILayer& l1 = (*l1it);
+    Inspectable::ILayer& l2 = (*l2it);
+    for(int j=0; j < l1.dimension; j++){
+      for(int k=0; k < l2.dimension; k++){
+        fprintf(pipe, "#N connection %s[%i,%i] %s[%i] %s[%i]\n",
+                c.matrixname.c_str(), k, j, l1.vectorname.c_str(), j, l2.vectorname.c_str(), k);
+      }
+    }
+  }
+  fprintf(pipe,"#N nn_end\n");
+
+}
+

@@ -153,14 +153,12 @@ const Matrix MultiLayerFFNN::inversion(const matrix::Matrix& input, const matrix
   for(int i=layernum-1; i>=0; i--){
 
     deltas[i] = Matrix::map2(layers[i].invactfun, zs[i], xsis[i+1]);
-    int dim =  i<0 ?  ys[i-1].getM() : input.getM();
-	  // for pseudo inversion we want to invert the smaller matrix (WW^T or W^TW)
-      xsis[i] = weights[i].pseudoInverse()*(weights[i]^T) * deltas[i];
-	}
+    // for pseudo inversion we want to invert the smaller matrix (WW^T or W^TW) (done automatically)
+    xsis[i] = weights[i].pseudoInverse()*(weights[i]^T) * deltas[i];
+  }
   if(useBypass){    // use the other half of the error on the bypass
     const Matrix& d = Matrix::map2(layers[layernum-1].invactfun, zs[layernum-1], xsi*0.5);
-		xsis[0]+= (bypassWeights.pseudoInverse())*(bypassWeights^T) * d;
-
+    xsis[0]+= (bypassWeights.pseudoInverse())*(bypassWeights^T) * d;
   }
   return xsis[0];
 }

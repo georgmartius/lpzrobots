@@ -31,8 +31,6 @@
 #include <assert.h>
 #include <algorithm>
 
-#include "printInternals.h"
-
 #include "abstractcontroller.h"
 #include "abstractwiring.h"
 
