@@ -26,6 +26,12 @@ namespace matrix {
     copy ( c );
   }
 
+  Matrix::Matrix ( Matrix&& c )
+    : m ( c.m ), n ( c.n ), buffersize ( c.buffersize ), data ( c.data ) {
+    c.data=0;
+    c.buffersize=0;
+  }
+
   Matrix::Matrix ( I _m, I _n, const D* _data /*=0*/ )
       : m ( _m ), n ( _n ), buffersize ( 0 ), data ( 0 ) {
     allocate();
@@ -38,6 +44,13 @@ namespace matrix {
       data[i]=def;
     }
   };
+
+  Matrix& Matrix::operator = (Matrix&&c){
+    if(data) free(data);
+    m=c.m; n=c.n; buffersize=c.buffersize; data=c.data;
+    c.data=0; c.buffersize=0;
+    return *this;
+  }
 
   // internal allocation
   void Matrix::allocate()
@@ -374,10 +387,8 @@ namespace matrix {
       case - 1:
         if ( m == 1 ) VAL ( 0, 0 ) = 1 / VAL ( 0, 0 );
         else if ( m == 2 ) invert2x2();
-#ifndef AVR
         else if ( m == 3 ) invert3x3();
         else invertnonzero();
-#endif
         break;
       case 0:
         toId();
@@ -748,8 +759,6 @@ namespace matrix {
   }
 
 
-
-#ifndef AVR
   /* inplace matrix invertation:
       Matrix must be SQARE, in addition, all DIAGONAL ELEMENTS MUST BE NONZERO  */
   void Matrix::invertnonzero() {
@@ -797,7 +806,6 @@ namespace matrix {
         VAL ( j, i ) = sum;
       }
   };
-#endif
 
 
   void Matrix::invert2x2() {
@@ -811,7 +819,6 @@ namespace matrix {
     data[2] /= -detQ;
   }
 
-#ifndef AVR
   void Matrix::invert3x3() {
     assert ( m == n && m == 3 );
     D Q_adjoint[3][3];
@@ -833,7 +840,6 @@ namespace matrix {
       }
     }
   }
-#endif
 
   ////////////////////////////////////////////////////////////////////////////////
   // normal binary operators
@@ -880,7 +886,6 @@ namespace matrix {
     return result;
   }
 
-#ifndef AVR
   bool Matrix::operator == ( const Matrix& c ) const {
     if ( m != c.m || n != c.n ) return false;
     D* p1 = data;
@@ -909,7 +914,6 @@ namespace matrix {
     //    return str << ")\n";
     return str;
   }
-#endif
 
 }
 

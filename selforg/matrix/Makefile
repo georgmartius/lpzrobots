@@ -15,16 +15,14 @@
 #
 
 # us -pg for profiling
-TEST_DEBUG_CFLAGS = -Wall -I. -I../include/selforg -DUNITTEST -g
-TEST_OPTIM_CFLAGS = -Wall -I. -I../include/selforg -O -DUNITTEST -DNDEBUG
-TEST_OPTIMSSE_CFLAGS = -Wall -I. -I../include/selforg -O3 -DUNITTEST -DNDEBUG -ftree-vectorize -msse2
-#LIB_DEBUG_CFLAGS = -Wall -I. 
-#LIB_OPTIM_CFLAGS = -Wall -I. -O3 -DNDEBUG 
-#EXAMPLE_CFLAGS   = -Wall -I. 
+BASECFLAGS=-std=c++11 -Wall -I. -I../include/selforg $(shell gsl-config --cflags)
+TEST_DEBUG_CFLAGS = $(BASECFLAGS) -DUNITTEST -g -O0
+TEST_OPTIM_CFLAGS = $(BASECFLAGS) -O -DUNITTEST -DNDEBUG
+TEST_OPTIMSSE_CFLAGS = $(BASECFLAGS) -O3 -DUNITTEST -DNDEBUG -ftree-vectorize -msse2
 
 LIBS   = -lm $(shell gsl-config --libs)
 
-CXX = g++ $(shell gsl-config --cflags)
+CXX = g++
 AR = ar
 
 # ATMEL STUFF
@@ -39,41 +37,41 @@ all: unittests_debug unittests unittests_sse
 #    libmatrix_avr_debug.a libmatrix_avr.a
 
 unittests_debug: matrix.h matrix.cpp matrixutils.h matrixutils.cpp matrix.tests.hpp Makefile
-	$(CXX) $(LIBS) $(TEST_DEBUG_CFLAGS) matrix.cpp matrixutils.cpp -o unittests_debug
+	$(CXX) $(TEST_DEBUG_CFLAGS) matrix.cpp matrixutils.cpp  $(LIBS) -o unittests_debug
 
 unittests: matrix.h matrix.cpp matrixutils.h matrixutils.cpp matrix.tests.hpp Makefile
-	$(CXX) $(LIBS) $(TEST_OPTIM_CFLAGS) matrix.cpp matrixutils.cpp -o unittests
+	$(CXX) $(TEST_OPTIM_CFLAGS) matrix.cpp matrixutils.cpp $(LIBS) -o unittests
 
 unittests_sse: matrix.h matrix.cpp matrixutils.h matrixutils.cpp  matrix.tests.hpp Makefile
-	$(CXX) $(LIBS) $(TEST_OPTIMSSE_CFLAGS) matrix.cpp matrixutils.cpp -o unittests_sse
+	$(CXX) $(TEST_OPTIMSSE_CFLAGS) matrix.cpp matrixutils.cpp $(LIBS) -o unittests_sse
 
 sparsematrix_debug: sparsematrix.h sparsearray.h sparsematrix.tests.hpp Makefile
-	$(CXX) $(LIBS) $(TEST_DEBUG_CFLAGS) sparsematrix.h -o sparsematrix_test_debug
+	$(CXX) $(TEST_DEBUG_CFLAGS) sparsematrix.h $(LIBS) -o sparsematrix_test_debug
 
 test:
-	g++ -lm -Wall -I. -I../include/selforg -O1 -DNDEBUG -ftree-vectorize -msse2 -ftree-vectorizer-verbose=5 -funsafe-math-optimizations -c sse_test.cpp
+	$(CXX) $(BASECFLAGS) -O1 -DNDEBUG -ftree-vectorize -msse2 -ftree-vectorizer-verbose=5 -funsafe-math-optimizations -c sse_test.cpp
 
 #libmatrix_debug.a: matrix.h matrix.cpp
-#	$(CXX) $(LIB_DEBUG_CFLAGS) -c matrix.cpp -o libmatrix_debug.a	
+#	$(CXX) $(LIB_DEBUG_CFLAGS) -c matrix.cpp -o libmatrix_debug.a
 
 #libmatrix.a: matrix.h matrix.cpp
-#	$(CXX) $(LIB_OPTIM_CFLAGS) -c matrix.cpp -o libmatrix.a	
+#	$(CXX) $(LIB_OPTIM_CFLAGS) -c matrix.cpp -o libmatrix.a
 
 # example: example.cpp libmatrix_debug.a matrix.h matrix.cpp
 # 	$(CXX) $(LIBS) $(EXAMPLE_CFLAGS) -L. -lmatrix_debug example.cpp -o example
 
 
 #libmatrix_avr_debug.a: matrix.h matrix.cpp
-#	$(AVRCXX) $(LIB_DEBUG_CFLAGS) $(MCU_TARGET) -I$(AVRUTILS) -c matrix.cpp -o  libmatrix_avr_debug.a	
+#	$(AVRCXX) $(LIB_DEBUG_CFLAGS) $(MCU_TARGET) -I$(AVRUTILS) -c matrix.cpp -o  libmatrix_avr_debug.a
 #
 #
 #libmatrix_avr.a: matrix.h matrix.cpp
-#	 $(AVRCXX) $(LIB_OPTIM_CFLAGS) $(MCU_TARGET) -I$(AVRUTILS) -c matrix.cpp -o libmatrix_avr.a	
+#	 $(AVRCXX) $(LIB_OPTIM_CFLAGS) $(MCU_TARGET) -I$(AVRUTILS) -c matrix.cpp -o libmatrix_avr.a
 #
 
 .PHONY: tags
-tags: 
-	etags `find -name "*.[ch]*"` 
+tags:
+	etags `find -name "*.[ch]*"`
 
 .PHONY: clean
 clean:

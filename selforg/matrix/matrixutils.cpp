@@ -109,6 +109,22 @@ namespace matrix {
 
   }
 
+  std::vector<int> toPositiveSignEigenVectors(Matrix& vecs_real, Matrix& vecs_imag){
+    std::vector<int> signs(vecs_real.getN());
+    for(unsigned int i=0; i< vecs_real.getN(); i++){
+      if(vecs_real.val(0,i)<0) {
+        signs[i]=-1;
+        for(unsigned int j=0; j < vecs_real.getM(); j++){
+          vecs_real.val(j,i)*=-1;
+          vecs_imag.val(j,i)*=-1;
+        }
+      }else{
+        signs[i]=1;
+      }
+    }
+    return signs;
+  }
+
 /******************** local functions *************************************/
 
   gsl_matrix* toGSL(const Matrix& src){
@@ -180,9 +196,7 @@ namespace matrix {
       }
     }
     return m;
-
   }
-
 }
 #else /// NO GSL - implement dummy versions
 

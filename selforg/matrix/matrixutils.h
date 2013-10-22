@@ -15,18 +15,18 @@
  * namespace for the matrix library
  */
 namespace matrix{
-    
+
   /**
-     calculates the eigenvalues of the real and symmetric matrix m 
+     calculates the eigenvalues of the real and symmetric matrix m
      and returns them as a column vector in descending order
    */
   Matrix eigenValuesRealSym(const Matrix &m);
 
   /**
      calculates the eigenvalues and corresponding eigenvectors
-     of the the real and symmetric matrix m. 
-     The eigenvalues are returned them as a column vector in descending order 
-     and the belonging 
+     of the the real and symmetric matrix m.
+     The eigenvalues are returned them as a column vector in descending order
+     and the belonging
      eigenvectors are stored in the columns of the matrix eigenvectors.
    */
   bool eigenValuesVectorsRealSym(const Matrix &m, Matrix& eigenvalues, Matrix& eigenvectors);
@@ -39,13 +39,21 @@ namespace matrix{
 
   /**
      calculates the eigenvalues and corresponding eigenvectors
-     of the matrix m. The eigenvalues are returned them as a column vector  
+     of the matrix m. The eigenvalues are returned them as a column vector
      in descending order and the belonging
      eigenvectors are stored in the columns of the matrix eigenvectors.
      Both are seperated into real and imaginary part.
    */
-  bool eigenValuesVectors(const Matrix &m, Matrix& vals_real, Matrix& vals_imag, 
+  bool eigenValuesVectors(const Matrix &m, Matrix& vals_real, Matrix& vals_imag,
                           Matrix& vecs_real, Matrix& vecs_imag);
+
+
+  /**
+     flips the signs of the eigenvectors such that their first entry is positive.
+     The eigenvectors are assumed to be columnwise.
+     Returns the original signs (1 or -1 per column)
+   */
+  std::vector<int> toPositiveSignEigenVectors(Matrix& vecs_real, Matrix& vecs_imag);
 
 }
 

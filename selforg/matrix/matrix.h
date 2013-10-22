@@ -17,9 +17,7 @@
 #include <vector>
 #include <cstdlib>
 
-#ifndef AVR
 #include <iostream>
-#endif
 
 #include "storeable.h"
 
@@ -47,7 +45,7 @@ namespace matrix{
   /** Matrix type. Type D is datatype of matrix elements,
    * which is fixed to double.
    * Type I is the indextype of matrix elements,
-   * which is fixed to unsigned int, if AVR is not defined.
+   * which is fixed to unsigned int.
    * There are basicly two different types of operation:
    * Inplace operations and copy operations.
    * Please use the latter ones unless you know what you are doing.
@@ -55,11 +53,11 @@ namespace matrix{
    * operations.
    * The most convinient way is to use the overloaded operators
    * (like + * ...).
-   * All constructed matrices are initialised with zero elements
+   * All constructed matrices are initialized with zero elements
    * (unless data is given).
    * All functions perform range checks if in debug mode
-   * (NDEBUG is not defined).
-   * Please use debug the version (default) for testing
+   * (i.e. if NDEBUG is not defined).
+   * Please use debug version (default) for testing
    * @see examples/matrix/matrixexample.cpp
    *
    * @author Georg Martius
@@ -80,6 +78,8 @@ namespace matrix{
     Matrix(I _m, I _n, D def);
     /// constucts a instance on the base of a deep copy of the given matrix
     Matrix (const Matrix& c);
+    /// copy move constructor
+    Matrix (Matrix&& c);
     ~Matrix() { if(data) free(data); };
 
   public:
@@ -276,6 +276,8 @@ namespace matrix{
   public:   // normal binary Operators
     /// deep copy
     Matrix& operator = (const Matrix& c) { copy(c); return *this; }
+    /// deep copy move operator
+    Matrix& operator = (Matrix&&c);
     /// sum of two matrices
     Matrix operator +  (const Matrix& sum) const;
     //    Matrix operator +  (const D& sum) const; /// new operator (guettler)
@@ -310,14 +312,12 @@ namespace matrix{
     /// combined assigment operator (higher performance)
     Matrix& operator &= (const Matrix& c) {toMultrowwise(c); return *this; }
 
-#ifndef AVR
     /// comparison operator (compares elements with tolerance distance of COMPARE_EPS)
     bool operator == (const Matrix& c) const;
     /** printing operator:
         output format: mxn (\n row0\n..rown \n) where rowX is tab seperated list of values
     */
     friend std::ostream& operator<<(std::ostream& , const Matrix&);
-#endif
 
   public:
     // /////////////////// inplace Operators ///////////////////////////////
@@ -460,10 +460,8 @@ namespace matrix{
         (positive definite)
     */
 
-#ifndef AVR
     void invertnonzero();
     void invert3x3();
-#endif
     void invert2x2();
   };
 
