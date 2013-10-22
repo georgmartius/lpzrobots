@@ -1,7 +1,7 @@
 #!/bin/sh
 ## File:     selforg-config for libselforg
 ## Author:   Georg Martius
-## Date:     Oct 2011
+## Date:     22.10.2013
 
 define(`COMMENT', )
 COMMENT(`There are defines for platform dependend stuff.

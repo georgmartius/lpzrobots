@@ -35,6 +35,8 @@ find_h_files = $(wildcard $(dir)/*.h)
 HFILES   := $(filter-out %flymake.h,$(foreach dir,$(dirs),$(find_h_files)))
 OFILES     := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(CPPFILES))
 
+UTILS = selforg-config
+
 # additional inc paths
 INC +=  -I. -Iinclude -Iinclude/selforg
 
@@ -55,17 +57,17 @@ libs: lib opt dbg
 
 lib: $(LIB)
 
-opt:
+opt: $(UTILS)
 	$(MAKE) BUILD_DIR=build_opt CFGOPTS=--opt STRIP="yes" lib
 
-dbg:
+dbg: $(UTILS)
 	$(MAKE) BUILD_DIR=build_dbg CFGOPTS=--dbg lib
 
-shared:
+shared: $(UTILS)
 	$(MAKE) $(SHAREDLIB)
 
 
-$(LIB): Makefile.depend $(OFILES)
+$(LIB):  $(UTILS) Makefile.depend $(OFILES)
 	$(AR) $(LIB) $(OFILES)
 	@if [ "$(STRIP)" = "yes" ]; then strip -S $(LIB); fi
 
@@ -179,5 +181,8 @@ todo:
 Makefile.conf.generated:
 	@echo "run ./configure first!"
 	@exit 1;
+
+selforg-config: selforg-config.m4
+	$(error "call ./configure or make all in lpzrobots again!")
 
 include Makefile.depend

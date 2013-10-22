@@ -40,7 +40,7 @@ OFILES     := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(CPPFILES))
 find_h_files = $(wildcard $(dir)/*.h)
 HFILES   := $(filter-out %flymake.h, $(foreach dir,$(dirs),$(find_h_files)))
 
-UTILS = install_prefix.conf
+UTILS = install_prefix.conf ode_robots-config
 
 # additional inc paths
 INC +=  -I. -Iinclude -Iinclude/ode_robots -I$(shell $(SELFORGCFG) $(CFGOPTS) --srcprefix)/include
@@ -212,7 +212,6 @@ endif
 	-rm -f $(PREFIX)/bin/selectcolumns.pl
 	-rm -rf $(PREFIX)/share/lpzrobots/data
 
-
 install_prefix.conf:
 	@echo "create install_prefix.conf"
 	@echo '// for system installations (installation type:user) the macro PREFIX should be defined:' > install_prefix.conf
@@ -221,6 +220,9 @@ install_prefix.conf:
 todo:
 	@grep -ni "Todo" $(CPPFILES) $(HFILES)
 	@grep -ni "Fixme" $(CPPFILES) $(HFILES)
+
+ode_robots-config: ode_robots-config.m4
+	$(error "call ./configure or make all in lpzrobots again!")
 
 
 -include Makefile.depend
