@@ -223,12 +223,23 @@ I storeVectorFieldNames(const Matrix& m, const char* vectorName,
 Matrix noiseMatrix(I m, I n, NoiseGenerator& ng,
                    double strength, double unused){
   I len = m*n;
-  D* noise = (D*) malloc(len*sizeof(D));
-  memset(noise, D_Zero, sizeof(D)*len);
-  ng.add(noise, fabs(strength));
-  Matrix result(m, n, noise);
-  free(noise);
+  Matrix result(m, n);
+  const D* noise = result.unsafeGetData();
+  ng.setDimension(len);
+  ng.add((D*) noise, fabs(strength));
   return result;
+}
+
+RandGen* splitRandGen(RandGen* randGen){
+  if(randGen){
+    double num = randGen->rand();
+    long int* seed = (long int*)&num;
+    RandGen* g = new RandGen();
+    g->init(*seed);
+    return g;
+  }else{
+    return new RandGen();
+  }
 }
 
 double matrixNorm1(const matrix::Matrix& m) {
@@ -236,8 +247,15 @@ double matrixNorm1(const matrix::Matrix& m) {
 }
 
 double matrixNorm2(const matrix::Matrix& m) {
-  return m.map(sqr).elementSum() / (m.size());
+  return sqrt(m.map(sqr).elementSum() / (m.size()));
 }
+
+matrix::Matrix matrixNormalized(const matrix::Matrix& m){
+  double norm = matrixNorm2(m);
+  if(norm<1e-7) norm=1e-7;
+  return m*(1.0/norm);
+}
+
 
 double getKthLargestElement(Matrix& vec, I k/*, double* max*/){
   I len = (vec.getM()) * (vec.getN());

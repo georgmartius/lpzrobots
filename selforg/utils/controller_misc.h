@@ -168,6 +168,11 @@ bool restoreMatrix(matrix::Matrix& m, FILE* f);
 matrix::Matrix noiseMatrix(matrix::I m, matrix::I n, NoiseGenerator& ng,
                            double strength,double unused = 0);
 
+/** geneterates deterministically a new random generator from the given one.
+    If null then rand() is used for the seed;
+*/
+RandGen* splitRandGen(RandGen* randGen);
+
 /** calculates to linear matrix norm (sum of absolute values divided by number of values (m*n) )
 */
 double matrixNorm1(const matrix::Matrix& m);
@@ -175,6 +180,9 @@ double matrixNorm1(const matrix::Matrix& m);
 /** calculates to square matrix norm (sum of square values divided by number of values (m*n) )
 */
 double matrixNorm2(const matrix::Matrix& m);
+
+/** Matrix/matrixNorm2 ) */
+matrix::Matrix matrixNormalized(const matrix::Matrix& m);
 
 
 /** returns the k. largest element of the matrix
