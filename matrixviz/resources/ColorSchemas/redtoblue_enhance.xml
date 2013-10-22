@@ -1,0 +1,10 @@
+<!DOCTYPE StopList>
+<Stops>
+ <Stop1 G="0" Position="-2" R="0" B="128"/>
+ <Stop2 G="0" Position="-1" R="0" B="255"/>
+ <Stop3 G="255" Position="-0.05" R="192" B="192"/>
+ <Stop4 G="255" Position="0" R="255" B="255"/>
+ <Stop5 G="255" Position="0.05" R="255" B="192"/>
+ <Stop6 G="0" Position="1" R="255" B="0"/>
+ <Stop7 G="0" Position="2" R="128" B="128"/>
+</Stops>
