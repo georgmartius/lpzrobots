@@ -1,9 +1,9 @@
-Makefile.depend
-start
-*.log
-*.sel
-*.path
-start_opt
+Makefile.depend 
+start* 
+*.log 
 Makefile
-result
-.history
+guilogger.cfg
+*.msg
+matrixVizConf.xml
+*.ctrl
+

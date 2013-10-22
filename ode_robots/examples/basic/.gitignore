@@ -4,6 +4,4 @@ start*
 Makefile
 guilogger.cfg
 *.msg
-matrixVizConf.xml
-*.ctrl
 
