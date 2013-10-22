@@ -1,3 +1,4 @@
+Makefile
 Makefile.depend
 start*
 *.log
