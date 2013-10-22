@@ -17,7 +17,7 @@ STRIP=no
 SELFORG=.
 PREFIX=$(shell ./selforg-config $(CFGOPTS) --prefix)
 # for debian auto-package installation
-ifneq ($(DESTDIR),) 
+ifneq ($(DESTDIR),)
 PREFIX=$(DESTDIR)
 endif
 include Makefile.conf
@@ -30,9 +30,9 @@ endif
 BUILD_DIR=build
 
 find_cpp_files = $(wildcard $(dir)/*.cpp)
-CPPFILES   := $(foreach dir,$(dirs),$(find_cpp_files))
+CPPFILES   := $(filter-out _flymake,$(foreach dir,$(dirs),$(find_cpp_files)))
 find_h_files = $(wildcard $(dir)/*.h)
-HFILES   := $(foreach dir,$(dirs),$(find_h_files))
+HFILES   := $(filter-out _flymake,$(foreach dir,$(dirs),$(find_h_files)))
 OFILES     := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(CPPFILES))
 
 # additional inc paths
@@ -44,7 +44,7 @@ CPPFLAGS = -Wall -pipe -fpic $(INC) $(shell ./selforg-config --srcprefix="." $(C
 # used for single file compilation
 CXX = g++
 
-# used for lib-packing 
+# used for lib-packing
 AR = ar -rcs
 
 .PHONY: lib opt dbg clean clean-all distclean todo depend tags install install_lib uninstall uninstall_lib
@@ -55,10 +55,10 @@ libs: lib opt dbg
 
 lib: $(LIB)
 
-opt: 
+opt:
 	$(MAKE) BUILD_DIR=build_opt CFGOPTS=--opt STRIP="yes" lib
 
-dbg: 
+dbg:
 	$(MAKE) BUILD_DIR=build_dbg CFGOPTS=--dbg lib
 
 shared:
@@ -75,13 +75,13 @@ ${BUILD_DIR}/%.o: %.cpp
 	$(CXX) -c $(CPPFLAGS) $(CFLAGS) -o "$@" "$<"
 
 $(SHAREDLIB): Makefile.depend $(OFILES)
-	$(CXX) -shared -Wl,-soname,`basename $(SHAREDLIB)` -o $(SHAREDLIB) $(OFILES) 
+	$(CXX) -shared -Wl,-soname,`basename $(SHAREDLIB)` -o $(SHAREDLIB) $(OFILES)
 
 
 install_scripts:
 	@echo "*************** Install config script $(PREFIX)/bin *********************"
 	install -d $(PREFIX)/bin
-	install -m 755 selforg-config $(PREFIX)/bin/	
+	install -m 755 selforg-config $(PREFIX)/bin/
 
 install_lib:
 	install -m 644 $(LIB) $(PREFIX)/lib/
@@ -116,13 +116,13 @@ ifneq ($(TYPE),DEVEL)
 endif
 
 
-Makefile.depend: 
+Makefile.depend:
 	for file in $(HFILES); do \
 		ln -sf $(REVINCLUDEDIR)/$$file $(INCLUDEDIR)/; \
 	done
 	makedepend -- $(CPPFLAGS) -- $(CPPFILES) -p'$$(BUILD_DIR)/' -f- > Makefile.depend 2>/dev/null
 
-depend: 
+depend:
 	rm Makefile.depend
 	make Makefile.depend
 
@@ -176,7 +176,7 @@ todo:
 	@grep -ni "Fixme"  $(CPPFILES) $(HFILES)
 
 
-Makefile.conf.generated: 
+Makefile.conf.generated:
 	@echo "run ./configure first!"
 	@exit 1;
 

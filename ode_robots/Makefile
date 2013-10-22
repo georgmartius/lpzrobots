@@ -21,7 +21,7 @@ STRIP=no
 PREFIX=$(shell ./ode_robots-config $(CFGOPTS) --prefix)
 # for debian auto-package installation
 # this may not work....?
-ifneq ($(DESTDIR),) 
+ifneq ($(DESTDIR),)
 PREFIX=$(DESTDIR)
 endif
 MAKEDEPEND=makedepend
@@ -35,10 +35,10 @@ include Makefile.conf
 BUILD_DIR=build
 
 find_files = $(wildcard $(dir)/*.cpp)
-CPPFILES   := $(foreach dir,$(dirs),$(find_files))
+CPPFILES   := $(filter-out _flymake,$(foreach dir,$(dirs),$(find_cpp_files)))
 OFILES     := $(patsubst %.cpp,${BUILD_DIR}/%.o, $(CPPFILES))
 find_h_files = $(wildcard $(dir)/*.h)
-HFILES   := $(foreach dir,$(dirs),$(find_h_files))
+HFILES   := $(filter-out _flymake,$(foreach dir,$(dirs),$(find_h_files)))
 
 UTILS = install_prefix.conf
 
@@ -47,12 +47,12 @@ INC +=  -I. -Iinclude -Iinclude/ode_robots -I$(shell $(SELFORGCFG) $(CFGOPTS) --
 
 # use -pg for profiling
 CPPFLAGS = -Wall -pipe -fpic $(INC) $(shell $(SELFORGCFG) $(CFGOPTS) --cflags) \
- $(shell ./ode_robots-config --srcprefix="." $(CFGOPTS) --intern --cflags)  
+ $(shell ./ode_robots-config --srcprefix="." $(CFGOPTS) --intern --cflags)
 
 # used for single file compilation
 CXX = g++
 
-# used for lib-packing 
+# used for lib-packing
 AR = ar -rcs
 
 .PHONY: lib opt clean clean-all distclean todo depend tags search find findi install install_scripts install_lib uninstall uninstall_lib
@@ -62,7 +62,7 @@ libs: lib opt dbg
 # the shared lib cannot be done as a dependency because with -j 2 it collides with the lib target
 
 
-lib: $(UTILS) 
+lib: $(UTILS)
 ifeq ($(TYPE),DEVEL)
 	cd $(SELFORG) && $(MAKE) lib
 endif
@@ -89,12 +89,12 @@ endif
 library: $(LIB)
 
 
-$(LIB): $(UTILS) Makefile.depend $(OFILES)	
+$(LIB): $(UTILS) Makefile.depend $(OFILES)
 	$(AR) $(LIB) $(OFILES)
 	@if [ "$(STRIP)" = "yes" ]; then strip --strip-debug $(LIB); fi
 
 $(SHAREDLIB): Makefile.depend $(OFILES)
-	$(CXX) -shared -Wl,-soname,`basename $(SHAREDLIB)` -o $(SHAREDLIB) $(OFILES) 
+	$(CXX) -shared -Wl,-soname,`basename $(SHAREDLIB)` -o $(SHAREDLIB) $(OFILES)
 
 ${BUILD_DIR}/%.o: %.cpp
 	@mkdir -p $(dir $@)
@@ -110,15 +110,15 @@ utils/splitvideo: utils/splitvideo.c
 	$(CXX) -o utils/splitvideo utils/splitvideo.c
 
 #%.o: %.cpp
-#	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) -o $(OBJDIR)/$(@F)  $< 
+#	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) -o $(OBJDIR)/$(@F)  $<
 
-Makefile.depend: 	
+Makefile.depend:
 	for file in $(HFILES); do \
 		ln -sf $(REVINCLUDEDIR)/$$file $(INCLUDEDIR)/; \
 	done
 	$(MAKEDEPEND) -- $(CPPFLAGS) -- $(CPPFILES) -p'$$(BUILD_DIR)/' -f- > Makefile.depend 2>/dev/null
 
-depend: 
+depend:
 	rm Makefile.depend
 	make Makefile.depend
 
@@ -157,7 +157,7 @@ clean-all: clean
 clean:
 	rm -f Makefile.depend
 	rm -rf build build_dbg build_opt
-	rm -f $(SHAREDLIB)	
+	rm -f $(SHAREDLIB)
 	rm -f $(shell ./ode_robots-config --srcprefix="." --libfile)
 	rm -f $(shell ./ode_robots-config --opt --srcprefix="." --libfile)
 	rm -f $(shell ./ode_robots-config --dbg --srcprefix="." --libfile)
@@ -179,7 +179,7 @@ install_lib:
 install: Makefile.depend install_scripts
 ifneq ($(TYPE),DEVEL)
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
-	install -d  $(PREFIX)/lib $(PREFIX)/include/ode_robots 
+	install -d  $(PREFIX)/lib $(PREFIX)/include/ode_robots
 	$(MAKE) install_lib
 	$(MAKE) CFGOPTS=--dbg install_lib
 	$(MAKE) CFGOPTS=--opt install_lib
@@ -208,7 +208,7 @@ endif
 	-rm -rf $(PREFIX)/share/lpzrobots/ode_robots/
 	-rm -f $(PREFIX)/bin/ode_robots-config
 	-rm -f $(PREFIX)/bin/feedfile.pl
-	-rm -f $(PREFIX)/bin/encodevideo.sh 
+	-rm -f $(PREFIX)/bin/encodevideo.sh
 	-rm -f $(PREFIX)/bin/selectcolumns.pl
 	-rm -rf $(PREFIX)/share/lpzrobots/data
 
