@@ -430,6 +430,14 @@ namespace lpzrobots {
 
     start(odeHandle, osgHandle, globalData);
 
+    // add command line to agents log files
+    string commandline;
+    for(int i=0; i< argc; i++){
+      commandline = commandline + argv[i] + " ";
+    }
+    for(auto &a : globalData.agents){
+      a->writePlotComment(commandline.c_str());
+    }
     printConfigs(globalData.configs);
 
     if(!noGraphics) {
