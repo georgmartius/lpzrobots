@@ -173,7 +173,6 @@ void PlotOptionEngine::addConfigurable(const Configurable* c){
 
 void PlotOptionEngine::writePlotComment(const char* cmt){
   assert(initialised);
-  cout << name << "pos" << plotOptions.size() << endl;;
   for(auto &po : plotOptions){
     if( (po.pipe) && (strlen(cmt)>0)){ // for the guilogger pipe
       char last = cmt[strlen(cmt)-1];
