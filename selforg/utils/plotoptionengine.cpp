@@ -173,12 +173,13 @@ void PlotOptionEngine::addConfigurable(const Configurable* c){
 
 void PlotOptionEngine::writePlotComment(const char* cmt){
   assert(initialised);
-  for(list<PlotOption>::iterator i=plotOptions.begin(); i != plotOptions.end(); i++){
-    if( ((*i).pipe) && (t % (*i).interval == 0) && (strlen(cmt)>0)){ // for the guilogger pipe
+  cout << name << "pos" << plotOptions.size() << endl;;
+  for(auto &po : plotOptions){
+    if( (po.pipe) && (strlen(cmt)>0)){ // for the guilogger pipe
       char last = cmt[strlen(cmt)-1];
-      fprintf((*i).pipe, "# %s", cmt);
+      fprintf(po.pipe, "# %s", cmt);
       if(last!=10 && last!=13) // print with or without new line
-        fprintf((*i).pipe, "\n");
+        fprintf(po.pipe, "\n");
     }
   }
 }
