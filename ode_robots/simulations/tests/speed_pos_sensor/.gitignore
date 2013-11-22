@@ -1,0 +1,10 @@
+Makefile
+Makefile.depend
+start*
+*.log
+Makefile
+guilogger.cfg
+*.msg
+matrixVizConf.xml
+*.ctrl
+
