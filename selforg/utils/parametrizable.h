@@ -48,9 +48,10 @@ public:
   /** sets the parameters.
       The list must have the same length as returned by getParameters()
       The matrix dimensions must fit those given by getParameters()
-      @return true if success and false if failed.
+      @return 0 for failure, 1 for success and 2 if parameters had been changed during setting (to be valid)
+         such that a get is required to get the actual values
    */
-  virtual bool setParameters(const ParameterList& params) = 0;;
+  virtual int setParameters(const ParameterList& params) = 0;;
 
 };
 

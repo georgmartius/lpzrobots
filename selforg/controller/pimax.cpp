@@ -342,6 +342,27 @@ matrix::Matrix PiMax::getLastSensorValues(){
   return s_buffer[(t-1+buffersize)%buffersize];
 }
 
+list<Matrix> PiMax::getParameters() const {
+  return {C,h};
+}
+
+int PiMax::setParameters(const list<Matrix>& params){
+  if(params.size() == 2){
+    list<Matrix>::const_iterator i = params.begin();
+    const Matrix& CN = *i;
+    if(C.hasSameSizeAs(CN)) C=CN;
+    else return false;
+    const Matrix& hN = *(++i);
+    if(h.hasSameSizeAs(hN)) h=hN;
+    else return false;
+  } else {
+    fprintf(stderr,"setParameters wrong len %i!=2\n", (int)params.size());
+    return false;
+  }
+  return true;
+}
+
+
 /* stores the controller values to a given file. */
 bool PiMax::store(FILE* f) const{
   // save matrix values

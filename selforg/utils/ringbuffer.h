@@ -42,6 +42,10 @@ public:
     buffer.resize(size, t);
   }
 
+  int getBufferSize() const {
+    return buffersize;
+  }
+
   /** returns object at index.
       Index can be larger than buffersize, it will be wrapped. Negative index means 0.
   */
@@ -51,8 +55,18 @@ public:
     return buffer[index%buffersize];
   }
 
+  const T& get(int index) const {
+    assert(buffersize>0);
+    if(index < 0) index=0;
+    return buffer[index%buffersize];
+  }
+
   /// see get()
   T& operator[] (int index){
+    return get(index);
+  }
+  /// see get()
+  const T& operator[] (int index) const {
     return get(index);
   }
 

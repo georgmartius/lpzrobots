@@ -27,6 +27,7 @@
 
 #include <selforg/matrix.h>
 #include <selforg/teachable.h>
+#include <selforg/parametrizable.h>
 
 
 /// configuration object for PiMax controller. Use PiMax::getDefaultConf().
@@ -57,7 +58,7 @@ struct PiMaxConf {
    The code contains more functionality than is described in the paper
      e.g. the teaching and motor babbling is not used.
 */
-class PiMax : public AbstractController, public Teachable {
+class PiMax : public AbstractController, public Teachable, public Parametrizable {
 
 public:
   PiMax(const PiMaxConf& conf = getDefaultConf());
@@ -116,6 +117,10 @@ public:
   virtual void setSensorTeaching(const matrix::Matrix& teaching);
   virtual matrix::Matrix getLastMotorValues();
   virtual matrix::Matrix getLastSensorValues();
+
+  /***** PARAMETRIZABLE ****/
+  virtual std::list<matrix::Matrix> getParameters() const override;
+  virtual int setParameters(const std::list<matrix::Matrix>& params) override;
 
 protected:
   unsigned short number_sensors;

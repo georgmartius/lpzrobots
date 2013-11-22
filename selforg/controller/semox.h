@@ -24,6 +24,7 @@
 #include <selforg/teachable.h>
 #include <selforg/noisegenerator.h>
 #include <selforg/randomgenerator.h>
+#include <selforg/parametrizable.h>
 
 
 typedef struct SeMoXConf {
@@ -53,7 +54,7 @@ typedef struct SeMoXConf {
  * Main characteristics: Motor Space, Extended World model, Continuity, Teaching interface
  *
  */
-class SeMoX : public HomeokinBase, public Teachable {
+class SeMoX : public HomeokinBase, public Teachable, public Parametrizable {
   friend class ThisSim;
 public:
   SeMoX(const SeMoXConf& conf = getDefaultConf());
@@ -119,6 +120,10 @@ public:
   virtual matrix::Matrix getLastMotorValues();
   /// returns the last sensor values (useful for cross sensor coupling)
   virtual matrix::Matrix getLastSensorValues();
+
+  /***** PARAMETRIZABLE ****/
+  virtual std::list<matrix::Matrix> getParameters() const override;
+  virtual int setParameters(const std::list<matrix::Matrix>& params) override;
 
 protected:
   unsigned short number_sensors;

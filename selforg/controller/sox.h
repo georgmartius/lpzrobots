@@ -27,6 +27,7 @@
 
 #include <selforg/matrix.h>
 #include <selforg/teachable.h>
+#include <selforg/parametrizable.h>
 
 
 /// configuration object for Sox controller. Use Sox::getDefaultConf().
@@ -52,7 +53,7 @@ struct SoxConf {
  * This controller implements the standard algorihm described the the Chapter 5 (Homeokinesis)
  *  with extensions of Chapter 15 of book "The Playful Machine"
  */
-class Sox : public AbstractController, public Teachable {
+class Sox : public AbstractController, public Teachable, public Parametrizable {
 
 public:
   /// constructor
@@ -120,6 +121,10 @@ public:
   virtual void setSensorTeaching(const matrix::Matrix& teaching);
   virtual matrix::Matrix getLastMotorValues();
   virtual matrix::Matrix getLastSensorValues();
+
+  /***** PARAMETRIZABLE ****/
+  virtual std::list<matrix::Matrix> getParameters() const override;
+  virtual int setParameters(const std::list<matrix::Matrix>& params) override;
 
 protected:
   unsigned short number_sensors;

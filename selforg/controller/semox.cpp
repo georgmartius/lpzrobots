@@ -326,6 +326,26 @@ void SeMoX::management(){
   }
 }
 
+list<Matrix> SeMoX::getParameters() const {
+  return {C,H};
+}
+
+int SeMoX::setParameters(const list<Matrix>& params){
+  if(params.size() == 2){
+    list<Matrix>::const_iterator i = params.begin();
+    const Matrix& CN = *i;
+    if(C.hasSameSizeAs(CN)) C=CN;
+    else return false;
+    const Matrix& HN = *(++i);
+    if(H.hasSameSizeAs(HN)) H=HN;
+    else return false;
+  } else {
+    fprintf(stderr,"setParameters wrong len %i!=2\n", (int)params.size());
+    return false;
+  }
+  return true;
+}
+
 
 bool SeMoX::store(FILE* f) const {
   // save matrix values
