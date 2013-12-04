@@ -161,6 +161,8 @@ int AmosIISerialV1::getSensors(sensor* sensors, int sensornumber){
 
 	//Average Current sensor (ACS, group 5)
 	sensors[A_cs]=potValue[A_cs_real];// [min = 15 (wave gait in the air), max 250]
+	sensors[B_cs]=potValue[B_cs_real];// [min = 15 (wave gait in the air), max 250]
+
 
 	//Average Inclinometer sensor (BX,Y, group 6)
 	sensors[BX_acs]=potValue[BX_cs_real];
@@ -264,7 +266,7 @@ void AmosIISerialV1::processSensors(sensor* psensors){
 
 	//Need to ADJUST again 12.04.2012 max min range
 	//Average Current sensor (ACS, group 5) : Scaling to 0 (low power),..,1 (high power)
-	psensors[A_cs]=((psensors[A_cs]-15)/(250-15));// [min = 15 (wave gait in the air), max 250]
+	//psensors[A_cs]=((psensors[A_cs]-15)/(250-15));// [min = 15 (wave gait in the air), max 250]
 	//wave gait ~38 with belly on ground (0.03)
 	//tetrapod gait ~45 w with belly on ground (0.14)
 	//tripod gait ~40 w with belly on ground (0.18)
