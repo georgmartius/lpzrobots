@@ -179,8 +179,9 @@ private:
 	  R_ps_real=12,
 	  L_ps_real=11,
 
-	  //Current sensor
-	  A_cs_real=16,
+	  //Current sensor [A_cs_real = for motors, B_cs_real = for all direct from battery]
+	  A_cs_real= 27,
+	  B_cs_real= 30,
 
 	  //Inclinometer sensors
 	  BX_cs_real=25,
