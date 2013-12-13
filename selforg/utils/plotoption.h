@@ -30,7 +30,7 @@
 #include <list>
 #include <utility>
 #include <string>
-#include <regex>
+#include <vector>
 
 class Configurable;
 class Inspectable;
@@ -79,6 +79,8 @@ public:
      @param mode output type @see PlotMode
      @param interval every i-th step is plotted
      @param parameter free parameters for plotting tool
+     &param filter filter for channels, @see setFilter(const std::string)
+
      Note: the argument whichSensor is removed. You can adjust this in the wirings now.
    */
   PlotOption( PlotMode mode, int interval = 1, std::string parameter=std::string(), std::string filter=std::string())
@@ -95,8 +97,8 @@ public:
   virtual PlotMode getPlotOptionMode() const { return mode; }
 
   /// sets a filter to this plotoption: To export only selected channels
-  virtual void setFilter(const std::list<std::regex>& accept, const std::list<std::regex>& ignore);
-  /// sets a filter to this plotoption: syntax: +acceptregexp -ignoreregexp ...
+  virtual void setFilter(const std::list<std::string>& accept, const std::list<std::string>& ignore);
+  /// sets a filter to this plotoption: syntax: +accept_substr -ignore_substr ...
   virtual void setFilter(const std::string filter);
 
   // flushes pipe (depending on mode)
@@ -155,8 +157,8 @@ public:
 private:
   PlotMode mode;
   std::string parameter; ///< additional parameter for external command
-  std::list<std::regex> accept; ///< channels to accept (use) (empty means all)
-  std::list<std::regex> ignore; ///< channels not ignore      (empty means ignore non)
+  std::list<std::string> accept; ///< channels to accept (use) (empty means all)
+  std::list<std::string> ignore; ///< channels not ignore      (empty means ignore non)
   std::vector<bool> mask; ///< mask for accepting channels (calculated from accept and ignore)
 };
 

@@ -199,6 +199,7 @@ namespace lpzrobots {
     void resetSyncTimer();
     long timeOfDayinMS();
 
+    std::list<std::pair<std::string, double> > parseKeyValuePairs(std::string kv);
   private:
     static void control_c(int i);
     static void cmd_handler_exit();
@@ -241,6 +242,9 @@ namespace lpzrobots {
     int guiloggerinterval;
     int filelogginginterval;
     int matrixvizinterval;
+
+    /// parameters for configurables set on commandline
+    std::string initConfParams;
 
     char odeRobotsCfg[256]; /// < filename of config file
 

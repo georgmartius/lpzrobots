@@ -58,8 +58,15 @@ namespace lpzrobots {
     }else{
       v = refpos - own->getPosition();
     }
-    double scale = pow(v.length() / maxDistance, exponent);
-    v *= (1/maxDistance)*scale;
+    // those components that we don't need we set to zero.
+    if (!(dimensions & X)) v.x()=0;
+    if (!(dimensions & Y)) v.y()=0;
+    if (!(dimensions & Z)) v.z()=0;
+
+    double rellen = std::min(1.0 ,v.length() / maxDistance); // between 0 and 1
+    double scale = pow(rellen, exponent)/rellen; // exponential characteristics divided by linear characteristics
+    // nonlinear scaling of the vector, such that
+    v *= (scale/maxDistance);
     if (dimensions & X) s.push_back(v.x());
     if (dimensions & Y) s.push_back(v.y());
     if (dimensions & Z) s.push_back(v.z());

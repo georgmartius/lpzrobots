@@ -2,8 +2,9 @@
 	Bugfixes: Following camera mode,...
 	Fixation and displacement of robots integrated
 	Contacts can be drawn with -drawcontacts
-	PlotOptions allow filtering. From commandline e.g. -g 10 "/+x.*/" or "/-C.*/"
-	Matrix uses move-assignment from C++11, great speedup
+	PlotOptions allow filtering. From commandline e.g. -g 10 "{+x,+y}" or "{-C}"
+	commandline goes into logfiles
+	Matrix uses move-assignment from C++11, speedup
 
 2011-11-11 martius (0.7)
 	Build system: use config scripts like selforg-config etc.

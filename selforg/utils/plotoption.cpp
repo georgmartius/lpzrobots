@@ -24,6 +24,7 @@
 
 #include "plotoption.h"
 #include <iostream>
+#include <sstream>
 #include <signal.h>
 #include <assert.h>
 #include <string.h>
@@ -160,34 +161,29 @@ void PlotOption::flush(long step){
   QMP_END_CRITICAL(603);
 }
 
-void PlotOption::setFilter(const list<regex>& accept, const list<regex>& ignore){
+void PlotOption::setFilter(const list<string>& accept, const list<string>& ignore){
   this->accept = accept;
   this->ignore = ignore;
 }
 
 /// sets a filter to this plotoption: syntax: +acceptregexp -ignoreregexp ...
 void PlotOption::setFilter(const std::string filter){
-  cout << filter << endl;
+  //  cout << filter << endl;
   istringstream iss(filter);
   do {
-    string reg;
-    iss >> reg;
-    if(!reg.empty()){
-      bool flag = !(reg[0]=='-');
-      if(reg[0]=='+' || reg[0]=='-')
-        reg = reg.substr(1);
-      if(!reg.empty()){
-        try{
-          std::regex r = std::regex(reg);
-          if(flag){
-            accept += r;
-            //            cout << "accept: " << reg << endl;
-          }else{
-            ignore += r;
-            //            cout << "ignore: " << reg << endl;
-          }
-        }catch(std::regex_error& e){
-          std::cerr << "Error in regular expression: " << reg << " code:" << e.code() << endl;
+    string substr;
+    iss >> substr;
+    if(!substr.empty()){
+      bool flag = !(substr[0]=='-');
+      if(substr[0]=='+' || substr[0]=='-')
+        substr = substr.substr(1);
+      if(!substr.empty()){
+        if(flag){
+          accept += substr;
+          //          cout << "accept: " << substr << endl;
+        }else{
+          ignore += substr;
+          //          cout << "ignore: " << substr << endl;
         }
       }
     }
@@ -197,13 +193,13 @@ void PlotOption::setFilter(const std::string filter){
 bool PlotOption::useChannel(const string& name){
   bool rv= accept.size()==0 ? true : false;
   for (auto& r:accept){
-    if (regex_match(name, r)){
+    if (name.find(r)==0){
       rv=true;
       break;
     }
   }
   for (auto& r:ignore){
-    if (regex_match(name, r)){
+    if (name.find(r)==0){
       rv=false;
     }
   }

@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <iostream>
+#include <stdexcept>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -437,6 +438,14 @@ namespace lpzrobots {
     }
     for(auto &a : globalData.agents){
       a->writePlotComment(commandline.c_str());
+    }
+    // set parameters from commandline to configurables
+    auto kvPairs = parseKeyValuePairs(initConfParams);
+    for(auto &c : globalData.configs){
+      for(auto &p : kvPairs){
+        cout << p.first << "->" << p.second << endl;
+        c->setParam(p.first, p.second);
+      }
     }
     printConfigs(globalData.configs);
 
@@ -1045,12 +1054,36 @@ namespace lpzrobots {
     argv=nargv; // this is definite memory loss
   }
 
-  string getFilterOption(int argc, char** argv, int index){
+  string getListOption(int argc, char** argv, int index){
     if(index<argc){
       // check for filter
-      if(argv[index][0]=='/') return string(argv[index]).substr(1,strlen(argv[index])-2);
+      int len=strlen(argv[index]);
+      if(argv[index][0]=='{' && argv[index][len-1]=='}')
+        return string(argv[index]).substr(1,len-2);
     }
     return string();
+  }
+
+  list<pair<string, double> > Simulation::parseKeyValuePairs(string kv){
+    list<pair<string, double> > res;
+    istringstream iss(kv);
+    do {
+      string keyvalue;
+      iss >> keyvalue;
+      if(!keyvalue.empty()){
+        string::size_type eqpos = keyvalue.find("=");
+        try{
+          if(eqpos != string::npos){
+            res.push_back(pair<string, double>(keyvalue.substr(0,eqpos), stof(keyvalue.substr(eqpos+1))));
+          }
+        } catch (const std::invalid_argument& ia) {
+          std::cerr << "Cannot parse value in: " << keyvalue <<
+            " error on " << keyvalue.substr(eqpos+1) << " " << ia.what() << endl;
+          exit(1);
+        }
+      }
+    } while (iss);
+    return res;
   }
 
   bool Simulation::processCmdLine(int argc, char** argv) {
@@ -1069,7 +1102,7 @@ namespace lpzrobots {
       if (guiloggerinterval<1) // no negative/zero intervals allowed
         guiloggerinterval=5; // default value
       index++;
-      std::string filter=getFilterOption(argc,argv,index);
+      std::string filter=getListOption(argc,argv,index);
       plotoptions.push_back(PlotOption(GuiLogger, guiloggerinterval,
                                        "-geometry +" + std::itos(windowWidth+12) + "+0", filter));
     }
@@ -1084,7 +1117,7 @@ namespace lpzrobots {
         filelogginginterval=5; // default value
       std::string parameter="";
       index++;
-      std::string filter=getFilterOption(argc,argv,index);
+      std::string filter=getListOption(argc,argv,index);
       if(!filter.empty()) index++;
       if(index<argc && argv[index][0]!='-')
         parameter=argv[index];
@@ -1103,7 +1136,7 @@ namespace lpzrobots {
       if (matrixvizinterval<1) // no negative/zero intervals allowed
         matrixvizinterval=10; // default value
       index++;
-      std::string filter=getFilterOption(argc,argv,index);
+      std::string filter=getListOption(argc,argv,index);
       plotoptions.push_back(PlotOption(MatrixViz, matrixvizinterval, "", filter));
     }
 
@@ -1114,6 +1147,11 @@ namespace lpzrobots {
       if(argc > index)
         param=argv[index];
       plotoptions.push_back(PlotOption(SoundMan, 1, param));
+    }
+
+    index = contains(argv, argc, "-set");
+    if(index >  0 && argc > index){
+      initConfParams=getListOption(argc,argv,index);
     }
 
     index = contains(argv, argc, "-r");
@@ -1397,15 +1435,17 @@ namespace lpzrobots {
     printf("Usage: %s [-f [interval] [filter] [name]] [-{g|m} [interval] [filter]]\n", progname);
     printf("    \t [-r seed] [-x WxH] [-fs] [-allkeys] [-video NAME]\n");
     printf("    \t [-pause] [-shadow N] [-noshadow] [-drawboundings] [-simtime [min]] [-rtf X]\n");
-    printf("    \t [-threads N] [-odethread] [-osgthread] [-savecfg] [-h|--help] ...\n");
+    printf("    \t [-threads N] [-odethread] [-osgthread] [-savecfg] [-set keyvaluespairs] [-h|--help] ...\n");
     printf("    -conf\t\tuse Configurator\n");
     printf("    -g interval filter\t\tuse guilogger (default interval 1)\n");
-    printf("    \t\t filter: \"/+regexp -regexp/\"\n");
+    printf("    \t\t filter: \"{+substr -substr}\"\n");
     printf("    -f interval filter name\twrite logging file (default interval 5),\n");
     printf("    \t\t\tname: instead of the timestamp the name is attached to logfile name\n");
     printf("    -m interval  filter\t\tuse matrixviz (default interval 10)\n");
     printf("    -s \"-disc|ampl|freq val\"\n    \t\t\tuse soundMan \n");
     printf("    -r seed\t\trandom number seed\n");
+    printf("    -set keyvaluespairs\toverwrite configurable values at start\n");
+    printf("    \t\t keyvaluespairs: \"{key1=value1 key2=value2}\"\n");
     printf("    -x WxH\t\t* window size of width(W) x height(H) is used (default 800x600)\n");
     printf("    -fps rate\t\t*framerate in 1/s\n");
     printf("    -fs\t\t\tfullscreen mode\n");
