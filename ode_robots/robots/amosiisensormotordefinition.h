@@ -106,8 +106,9 @@ enum AmosIISensorNames{
         G0y_s=63,
         G0z_s=64,
 
-        //average current sensor of motors (ZAP 25, AMOSIIv2)
-        A_cs = 65,
+        //average current sensor of motors (ZAP 25)
+        A_cs = 65,  //average motor current measurement (amosiiv1 & amosiiv2)
+        B_cs = 121, //direct from Battery of only for amosiiv1
 
         //Body speed sensors (only simulation)
         BX_spd= 66,
@@ -212,7 +213,7 @@ enum AmosIISensorNames{
         BZ_ori = 120, // around z axis
 
         //Changing according to the maximum sensor number
-        AMOSII_SENSOR_MAX = 121,
+        AMOSII_SENSOR_MAX = 122,
 
 };
 
