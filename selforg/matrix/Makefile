@@ -17,12 +17,13 @@
 # us -pg for profiling
 BASECFLAGS=-std=c++11 -Wall -I. -I../include/selforg $(shell gsl-config --cflags)
 TEST_DEBUG_CFLAGS = $(BASECFLAGS) -DUNITTEST -g -O0
-TEST_OPTIM_CFLAGS = $(BASECFLAGS) -O -DUNITTEST -DNDEBUG
-TEST_OPTIMSSE_CFLAGS = $(BASECFLAGS) -O3 -DUNITTEST -DNDEBUG -ftree-vectorize -msse2
+TEST_OPTIM_CFLAGS = $(BASECFLAGS) -O -DUNITTEST -DNDEBUG -mtune=native
+TEST_OPTIMSSE_CFLAGS = $(BASECFLAGS) -O3 -DUNITTEST -DNDEBUG -ftree-vectorize -msse2 -mtune=native
 
 LIBS   = -lm $(shell gsl-config --libs)
 
-CXX = g++
+CXX = clang++
+#CXX = g++
 AR = ar
 
 # ATMEL STUFF
@@ -75,5 +76,5 @@ tags:
 
 .PHONY: clean
 clean:
-	rm -f *.o unittests_debug unittests example
+	rm -f *.o unittests_debug unittests unittests_sse example
 #	rm -f *.o unittests_debug unittests libmatrix_debug.a libmatrix.a example
