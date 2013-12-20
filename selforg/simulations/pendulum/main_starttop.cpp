@@ -66,7 +66,7 @@ public:
     addParameterDef("maxForce", &maxForce, 0.5);
     //    addParameterDef("reinf", &reinf,0);
 
-    addParameter("reset", &reset, 0, intInfinity, "timesteps until reset in upper position (0: no reset)");
+    addParameter("reset", &reset, 0, 10^6, "timesteps until reset in upper position (0: no reset)");
 
     addParameter("realtimefactor", &realtimefactor); //global param. a bit stupid to do here, but who cares
     addParameter("noise", &noise); // global param
