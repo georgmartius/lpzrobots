@@ -167,6 +167,8 @@ namespace lpzrobots {
   Primitive* Schlange::createSegment(int index, const OdeHandle& odeHandle){
     Primitive* p;
     p = new Capsule(conf.segmDia * 0.8, conf.segmLength);
+    // if (index==0) 
+    //   p = new Box(conf.segmLength*.1,conf.segmLength*.9, conf.segmLength*.6);
     p->setTexture("Images/whitemetal_farbig_small.rgb");
     p->init(odeHandle, conf.segmMass, osgHandle);
     if(index==0)

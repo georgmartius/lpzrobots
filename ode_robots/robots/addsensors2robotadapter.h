@@ -93,7 +93,8 @@ namespace lpzrobots {
     virtual std::vector<Primitive*>& getAllPrimitives() {
       return robot->getAllPrimitives();
     }
-
+    virtual OdeRobot* getBaseRobot() { return robot; }
+    
   protected:
     OdeRobot* robot;
     std::list<Sensor*> sensors;
