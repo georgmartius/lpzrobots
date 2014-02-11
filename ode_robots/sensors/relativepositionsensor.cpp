@@ -37,7 +37,7 @@ namespace lpzrobots {
     ref=0;
   }
 
-  void RelativePositionSensor::init(Primitive* own){
+  void RelativePositionSensor::init(Primitive* own, Joint* joint){
     this->own = own;
   }
   void RelativePositionSensor::setReference(Primitive* ref){

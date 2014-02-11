@@ -22,7 +22,7 @@
  *                                                                         *
  ***************************************************************************/
 #ifndef           DUMMYMOTOR_H_
-# define           DUMMYMOTOR_H_
+#define           DUMMYMOTOR_H_
 
 #include "motor.h"
 
@@ -35,7 +35,7 @@ namespace lpzrobots {
     }
     virtual ~DummyMotor() {};
 
-    virtual void init(Primitive* own){
+    virtual void init(Primitive* own, Joint* joint = 0 ){
     }
 
     virtual int getMotorNumber() const{

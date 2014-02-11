@@ -42,6 +42,7 @@ namespace lpzrobots {
   class Joint;
 
   typedef std::vector<Primitive*> Primitives;
+  typedef std::vector<Joint*> Joints;
 
   /**
    * Abstract class  for ODE robots
@@ -139,6 +140,12 @@ namespace lpzrobots {
     virtual Primitives& getAllPrimitives() { return objects; };
     /// returns a list of all primitives of the robot (const version) (used to store and restore the robot)
 
+    /// returns a list of all joints of the robot
+    virtual Joints getAllJoints() const { return joints; };
+
+    virtual Joints& getAllJoints() { return joints; };
+    /// returns a list of all joints of the robot (const version)
+
     /* ********** STORABLE INTERFACE **************** */
     virtual bool store(FILE* f) const;
 
@@ -176,7 +183,7 @@ namespace lpzrobots {
     /// list of objects (should be populated by subclasses)
     Primitives objects;
     /// list of joints (should be populated by subclasses)
-    std::vector <Joint*> joints;
+    Joints joints;
 
     TmpJoint* fixationTmpJoint;
 

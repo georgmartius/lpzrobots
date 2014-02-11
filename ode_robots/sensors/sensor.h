@@ -35,6 +35,7 @@ namespace lpzrobots {
 
   // forward declaration
   class Primitive;
+  class Joint;
 
   /** Abstract class for sensors that can be plugged into a robot
   */
@@ -46,9 +47,10 @@ namespace lpzrobots {
     Sensor() {}
     virtual ~Sensor() {}
 
-    /** initialises sensor with body of robot. This is usually done by the robot itself.
+    /** initialises sensor with a body of robot and optionally with a joint.
+        This is usually done by the robot itself (or using the Attachment())
     */
-    virtual void init(Primitive* own) = 0;
+    virtual void init(Primitive* own, Joint* joint = 0) = 0;
 
     /** performs sense action
      */

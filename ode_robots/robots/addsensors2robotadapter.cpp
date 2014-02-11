@@ -27,6 +27,7 @@
 #include <osg/Matrix>
 
 #include "addsensors2robotadapter.h"
+#include <ode_robots/torquesensor.h>
 
 using namespace osg;
 using namespace std;
@@ -39,7 +40,7 @@ namespace lpzrobots {
                           const std::list<Motor*>& motors,
                           bool sensors_before_rest)
     : OdeRobot(odeHandle, osgHandle, robot->getName(), robot->getRevision()),
-      robot(robot), sensors(sensors), sensors_before_rest(sensors_before_rest),
+      robot(robot), sensors_before_rest(sensors_before_rest),
       initialized(false), askedfornumber(0)
   {
     assert(robot);
@@ -47,52 +48,102 @@ namespace lpzrobots {
     Inspectable* i = dynamic_cast<Inspectable*>(robot);
     if(i) Inspectable::addInspectable(i);
 
+    for (auto &i: sensors){
+      this->sensors.push_back(SensorAttachment(i,Attachement()));
+    }
+    for (auto &i: motors){
+      this->motors.push_back(MotorAttachment(i,Attachement()));
+    }
     //    copyParameters(*robot);
   };
 
 
   AddSensors2RobotAdapter::~AddSensors2RobotAdapter(){
-    FOREACH(list<Sensor*>, sensors, i){
-      if(*i) delete *i;
+    for(auto &i: sensors){
+      if(i.first) delete i.first;
     }
     sensors.clear();
     delete robot;
   }
 
-  void AddSensors2RobotAdapter::addSensor(Sensor* sensor){
+  void AddSensors2RobotAdapter::attachSensor(SensorAttachment& sa){
+    Primitive* p;
+    if(sa.second.primitiveIndex<0){
+      p = robot->getMainPrimitive();
+    } else {
+      assert((int)robot->getAllPrimitives().size() > sa.second.primitiveIndex);
+      p = robot->getAllPrimitives()[sa.second.primitiveIndex];
+    }
+    Joint* j=0;
+    if(sa.second.jointIndex>=0){
+      assert((int)robot->getAllJoints().size() > sa.second.jointIndex);
+      j = robot->getAllJoints()[sa.second.jointIndex];
+    }
+    sa.first->init(p, j);
+  }
+
+  void AddSensors2RobotAdapter::attachMotor(MotorAttachment& ma){
+    Primitive* p;
+    if(ma.second.primitiveIndex<0){
+      p = robot->getMainPrimitive();
+    } else {
+      assert((int)robot->getAllPrimitives().size() > ma.second.primitiveIndex);
+      p = robot->getAllPrimitives()[ma.second.primitiveIndex];
+    }
+    // Todo: add joint to motors
+    // Joint* j=0;
+    // if(ma.second.jointIndex>=0){
+    //   assert((int)robot->getAllJoints().size() > ma.second.jointIndex);
+    //   j = robot->getAllJoints()[ma.second.jointIndex];
+    // }
+    ma.first->init(p);
+  }
+
+  void AddSensors2RobotAdapter::addSensor(Sensor* sensor, Attachement attachement){
     assert(!askedfornumber);
     assert(sensor);
+    SensorAttachment sa(sensor,attachement);
     if(initialized){
-      Primitive* p = robot->getMainPrimitive();
-      sensor->init(p);
+      attachSensor(sa);
     }
-    sensors.push_back(sensor);
+    sensors.push_back(sa);
   }
 
-
-  void AddSensors2RobotAdapter::addMotor(Motor* motor){
+  void AddSensors2RobotAdapter::addMotor(Motor* motor, Attachement attachement){
     assert(!askedfornumber);
     assert(motor);
+    MotorAttachment ma(motor,attachement);
     if(initialized){
-      Primitive* p = robot->getMainPrimitive();
-      motor->init(p);
+      attachMotor(ma);
     }
-    motors.push_back(motor);
+    motors.push_back(ma);
   }
+
+  void AddSensors2RobotAdapter::addTorqueSensors(double maxtorque, int avg ){
+    if(!initialized){
+      cerr << "call addTorqueSensors() after robot->place()!";
+      assert(initialized);
+    }
+    int numJoints = robot->getAllJoints().size();
+    for(int j=0; j<numJoints; j++){
+      addSensor(new TorqueSensor(maxtorque, avg), Attachement(-1,j));
+    }
+  }
+
 
   void AddSensors2RobotAdapter::update(){
     assert(initialized);
     robot->update();
-    FOREACHC(list<Sensor*>, sensors, i){
-      (*i)->update();
+    for(auto& i: sensors){
+      i.first->update();
     }
   }
 
   int AddSensors2RobotAdapter::getSensorNumber(){
     assert(initialized);
     int s=0;
-    FOREACHC(list<Sensor*>, sensors, i){
-      s += (*i)->getSensorNumber();
+    for ( auto &i: sensors){
+      s += i.first->getSensorNumber();
     }
     askedfornumber=true;
     return robot->getSensorNumber() + s;
@@ -105,8 +156,8 @@ namespace lpzrobots {
     if(!sensors_before_rest){
       len += robot->getSensors(sensors_ + len,sensornumber - len);
     }
-    FOREACH(list<Sensor*>, sensors, i){
-      len += (*i)->get(sensors_ + len, sensornumber - len);
+    for(auto& i: sensors){
+      len += i.first->get(sensors_ + len, sensornumber - len);
     }
     if(sensors_before_rest){
       len += robot->getSensors(sensors_ + len,sensornumber - len);
@@ -118,8 +169,8 @@ namespace lpzrobots {
   int AddSensors2RobotAdapter::getMotorNumber() {
     assert(initialized);
     int s=0;
-    FOREACHC(list<Motor*>, motors, i){
-      s += (*i)->getMotorNumber();
+    for(auto& i: motors){
+      s += i.first->getMotorNumber();
     }
     askedfornumber=true;
     return robot->getMotorNumber() + s;
@@ -131,20 +182,19 @@ namespace lpzrobots {
     assert(motornumber >= robot->getMotorNumber());
     robot->setMotors(motors_, robot->getMotorNumber());
     len += robot->getMotorNumber();
-    FOREACH(list<Motor*>, motors, i){
-      len += (*i)->set(motors_ + len, motornumber - len);
+    for(auto& i: motors){
+      len += i.first->set(motors_ + len, motornumber - len);
     }
 
   }
 
   void AddSensors2RobotAdapter::place(const osg::Matrix& pose){
     robot->place(pose);
-    Primitive* p = robot->getMainPrimitive();
-    FOREACH(list<Sensor*>, sensors, i){
-      (*i)->init(p);
+    for( auto &i: sensors){
+      attachSensor(i);
     }
-    FOREACH(list<Motor*>, motors, i){
-      (*i)->init(p);
+    for( auto &i: motors){
+      attachMotor(i);
     }
     initialized=true;
   }
@@ -152,16 +202,16 @@ namespace lpzrobots {
 
   void AddSensors2RobotAdapter::sense(GlobalData& globalData){
     assert(initialized);
-    FOREACH(list<Sensor*>, sensors, i){
-      (*i)->sense(globalData);
+    for(auto& i: sensors){
+      i.first->sense(globalData);
     }
     robot->sense(globalData);
   }
 
   void AddSensors2RobotAdapter::doInternalStuff(GlobalData& globalData){
     assert(initialized);
-    FOREACH(list<Motor*>, motors, i){
-      (*i)->act(globalData);
+    for(auto &i: motors){
+      i.first->act(globalData);
     }
     robot->doInternalStuff(globalData);
   }

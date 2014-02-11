@@ -674,12 +674,12 @@ namespace lpzrobots{
 
 
   /******************************************************************************/
-  Transform::Transform(Primitive* parent, Primitive* child, const Pose& pose)
-    : parent(parent), child(child), pose(pose) {
+  Transform::Transform(Primitive* parent, Primitive* child, const Pose& pose, bool deleteChild)
+    : parent(parent), child(child), pose(pose), deleteChild(deleteChild) {
   }
 
   Transform::~Transform(){
-    if(child)
+    if(child && deleteChild)
       delete child;
   }
 

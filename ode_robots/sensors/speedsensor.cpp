@@ -38,7 +38,7 @@ namespace lpzrobots {
     own=0;
   }
 
-  void SpeedSensor::init(Primitive* own){
+  void SpeedSensor::init(Primitive* own, Joint* joint){
     this->own = own;
   }
 

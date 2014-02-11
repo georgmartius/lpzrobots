@@ -30,9 +30,8 @@
 
 namespace lpzrobots {
 
-  TorqueSensor::TorqueSensor(Joint* joint, double maxtorque, int avg)
-    : joint(joint), maxtorque(maxtorque) {
-    assert(joint);
+  TorqueSensor::TorqueSensor(double maxtorque, int avg)
+    : joint(0), maxtorque(maxtorque) {
     tau = 1.0/std::max(1.0,(double)avg);
   }
 
@@ -40,10 +39,13 @@ namespace lpzrobots {
   TorqueSensor::~TorqueSensor(){
   }
 
-  void TorqueSensor::init(Primitive* own){
+  void TorqueSensor::init(Primitive* own, Joint* joint){
+    this->joint=joint;
+    assert(this->joint);
     // set joint to feedback mode
-    joint->setFeedBackMode(true);
-    assert(getSensorNumber()>0);
+    this->joint->setFeedBackMode(true);
+    // assert(getSensorNumber()>0); // the joint may be a fixed joint and then this is a dummy sensor
+
   }
 
   int TorqueSensor::getSensorNumber() const{

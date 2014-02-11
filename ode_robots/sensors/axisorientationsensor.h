@@ -49,7 +49,7 @@ namespace lpzrobots {
     AxisOrientationSensor(Mode mode, short dimensions = X | Y | Z );
     virtual ~AxisOrientationSensor() {}
 
-    virtual void init(Primitive* own);
+    virtual void init(Primitive* own, Joint* joint = 0);
     virtual int getSensorNumber() const;
 
     virtual bool sense(const GlobalData& globaldata);

@@ -414,7 +414,7 @@ public:
       @param child  is transformed by pose in respect to parent.
       This Primitive must NOT have a body and should not be initialised
   */
-  Transform(Primitive* parent, Primitive* child, const Pose& pose);
+  Transform(Primitive* parent, Primitive* child, const Pose& pose, bool deleteChild = true);
 
   /// destructor deletes child object // it should be virtual by yuichi
   virtual ~Transform();
@@ -436,6 +436,7 @@ protected:
   Primitive* parent;
   Primitive* child;
   Pose pose;
+  bool deleteChild;
 };
 
 /**

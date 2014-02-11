@@ -40,7 +40,7 @@ namespace lpzrobots {
     }
     virtual ~Speaker() {};
 
-    virtual void init(Primitive* own){
+    virtual void init(Primitive* own, Joint* joint = 0){
       this->own=own;
     }
 

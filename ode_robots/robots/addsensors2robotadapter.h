@@ -30,6 +30,12 @@
 #include <selforg/inspectable.h>
 
 namespace lpzrobots {
+  /// structure to hold attachment data for sensors and motors
+  struct Attachement {
+    Attachement(int pI = -1, int jI = -1) : primitiveIndex(pI), jointIndex(jI) {}
+    int primitiveIndex;
+    int jointIndex;
+  };
 
   /** Robot adapter to add sensors and also motors to robots without the
       need to modify the robot itself.
@@ -38,6 +44,10 @@ namespace lpzrobots {
   */
   class AddSensors2RobotAdapter : public OdeRobot, public Inspectable {
   public:
+
+    typedef std::pair<Sensor*, Attachement> SensorAttachment;
+    typedef std::pair<Motor*, Attachement>  MotorAttachment;
+
 
     /**
      * constructor of adapter
@@ -53,11 +63,18 @@ namespace lpzrobots {
 
     virtual ~AddSensors2RobotAdapter();
 
-    /// adds a sensor to the robot. Must be called before placement of the robot, otherwise it has no affect
-    virtual void addSensor(Sensor* sensor);
+    /** adds a sensor to the robot. Must be called before agents initializes, otherwise unknown effect.
+        @param segmentIndex index of segment of robot to which this sensor should be attached
+     */
+    virtual void addSensor(Sensor* sensor, Attachement attachement=Attachement());
 
-    /// adds a motor to the robot. Must be called before placement of the robot, otherwise it has no affect
-    virtual void addMotor(Motor* motor);
+    /** adds a motor to the robot. Must be called before agents initializes, otherwise unknown effect.
+        @param segmentIndex index of segment of robot to which this motor should be attached
+     */
+    virtual void addMotor(Motor* motor, Attachement attachement=Attachement());
+
+    /// adds a torque sensor to each joint. Call it after placement of robot.
+    virtual void addTorqueSensors(double maxtorque = 1.0, int avg = 1);
 
     virtual void update();
 
@@ -77,7 +94,7 @@ namespace lpzrobots {
     virtual int getMotorNumber();
     virtual void setMotors(const motor* motors_, int motornumber);
 
-    virtual std::list<Sensor*> getAttachedSensors(){
+    virtual std::list<SensorAttachment> getAttachedSensors(){
       return sensors;
     }
 
@@ -95,9 +112,13 @@ namespace lpzrobots {
     }
 
   protected:
+    void attachSensor(SensorAttachment& sm);
+    void attachMotor(MotorAttachment& sm);
+
+  protected:
     OdeRobot* robot;
-    std::list<Sensor*> sensors;
-    std::list<Motor*> motors;
+    std::list<SensorAttachment> sensors;
+    std::list<MotorAttachment> motors;
     bool sensors_before_rest;
     bool initialized;
     bool askedfornumber;

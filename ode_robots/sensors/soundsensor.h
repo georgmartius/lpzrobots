@@ -45,7 +45,7 @@ namespace lpzrobots {
                 int segments=1, int levels=1, float maxDistance=1000);
     virtual ~SoundSensor();
 
-    virtual void init(Primitive* own){ this->own = own;}
+    virtual void init(Primitive* own, Joint* joint = 0){ this->own = own;}
 
     virtual bool sense(const GlobalData& globaldata);
 
