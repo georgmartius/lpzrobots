@@ -750,9 +750,9 @@ namespace lpzrobots {
 
                  // create torque sensor
                   // In this time, I do not use scaller just get real value
-                motorTorqSensors[getMotorName(leg, TC)] = new TorqueSensor(TCj, 1.);
+                motorTorqSensors[getMotorName(leg, TC)] = new TorqueSensor(1.);
                   // initialize (own is Null, it was not used in simulation)
-                motorTorqSensors[getMotorName(leg, TC)]->init(NULL);
+                motorTorqSensors[getMotorName(leg, TC)]->init(NULL, TCj);
 
 
          // Femur **********************************************
@@ -806,9 +806,9 @@ namespace lpzrobots {
 
                  // create torque sensor
                   // In this time, I do not use scaller just get real value
-                motorTorqSensors[getMotorName(leg, CT)] = new TorqueSensor(CTj, 1.);
+                motorTorqSensors[getMotorName(leg, CT)] = new TorqueSensor(1.);
                   // initialize (own is Null, it was not used in simulation)
-                motorTorqSensors[getMotorName(leg, CT)]->init(NULL);
+                motorTorqSensors[getMotorName(leg, CT)]->init(NULL, CTj);
 
          // Tibia **********************************************
          // We make the third joint and link of Ashigaru (FT joint and femur)
@@ -878,9 +878,9 @@ namespace lpzrobots {
 
                  // create torque sensor
                   // In this time, I do not use scaller just get real value
-                motorTorqSensors[getMotorName(leg, FT)] = new TorqueSensor(FTj, 1.);
+                motorTorqSensors[getMotorName(leg, FT)] = new TorqueSensor(1.);
                   // initialize (own is Null, it was not used in simulation)
-                motorTorqSensors[getMotorName(leg, FT)]->init(NULL);
+                motorTorqSensors[getMotorName(leg, FT)]->init(NULL, FTj);
 
                 // Leg contact Sensors (Foot toe)
                 legContactSensors[leg] = new ContactSensor(false, 100, conf.foot.footRadius*1.1);//make the sphere a little bit larger than real foot to detect touching

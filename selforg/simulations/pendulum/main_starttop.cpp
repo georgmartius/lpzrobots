@@ -43,9 +43,9 @@ bool stop=0;
 bool clrscreen=true;
 double realtimefactor=1;
 double noise = 0.1;
-int controlinterval=4;
+int controlinterval=2;
 
-int reset = 50;
+int reset = 0;
 
 class Pendulum : public AbstractRobot {
 public:
@@ -57,7 +57,7 @@ public:
     y = new double[motornumber];
 
     state.set(2,1);
-    state.val(0,0) = 0.0; //M_PI; // position
+    state.val(0,0) = 0; // M_PI + M_PI/4; // position
     state.val(1,0) = 0.0; // speed
     this->dt=dt;
 
@@ -66,7 +66,7 @@ public:
     addParameterDef("maxForce", &maxForce, 0.5);
     //    addParameterDef("reinf", &reinf,0);
 
-    addParameter("reset", &reset, 0, intInfinity, "timesteps until reset in upper position (0: no reset)");
+    addParameter("reset", &reset, 0, 10^6, "timesteps until reset in upper position (0: no reset)");
 
     addParameter("realtimefactor", &realtimefactor); //global param. a bit stupid to do here, but who cares
     addParameter("noise", &noise); // global param
@@ -87,7 +87,7 @@ public:
     // d\phi/dt = \omega
     result.val(0,0) = omega;
     // d\omega/dt = force(x)
-    result.val(1,0) = -sin(phi) - pendl->mu*omega + pendl->maxForce*pendl->y[0];
+    result.val(1,0) = -sin(phi-M_PI) - pendl->mu*omega + pendl->maxForce*pendl->y[0];
     return result;
   }
 
@@ -180,8 +180,8 @@ private:
 
 
 int coord(double phi,double len){
-  double x = sin(phi)*len;
-  double y = cos(phi)*len;
+  double x = sin(phi-M_PI)*len;
+  double y = cos(phi-M_PI)*len;
   return int(round((x+1.0)/2*(SIZEX-1))) + int((y+1.0)/2*SIZEY)*SIZEX;
 }
 

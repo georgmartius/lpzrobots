@@ -49,7 +49,7 @@ namespace lpzrobots {
     SpeedSensor(double maxSpeed, Mode mode = Translational, short dimensions = X | Y | Z );
     virtual ~SpeedSensor() {}
 
-    virtual void init(Primitive* own);
+    virtual void init(Primitive* own, Joint* joint = 0);
     virtual int getSensorNumber() const;
 
     virtual bool sense(const GlobalData& globaldata);

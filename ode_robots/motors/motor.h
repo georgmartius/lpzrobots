@@ -22,7 +22,7 @@
  *                                                                         *
  ***************************************************************************/
 #ifndef           MOTOR_H_
-# define           MOTOR_H_
+#define           MOTOR_H_
 
 namespace lpzrobots {
 
@@ -37,7 +37,7 @@ namespace lpzrobots {
 
     /** initialises motor with body of robot
     */
-    virtual void init(Primitive* own)=0;
+    virtual void init(Primitive* own, Joint* joint = 0)=0;
 
     /// return the dimensionality of this motor
     virtual int getMotorNumber() const =0;
@@ -54,4 +54,4 @@ namespace lpzrobots {
   };
 }
 
-#endif             /* !MOTOR_H_ */
+#endif /* !MOTOR_H_ */

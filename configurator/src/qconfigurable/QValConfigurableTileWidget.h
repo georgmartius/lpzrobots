@@ -151,7 +151,7 @@ namespace lpzrobots {
       int calcNumberDecimals();
 
       static const int SCALE_FACTOR_SLIDER = 100000;
-      static const double SCALE_FACTOR_SPINBOX = 1500;
+      static constexpr double SCALE_FACTOR_SPINBOX = 1500.0;
 
     private slots:
       void sl_spinBoxValueChanged(double);

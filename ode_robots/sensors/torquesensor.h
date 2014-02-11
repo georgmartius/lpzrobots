@@ -38,15 +38,16 @@ namespace lpzrobots {
   public:
 
     /**
-       @param joint the joint on which to measure the torques.
        @param maxtorque at this torque the sensor value is 1.
        @param avg number of averaging steps (def 1) (very noisy for universal joint)
      */
-    TorqueSensor(Joint* joint, double maxtorque = 1.0, int avg = 1);
+    TorqueSensor(double maxtorque = 1.0, int avg = 1);
     virtual ~TorqueSensor();
 
-    /// the primitive is not required here, set it to NULL
-    virtual void init(Primitive* own);
+    /** the primitive is not required here, set it to NULL
+        @param joint the joint on which to measure the torques.
+    */
+    virtual void init(Primitive* own, Joint* joint = 0);
     virtual int getSensorNumber() const;
 
     virtual bool sense(const GlobalData& globaldata);

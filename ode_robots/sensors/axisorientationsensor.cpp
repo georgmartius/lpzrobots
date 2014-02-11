@@ -30,64 +30,64 @@
 
 namespace lpzrobots {
 
-  AxisOrientationSensor::AxisOrientationSensor(Mode mode, short dimensions) 
+  AxisOrientationSensor::AxisOrientationSensor(Mode mode, short dimensions)
     : mode(mode), dimensions(dimensions) {
     own = 0;
   }
 
-  void AxisOrientationSensor::init(Primitive* own){
+  void AxisOrientationSensor::init(Primitive* own, Joint* joint){
     this->own = own;
   }
 
   int AxisOrientationSensor::getSensorNumber() const{
-    
+
     short n = ((dimensions & X) != 0) + ((dimensions & Y) != 0) + ((dimensions & Z) != 0);
     switch (mode) {
-    case OnlyZAxis: 
-    case ZProjection: 
+    case OnlyZAxis:
+    case ZProjection:
       return n;
       break;
     case Axis:
       return 3*n;
       break;
-    }      
+    }
     return 0;
   }
-  
+
   bool AxisOrientationSensor::sense(const GlobalData& globaldata) { return true; }
 
   std::list<sensor> AxisOrientationSensor::get() const {
     assert(own);
     matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( own->getBody() ) );
-    
+
     switch (mode) {
-    case OnlyZAxis: 
+    case OnlyZAxis:
       if(dimensions == (X | Y | Z)) return A.column(2).convertToList();
       else return selectrows(A.column(2),dimensions); break;
-    case ZProjection: 
+    case ZProjection:
       if(dimensions == (X | Y | Z)) return A.row(2).convertToList();
       else return selectrows(A.row(2)^(matrix::T),dimensions);  break;
     case Axis:
       if(dimensions == (X | Y | Z)) return A.convertToList();
       else return selectrows(A,dimensions); break;
-    }    
+    }
     return std::list<sensor>();
   }
 
   int AxisOrientationSensor::get(sensor* sensors, int length) const{
-    assert(own); 
+    assert(own);
     matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( own->getBody() ) );
     switch (mode) {
-    case OnlyZAxis: 
+    case OnlyZAxis:
       if(dimensions == (X | Y | Z)) return A.column(2).convertToBuffer(sensors, length);
       else return selectrows(sensors, length, A.column(2),dimensions); break;
-    case ZProjection: 
+    case ZProjection:
       if(dimensions == (X | Y | Z)) return A.row(2).convertToBuffer(sensors, length);
       else return selectrows(sensors, length, A.row(2)^(matrix::T),dimensions);  break;
     case Axis:
       if(dimensions == (X | Y | Z)) return A.convertToBuffer(sensors, length);
       else return selectrows(sensors, length, A,dimensions); break;
-    }    
+    }
     return 0;
   }
 
