@@ -50,7 +50,7 @@ namespace lpzrobots {
   using namespace osg;
 
   // returns a material with the given color (defined in osgprimitive.cpp)
-  ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode = Material::DIFFUSE );
+  ref_ptr<Material> getMaterial (const Color& c, Material::ColorMode mode = Material::AMBIENT_AND_DIFFUSE );
 
 
 
@@ -115,7 +115,7 @@ namespace lpzrobots {
     }else{
       shape->setStateSet(new StateSet(*osgHandle.cfg->normalState));
     }
-    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color).get(),
+    shape->getOrCreateStateSet()->setAttributeAndModes(getMaterial(osgHandle.color, Material::AMBIENT_AND_DIFFUSE).get(),
                                                        StateAttribute::ON);
 
     applyTextures();

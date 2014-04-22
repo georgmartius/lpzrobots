@@ -155,7 +155,7 @@ namespace lpzrobots {
       c.relArmmass  = 1;        // 0.3; unused
       c.useDensity  = false;
 
-      c.useVelocityServos = false;
+      c.useVelocityServos = true;
       c.powerFactor       = 1.0;
       c.relForce          = 1.0;
       c.dampingFactor     = 1.0;

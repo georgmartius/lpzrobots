@@ -133,9 +133,9 @@ void MultiSineController::init(int sensornumber, int motornumber, RandGen* randG
   offsets     = new double[motornumber];
   for (int i=0; i<min(number_motors,sizeof(controlmask)*8); i++){
     if(controlmask & (1<<i)){
-      addParameterDef("period"     + itos(i), periods+i, 50);
-      addParameterDef("phaseshift" + itos(i), phaseShifts+i, 0);
-      addParameterDef("amplitude"  + itos(i), amplitudes+i, 1);
+      addParameterDef("period"     + itos(i), periods+i, period);
+      addParameterDef("phaseshift" + itos(i), phaseShifts+i, phaseShift*i);
+      addParameterDef("amplitude"  + itos(i), amplitudes+i, amplitude);
       addParameterDef("offset"     + itos(i), offsets+i, 0);
     }
   }

@@ -110,10 +110,7 @@ namespace lpzrobots {
     virtual std::vector<Primitive*>& getAllPrimitives() {
       return robot->getAllPrimitives();
     }
-
-    virtual OdeRobot* getRobot(){
-      return robot;
-    }
+    virtual OdeRobot* getBaseRobot() { return robot; }
 
   protected:
     void attachSensor(SensorAttachment& sm);
