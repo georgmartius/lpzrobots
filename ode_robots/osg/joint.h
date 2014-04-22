@@ -298,6 +298,7 @@ namespace lpzrobots {
     OSGPrimitive* visual;
   };
 
+
   /***************************************************************************/
 
   class SliderJoint : public OneAxisJoint {
@@ -328,6 +329,41 @@ namespace lpzrobots {
     double visualSize;
     OsgHandle osgHandle;
   };
+
+
+  // /***************************************************************************/
+  // // does not work
+  // class LMotorJoint : public TwoAxisJoint {
+  // public:
+  //   /// @param relative: how to anchor the axes: 0: global, 1: first 2: second body
+  //   LMotorJoint(Primitive* part1, Primitive* part2, int relative, const Axis& axis1, const Axis& axis2);
+
+  //   virtual ~LMotorJoint();
+
+  //   /** initialises (and creates) the joint. If visual is true then the axes of the joints are
+  //       also drawn as slim cylinders.
+  //   */
+  //   virtual void init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+  //                     bool withVisual = true, double visualSize = 0.1,
+  //                     bool ignoreColl = true);
+
+  //   virtual void update();
+
+  //   virtual void addForce1(double t);
+  //   virtual void addForce2(double t);
+  //   virtual double getPosition1() const;
+  //   virtual double getPosition2() const;
+  //   virtual double getPosition1Rate() const;
+  //   virtual double getPosition2Rate() const;
+
+  //   virtual void setParam(int parameter, double value);
+  //   virtual double getParam(int parameter) const;
+
+  // protected:
+  //   OSGPrimitive* visual1;
+  //   OSGPrimitive* visual2;
+  //   int relative;
+  // };
 
   /***************************************************************************/
 

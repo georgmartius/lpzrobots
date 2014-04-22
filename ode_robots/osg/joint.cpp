@@ -528,4 +528,99 @@ namespace lpzrobots {
     return dJointGetSliderParam(joint, parameter);
   }
 
+  // /***************************************************************************/
+
+  // LMotorJoint::LMotorJoint(Primitive* part1, Primitive* part2, int relative,
+  //                          const Axis& axis1, const Axis& axis2)
+  //   : TwoAxisJoint(part1, part2, Vec3(0,0,0) , axis1, axis2),
+  //     visual1(0), visual2(0), relative(relative) {
+  // }
+
+  // LMotorJoint::~LMotorJoint(){
+  //   if (visual1) delete visual1;
+  //   if (visual2) delete visual2;
+  // }
+
+  // void LMotorJoint::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
+  //                        bool withVisual, double visualSize, bool ignoreColl){
+  //   Joint::init(odeHandle, osgHandle, withVisual, visualSize, ignoreColl);
+  //   joint = dJointCreateLMotor (odeHandle.world,0);
+  //   dJointAttach (joint, part1->getBody(),part2->getBody());
+  //   dJointSetLMotorNumAxes(joint,  3);
+  //   // both axis are anchored  to first body (but given in global coords)
+  //   dJointSetLMotorAxis (joint, 0, relative, axis1.x(), axis1.y(), axis1.z());
+  //   dJointSetLMotorAxis (joint, 1, relative, axis2.x(), axis2.y(), axis2.z());
+  //   Axis axis3 = axis1.crossProduct(axis2);
+  //   dJointSetLMotorAxis (joint, 2, relative, axis3.x(), axis3.y(), axis3.z());
+  //   setParam(dParamLoStop2, 0);
+  //   setParam(dParamHiStop2, 0);
+
+  //   if(withVisual){
+  //     visual1 = new OSGCylinder(visualSize/15.0, visualSize);
+  //     visual1->init(osgHandle, OSGPrimitive::Low);
+  //     Matrix t = anchorAxisPose(part1->getPosition(), axis1);
+  //     visual1->setMatrix(t);
+  //     visual2 = new OSGCylinder(visualSize/15.0, visualSize);
+  //     visual2->init(osgHandle, OSGPrimitive::Low);
+  //     t = anchorAxisPose(part1->getPosition(), axis2);
+  //     visual2->setMatrix(t);
+  //   }
+  // }
+
+  // void LMotorJoint::update(){
+  //   if(visual1 && visual2){
+  //     dVector3 v;
+  //     Vec3 pos = part1->getPosition();
+  //     anchor.x() = v[0];
+  //     anchor.y() = v[1];
+  //     anchor.z() = v[2];
+  //     dJointGetLMotorAxis(joint, 0, v);
+  //     axis1.x() = v[0];
+  //     axis1.y() = v[1];
+  //     axis1.z() = v[2];
+  //     dJointGetLMotorAxis(joint, 1, v);
+  //     axis2.x() = v[0];
+  //     axis2.y() = v[1];
+  //     axis2.z() = v[2];
+  //     visual1->setMatrix(anchorAxisPose(pos, axis1));
+  //     visual2->setMatrix(anchorAxisPose(pos, axis2));
+  //   }
+  // }
+
+  // void LMotorJoint::addForce1(double t1){
+  //   assert("not implemented!");
+  // }
+  // void LMotorJoint::addForce2(double t2){
+  //   assert("not implemented!");
+  // }
+
+  // double LMotorJoint::getPosition1() const{
+  //   assert("not implemented!");
+  //   return 0;
+  // }
+
+  // double LMotorJoint::getPosition2() const{
+  //   assert("not implemented!");
+  //   return 0;
+  // }
+
+  // double LMotorJoint::getPosition1Rate() const{
+  //   assert("not implemented!");
+  //   return 0;
+  // }
+
+  // double LMotorJoint::getPosition2Rate() const{
+  //   assert("not implemented!");
+  //   return 0;
+  // }
+
+  // void LMotorJoint::setParam(int parameter, double value) {
+  //   dJointSetLMotorParam(joint, parameter, value);
+  // }
+
+  // double LMotorJoint::getParam(int parameter) const{
+  //   return dJointGetLMotorParam(joint, parameter);
+  // }
+
+
 }

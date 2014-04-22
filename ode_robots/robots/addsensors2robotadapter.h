@@ -111,6 +111,10 @@ namespace lpzrobots {
       return robot->getAllPrimitives();
     }
 
+    virtual OdeRobot* getRobot(){
+      return robot;
+    }
+
   protected:
     void attachSensor(SensorAttachment& sm);
     void attachMotor(MotorAttachment& sm);
