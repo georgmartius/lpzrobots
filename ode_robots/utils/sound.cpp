@@ -25,21 +25,28 @@
 #include "sound.h"
 #include "osghandle.h"
 #include "osgprimitive.h"
+#include "globaldata.h"
+#include "tmpprimitive.h"
+#include "globaldata.h"
 
 namespace lpzrobots {
 
-  Sound::~Sound(){
-    if(visual) delete visual;
+  Sound::Sound(double time, const Pos& pos, float intensity, float frequency, void* sender)
+    : time(time), pos(pos),
+      intensity(intensity), frequency(frequency), sender(sender) {
+    intensity=std::max(std::min(intensity, 1.0f), 0.0f);
   }
 
+  Sound::~Sound(){
+  }
 
-  void Sound::render(const OsgHandle& osgHandle){
-    if(!visual){
-      visual = new OSGSphere((intensity+1.0)/4.0);
-      visual->init(osgHandle.changeColor(Color(255-int((frequency+1.0)*128.0),
-                                               0,int((frequency+1.0)*128.0),0.4)));
-      visual->setMatrix(osg::Matrix::translate(pos.x(), pos.y(), pos.z()+1));
-    }
+  void Sound::createVisual(GlobalData& globalData, double visualSize, Pos visualOffset) const {
+    globalData.addTmpObject(new TmpDisplayItem(new OSGSphere((intensity)*visualSize),
+                                               TRANSM(pos + visualOffset),
+                                               Color(255-int((frequency+1.0)*128.0),
+                                                     0,int((frequency+1.0)*128.0),0.4)),
+                            globalData.odeConfig.simStepSize*globalData.odeConfig.controlInterval);
+
   }
 
 }

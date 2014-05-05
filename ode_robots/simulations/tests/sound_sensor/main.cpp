@@ -36,6 +36,7 @@
 // used wiring
 #include <selforg/one2onewiring.h>
 #include <selforg/derivativewiring.h>
+#include <selforg/controller_misc.h>
 
 // used robot
 #include <ode_robots/fourwheeled.h>
@@ -76,11 +77,11 @@ public:
     FourWheeledConf fc = FourWheeled::getDefaultConf();
     fc.twoWheelMode = true;
     fc.useBumper    = false;
-    fc.irFront      = true;
+    fc.irFront      = false;
     FourWheeled* fw = new FourWheeled(odeHandle, osgHandle,
                                         fc, "TestVehicle");
     std::list<Sensor*> sensors;
-    sensors.push_back(new SoundSensor(Sensor::X));
+    sensors.push_back(new SoundSensor(Sensor::X, SoundSensor::Angle, 1, 1, 5));
     AddSensors2RobotAdapter* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle,
                                                                    fw, sensors);
     vehicle->place(osg::Matrix::translate(0,0,0));
@@ -103,7 +104,7 @@ public:
     global.obstacles.push_back(s);
     speaker = new Speaker(10);
     speaker->init(s->getMainPrimitive());
-    value=0;
+    value=0.5;
     speaker->set(&value,1);
 
 
@@ -137,6 +138,7 @@ public:
           break;
         }
     }
+    value=clip(value,0.0,1.0);
     return false;
   }
 

@@ -31,9 +31,10 @@
 namespace lpzrobots {
 
   SoundSensor::SoundSensor(Dimensions dim, Measure measure/*=Angle*/,
-                           int segments/*=1*/, int levels/*=1*/, float maxDistance/*=1000*/)
+                           int segments/*=1*/, int levels/*=1*/, double maxDistance/*=50*/,
+                           double noisestrength)
     : dim(dim), measure(measure),
-      segments(segments), levels(levels), maxDistance(maxDistance)
+      segments(segments), levels(levels), maxDistance(maxDistance), noisestrength(noisestrength)
   {
     int len = getSensorNumber();
     val = new double[len];
@@ -47,15 +48,22 @@ namespace lpzrobots {
     if(oldangle) delete[] oldangle;
   }
 
+  float SoundSensor::distanceDependency(const Sound& s, double distance){
+    return (1-clip(distance/maxDistance,0.0,1.0)) * s.intensity;
+  }
+
   bool SoundSensor::sense(const GlobalData& globaldata){
     int len = getSensorNumber();
     memset(val,0,sizeof(double)*len);
+    int *cnt = new int[len];
+    memset(cnt,0,sizeof(int)*len);
+
     if(!globaldata.sounds.empty()){
-      // todo combine more then one signal
+      // multiple signal are simply averaged combined
       FOREACHC(SoundList, globaldata.sounds, s){
         Pos relpos = own->toLocal(s->pos);
         // we have to look at the right dimension because sometimes the
-        // robot's coordinate system is has Z not looking to the sky
+        // robot's coordinate system has Z not looking to the sky
         double x = (dim == X) ? relpos.z() : relpos.x();
         double y = (dim == Y) ? relpos.z() : relpos.y();
 
@@ -67,39 +75,48 @@ namespace lpzrobots {
           double len = sqrt(x*x + y*y);
           if(len>0){ x/=len, y/=len; }
 
-          //Todo: if the internsity is very low, then we should not be able to detect the direction!
           double angle = atan2(y, x);
-
+          double intens = distanceDependency(*s, dist);
+          if(intens<=0) continue;
+          // add noise to angle, the more the lower the intensity maximal noisestrength*360Deg
+          angle += random_minusone_to_one(0)*2*M_PI*(1-pow(intens,0.25))*noisestrength;
+          intens += random_minusone_to_one(0)*noisestrength;
+          intens=clip(intens,0.0,1.0);
           switch (measure){
           case Segments:
             {
               int segm = clip((int)((angle+M_PI)/(2*M_PI)*segments),0,segments-1);
-              val[segm*levels+l]= s->intensity; // todo: add distance dependance
+              val[segm*levels+l]= intens;
+              cnt[segm*levels+l]++;
             }
             break;
           case Angle:
-            val[3*l]   = s->intensity; // todo: add distance dependance
-            val[3*l+1] = sin(angle);
-            val[3*l+2] = cos(angle);
+            val[3*l]   += intens;
+            val[3*l+1] += sin(angle);
+            val[3*l+2] += cos(angle);
+            cnt[3*l]++; cnt[3*l+1]++; cnt[3*l+2]++;
             break;
           case AngleVel:
             {   // calc derivatives of angle values
               double d = angle - oldangle[l];
               double scale = 10;
-              // if(d>2*M_PI/scale)  d=0;
-              // if(d<-2*M_PI/scale) d=0;
               if(d>M_PI)  d-=2*M_PI;
               if(d<-M_PI)  d+=2*M_PI;
 
-              oldangle[l]=angle;
-              val[3*l]   = s->intensity; // todo: add distance dependance
-              val[3*l+1] = scale*d;
+              oldangle[l]= angle;
+              val[2*l]   = intens;
+              val[2*l+1] = scale*d;
+              cnt[3*l]++; cnt[3*l+1]++;
             }
             break;
           }
         }
       }
     }
+    for(int k=0; k<len; k++){
+      if(cnt[k]>0) val[k]/=cnt[k];
+    }
+    delete[] cnt;
     return true;
   }
 

@@ -22,7 +22,7 @@
  *                                                                         *
  ***************************************************************************/
 #ifndef           SPEAKER_H_
-# define           SPEAKER_H_
+#define           SPEAKER_H_
 
 #include "motor.h"
 
@@ -35,8 +35,8 @@ namespace lpzrobots {
    */
   class Speaker: public Motor {
   public:
-    Speaker(float frequency)
-      : frequency(frequency) {
+    Speaker(float frequency, double visualSize = 0.5, Pos visualOffset = Pos(0,0,1))
+      : frequency(frequency), visualSize(visualSize), visualOffset(visualOffset) {
     }
     virtual ~Speaker() {};
 
@@ -49,14 +49,17 @@ namespace lpzrobots {
     };
 
     virtual bool act(GlobalData& globaldata){
-      globaldata.sounds.push_back(Sound(globaldata.time, own->getPosition(),
-                                        intensity,frequency, (void*)own));
+      Sound s = Sound(globaldata.time, own->getPosition(),
+                      intensity,frequency, (void*)own);
+      globaldata.sounds.push_back(s);
+      s.createVisual(globaldata, visualSize, visualOffset);
+
       return true;
     }
 
     virtual int set(const motor* values, int length){
       if(length>0)
-        intensity=values[0];
+        intensity=std::max(std::min(values[0],1.0),0.0);
       return 1;
     };
 
@@ -64,6 +67,9 @@ namespace lpzrobots {
     Primitive* own;
     float frequency;
     float intensity;
+
+    double visualSize;
+    Pos visualOffset;
   };
 
 }

@@ -37,17 +37,26 @@ namespace lpzrobots {
   */
   class SoundSensor: public Sensor {
   public:
-    /* typedef */ enum Measure { Segments, Angle, AngleVel };
+    /** Segments: for each segement and level we get the
+        Angle: for each level we get a triple (intensity, sin(angle), cos(angle))
+               multiple sound sources are averaged (weighted by intensity)
+        AngleVel: for each level we get a tuple (intensity, angle-velocity)
+     */
+    enum Measure { Segments, Angle, AngleVel };
 
     /** @param dim Up-axis of the robot (sometimes it is not Z)
+        @param measure what to measure @see Measure
     */
     SoundSensor(Dimensions dim = Z, Measure measure = Angle,
-                int segments=1, int levels=1, float maxDistance=1000);
+                int segments=1, int levels=1, double maxDistance=50, double noisestrength=0.1);
     virtual ~SoundSensor();
 
     virtual void init(Primitive* own, Joint* joint = 0){ this->own = own;}
 
     virtual bool sense(const GlobalData& globaldata);
+
+    /// default implementation is a linear decrease in intensity until it is 0 at maxDistance
+    virtual float distanceDependency(const Sound& s, double distance);
 
     virtual int getSensorNumber() const;
 
@@ -60,7 +69,8 @@ namespace lpzrobots {
     Measure measure; ///< how to measure
     int segments;
     int levels;
-    float maxDistance;
+    double maxDistance;
+    double noisestrength;
 
     double* val;
     double* oldangle;
