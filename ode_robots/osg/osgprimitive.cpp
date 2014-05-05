@@ -665,7 +665,7 @@ namespace lpzrobots {
     normal.normalize();
     normals->push_back(normal);
     geometry->setNormalArray(normals);
-    geometry->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE);
+    geometry->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
 
     osg::Vec4Array* colors = new osg::Vec4Array;
     colors->push_back(osgHandle.color);
