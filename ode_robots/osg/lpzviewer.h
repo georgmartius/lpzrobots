@@ -21,6 +21,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
+#ifndef __LPZVIEWER_H
+#define __LPZVIEWER_H
+
 
 #include <osgViewer/Viewer>
 #include <osg/Group>
@@ -70,3 +73,5 @@ namespace lpzrobots {
   };
 
 }
+
+#endif

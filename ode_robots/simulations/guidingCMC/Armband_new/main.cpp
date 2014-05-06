@@ -100,7 +100,7 @@
 #include <selforg/stl_adds.h>
 
 #include <ode_robots/sliderwheelie.h>
-#include <ode_robots/wheelie.h>
+// #include <ode_robots/wheelie.h>
 
 // fetch all the stuff of lpzrobots into scope
 using namespace lpzrobots;

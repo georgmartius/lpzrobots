@@ -44,6 +44,7 @@ UTILS = install_prefix.conf ode_robots-config
 
 # additional inc paths
 INC +=  -I. -Iinclude -Iinclude/ode_robots -I$(shell $(SELFORGCFG) $(CFGOPTS) --srcprefix)/include
+# INC += -include allincludes.h
 
 # use -pg for profiling
 CPPFLAGS = -Wall -pipe -fpic $(INC) $(shell $(SELFORGCFG) $(CFGOPTS) --cflags) \
@@ -100,9 +101,10 @@ ${BUILD_DIR}/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) -c $(CPPFLAGS) $(CFLAGS) -o "$@" "$<"
 
-${BUILD_DIR}/%.gch: %.cpp
-	@mkdir -p $(dir $@)
-	$(CXX) -c $(CPPFLAGS) $(CFLAGS) -o "$@" "$<"
+#allincludes.h.gch: allincludes.h
+#	@mkdir -p $(dir $@)
+#	$(CXX) -c $(CPPFLAGS) $(CFLAGS) -o "$@" allincludes.h
+#  find . -name "*.cpp" | xargs -n 1 grep "^#include <" | sort | uniq -c -s 10| grep -v "^\s*1"  | sed -e 's/\s*\w\w* //' > allincludes.h
 
 
 

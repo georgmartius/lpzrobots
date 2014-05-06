@@ -47,7 +47,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include  <selforg/controller_misc.h>
+#include <selforg/controller_misc.h>
 #include "layeredcontroller.h"
 using namespace matrix;
 using namespace std;

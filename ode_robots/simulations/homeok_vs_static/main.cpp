@@ -156,7 +156,7 @@
 #include <selforg/invertnchannelcontroller.h>
 #include <selforg/invertmotorspace.h>
 //#include <selforg/sinecontroller.h>
-#include <staticcontroller.h>
+// #include <staticcontroller.h>
 
 
 // fetch all the stuff of lpzrobots into scope

@@ -40,54 +40,6 @@ namespace lpzrobots{
 #define includeMusclesGraphics false
 
 
-  /* Enumeration of different parts and joints */
-  // left, right up and down correspond to view from top, when base is on the bottom
-  enum parts {base, upperArm, lowerArm,
-              mainMuscle11, //left mainMuscle bottom part
-              mainMuscle12, //left mainMuscle top part
-              mainMuscle21, //right mainMuscle lower part
-              mainMuscle22, //right mainMuscle upper part
-              smallMuscle11,
-              smallMuscle12,
-              smallMuscle21,
-              smallMuscle22,
-              smallMuscle31,
-              smallMuscle32,
-              smallMuscle41,
-              smallMuscle42,
-              hand,
-              NUMParts};
-
-  enum joints {HJ_BuA,    // hinge joint between base and upperArm
-               HJ_uAlA,   // hinge joint between upperArm and lowerArm
-
-               HJ_BmM11,  // hinge joint between base and mainMuscle11
-               HJ_lAmM12, // hinge joint between lowerArm and mainMuscle12
-               HJ_BmM21,  // hinge joint between base and mainMuscle21
-               HJ_lAmM22, // hinge joint between lowerArm and mainMuscle22
-
-               HJ_BsM11,  // hinge joint between base and smallMuscle11
-               HJ_uAsM12, // hinge joint between upperArm and smallMuscle12
-               HJ_BsM21,  // hinge joint between base and smallMuscle21
-               HJ_uAsM22, // hinge joint between upperArm and smallMuscle22
-               HJ_lAsM31, // hinge joint between lowerArm and smallMuscle31
-               HJ_uAsM32, // hinge joint between upperArm and smallMuscle32
-               HJ_lAsM41, // hinge joint between lowerArm and smallMuscle41
-               HJ_uAsM42, // hinge joint between upperArm and smallMuscle42
-
-               SJ_mM1, // sliderJoint between mainMuscle11 and mainMuscle12
-               SJ_mM2, // sliderJoint between mainMuscle21 and mainMuscle22
-
-               SJ_sM1, // slider Joint between smallMuscle11 ans smallMuscle12
-               SJ_sM2, // slider Joint between smallMuscle21 ans smallMuscle22
-               SJ_sM3, // slider Joint between smallMuscle31 ans smallMuscle32
-               SJ_sM4, // slider Joint between smallMuscle41 ans smallMuscle42
-
-               FJ_lAH, // fixed joint between lowerArm and hand
-               NUMJoints};
-
-
-
   typedef struct {
     bool jointAngleSensors; // choose sensors, all combinations are possible
     bool jointAngleRateSensors;
@@ -99,6 +51,54 @@ namespace lpzrobots{
 
   class MuscledArm : public OdeRobot{
   public:
+
+    /* Enumeration of different parts and joints */
+    // left, right up and down correspond to view from top, when base is on the bottom
+    enum parts {base, upperArm, lowerArm,
+                mainMuscle11, //left mainMuscle bottom part
+                mainMuscle12, //left mainMuscle top part
+                mainMuscle21, //right mainMuscle lower part
+                mainMuscle22, //right mainMuscle upper part
+                smallMuscle11,
+                smallMuscle12,
+                smallMuscle21,
+                smallMuscle22,
+                smallMuscle31,
+                smallMuscle32,
+                smallMuscle41,
+                smallMuscle42,
+                hand,
+                NUMParts};
+
+    enum joints {HJ_BuA,    // hinge joint between base and upperArm
+                 HJ_uAlA,   // hinge joint between upperArm and lowerArm
+
+                 HJ_BmM11,  // hinge joint between base and mainMuscle11
+                 HJ_lAmM12, // hinge joint between lowerArm and mainMuscle12
+                 HJ_BmM21,  // hinge joint between base and mainMuscle21
+                 HJ_lAmM22, // hinge joint between lowerArm and mainMuscle22
+
+                 HJ_BsM11,  // hinge joint between base and smallMuscle11
+                 HJ_uAsM12, // hinge joint between upperArm and smallMuscle12
+                 HJ_BsM21,  // hinge joint between base and smallMuscle21
+                 HJ_uAsM22, // hinge joint between upperArm and smallMuscle22
+                 HJ_lAsM31, // hinge joint between lowerArm and smallMuscle31
+                 HJ_uAsM32, // hinge joint between upperArm and smallMuscle32
+                 HJ_lAsM41, // hinge joint between lowerArm and smallMuscle41
+                 HJ_uAsM42, // hinge joint between upperArm and smallMuscle42
+
+                 SJ_mM1, // sliderJoint between mainMuscle11 and mainMuscle12
+                 SJ_mM2, // sliderJoint between mainMuscle21 and mainMuscle22
+
+                 SJ_sM1, // slider Joint between smallMuscle11 ans smallMuscle12
+                 SJ_sM2, // slider Joint between smallMuscle21 ans smallMuscle22
+                 SJ_sM3, // slider Joint between smallMuscle31 ans smallMuscle32
+                 SJ_sM4, // slider Joint between smallMuscle41 ans smallMuscle42
+
+                 FJ_lAH, // fixed joint between lowerArm and hand
+                 NUMJoints};
+
+
 
     double force_[6];
 

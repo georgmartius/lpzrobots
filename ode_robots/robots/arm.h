@@ -48,17 +48,6 @@ using namespace matrix;
 
 namespace lpzrobots{
 
-  /* Enumeration of different parts and joints */
-  enum parts
-    {
-      base,
-      shoulder1,
-      shoulder2,
-      upperArm,
-      foreArm,
-      hand
-    };
-
   typedef struct
   {
     double body_mass;
@@ -102,6 +91,17 @@ namespace lpzrobots{
   class Arm : public OdeRobot
   {
   public:
+
+    /* Enumeration of different parts and joints */
+    enum parts
+      {
+        base,
+        shoulder1,
+        shoulder2,
+        upperArm,
+        foreArm,
+        hand
+      };
 
     Arm(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const ArmConf& conf, const std::string& name);
 

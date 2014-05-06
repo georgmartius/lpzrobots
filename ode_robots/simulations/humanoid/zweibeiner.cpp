@@ -62,7 +62,7 @@
 #include <ode_robots/twoaxisservo.h>
 
 // include header file
-#include <ode_robots/zweibeiner.h>
+#include "zweibeiner.h"
 
 using namespace osg;
 using namespace std;
