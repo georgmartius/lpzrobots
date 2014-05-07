@@ -96,14 +96,14 @@ namespace lpzrobots {
 
     virtual void update();
 
-    virtual void place(const osg::Matrix& pose);
+    virtual void placeIntern(const osg::Matrix& pose);
 
     virtual void doInternalStuff(GlobalData& globalData);
 
-    virtual int getSensors ( sensor* sensors, int sensornumber );
-    virtual void setMotors ( const motor* motors, int motornumber );
-    virtual int getMotorNumber();
-    virtual int getSensorNumber();
+    virtual int getSensorsIntern( sensor* sensors, int sensornumber );
+    virtual void setMotorsIntern( const double* motors, int motornumber );
+    virtual int getMotorNumberIntern();
+    virtual int getSensorNumberIntern();
 
     virtual Primitive* getMainPrimitive() const { return object[0]; }
 

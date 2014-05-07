@@ -88,7 +88,7 @@ namespace lpzrobots {
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void TruckMesh::setMotors(const motor* motors, int motornumber){
+  void TruckMesh::setMotorsIntern(const double* motors, int motornumber){
     assert(created); // robot must exist
     // the number of controlled motors is minimum of
     // "number of motorcommands" (motornumber) and
@@ -120,7 +120,7 @@ namespace lpzrobots {
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  int TruckMesh::getSensors(sensor* sensors, int sensornumber){
+  int TruckMesh::getSensorsIntern(sensor* sensors, int sensornumber){
     assert(created); // robot must exist
 
     // the number of sensors to read is the minimum of
@@ -138,7 +138,7 @@ namespace lpzrobots {
   };
 
 
-  void TruckMesh::place(const osg::Matrix& pose){
+  void TruckMesh::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
     // width*0.6 is added (without this the wheels and half of the robot will be in the ground)
@@ -151,7 +151,8 @@ namespace lpzrobots {
   /**
    * updates the osg notes
    */
-  void TruckMesh::update(){
+  void TruckMesh::update() {
+    OdeRobot::update();
     assert(created); // robot must exist
 
     for (int i=0; i<segmentsno; i++) { // update objects

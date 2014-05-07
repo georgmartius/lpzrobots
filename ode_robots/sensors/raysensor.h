@@ -27,11 +27,10 @@
 #include <ode-dbl/common.h>
 #include "osgforwarddecl.h"
 #include "odehandle.h"
-#include "osghandle.h"
+#include "physicalsensor.h"
 
 
 namespace lpzrobots {
-  class Primitive;
 
 /** Abstract class for Ray-based sensors.
     This are sensors which are based on distance measurements using the ODE geom class Ray.
@@ -40,47 +39,28 @@ namespace lpzrobots {
     Therefore a reset function is provided.
     See also RaySensorBank, which is an object for managing multiple ray sensors.
  */
-class RaySensor {
-public:
-  enum rayDrawMode { drawNothing, drawRay, drawSensor, drawAll};
+  class RaySensor : public PhysicalSensor {
+  public:
+    enum rayDrawMode { drawNothing, drawRay, drawSensor, drawAll};
 
-  RaySensor() {}
-  virtual ~RaySensor(){}
+    RaySensor() {}
+    virtual ~RaySensor(){}
 
-  // should create a copy if this, without initialisation
-  virtual RaySensor* clone() const = 0;
+    // should create a copy if this, without initialisation
+    virtual RaySensor* clone() const = 0;
 
-  /** providing essential information
-      @param odeHandle OdeHandle
-      @param osgHandle OsgHandle
-      @param body primitive to which the sensor will be attached
-      @param pose relative pose in respect to body in which the sensor will be placed
-      @param range length of the sensor
-      @param drawMode whether to draw nothing, sensor body, ray, or both
-   */
-  virtual void init(const OdeHandle& odeHandle,
-                    const OsgHandle& osgHandle, Primitive* body,
-                    const osg::Matrix pose, float range,
-                    rayDrawMode drawMode = drawSensor) = 0;
+    /** set the range of the sensor
+        @param range new length of the sensor
+    */
+    virtual void setRange(float range) = 0;
 
-  /** used for reseting the sensor value to a value of maximal distance.
-   */
-  virtual void reset() = 0;
+    virtual void setDrawMode(rayDrawMode drawMode) = 0;
 
-  /** returns the sensor value (usually in the range [-1,1] )
-   */
-  virtual double get() = 0;
+    /** updates the position of the osg nodes
+     */
+    virtual void update() = 0;
 
-  /** set the range of the sensor
-      @param range new length of the sensor
-  */
-  virtual void setRange(float range) = 0;
-
-  /** updates the position of the osg nodes
-   */
-  virtual void update() = 0;
-
-};
+  };
 
 }
 

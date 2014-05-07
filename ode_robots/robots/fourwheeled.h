@@ -86,23 +86,12 @@ namespace lpzrobots {
 
     virtual ~FourWheeled();
 
-    /**
-     * updates the OSG nodes of the vehicle
-     */
-    virtual void update();
+    virtual int getSensorNumberIntern();
+    virtual int getMotorNumberIntern();
 
-    virtual int getSensorNumber();
-    virtual int getMotorNumber();
+    virtual int getSensorsIntern(sensor* sensors, int sensornumber);
 
-    virtual int getSensors(sensor* sensors, int sensornumber);
-
-    virtual void setMotors(const motor* motors, int motornumber);
-
-    /** this function is called in each timestep. It should perform robot-internal checks,
-        like space-internal collision detection, sensor resets/update etc.
-        @param globalData structure that contains global data from the simulation environment
-    */
-    virtual void doInternalStuff(GlobalData& globalData);
+    virtual void setMotorsIntern(const double* motors, int motornumber);
 
     // returns the joint with index i
     virtual Joint* getJoint(int i);
@@ -118,7 +107,6 @@ namespace lpzrobots {
     virtual void destroy();
 
     FourWheeledConf conf;
-    RaySensorBank irSensorBank; // a collection of ir sensors
     Primitive* bumpertrans;
     Primitive* bumper;
   };

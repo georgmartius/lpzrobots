@@ -275,7 +275,7 @@ namespace lpzrobots {
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void Ashigaru::setMotors(const motor* motors, int motornumber){
+  void Ashigaru::setMotorsIntern(const double* motors, int motornumber){
     assert(created);
     assert(motornumber == motorno);
 
@@ -297,9 +297,9 @@ namespace lpzrobots {
 //   sensor ir_old[4];
 //   sensor ir_tmp[4];
 
-  int Ashigaru::getSensors(sensor* sensors, int sensornumber){
+  int Ashigaru::getSensorsIntern(sensor* sensors, int sensornumber){
     assert(created);
-    assert(sensornumber == getSensorNumber());
+    assert(sensornumber == getSensorNumberIntern());
 
      // angle sensors
      //
@@ -383,7 +383,7 @@ namespace lpzrobots {
   };
 
 
-  void Ashigaru::place(const osg::Matrix& pose){
+  void Ashigaru::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
     // length of foot is added (without this the wheels and half of the robot will be in the ground)
@@ -408,7 +408,8 @@ namespace lpzrobots {
   /**
    * updates the osg notes and sensorbank
    */
-  void Ashigaru::update(){
+  void Ashigaru::update() {
+    OdeRobot::update();
     assert(created); // robot must exist
 
     // update object

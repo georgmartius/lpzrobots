@@ -46,10 +46,10 @@ namespace lpzrobots {
    *@param motors pointer to the array, motor values are scaled to [-1,1]
    *@param motornumber length of the motor array
    **/
-  void SchlangeServo2::setMotors ( const motor* motors, int motornumber )
+  void SchlangeServo2::setMotorsIntern( const double* motors, int motornumber )
   {
     assert(created);
-    int len = min(motornumber, getMotorNumber())/2;
+    int len = min(motornumber, getMotorNumberIntern())/2;
     // controller output as torques
     for (int i = 0; i < len; i++){
       servos[i]->set(motors[2*i], motors[2*i+1]);
@@ -63,10 +63,10 @@ namespace lpzrobots {
    *@param sensornumber length of the sensor array
    *@return number of actually written sensors
    **/
-  int SchlangeServo2::getSensors ( sensor* sensors, int sensornumber )
+  int SchlangeServo2::getSensorsIntern( sensor* sensors, int sensornumber )
   {
     assert(created);
-    int len = min(sensornumber, getSensorNumber())/2;
+    int len = min(sensornumber, getSensorNumberIntern())/2;
 
     for (int n = 0; n < len; n++) {
       sensors[2*n] = servos[n]->get1();

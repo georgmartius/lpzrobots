@@ -130,7 +130,7 @@ namespace lpzrobots {
   };
 
 
-  int Hexapod::getMotorNumber(){
+  int Hexapod::getMotorNumberIntern(){
     return  2*hipservos.size() + (conf.useTebiaMotors ? tebiaservos.size() : 0)
       + (conf.useActiveWhisker ? whiskerservos.size() : 0);
   };
@@ -139,7 +139,7 @@ namespace lpzrobots {
      @param motors motors scaled to [-1,1]
      @param motornumber length of the motor array
   */
-  void Hexapod::setMotors(const motor* motors, int motornumber){
+  void Hexapod::setMotorsIntern(const double* motors, int motornumber){
     assert(created); // robot must exist
     int n=0;
     FOREACH(vector<TwoAxisServo*>, hipservos, s){
@@ -170,8 +170,8 @@ namespace lpzrobots {
 
   };
 
-  int Hexapod::getSensorNumber(){
-    return 2*hipservos.size() + irSensorBank.size() + (conf.useTebiaMotors ? tebiaservos.size() : 0)
+  int Hexapod::getSensorNumberIntern(){
+    return 2*hipservos.size() + (conf.useTebiaMotors ? tebiaservos.size() : 0)
       + (conf.useActiveWhisker ? whiskerservos.size() : 0) + contactsensors.size();
   };
 
@@ -180,7 +180,7 @@ namespace lpzrobots {
      @param sensornumber length of the sensor array
      @return number of actually written sensors
   */
-  int Hexapod::getSensors(sensor* sensors, int sensornumber){
+  int Hexapod::getSensorsIntern(double* sensors, int sensornumber){
     assert(created);
     int n=0;
     FOREACH(vector<TwoAxisServo*>, hipservos, s){
@@ -205,16 +205,11 @@ namespace lpzrobots {
       }
     };
 
-    if (conf.irFront || conf.irBack){
-      n += irSensorBank.get(sensors+n, sensornumber-n);
-    }
-
-
     return n;
   };
 
 
-  void Hexapod::place(const osg::Matrix& pose){
+  void Hexapod::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position is 0
     //    Matrix p2;
@@ -222,22 +217,6 @@ namespace lpzrobots {
     create(pose);
   };
 
-
-  /**
-   * updates the osg notes
-   */
-  void Hexapod::update(){
-    assert(created); // robot must exist
-
-    for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-      if(*i) (*i)->update();
-    }
-    for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-      if(*i) (*i)->update();
-    }
-
-    irSensorBank.update();
-  };
 
   double Hexapod::outwardMechanicalPower(const dReal *torques,const dReal *angularV){
 
@@ -300,7 +279,7 @@ namespace lpzrobots {
       @param global structure that contains global data from the simulation environment
   */
   void Hexapod::doInternalStuff(GlobalData& global){
-    irSensorBank.reset();
+    OdeRobot::doInternalStuff(global);
     if(conf.useContactSensors){
       FOREACH(vector<ContactSensor*>, contactsensors, s){
         if(*s) (*s)->reset();
@@ -453,16 +432,17 @@ namespace lpzrobots {
       }
 
 
-      irSensorBank.init(odeHandle, osgHandle);
+      RaySensorBank* irSensorBank = new RaySensorBank();
+      irSensorBank->setInitData(odeHandle, osgHandle, TRANSM(0,0,0));
 
       if (conf.irFront){ // add front left and front right infrared sensor to sensorbank if required
-             IRSensor* sensor = new IRSensor();
-             irSensorBank.registerSensor(sensor, objects[2],
-                                         Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
-                                         Matrix::translate(1*0.05,0,0),
-                                         conf.irRangeFront, RaySensor::drawAll);
-               IRSensor* sensor2 = new IRSensor();
-               irSensorBank.registerSensor(sensor2, objects[2],
+        IRSensor* sensor = new IRSensor();
+        irSensorBank->registerSensor(sensor, objects[2],
+                                    Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
+                                    Matrix::translate(1*0.05,0,0),
+                                    conf.irRangeFront, RaySensor::drawAll);
+        IRSensor* sensor2 = new IRSensor();
+        irSensorBank->registerSensor(sensor2, objects[2],
                                     Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
                                     Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
                                     Matrix::translate(0,-0.05,0),
@@ -471,14 +451,14 @@ namespace lpzrobots {
       }
       if (conf.irBack){ // add front left and front right infrared sensor to sensorbank if required
 
-              IRSensor* sensor = new IRSensor();
-               irSensorBank.registerSensor(sensor, objects[1],
-                                           Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
-                                           Matrix::translate(-1*0.05,0,0),
-                                           conf.irRangeBack, RaySensor::drawAll);
+        IRSensor* sensor = new IRSensor();
+        irSensorBank->registerSensor(sensor, objects[1],
+                                    Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
+                                    Matrix::translate(-1*0.05,0,0),
+                                    conf.irRangeBack, RaySensor::drawAll);
 
         IRSensor* sensor2 = new IRSensor();
-        irSensorBank.registerSensor(sensor2, objects[1],
+        irSensorBank->registerSensor(sensor2, objects[1],
                                     Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
                                     Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
                                     Matrix::translate(0,0.05,0),
@@ -486,14 +466,14 @@ namespace lpzrobots {
       }
       if(conf.irLeft){
         IRSensor* sensor = new IRSensor();
-        irSensorBank.registerSensor(sensor, objects[3],
+        irSensorBank->registerSensor(sensor, objects[3],
                                     Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
                                     Matrix::rotate(-M_PI/2, Vec3(0,0,1)) *
                                     Matrix::translate(0,-0.05,0.05),
                                     conf.irRangeLeft, RaySensor::drawAll);
 
-            /* IRSensor* sensor2 = new IRSensor();
-           irSensorBank.registerSensor(sensor2, objects[3],
+        /* IRSensor* sensor2 = new IRSensor();
+           irSensorBank->registerSensor(sensor2, objects[3],
            Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
            Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
            Matrix::translate(0,-0.05,0),
@@ -503,7 +483,7 @@ namespace lpzrobots {
 
       if(conf.irRight){
         IRSensor* sensor = new IRSensor();
-        irSensorBank.registerSensor(sensor, objects[4],
+        irSensorBank->registerSensor(sensor, objects[4],
                                     Matrix::rotate(-1*-M_PI/2, Vec3(0,1,0)) *
                                     Matrix::rotate(M_PI/2, Vec3(0,0,1)) *
                                     Matrix::translate(0,0.05,0.05),
@@ -511,13 +491,14 @@ namespace lpzrobots {
 
 
         /* IRSensor* sensor2 = new IRSensor();
-           irSensorBank.registerSensor(sensor2, objects[4],
+           irSensorBank->registerSensor(sensor2, objects[4],
            Matrix::rotate(1*-M_PI/2, Vec3(0,1,0)) *
            Matrix::rotate(1*-M_PI/2, Vec3(0,0,1)) *
            Matrix::translate(0,0.05,0),
            conf.irRangeRight, RaySensor::drawAll);
         */
       }
+      if(irSensorBank->size()>0) addSensor(irSensorBank);
     }
 
 
@@ -782,8 +763,6 @@ namespace lpzrobots {
    */
   void Hexapod::destroy(){
     if (created){
-      irSensorBank.clear();
-
       FOREACH(vector<TwoAxisServo*>, hipservos, i){
         if(*i) delete *i;
       }

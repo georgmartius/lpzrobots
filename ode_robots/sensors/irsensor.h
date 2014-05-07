@@ -39,37 +39,44 @@ namespace lpzrobots {
       The sensor value is obtained by collisions, which are handled by the simulation
       environement. The information of a collision comes to the sensor via the
       collision callback of the substance used for the ray (actually for the transform).
-      However of no collision is detected the sensor needs to ajust its output as well.
-      Therefore a reset function is provided.
+      If no collision is detected the value should be zero, so that a stamp is used.
   */
   class IRSensor : public RaySensor {
   public:
     /**
        @param exponent exponent of the sensor characteritic (default: 1 (linear))
     */
-    IRSensor(float exponent = 1, double size = 0.05);
+    IRSensor(float exponent = 1, double size = 0.05, float range = 2, rayDrawMode drawMode = drawSensor);
 
     virtual ~IRSensor();
 
-    virtual void init(const OdeHandle& odeHandle,
-                      const OsgHandle& osgHandle,
-                      Primitive* body,
-                      const osg::Matrix pose, float range,
-                      rayDrawMode drawMode = drawSensor);
+    // ---- Sensor interface -----
+    virtual void init(Primitive* own, Joint* joint = 0) override;
 
-    virtual void reset();
+    virtual int getSensorNumber() const { return 1; }
 
-    /** returns the sensor value in the range [0,1];
-        0 means nothing no object in the sensor distance range
-        1 means contact with another object
-        @see characteritic()
-     */
-    virtual double get();
-    virtual void update();
+    virtual bool sense(const GlobalData& globaldata) override;
 
-    virtual void setRange(float range);
+    virtual int get(sensor* sensors, int length) const override;
+    virtual std::list<sensor> get() const override;
 
-    virtual void setLength(float len);
+    virtual void update() override;
+
+    // ---- Physical Sensor interface ----
+    virtual void setPose(const osg::Matrix& pose) override;
+
+    virtual osg::Matrix getPose() override;
+
+    // --------
+
+    double getValue() const;
+
+    virtual void setRange(float range) override;
+
+    virtual void setDrawMode(rayDrawMode drawMode) override;
+
+    /// called by callback
+    virtual void setLength(float len, long int time);
 
     virtual RaySensor* clone() const;
 
@@ -87,17 +94,20 @@ namespace lpzrobots {
     virtual float characteritic(float len);
 
   protected:
+    float exponent; // exponent of the sensor characteritic
+    double size; // size of graphical sensor
     float range; // max length
+    rayDrawMode drawMode;
+
     float len;   // last measured length
+    long  time;  // time of last measurement
     float value; // actual sensor value
     float lastvalue; // last value
-    float exponent; // exponent of the sensor characteritic
 
-    double size; // size of graphical sensor
+
 
     OSGCylinder* sensorBody;
     //    OSGBox* sensorRay;
-    OsgHandle osgHandle;
 
     Transform* transform;
     Ray* ray;

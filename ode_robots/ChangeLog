@@ -1,3 +1,6 @@
+2014-05-05 martius
+	Robot interface for ode_robots changed, see Update
+
 2013-04-XX martius (0.8)
 	Bugfixes: Following camera mode,...
 	Fixation and displacement of robots integrated

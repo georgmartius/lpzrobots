@@ -107,20 +107,20 @@ namespace lpzrobots {
       return conf;
     }
 
-    virtual void place(const osg::Matrix& pose);
+    virtual void placeIntern(const osg::Matrix& pose);
 
     virtual void update();
 
     void doInternalStuff(GlobalData& global);
 
-    virtual void setMotors ( const motor* motors, int motornumber );
+    virtual void setMotorsIntern( const double* motors, int motornumber );
 
-    virtual int getSensors ( sensor* sensors, int sensornumber );
+    virtual int getSensorsIntern( sensor* sensors, int sensornumber );
 
-    virtual int getSensorNumber() { assert(created);
+    virtual int getSensorNumberIntern() { assert(created);
       return hingeServos.size()+angularMotors.size()+sliderServos.size(); }
 
-    virtual int getMotorNumber(){ assert(created);
+    virtual int getMotorNumberIntern(){ assert(created);
       return hingeServos.size()+angularMotors.size()+sliderServos.size(); }
 
     virtual Primitive* getMainPrimitive() const {

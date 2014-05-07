@@ -63,16 +63,16 @@ namespace lpzrobots {
     conf.sensors.clear();
   }
 
-  int TwoWheeled::getSensorNumber(){
+  int TwoWheeled::getSensorNumberIntern(){
     int s=0;
     FOREACHC(list<Sensor*>, conf.sensors, i){
       s += (*i)->getSensorNumber();
     }
-    return Nimm2::getSensorNumber() + s;
+    return Nimm2::getSensorNumberIntern() + s;
   }
 
-  int TwoWheeled::getSensors(sensor* sensors, int sensornumber){
-    int len = Nimm2::getSensors(sensors,sensornumber);
+  int TwoWheeled::getSensorsIntern(double* sensors, int sensornumber){
+    int len = Nimm2::getSensorsIntern(sensors,sensornumber);
     FOREACH(list<Sensor*>, conf.sensors, i){
       len += (*i)->get(sensors + len, sensornumber - len);
     }

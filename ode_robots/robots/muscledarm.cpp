@@ -98,7 +98,7 @@ namespace lpzrobots{
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void MuscledArm::setMotors(const motor* motors, int motornumber){
+  void MuscledArm::setMotorsIntern(const double* motors, int motornumber){
     if (!conf.jointActuator) {
       for (int i=SJ_mM1; i<=SJ_sM4; i++){
         // just adding force to slider joint
@@ -125,7 +125,7 @@ namespace lpzrobots{
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  int MuscledArm::getSensors(sensor* sensors, int sensornumber){
+  int MuscledArm::getSensorsIntern(sensor* sensors, int sensornumber){
     int written=0;
     if ((conf.jointAngleSensors) && ((written+1)<sensornumber) ){
       sensors[written]= 3/M_PI*((HingeJoint*)joint[HJ_BuA])->getPosition1();
@@ -159,7 +159,7 @@ namespace lpzrobots{
   /** sets the pose of the vehicle
       @param pose desired 4x4 pose matrix
   */
-  void MuscledArm::place(const osg::Matrix& pose){
+  void MuscledArm::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the base
     // to set the arm on the ground when the z component of the position is 0
     // base_width/2 is added
@@ -182,23 +182,9 @@ namespace lpzrobots{
   };
 
 
-  /**
-   * draws the arm
-   */
-  void MuscledArm::update(){
-    assert(created); // robot must exist
-    for (int i =0; i<NUMParts; i++){
-      object[i]->update();
-    }
-    for (int i=0/*HJ_BuA*/; i<NUMJoints; i++){
-      joint[i]->update();
-    }
-
-  };
-
-
 
   void MuscledArm::doInternalStuff(GlobalData& globalData){
+    OdeRobot::doInternalStuff(globalData);
 
     double k[6];
     k[0] = 0.5;        // spring constant between mainMuscle11 and mainMuscle12

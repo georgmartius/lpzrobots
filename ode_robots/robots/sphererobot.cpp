@@ -52,7 +52,8 @@ namespace lpzrobots {
     destroy();
   }
 
-  void Sphererobot::update(){
+  void Sphererobot::update() {
+    OdeRobot::update();
     assert(created); // robot must exist
 
     for (int i=0; i<Last; i++) {
@@ -67,7 +68,7 @@ namespace lpzrobots {
   }
 
 
-  int Sphererobot::getSensors ( sensor* sensors, int sensornumber ) {
+  int Sphererobot::getSensorsIntern( double* sensors, int sensornumber ) {
     int len = min(sensornumber, 3);
     for ( int n = 0; n < len; n++ ) {
       sensors[n] = servo[n]->get();
@@ -84,7 +85,7 @@ namespace lpzrobots {
     return v3.convertToBuffer(sensors + l + 3 , sensornumber - l -3) + l + 3;
   }
 
-  void Sphererobot::setMotors ( const motor* motors, int motornumber ) {
+  void Sphererobot::setMotorsIntern( const double* motors, int motornumber ) {
     int len = min(motornumber, 3);
     for ( int n = 0; n < len; n++ ) {
       servo[n]->set(motors[n]);
@@ -92,7 +93,7 @@ namespace lpzrobots {
   }
 
 
-  void Sphererobot::place(const osg::Matrix& pose){
+  void Sphererobot::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
     // width*0.6 is added (without this the wheels and half of the robot will be in the ground)
@@ -101,7 +102,6 @@ namespace lpzrobots {
     create(p2);
   };
 
-  void Sphererobot::doInternalStuff(GlobalData& global){}
 
   /**
    *Returns the number of motors used by the snake.
@@ -109,7 +109,7 @@ namespace lpzrobots {
    *@author Marcel Kretschmann
    *@version final
    **/
-  int Sphererobot::getMotorNumber(){
+  int Sphererobot::getMotorNumberIntern(){
     return 3;
   }
 
@@ -119,7 +119,7 @@ namespace lpzrobots {
    *@author Marcel Kretschmann
    *@version final
    **/
-  int Sphererobot::getSensorNumber() {
+  int Sphererobot::getSensorNumberIntern() {
     return sensorno;
   }
 

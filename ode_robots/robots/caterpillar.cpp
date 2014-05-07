@@ -45,9 +45,9 @@ namespace lpzrobots {
    *@param motors pointer to the array, motor values are scaled to [-1,1]
    *@param motornumber length of the motor array
    **/
-  void CaterPillar::setMotors(const motor* motors, int motornumber) {
+  void CaterPillar::setMotorsIntern(const double* motors, int motornumber) {
    assert(created);
-   unsigned int len = min(motornumber, getMotorNumber())/2;
+   unsigned int len = min(motornumber, getMotorNumberIntern())/2;
    // controller output as torques
    for(unsigned int i=0; (i<len) && (i<sliderServos.size()); i++) {
     sliderServos[i]->set(motors[i]);
@@ -66,7 +66,7 @@ namespace lpzrobots {
    *@param sensornumber length of the sensor array
    *@return number of actually written sensors
    **/
-  int CaterPillar::getSensors(sensor* sensors, int sensornumber) {
+  int CaterPillar::getSensorsIntern(sensor* sensors, int sensornumber) {
    assert(created);
    unsigned int len=min(sensornumber,getSensorNumber());
    // get the SliderServos

@@ -68,7 +68,7 @@ namespace lpzrobots {
   };
 
 
-  int VierBeiner::getMotorNumber(){
+  int VierBeiner::getMotorNumberIntern(){
     return headtailservos.size() + hipservos.size() + kneeservos.size() + ankleservos.size();
   };
 
@@ -76,7 +76,7 @@ namespace lpzrobots {
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void VierBeiner::setMotors(const motor* motors, int motornumber){
+  void VierBeiner::setMotorsIntern(const double* motors, int motornumber){
     assert(created); // robot must exist
 
     // controller output as torques
@@ -97,7 +97,7 @@ namespace lpzrobots {
       (*s)->set(motors[n]);
       n++;
     }
-    assert(min(motornumber, getMotorNumber())==n);
+    assert(min(motornumber, getMotorNumberIntern())==n);
     /// set knee servos to set point 0 (spring emulation)
 //     FOREACH(vector <HingeServo*>, kneeservos, s){
 //       (*s)->set(0);
@@ -108,7 +108,7 @@ namespace lpzrobots {
     //    }
   };
 
-  int VierBeiner::getSensorNumber(){
+  int VierBeiner::getSensorNumberIntern(){
     return headtailservos.size() + hipservos.size() + kneeservos.size() + ankleservos.size();
   };
 
@@ -117,7 +117,7 @@ namespace lpzrobots {
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  int VierBeiner::getSensors(sensor* sensors, int sensornumber){
+  int VierBeiner::getSensorsIntern(sensor* sensors, int sensornumber){
     assert(created);
     int n=0;
     FOREACHC(vector <HingeServo*>, headtailservos, s){
@@ -136,12 +136,12 @@ namespace lpzrobots {
       sensors[n]   = (*s)->get();
       n++;
     }
-    assert(min(sensornumber, getSensorNumber())==n);
+    assert(min(sensornumber, getSensorNumberIntern())==n);
     return n;
   };
 
 
-  void VierBeiner::place(const osg::Matrix& pose){
+  void VierBeiner::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position is 0
     //    Matrix p2;
@@ -153,7 +153,8 @@ namespace lpzrobots {
   /**
    * updates the osg notes
    */
-  void VierBeiner::update(){
+  void VierBeiner::update() {
+    OdeRobot::update();
     assert(created); // robot must exist
 
     for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){

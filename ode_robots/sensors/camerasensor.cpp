@@ -61,12 +61,7 @@ namespace lpzrobots {
   }
 
   std::list<sensor> CameraSensor::CameraSensor::get() const {
-    int num = getSensorNumber();
-    sensor* s = new sensor[num];
-    get(s,num);
-    std::list<sensor> result(s,s+num);
-    delete[] s;
-    return result;
+    return getListOfArray();
   }
 
   void CameraSensor::init(Primitive* own, Joint* joint){

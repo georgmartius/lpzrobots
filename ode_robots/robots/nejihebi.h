@@ -238,14 +238,14 @@ namespace lpzrobots{
        *
        * @return number of motors
        */
-      virtual int getMotorNumber();
+      virtual int getMotorNumberIntern();
 
       /**
        * Returns number of sensors.
        *
        * @return number of sensors
        */
-      virtual int getSensorNumber();
+      virtual int getSensorNumberIntern();
 
       /**
        * Returns current sensor values
@@ -270,7 +270,7 @@ namespace lpzrobots{
        * @param sensornumber length of the sensor array
        * @return number of actually written sensors
        */
-      virtual int getSensors(sensor* sensors, int sensornumber);
+      virtual int getSensorsIntern(sensor* sensors, int sensornumber);
 
       /**
        * Assigns a name to a motor.
@@ -301,7 +301,7 @@ namespace lpzrobots{
        *
        * @param pose desired pose matrix
        */
-      virtual void place(const osg::Matrix& pose);
+      virtual void placeIntern(const osg::Matrix& pose);
 
       /**
        * Sets current motorcommands
@@ -326,7 +326,7 @@ namespace lpzrobots{
        * @param motors motors scaled to [-1,1]
        * @param motornumber length of the motor array
        */
-      virtual void setMotors(const motor* motors, int motornumber);
+      virtual void setMotorsIntern(const double* motors, int motornumber);
 
       /**
        * updates the OSG nodes of the robot

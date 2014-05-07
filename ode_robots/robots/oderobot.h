@@ -30,6 +30,8 @@
 #include <selforg/storeable.h>
 #include "odehandle.h"
 #include "osghandle.h"
+#include "sensor.h"
+#include "motor.h"
 #include "globaldata.h"
 #include "color.h"
 #include "pos.h"
@@ -41,8 +43,18 @@ namespace lpzrobots {
   class Primitive;
   class Joint;
 
+  /// structure to hold attachment data for sensors and motors
+  struct Attachement {
+    Attachement(int pI = -1, int jI = -1) : primitiveIndex(pI), jointIndex(jI) {}
+    int primitiveIndex;
+    int jointIndex;
+  };
+
   typedef std::vector<Primitive*> Primitives;
   typedef std::vector<Joint*> Joints;
+  typedef std::pair<Sensor*, Attachement> SensorAttachment;
+  typedef std::pair<Motor*, Attachement>  MotorAttachment;
+
 
   /**
    * Abstract class  for ODE robots
@@ -52,7 +64,6 @@ namespace lpzrobots {
   public:
 
     friend class OdeAgent;
-//    friend class AtomOdeAgent;
 
     /**
      * Constructor
@@ -63,19 +74,61 @@ namespace lpzrobots {
     /// calls cleanup()
     virtual ~OdeRobot();
 
+    /** overload this function in a subclass to do specific sensor handling @see getSensors() */
+    virtual int getSensorsIntern(double* sensors, int sensornumber) = 0;
 
-    /// update the OSG notes here
-    virtual void update() = 0;
+    /** overload this function in a subclass to do specific sensor handling @see setMotors() */
+    virtual void setMotorsIntern(const double* motors, int motorsnumber) = 0;
+
+    /** overload this function in a subclass to specific the number of custom sensors @see getSensorNumber() */
+    virtual int getSensorNumberIntern() = 0;
+
+    /** overload this function in a subclass to specific the number of custom sensors @see getMotorNumber() */
+    virtual int getMotorNumberIntern() = 0;
+
+    virtual int  getSensors(double* sensors, int sensornumber) final;
+    virtual void setMotors(const double* motors, int motornumber) final;
+    virtual int  getSensorNumber() final;
+    virtual int  getMotorNumber() final;
+
+    /** adds a sensor to the robot. Must be called before agents initializes, otherwise unknown effect.
+        @param segmentIndex index of segment of robot to which this sensor should be attached
+    */
+    virtual void addSensor(Sensor* sensor, Attachement attachement=Attachement());
+
+    /** adds a motor to the robot. Must be called before agents initializes, otherwise unknown effect.
+        @param segmentIndex index of segment of robot to which this motor should be attached
+     */
+    virtual void addMotor(Motor* motor, Attachement attachement=Attachement());
+
+    /// returns all generic sensors with their attachement
+    virtual std::list<SensorAttachment> getAttachedSensors(){
+      return sensors;
+    }
+
+    /// returns all generic motors with their attachement
+    virtual std::list<MotorAttachment> getAttachedMotors(){
+      return motors;
+    }
+
+    /// adds a torque sensor to each joint. Call it after placement of robot.
+    virtual void addTorqueSensors(double maxtorque = 1.0, int avg = 1);
+
+    /// update the OSG notes here, if overwritten, call OdeRobot::update()!
+    virtual void update();
 
     /** sets the vehicle to position pos
         @param pos desired position of the robot
     */
-    virtual void place(const Pos& pos);
+    virtual void place(const Pos& pos) final;
 
     /** sets the pose of the vehicle
         @param pose desired 4x4 pose matrix
     */
-    virtual void place(const osg::Matrix& pose) = 0;
+    virtual void place(const osg::Matrix& pose) final;
+
+    /// wrapper to for @see place() that is to be overloaded
+    virtual void placeIntern(const osg::Matrix& pose) = 0;
 
     /** @deprecated This function will be removed in 0.8
      *  Do not use it anymore, collision control is done automatically.
@@ -87,18 +140,20 @@ namespace lpzrobots {
     virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2){ return false; };
 
     /** this function is called each controlstep before control.
-        This is the place the perform active sensing (e.g. Image processing)
+        This is the place the perform active sensing (e.g. Image processing).
+        If you overload this function, call the OdeRobot::sense() function.
         @param globalData structure that contains global data from the simulation environment
     */
-    virtual void sense(GlobalData& globalData) {};
+    virtual void sense(GlobalData& globalData);
 
     /** this function is called in each simulation timestep (always after control). It
         should perform robot-internal checks and actions
         like resetting certain sensors or implement velocity dependend friction and the like.
-        The attached Motors should act here.
+        The attached Motors should act here (done automatically in OdeRobot);
+        If you overload this function, call the OdeRobot::doInternalStuff() function.
         @param globalData structure that contains global data from the simulation environment
     */
-    virtual void doInternalStuff(GlobalData& globalData) {};
+    virtual void doInternalStuff(GlobalData& globalData);
 
     /** sets color of the robot
         @param col Color struct with desired Color
@@ -176,6 +231,9 @@ namespace lpzrobots {
     static bool isGeomInPrimitiveList(Primitive** ps, int len, dGeomID geom);
     static bool isGeomInPrimitiveList(std::list<Primitive*> ps, dGeomID geom);
 
+    void attachSensor(SensorAttachment& sa);
+    void attachMotor(MotorAttachment& ma);
+
     /// deletes all objects (primitives) and joints (is called automatically in destructor)
     virtual void cleanup();
 
@@ -185,11 +243,17 @@ namespace lpzrobots {
     /// list of joints (should be populated by subclasses)
     Joints joints;
 
+    std::list<SensorAttachment> sensors; // list of generic sensors
+    std::list<MotorAttachment> motors;   // list of generic motors
+
     TmpJoint* fixationTmpJoint;
 
     OdeHandle odeHandle;
     OsgHandle osgHandle;
     dSpaceID parentspace;
+
+    bool initialized;
+    bool askedfornumber;
   };
 
 }

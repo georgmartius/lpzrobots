@@ -83,16 +83,13 @@ namespace lpzrobots {
   };
 
 
-  void Hand::update(){
+  void Hand::update() {
+    OdeRobot::update();
     assert(created); // robot must exist
 
-    for (std::vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-      if(*i) (*i)->update();
-    }
 
-    for (std::vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-      if(*i) (*i)->update();
-    }
+
+
 
     if(contact_joint_created){
       for (std::vector<OSGPrimitive*>::iterator i = osg_objects.begin(); i!=  osg_objects.end(); i++){
@@ -110,17 +107,13 @@ namespace lpzrobots {
 
   }
 
-  void Hand::place(const osg::Matrix& pose){
+  void Hand::placeIntern(const osg::Matrix& pose){
     create(pose);
   };
 
-  void Hand::doInternalStuff(GlobalData& global){
-    // mycallback is called for internal collisions! Only once per step
-    // todo: geht im moment ohne, ist das ok?
-    //dSpaceCollide(odeHandle.space, this, mycallback);
-    if (conf.ir_sensor_used){
-      irSensorBank.reset(); // reset sensorbank (infrared sensors)
-    }
+  void Hand::sense(GlobalData& globalData) {
+    // reset ir sensors to maximum value
+    irSensorBank.sense(globalData);
   }
 
   // internal collisions
@@ -210,7 +203,7 @@ namespace lpzrobots {
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  int Hand::getSensors(sensor* sensors, int sensornumber){
+  int Hand::getSensorsIntern(sensor* sensors, int sensornumber){
     assert (sensorno == sensornumber);
     //   int len = (sensornumber < sensorno)? sensornumber : sensorno;
     //int len = min(sensornumber/2, (int)joints.size()+2);
@@ -340,7 +333,7 @@ namespace lpzrobots {
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void Hand::setMotors(const motor* motors, int motornumber){
+  void Hand::setMotorsIntern(const double* motors, int motornumber){
     assert (created);
     assert (motorno == motornumber);
 
@@ -566,13 +559,13 @@ namespace lpzrobots {
 
   /** returns number of sensors
    */
-  int Hand::getSensorNumber(){
+  int Hand::getSensorNumberIntern(){
     return sensorno;
   }
 
   /** returns number of motors
    */
-  int Hand::getMotorNumber(){
+  int Hand::getMotorNumberIntern(){
     return motorno;
   }
 
@@ -607,6 +600,9 @@ namespace lpzrobots {
 
     // create vehicle space and add it to parentspace
     odeHandle.space = dSimpleSpaceCreate (parentspace);
+
+    irSensorBank.setInitData(odeHandle, osgHandle, TRANSM(0,0,0));
+    irSensorBank.init(0);
 
 
     double forearm_length=5;
@@ -713,7 +709,6 @@ namespace lpzrobots {
 
 
     if(conf.ir_sensor_used && conf.irs_at_fingerbottom){
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_thumb_b = new IRSensor();
       ir_sensors.push_back(sensor_thumb_b);
       irSensorBank.registerSensor(sensor_thumb_b, thumb_b,//objects[2],
@@ -730,7 +725,6 @@ namespace lpzrobots {
     objects.push_back(thumb_t);
 
     if(conf.ir_sensor_used && (conf.irs_at_fingertop || conf.irs_at_fingercenter)){ // fingercenter to have always 5 IR sensors
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_thumb_t = new IRSensor();
       ir_sensors.push_back(sensor_thumb_t);
       irSensorBank.registerSensor(sensor_thumb_t, thumb_t,//objects[3],
@@ -742,7 +736,6 @@ namespace lpzrobots {
     }
 
     if(conf.ir_sensor_used && (conf.irs_at_fingertip || conf.irs_at_fingercenter)){
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_thumb_t = new IRSensor();
       ir_sensors.push_back(sensor_thumb_t);
       irSensorBank.registerSensor(sensor_thumb_t, thumb_t,//objects[3],
@@ -826,7 +819,6 @@ namespace lpzrobots {
 
 
     if(conf.ir_sensor_used && conf.irs_at_fingerbottom){
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_index_b = new IRSensor();
       ir_sensors.push_back(sensor_index_b);
       irSensorBank.registerSensor(sensor_index_b, index_b,//objects[5],
@@ -845,7 +837,6 @@ namespace lpzrobots {
 
     if(conf.ir_sensor_used && conf.irs_at_fingercenter)
       {
-        irSensorBank.init(odeHandle, osgHandle);
         IRSensor* sensor_index_c = new IRSensor();
         ir_sensors.push_back(sensor_index_c);
         irSensorBank.registerSensor(sensor_index_c, index_c,//objects[6],
@@ -861,7 +852,6 @@ namespace lpzrobots {
     objects.push_back(index_t);
 
     if(conf.ir_sensor_used && conf.irs_at_fingertop){
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_index_t = new IRSensor();
       ir_sensors.push_back(sensor_index_t);
       irSensorBank.registerSensor(sensor_index_t, index_t,//objects[7],
@@ -870,7 +860,6 @@ namespace lpzrobots {
                                   conf.ray_draw_mode);
     }
     if(conf.ir_sensor_used && conf.irs_at_fingertip){
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_index_t = new IRSensor();
       ir_sensors.push_back(sensor_index_t);
       irSensorBank.registerSensor(sensor_index_t, index_t,//objects[7],
@@ -953,7 +942,6 @@ namespace lpzrobots {
 
     objects.push_back(middle_b);
     if(conf.ir_sensor_used && conf.irs_at_fingerbottom){
-        irSensorBank.init(odeHandle, osgHandle);
         IRSensor* sensor_middle_b = new IRSensor();
         ir_sensors.push_back(sensor_middle_b);
         irSensorBank.registerSensor(sensor_middle_b, middle_b,//objects[8],
@@ -969,7 +957,6 @@ namespace lpzrobots {
     objects.push_back(middle_c);
 
     if(conf.ir_sensor_used && conf.irs_at_fingercenter) {
-        irSensorBank.init(odeHandle, osgHandle);
         IRSensor* sensor_middle_c = new IRSensor();
         ir_sensors.push_back(sensor_middle_c);
         irSensorBank.registerSensor(sensor_middle_c, middle_c,//objects[9],
@@ -985,7 +972,6 @@ namespace lpzrobots {
     objects.push_back(middle_t);
 
     if(conf.ir_sensor_used && conf.irs_at_fingertop) {
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_middle_t = new IRSensor();
       ir_sensors.push_back(sensor_middle_t);
       irSensorBank.registerSensor(sensor_middle_t, middle_t,//objects[10],
@@ -994,7 +980,6 @@ namespace lpzrobots {
                                   conf.ray_draw_mode);
     }
     if(conf.ir_sensor_used && conf.irs_at_fingertip) {
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_middle_t = new IRSensor();
       ir_sensors.push_back(sensor_middle_t);
       irSensorBank.registerSensor(sensor_middle_t, middle_t,//objects[10],
@@ -1074,7 +1059,6 @@ namespace lpzrobots {
     objects.push_back(ring_b);
 
     if(conf.ir_sensor_used && conf.irs_at_fingerbottom) {
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_ring_b = new IRSensor();
       ir_sensors.push_back(sensor_ring_b);
       irSensorBank.registerSensor(sensor_ring_b, ring_b,//objects[11],
@@ -1090,7 +1074,6 @@ namespace lpzrobots {
     objects.push_back(ring_c);
 
     if(conf.ir_sensor_used && conf.irs_at_fingercenter) {
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_ring_c = new IRSensor();
       ir_sensors.push_back(sensor_ring_c);
       irSensorBank.registerSensor(sensor_ring_c, ring_c,//objects[12],
@@ -1106,7 +1089,6 @@ namespace lpzrobots {
     objects.push_back(ring_t);
 
     if(conf.ir_sensor_used && conf.irs_at_fingertop){
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_ring_t = new IRSensor();
       ir_sensors.push_back(sensor_ring_t);
       irSensorBank.registerSensor(sensor_ring_t, ring_t,//objects[13],
@@ -1115,7 +1097,6 @@ namespace lpzrobots {
                                   conf.ray_draw_mode);
     }
     if(conf.ir_sensor_used && conf.irs_at_fingertip){
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_ring_t = new IRSensor();
       ir_sensors.push_back(sensor_ring_t);
       irSensorBank.registerSensor(sensor_ring_t, ring_t,//objects[13],
@@ -1189,7 +1170,6 @@ namespace lpzrobots {
     objects.push_back(little_b);
 
     if(conf.ir_sensor_used && conf.irs_at_fingerbottom) {
-        irSensorBank.init(odeHandle, osgHandle);
         IRSensor* sensor_little_b = new IRSensor();
         ir_sensors.push_back(sensor_little_b);
         irSensorBank.registerSensor(sensor_little_b, little_b,//objects[14],
@@ -1206,7 +1186,6 @@ namespace lpzrobots {
     objects.push_back(little_c);
 
     if(conf.ir_sensor_used && conf.irs_at_fingercenter)  {
-        irSensorBank.init(odeHandle, osgHandle);
         IRSensor* sensor_little_c = new IRSensor();
         ir_sensors.push_back(sensor_little_c);
         irSensorBank.registerSensor(sensor_little_c, little_c,//objects[15],
@@ -1222,7 +1201,6 @@ namespace lpzrobots {
     objects.push_back(little_t);
 
     if(conf.ir_sensor_used && conf.irs_at_fingertop) {
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_little_t = new IRSensor();
       ir_sensors.push_back(sensor_little_t);
       irSensorBank.registerSensor(sensor_little_t, little_t,//objects[16],
@@ -1231,7 +1209,6 @@ namespace lpzrobots {
                                   conf.ray_draw_mode);
     }
     if(conf.ir_sensor_used && conf.irs_at_fingertip) {
-      irSensorBank.init(odeHandle, osgHandle);
       IRSensor* sensor_little_t = new IRSensor();
       ir_sensors.push_back(sensor_little_t);
       irSensorBank.registerSensor(sensor_little_t, little_t,//objects[16],

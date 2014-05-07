@@ -136,35 +136,30 @@ namespace lpzrobots {
      * sets the pose of the vehicle
      * @param pose desired 4x4 pose matrix
      */
-    virtual void place(const osg::Matrix& pose);
+    virtual void placeIntern(const osg::Matrix& pose);
 
-    /** this function is called in each timestep. It should perform robot-internal checks,
-        like space-internal collision detection, sensor resets/update etc.
-        @param globalData structure that contains global data from the simulation environment
-    */
-    virtual void doInternalStuff(GlobalData& globalData);
-
+    virtual void sense(GlobalData& globalData) override;
 
     /** returns actual sensorvalues
         @param sensors sensors scaled to [-1,1]
         @param sensornumber length of the sensor array
         @return number of actually written sensors
     */
-    virtual int getSensors(sensor* sensors, int sensornumber);
+    virtual int getSensorsIntern(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
         @param motors motors scaled to [-1,1]
         @param motornumber length of the motor array
     */
-    virtual void setMotors(const motor* motors, int motornumber);
+    virtual void setMotorsIntern(const double* motors, int motornumber);
 
     /** returns number of sensors
      */
-    virtual int getSensorNumber();
+    virtual int getSensorNumberIntern();
 
     /** returns number of motors
      */
-    virtual int getMotorNumber();
+    virtual int getMotorNumberIntern();
 
     /** returns a vector with the positions of all segments of the robot
         @param poslist vector of positions (of all robot segments)

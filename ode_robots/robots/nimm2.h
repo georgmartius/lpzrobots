@@ -111,30 +111,30 @@ public:
   /** sets the pose of the vehicle
       @param pose desired 4x4 pose matrix
   */
-  virtual void place(const osg::Matrix& pose);
+  virtual void placeIntern(const osg::Matrix& pose);
 
   /** returns actual sensorvalues
       @param sensors sensors scaled to [-1,1]
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  virtual int getSensors(sensor* sensors, int sensornumber);
+  virtual int getSensorsIntern(sensor* sensors, int sensornumber);
 
   /** sets actual motorcommands
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  virtual void setMotors(const motor* motors, int motornumber);
+  virtual void setMotorsIntern(const double* motors, int motornumber);
 
   /** returns number of sensors
    */
-  virtual int getSensorNumber(){
+  virtual int getSensorNumberIntern(){
     return sensorno;
   };
 
   /** returns number of motors
    */
-  virtual int getMotorNumber(){
+  virtual int getMotorNumberIntern(){
     return motorno;
   };
 
@@ -204,10 +204,8 @@ protected:
   int number_bumpers;  // number of bumpers (1 -> bumpers at one side, 2 -> bumpers at 2 sides)
   Bumper bumper[2];
 
-  RaySensorBank irSensorBank; // a collection of ir sensors
-
-        bool visForce; // decides if contact force is made visible in guilogger
-        double sumForce; // stores the contact force made by collisions with external objects
+  bool visForce; // decides if contact force is made visible in guilogger
+  double sumForce; // stores the contact force made by collisions with external objects
 
 };
 

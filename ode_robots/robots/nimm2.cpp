@@ -116,7 +116,7 @@ namespace lpzrobots {
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void Nimm2::setMotors(const motor* motors, int motornumber){
+  void Nimm2::setMotorsIntern(const double* motors, int motornumber){
     assert(created);
     assert(motornumber == motorno);
     if(conf.singleMotor){ // set the same motorcommand to both wheels
@@ -137,10 +137,7 @@ namespace lpzrobots {
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-//   sensor ir_old[4];
-//   sensor ir_tmp[4];
-
-  int Nimm2::getSensors(sensor* sensors, int sensornumber){
+  int Nimm2::getSensorsIntern(sensor* sensors, int sensornumber){
     assert(created);
 
     // choose sensornumber according to number of motors
@@ -151,21 +148,11 @@ namespace lpzrobots {
       sensors[i]=dynamic_cast<Hinge2Joint*>(joints[i])->getPosition2Rate();  // readout wheel velocity
       sensors[i]/=conf.speed;  //scaling
     }
-    // ask sensorbank for sensor values (from infrared sensors)
-    //  sensor+len is the starting point in the sensors array
-    if (conf.irFront || conf.irSide || conf.irBack){
-      len += irSensorBank.get(sensors+len, sensornumber-len);
-//       for (int i=0; i<4; i++){
-//         ir_tmp[i]=sensors[2+i];
-//         sensors[2+i]=ir_tmp[i]-ir_old[i];
-//         ir_old[i]=ir_tmp[i];
-//       }
-    }
     return len;
   };
 
 
-  void Nimm2::place(const osg::Matrix& pose){
+  void Nimm2::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
     // width*0.6 is added (without this the wheels and half of the robot will be in the ground)
@@ -190,33 +177,18 @@ namespace lpzrobots {
   /**
    * updates the osg notes and sensorbank
    */
-  void Nimm2::update(){
+  void Nimm2::update() {
+    OdeRobot::update();
     assert(created); // robot must exist
-
-    for (int i=0; i<3; i++) { // update objects
-      objects[i]->update();
-    }
-    for (int i=0; i < 2; i++) { // update joints
-      joints[i]->update();
-    }
-    if (conf.bumper){ // if bumper used update transform objects
-      for (int i=0; i<number_bumpers; i++){
-        bumper[i].trans->update();
-      }
-    }
-
-    // update sensorbank with infrared sensors
-    irSensorBank.update();
-
   }
 
 
   void Nimm2::doInternalStuff(GlobalData& globalData){
-    irSensorBank.reset(); // reset sensorbank (infrared sensors)
-          if (visForce) {
-                  sumForce=0;
-                  contactPoints=0;
-          }
+    OdeRobot::doInternalStuff(globalData);
+    if (visForce) {
+      sumForce=0;
+      contactPoints=0;
+    }
   }
 
   /** creates vehicle at desired position
@@ -275,6 +247,7 @@ namespace lpzrobots {
                                         Matrix::rotate(M_PI/2.0, Vec3(1, 0, 0)) *
                                         Matrix::translate(0, 0, i==0 ? -(length/2) : (length/2)));
         bumper[i].trans->init(odeHandle, 0, osgHandle);
+        objects.push_back(bumper[i].trans);
       }
     } else if (conf.bumper && conf.boxMode){
       for (int i=0; i<number_bumpers; i++){
@@ -284,6 +257,7 @@ namespace lpzrobots {
                                         Matrix::translate(0, 0, i==0 ? -(length/4) : (length/4)));
         bumper[i].trans->init(odeHandle, 0, osgHandle);
         bumper[i].bump->substance.toMetal(0);
+        objects.push_back(bumper[i].trans);
       }
     }
 
@@ -343,7 +317,8 @@ namespace lpzrobots {
      * left rear
      * left front
     */
-    irSensorBank.init(odeHandle, osgHandle);
+    RaySensorBank* irSensorBank = new RaySensorBank();
+    irSensorBank->setInitData(odeHandle, osgHandle, TRANSM(0,0,0));
     double irpos;
     if(conf.boxMode){
       irpos = length*3.0/8.0 + width/60;
@@ -353,7 +328,7 @@ namespace lpzrobots {
     if (conf.irFront){ // add front left and front right infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
         IRSensor* sensor = new IRSensor();
-        irSensorBank.registerSensor(sensor, objects[0],
+        irSensorBank->registerSensor(sensor, objects[0],
                                     Matrix::rotate(i*M_PI/10, Vec3(1,0,0)) *
                                     Matrix::translate(0,-i*width/10,irpos ),
                                     conf.irRange, RaySensor::drawAll);
@@ -363,14 +338,14 @@ namespace lpzrobots {
       for(int i=-1; i<2; i+=2){
         IRSensor* sensor = new IRSensor();
         if (conf.bumper){ // if bumpers used place on bumper
-          irSensorBank.registerSensor(sensor, objects[0],
+          irSensorBank->registerSensor(sensor, objects[0],
                                       //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
                                       Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
                                       Matrix::translate(0,-width,-i*(length/2) ),
                                       conf.irRange, RaySensor::drawAll);
 
         }else{ // place on body
-          irSensorBank.registerSensor(sensor, objects[0],
+          irSensorBank->registerSensor(sensor, objects[0],
                                       //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
                                       Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
                                       Matrix::translate(0,-width/2,i*(length/2) ),
@@ -381,7 +356,7 @@ namespace lpzrobots {
     if (conf.irBack){ // add rear right and rear left infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
         IRSensor* sensor = new IRSensor();
-        irSensorBank.registerSensor(sensor, objects[0],
+        irSensorBank->registerSensor(sensor, objects[0],
                                     Matrix::rotate(-i*M_PI/10, Vec3(1,0,0)) *
                                     Matrix::rotate(i*M_PI, Vec3(0,1,0)) *
                                     Matrix::translate(0,i*width/10,-irpos ),
@@ -392,14 +367,14 @@ namespace lpzrobots {
       for(int i=-1; i<2; i+=2){
         IRSensor* sensor = new IRSensor();
         if (conf.bumper){ // if bumpers used place on bumper
-          irSensorBank.registerSensor(sensor, objects[0],
+          irSensorBank->registerSensor(sensor, objects[0],
                                       //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
                                       Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
                                       Matrix::translate(0,width,i*(length/2) ),
                                       conf.irRange, RaySensor::drawAll);
 
         } else { // else place at body
-          irSensorBank.registerSensor(sensor, objects[0],
+          irSensorBank->registerSensor(sensor, objects[0],
                                       //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
                                       Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
                                       Matrix::translate(0,width/2,i*(length/2) ),
@@ -407,6 +382,7 @@ namespace lpzrobots {
         }
       }
     }
+    if(irSensorBank->size()>0) addSensor(irSensorBank);
     created=true;
   };
 
@@ -415,7 +391,6 @@ namespace lpzrobots {
    */
   void Nimm2::destroy(){
     if (created){
-      irSensorBank.clear();
       for (int i=0; i<2; i++){
         //        if(bumper[i].bump) delete bumper[i].bump; is done by transform primitive
         if(bumper[i].trans) delete bumper[i].trans;

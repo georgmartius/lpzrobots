@@ -90,18 +90,7 @@ namespace lpzrobots {
   }
 
 
-  void HurlingSnake::update(){
-    assert(created); // robot must exist
-
-    for (int i=0; i<NUM; i++) {
-      objects[i]->update();
-    }
-    for (int i=0; i < NUM-1; i++) {
-      joints[i]->update();
-    }
-  }
-
-  void HurlingSnake::place(const osg::Matrix& pose){
+  void HurlingSnake::placeIntern(const osg::Matrix& pose){
     // lift the snake about its radius
     osg::Matrix p2;
     p2 = pose * osg::Matrix::translate(osg::Vec3(0, 0, RADIUS));
@@ -110,6 +99,7 @@ namespace lpzrobots {
 
 
   void HurlingSnake::doInternalStuff(GlobalData& global){
+    OdeRobot::doInternalStuff(global);
     // decellerate
     for (int i=0; i<NUM; i++) {
       objects[i]->decellerate(0,frictionRoll);
@@ -122,7 +112,7 @@ namespace lpzrobots {
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  int HurlingSnake::getSensors(sensor* sensors, int sensornumber){
+  int HurlingSnake::getSensorsIntern(sensor* sensors, int sensornumber){
     int len = (sensornumber < sensorno)? sensornumber : sensorno;
 
     Pos p(objects[NUM-1]->getPosition());      //read actual position
@@ -139,7 +129,7 @@ namespace lpzrobots {
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void HurlingSnake::setMotors(const motor* motors, int motornumber){
+  void HurlingSnake::setMotorsIntern(const double* motors, int motornumber){
     //  dBodyAddForce (objects[NUM-1].body,motors[0]*factorForce,motors[1]*factorForce,motors[2]*factorForce);
     // force vector in global frame of reference
     dBodyAddForce (objects[NUM-1]->getBody(),motors[0]*factorForce,motors[1]*factorForce,0);
@@ -150,13 +140,13 @@ namespace lpzrobots {
 
   /** returns number of sensors
    */
-  int HurlingSnake::getSensorNumber(){
+  int HurlingSnake::getSensorNumberIntern(){
     return sensorno;
   }
 
   /** returns number of motors
    */
-  int HurlingSnake::getMotorNumber(){
+  int HurlingSnake::getMotorNumberIntern(){
     return motorno;
   }
 
@@ -231,7 +221,7 @@ namespace lpzrobots {
       }
     }
     else if(key == "place") {
-      OdeRobot::place(Pos(0,0,3)) ;
+      OdeRobot::placeIntern(TRANSM(0,0,3)) ;
     }
   }
 

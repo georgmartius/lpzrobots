@@ -41,22 +41,22 @@ namespace lpzrobots {
                      dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
 
     IRSensor* sensor = (IRSensor*)userdata;
-    sensor->setLength(contacts[0].geom.depth);
+    sensor->setLength(contacts[0].geom.depth, globaldata.sim_step);
     return 0;
   }
 
 
-  IRSensor::IRSensor(float exponent/* = 1*/, double size /*= 0.05*/){
+  IRSensor::IRSensor(float exponent/* = 1*/, double size /*= 0.05*/,
+                     float range /*= 2*/, rayDrawMode drawMode /*= drawSensor*/)
+    : exponent(exponent), size(size), range(range), drawMode(drawMode)
+  {
     value = 0;
     len=0;
+    time=-10;
     lastvalue=-1;
-    ray=0;
-    this->exponent = exponent;
-    this->size = size;
     initialised = false;
-    sensorBody = 0;
-    //  sensorRay  = 0;
 
+    sensorBody = 0;
     ray=0;
     transform=0;
   }
@@ -65,57 +65,42 @@ namespace lpzrobots {
     if(transform) delete(transform);
 
     //   dGeomDestroy(transform);
-    //   if(sensorRay) delete sensorRay;
     if(sensorBody) delete sensorBody;
   }
 
   RaySensor* IRSensor::clone() const {
-    IRSensor* w = new IRSensor(exponent);
-    return (RaySensor*)w;
+    IRSensor* w = new IRSensor(exponent, size, range, drawMode);
+    w->setInitData(odeHandle, osgHandle, pose);
+    return w;
   }
 
-  void IRSensor::init(const OdeHandle& odeHandle,
-                      const OsgHandle& osgHandle,
-                      Primitive* body,
-                      const osg::Matrix pose, float range,
-                      rayDrawMode drawMode){
-    this->range = range;
-    this->osgHandle = osgHandle;
+  void IRSensor::setPose(const osg::Matrix& pose) {
+    this->pose=pose;
+    if(transform) {
+      // Transform SetPose not implemented. it is easy to do...
+      assert("not yet implemented" == 0);
+    }
+  }
+
+  osg::Matrix IRSensor::getPose() { return pose;};
+
+
+  void IRSensor::init(Primitive* own, Joint* joint) {
+    assert(isInitDataSet);
+
     value = 0;
     len   = range;
     lastvalue = -1;
 
     ray = new Ray(range, 0 /*0.005*/, len); // 0 means that we use a line
-    transform = new Transform(body, ray, pose);
+    transform = new Transform(own, ray, pose);
     OdeHandle myOdeHandle(odeHandle);
     transform->init(odeHandle, 0, osgHandle,
                     (drawMode==drawAll || drawMode==drawRay) ? (Primitive::Draw | Primitive::Geom) : Primitive::Geom );
     transform->substance.setCollisionCallback(irCollCallback,this);
 
-
-    // transform = dCreateGeomTransform (odeHandle.space);
-    //   dGeomTransformSetInfo(transform, 0);
-    //   dGeomTransformSetCleanup(transform, 1); // destroy ray geom of transform is deleted
-
-    //   ray = dCreateRay ( 0, range);
-    //   osg::Vec3 p = pose.getTrans();
-    //   dGeomSetPosition (ray, p.x(), p.y(), p.z());
-    //   dMatrix3 rot;
-    //   odeRotation(pose, rot);
-    //   dGeomSetRotation(ray, rot);
-
-    //   dGeomTransformSetGeom(transform, ray);
-    //   dGeomSetBody ( transform, body->getBody() );
-    //   // disable transform geom,
-    //   //  so that it is not treated by normal collision detection.
-    //   dGeomDisable (transform);
-
     switch(drawMode){
     case drawAll:
-      //   case drawRay:
-      //     sensorRay = new OSGBox(0.002, 0.002, len);
-      //     sensorRay->init(osgHandle);
-      //     if( drawMode != drawAll) break;
     case drawSensor:
       sensorBody = new OSGCylinder(size, size / 5.0);
       sensorBody->init(osgHandle);
@@ -127,24 +112,49 @@ namespace lpzrobots {
     initialised = true;
   };
 
-  void IRSensor::reset(){
-    setLength(range);
-  }
-
-  void IRSensor::setLength(float len){
+  void IRSensor::setLength(float len, long int time){
     this->len = len;
-    value     = characteritic(len);
-    ray->setLength(len);
+    this->time = time;
     // printf("len= %f, value: %f, \n",len, value);
   }
 
   void IRSensor::setRange(float range){
+    assert(!initialised);
     this->range = range;
   }
 
-  double IRSensor::get(){
+  void IRSensor::setDrawMode(rayDrawMode drawMode){
+    assert(!initialised);
+    this->drawMode = drawMode;
+  }
+
+
+  bool IRSensor::sense(const GlobalData& globaldata){
+    if(time<globaldata.sim_step - globaldata.odeConfig.controlInterval){
+      len     = range;
+    }
+    value     = characteritic(len);
+    printf("sense: %li %li %f\n", time, globaldata.sim_step, len);
+    ray->setLength(len);
+    return true;
+  }
+
+
+  double IRSensor::getValue() const {
     return value;
   }
+
+  int IRSensor::get(sensor* sensors, int length) const {
+    if(length>0) {
+      sensors[0]=value;
+      return 1;
+    } else return 0;
+  }
+
+  std::list<sensor> IRSensor::get() const {
+    return {value};
+  }
+
 
   void IRSensor::update(){
     if(value!=lastvalue){

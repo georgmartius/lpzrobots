@@ -113,7 +113,7 @@ namespace lpzrobots {
    *@param sensornumber length of the sensor array
    *@return number of actually written sensors
    **/
-  int Discus::getSensors ( sensor* sensors, int sensornumber )
+  int Discus::getSensorsIntern( sensor* sensors, int sensornumber )
   {
     int len=0;
     assert(created);
@@ -145,7 +145,7 @@ namespace lpzrobots {
     return len;
   }
 
-  void Discus::setMotors ( const motor* motors, int motornumber ) {
+  void Discus::setMotorsIntern( const double* motors, int motornumber ) {
     int len = min((unsigned)motornumber, conf.numAxes);
     for ( int n = 0; n < len; n++ ) {
       servo[n]->set(motors[n]);
@@ -153,12 +153,16 @@ namespace lpzrobots {
   }
 
 
-  void Discus::place(const osg::Matrix& pose){
+  void Discus::placeIntern(const osg::Matrix& pose){
     osg::Matrix p2;
     p2 = pose * osg::Matrix::translate(osg::Vec3(0, 0, conf.diameter/2));
     create(p2);
   };
 
+  void Discus::sense(GlobalData& globalData) {
+    // reset ir sensors to maximum value
+    irSensorBank.sense(globalData);
+  }
 
   void Discus::doInternalStuff(GlobalData& global){
     // slow down rotation around z axis because friction does not catch it.
@@ -169,15 +173,13 @@ namespace lpzrobots {
     if(conf.brake){
       dBodyAddTorque ( b , -conf.brake*vel[0] , -conf.brake*vel[1] , -conf.brake*vel[2] );
     }
-
-    irSensorBank.reset();
   }
 
-  int Discus::getMotorNumber(){
+  int Discus::getMotorNumberIntern(){
     return conf.numAxes;
   }
 
-  int Discus::getSensorNumber() {
+  int Discus::getSensorNumberIntern() {
     int s=0;
     FOREACHC(list<Sensor*>, conf.sensors, i){
       s += (*i)->getSensorNumber();
@@ -247,7 +249,8 @@ namespace lpzrobots {
     if(conf.irSensorTempl==0){
       conf.irSensorTempl=new IRSensor(conf.irCharacter);
     }
-    irSensorBank.init(odeHandle, osgHandle );
+    irSensorBank.setInitData(odeHandle, osgHandle, TRANSM(0,0,0) );
+    irSensorBank.init(0);
     if (conf.irAxis1){
       for(int i=-1; i<2; i+=2){
         RaySensor* sensor = conf.irSensorTempl->clone();

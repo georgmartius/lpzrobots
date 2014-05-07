@@ -86,6 +86,16 @@ namespace lpzrobots {
       return l.size();
     };
 
+    /// helper function for performance implementation of list<> get() based on array-get
+    std::list<sensor> getListOfArray() const {
+      int num = getSensorNumber();
+      sensor* s = new sensor[num];
+      get(s,num);
+      std::list<sensor> result(s,s+num);
+      delete[] s;
+      return result;
+    }
+
     /// selects the rows specified by dimensions (X->0, Y->1, Z->2)
     static std::list<sensor> selectrows(const matrix::Matrix& m, short dimensions) {
       std::list<sensor> l;

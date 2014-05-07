@@ -45,7 +45,7 @@ namespace lpzrobots {
     conf.spheremass   = 1;
     sphere1 = new Barrel2Masses ( odeHandle, osgHandle.changeColor(Color(0.0,0.0,1.0)),
                                   conf, "Barrel1", 0.2);
-    sphere1->place ( osg::Matrix::rotate(M_PI/2, 1,0,0));
+    sphere1->placeIntern( osg::Matrix::rotate(M_PI/2, 1,0,0));
 
     controller = new InvertMotorNStep();
     controller->setParam("steps", 2);
@@ -102,7 +102,7 @@ public:
     return c;
   }
 
-  virtual int getSensors ( sensor* sensors, int sensornumber );
+  virtual int getSensorsIntern( sensor* sensors, int sensornumber );
 
 protected:
 

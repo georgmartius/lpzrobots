@@ -124,7 +124,7 @@ namespace lpzrobots {
    *@param sensornumber length of the sensor array
    *@return number of actually written sensors
    **/
-  int Sphererobot3Masses::getSensors ( sensor* sensors, int sensornumber )
+  int Sphererobot3Masses::getSensorsIntern( sensor* sensors, int sensornumber )
   {
     int len=0;
     assert(created);
@@ -156,7 +156,7 @@ namespace lpzrobots {
     return len;
   }
 
-  void Sphererobot3Masses::setMotors ( const motor* motors, int motornumber ) {
+  void Sphererobot3Masses::setMotorsIntern( const double* motors, int motornumber ) {
     int len = min((unsigned)motornumber, numberaxis);
     for ( int n = 0; n < len; n++ ) {
       servo[n]->set(motors[n]);
@@ -164,14 +164,20 @@ namespace lpzrobots {
   }
 
 
-  void Sphererobot3Masses::place(const osg::Matrix& pose){
+  void Sphererobot3Masses::placeIntern(const osg::Matrix& pose){
     osg::Matrix p2;
     p2 = pose * osg::Matrix::translate(osg::Vec3(0, 0, conf.diameter/2));
     create(p2);
   };
 
+  void Sphererobot3Masses::sense(GlobalData& globalData) {
+    // reset ir sensors to maximum value
+    irSensorBank.sense(globalData);
+  }
+
 
   void Sphererobot3Masses::doInternalStuff(GlobalData& global){
+    OdeRobot::doInternalStuff(global);
     // slow down rotation around z axis because friction does not catch it.
     dBodyID b = getMainPrimitive()->getBody();
     double friction = odeHandle.substance.roughness;
@@ -184,18 +190,17 @@ namespace lpzrobots {
       dBodyAddTorque ( b , -conf.brake*vel[0] , -conf.brake*vel[1] , -conf.brake*vel[2] );
     }
 
-    irSensorBank.reset();
     FOREACH(list<Sensor*>, conf.sensors, s){
       (*s)->sense(global);
     }
 
   }
 
-  int Sphererobot3Masses::getMotorNumber(){
+  int Sphererobot3Masses::getMotorNumberIntern(){
     return numberaxis;
   }
 
-  int Sphererobot3Masses::getSensorNumber() {
+  int Sphererobot3Masses::getSensorNumberIntern() {
     int s=0;
     FOREACHC(list<Sensor*>, conf.sensors, i){
       s += (*i)->getSensorNumber();
@@ -269,7 +274,8 @@ namespace lpzrobots {
     if(conf.irSensorTempl==0){
       conf.irSensorTempl=new IRSensor(conf.irCharacter);
     }
-    irSensorBank.init(odeHandle, osgHandle );
+    irSensorBank.setInitData(odeHandle, osgHandle, TRANSM(0,0,0) );
+    irSensorBank.init(0);
     if (conf.irAxis1){
       for(int i=-1; i<2; i+=2){
         RaySensor* sensor = conf.irSensorTempl->clone();

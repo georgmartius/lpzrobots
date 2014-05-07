@@ -1,0 +1,18 @@
+0.8->0.9
+
+* All OdeRobots subclasses have to be changed:
+   getSensors() -> getSensorsIntern()
+   getMotors() -> getMotorsIntern()
+   getSensorNumber() -> getSensorNumberIntern()
+   getMotorNumber() -> getMotorNumberIntern()
+   place() -> placeIntern
+   In doInternalStuff() call OdeRobots::doInternalStuff()
+   In update() call OdeRobots::update() and remove the update of all
+    primitive and joints
+
+* AddSensorToRobotAdapter is removed, use addSensor directly at the OdeRobot
+
+* IRSensors: they are generic Sensors now, actually PhysicalSensors.
+  Use setInitData(). Use sense() (before step) and not reset() (done automatically if attached)
+  Can be generically attached to a robot, just use addSensor(..)).
+  so: init(..) -> setInitData(...). The init() function is called when attached automatically.

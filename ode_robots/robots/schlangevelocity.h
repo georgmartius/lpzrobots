@@ -70,7 +70,7 @@ namespace lpzrobots {
        *@param motors pointer to the array, motor values are scaled to [-1,1]
        *@param motornumber length of the motor array
        **/
-      virtual void setMotors ( const motor* motors, int motornumber );
+      virtual void setMotorsIntern( const double* motors, int motornumber );
 
       /**
        *Writes the sensor values to an array in the memory.
@@ -78,15 +78,15 @@ namespace lpzrobots {
        *@param sensornumber length of the sensor array
        *@return number of actually written sensors
        **/
-      virtual int getSensors ( sensor* sensors, int sensornumber );
+      virtual int getSensorsIntern( sensor* sensors, int sensornumber );
 
       /** returns number of sensors
        */
-      virtual int getSensorNumber() { assert(created); return joints.size() * 2; }
+      virtual int getSensorNumberIntern() { assert(created); return joints.size() * 2; }
 
       /** returns number of motors
        */
-      virtual int getMotorNumber(){ assert(created); return joints.size() * 2; }
+      virtual int getMotorNumberIntern(){ assert(created); return joints.size() * 2; }
 
     private:
       virtual void create(const osg::Matrix& pose);
