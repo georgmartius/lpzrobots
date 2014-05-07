@@ -134,7 +134,6 @@ namespace lpzrobots {
       len     = range;
     }
     value     = characteritic(len);
-    printf("sense: %li %li %f\n", time, globaldata.sim_step, len);
     ray->setLength(len);
     return true;
   }
