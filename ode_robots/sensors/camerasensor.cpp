@@ -60,7 +60,7 @@ namespace lpzrobots {
       return osg::Matrix();
   }
 
-  std::list<sensor> CameraSensor::CameraSensor::get() const {
+  std::list<sensor> CameraSensor::CameraSensor::getList() const {
     return getListOfArray();
   }
 

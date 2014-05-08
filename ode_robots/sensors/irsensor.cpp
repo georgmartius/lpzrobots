@@ -144,13 +144,12 @@ namespace lpzrobots {
   }
 
   int IRSensor::get(sensor* sensors, int length) const {
-    if(length>0) {
-      sensors[0]=value;
-      return 1;
-    } else return 0;
+    assert(length>0);
+    sensors[0]=value;
+    return 1;
   }
 
-  std::list<sensor> IRSensor::get() const {
+  std::list<sensor> IRSensor::getList() const {
     return {value};
   }
 

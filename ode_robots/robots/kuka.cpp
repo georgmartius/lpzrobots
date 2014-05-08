@@ -176,7 +176,7 @@ namespace lpzrobots {
     //sensors[16+i*3] = distances[1];
     //sensors[17+i*3] = distances[2];
 		std::list<sensor> distances;
-		distances = relSensors[i]->get();
+		distances = relSensors[i]->getList();
 		sensors[15+i*3] = distances.front(); distances.pop_front();
 		sensors[16+i*3] = distances.front(); distances.pop_front();
 		sensors[17+i*3] = distances.front(); distances.pop_front();
@@ -368,7 +368,7 @@ namespace lpzrobots {
 //	//zdis = distances[2];
 
   std::list<sensor> distances;
-  distances = relSensors[0]->get();
+  distances = relSensors[0]->getList();
   xdis = distances.front(); distances.pop_front();
   ydis = distances.front(); distances.pop_front();
   //zdis = distances.front(); distances.pop_front();

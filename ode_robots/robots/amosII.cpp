@@ -507,7 +507,7 @@ namespace lpzrobots {
     if (GoalSensor_active) {
       //the first goal
       std::vector<RelativePositionSensor>::iterator it = GoalSensor.begin(); //we only use one goal sensor
-      std::list<sensor> gls_val = it->get();
+      std::list<sensor> gls_val = it->getList();
       sensors[G0z_s] = gls_val.back();
       gls_val.pop_back();
       sensors[G0y_s] = gls_val.back();
@@ -517,7 +517,7 @@ namespace lpzrobots {
 
       //the second goal
       it++;
-      gls_val = it->get();
+      gls_val = it->getList();
       sensors[G1z_s] = gls_val.back();
       gls_val.pop_back();
       sensors[G1y_s] = gls_val.back();
@@ -527,7 +527,7 @@ namespace lpzrobots {
 
       //the third goal
       it++;
-      gls_val = it->get();
+      gls_val = it->getList();
       sensors[G2z_s] = gls_val.back();
       gls_val.pop_back();
       sensors[G2y_s] = gls_val.back();
@@ -539,7 +539,7 @@ namespace lpzrobots {
 
     //------------------------Add Orientation Sensor by Ren-------------------
 
-    std::list<sensor> Ori_lst =  OrientationSensor->get();
+    std::list<sensor> Ori_lst =  OrientationSensor->getList();
 
     double ori1,ori2,ori3;
 
@@ -622,6 +622,11 @@ namespace lpzrobots {
   void AmosII::sense(GlobalData& globalData) {
     // reset ir sensors to maximum value
     irSensorBank->sense(globalData);
+
+    for (int i = 0; i < LEG_POS_MAX; i++) {
+      if (legContactSensors[LegPos(i)])
+        legContactSensors[LegPos(i)]->sense(globalData);
+    }
   }
 
 
@@ -641,12 +646,6 @@ namespace lpzrobots {
     OdeRobot::doInternalStuff(global);
     // update statistics
     position = getPosition();
-
-    // reset contact sensors
-    for (int i = 0; i < LEG_POS_MAX; i++) {
-      if (legContactSensors[LegPos(i)])
-        legContactSensors[LegPos(i)]->reset();
-    }
 
     // passive servos have to be set to zero in every time step so they work
     // as springs
@@ -1029,8 +1028,9 @@ namespace lpzrobots {
           passiveServos.push_back(spring);
           odeHandle.addIgnoredPair(secondThorax, foot);
 
-          legContactSensors[LegPos(i)] = new ContactSensor(conf.legContactSensorIsBinary, 50, 1.01 * t4);
-          legContactSensors[LegPos(i)]->init(odeHandle, osgHandle, foot, true, TRANSM(0, 0, -0.5 * l4));
+          legContactSensors[LegPos(i)] = new ContactSensor(conf.legContactSensorIsBinary, 50, 1.01 * t4, true);
+          legContactSensors[LegPos(i)]->setInitData(odeHandle, osgHandle, TRANSM(0, 0, -0.5 * l4));
+          legContactSensors[LegPos(i)]->init(foot);
           odeHandle.addIgnoredPair(tebia, legContactSensors[LegPos(i)]->getTransformObject());
         }
       } else if (legPosUsage[leg] == WHEEL) {

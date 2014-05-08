@@ -31,6 +31,7 @@
 #include "trackable.h"
 #include "configurable.h"
 #include "position.h"
+#include "sensormotorinfo.h"
 
 /**
  * Abstract class (interface) for robot in general
@@ -76,15 +77,19 @@ public:
 
   virtual std::string getTrackableName() const {return getName();}
 
-  /** returns the names for the sensors.
+  /** returns the information for the sensors.
       The following relation has to hold: getSensorNames().size() == getSensorNumber()
    */
-  virtual std::list<std::string> getSensorNames() { return std::list<std::string>(getSensorNumber());};
+  virtual std::list<SensorMotorInfo> getSensorInfos()
+  { return std::list<SensorMotorInfo>(getSensorNumber());};
 
-  /** returns the names for the sensors.
+  /** returns the information for the motors.
       The following relation has to hold: getMotorNames().size() == getMotorNumber()
    */
-  virtual std::list<std::string> getMotorNames()  { return std::list<std::string>(getMotorNumber());};
+  virtual std::list<SensorMotorInfo> getMotorInfos()
+  { return std::list<SensorMotorInfo>(getMotorNumber());};
+
+
 };
 
 #endif

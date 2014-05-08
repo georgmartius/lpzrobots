@@ -56,7 +56,7 @@ namespace lpzrobots {
 
   bool AxisOrientationSensor::sense(const GlobalData& globaldata) { return true; }
 
-  std::list<sensor> AxisOrientationSensor::get() const {
+  std::list<sensor> AxisOrientationSensor::getList() const {
     assert(own);
     matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( own->getBody() ) );
 

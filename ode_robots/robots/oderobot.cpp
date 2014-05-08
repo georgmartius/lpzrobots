@@ -88,6 +88,27 @@ namespace lpzrobots {
     return getMotorNumberIntern() + s;
   }
 
+  list<SensorMotorInfo> OdeRobot::getSensorInfos(){
+    list<SensorMotorInfo> l;
+    int num = getSensorNumberIntern();
+    for(int k=0; k<num; k++){ l += SensorMotorInfo(); }
+    for ( auto &i: sensors){
+      l += i.first->getSensorInfos();
+    }
+    return l;
+  }
+
+  list<SensorMotorInfo> OdeRobot::getMotorInfos(){
+    list<SensorMotorInfo> l;
+    int num = getMotorNumberIntern();
+    for(int k=0; k<num; k++){ l += SensorMotorInfo(); }
+    for ( auto &i: motors){
+      l += i.first->getMotorInfos();
+    }
+    return l;
+  }
+
+
   void OdeRobot::attachSensor(SensorAttachment& sa){
     Primitive* p;
     if(sa.second.primitiveIndex<0){
@@ -112,29 +133,28 @@ namespace lpzrobots {
       assert((int)getAllPrimitives().size() > ma.second.primitiveIndex);
       p = getAllPrimitives()[ma.second.primitiveIndex];
     }
-    // Todo: add joint to motors
-    // Joint* j=0;
-    // if(ma.second.jointIndex>=0){
-    //   assert((int)getAllJoints().size() > ma.second.jointIndex);
-    //   j = getAllJoints()[ma.second.jointIndex];
-    // }
-    ma.first->init(p);
+    Joint* j=0;
+    if(ma.second.jointIndex>=0){
+      assert((int)getAllJoints().size() > ma.second.jointIndex);
+      j = getAllJoints()[ma.second.jointIndex];
+    }
+    ma.first->init(p, j);
   }
 
-  void OdeRobot::addSensor(Sensor* sensor, Attachement attachement){
+  void OdeRobot::addSensor(std::shared_ptr<Sensor> sensor, Attachement attachement){
     assert(!askedfornumber);
     assert(sensor);
-    SensorAttachment sa(sensor,attachement);
+    SensorAttachment sa(std::shared_ptr<Sensor>(sensor),attachement);
     if(initialized){
       attachSensor(sa);
     }
     sensors.push_back(sa);
   }
 
-  void OdeRobot::addMotor(Motor* motor, Attachement attachement){
+  void OdeRobot::addMotor(std::shared_ptr<Motor> motor, Attachement attachement){
     assert(!askedfornumber);
     assert(motor);
-    MotorAttachment ma(motor,attachement);
+    MotorAttachment ma(std::shared_ptr<Motor>(motor),attachement);
     if(initialized){
       attachMotor(ma);
     }
@@ -148,7 +168,7 @@ namespace lpzrobots {
     }
     int numJoints = getAllJoints().size();
     for(int j=0; j<numJoints; j++){
-      addSensor(new TorqueSensor(maxtorque, avg), Attachement(-1,j));
+      addSensor(std::make_shared<TorqueSensor>(maxtorque, avg), Attachement(-1,j));
     }
   }
 
@@ -156,14 +176,8 @@ namespace lpzrobots {
 
 
   void OdeRobot::cleanup(){
-    for(auto &i: sensors){
-      if(i.first) delete i.first;
-    }
     sensors.clear();
-    for(auto &i: motors){
-      if(i.first) delete i.first;
-    }
-    motors.clear();
+    motors.clear(); // this also deletes the pointers
     FOREACH(std::vector<Joint*>, joints, j){
       if(*j) delete *j;
     }

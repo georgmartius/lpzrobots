@@ -79,12 +79,6 @@ namespace lpzrobots {
       return c;
     }
 
-    /**
-     * updates the OSG nodes of the vehicle
-     */
-    virtual void update();
-
-
     /** sets the pose of the vehicle
         @param pose desired pose matrix
     */
@@ -111,11 +105,6 @@ namespace lpzrobots {
      */
     virtual int getMotorNumberIntern();
 
-    /** this function is called in each timestep. It should perform robot-internal checks,
-        like space-internal collision detection, sensor resets/update etc.
-        @param globalData structure that contains global data from the simulation environment
-    */
-    virtual void doInternalStuff(GlobalData& globalData);
 
     /******** CONFIGURABLE ***********/
     virtual void notifyOnChange(const paramkey& key);

@@ -382,7 +382,7 @@ namespace lpzrobots {
         }
       }
     }
-    if(irSensorBank->size()>0) addSensor(irSensorBank);
+    if(irSensorBank->size()>0) addSensor(std::shared_ptr<Sensor>(irSensorBank));
     created=true;
   };
 

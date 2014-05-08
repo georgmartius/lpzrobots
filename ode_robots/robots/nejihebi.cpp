@@ -409,11 +409,6 @@ namespace lpzrobots {
     }
   }
 
-  void Nejihebi::update() {
-    OdeRobot::update();
-    for (unsigned int i=0; i<objects.size(); i++) objects[i]->update();
-    for (unsigned int i=0; i<joints.size(); i++) joints[i]->update();
-  }
 }
 
 

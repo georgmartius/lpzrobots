@@ -257,6 +257,9 @@ public: // Functions
    */
   virtual void doInternalStuff(GlobalData& globalData);
 
+  virtual void sense(GlobalData& globalData) override;
+
+
   virtual double& getContactPoints() { return contactPoints; }
 
 protected: // Functions

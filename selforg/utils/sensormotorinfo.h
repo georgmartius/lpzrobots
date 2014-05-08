@@ -1,8 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *   Copyright (C) 2005-2014 LpzRobots development team                    *
  *    Georg Martius  <georg dot martius at web dot de>                     *
- *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
- *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
  *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -21,45 +19,30 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
-#ifndef           MOTOR_H_
-#define           MOTOR_H_
+#ifndef __SENSORMOTORINFO_H
+#define __SENSORMOTORINFO_H
 
-#include "globaldata.h"
-#include "sensormotorinfoable.h"
+#include <string>
 
-namespace lpzrobots {
+/**
+ * Interface for objects, that can be stored and restored to/from a file stream (binary).
+*/
 
-  /**
-      Abstact base class for attachable motors
-  */
-  class Motor : public virtual SensorMotorInfoAble {
-  public:
-    Motor() {
-    }
-    virtual ~Motor() {};
+class SensorMotorInfo {
+public:
+  SensorMotorInfo(std::string name=std::string())
+    : name(name), min(-1.0), max(1.0), index(0), quantity(Position), type(Continuous)
+  {}
 
-    /** initialises motor with body of robot
-    */
-    virtual void init(Primitive* own, Joint* joint = 0)=0;
+  enum Type { Continuous, Discrete, Binary };
+  enum Quantity { Position, Velocity, Force, Distance };
 
-    /// return the dimensionality of this motor
-    virtual int getMotorNumber() const =0;
+  std::string name;
+  double min;
+  double max;
+  int index; // index within one Sensor
+  Quantity quantity;
+  Type type;
+};
 
-    /** returns a list of motor names  (@see SensorMotorNaming how to change the names) */
-    virtual std::list<SensorMotorInfo> getMotorInfos() const {
-      return getInfos(getMotorNumber());
-    };
-
-    /** performs the actions, This is usually called in
-        doInternalStuff() from the robot */
-    virtual bool act(GlobalData& globaldata) = 0;
-
-    /** sends the action commands to the motor.
-        It returns the number of used values. (should be equal to
-        getMotorNumber)
-     */
-    virtual int set(const motor* values, int length) = 0;
-  };
-}
-
-#endif /* !MOTOR_H_ */
+#endif

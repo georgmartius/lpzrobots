@@ -351,12 +351,9 @@ public:
       //       fwc.irBack=true;
       //       fwc.irSide=true;
       OdeRobot* nimm4 = new FourWheeled ( odeHandle, osgHandle, fwc, "Multi8_2h_Nimm4_nogat_noy_sqrt");
-      AddSensors2RobotAdapter* addsensorrobot =
-        new AddSensors2RobotAdapter(odeHandle, osgHandle, nimm4);
-      sensor = new SpeedSensor(1,SpeedSensor::TranslationalRel, Sensor::Z);
-      addsensorrobot->addSensor(sensor);
-      addsensorrobot->addSensor(new SpeedSensor(1,SpeedSensor::RotationalRel, Sensor::X));
-      robot = addsensorrobot;
+      nimm4->addSensor(std::make_shared<Sensor>(SpeedSensor(1,SpeedSensor::TranslationalRel, Sensor::Z)));
+      nimm4->addSensor(std::make_shared<Sensor>(SpeedSensor(1,SpeedSensor::RotationalRel, Sensor::X)));
+      robot = nimm4;
       robot->place ( osg::Matrix::translate(0,0,0.2));
 
       if(!replay){

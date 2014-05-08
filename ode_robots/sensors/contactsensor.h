@@ -25,6 +25,7 @@
 #define __CONTACTSENSOR_H
 
 #include <ode_robots/color.h>
+#include <ode_robots/physicalsensor.h>
 
 namespace lpzrobots {
 
@@ -41,7 +42,7 @@ namespace lpzrobots {
       However if no collision is detected the sensor needs to adjust its output as well.
       Therefore a reset function is provided.
   */
-  class ContactSensor {
+  class ContactSensor : public PhysicalSensor{
   public:
 
     /**
@@ -49,18 +50,10 @@ namespace lpzrobots {
        @param forcescale scale of the measured collision force (default: 1)
        @param size size of little box representing the sensor (if it has an own body) (default: 0.05)
     */
-    ContactSensor(bool binary=true, double forcescale = 1, double radius = 0.05);
+    ContactSensor(bool binary=true, double forcescale = 1, double radius = 0.05,
+                  bool createSphere = false, bool colorObject = true);
 
     virtual ~ContactSensor();
-
-    virtual void init(const OdeHandle& odeHandle,
-          const OsgHandle& osgHandle,
-          Primitive* reference,
-          bool createSphere = false,
-          const osg::Matrix pose = osg::Matrix(),
-          bool colorObject = true);
-
-    virtual void reset();
 
     /** returns the sensor value in the range >=0;
         0 means nothing no contact
@@ -68,10 +61,22 @@ namespace lpzrobots {
         @see characteritic()
      */
     virtual double get();
-    virtual void update();
 
-    // set measued depth (used internally) (stores the maximum until next reset)
-    virtual void setDepth(float depth);
+    // ---- Sensor interface -----
+    virtual void init(Primitive* own, Joint* joint = 0) override;
+
+    virtual int getSensorNumber() const { return 1; }
+
+    virtual bool sense(const GlobalData& globaldata) override;
+
+    virtual int get(sensor* sensors, int length) const override;
+
+    virtual std::list<sensor> getList() const override;
+
+    virtual void update() override ;
+
+    // set measued depth (used internally) and the time (old measures are ignored)
+    virtual void setDepth(float depth, long int time);
 
     Transform* getTransformObject();
 
@@ -81,11 +86,13 @@ namespace lpzrobots {
     double value;               ///<  actual sensor value
     double lastvalue;           ///< last value
     double size;                ///< size of graphical sensor
+    long int time;
 
     Primitive* reference;       ///< primitive to which the sensor is bound
     Sphere* sensorBody;
     Transform* transform;
 
+    bool createSphere;
     bool colorObject;
     Color origColor;
     bool initialised;

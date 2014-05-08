@@ -48,7 +48,7 @@ namespace lpzrobots {
 
   bool SpeedSensor::sense(const GlobalData& globaldata) { return true; }
 
-  std::list<sensor> SpeedSensor::get() const {
+  std::list<sensor> SpeedSensor::getList() const {
     const Matrix& m = getSenseMatrix()*(1.0/maxSpeed);
     return selectrows(m,dimensions);
   }

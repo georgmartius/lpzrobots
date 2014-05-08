@@ -166,7 +166,7 @@ namespace lpzrobots {
                                     Matrix::translate(0,width/2, 0),
                                     conf.irRangeSide, RaySensor::drawAll);
     }
-    addSensor(irSensorBank);
+    addSensor(shared_ptr<Sensor>(irSensorBank));
   };
 
 

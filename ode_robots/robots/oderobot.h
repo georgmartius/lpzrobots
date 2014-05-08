@@ -25,6 +25,7 @@
 #define __ODEROBOT_H
 
 #include <vector>
+#include <memory>
 
 #include <selforg/abstractrobot.h>
 #include <selforg/storeable.h>
@@ -52,8 +53,8 @@ namespace lpzrobots {
 
   typedef std::vector<Primitive*> Primitives;
   typedef std::vector<Joint*> Joints;
-  typedef std::pair<Sensor*, Attachement> SensorAttachment;
-  typedef std::pair<Motor*, Attachement>  MotorAttachment;
+  typedef std::pair<std::shared_ptr<Sensor>, Attachement> SensorAttachment;
+  typedef std::pair<std::shared_ptr<Motor>, Attachement>  MotorAttachment;
 
 
   /**
@@ -74,32 +75,40 @@ namespace lpzrobots {
     /// calls cleanup()
     virtual ~OdeRobot();
 
-    /** overload this function in a subclass to do specific sensor handling @see getSensors() */
-    virtual int getSensorsIntern(double* sensors, int sensornumber) = 0;
-
-    /** overload this function in a subclass to do specific sensor handling @see setMotors() */
-    virtual void setMotorsIntern(const double* motors, int motorsnumber) = 0;
-
-    /** overload this function in a subclass to specific the number of custom sensors @see getSensorNumber() */
-    virtual int getSensorNumberIntern() = 0;
-
-    /** overload this function in a subclass to specific the number of custom sensors @see getMotorNumber() */
-    virtual int getMotorNumberIntern() = 0;
-
     virtual int  getSensors(double* sensors, int sensornumber) final;
     virtual void setMotors(const double* motors, int motornumber) final;
     virtual int  getSensorNumber() final;
     virtual int  getMotorNumber() final;
 
+    virtual std::list<SensorMotorInfo> getSensorInfos() override;
+
+    virtual std::list<SensorMotorInfo> getMotorInfos() override;
+
+  public: // should be protected, but too much refactoring work
+    /** overload this function in a subclass to do specific sensor handling,
+        not needed for generic sensors @see getSensors() @see addSensor() */
+    virtual int getSensorsIntern(double* sensors, int sensornumber) { return 0; };
+
+    /** overload this function in a subclass to do specific sensor handling,
+        not needed for generic motors  @see setMotors() @see addMotor() */
+    virtual void setMotorsIntern(const double* motors, int motorsnumber) { };
+
+    /** overload this function in a subclass to specific the number of custom sensors @see getSensorNumber() */
+    virtual int getSensorNumberIntern() { return 0; };
+
+    /** overload this function in a subclass to specific the number of custom sensors @see getMotorNumber() */
+    virtual int getMotorNumberIntern() { return 0; };
+
+  public:
     /** adds a sensor to the robot. Must be called before agents initializes, otherwise unknown effect.
         @param segmentIndex index of segment of robot to which this sensor should be attached
     */
-    virtual void addSensor(Sensor* sensor, Attachement attachement=Attachement());
+    virtual void addSensor(std::shared_ptr<Sensor> sensor, Attachement attachement=Attachement());
 
     /** adds a motor to the robot. Must be called before agents initializes, otherwise unknown effect.
         @param segmentIndex index of segment of robot to which this motor should be attached
      */
-    virtual void addMotor(Motor* motor, Attachement attachement=Attachement());
+    virtual void addMotor(std::shared_ptr<Motor> motor, Attachement attachement=Attachement());
 
     /// returns all generic sensors with their attachement
     virtual std::list<SensorAttachment> getAttachedSensors(){

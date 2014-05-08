@@ -29,6 +29,7 @@
 #include <selforg/stl_adds.h>
 #include <selforg/matrix.h>
 #include "globaldata.h"
+#include "sensormotorinfoable.h"
 #include "pos.h"
 
 namespace lpzrobots {
@@ -39,7 +40,7 @@ namespace lpzrobots {
 
   /** Abstract class for sensors that can be plugged into a robot
   */
-  class Sensor {
+  class Sensor : public virtual SensorMotorInfoAble {
   public:
     /// defines which dimensions should be sensed. The meaning is sensor specific.
     enum Dimensions { X = 1, Y = 2, Z = 4, XY = X | Y, XZ = X | Z, YZ = Y | Z, XYZ = X | Y | Z };
@@ -62,8 +63,16 @@ namespace lpzrobots {
 
     /** returns a list of sensor values (usually in the range [-1,1] )
         This function should be overloaded.
+        If performance matters, implement get(double*, int) and use getListOfArray to implement this.
      */
-    virtual std::list<sensor> get() const  = 0;
+    virtual std::list<sensor> getList() const  = 0;
+
+
+    /** returns a list of sensor infos  (@see SensorMotorInfoAble how to change the names etc) */
+    virtual std::list<SensorMotorInfo> getSensorInfos() const {
+      return getInfos(getSensorNumber());
+    };
+
 
     /** to update any visual appearance
      */
@@ -78,7 +87,7 @@ namespace lpzrobots {
         @return number of sensor values written
      */
     virtual int get(sensor* sensors, int length) const {
-      const std::list<sensor>& l = get();
+      const std::list<sensor>& l = getList();
       assert(length>=(int)l.size());
       int n=0;
       FOREACHC(std::list<sensor>,l,s)

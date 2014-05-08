@@ -40,6 +40,7 @@
 #include <ode_robots/joint.h>
 #include <ode_robots/oneaxisservo.h>
 #include <ode_robots/twoaxisservo.h>
+#include <ode_robots/constantmotor.h>
 
 #include <ode_robots/mathutils.h>
 
@@ -96,30 +97,6 @@ namespace lpzrobots {
       addParameter("tebiaOffset",     &conf.tebiaOffset);
     }
 
-    // name the sensors
-    for(int n=0; n<conf.legNumber; n++){
-      addInspectableDescription("x[" + itos (n*2) + "]",
-                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
-                                + " up/down");
-      addInspectableDescription("x[" + itos (n*2+1) + "]",
-                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
-                                + " front/back");
-      addInspectableDescription("x_R[" + itos (n*2) + "]",
-                                "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
-                                + " up/down (raw)");
-      addInspectableDescription("x_R[" + itos (n*2+1) + "]",
-                                " leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
-                                + " front/back (raw)");
-      if(conf.useTebiaMotors){
-        addInspectableDescription("x[" + itos (conf.legNumber*2+n) + "]",
-                                  "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
-                                  + " tebia (knee)");
-        addInspectableDescription("x_R[" + itos (conf.legNumber*2+n) + "]",
-                                  "leg pair " + itos(n/2) + (n%2==0 ? " right" : " left")
-                                  + " tebia (knee) (raw)");
-      }
-    }
-
     // Georg: you can also add inspectables here to see them in the logfile/guilogger
     // e.g.
     if(conf.calculateEnergy){
@@ -127,85 +104,6 @@ namespace lpzrobots {
       addInspectableValue("Energy", &E_t, "Energy over several timesteps");
     }
 
-  };
-
-
-  int Hexapod::getMotorNumberIntern(){
-    return  2*hipservos.size() + (conf.useTebiaMotors ? tebiaservos.size() : 0)
-      + (conf.useActiveWhisker ? whiskerservos.size() : 0);
-  };
-
-  /* sets actual motorcommands
-     @param motors motors scaled to [-1,1]
-     @param motornumber length of the motor array
-  */
-  void Hexapod::setMotorsIntern(const double* motors, int motornumber){
-    assert(created); // robot must exist
-    int n=0;
-    FOREACH(vector<TwoAxisServo*>, hipservos, s){
-      if(*s) (*s)->set(motors[n],motors[n+1]);
-      n+=2;
-    }
-    if(conf.useTebiaMotors){
-      FOREACH(vector<OneAxisServo*>, tebiaservos, i){
-        if(*i) (*i)->set(motors[n++]);
-      }
-    }else{
-      FOREACH(vector<OneAxisServo*>, tebiaservos, i){
-        if(*i) (*i)->set(0);
-      }
-    }
-    FOREACH(vector<OneAxisServo*>, tarsussprings, i){
-      if(*i) (*i)->set(0);
-    }
-    if(conf.useActiveWhisker){
-      FOREACH(vector<OneAxisServo*>, whiskerservos, i){
-        if(*i) (*i)->set(motors[n++]);
-      }
-    }else{
-      FOREACH(vector<OneAxisServo*>, whiskerservos, i){
-        if(*i) (*i)->set(0);
-      }
-    }
-
-  };
-
-  int Hexapod::getSensorNumberIntern(){
-    return 2*hipservos.size() + (conf.useTebiaMotors ? tebiaservos.size() : 0)
-      + (conf.useActiveWhisker ? whiskerservos.size() : 0) + contactsensors.size();
-  };
-
-  /* returns actual sensorvalues
-     @param sensors sensors scaled to [-1,1] (more or less)
-     @param sensornumber length of the sensor array
-     @return number of actually written sensors
-  */
-  int Hexapod::getSensorsIntern(double* sensors, int sensornumber){
-    assert(created);
-    int n=0;
-    FOREACH(vector<TwoAxisServo*>, hipservos, s){
-      if(*s) {
-        sensors[n++] = (*s)->get1();
-        sensors[n++] = (*s)->get2();
-      }
-    }
-    if(conf.useTebiaMotors){
-      FOREACH(vector<OneAxisServo*>, tebiaservos, s){
-        if(*s) sensors[n++] = (*s)->get();
-      }
-    }
-    if(conf.useActiveWhisker){
-      FOREACH(vector<OneAxisServo*>, whiskerservos, s){
-        if(*s) sensors[n++] = (*s)->get();
-      }
-    }
-    if(conf.useContactSensors){
-      FOREACH(vector<ContactSensor*>, contactsensors, s){
-        if(*s) sensors[n++] = (*s)->get();
-      }
-    };
-
-    return n;
   };
 
 
@@ -280,11 +178,6 @@ namespace lpzrobots {
   */
   void Hexapod::doInternalStuff(GlobalData& global){
     OdeRobot::doInternalStuff(global);
-    if(conf.useContactSensors){
-      FOREACH(vector<ContactSensor*>, contactsensors, s){
-        if(*s) (*s)->reset();
-      }
-    };
 
     if(conf.calculateEnergy){
 
@@ -349,7 +242,6 @@ namespace lpzrobots {
         heights[i] = abs(round(position[2] -  hcorrection,3));
         angles[2*i]   = dJointGetUniversalAngle1(legContactArray[i].joint) * 180/M_PI ;
         angles[2*i+1] = dJointGetUniversalAngle2(legContactArray[i].joint) * 180/M_PI ;
-
       }
     }
 
@@ -370,11 +262,6 @@ namespace lpzrobots {
     OsgHandle osgHandleJ(osgHandle.changeColor("joint"));
     OsgHandle osgHLegs(osgHandle.changeColor("robot1"));
     OsgHandle osgHTarsus(osgHandle.changeColor("robot3"));
-
-    TwoAxisServoVel* servo;
-    OneAxisServo* spring;
-    OneAxisServo* spring2;
-    FixedJoint* fixedJoint;
 
     const string trunkTex("Images/stripes.rgb");
     const string legTex("Images/whiteground.rgb");
@@ -413,7 +300,7 @@ namespace lpzrobots {
         irbox->init(odeHandle, 0.00001, osgHandle);
         irbox->setPose(ROTM(M_PI/4,0,0,1) * TRANSM(i*conf.size/2,0,theight/2)*trunkPos);
         objects.push_back(irbox);
-        fixedJoint = new FixedJoint(trunk,irbox);
+        auto fixedJoint = new FixedJoint(trunk,irbox);
         fixedJoint->init(odeHandle, osgHandleJ, true, 0.04);
         joints.push_back(fixedJoint);
 
@@ -426,7 +313,7 @@ namespace lpzrobots {
         irbox->init(odeHandle, 0.00001, osgHandle);
         irbox->setPose(TRANSM(0,i*twidth/2,theight/2 + 0.05)*trunkPos);
         objects.push_back(irbox);
-        fixedJoint = new FixedJoint(trunk,irbox);
+        auto fixedJoint = new FixedJoint(trunk,irbox);
         fixedJoint->init(odeHandle, osgHandleJ, true, 0.04);
         joints.push_back(fixedJoint);
       }
@@ -498,7 +385,7 @@ namespace lpzrobots {
            conf.irRangeRight, RaySensor::drawAll);
         */
       }
-      if(irSensorBank->size()>0) addSensor(irSensorBank);
+      if(irSensorBank->size()>0) addSensor(std::shared_ptr<Sensor>(irSensorBank));
     }
 
 
@@ -553,9 +440,13 @@ namespace lpzrobots {
       legContactArray[n].joint = j->getJoint();
 
       // values will be set in setParam later
-      servo =  new TwoAxisServoVel(odeHandle, j,-1,1, 1, -1,1,1,0 );
-      //     servo =  new UniversalServo(j,-1,1, 1, -1,1,1,0);
+      auto servo = std::make_shared<TwoAxisServoVel>(odeHandle, j,-1,1, 1, -1,1,1,0 );
+
+      servo->setBaseName("leg pair " + itos(n/2) + (n%2==0 ? " right " : " left "));
+      servo->setNamingFunc([](int i){ return i==0? "up/down" : "front/back";});
       hipservos.push_back(servo);
+      addSensor(servo);
+      addMotor(servo);
 
       // lower leg
       Primitive* tibia;
@@ -566,6 +457,8 @@ namespace lpzrobots {
         * TRANSM(0,0,-len1/2) * m1;
       tibia->setPose(m2);
       objects.push_back(tibia);
+      int footIdx = objects.size()-1;
+
       legs.push_back(tibia);
 
       legContactArray[n].legID = n;
@@ -578,19 +471,26 @@ namespace lpzrobots {
                                        Axis(n%2==0 ? -1 : 1,0,0) * m1);
         k->init(odeHandle, osgHandleJ, true, rad1 * 2.1);
         // servo used as a spring
-        spring = new HingeServo(k, -1, 1, 1, 0.01,0); // parameters are set later
-        tebiaservos.push_back(spring);
+        auto servo = std::make_shared<HingeServo>(k, -1, 1, 1, 0.01,0); // parameters are set later
+        tebiaservos.push_back(servo);
+        if(conf.useTebiaMotors){
+          servo->setBaseName("leg pair " + itos(n/2) + (n%2==0 ? " right " : " left ") + "tebia (knee)");
+          addSensor(servo);
+          addMotor(servo);
+        }else {
+          auto spring = std::make_shared<ConstantMotor>(servo, 0.0);
+          addMotor(spring);
+        }
         joints.push_back(k);
       }else{
         // fixed knee joint
-        FixedJoint* k = new FixedJoint(coxaThorax, tibia);
+        auto k = new FixedJoint(coxaThorax, tibia);
         k->init(odeHandle, osgHandleJ, false);
         joints.push_back(k);
       }
       // lower limp should not collide with body!
       odeHandle.addIgnoredPair(trunk,tibia);
 
-      Primitive* foot = tibia;
 
       if(conf.tarsus){
         // New: tarsus
@@ -622,7 +522,7 @@ namespace lpzrobots {
         tarsus->setPose(m4);
         tarsusParts.push_back(tarsus);
         objects.push_back(tarsus);
-        foot = tarsus;
+        footIdx = objects.size()-1;
 
         if(conf.useTarsusJoints){
           // springy joint
@@ -630,10 +530,11 @@ namespace lpzrobots {
                                          Axis(n%2==0 ? -1 : 1,0,0) * m2);
           k->init(odeHandle, osgHandleJ, true, rad2 * 2.1);
           // servo used as a spring
-          //          spring2 = new HingeServo(k, -1, 1, 1, 0.01,0); // parameters are set later
-          spring2 = new OneAxisServoVel(odeHandle,k, -1, 1, 1, 0.01); // parameters are set later
-          tarsussprings.push_back(spring2);
+          auto servo = std::make_shared<OneAxisServoVel>(odeHandle,k, -1, 1, 1, 0.01); // parameters are set later
           joints.push_back(k);
+          auto spring = std::make_shared<ConstantMotor>(servo, 0.0);
+          tarsussprings.push_back(servo);
+          addMotor(spring);
 
         }else{
           FixedJoint* k = new FixedJoint(tibia, tarsus);
@@ -697,8 +598,8 @@ namespace lpzrobots {
       }
       if(conf.useContactSensors){
         ContactSensor* cs = new ContactSensor(false,300.0);
-        cs->init(odeHandle,osgHandle,foot);
-        contactsensors.push_back(cs);
+        cs->setInitData(odeHandle,osgHandle,TRANSM(0,0,0));
+        addSensor(std::shared_ptr<Sensor>(cs),Attachement(footIdx));
       }
 
     }
@@ -728,8 +629,9 @@ namespace lpzrobots {
                                        Axis(1,0,0) * m);
         k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
         // servo used as a spring
-        spring = new HingeServo(k, -M_PI/6, M_PI/6, .1, 0.01,0);
-        whiskerservos.push_back(spring);
+        auto servo = std::make_shared<HingeServo>(k, -M_PI/6, M_PI/6, .1, 0.01,0);
+        auto string = std::make_shared<ConstantMotor>(servo, 0.0);
+        addMotor(string);
         joints.push_back(k);
 
         Primitive* whisker2;
@@ -748,8 +650,9 @@ namespace lpzrobots {
                            Axis(0,1,0) * m1);
         k->init(odeHandle, osgHandleJ, true, t1 * 2.1);
         // servo used as a spring
-        spring = new HingeServo(k, -M_PI/6, M_PI/6, .05, 0.01,0);
-        whiskerservos.push_back(spring);
+        servo = std::make_shared<HingeServo>(k, -M_PI/6, M_PI/6, .05, 0.01,0);
+        string = std::make_shared<ConstantMotor>(servo, 0.0);
+        addMotor(string);
         joints.push_back(k);
       }
     }
@@ -763,28 +666,11 @@ namespace lpzrobots {
    */
   void Hexapod::destroy(){
     if (created){
-      FOREACH(vector<TwoAxisServo*>, hipservos, i){
-        if(*i) delete *i;
-      }
-      hipservos.clear();
-      FOREACH(vector<OneAxisServo*>, tebiaservos, i){
-        if(*i) delete *i;
-      }
-      tebiaservos.clear();
-      FOREACH(vector<OneAxisServo*>, tarsussprings, i){
-        if(*i) delete *i;
-      }
-      tarsussprings.clear();
-      FOREACH(vector<OneAxisServo*>, whiskerservos, i){
-        if(*i) delete *i;
-      }
-      whiskerservos.clear();
 
       cleanup();
 
       odeHandle.deleteSpace();
     }
-
 
     created=false;
   }
@@ -794,40 +680,32 @@ namespace lpzrobots {
   }
   ///////////////
   void Hexapod::resetMotorPower(double power){
-    FOREACH(vector<TwoAxisServo*>, hipservos, i){
-      if(*i){
-        (*i)->setPower1(power);
-        (*i)->setPower2(power);
-      }
+    for(auto& i : hipservos){
+      i->setPower1(power);
+      i->setPower2(power);
     }
   }
   /////////
   void Hexapod::notifyOnChange(const paramkey& key){
     // we simply set all parameters here
-    FOREACH(vector<TwoAxisServo*>, hipservos, i){
-      if(*i){
-        (*i)->setPower1(conf.coxaPower);
-        (*i)->setPower2(conf.coxaPower);
-        (*i)->setDamping1(conf.coxaDamping);
-        (*i)->setDamping2(conf.coxaDamping);
-        (*i)->setMinMax1(-conf.coxaJointLimitV,+conf.coxaJointLimitV);
-        (*i)->setMinMax2(-conf.coxaJointLimitH,+conf.coxaJointLimitH);
-        (*i)->setMaxVel(conf.coxaSpeed);
-      }
+    for(auto& i : hipservos){
+      i->setPower1(conf.coxaPower);
+      i->setPower2(conf.coxaPower);
+      i->setDamping1(conf.coxaDamping);
+      i->setDamping2(conf.coxaDamping);
+      i->setMinMax1(-conf.coxaJointLimitV,+conf.coxaJointLimitV);
+      i->setMinMax2(-conf.coxaJointLimitH,+conf.coxaJointLimitH);
+      i->setMaxVel(conf.coxaSpeed);
     }
-    FOREACH(vector<OneAxisServo*>, tebiaservos, i){
-      if(*i){
-        (*i)->setPower(conf.tebiaPower);
-        (*i)->setDamping(conf.tebiaDamping);
-        (*i)->setMinMax(-conf.tebiaJointLimit+conf.tebiaOffset,+conf.tebiaJointLimit+conf.tebiaOffset);
-      }
+    for(auto& i : tebiaservos){
+      i->setPower(conf.tebiaPower);
+      i->setDamping(conf.tebiaDamping);
+      i->setMinMax(-conf.tebiaJointLimit+conf.tebiaOffset,+conf.tebiaJointLimit+conf.tebiaOffset);
     }
-    FOREACH(vector<OneAxisServo*>, tarsussprings, i){
-      if(*i){
-        (*i)->setPower(conf.tebiaPower);
-        (*i)->setDamping(conf.tebiaDamping);
-        (*i)->setMinMax(-conf.tebiaJointLimit,+conf.tebiaJointLimit);
-      }
+    for(auto& i : tarsussprings){
+      i->setPower(conf.tebiaPower);
+      i->setDamping(conf.tebiaDamping);
+      i->setMinMax(-conf.tebiaJointLimit,+conf.tebiaJointLimit);
     }
   }
 

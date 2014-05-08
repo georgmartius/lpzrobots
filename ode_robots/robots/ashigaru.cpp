@@ -412,20 +412,6 @@ namespace lpzrobots {
     OdeRobot::update();
     assert(created); // robot must exist
 
-    // update object
-    for (PrimitiveList::iterator i = objects.begin(); i != objects.end(); i++) {
-      if (*i){
-        (*i)->update();
-      }
-    }
-
-    // update joints
-    for (JointList::iterator i = joints.begin(); i != joints.end(); i++) {
-      if (*i){
-        (*i)->update();
-      }
-    }
-
     // update sensorbank with infrared sensors
     //irSensorBank.update();
     this->legs[L0].shoulderBox->update();
@@ -438,23 +424,13 @@ namespace lpzrobots {
 
   }
 
+  void Ashigaru::sense(GlobalData& globalData){
 
-  //May be it is called every step??  -> Frank: yes
-  void Ashigaru::doInternalStuff(GlobalData& globalData){
-    // update statistics
-    //position = getPosition();
-
-    // reset contact sensors
+      // reset contact sensors
     for (int i = 0; i < LEG_POS_MAX; i++) {
-            if (legContactSensors[LegPos(i)])
-          legContactSensors[LegPos(i)]->reset();
+      if (legContactSensors[LegPos(i)])
+        legContactSensors[LegPos(i)]->sense(globalData);
     }
-
-    // reset ir sensors to maximum value
-    //irSensorBank->reset();
-
-
-    // Frank: Georgs new TorqueSensor implementation requires sense() to be called before get()
     motorTorqSensors[T0_m]->sense(globalData);
     motorTorqSensors[T1_m]->sense(globalData);
     motorTorqSensors[T2_m]->sense(globalData);
@@ -464,6 +440,16 @@ namespace lpzrobots {
     motorTorqSensors[F0_m]->sense(globalData);
     motorTorqSensors[F1_m]->sense(globalData);
     motorTorqSensors[F2_m]->sense(globalData);
+  }
+
+
+  //May be it is called every step??  -> Frank: yes
+  void Ashigaru::doInternalStuff(GlobalData& globalData){
+    // update statistics
+    //position = getPosition();
+
+    // reset ir sensors to maximum value
+    //irSensorBank->reset();
 
 
   }
@@ -884,10 +870,10 @@ namespace lpzrobots {
                 motorTorqSensors[getMotorName(leg, FT)]->init(NULL, FTj);
 
                 // Leg contact Sensors (Foot toe)
-                legContactSensors[leg] = new ContactSensor(false, 100, conf.foot.footRadius*1.1);//make the sphere a little bit larger than real foot to detect touching
-                legContactSensors[leg]->reset();
+                legContactSensors[leg] = new ContactSensor(false, 100, conf.foot.footRadius*1.1, true);//make the sphere a little bit larger than real foot to detect touching
                  // We set the contact sensor at the point of foot sphere
-                legContactSensors[leg]->init(odeHandle, osgHandle, legs[leg].tibia, true, trans_tC_to_fsC);
+                legContactSensors[leg]->setInitData(odeHandle, osgHandle, trans_tC_to_fsC);
+                legContactSensors[leg]->init(legs[leg].tibia);
                 //odeHandle.addIgnoredPair(legs[leg].foot, legContactSensors[leg]->getTransformObject());
     }
 
@@ -903,17 +889,17 @@ namespace lpzrobots {
 
   // getTorqueSensorData
   sensor Ashigaru::getTorqueData(TorqueSensor*  torqueSensor){
-                // Georg: the following should do:
-          if(torqueSensor)
-                        return torqueSensor->get().front();
-                else
-                        return -1.;
+    // Georg: the following should do:
+    if(torqueSensor)
+      return torqueSensor->getList().front();
+    else
+      return -1.;
                 /*
                 //
           std::list<sensor> a;
           std::list<sensor>::iterator it;
           if(torqueSensor){
-                 a = torqueSensor->get();
+                 a = torqueSensor->getList();
                  it = a.end();
                  --it;
                  //std::cout << "trq " << *it << std::endl;

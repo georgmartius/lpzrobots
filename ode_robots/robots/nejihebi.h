@@ -328,10 +328,6 @@ namespace lpzrobots{
        */
       virtual void setMotorsIntern(const double* motors, int motornumber);
 
-      /**
-       * updates the OSG nodes of the robot
-       */
-      virtual void update();
     private:
 
       /** Struct to hold all relevant parts of a screw element */

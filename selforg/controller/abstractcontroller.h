@@ -27,10 +27,12 @@
 #ifndef AVR
 
 #include <stdio.h>
+#include <list>
 #include "configurable.h"
 #include "inspectable.h"
 #include "storeable.h"
 #include "randomgenerator.h"
+#include "sensormotorinfo.h"
 
 /**
  * Abstract class (interface) for robot controller.
@@ -79,12 +81,20 @@ public:
   virtual void stepNoLearning(const sensor* , int number_sensors,
                               motor* , int number_motors)= 0;
 
-  /** called in motor babbling phase.      
-      the motor values are given (by babbling controller) and      
+  /** called in motor babbling phase.
+      the motor values are given (by babbling controller) and
       this controller can learn the basic relations from observed sensors/motors
    */
   virtual void motorBabblingStep(const sensor* , int number_sensors,
                                  const motor* , int number_motors) {};
+
+  /** the controller is notified about the information on sensor.
+      This is called after init and before step */
+  virtual void sensorInfos(std::list<SensorMotorInfo> sensorInfos) {};
+
+  /** the controller is notified about the information on motors.
+      This is called after init and before step */
+  virtual void motorInfos(std::list<SensorMotorInfo> motorInfos) {};
 };
 
 #else /* AVR */

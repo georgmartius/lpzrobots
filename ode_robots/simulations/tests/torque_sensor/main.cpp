@@ -178,8 +178,8 @@ public:
                                                                      fw, sensors);
       vehicle->place(osg::Matrix::translate(0,0,0));
       ts = new TorqueSensor(fw->getJoint(0),1);
-      vehicle->addSensor(ts);
-      //    vehicle->addSensor(new TorqueSensor(fw->getJoint(2),16));
+      vehicle->addSensor(std::shared_ptr<Sensor>(ts));
+      //    vehicle->addSensor(std::make_shared<Sensor>(TorqueSensor(fw->getJoint(2)),16));
       global.configs.push_back(vehicle);
 
       AbstractController *controller = new SineController();

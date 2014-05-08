@@ -48,7 +48,7 @@ namespace lpzrobots {
     return (dimensions & X) + ((dimensions & Y) >> 1)  + ((dimensions & Z) >> 2);
   }
 
-  std::list<sensor> RelativePositionSensor::get() const {
+  std::list<sensor> RelativePositionSensor::getList() const {
     assert(own);
     std::list<sensor> s;
     osg::Vec3 v;

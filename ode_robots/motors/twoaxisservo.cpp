@@ -35,7 +35,7 @@ namespace lpzrobots {
       pid1(power1, integration, damp),
       pid2(power2, integration, damp),
       maxVel(maxVel), jointLimit(jointLimit) {
-    assert(joint);
+
     setMinMax1(_min1,_max1);
     setMinMax2(_min2,_max2);
     assert(min1<max1); assert(min2<max2);

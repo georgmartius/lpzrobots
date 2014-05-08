@@ -78,7 +78,7 @@ public:
   virtual ~Barrel2Masses();
 
   /** default configuration. It has no sensors.
-      Use addSensor(new AxisOrientationSensor(ZProjectionXY) for example.*/
+      Use addSensor(std::make_shared<Sensor>(AxisOrientationSensor(ZProjectionXY)) for example.*/
   static Sphererobot3MassesConf getDefaultConf(){
     Sphererobot3MassesConf c = Sphererobot3Masses::getDefaultConf();
     c.diameter     = 1;

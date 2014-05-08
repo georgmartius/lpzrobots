@@ -111,11 +111,6 @@ namespace lpzrobots {
   };
 
 
-  void Uwo::update() {
-    OdeRobot::update();
-    assert(created); // robot must exist
-  };
-
   void Uwo::create( const osg::Matrix& pose ){
     if (created) {
       destroy();

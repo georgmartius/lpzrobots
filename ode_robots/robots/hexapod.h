@@ -180,26 +180,6 @@ namespace lpzrobots {
     */
     virtual void placeIntern(const osg::Matrix& pose);
 
-    /** returns actual sensorvalues
-        @param sensors sensors scaled to [-1,1]
-        @param sensornumbHexapod::getDefaultConf()er length of the sensor array
-        @return number of actually written sensors
-    */
-    virtual int getSensorsIntern(sensor* sensors, int sensornumber);
-
-    /** sets actual motorcommands
-        @param motors motors scaled to [-1,1]
-        @param motornumber length of the motor array
-    */
-    virtual void setMotorsIntern(const double* motors, int motornumber);
-
-    /** returns number of sensors
-     */
-    virtual int getSensorNumberIntern();
-
-    /** returns number of motors
-     */
-    virtual int getMotorNumberIntern();
 
     /** this function is called in each timestep. It should perform robot-internal checks,
         like space-internal collision detection, sensor resets/update etc.
@@ -285,13 +265,9 @@ public:
     std::vector<Primitive*> thorax;
     std::vector<Pos> thoraxPos;
 
-    std::vector <ContactSensor*> contactsensors;
-
-    std::vector <TwoAxisServo*> hipservos;
-    std::vector <OneAxisServo*> tebiaservos;
-    std::vector <OneAxisServo*> tarsussprings;
-    std::vector <OneAxisServo*> whiskerservos;
-
+    std::vector <std::shared_ptr<TwoAxisServo> > hipservos;
+    std::vector <std::shared_ptr<OneAxisServo> > tebiaservos;
+    std::vector <std::shared_ptr<OneAxisServo> > tarsussprings;
   };
 
 }

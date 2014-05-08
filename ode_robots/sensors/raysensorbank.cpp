@@ -85,7 +85,7 @@ namespace lpzrobots {
     return counter;
   };
 
-  std::list<sensor> RaySensorBank::get() const {
+  std::list<sensor> RaySensorBank::getList() const {
     return getListOfArray();
   }
 
