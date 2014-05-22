@@ -35,6 +35,7 @@ namespace lpzrobots {
     : maxDistance(maxDistance), exponent(exponent), dimensions (dimensions), local_coords(local_coordinates){
     own=0;
     ref=0;
+    setBaseInfo(SensorMotorInfo("RelPos").changequantity(SensorMotorInfo::Distance).changemin(0));
   }
 
   void RelativePositionSensor::init(Primitive* own, Joint* joint){
@@ -64,7 +65,8 @@ namespace lpzrobots {
     if (!(dimensions & Z)) v.z()=0;
 
     double rellen = std::min(1.0 ,v.length() / maxDistance); // between 0 and 1
-    double scale = pow(rellen, exponent)/rellen; // exponential characteristics divided by linear characteristics
+
+    double scale = rellen>0 ? pow(rellen, exponent)/rellen : 1; // exponential characteristics divided by linear characteristics
     // nonlinear scaling of the vector, such that
     v *= (scale/maxDistance);
     if (dimensions & X) s.push_back(v.x());
