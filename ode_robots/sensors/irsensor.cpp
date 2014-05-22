@@ -59,6 +59,8 @@ namespace lpzrobots {
     sensorBody = 0;
     ray=0;
     transform=0;
+    setBaseInfo(SensorMotorInfo("IR").changequantity(SensorMotorInfo::Distance).changemin(0));
+
   }
 
   IRSensor::~IRSensor(){

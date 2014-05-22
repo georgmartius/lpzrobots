@@ -50,6 +50,10 @@ namespace lpzrobots {
     void setBaseInfo(const SensorMotorInfo& baseinfo) {
       this->baseinfo=baseinfo;
     }
+    // sets the base information for sensor or motor (the name is considered as base name)
+    SensorMotorInfo getBaseInfo() {
+      return this->baseinfo;
+    }
 
     void setNamingFunc(const NamingFunction& func){
       this->func=func;

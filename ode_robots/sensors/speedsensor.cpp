@@ -36,6 +36,7 @@ namespace lpzrobots {
                            short dimensions /* = X | Y | Z */ )
     : maxSpeed(maxSpeed), mode(mode), dimensions (dimensions) {
     own=0;
+    setBaseInfo(SensorMotorInfo("Speed").changequantity(SensorMotorInfo::Velocity));
   }
 
   void SpeedSensor::init(Primitive* own, Joint* joint){

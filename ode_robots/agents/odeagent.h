@@ -36,7 +36,7 @@ namespace lpzrobots {
 
   class TraceDrawer {
   public:
-    TraceDrawer() : obj(0){}
+    TraceDrawer() : obj(0), initialized(false) {}
     Position lastpos;
     Trackable* obj;
     TrackRobot tracker;

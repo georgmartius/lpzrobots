@@ -70,6 +70,8 @@ namespace lpzrobots {
     sensorBody = 0;
     transform=0;
     time=-10;
+    setBaseInfo(SensorMotorInfo("Contact").changequantity(SensorMotorInfo::Force).changemin(0)
+                .changetype(binary? SensorMotorInfo::Binary : SensorMotorInfo::Continuous));
   }
 
   ContactSensor::~ContactSensor(){

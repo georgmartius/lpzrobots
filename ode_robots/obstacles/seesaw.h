@@ -51,7 +51,7 @@ class Seesaw : public AbstractObstacle{
   Seesaw(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
          const osg::Vec3& dimension = osg::Vec3(4.0, 0.6, 0.3), double mass = 1.0):
     AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), dimension(dimension),
-    mass(mass) {
+    mass(mass), texture(0) {
     setTexture("Images/wood_sw.jpg");
     obstacle_exists=false;
   };

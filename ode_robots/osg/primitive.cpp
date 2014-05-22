@@ -80,7 +80,7 @@ namespace lpzrobots{
   /******************************************************************************/
 
   Primitive::Primitive()
-    : geom(0), body(0), substanceManuallySet(false), numVelocityViolations(0) {
+    : geom(0), body(0), mode(0), substanceManuallySet(false), numVelocityViolations(0) {
   }
 
   Primitive::~Primitive () {

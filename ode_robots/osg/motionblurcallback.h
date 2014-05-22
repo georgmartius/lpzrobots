@@ -34,8 +34,8 @@
 #include "globaldata.h"
 
 namespace lpzrobots {
-  
-  /** a class that enables motion blur for the scenegraph 
+
+  /** a class that enables motion blur for the scenegraph
    *  should be called in the main simulation loop
    */
   class MotionBlurOperation: public osg::Operation
@@ -45,14 +45,15 @@ namespace lpzrobots {
      *  between 0.0 and 1.0, for example:
      *  heavy motion blur is set by globalData.odeConfig.motionPersistance=0.25
      *  light motuib blur is set by globalData.odeConfig.motionPersistence=0.1
-     */ 
+     */
     MotionBlurOperation(GlobalData& global):
       osg::Operation("MotionBlur",true),
       cleared_(false),
+      t0_(0),
       persistence_(global.odeConfig.motionPersistence)
     {
     }
-    
+
     virtual void operator () (osg::Object* object);
 
   private:

@@ -198,7 +198,7 @@ namespace lpzrobots {
 
   class TrackablePrimitive : public Trackable {
   public:
-    TrackablePrimitive(Primitive* p, const std::string name)
+    TrackablePrimitive(Primitive* p, const std::string& name)
       : p(p), name(name) { }
     virtual std::string getTrackableName() const { return name; };
     virtual Position getPosition() const  { return p->getPosition().toPosition(); };
@@ -221,7 +221,7 @@ namespace lpzrobots {
     TraceDrawer td;
     Primitives ps = ((OdeRobot*)robot)->getAllPrimitives();
     if(primitiveIndex >= ps.size()){
-      fprintf(stderr, "OdeAgent::addTracking(): primitive index out of bounds %i", primitiveIndex);
+      fprintf(stderr, "OdeAgent::addTracking(): primitive index out of bounds %ui", primitiveIndex);
       return;
     }
     td.obj=new TrackablePrimitive(ps[primitiveIndex],

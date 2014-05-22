@@ -230,7 +230,6 @@ namespace lpzrobots {
 public:
     HexapodConf conf;
     double legmass;    // leg mass
-    int        countt;
     bool created;      // true if robot was created
 
   public:
@@ -245,14 +244,11 @@ public:
     bool *dones;
     bool check;
     double t;
-    FILE* f;
     double timeCounter;
     double *position;
     std::vector<dReal*> pos_record;
     dMass *massOfobject;
     bool getPos1;
-    double distance;
-    double time;
     double speed;
 
     std::vector<Leg> legContact;

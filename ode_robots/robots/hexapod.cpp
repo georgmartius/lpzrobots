@@ -74,7 +74,6 @@ namespace lpzrobots {
     recordGait=false;
     dones = new bool[6];
     conf.v[0] = 0;
-    speed = 0.0;
     position = new double[3];
 
     angles = new double[12];
@@ -103,6 +102,9 @@ namespace lpzrobots {
       E_t=0;
       addInspectableValue("Energy", &E_t, "Energy over several timesteps");
     }
+
+    trunk=0;
+    irbox=0;
 
   };
 
@@ -215,11 +217,9 @@ namespace lpzrobots {
 
         dReal *position_1 = pos_record.front();
         dReal *position_2 = pos_record.back();
-
-        distance = sqrt(pow((position_2[0] - position_1[0]),2) + pow((position_2[1] - position_1[1]),2) );//+ pow((position_2[2] - position_1[2]),2));
+        double distance = sqrt(pow((position_2[0] - position_1[0]),2) + pow((position_2[1] - position_1[1]),2) );//+ pow((position_2[2] - position_1[2]),2));
         conf.v[0] = distance/conf.T;
 
-        //cout<< "speed: " << conf.v[0] << " m/s" << endl;
 
         costOfTran = costOfTransport(E_t,getMassOfRobot(),conf.v[0],conf.T);
         timeCounter += conf.T;

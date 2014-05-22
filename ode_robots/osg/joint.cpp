@@ -455,7 +455,7 @@ namespace lpzrobots {
 
   SliderJoint::SliderJoint(Primitive* part1, Primitive* part2, const osg::Vec3& anchor,
                          const Axis& axis1)
-    : OneAxisJoint(part1, part2, anchor, axis1), visual(0) {
+    : OneAxisJoint(part1, part2, anchor, axis1), visual(0), visualSize(0) {
   }
 
   SliderJoint::~SliderJoint(){

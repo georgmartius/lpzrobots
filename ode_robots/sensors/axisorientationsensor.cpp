@@ -33,6 +33,7 @@ namespace lpzrobots {
   AxisOrientationSensor::AxisOrientationSensor(Mode mode, short dimensions)
     : mode(mode), dimensions(dimensions) {
     own = 0;
+    setBaseInfo(SensorMotorInfo("AxisOrientation").changequantity(SensorMotorInfo::Position));
   }
 
   void AxisOrientationSensor::init(Primitive* own, Joint* joint){

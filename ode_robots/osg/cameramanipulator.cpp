@@ -120,7 +120,6 @@ namespace lpzrobots {
   }
 
   bool CameraManipulator::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us){
-    int key=0;
     // if control is pressed then manipulation of robot
     if(ea.getModKeyMask() & GUIEventAdapter::MODKEY_LEFT_CTRL){
       switch(ea.getEventType())
@@ -196,7 +195,8 @@ namespace lpzrobots {
             return true;
           }
 
-        case(GUIEventAdapter::KEYDOWN):
+        case(GUIEventAdapter::KEYDOWN): {
+          int key=0;
           key=ea.getKey();
           // F-keys (F1 to F12)
           if ((65470<=key)&&(key<=65481)) {
@@ -235,6 +235,8 @@ namespace lpzrobots {
           default:
             return false;
           }
+          break;
+        }
         case(GUIEventAdapter::RESIZE):
           init(ea,us);
           us.requestRedraw();

@@ -134,7 +134,13 @@ namespace lpzrobots {
 
   class PolyLine {
   public:
-    PolyLine(){};
+    PolyLine(){
+      object_code = 0;
+      sub_type    = 0;
+      line_style  = 0;
+      thickness   = 0;
+      depth       = 0;       //             (multiple of height)
+    };
     /** try to parses a PolyLine at the start of the list of lines and returns the consumed lines
         1: no success; >=2 success
      */
@@ -161,7 +167,7 @@ namespace lpzrobots {
   protected:
 
     std::string filename;
-    double length, factor, heightfactor;
+    double factor, heightfactor;
 
     std::list<PolyLine> polylines;
 
@@ -171,7 +177,7 @@ namespace lpzrobots {
        @heightfactor factor for depth value of xfig line to determine wall height
      */
     ComplexPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle ,
-                      const std::string filename,
+                      const std::string& filename,
                       double factor = 1, double heightfactor=0.02, bool createGround=true);
 
     void createPolyline(const PolyLine&);

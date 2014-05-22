@@ -29,6 +29,8 @@ namespace lpzrobots {
 
   CameraSensor::CameraSensor()
     : camera(0), isInitDataSet(false) {
+    setBaseInfo(SensorMotorInfo("Cam").changequantity(SensorMotorInfo::Other));
+
   }
 
   void CameraSensor::setInitData(Camera* camera, const OdeHandle& odeHandle,

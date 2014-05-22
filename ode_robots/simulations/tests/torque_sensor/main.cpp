@@ -40,7 +40,6 @@
 
 // used robot
 #include <ode_robots/fourwheeled.h>
-#include <ode_robots/addsensors2robotadapter.h>
 
 #include <ode_robots/torquesensor.h>
 #include <ode_robots/angularmotor.h>
@@ -98,8 +97,8 @@ public:
       FixedJoint* j = new FixedJoint(b2,b1,(b1->getPosition()+b2->getPosition())*0.5);
       j->init(odeHandle,osgHandle,true);
       joints.push_back(j);
-      ts = new TorqueSensor(j,1);
-      ts->init(b1);
+      ts = new TorqueSensor(1);
+      ts->init(b1, j);
     }
 
     if(hinge){
@@ -116,8 +115,8 @@ public:
                                      Axis(1,0,0)*m);
       j->init(odeHandle,osgHandle,true);
       joints.push_back(j);
-      ts = new TorqueSensor(j,1);
-      ts->init(b1);
+      ts = new TorqueSensor(1);
+      ts->init(b1,j);
 
       amotor = new AngularMotor1Axis(odeHandle,j,10);
     }
@@ -137,8 +136,8 @@ public:
                                              Axis(0,1,0)*m, Axis(1,0,0)*m);
       j->init(odeHandle,osgHandle,true);
       joints.push_back(j);
-      ts = new TorqueSensor(j,1);
-      ts->init(b1);
+      ts = new TorqueSensor(1);
+      ts->init(b1,j);
 
       amotor = new AngularMotor2Axis(odeHandle,j,10,10);
     }
@@ -157,8 +156,8 @@ public:
                                              Axis(0,1,0)*m, Axis(1,0,0)*m);
       j->init(odeHandle,osgHandle,true);
       joints.push_back(j);
-      ts = new TorqueSensor(j,10,8);
-      ts->init(b1);
+      ts = new TorqueSensor(10,8);
+      ts->init(b1,j);
 
       amotor = new AngularMotor2Axis(odeHandle,j,10,10);
     }
@@ -173,14 +172,11 @@ public:
       fc.irFront      = true;
       FourWheeled* fw = new FourWheeled(odeHandle, osgHandle,
                                         fc, "TestVehicle");
-      std::list<Sensor*> sensors;
-      AddSensors2RobotAdapter* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle,
-                                                                     fw, sensors);
-      vehicle->place(osg::Matrix::translate(0,0,0));
-      ts = new TorqueSensor(fw->getJoint(0),1);
-      vehicle->addSensor(std::shared_ptr<Sensor>(ts));
-      //    vehicle->addSensor(std::make_shared<Sensor>(TorqueSensor(fw->getJoint(2)),16));
-      global.configs.push_back(vehicle);
+      ts = new TorqueSensor(1);
+      // attach to main primitive (does not matter) and to 0th joint
+      fw->addSensor(std::shared_ptr<Sensor>(ts), Attachement(-1,0));
+      fw->place(osg::Matrix::translate(0,0,0));
+      global.configs.push_back(fw);
 
       AbstractController *controller = new SineController();
       controller->setParam("period",300);
@@ -190,7 +186,7 @@ public:
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
 
       OdeAgent* agent = new OdeAgent(global);
-      agent->init(controller, vehicle, wiring);
+      agent->init(controller, fw, wiring);
       global.agents.push_back(agent);
     }
   }
@@ -204,7 +200,7 @@ public:
     }
     ts->sense(globalData);
     if(control){
-      std::list<sensor> ss = ts->get();
+      std::list<sensor> ss = ts->getList();
       printf("Sensor: ");
       FOREACHC(std::list<sensor>, ss,s){
         printf("\t%f",*s);

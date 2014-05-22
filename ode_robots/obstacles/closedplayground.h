@@ -38,7 +38,7 @@ namespace lpzrobots {
 
     ClosedPlayground(const OdeHandle& odeHandle, const OsgHandle& osgHandle ,
                      const osg::Vec3& dimension = osg::Vec3(7.0, 0.2, 0.5) , double factorxy = 1)
-      : Playground(odeHandle, osgHandle, dimension, factorxy){
+      : Playground(odeHandle, osgHandle, dimension, factorxy), roof(0){
     };
 
 
