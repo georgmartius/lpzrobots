@@ -90,6 +90,8 @@ namespace lpzrobots {
       // don't wonder! It is correct to give maxVel as a power parameter to the parent.
       motor(odeHandle, joint, power), power(power), damp(clip(damp,0.0,1.0))
   {
+    dummy=0;
+    motor.init(0,0);
   }
 
   OneAxisServoVel::~OneAxisServoVel(){}
@@ -128,6 +130,7 @@ namespace lpzrobots {
       // don't wonder! It is correct to give maxVel as a power parameter to the parent.
       power(power), damp(clip(damp,0.0,1.0))
   {
+    dummy=0;
   }
 
   SliderServoVel::~SliderServoVel(){}

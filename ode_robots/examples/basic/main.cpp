@@ -43,7 +43,10 @@ using namespace lpzrobots;
 class ThisSim : public Simulation
 {
   public:
-    ThisSim() { }
+    ThisSim() {
+      // set Title of simulation
+      setTitle("BASIC SIM by Simon");
+    }
     ~ThisSim() { }
 
     /// start() is called at the start and should create all the object (obstacles, agents...).
@@ -63,7 +66,7 @@ class ThisSim : public Simulation
       // Instantiating the robot
       OdeRobot* robot = new Differential(odeHandle, osgHandle, conf, "Differential robot");
       // Placing the robot in the scene
-      ((OdeRobot*)robot)->place(Pos(.0, .0, .2));
+      robot->place(Pos(.0, .0, .2));
       // Instantiatign the controller
 
       AbstractController* controller = new BasicController("Basic Controller", "$ID$");
@@ -110,8 +113,6 @@ int main (int argc, char **argv)
 {
   // New simulation
   ThisSim sim;
-  // set Title of simulation
-  sim.setTitle("BASIC SIM by Simon");
   // Simulation begins
   return sim.run(argc, argv) ? 0 : 1;
 }

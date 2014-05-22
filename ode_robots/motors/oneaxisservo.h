@@ -211,6 +211,10 @@ namespace lpzrobots {
 
     virtual ~OneAxisServoVel();
 
+    virtual void init(Primitive* own, Joint* joint = 0) override {
+      if(joint) { assert(joint==this->joint); } // we cannot attach the servo to a new joint
+    }
+
     /** adjusts the power of the servo*/
     virtual void setPower(double _power) override;
 

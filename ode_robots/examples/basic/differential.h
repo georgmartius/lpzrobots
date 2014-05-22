@@ -99,7 +99,7 @@ namespace lpzrobots{
        * Place the robot in the desired pose
        * @param pose desired 4x4 pose matrix
        */
-      virtual void place(const osg::Matrix& pose);
+      virtual void placeIntern(const osg::Matrix& pose);
 
       /**
        * Create the robot in the desired pose
@@ -107,44 +107,6 @@ namespace lpzrobots{
        */
       virtual void create(const osg::Matrix& pose);
 
-      /**
-       * Return actual sensor values
-       * @param sensors pointer to array
-       * @param sensornumber size of the array
-       */
-      virtual int getSensors(sensor* sensors, int sensorNumber);
-
-      /**
-       * Set actual motor commands
-       * @param motors pointer to array
-       * @param motornumber size of the array
-       */
-      virtual void setMotors(const motor* motors, int motorNumber);
-
-      /**
-       * Return the number of sensors
-       */
-      virtual int getSensorNumber();
-
-      /**
-       * Return the number of motors
-       */
-      virtual int getMotorNumber();
-
-      /**
-       * OSG nodes are updated
-       */
-      virtual void update();
-
-      /* This function is called in each timestep. It should perform robot-internal checks,
-       * like space-internal collision detection, sensor resets/update etc.
-       * @param globalData structure that contains global data from the simulation environment
-       * */
-      virtual void doInternalStuff(GlobalData& globalData);
-
-    private:
-      std::vector <AngularMotor1Axis*> wheelMotors; // vector to hold wheel motors
-      RaySensorBank irSensorBank; // a collection of ir sensors
   };
 
 

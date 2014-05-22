@@ -38,7 +38,7 @@ namespace lpzrobots{
   }
 
 
-  void Differential::place(const Matrix& pose){
+  void Differential::placeIntern(const Matrix& pose){
     // Configuration check: wheels have to be bigger than the body
     assert(2. * conf.wheelRadius > conf.bodyHeight);
     // Movig robot upward so wheel are not stuck on the ground
@@ -51,7 +51,7 @@ namespace lpzrobots{
   void Differential::create(const Matrix& pose) {
     /* Creating body */
     // Cylinder geometry primitive as body
-    Primitive* body = new Cylinder(conf.bodyRadius, conf.bodyHeight);
+    auto body = new Cylinder(conf.bodyRadius, conf.bodyHeight);
     // Setting texture from Image library
     body->setTexture("Images/purple_velour.jpg");
     // Initializing the primitive
@@ -62,7 +62,7 @@ namespace lpzrobots{
     objects.push_back(body);
 
     /* Creating the left wheel */
-    Primitive* lWheel = new Cylinder(conf.wheelRadius, conf.wheelHeight);
+    auto lWheel = new Cylinder(conf.wheelRadius, conf.wheelHeight);
     // Setting texture from Images library
     lWheel->setTexture("Images/chess.rgb");
     lWheel->init(odeHandle, conf.wheelMass, osgHandle);
@@ -82,9 +82,9 @@ namespace lpzrobots{
     // Joining the wheel to the body by a hingejoint
     // the anchor comes from the wheel and the axis of rotation
     // is relative to the pose of the left wheel
-    HingeJoint* bodyLeftWheelJoint = new HingeJoint(body, lWheel,
-                                                    lWheel->getPosition(),
-                                                    Axis(0, 0, 1) * lWheelPose);
+    auto bodyLeftWheelJoint = new HingeJoint(body, lWheel,
+                                             lWheel->getPosition(),
+                                             Axis(0, 0, 1) * lWheelPose);
     // Initializing the joint
     bodyLeftWheelJoint->init(odeHandle, osgHandle);
     // Adding the joint to the list of joints
@@ -92,7 +92,7 @@ namespace lpzrobots{
 
     /* Creating the right wheel */
     // Analog to left wheel but changing translation direction
-    Primitive* rWheel = new Cylinder(conf.wheelRadius, conf.wheelHeight);
+    auto rWheel = new Cylinder(conf.wheelRadius, conf.wheelHeight);
     rWheel->setTexture("Images/chess.rgb");
     rWheel->init(odeHandle, conf.wheelMass, osgHandle);
     Matrix rWheelPose = Matrix::rotate(M_PI / 2.0, 0, 1, 0) *
@@ -100,45 +100,55 @@ namespace lpzrobots{
       pose;
     rWheel->setPose(rWheelPose);
     objects.push_back(rWheel);
-    HingeJoint* bodyRightWheelJoint = new HingeJoint(body, rWheel,
-                                                     rWheel->getPosition(),
-                                                     Axis(0, 0, 1) * rWheelPose);
+    auto bodyRightWheelJoint = new HingeJoint(body, rWheel,
+                                              rWheel->getPosition(),
+                                              Axis(0, 0, 1) * rWheelPose);
     bodyRightWheelJoint->init(odeHandle, osgHandle);
     joints.push_back(bodyRightWheelJoint);
 
     /* Motors */
     // Left wheel motor, the OdeHandle, the joint and the maximun
     // power that motor will be used to achieve desired speed
-    AngularMotor1Axis* lWheelMotor = new AngularMotor1Axis(odeHandle, bodyLeftWheelJoint,
-                                                           conf.wheelMotorPower);
-    wheelMotors.push_back(lWheelMotor);
+    auto motor = std::make_shared<AngularMotor1Axis>(odeHandle, bodyLeftWheelJoint,
+                                                     conf.wheelMotorPower);
+    motor->setBaseName("left motor");
+    motor->setVelovityFactor(conf.wheelMotorMaxSpeed);
+    addSensor(motor);
+    addMotor(motor);
+
+
     // Right wheel motor
-    AngularMotor1Axis* rWheelMotor = new AngularMotor1Axis(odeHandle, bodyRightWheelJoint,
-                                                           conf.wheelMotorPower);
-    wheelMotors.push_back(rWheelMotor);
+    motor = std::make_shared<AngularMotor1Axis>(odeHandle, bodyRightWheelJoint,
+                                                conf.wheelMotorPower);
+    motor->setBaseName("right motor");
+    motor->setVelovityFactor(conf.wheelMotorMaxSpeed);
+    addSensor(motor);
+    addMotor(motor);
 
     /* Infra-red sensors */
+    auto irSensorBank = std::make_shared<RaySensorBank>();
     // Initialising infra-red sensor bank
-    irSensorBank.init(odeHandle, osgHandle);
-    // New infra-red sensor array
-    IRSensor* irSensor[7];
+    irSensorBank->setInitData(odeHandle, osgHandle, TRANSM(0,0,0));
+    irSensorBank->setBaseName("IR ");
+    irSensorBank->setNames({"left", "left front", "font left","font right",
+          "right front", "right","back left", "back right"});
+
     // Registering the sensor in the bank, fixed to body
     // For the first sensor it is rotated to point frontward
     // translation from center of body to outside and middle of height
     // pose is relative to the parent body - no need to multiply by 'pose'.
     // Maximum range of sensor value.
     // drawAll will display a line and the sensor body in the rendered scene.
-    irSensor[0] = new IRSensor();
-    irSensorBank.registerSensor(irSensor[0], body,
-                                Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
-                                Matrix::rotate( M_PI / 2.0, 0, 0, 1) *
-                                Matrix::translate(-conf.bodyRadius * sin(M_PI * .4),
-                                                  conf.bodyRadius * cos(M_PI * .4), conf.bodyHeight / 2.0),
+    irSensorBank->registerSensor(new IRSensor(), body,
+                                 Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
+                                 Matrix::rotate( M_PI / 2.0, 0, 0, 1) *
+                                 Matrix::translate(-conf.bodyRadius * sin(M_PI * .4),
+                                                   conf.bodyRadius * cos(M_PI * .4),
+                                                   conf.bodyHeight / 2.0),
                                 conf.irRange,
                                 RaySensor::drawAll);
 
-    irSensor[1] = new IRSensor();
-    irSensorBank.registerSensor(irSensor[1], body,
+    irSensorBank->registerSensor(new IRSensor(), body,
                                 Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
                                 Matrix::rotate( M_PI / 3.5, 0, 0, 1) *
                                 Matrix::translate(-conf.bodyRadius * sin(M_PI * .25),
@@ -146,24 +156,21 @@ namespace lpzrobots{
                                 conf.irRange,
                                 RaySensor::drawAll);
 
-    irSensor[2] = new IRSensor();
-    irSensorBank.registerSensor(irSensor[2], body,
+    irSensorBank->registerSensor(new IRSensor(), body,
                                 Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
                                 Matrix::translate(-conf.bodyRadius * sin(M_PI * .05),
                                                   conf.bodyRadius * cos(M_PI * .05), conf.bodyHeight / 2.0),
                                 conf.irRange,
                                 RaySensor::drawAll);
 
-    irSensor[3] = new IRSensor();
-    irSensorBank.registerSensor(irSensor[3], body,
+    irSensorBank->registerSensor(new IRSensor(), body,
                                 Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
                                 Matrix::translate(conf.bodyRadius * sin(M_PI * .05),
                                                   conf.bodyRadius * cos(M_PI * .05), conf.bodyHeight / 2.0),
                                 conf.irRange,
                                 RaySensor::drawAll);
 
-    irSensor[4] = new IRSensor();
-    irSensorBank.registerSensor(irSensor[4], body,
+    irSensorBank->registerSensor(new IRSensor(), body,
                                 Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
                                 Matrix::rotate(-M_PI / 3.5, 0, 0, 1) *
                                 Matrix::translate(conf.bodyRadius * sin(M_PI * .25),
@@ -171,8 +178,7 @@ namespace lpzrobots{
                                 conf.irRange,
                                 RaySensor::drawAll);
 
-    irSensor[5] = new IRSensor();
-    irSensorBank.registerSensor(irSensor[5], body,
+    irSensorBank->registerSensor(new IRSensor(), body,
                                 Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
                                 Matrix::rotate(-M_PI / 2.0, 0, 0, 1) *
                                 Matrix::translate(conf.bodyRadius * sin(M_PI * .4),
@@ -180,85 +186,22 @@ namespace lpzrobots{
                                 conf.irRange,
                                 RaySensor::drawAll);
 
-    irSensor[6] = new IRSensor();
-    irSensorBank.registerSensor(irSensor[6], body,
+    irSensorBank->registerSensor(new IRSensor(), body,
                                 Matrix::rotate(M_PI / 2.0, 1, 0, 0) *
                                 Matrix::translate(-conf.bodyRadius * sin(M_PI * .9),
                                                   conf.bodyRadius * cos(M_PI * .9), conf.bodyHeight / 2.0),
                                 conf.irRange,
                                 RaySensor::drawAll);
 
-    irSensor[7] = new IRSensor();
-    irSensorBank.registerSensor(irSensor[7], body,
+    irSensorBank->registerSensor(new IRSensor(), body,
                                 Matrix::rotate(M_PI / 2.0, 1, 0, 0) *
                                 Matrix::translate(conf.bodyRadius * sin(M_PI * .9),
                                                   conf.bodyRadius * cos(M_PI * .9), conf.bodyHeight / 2.0),
                                 conf.irRange,
                                 RaySensor::drawAll);
+    addSensor(irSensorBank);
 
   }
-
-
-  int Differential::getSensors(sensor* sensors, int sensorNumber){
-    // We must keep track of how many sensors we are reading
-    int n = 0;
-    // Speed sensors from the left wheel motors
-    sensors[0] = wheelMotors[0]->get(0);
-    n++;
-    // Speed sensors from the right wheel motors
-    sensors[1] = wheelMotors[1]->get(0);
-    n++;
-    // IR sensors
-    n += irSensorBank.get(sensors + n, sensorNumber - n);
-
-    return n;
-  }
-
-
-  void Differential::setMotors(const motor* motors, int motorNumber){
-    // Setting the motor command, first argument of set() is ignored
-    // (only one axis) second argument is the speed, motors[] values
-    // are expected to be bounded to [-1.0, 1.0]
-    wheelMotors[0]->set(0, motors[0] * conf.wheelMotorMaxSpeed);
-    wheelMotors[1]->set(0, motors[1] * conf.wheelMotorMaxSpeed);
-  }
-
-
-  int Differential::getSensorNumber(){
-    int n = 0;
-    // One sensor for each motor
-    n += wheelMotors.size();
-    // Infra-red sensors
-    n += irSensorBank.size();
-
-    return n;
-  }
-
-
-  int Differential::getMotorNumber(){
-    return wheelMotors.size();
-  }
-
-
-  void Differential::update() {
-    // Updating all objects
-    for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++) {
-      if(*i) (*i)->update();
-    }
-    // Updating all joints
-    for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++) {
-      if(*i) (*i)->update();
-    }
-    // Update infra-red sensor bank
-    irSensorBank.update();
-  }
-
-
-  void Differential::doInternalStuff(GlobalData& globalData){
-    // Reset sensorbank (infrared sensors)
-    irSensorBank.reset();
-  }
-
 
 }
 

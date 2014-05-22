@@ -118,6 +118,8 @@ namespace lpzrobots {
       motor(odeHandle, joint, power1, power2),
       damp(clip(damp,0.0,1.0)), power1(power1), power2(power2)
   {
+    motor.init(0,0);
+    dummy=0;
   }
   TwoAxisServoVel::~TwoAxisServoVel(){}
 

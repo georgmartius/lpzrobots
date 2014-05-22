@@ -40,7 +40,7 @@ void BasicController::stepNoLearning(const sensor* sensors, int number_sensors,
   // the robot will turn oposite direction, or backward when to close
   // Sensors index 0 and 1 are wheel speeds
   // Sensors index from 2 to 4 are left front IR sensors
-  // from 5 to 7 are the font left infra red sensors (4,5 being in the center)
+  // from 5 to 7 are the font right infra red sensors (4,5 being in the center)
   // from 8 and 9 are the back sensors
   if (sensors[4] > 2*threshold || sensors[5] > 2*threshold) { // move backward
     motors[0] = -1.;
