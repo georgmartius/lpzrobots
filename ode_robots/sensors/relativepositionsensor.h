@@ -38,6 +38,7 @@ namespace lpzrobots {
        @param exponent exponent of the sensor characteritic (default: 1 (linear))
        @param dimensions bit mask for the dimensions to sense. Default: X | Y | Z (all dimensions)
        @see Dimensions
+       If exact (relative) positions should be produced, use maxDistance=1 and exponent=1
      */
     RelativePositionSensor(double maxDistance, double exponent, short dimensions = X | Y | Z , bool local_coordinates = false);
     virtual ~RelativePositionSensor() {}
