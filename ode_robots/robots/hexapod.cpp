@@ -599,7 +599,7 @@ namespace lpzrobots {
       if(conf.useContactSensors){
         ContactSensor* cs = new ContactSensor(false,300.0);
         cs->setInitData(odeHandle,osgHandle,TRANSM(0,0,0));
-        addSensor(std::shared_ptr<Sensor>(cs),Attachement(footIdx));
+        addSensor(std::shared_ptr<Sensor>(cs),Attachment(footIdx));
       }
 
     }

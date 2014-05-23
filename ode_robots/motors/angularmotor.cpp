@@ -136,9 +136,6 @@ namespace lpzrobots {
     dJointSetAMotorAxis(motor, 0, FirstBody, a.x(), a.y(), a.z() );
     dJointSetAMotorParam(motor, dParamFMax, power);
     dJointSetAMotorParam(motor, dParamVel, 0);
-    a.print();
-    std::cout << power << std::endl;
-
   }
 
 

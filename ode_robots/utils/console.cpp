@@ -151,9 +151,9 @@ bool handleConsole(GlobalData& globalData){
   std::cout << "\033[1G" << "Type: ? for help or press TAB\n";
   // collect parameters for completion
   parameters.clear();
-  for(vector<Configurable*>::const_iterator i=globalData.configs.begin(); i != globalData.configs.end(); i++){
-    if(*i)
-      parameters += (*i)->getAllParamNames();
+  for(auto& i: globalData.configs){
+    if(i)
+      parameters += i->getAllParamNames();
   }
 
   line = readline ("> ");
@@ -376,10 +376,10 @@ char * params_generator (const char *text, int state) {
     {
       if (list_it->find(text, 0, len) == 0){
         char* name = dupstrpluseq(list_it->c_str());
-        list_it++;
+        ++list_it;
         return name;
       }
-      list_it++;
+      ++list_it;
     }
 
   /* If no names matched, then return NULL. */

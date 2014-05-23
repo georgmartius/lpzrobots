@@ -35,7 +35,7 @@
 //Todo: add: allColors / printAllColors
 //Todo: verbose load
 //Todo: Aliases do not work
-  
+
 using namespace std;
 
 namespace lpzrobots{
@@ -44,7 +44,7 @@ namespace lpzrobots{
     : dummy(1.0,1.0,1.0,1.0) {
 
   }
-  
+
   Color ColorSchema::color(const string& name_or_id_or_alias) const {
     return color(name_or_id_or_alias, 0);
   }
@@ -55,37 +55,37 @@ namespace lpzrobots{
       return c;
     }else{
       return dummy;
-    }    
+    }
   }
 
-  bool ColorSchema::color(Color& color, const string& name_or_id_or_alias, 
+  bool ColorSchema::color(Color& color, const string& name_or_id_or_alias,
                           int alias_set) const {
     if(getColor(color, name_or_id_or_alias)){
       return true;
     }else{
       AliasMap::const_iterator i = aliases.find(name_or_id_or_alias);
-      if( i == aliases.end()){        
+      if( i == aliases.end()){
         return false;
       }else{ // we know this alias
         const AliasVector& v = i->second;
-        if((signed int)v.size() > alias_set && !v[alias_set].empty()){ 
+        if((signed int)v.size() > alias_set && !v[alias_set].empty()){
           return getColor(color, v[alias_set]);
         }else{// don't have the alias in the set
           if(!v.empty())
-            return getColor(color, v[0]); // try alias-set 0            
-          else 
+            return getColor(color, v[0]); // try alias-set 0
+          else
             return false;
         }
       }
-    }    
+    }
   }
 
   std::string ColorSchema::getLoadErrorString(int value) const {
     switch(value){
     case  0: return "No colors/aliases found";
-    case -1: 
+    case -1:
       {
-        osgDB::FilePathList l = osgDB::getDataFilePathList(); 
+        osgDB::FilePathList l = osgDB::getDataFilePathList();
         join<string> p = for_each(l.begin(), l.end(), join<string>(","));
         return "Could not find file. Search pathes: " + p.joined;
       }
@@ -110,11 +110,11 @@ namespace lpzrobots{
         if(!fgets(s,1024,f)) return -3;
         if(strncmp(s,"Columns",7)==0)
           if(sscanf(s,"Columns: %i",&columns)!=1)
-            return -4; 
+            return -4;
       }while(strncmp(s,"#",1)!=0);
       int r,g,b;
       int i=0;
-      if(columns==0){        
+      if(columns==0){
         while(fscanf(f,"%i %i %i %s\n",&r,&g,&b,s)==4){
           addColor(Color::rgb255(r,g,b), string(s));
           i++;
@@ -127,7 +127,7 @@ namespace lpzrobots{
           i++;
         }
       }else{
-        fprintf(stderr, "cannot read gpl file with %i name columns, support 0 or 1", 
+        fprintf(stderr, "cannot read gpl file with %i name columns, support 0 or 1",
                 columns);
         return -4;
       }
@@ -156,9 +156,10 @@ namespace lpzrobots{
         }else if(sscanf(s,"%s %s\n",alias,name)==2){
           if(addAlias(string(alias), string(name), alias_set_offset)){
             i++;
-          }          
+          }
         }
       }
+      fclose(f);
       return i;
     }else return -1;
   }
@@ -168,7 +169,7 @@ namespace lpzrobots{
     colors[name]=color;
   }
 
-  bool ColorSchema::addAlias(const std::string& alias, const string& name, 
+  bool ColorSchema::addAlias(const std::string& alias, const string& name,
                              int alias_set){
     assert(alias_set>=0);
     if(existsColor(alias)) {
@@ -176,23 +177,23 @@ namespace lpzrobots{
       return false;
     }
     if(!existsColor(name)) {
-      cerr << "cannot add alias " << alias << " to " << name 
+      cerr << "cannot add alias " << alias << " to " << name
            << " because no color with that name exists\n";
       return false;
     }
     AliasMap::iterator i = aliases.find(alias);
     if( i == aliases.end()){
       AliasVector v;
-      v.resize(alias_set+1);      
+      v.resize(alias_set+1);
       v[alias_set]=name;
       aliases[alias]=v;
     }else{ // we know this alias
       AliasVector& v = i->second;
-      if((signed int)v.size() > alias_set){ 
+      if((signed int)v.size() > alias_set){
         v[alias_set]=name;
       }else{
-        v.resize(alias_set+1);      
-        v[alias_set]=name;        
+        v.resize(alias_set+1);
+        v[alias_set]=name;
       }
     }
     return true;
@@ -213,28 +214,28 @@ namespace lpzrobots{
 
   template<class T> struct print_func : public unary_function<T, void>
   {
-    print_func(ostream& out, const string& delimit) 
+    print_func(ostream& out, const string& delimit)
       : os(out), count(0), delimit(delimit) {}
     void operator() (T x) { os << x << delimit; ++count; }
     ostream& os;
     int count;
     string delimit;
   };
-  
+
 
   void ColorSchema::print(ostream& out) const {
     out << "Colors:\n";
     FOREACHC(ColorMap, colors, c){
-      out << setw(20) << c->first << ": " << c->second << endl;      
+      out << setw(20) << c->first << ": " << c->second << endl;
     }
     out << "Aliases:\n";
     FOREACHC(AliasMap, aliases, a){
       const AliasVector& v = a->second;
-      out << setw(20) << a->first << ": "; 
-      for_each(v.begin(), v.end(), print_func<string>(out, ",\t"));      
+      out << setw(20) << a->first << ": ";
+      for_each(v.begin(), v.end(), print_func<string>(out, ",\t"));
       out << endl;
     }
-    
+
   }
 
   bool ColorSchema::getColor(Color& c, const std::string& name) const {

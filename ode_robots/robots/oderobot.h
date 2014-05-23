@@ -45,16 +45,16 @@ namespace lpzrobots {
   class Joint;
 
   /// structure to hold attachment data for sensors and motors
-  struct Attachement {
-    Attachement(int pI = -1, int jI = -1) : primitiveIndex(pI), jointIndex(jI) {}
+  struct Attachment {
+    Attachment(int pI = -1, int jI = -1) : primitiveIndex(pI), jointIndex(jI) {}
     int primitiveIndex;
     int jointIndex;
   };
 
   typedef std::vector<Primitive*> Primitives;
   typedef std::vector<Joint*> Joints;
-  typedef std::pair<std::shared_ptr<Sensor>, Attachement> SensorAttachment;
-  typedef std::pair<std::shared_ptr<Motor>, Attachement>  MotorAttachment;
+  typedef std::pair<std::shared_ptr<Sensor>, Attachment> SensorAttachment;
+  typedef std::pair<std::shared_ptr<Motor>, Attachment>  MotorAttachment;
 
 
   /**
@@ -103,19 +103,19 @@ namespace lpzrobots {
     /** adds a sensor to the robot. Must be called before agents initializes, otherwise unknown effect.
         @param segmentIndex index of segment of robot to which this sensor should be attached
     */
-    virtual void addSensor(std::shared_ptr<Sensor> sensor, Attachement attachement=Attachement());
+    virtual void addSensor(std::shared_ptr<Sensor> sensor, Attachment attachment=Attachment());
 
     /** adds a motor to the robot. Must be called before agents initializes, otherwise unknown effect.
         @param segmentIndex index of segment of robot to which this motor should be attached
      */
-    virtual void addMotor(std::shared_ptr<Motor> motor, Attachement attachement=Attachement());
+    virtual void addMotor(std::shared_ptr<Motor> motor, Attachment attachment=Attachment());
 
-    /// returns all generic sensors with their attachement
+    /// returns all generic sensors with their attachment
     virtual std::list<SensorAttachment> getAttachedSensors(){
       return sensors;
     }
 
-    /// returns all generic motors with their attachement
+    /// returns all generic motors with their attachment
     virtual std::list<MotorAttachment> getAttachedMotors(){
       return motors;
     }

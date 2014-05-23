@@ -141,20 +141,20 @@ namespace lpzrobots {
     ma.first->init(p, j);
   }
 
-  void OdeRobot::addSensor(std::shared_ptr<Sensor> sensor, Attachement attachement){
+  void OdeRobot::addSensor(std::shared_ptr<Sensor> sensor, Attachment attachment){
     assert(!askedfornumber);
     assert(sensor);
-    SensorAttachment sa(std::shared_ptr<Sensor>(sensor),attachement);
+    SensorAttachment sa(std::shared_ptr<Sensor>(sensor),attachment);
     if(initialized){
       attachSensor(sa);
     }
     sensors.push_back(sa);
   }
 
-  void OdeRobot::addMotor(std::shared_ptr<Motor> motor, Attachement attachement){
+  void OdeRobot::addMotor(std::shared_ptr<Motor> motor, Attachment attachment){
     assert(!askedfornumber);
     assert(motor);
-    MotorAttachment ma(std::shared_ptr<Motor>(motor),attachement);
+    MotorAttachment ma(std::shared_ptr<Motor>(motor),attachment);
     if(initialized){
       attachMotor(ma);
     }
@@ -168,7 +168,7 @@ namespace lpzrobots {
     }
     int numJoints = getAllJoints().size();
     for(int j=0; j<numJoints; j++){
-      addSensor(std::make_shared<TorqueSensor>(maxtorque, avg), Attachement(-1,j));
+      addSensor(std::make_shared<TorqueSensor>(maxtorque, avg), Attachment(-1,j));
     }
   }
 
@@ -227,11 +227,11 @@ namespace lpzrobots {
   }
 
   void OdeRobot::update(){
-    for (Primitives::iterator i = objects.begin(); i!= objects.end(); i++){
-      if(*i) (*i)->update();
+    for(auto& i : objects){
+      if(i) i->update();
     }
-    for (Joints::iterator i = joints.begin(); i!= joints.end(); i++){
-      if(*i) (*i)->update();
+    for(auto& i : joints){
+      if(i) i->update();
     }
     for(auto& i: sensors){
       i.first->update();
@@ -247,8 +247,8 @@ namespace lpzrobots {
   }
 
   bool OdeRobot::isGeomInPrimitiveList(std::list<Primitive*> ps, dGeomID geom){
-    for(list<Primitive*>::iterator i=ps.begin(); i != ps.end(); i++){
-      if(geom == (*i)->getGeom()) return true;
+    for( auto& i : ps){
+      if(geom == i->getGeom()) return true;
     }
     return false;
   }

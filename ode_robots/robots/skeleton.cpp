@@ -466,13 +466,13 @@ GUIDE adding new sensors
       Matrix R = Matrix::translate(0,0,headsize) * Matrix::rotate(M_PI/10, 0, 1, 0) *
         Matrix::translate(0,headsize/10,0);
       sensor->setInitData(odeHandle, osgHandle, R);
-      addSensor(std::shared_ptr<RaySensor>(sensor), Attachement(Head_comp));
+      addSensor(std::shared_ptr<RaySensor>(sensor), Attachment(Head_comp));
 
       sensor = new IRSensor(1,0.02, 1.0, RaySensor::drawAll);
       R = Matrix::translate(0,0,headsize) * Matrix::rotate(-M_PI/10, 0, 1, 0)*
         Matrix::translate(0,headsize/10,0);
       sensor->setInitData(odeHandle, osgHandle, R);
-      addSensor(std::shared_ptr<RaySensor>(sensor), Attachement(Head_comp));
+      addSensor(std::shared_ptr<RaySensor>(sensor), Attachment(Head_comp));
     }
 
 

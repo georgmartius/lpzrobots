@@ -75,7 +75,7 @@ namespace lpzrobots {
 
   TmpDisplayItem::TmpDisplayItem(OSGPrimitive* p, const Pose& pose,
                                  const Color& color, OSGPrimitive::Quality quality)
-    : item(p), pose(pose), color(color), quality(quality), alpha(1.0), initialized(false)
+    : item(p), pose(pose), color(color), alpha(1.0), quality(quality), initialized(false)
   {
     useColorName=false;
     if(!item)
