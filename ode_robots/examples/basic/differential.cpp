@@ -130,7 +130,7 @@ namespace lpzrobots{
     // Initialising infra-red sensor bank
     irSensorBank->setInitData(odeHandle, osgHandle, TRANSM(0,0,0));
     irSensorBank->setBaseName("IR ");
-    irSensorBank->setNames({"left", "left front", "font left","font right",
+    irSensorBank->setNames({"left", "left front", "front left","front right",
           "right front", "right","back left", "back right"});
 
     // Registering the sensor in the bank, fixed to body

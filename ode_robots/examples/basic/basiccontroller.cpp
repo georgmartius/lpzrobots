@@ -34,6 +34,8 @@ BasicController::BasicController(const std::string& name, const std::string& rev
   addParameterDef("threshold", &threshold, 0.2, 0, 1, "threshold for IR-sensor");
 }
 
+
+
 void BasicController::stepNoLearning(const sensor* sensors, int number_sensors,
                                      motor* motors, int number_motors) {
   // Very simple controller, if IR sensors are higher than threshold then
@@ -42,20 +44,25 @@ void BasicController::stepNoLearning(const sensor* sensors, int number_sensors,
   // Sensors index from 2 to 4 are left front IR sensors
   // from 5 to 7 are the font right infra red sensors (4,5 being in the center)
   // from 8 and 9 are the back sensors
-  if (sensors[4] > 2*threshold || sensors[5] > 2*threshold) { // move backward
-    motors[0] = -1.;
-    motors[1] = -1.;
-  }else if (sensors[2] > threshold || sensors[3] > threshold || sensors[4] > threshold) {
-    motors[0] = .1;
-    motors[1] = 1.;
+  if (sensors[SIdx("IR front left")] > 2*threshold ||
+      sensors[SIdx("IR front right")] > 2*threshold) { // move backward
+    motors[MIdx("left motor")] = -1.;
+    motors[MIdx("right motor")] = -1.;
+  }else if (sensors[SIdx("IR left")] > threshold ||
+            sensors[SIdx("IR left front")] > threshold ||
+            sensors[SIdx("IR front left")] > threshold) { // turn right
+    motors[MIdx("left motor")] = .1;
+    motors[MIdx("right motor")] = 1.;
   }
-  else if (sensors[5] > threshold || sensors[6] > threshold || sensors[7] > threshold) {
-    motors[0] = 1.;
-    motors[1] = .1;
+  else if (sensors[SIdx("IR right")] > threshold ||
+           sensors[SIdx("IR right front")] > threshold ||
+           sensors[SIdx("IR front right")] > threshold) {
+    motors[MIdx("left motor")] = 1.;
+    motors[MIdx("right motor")] = .1;
   }
   else { // Move forward
-    motors[0] = 1.;
-    motors[1] = 1.;
+    motors[MIdx("left motor")] = 1.;
+    motors[MIdx("right motor")] = 1.;
   }
 }
 
