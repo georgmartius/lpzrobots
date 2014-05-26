@@ -35,6 +35,7 @@ prefix="PREFIX"
 srcprefix="SRCPREFIX"
 intern=
 type=DEVORUSER([[[[DEVEL]]]],[[[[USER]]]])
+rpath=DEVORUSER([[-Wl,-rpath,$srcprefix]],[[-Wl,-rpath,$prefix/lib]])
 
 LIBBASE=ode_robots
 
@@ -92,6 +93,7 @@ while test $# -gt 0; do
     --static) ##force use static linking of lib
       STATICSTART=-Wl,-Bstatic
       STATICEND=-Wl,-Bdynamic
+      rpath=""
     ;;
     --opt) ##Optimisation
       LIBBASE=${LIBBASE}_opt
@@ -108,7 +110,7 @@ while test $# -gt 0; do
       echo $CPPFLAGS DEVORUSER(-I"$srcprefix/include",-I"$prefix/include") LINUXORMAC( ,-I/opt/local/include) $INTERNFLAGS
       ;;
     --libs)
-      echo DEVORUSER(-L"$srcprefix/",-L"$prefix/lib") $STATICSTART -l$LIBBASE $STATICEND $LIBS `ode-dbl-config --libs`
+      echo DEVORUSER(-L"$srcprefix/",-L"$prefix/lib") $rpath $STATICSTART -l$LIBBASE $STATICEND $LIBS `ode-dbl-config --libs`
       ;;
     --libfile)
       echo "$srcprefix/lib${LIBBASE}.a"

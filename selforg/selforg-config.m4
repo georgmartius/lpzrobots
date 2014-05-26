@@ -35,6 +35,7 @@ prefix="PREFIX"
 srcprefix="SRCPREFIX"
 intern=
 type=DEVORUSER([[[[DEVEL]]]],[[[[USER]]]])
+rpath=DEVORUSER([[-Wl,-rpath,$srcprefix]],[[-Wl,-rpath,$prefix/lib]])
 
 LIBBASE=selforg
 
@@ -86,6 +87,7 @@ while test $# -gt 0; do
       STATIC=--static
       STATICSTART=-Wl,-Bstatic
       STATICEND=-Wl,-Bdynamic
+      rpath=""
     ;;
     --opt) ##Optimisation
       LIBBASE=${LIBBASE}_opt
@@ -110,7 +112,7 @@ while test $# -gt 0; do
       if type configurator-config >/dev/null 2>&1; then
         CONFIGURATORLIBS=`configurator-config $STATIC --libs`;
       fi
-      echo $LIBS DEVORUSER(-L"$srcprefix/",-L"$prefix/lib") $STATICSTART -l$LIBBASE $STATICEND GSL(`gsl-config --libs`,) $CONFIGURATORLIBS
+      echo $LIBS DEVORUSER(-L"$srcprefix/",-L"$prefix/lib") $rpath $STATICSTART -l$LIBBASE $STATICEND GSL(`gsl-config --libs`,) $CONFIGURATORLIBS
       ;;
     --libfile)
       echo "$srcprefix/lib${LIBBASE}.a"
