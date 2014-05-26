@@ -116,8 +116,6 @@ namespace lpzrobots{
     /** the main object of the robot, which is used for position and speed tracking */
     virtual Primitive* getMainPrimitive() const;
 
-    virtual void doInternalStuff(GlobalData& globalData);
-
   protected:
 
     /** creates vehicle at desired pose

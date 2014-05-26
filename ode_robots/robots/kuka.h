@@ -138,12 +138,6 @@ namespace lpzrobots {
       return motorno;
     };
 
-    /** this function is called in each timestep. It should perform robot-internal checks,
-    like space-internal collision detection, sensor resets/update etc.
-    @param globalData structure that contains global data from the simulation environment
-    */
-    virtual void doInternalStuff(GlobalData& globalData);
-
     /** switches between manual Control (motor commands written into the manualCommands-vector) and Controller commands
     */
     virtual void toggleManualControlMode();

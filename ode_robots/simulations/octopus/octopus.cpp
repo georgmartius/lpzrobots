@@ -132,7 +132,7 @@ namespace lpzrobots {
   };
 
 
-  void Octopus::place(const osg::Matrix& pose){
+  void Octopus::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position is 0
     Matrix p2;

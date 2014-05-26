@@ -48,6 +48,11 @@ namespace lpzrobots {
     cleanup();
   }
 
+  void OdeRobot::placeIntern(const osg::Matrix& pose){
+    assert("should never be called");
+  };
+
+
   int  OdeRobot::getSensors(sensor* sensors_, int sensornumber) {
     assert(initialized);
     int len = 0;
