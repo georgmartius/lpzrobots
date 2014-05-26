@@ -555,12 +555,6 @@ namespace lpzrobots {
       // back bone joint
       OneAxisServo * backboneServo;
 
-      // all the objects
-      PrimitiveList objects;
-
-      // all the joints
-      JointList joints;
-
       // passive servos without a Motorname
       ServoList passiveServos;
 
