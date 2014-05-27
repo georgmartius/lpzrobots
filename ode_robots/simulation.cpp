@@ -640,6 +640,9 @@ namespace lpzrobots {
         }
         addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause,
                     (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0);
+        // initialize those objects that are not yet initialized
+        globalData.initializeTmpObjects(odeHandle, osgHandle);
+
         QP(PROFILER.endBlock("internalstuff_and_addcallback"));
 
         // manipulate agents (with mouse)
@@ -765,8 +768,6 @@ namespace lpzrobots {
       (*i)->getRobot()->update();
     }
 
-    // initialize those objects that are not yet initialized
-    globalData.initializeTmpObjects(odeHandle, osgHandle);
     // draw/update temporary objects and sound blobs
     globalData.updateTmpObjects(osgHandle);
   }

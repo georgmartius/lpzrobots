@@ -286,15 +286,14 @@ namespace lpzrobots {
   }
 
   void OdeRobot::fixate(GlobalData& global, int primitiveID, double duration){
-    Primitive* p; // primitive to fix
+    Primitive* p=0; // primitive to fix
     if(primitiveID==-1){
       p = getMainPrimitive();
     }else{
       const vector<Primitive*>& ps = this->getAllPrimitives();
       if(primitiveID>=0 && primitiveID < (signed)ps.size()){
-        if(!ps[primitiveID]) return;
         p = ps[primitiveID];
-      }else return;
+      }
     }
     if(p){
       unFixate(global); // unfixate in case we are already fixated
