@@ -297,7 +297,7 @@ namespace lpzrobots {
     }
     if(p){
       unFixate(global); // unfixate in case we are already fixated
-      fixationTmpJoint = new TmpJoint(new FixedJoint(p, global.environment), "robot1");
+      fixationTmpJoint = new TmpJoint(new FixedJoint(p, global.environment), "joint");
       if(duration<=0) duration=1e12; // some large number will do
       global.addTmpObject(fixationTmpJoint, duration);
     }
