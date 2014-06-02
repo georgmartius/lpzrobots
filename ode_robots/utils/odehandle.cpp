@@ -61,12 +61,12 @@ namespace lpzrobots
     this->time=time;
     dInitODE();
     world = dWorldCreate ();
-    
+
     // Create the primary world-space, which is used for collision detection
     space = dHashSpaceCreate (0);
     dSpaceSetCleanup (space, 0);
     spaces = new std::vector<dSpaceID>();
-    // the jointGroup is used for collision handling, 
+    // the jointGroup is used for collision handling,
     //  where a lot of joints are created every step
     jointGroup = dJointGroupCreate ( 1000000 );
     ignoredPairs  = new HashSet<std::pair<long,long>,geomPairHash >();
@@ -78,21 +78,21 @@ namespace lpzrobots
     dWorldDestroy       ( world );
     dSpaceDestroy       ( space );
     destroySpaces();
-    dCloseODE();    
+    dCloseODE();
   }
 
 
   void OdeHandle::createNewSimpleSpace(dSpaceID parentspace, bool ignore_inside_collisions){
     space = dSimpleSpaceCreate (parentspace);
     dSpaceSetCleanup (space, 0);
-    if(!ignore_inside_collisions) 
+    if(!ignore_inside_collisions)
       addSpace(space);
   }
 
   void OdeHandle::createNewHashSpace(dSpaceID parentspace, bool ignore_inside_collisions){
     space = dHashSpaceCreate (parentspace);
     dSpaceSetCleanup (space, 0);
-    if(!ignore_inside_collisions) 
+    if(!ignore_inside_collisions)
       addSpace(space);
   }
 
@@ -117,7 +117,7 @@ namespace lpzrobots
 
       std::vector<dSpaceID>::iterator i = std::find(spaces->begin(), spaces->end(),g);
       if(i!=spaces->end()){
-        spaces->erase(i);        
+        spaces->erase(i);
       }
   }
 
@@ -142,27 +142,28 @@ namespace lpzrobots
   {
     if (!ignoredPairs)
       return;
-
-    ignoredPairs->erase(std::pair<long, long>((long)g1,(long)g2));
-    ignoredPairs->erase(std::pair<long, long>((long)g2,(long)g1));
+    if(isIgnoredPair(g1,g2)){
+      ignoredPairs->erase(std::pair<long, long>((long)g1,(long)g2));
+      ignoredPairs->erase(std::pair<long, long>((long)g2,(long)g1));
+    }
   }
   // adds a pair of Primitives to the list of ignored geom pairs for collision detection
   void OdeHandle::addIgnoredPair(Primitive* p1, Primitive* p2)
   {
     if (!ignoredPairs)
       return;
-
-    ignoredPairs->insert(std::pair<long, long>((long)p1->getGeom(),(long)p2->getGeom()));
-    ignoredPairs->insert(std::pair<long, long>((long)p2->getGeom(),(long)p1->getGeom()));
+    if(!p1->getGeom() || !p2->getGeom())
+      return;
+    addIgnoredPair(p1->getGeom(), p2->getGeom());
   }
   // removes pair of geoms from the list of ignored geom pairs for collision detection
   void OdeHandle::removeIgnoredPair(Primitive* p1, Primitive* p2)
   {
     if (!ignoredPairs)
       return;
-
-    ignoredPairs->erase(std::pair<long, long>((long)p1->getGeom(),(long)p2->getGeom()));
-    ignoredPairs->erase(std::pair<long, long>((long)p2->getGeom(),(long)p1->getGeom()));
+    if(!p1->getGeom() || !p2->getGeom())
+      return;
+    removeIgnoredPair(p1->getGeom(),p2->getGeom());
   }
 
 }

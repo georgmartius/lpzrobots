@@ -1128,9 +1128,7 @@ namespace lpzrobots {
       // remove all ignored pairs (brute force method)
       for (PrimitiveList::iterator i = objects.begin(); i != objects.end(); i++) {
         for (PrimitiveList::iterator j = objects.begin(); j != objects.end(); j++) {
-          if (odeHandle.isIgnoredPair((*i)->getGeom(), (*j)->getGeom())) {
-            odeHandle.removeIgnoredPair((*i)->getGeom(), (*j)->getGeom());
-          }
+          odeHandle.removeIgnoredPair(*i,*j);
         }
 
       }
@@ -1155,17 +1153,7 @@ namespace lpzrobots {
       }
       passiveServos.clear();
 
-      for (JointList::iterator i = joints.begin(); i != joints.end(); i++) {
-        if (*i)
-          delete *i;
-      }
-      joints.clear();
-
-      for (PrimitiveList::iterator i = objects.begin(); i != objects.end(); i++) {
-        if (*i)
-          delete *i;
-      }
-      objects.clear();
+      cleanup();
 
       //should all be empty as objects were cleared:
       legs.clear();
