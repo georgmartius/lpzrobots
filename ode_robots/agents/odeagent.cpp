@@ -154,7 +154,12 @@ namespace lpzrobots {
       case Operator::Move:
         if(d.show){
           global.addTmpObject(new TmpDisplayItem(new OSGSphere(d.size.x()),
-                                                 TRANSM(d.pos), "manipmove"),0.5);
+                                                 TRANSM(d.pos), "manipmove"),
+                              global.odeConfig.simStepSize*5);
+          global.addTmpObject(new TmpDisplayItem(new OSGLine({d.posStart,d.pos}),
+                                                 TRANSM(0,0,0), "manipmove"),
+                              global.odeConfig.simStepSize
+                              );
         }
         break;
       case Operator::Limit:
@@ -301,5 +306,3 @@ namespace lpzrobots {
 
 
 }
-
-

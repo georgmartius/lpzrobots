@@ -64,6 +64,7 @@ namespace lpzrobots {
   }
 
   void CameraManipulator::setNode(osg::Node* node){
+
     // we do not support this since we give it manually to the constructor
   }
   const Node* CameraManipulator::getNode() const{
@@ -602,9 +603,14 @@ namespace lpzrobots {
 
   void CameraManipulator::manipulateAgent( OsgHandle& osgHandle){
     if (!this->isWatchingAgentDefined()) return;
-    if(camHandle.manipulationViz)
+    if(camHandle.manipulationViz){
       delete camHandle.manipulationViz;
-    camHandle.manipulationViz=0;
+      camHandle.manipulationViz=0;
+    }
+    if(camHandle.manipulationViz2){
+      delete camHandle.manipulationViz2;
+      camHandle.manipulationViz2=0;
+    }
     if(camHandle.doManipulation != camHandle.No){
       Primitive* body = camHandle.watchingAgent->getRobot()->getMainPrimitive();
       if(body && body->getBody()){
@@ -618,12 +624,15 @@ namespace lpzrobots {
         force.normalize();
         if(factor>50) factor=50;
         camHandle.manipulationViz = new OSGSphere(0.02+0.05*sqrt(camHandle.manipulationForce));
+        camHandle.manipulationViz2 = new OSGLine({p,camHandle.manipulationPoint});
 
         //camHandle.manipulationViz->init(osgHandle);
         Color c(camHandle.doManipulation==camHandle.Rotational ? 0 : 1,
                 camHandle.doManipulation==camHandle.Rotational,0);
-        camHandle.manipulationViz->init(osgHandle.changeColor(c));
+        OsgHandle h = osgHandle.changeColor(c);
+        camHandle.manipulationViz->init(h);
         camHandle.manipulationViz->setMatrix(osg::Matrix::translate(camHandle.manipulationPoint));
+        camHandle.manipulationViz2->init(h);
 
         if(camHandle.doManipulation==camHandle.Translational
            || camHandle.doManipulation==camHandle.TranslationalHorizontal){
@@ -677,4 +686,3 @@ namespace lpzrobots {
 
 
 }
-
