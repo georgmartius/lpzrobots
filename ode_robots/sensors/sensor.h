@@ -143,6 +143,16 @@ namespace lpzrobots {
       return (Dimensions)val;
     }
 
+    // prints sensor dimensions "XYZ"
+    static std::string dimensions2String(short dimensions){
+      std::string s;
+      if((dimensions & X) != 0) s+="X";
+      if((dimensions & Y) != 0) s+="Y";
+      if((dimensions & Z) != 0) s+="Z";
+      return s;
+    }
+
+
   };
 
 }

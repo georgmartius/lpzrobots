@@ -36,7 +36,9 @@ namespace lpzrobots {
     own=0;
     ref=0;
     setBaseInfo(SensorMotorInfo("RelPos").changequantity(SensorMotorInfo::Distance).changemin(0));
+    setNamingFunc([dimensions](int index) {return dimensions2String(dimensions).substr(index,1);});
   }
+
 
   void RelativePositionSensor::init(Primitive* own, Joint* joint){
     this->own = own;
