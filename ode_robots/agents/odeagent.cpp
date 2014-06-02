@@ -156,10 +156,11 @@ namespace lpzrobots {
           global.addTmpObject(new TmpDisplayItem(new OSGSphere(d.size.x()),
                                                  TRANSM(d.pos), "manipmove"),
                               global.odeConfig.simStepSize*5);
-          global.addTmpObject(new TmpDisplayItem(new OSGLine({d.posStart,d.pos}),
-                                                 TRANSM(0,0,0), "manipmove"),
-                              global.odeConfig.simStepSize
-                              );
+          if(d.show>1)
+            global.addTmpObject(new TmpDisplayItem(new OSGLine({d.posStart,d.pos}),
+                                                   TRANSM(0,0,0), "manipmove"),
+                                global.odeConfig.simStepSize
+                                );
         }
         break;
       case Operator::Limit:

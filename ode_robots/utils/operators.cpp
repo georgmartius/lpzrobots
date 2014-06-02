@@ -46,7 +46,7 @@ namespace lpzrobots {
       p->applyTorque(torque*currentforce*(angle-maxAngle));
       currentforce=currentforce*1.01;
       descr.pos  = p->getPosition() + rpose.vec3()*0.5;
-      descr.show = true;
+      descr.show = 1;
       return Move;
     }else{
       currentforce=force;
@@ -84,7 +84,8 @@ namespace lpzrobots {
         currentforce=currentforce*1.01;
       }
       descr.pos  = p->getPosition() + Pos(0,0,conf.visualHeight);
-      descr.show = true;
+      descr.posStart = p->getPosition();
+      descr.show = 2;
       return Move;
     }else{
       if(conf.increaseForce){
@@ -122,7 +123,7 @@ namespace lpzrobots {
 
       descr.pos  = pos + vec;
       descr.posStart = pos;
-      descr.show = showPoint;
+      descr.show = showPoint ? 2 : 0;
       return Move;
     }
     return rv;
@@ -167,7 +168,7 @@ namespace lpzrobots {
       descr.pos          = pos  - p*offset;
       descr.orientation  = Pose::rotate(osg::Vec3(0,0,1), vec);
       descr.size         = Pos(0.3,0,0.05);
-      descr.show = true;
+      descr.show = 1;
       return Limit;
     }
     return rv;
