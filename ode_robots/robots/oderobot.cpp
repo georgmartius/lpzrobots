@@ -49,7 +49,7 @@ namespace lpzrobots {
   }
 
   void OdeRobot::placeIntern(const osg::Matrix& pose){
-    assert("should never be called");
+    assert("should never be called"); // just to satisfy linker (really weird linker error)
   };
 
 
@@ -284,6 +284,31 @@ namespace lpzrobots {
       (*p)->setPosition(pos+local);
     }
   }
+
+  void OdeRobot::moveToPose(Pose pose, int primitiveID){
+    const vector<Primitive*>& ps = this->getAllPrimitives();
+    Primitive* ref;
+    Pose robpose; // reference pose of primitive
+    if(primitiveID==-1){
+      if(!getMainPrimitive()) return;
+      ref = getMainPrimitive();
+    }else if(primitiveID>=0 && primitiveID < (signed)ps.size()){
+        if(!ps[primitiveID]) return;
+        ref = ps[primitiveID];
+    }else {
+      fprintf(stderr,"primitive index out of bounds %i (of %lui)", primitiveID, ps.size());
+      return;
+    }
+    // move robot
+    // calc transformation on robot
+    Pose refInvertPose;
+    refInvertPose.invert(ref->getPose());
+    Pose transformation = refInvertPose*pose;
+    FOREACHC(vector<Primitive*>, ps, p){
+      (*p)->setPose((*p)->getPose()*transformation);
+    }
+  }
+
 
   void OdeRobot::fixate(GlobalData& global, int primitiveID, double duration){
     Primitive* p=0; // primitive to fix

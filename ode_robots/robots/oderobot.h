@@ -223,6 +223,11 @@ namespace lpzrobots {
         is used (the center of it, so the bounding box is not checked)
      */
     virtual void moveToPosition(Pos pos = Pos(0,0,0.5), int primitiveID = -1);
+    /** relocates robot such its primitive with the given ID
+        is at the new pose (keep relative pose of all primitives).
+        If primitiveID is -1 then the main primitive is used.
+     */
+    virtual void moveToPose(Pose pose, int primitiveID = -1);
 
     /** fixates the given primitive of the robot at its current position to the world
         for a certain time.
@@ -268,4 +273,3 @@ namespace lpzrobots {
 }
 
 #endif
-
