@@ -36,7 +36,9 @@ namespace lpzrobots {
     own=0;
     ref=0;
     setBaseInfo(SensorMotorInfo("RelPos").changequantity(SensorMotorInfo::Distance).changemin(0));
+#if (__GNUC__ > 4 ) || (__GNUC__ == 4 && __GNUC_MINOR__ > 7)
     setNamingFunc([dimensions](int index) {return dimensions2String(dimensions).substr(index,1);});
+#endif
   }
 
 
