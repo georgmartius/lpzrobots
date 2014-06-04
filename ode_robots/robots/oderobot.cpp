@@ -38,7 +38,10 @@ namespace lpzrobots {
    */
   OdeRobot::OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
                      const std::string& name,const std::string& revision)
-    : AbstractRobot(name, revision), odeHandle(odeHandle), osgHandle(osgHandle),
+    : AbstractRobot(name, revision),
+      initialPose(osg::Matrix::identity()),
+      initialRelativePose(osg::Matrix::identity()),
+      odeHandle(odeHandle), osgHandle(osgHandle),
       initialized(false), askedfornumber(false) {
     parentspace = odeHandle.space;
     fixationTmpJoint = 0;
@@ -216,6 +219,11 @@ namespace lpzrobots {
     for( auto &i: motors){
       attachMotor(i);
     }
+    assert(getMainPrimitive());
+    initialPose=getMainPrimitive()->getPose();
+    Pose inv;
+    inv.invert(pose);
+    initialRelativePose=getMainPrimitive()->getPose() * inv;
     initialized=true;
   }
 
@@ -282,6 +290,8 @@ namespace lpzrobots {
     FOREACHC(vector<Primitive*>, ps, p){
       Pos local = (*p)->getPosition() - robpos; // relative local position of that primitive
       (*p)->setPosition(pos+local);
+      dBodySetLinearVel((*p)->getBody(), 0, 0, 0);
+      dBodySetAngularVel((*p)->getBody(),0, 0, 0);
     }
   }
 
@@ -306,6 +316,8 @@ namespace lpzrobots {
     Pose transformation = refInvertPose*pose;
     FOREACHC(vector<Primitive*>, ps, p){
       (*p)->setPose((*p)->getPose()*transformation);
+      dBodySetLinearVel((*p)->getBody(), 0, 0, 0);
+      dBodySetAngularVel((*p)->getBody(),0, 0, 0);
     }
   }
 

@@ -229,6 +229,15 @@ namespace lpzrobots {
      */
     virtual void moveToPose(Pose pose, int primitiveID = -1);
 
+    /// returns the initial pose of the main primitive (use it e.g. with moveToPose)
+    virtual Pose getInitialPose() { return initialPose; }
+    /** returns the initial relative pose of the main primitive
+        (use it with moveToPose to further translate or rotate).
+        If initialized with place(p) then moveToPose(getRelativeInitialPose()*p) whould put
+        the main primitive at the same position and pose.
+    */
+    virtual Pose getRelativeInitialPose() { return initialRelativePose; }
+
     /** fixates the given primitive of the robot at its current position to the world
         for a certain time.
         Hint: use moveToPosition() to get the robot relocated
@@ -261,6 +270,9 @@ namespace lpzrobots {
     std::list<MotorAttachment> motors;   // list of generic motors
 
     TmpJoint* fixationTmpJoint;
+    Pose initialPose;                    // initial pose of main primitive
+    // initial relative pose of main primitive w.r.t. to given pose in place
+    Pose initialRelativePose;
 
     OdeHandle odeHandle;
     OsgHandle osgHandle;

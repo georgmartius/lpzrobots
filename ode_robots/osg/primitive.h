@@ -432,6 +432,10 @@ public:
   virtual OSGPrimitive* getOSGPrimitive();
 
   virtual void setMass(double mass, bool density = false);
+
+  // setting the pose is not supported
+  virtual void setPose(const Pose& pose) override {}
+
 protected:
   Primitive* parent;
   Primitive* child;
@@ -481,4 +485,3 @@ private:
 
 }
 #endif
-

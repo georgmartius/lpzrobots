@@ -821,7 +821,7 @@ namespace lpzrobots {
         {
           OdeAgent* agent = getWatchedAgent();
           if(agent && agent->getRobot()){
-            agent->getRobot()->moveToPosition(Pos(0,0,.5),-2); // move lowest body part to center
+            agent->getRobot()->moveToPose(agent->getRobot()->getInitialPose());
           }
         }
         handled=true;
@@ -1593,5 +1593,3 @@ namespace lpzrobots {
 
 
 }
-
-

@@ -438,6 +438,7 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
       *equalpos=' '; // replace by space for splitting
     }else{
       printf("Syntax error! no '=' found, see help\n");
+      return true;
     }
     vector<string> params = splitstring(string(arg));
     switch(params.size()){
