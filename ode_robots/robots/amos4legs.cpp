@@ -266,7 +266,7 @@ namespace lpzrobots {
     destroy();
   }
 
-  int AmosFour::getMotorNumber() {
+  int AmosFour::getMotorNumberIntern() {
     return AMOSII_MOTOR_MAX;
   }
   ;
@@ -311,7 +311,7 @@ namespace lpzrobots {
    @param motors motors scaled to [-1,1]
    @param motornumber length of the motor array
    */
-  void AmosFour::setMotors(const motor* motors, int motornumber) {
+  void AmosFour::setMotorsIntern(const double* motors, int motornumber) {
 #ifdef VERBOSE
     std::cerr << "AmosII::setMotors BEGIN\n";
 #endif
@@ -331,12 +331,12 @@ namespace lpzrobots {
   }
   ;
 
-  int AmosFour::getSensorNumber() {
+  int AmosFour::getSensorNumberIntern() {
 #ifdef VERBOSE
-    std::cerr << "AmosII::getSensorNumber BEGIN\n";
+    std::cerr << "AmosII::getSensorNumberIntern BEGIN\n";
 #endif
 #ifdef VERBOSE
-    std::cerr << "AmosII::getSensorNumber END\n";
+    std::cerr << "AmosII::getSensorNumberIntern END\n";
 #endif
     return AMOSII_SENSOR_MAX;
   }
@@ -347,12 +347,12 @@ namespace lpzrobots {
    @param sensornumber length of the sensor array
    @return number of actually written sensors
    */
-  int AmosFour::getSensors(sensor* sensors, int sensornumber) {
+  int AmosFour::getSensorsIntern(sensor* sensors, int sensornumber) {
 #ifdef VERBOSE
     std::cerr << "AmosII::getSensors BEGIN\n";
 #endif
     assert(created);
-    assert(sensornumber == getSensorNumber());
+    assert(sensornumber == getSensorNumberIntern());
 
     // angle sensors
     //We multiple with -1 to map to real hexapod
@@ -434,16 +434,16 @@ namespace lpzrobots {
 
     }
     // Front Ultrasonic sensors (right and left)
-    sensors[FR_us] = usSensorFrontRight->get();
-    sensors[FL_us] = usSensorFrontLeft->get();
+    sensors[FR_us] = usSensorFrontRight->getValue();
+    sensors[FL_us] = usSensorFrontLeft->getValue();
 
     // IR sensors at the legs
-//    sensors[R0_irs] = irLegSensors[R0] ? irLegSensors[R0]->get() : 0;
-    sensors[R1_irs] = irLegSensors[R1] ? irLegSensors[R1]->get() : 0;
-    sensors[R2_irs] = irLegSensors[R2] ? irLegSensors[R2]->get() : 0;
-//    sensors[L0_irs] = irLegSensors[L0] ? irLegSensors[L0]->get() : 0;
-    sensors[L1_irs] = irLegSensors[L1] ? irLegSensors[L1]->get() : 0;
-    sensors[L2_irs] = irLegSensors[L2] ? irLegSensors[L2]->get() : 0;
+//    sensors[R0_irs] = irLegSensors[R0] ? irLegSensors[R0]->getValue() : 0;
+    sensors[R1_irs] = irLegSensors[R1] ? irLegSensors[R1]->getValue() : 0;
+    sensors[R2_irs] = irLegSensors[R2] ? irLegSensors[R2]->getValue() : 0;
+//    sensors[L0_irs] = irLegSensors[L0] ? irLegSensors[L0]->getValue() : 0;
+    sensors[L1_irs] = irLegSensors[L1] ? irLegSensors[L1]->getValue() : 0;
+    sensors[L2_irs] = irLegSensors[L2] ? irLegSensors[L2]->getValue() : 0;
 
     // Reflex ultrasonic sensors at front, middle and rear legs
     sensors[R0_us] = 0;
@@ -506,7 +506,7 @@ namespace lpzrobots {
     if (GoalSensor_active) {
       //the first goal
       std::vector<RelativePositionSensor>::iterator it = GoalSensor.begin(); //we only use one goal sensor
-      std::list<sensor> gls_val = it->get();
+      std::list<sensor> gls_val = it->getList();
       sensors[G0z_s] = gls_val.back();
       gls_val.pop_back();
       sensors[G0y_s] = gls_val.back();
@@ -516,7 +516,7 @@ namespace lpzrobots {
 
       //the second goal
       it++;
-      gls_val = it->get();
+      gls_val = it->getList();
       sensors[G1z_s] = gls_val.back();
       gls_val.pop_back();
       sensors[G1y_s] = gls_val.back();
@@ -526,7 +526,7 @@ namespace lpzrobots {
 
       //the third goal
       it++;
-      gls_val = it->get();
+      gls_val = it->getList();
       sensors[G2z_s] = gls_val.back();
       gls_val.pop_back();
       sensors[G2y_s] = gls_val.back();
@@ -537,7 +537,7 @@ namespace lpzrobots {
     //------------------------Add GoalSensor by Ren-------------------
 
     //------------------------Add Orientation Sensor by Ren-------------------
-        std::list<sensor> Ori_lst =  OrientationSensor->get();
+        std::list<sensor> Ori_lst =  OrientationSensor->getList();
         double ori1,ori2,ori3;
         ori1 = Ori_lst.front();
         Ori_lst.pop_front();
@@ -560,7 +560,7 @@ namespace lpzrobots {
   }
   ;
 
-  void AmosFour::place(const osg::Matrix& pose) {
+  void AmosFour::placeIntern(const osg::Matrix& pose) {
 #ifdef VERBOSE
     std::cerr << "AmosII::place BEGIN\n";
 #endif
@@ -581,6 +581,7 @@ namespace lpzrobots {
    * updates the osg notes
    */
   void AmosFour::update() {
+    OdeRobot::update();
 #ifdef VERBOSE
     std::cerr << "AmosII::update BEGIN\n";
 #endif
@@ -621,6 +622,15 @@ namespace lpzrobots {
     return totalMass;
   }
 
+  void AmosFour::sense(GlobalData& globalData) {
+    irSensorBank->sense(globalData);
+
+    for (int i = 0; i < LEG_POS_MAX; i++) {
+      if (legContactSensors[LegPos(i)])
+        legContactSensors[LegPos(i)]->sense(globalData);
+    }
+  }
+
   /**
    * this function is called in each timestep. It should perform robot-
    * internal checks, like space-internal collision detection, sensor
@@ -637,15 +647,6 @@ namespace lpzrobots {
 
     // update statistics
     position = getPosition();
-
-    // reset contact sensors
-    for (int i = 0; i < LEG_POS_MAX; i++) {
-      if (legContactSensors[LegPos(i)])
-        legContactSensors[LegPos(i)]->reset();
-    }
-
-    // reset ir sensors to maximum value
-    irSensorBank->reset();
 
     // passive servos have to be set to zero in every time step so they work
     // as springs
@@ -748,7 +749,8 @@ namespace lpzrobots {
 
     // initialize the infrared sensors
     irSensorBank = new RaySensorBank();
-    irSensorBank->init(odeHandle, osgHandle);
+    irSensorBank->setInitData(odeHandle, osgHandle, TRANSM(0,0,0));
+    irSensorBank->init(0);
 
     // ultrasonic sensors at Front part
     usSensorFrontRight = new IRSensor();
@@ -1011,8 +1013,9 @@ namespace lpzrobots {
           passiveServos.push_back(spring);
           odeHandle.addIgnoredPair(secondThorax, foot);
 
-          legContactSensors[LegPos(i)] = new ContactSensor(conf.legContactSensorIsBinary, 50, 1.01 * t4);
-          legContactSensors[LegPos(i)]->init(odeHandle, osgHandle, foot, true, TRANSM(0, 0, -0.5 * l4));
+          legContactSensors[LegPos(i)] = new ContactSensor(conf.legContactSensorIsBinary, 50, 1.01 * t4, true);
+          legContactSensors[LegPos(i)]->setInitData(odeHandle, osgHandle, TRANSM(0, 0, -0.5 * l4));
+          legContactSensors[LegPos(i)]->init(foot);
           odeHandle.addIgnoredPair(tebia, legContactSensors[LegPos(i)]->getTransformObject());
         }
       } else if (legPosUsage[leg] == WHEEL) {

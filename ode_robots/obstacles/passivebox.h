@@ -51,7 +51,8 @@ class PassiveBox : public AbstractObstacle{
    */
   PassiveBox(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
              const osg::Vec3& dimension = osg::Vec3(1.0, 1.0, 1.0), double mass = 1.0):
-    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), dimension(dimension), mass(mass) {
+    AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), dimension(dimension), mass(mass), texture(0)
+  {
     box = new Box(dimension.x(), dimension.y(), dimension.z());
     obst.push_back(box);
     obstacle_exists=false;

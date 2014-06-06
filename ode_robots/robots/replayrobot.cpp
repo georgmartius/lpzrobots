@@ -54,10 +54,10 @@ namespace lpzrobots {
     if(f) fclose(f);
   }
 
-  void ReplayRobot::setMotors(const motor* _motors, int motornumber){
+  void ReplayRobot::setMotorsIntern(const double* _motors, int motornumber){
   };
 
-  int ReplayRobot::getSensors(sensor* s, int sensornumber){
+  int ReplayRobot::getSensorsIntern(sensor* s, int sensornumber){
     assert(sensornumber == (sensorEnd-sensorStart + 1));
     if(!parseDataLine(sensors,f)){
       cout << "ReplayRobot: no datafile in file" << endl;

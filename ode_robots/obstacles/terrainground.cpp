@@ -43,7 +43,7 @@ namespace lpzrobots {
                          double x_size, double y_size, double height,
                          OSGHeightField::CodingMode coding)
     :  AbstractObstacle::AbstractObstacle(odeHandle, osgHandle),
-       filename(filename), texture(texture),
+       filename(filename), texture(texture), heightfield(0),
        x_size(x_size), y_size(y_size), height(height), coding(coding){
     obstacle_exists=false;
   };

@@ -37,7 +37,7 @@ namespace lpzrobots {
 
   void GlobalData::initializeTmpObjects(const OdeHandle& odeHandle,
                                         const OsgHandle& osgHandle){
-    if(uninitializedTmpObjects.size()>0){
+    if(!uninitializedTmpObjects.empty()){
       FOREACH(TmpObjectList, uninitializedTmpObjects, i){
         i->second->init(odeHandle, osgHandle);
         tmpObjects.insert(TmpObjectList::value_type(i->first, i->second));
@@ -56,7 +56,7 @@ namespace lpzrobots {
 
   /// removes a particular temporary display item even if it is not yet expired
   bool GlobalData::removeTmpObject(TmpObject* obj){
-    if(tmpObjects.size()>0){
+    if(!tmpObjects.empty()){
       TmpObjectMap::iterator i = tmpObjects.begin();
       while(i != tmpObjects.end()){
         if( i->second == obj ){
@@ -65,20 +65,20 @@ namespace lpzrobots {
           tmpObjects.erase(i);
           return true;
         }
-        i++;
+        ++i;
       }
     }
     return false;
   }
 
   void GlobalData::removeExpiredObjects(double time){
-    if(tmpObjects.size()>0){
+    if(!tmpObjects.empty()){
       if(time<0) time=this->time;
       TmpObjectMap::iterator i = tmpObjects.begin();
       while(i != tmpObjects.end()){
         if( i->first < time ){
           TmpObjectMap::iterator tmp = i;
-          tmp++;
+          ++tmp;
           i->second->deleteObject();
           delete i->second;
           tmpObjects.erase(i);
@@ -90,7 +90,7 @@ namespace lpzrobots {
     }
 
     // remove old signals from sound list
-    if(sounds.size()>0)
+    if(!sounds.empty())
       sounds.remove_if(Sound::older_than(time));
   }
 

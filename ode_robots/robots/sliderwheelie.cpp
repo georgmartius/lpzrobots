@@ -48,7 +48,7 @@ namespace lpzrobots {
   }
 
 
-  void SliderWheelie::place(const osg::Matrix& pose){
+  void SliderWheelie::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
     // width*0.6 is added (without this the wheels and half of the robot will be in the ground)
@@ -56,7 +56,8 @@ namespace lpzrobots {
                                                    + conf.segmDia/2)));
   }
 
-  void SliderWheelie::update(){
+  void SliderWheelie::update() {
+    OdeRobot::update();
     assert(created); // robot must exist
     for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
       if(*i) (*i)->update();
@@ -70,9 +71,9 @@ namespace lpzrobots {
   void SliderWheelie::doInternalStuff(GlobalData& global){
   }
 
-  void SliderWheelie::setMotors(const motor* motors, int motornumber) {
+  void SliderWheelie::setMotorsIntern(const double* motors, int motornumber) {
    assert(created);
-   unsigned int len = min(motornumber, getMotorNumber());
+   unsigned int len = min(motornumber, getMotorNumberIntern());
    unsigned int n=0;
    // controller output as torques
    if(conf.motorType != SliderWheelieConf::AngularMotor){
@@ -105,9 +106,9 @@ namespace lpzrobots {
    }
   }
 
-  int SliderWheelie::getSensors(sensor* sensors, int sensornumber) {
+  int SliderWheelie::getSensorsIntern(sensor* sensors, int sensornumber) {
    assert(created);
-   unsigned int len=min(sensornumber, getSensorNumber());
+   unsigned int len=min(sensornumber, getSensorNumberIntern());
    unsigned int n=0;
    // get the hingeServos
    if(conf.motorType != SliderWheelieConf::AngularMotor){

@@ -187,7 +187,7 @@ namespace lpzrobots {
   };
 
 
-  void VierBeiner::place(const Matrix& pose){
+  void VierBeiner::placeIntern(const Matrix& pose){
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position is 0
     //    Matrix p2;

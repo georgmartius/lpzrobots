@@ -43,7 +43,7 @@ namespace lpzrobots {
     created=false;
   };
 
-  int RobotChain::getMotorNumber(){
+  int RobotChain::getMotorNumberIntern(){
     int num=0;
     FOREACH(vector<OdeRobot*>, robots, r){
       if(*r) num+=(*r)->getMotorNumber();
@@ -51,19 +51,19 @@ namespace lpzrobots {
     return num;
   }
 
-  void RobotChain::setMotors(const motor* motors, int motornumber){
+  void RobotChain::setMotorsIntern(const double* motors, int motornumber){
     assert(created); // robot must exist
     int index=0;
     FOREACH(vector<OdeRobot*>, robots, r){
       int len = (*r)->getMotorNumber();
       assert(index+len<=motornumber);
-      (*r)->setMotors(motors+index,len);
+      (*r)->setMotorsIntern(motors+index,len);
       index+=len;
     }
   };
 
 
-  int RobotChain::getSensorNumber(){
+  int RobotChain::getSensorNumberIntern(){
     int num=0;
     FOREACH(vector<OdeRobot*>, robots, r){
       if(*r) num+=(*r)->getSensorNumber();
@@ -71,7 +71,7 @@ namespace lpzrobots {
     return num;
   }
 
-  int RobotChain::getSensors(sensor* sensors, int sensornumber){
+  int RobotChain::getSensorsIntern(sensor* sensors, int sensornumber){
     assert(created);
     int index=0;
     sensor buf[10];
@@ -81,7 +81,7 @@ namespace lpzrobots {
       int len = (*r)->getSensorNumber();
       assert(index+len<=sensornumber);
       if(conf.useIR && (j==0 || j==conf.numRobots-1)){
-       (*r)->getSensors(buf,len);
+       (*r)->getSensorsIntern(buf,len);
        // store motors
        sensors[index]   = buf[0];
        sensors[index+1] = buf[1];
@@ -91,7 +91,7 @@ namespace lpzrobots {
          irvals.push_back(buf[i]);
        }
       }else{
-        (*r)->getSensors(sensors+index,len);
+        (*r)->getSensorsIntern(sensors+index,len);
         index+=len;
       }
       j++;
@@ -106,22 +106,22 @@ namespace lpzrobots {
   };
 
 
-  void RobotChain::place(const osg::Matrix& pose){
+  void RobotChain::placeIntern(const osg::Matrix& pose){
     create(pose);
   };
 
 
-  void RobotChain::update(){
+  void RobotChain::update() {
+    OdeRobot::update();
     assert(created); // robot must exist
     FOREACH(vector<OdeRobot*>, robots, r){
       if(*r) (*r)->update();
     }
-    for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-      if(*i) (*i)->update();
-    }
+
   };
 
   void RobotChain::doInternalStuff(GlobalData& global){
+    OdeRobot::doInternalStuff(global);
     FOREACH(vector<OdeRobot*>, robots, r){
       if(*r) (*r)->doInternalStuff(global);
     }
@@ -159,7 +159,7 @@ namespace lpzrobots {
       else
         nimm2->setColor(osgHandle.getColor(conf.color));
 
-      ((OdeRobot*)nimm2)->place(TRANSM(j*(-conf.distance),0,0.11)*pose);
+      ((OdeRobot*)nimm2)->placeIntern(TRANSM(j*(-conf.distance),0,0.11)*pose);
       robots.push_back(nimm2);
     }
     for(int j=0; j<conf.numRobots-1; j++) {

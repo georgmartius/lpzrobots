@@ -51,71 +51,48 @@ namespace lpzrobots {
     destroy();
   }
 
-  int FourWheeled::getSensorNumber(){
-    if(!irSensorBank.isInitialized()){
-      fprintf(stderr, "FourWheeled:: place the robot before calling agent->init()!\n");
-      assert(irSensorBank.isInitialized());
-    }
-
+  int FourWheeled::getSensorNumberIntern(){
     if(conf.twoWheelMode){
-      assert(Nimm4::getSensorNumber() == 4);
-      return 2 + irSensorBank.size();
+      assert(Nimm4::getSensorNumberIntern() == 4);
+      return 2;
     }else
-      return Nimm4::getSensorNumber() + irSensorBank.size();
+      return Nimm4::getSensorNumberIntern();
   }
 
-  int FourWheeled::getSensors(sensor* sensors, int sensornumber){
+  int FourWheeled::getSensorsIntern(double* sensors, int sensornumber){
     int len = 0;
     if(conf.twoWheelMode){
       sensor nimm4s[4];
-      Nimm4::getSensors(nimm4s,4);
+      Nimm4::getSensorsIntern(nimm4s,4);
       sensors[len++] = (nimm4s[0]+nimm4s[2])/2;
       sensors[len++] = (nimm4s[1]+nimm4s[3])/2;
     } else {
-      len = Nimm4::getSensors(sensors,sensornumber);
+      len = Nimm4::getSensorsIntern(sensors,sensornumber);
     }
 
-    // ask sensorbank for sensor values (from infrared sensors)
-    //  sensor+len is the starting point in the sensors array
-    if (conf.irFront || conf.irSide || conf.irBack){
-      len += irSensorBank.get(sensors+len, sensornumber-len);
-    }
     return len;
   };
 
-  int FourWheeled::getMotorNumber(){
+  int FourWheeled::getMotorNumberIntern(){
     if(conf.twoWheelMode)
       return 2;
     else
-      return Nimm4::getMotorNumber();
+      return Nimm4::getMotorNumberIntern();
   }
 
-  void FourWheeled::setMotors(const motor* motors, int motornumber){
+  void FourWheeled::setMotorsIntern(const double* motors, int motornumber){
     if(conf.twoWheelMode){
       motor nimm4m[4];
       nimm4m[0] = motors[0];
       nimm4m[2] = motors[0];
       nimm4m[1] = motors[1];
       nimm4m[3] = motors[1];
-      Nimm4::setMotors(nimm4m,4);
+      Nimm4::setMotorsIntern(nimm4m,4);
     }else
-       Nimm4::setMotors(motors,motornumber);
+       Nimm4::setMotorsIntern(motors,motornumber);
 
   }
 
-
-  void FourWheeled::update(){
-    Nimm4::update();
-    if(conf.useBumper || conf.useButton)
-      bumpertrans->update();
-    // update sensorbank with infrared sensors
-    irSensorBank.update();
-  }
-
-  void FourWheeled::doInternalStuff(GlobalData& globalData){
-    Nimm4::doInternalStuff(globalData);
-    irSensorBank.reset(); // reset sensorbank (infrared sensors)
-  }
 
   /** creates vehicle at desired position
       @param pos struct Position with desired position
@@ -130,13 +107,14 @@ namespace lpzrobots {
       bumpertrans = new Transform(objects[0], bumper,
                                   Matrix::translate(width*0.6-radius, 0, 0));
       bumpertrans->init(odeHandle, 0, osgHandle);
-
+      objects.push_back(bumpertrans);
     }else if(conf.useButton){
       bumper = new Box(width*0.6 , width*0.7, 0.1);
       bumper->setTexture("Images/wood.rgb");
       bumpertrans = new Transform(objects[0], bumper,
                                   Matrix::translate(0,0, -length*0.9));
       bumpertrans->init(odeHandle, 0, osgHandle.changeColor(1,1,0));
+      objects.push_back(bumpertrans);
     }
 
 
@@ -151,11 +129,12 @@ namespace lpzrobots {
      * rear left
      * left  middle
     */
-    irSensorBank.init(odeHandle, osgHandle);
+    RaySensorBank* irSensorBank = new RaySensorBank();
+    irSensorBank->setInitData(odeHandle, osgHandle, TRANSM(0,0,0));
     if (conf.irFront){ // add front left and front right infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
         IRSensor* sensor = new IRSensor();
-        irSensorBank.registerSensor(sensor, objects[0],
+        irSensorBank->registerSensor(sensor, objects[0],
                                     Matrix::rotate(i*M_PI/10, Vec3(1,0,0)) *
                                     Matrix::translate(0,-i*width/10,length/2 + width/2 - width/60 ),
                                     conf.irRangeFront, RaySensor::drawAll);
@@ -163,7 +142,7 @@ namespace lpzrobots {
     }
     if (conf.irSide){ // add right infrared sensor to sensorbank if required
       IRSensor* sensor = new IRSensor();
-      irSensorBank.registerSensor(sensor, objects[0],
+      irSensorBank->registerSensor(sensor, objects[0],
                                   //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
                                   Matrix::rotate(M_PI/2, Vec3(1,0,0)) *
                                   Matrix::translate(0,-width/2, 0 ),
@@ -172,7 +151,7 @@ namespace lpzrobots {
     if (conf.irBack){ // add rear right and rear left infrared sensor to sensorbank if required
       for(int i=-1; i<2; i+=2){
         IRSensor* sensor = new IRSensor();
-        irSensorBank.registerSensor(sensor, objects[0],
+        irSensorBank->registerSensor(sensor, objects[0],
                                     Matrix::rotate(-i*M_PI/10, Vec3(1,0,0)) *
                                     Matrix::rotate(i*M_PI, Vec3(0,1,0)) *
                                     Matrix::translate(0,i*width/10,-(length/2 + width/2 - width/60) ),
@@ -181,13 +160,13 @@ namespace lpzrobots {
     }
     if (conf.irSide){ // add left infrared sensor to sensorbank if required
         IRSensor* sensor = new IRSensor();
-        irSensorBank.registerSensor(sensor, objects[0],
+        irSensorBank->registerSensor(sensor, objects[0],
                                     //Matrix::rotate(i*M_PI/2, Vec3(0,0,1)) *
                                     Matrix::rotate(-M_PI/2, Vec3(1,0,0)) *
                                     Matrix::translate(0,width/2, 0),
                                     conf.irRangeSide, RaySensor::drawAll);
     }
-
+    addSensor(shared_ptr<Sensor>(irSensorBank));
   };
 
 
@@ -202,8 +181,6 @@ namespace lpzrobots {
   /** destroys vehicle and space
    */
   void FourWheeled::destroy(){
-    if (created)
-      irSensorBank.clear();
     Nimm4::destroy();
   }
 

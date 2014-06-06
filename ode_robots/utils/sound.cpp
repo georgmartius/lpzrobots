@@ -33,8 +33,8 @@ namespace lpzrobots {
 
   Sound::Sound(double time, const Pos& pos, float intensity, float frequency, void* sender)
     : time(time), pos(pos),
-      intensity(intensity), frequency(frequency), sender(sender) {
-    intensity=std::max(std::min(intensity, 1.0f), 0.0f);
+      frequency(frequency), sender(sender) {
+    this->intensity=std::max(std::min(intensity, 1.0f), 0.0f);
   }
 
   Sound::~Sound(){

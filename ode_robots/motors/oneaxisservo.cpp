@@ -32,11 +32,11 @@ namespace lpzrobots {
                              double power, double damp, double integration, double maxVel,
                              double jointLimit, bool minmaxCheck)
     : joint(joint), pid(power, integration, damp), maxVel(maxVel), jointLimit(jointLimit) {
-    assert(joint);
+    // the joint can also be set later by init()
     setMinMax(_min,_max);
     assert(min<max);
-    assert(!minmaxCheck || min <= 0);
-    assert(!minmaxCheck || max >= 0);
+    assert(!minmaxCheck || min < 0);
+    assert(!minmaxCheck || max > 0);
     assert(power>=0 && damp >=0 && integration >=0);
   }
 
@@ -59,7 +59,6 @@ namespace lpzrobots {
       joint->getPart2()->limitLinearVel(maxVel);
     }
   }
-
 
   OneAxisServoCentered::OneAxisServoCentered(OneAxisJoint* joint, double _min, double _max,
                                              double power, double damp, double integration,
@@ -91,6 +90,8 @@ namespace lpzrobots {
       // don't wonder! It is correct to give maxVel as a power parameter to the parent.
       motor(odeHandle, joint, power), power(power), damp(clip(damp,0.0,1.0))
   {
+    dummy=0;
+    motor.init(0,0);
   }
 
   OneAxisServoVel::~OneAxisServoVel(){}
@@ -129,6 +130,7 @@ namespace lpzrobots {
       // don't wonder! It is correct to give maxVel as a power parameter to the parent.
       power(power), damp(clip(damp,0.0,1.0))
   {
+    dummy=0;
   }
 
   SliderServoVel::~SliderServoVel(){}

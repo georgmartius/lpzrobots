@@ -42,7 +42,7 @@ namespace lpzrobots {
                                dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
 
     ContactSensor* sensor = (ContactSensor*)userdata;
-    sensor->setDepth(contacts[0].geom.depth);
+    sensor->setDepth(contacts[0].geom.depth, globaldata.sim_step);
     return 0;
   }
   // this function is called if the sensor object has a collision. In the userdata we get the
@@ -52,21 +52,26 @@ namespace lpzrobots {
                           dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
 
     ContactSensor* sensor = (ContactSensor*)userdata;
-    sensor->setDepth(contacts[0].geom.depth);
+    sensor->setDepth(contacts[0].geom.depth, globaldata.sim_step);
     return 1;
   }
 
 
 
   ContactSensor::ContactSensor(bool binary /*=true*/,
-                               double forcescale /*= 1*/, double radius /*= 0.05*/)
-    : binary(binary), forcescale(forcescale), size(radius) {
+                               double forcescale /*= 1*/, double radius /*= 0.05*/,
+                               bool createSphere /*= false*/, bool colorObject/* = true*/)
+    : binary(binary), forcescale(forcescale), size(radius),
+      createSphere(createSphere), colorObject(colorObject) {
     reference = 0;
     value = 0;
     lastvalue=-1;
     initialised = false;
     sensorBody = 0;
     transform=0;
+    time=-10;
+    setBaseInfo(SensorMotorInfo("Contact").changequantity(SensorMotorInfo::Force).changemin(0)
+                .changetype(binary? SensorMotorInfo::Binary : SensorMotorInfo::Continuous));
   }
 
   ContactSensor::~ContactSensor(){
@@ -78,14 +83,11 @@ namespace lpzrobots {
   }
 
 
-  void ContactSensor::init(const OdeHandle& odeHandle,
-                           const OsgHandle& osgHandle,
-                           Primitive* reference,
-                           bool createSphere,
-                           const osg::Matrix pose,
-                           bool colorObject){
+
+  void ContactSensor::init(Primitive* reference, Joint* joint) {
+    assert(isInitDataSet);
+
     assert(reference);
-    this->colorObject = colorObject;
     this->reference   = reference;
 
     value = 0;
@@ -108,16 +110,30 @@ namespace lpzrobots {
     initialised = true;
   };
 
-  void ContactSensor::reset(){
-    value=0;
-  }
-
-  void ContactSensor::setDepth(float depth){
+  void ContactSensor::setDepth(float depth, long int time){
+    this->time = time;
     if(binary && depth>0)
       value=1.0;
     else
       value = std::max(value,depth*forcescale);
     //    printf("depth= %f, value: %f, \n",depth, value);
+  }
+
+  bool ContactSensor::sense(const GlobalData& globaldata){
+    if(time<globaldata.sim_step - globaldata.odeConfig.controlInterval){
+      value     = 0;
+    }
+    return true;
+  }
+
+  int ContactSensor::get(sensor* sensors, int length) const {
+    assert(length>0);
+    sensors[0]=value;
+    return 1;
+  }
+
+  std::list<sensor> ContactSensor::getList() const {
+    return {value};
   }
 
   double ContactSensor::get(){

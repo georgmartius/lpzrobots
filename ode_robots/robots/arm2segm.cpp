@@ -49,7 +49,7 @@ namespace lpzrobots{
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void Arm2Segm::setMotors(const motor* motors, int motornumber){
+  void Arm2Segm::setMotorsIntern(const double* motors, int motornumber){
     assert(created); // robot must exist
     // the number of controlled motors is minimum of
     // "number of motorcommands" (motornumber) and
@@ -79,7 +79,7 @@ namespace lpzrobots{
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  int Arm2Segm::getSensors(sensor* sensors, int sensornumber){
+  int Arm2Segm::getSensorsIntern(sensor* sensors, int sensornumber){
     assert(created); // robot must exist
 
     // the number of sensors to read is the minimum of
@@ -101,7 +101,7 @@ namespace lpzrobots{
   /** sets the vehicle to position pos, sets color to c, and creates robot if necessary
       @param pose desired position of the robot in struct Position
   */
-  void Arm2Segm::place(const osg::Matrix& pose){
+  void Arm2Segm::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the base
     // to set it on the ground when the z component of the position is 0
     // base_length*0.5 is added (without this half of the base will be in the ground)
@@ -133,18 +133,11 @@ namespace lpzrobots{
   };
 
 
-  void Arm2Segm::update(){
+  void Arm2Segm::update() {
+    OdeRobot::update();
     assert(created); // robot must exist
-    for (vector<Primitive*>::iterator i = objects.begin(); i!=objects.end(); i++) {
-      if (*i) (*i)->update();
-    }
-    for (vector<Joint*>::iterator i = joints.begin(); i!=joints.end(); i++) {
-      if (*i) (*i)->update();
-    }
-  };
 
 
-  void Arm2Segm::doInternalStuff(GlobalData& globalData){
   };
 
 

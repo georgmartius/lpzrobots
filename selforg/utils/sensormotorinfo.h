@@ -1,8 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2005-2011 LpzRobots development team                    *
+ *   Copyright (C) 2005-2014 LpzRobots development team                    *
  *    Georg Martius  <georg dot martius at web dot de>                     *
- *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
- *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
  *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -21,34 +19,38 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
-#ifndef __OSGMAINLOOP_H
-#define __OSGMAINLOOP_H
+#ifndef __SENSORMOTORINFO_H
+#define __SENSORMOTORINFO_H
 
-#include <ode-dbl/ode.h>
+#include <string>
+#include "types.h"
 
-#include "odehandle.h"
-#include "globaldata.h"
 
-class OSGMainLoop {
+/**
+ * Interface for objects, that can be stored and restored to/from a file stream (binary).
+*/
+
+class SensorMotorInfo {
 public:
-  OSGMainLoop(){
+  enum Type { Continuous, Discrete, Binary };
+  enum Quantity { Position, Velocity, Force, Distance, Other };
 
-  }
-  
-protected:
-  /// user defined start function (called at the beginning of the simulation)
-  void (*startFunction)(const OdeHandle&, GlobalData& globalData);
-  /// user defined end function (called after the simulation)
-  void (*endFunction)(GlobalData& globalData); 
-  /// pointer to the config function of the user
-  void (*configFunction)(GlobalData& globalData);
-  // command function, set by user
-  void (*commandFunction)(const OdeHandle&, GlobalData& globalData, int key); 
-  /// pointer to the user defined additional function
-  void (*collisionCallback)(const OdeHandle&, void* data, dGeomID o1, dGeomID o2);
-  /// pointer to the user defined additional function which is executed in each simulationstep
-  void (*additionalCallback)(GlobalData& globalData, bool draw, bool pause);
-}
+  SensorMotorInfo(std::string name=std::string())
+    : name(name), min(-1.0), max(1.0), index(0), quantity(Position), type(Continuous)
+  {}
 
+  CHANGER( SensorMotorInfo, double, min);
+  CHANGER( SensorMotorInfo, double, max);
+  CHANGER( SensorMotorInfo, Quantity, quantity);
+  CHANGER( SensorMotorInfo, Type, type);
+
+
+  std::string name;
+  double min;
+  double max;
+  int index; // index within one Sensor
+  Quantity quantity;
+  Type type;
+};
 
 #endif

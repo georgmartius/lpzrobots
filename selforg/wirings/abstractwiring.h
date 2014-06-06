@@ -29,6 +29,7 @@
 #include "noisegenerator.h"
 #include "inspectable.h"
 #include "randomgenerator.h"
+#include "sensormotorinfo.h"
 
 
 /** Abstract wiring-object between controller and robot.
@@ -118,10 +119,29 @@ public:
    */
   virtual int getControllerMotornumber() {return cmotornumber;}
 
+  /** routes the infos of the motors from robot to controller */
+  virtual std::list<SensorMotorInfo> wireSensorInfos(const std::list<SensorMotorInfo>& robotSensorInfos);
+
+  /** routes the infos of the motors from robot to controller */
+  virtual std::list<SensorMotorInfo> wireMotorInfos(const std::list<SensorMotorInfo>& robotMotorInfos);
+
   /// reset internal state
   virtual void reset() {}
 
+  /// used by WiredController to pass infos to inspectable
+  void addSensorMotorInfosToInspectable(const std::list<SensorMotorInfo>& robotSensorInfos,
+                                        const std::list<SensorMotorInfo>& robotMotorInfos,
+                                        const std::list<SensorMotorInfo>& controllerSensorInfos,
+                                        const std::list<SensorMotorInfo>& controllerMotorInfos);
+
+
 protected:
+    // static std::list<std::string> infosToNames(std::list<SensorMotorInfo> infos) {
+    //   std::list<std::string> names;
+    //   std::transform(infos.begin(), infos.end(), names.begin(), [](const SensorMotorInfo& i){return i.name;});
+    //   return names;
+    // }
+
   /** to be overloaded by subclasses
       The rsensornumber and rmotornumber are already stored
       in the member variables. The random values are to be accessed
@@ -142,7 +162,6 @@ protected:
    */
   virtual bool wireMotorsIntern(motor* rmotors, int rmotornumber,
                                 const motor* cmotors, int cmotornumber)  = 0;
-
 
 
   /// using plotTypes this variables defines what is plotted

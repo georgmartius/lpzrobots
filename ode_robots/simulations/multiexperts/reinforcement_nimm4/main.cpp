@@ -469,11 +469,9 @@ public:
     fwc.irBack=true;
     fwc.irSide=true;
     OdeRobot* nimm4 = new FourWheeled ( odeHandle, osgHandle, fwc, "4Wheel_Reinf56");
-    AddSensors2RobotAdapter* addsensorrobot =
-      new AddSensors2RobotAdapter(odeHandle, osgHandle, nimm4);
-    addsensorrobot->addSensor(new SpeedSensor(1,SpeedSensor::TranslationalRel, Sensor::Z));
-    addsensorrobot->addSensor(new SpeedSensor(1,SpeedSensor::RotationalRel, Sensor::X));
-    robot = addsensorrobot;
+    nimm4->addSensor(std::make_shared<Sensor>(SpeedSensor(1,SpeedSensor::TranslationalRel, Sensor::Z)));
+    nimm4->addSensor(std::make_shared<Sensor>(SpeedSensor(1,SpeedSensor::RotationalRel, Sensor::X)));
+    robot = nimm4;
 
     if(playgr==roundcorridor){
       robot->place(Pos(11,0,0.1));

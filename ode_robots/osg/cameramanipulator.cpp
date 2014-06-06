@@ -64,6 +64,7 @@ namespace lpzrobots {
   }
 
   void CameraManipulator::setNode(osg::Node* node){
+
     // we do not support this since we give it manually to the constructor
   }
   const Node* CameraManipulator::getNode() const{
@@ -120,7 +121,6 @@ namespace lpzrobots {
   }
 
   bool CameraManipulator::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& us){
-    int key=0;
     // if control is pressed then manipulation of robot
     if(ea.getModKeyMask() & GUIEventAdapter::MODKEY_LEFT_CTRL){
       switch(ea.getEventType())
@@ -196,7 +196,8 @@ namespace lpzrobots {
             return true;
           }
 
-        case(GUIEventAdapter::KEYDOWN):
+        case(GUIEventAdapter::KEYDOWN): {
+          int key=0;
           key=ea.getKey();
           // F-keys (F1 to F12)
           if ((65470<=key)&&(key<=65481)) {
@@ -235,6 +236,8 @@ namespace lpzrobots {
           default:
             return false;
           }
+          break;
+        }
         case(GUIEventAdapter::RESIZE):
           init(ea,us);
           us.requestRedraw();
@@ -600,9 +603,14 @@ namespace lpzrobots {
 
   void CameraManipulator::manipulateAgent( OsgHandle& osgHandle){
     if (!this->isWatchingAgentDefined()) return;
-    if(camHandle.manipulationViz)
+    if(camHandle.manipulationViz){
       delete camHandle.manipulationViz;
-    camHandle.manipulationViz=0;
+      camHandle.manipulationViz=0;
+    }
+    if(camHandle.manipulationViz2){
+      delete camHandle.manipulationViz2;
+      camHandle.manipulationViz2=0;
+    }
     if(camHandle.doManipulation != camHandle.No){
       Primitive* body = camHandle.watchingAgent->getRobot()->getMainPrimitive();
       if(body && body->getBody()){
@@ -616,12 +624,15 @@ namespace lpzrobots {
         force.normalize();
         if(factor>50) factor=50;
         camHandle.manipulationViz = new OSGSphere(0.02+0.05*sqrt(camHandle.manipulationForce));
+        camHandle.manipulationViz2 = new OSGLine({p,camHandle.manipulationPoint});
 
         //camHandle.manipulationViz->init(osgHandle);
         Color c(camHandle.doManipulation==camHandle.Rotational ? 0 : 1,
                 camHandle.doManipulation==camHandle.Rotational,0);
-        camHandle.manipulationViz->init(osgHandle.changeColor(c));
+        OsgHandle h = osgHandle.changeColor(c);
+        camHandle.manipulationViz->init(h);
         camHandle.manipulationViz->setMatrix(osg::Matrix::translate(camHandle.manipulationPoint));
+        camHandle.manipulationViz2->init(h);
 
         if(camHandle.doManipulation==camHandle.Translational
            || camHandle.doManipulation==camHandle.TranslationalHorizontal){
@@ -675,4 +686,3 @@ namespace lpzrobots {
 
 
 }
-

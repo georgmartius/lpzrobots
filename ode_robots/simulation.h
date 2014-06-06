@@ -217,8 +217,6 @@ namespace lpzrobots {
     GlobalData globalData;
     osg::ref_ptr<VideoStream> videostream;
 
-    int nextLeakAnnounce;
-    int leakAnnCounter;
     long realtimeoffset;
     long simtimeoffset;
     double truerealtimefactor; // calculated true speed

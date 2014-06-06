@@ -33,10 +33,10 @@ namespace lpzrobots {
    */
   class LimitOrientationOperator : public Operator {
   public:
-    LimitOrientationOperator(const Axis& robotAxis, const Axis& globalAxis, 
+    LimitOrientationOperator(const Axis& robotAxis, const Axis& globalAxis,
                              double maxAngle, double force)
-      : Operator("LimitOrientationOperator","1.0"), 
-        robotAxis(robotAxis), globalAxis(globalAxis), 
+      : Operator("LimitOrientationOperator","1.0"),
+        robotAxis(robotAxis), globalAxis(globalAxis),
         maxAngle(maxAngle), force(force), currentforce(force) {
     }
 
@@ -56,10 +56,10 @@ namespace lpzrobots {
     bool   increaseForce;       ///< increase force (until robot has reached height)
     bool   propControl;         ///< if true then applied force is scaled with distance
 
-    bool   intervalMode;        ///< if true then the operator works only in intervals 
+    bool   intervalMode;        ///< if true then the operator works only in intervals
     double duration;            ///< duration of operation in interval-mode
     double interval;            ///< interval between restart of operation ( > duration)
-                               
+
     double height;              ///< height to which it is lifted
     double force;               ///< initial force
     double visualHeight;        ///< height above the robot main object for the visual sphere
@@ -85,14 +85,14 @@ namespace lpzrobots {
     static LiftUpOperatorConf getDefaultConf(){
       LiftUpOperatorConf c;
       c.resetForceIfLifted = true;
-      c.increaseForce      = true; 
-      c.intervalMode       = false; 
-      c.propControl        = true; 
-      c.duration           = 1; 
-      c.interval           = 10;      
-      c.height             = 1; 
-      c.force              = 1; 
-      c.visualHeight       = 0.5; 
+      c.increaseForce      = true;
+      c.intervalMode       = false;
+      c.propControl        = true;
+      c.duration           = 1;
+      c.interval           = 10;
+      c.height             = 1;
+      c.force              = 1;
+      c.visualHeight       = 0.5;
       return c;
     }
 
@@ -110,41 +110,42 @@ namespace lpzrobots {
   class PullToPointOperator : public Operator {
   public:
     /// defines which dimensions should be effected
-    enum Dimensions { X = 1, Y = 2, Z = 4, XY = X | Y, XZ = X | Z, YZ = Y | Z, 
+    enum Dimensions { X = 1, Y = 2, Z = 4, XY = X | Y, XZ = X | Z, YZ = Y | Z,
                       XYZ = X | Y | Z };
 
     /**
-       @param dim dimensions along the force acts 
+       @param dim dimensions along the force acts
         (also only these coordinates of point are considered)
        @minDist threshold for distance below which no force acts
        @damp damping factor for movement of the robot
        @confPos whether to make the point configurable
      */
     PullToPointOperator(const Pos& point, double force,
-                        bool showPoint, Dimensions dim = XYZ, 
+                        bool showPoint, Dimensions dim = XYZ,
                         double minDist = 0, double damp = 0, bool confPos = false)
-      : Operator("PullToPointOperator","1.0"), 
+
+      : Operator("PullToPointOperator","1.0"),
         point(point), force(force), showPoint(showPoint), dim(dim),
         minDist(minDist), damp(damp)
     {
       addParameter("force",    &this->force,   0, 100, "pull to point force");
       addParameter("damp",     &this->damp,   0, 1,   "pull to point damping");
       if(confPos){
-        if(dim & X) 
+        if(dim & X)
           addParameterDef("point_x", &px, point.x(), -100, 100,"pull to point x position");
-        if(dim & Y) 
+        if(dim & Y)
           addParameterDef("point_y", &py, point.y(), -100, 100,"pull to point y position");
-        if(dim & Z) 
+        if(dim & Z)
           addParameterDef("point_z", &pz, point.z(), -100, 100,"pull to point z position");
       }
     }
 
     virtual ManipType observe(OdeAgent* agent, GlobalData& global, ManipDescr& descr);
-    
+
     virtual void notifyOnChange(const paramkey& key);
 
   protected:
-    Pos point;    
+    Pos point;
     double force;
     bool showPoint;
     Dimensions dim;
@@ -164,14 +165,14 @@ namespace lpzrobots {
         @sphere spherical or box shape area
      */
 
-    BoxRingOperator(const Pos& center, double size, double offset, 
+    BoxRingOperator(const Pos& center, double size, double offset,
                     double force, bool sphere = false)
-      : Operator("BoxRingOperator","1.0"), 
+      : Operator("BoxRingOperator","1.0"),
         center(center), size(size), offset(offset), force(force), sphere(sphere)
     {
-      addParameter("force",    &this->force,   0, 1000, 
+      addParameter("force",    &this->force,   0, 1000,
                    "force of the boxring to keep robots inside");
-      addParameter("boxringsize", &this->size,   .5, 100, 
+      addParameter("boxringsize", &this->size,   .5, 100,
                    "size of boxring/spherical arena (in radius or half-length)");
     }
 
@@ -179,7 +180,7 @@ namespace lpzrobots {
 
   protected:
 
-    Pos center;    
+    Pos center;
     double size;
     double offset;
     double force;

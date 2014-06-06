@@ -1,5 +1,12 @@
-2013-04-XX martius (0.7X)
+2014-06-06 martius (0.8)
+	use of C++11 (need gcc 4.7 or higher)
+	Robot interface for ode_robots changed, see UPDATE
+	generic sensor and motors can not be used widely, (Servo motors as well)
+	Sensor and motor descriptions routed from robots to controllers
+	Generic set of config variables from console -set "{key1=val1 key2=val2 ...}"
 	Bugfixes: Following camera mode,...
+	RelatvePositionSensor fixed
+	TorqueSensors added
 	Fixation and displacement of robots integrated
 	Contacts can be drawn with -drawcontacts
 	PlotOptions allow filtering. From commandline e.g. -g 10 "{+x,+y}" or "{-C}"
@@ -156,5 +163,3 @@
 	* OpenSceneGraph integration!
 	* OsgHandle is a structure that is needed for create an OpenSceneGraph note.
 	* osg directory contains some osg wrappers for ODE objects and joints
-
-

@@ -34,13 +34,14 @@ using namespace std;
 namespace lpzrobots {
 
   Substance::Substance()
-    : callback(0)
+    : callback(0), userdata(0)
   {
     toDefaultSubstance();
   }
 
   Substance::Substance( float roughness, float slip, float hardness, float elasticity)
-    : roughness(roughness), slip(slip), hardness(hardness), elasticity(elasticity), callback(0)
+    : roughness(roughness), slip(slip), hardness(hardness), elasticity(elasticity),
+      callback(0), userdata(0)
   {
   }
 

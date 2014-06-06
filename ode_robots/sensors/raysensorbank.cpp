@@ -32,63 +32,64 @@ using namespace osg;
 
 namespace lpzrobots {
 
-  RaySensorBank::RaySensorBank()
-  {
-    initialized=false;
-  };
+  RaySensorBank::RaySensorBank() : initialized(false)
+  {  };
 
   RaySensorBank::~RaySensorBank()
   {
     clear();
 
-    if (initialized)
+    // if (initialized)
       //      this->odeHandle.deleteSpace(); this is automatically done if the parent space is deleted
 
     initialized = false;
   };
 
-  void RaySensorBank::init(const OdeHandle& odeHandle, const OsgHandle& osgHandle)
-  {
-    this->odeHandle = odeHandle;
-    this->osgHandle = osgHandle;
-
+  void RaySensorBank::setInitData(const OdeHandle& odeHandle,
+                                  const OsgHandle& osgHandle,
+                                  const osg::Matrix& pose) {
+    PhysicalSensor::setInitData(odeHandle, osgHandle, pose);
     this->odeHandle.createNewSimpleSpace(odeHandle.space, true);
+  }
+
+
+  void RaySensorBank::init(Primitive* own, Joint* joint ) {
     initialized=true;
   };
 
   unsigned int RaySensorBank::registerSensor(RaySensor* raysensor, Primitive* body,
                                              const osg::Matrix& pose, float range,
                                              RaySensor::rayDrawMode drawMode){
-    raysensor->init(odeHandle, osgHandle, body, pose, range, drawMode);
+    assert(isInitDataSet);
+    raysensor->setDrawMode(drawMode);
+    raysensor->setRange(range);
+    raysensor->setInitData(odeHandle, osgHandle, pose);
+    raysensor->init(body);
     bank.push_back(raysensor);
     return bank.size();
   };
 
-  void RaySensorBank::reset(){
-    for (unsigned int i=0; i<bank.size(); i++)
-    {
-      bank[i]->reset();
+  bool RaySensorBank::sense(const GlobalData& global){
+    for (unsigned int i=0; i<bank.size(); i++) {
+        bank[i]->sense(global);
     }
-
-
-
+    return true;
   };
 
-  double RaySensorBank::get(unsigned int index){
-    assert(index<bank.size());
-    return bank[index]->get();
-  };
-
-  int RaySensorBank::get(double* sensorarray, unsigned int array_size){
+  int RaySensorBank::get(double* sensorarray, int array_size) const {
     int counter=0;
-    for(unsigned int i=0; (i<array_size) && (i<bank.size()); i++){
-      sensorarray[i]=bank[i]->get();
+    for(int i=0; (i<array_size) && (i<(int)bank.size()); i++){
+      bank[i]->get(&sensorarray[i], 1);
       counter++;
     }
     return counter;
   };
 
-  int RaySensorBank::getSensorNumber(){
+  std::list<sensor> RaySensorBank::getList() const {
+    return getListOfArray();
+  }
+
+  int RaySensorBank::getSensorNumber() const {
     return bank.size();
   }
 

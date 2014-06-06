@@ -49,7 +49,7 @@ class ThisSim : public Simulation {
 public:
   double value;
   double value2;
-  std::list<SpeedSensor*> ss;
+  std::list<Sensor*> ss;
   std::list<Primitive*> primitives;
 
   // starting function (executed once at the beginning of the simulation loop)
@@ -71,37 +71,69 @@ public:
       primitives.push_back(b1);
       primitives.push_back(b2);
       primitives.push_back(b3);
-      SpeedSensor* s;
+      Sensor* s;
       s = new SpeedSensor(1.0, SpeedSensor::Translational);    s->init(b1); ss += s;
       s = new SpeedSensor(1.0, SpeedSensor::TranslationalRel); s->init(b1); ss += s;
       s = new SpeedSensor(1.0, SpeedSensor::Translational);    s->init(b2); ss += s;
       s = new SpeedSensor(1.0, SpeedSensor::TranslationalRel); s->init(b2); ss += s;
       s = new SpeedSensor(1.0, SpeedSensor::Translational);    s->init(b3); ss += s;
       s = new SpeedSensor(1.0, SpeedSensor::TranslationalRel); s->init(b3); ss += s;
+
+      s = new RelativePositionSensor(1.0, 1.0, Sensor::XYZ, false); s->init(b3); ss += s;
+      s = new RelativePositionSensor(1.0, 1.0, Sensor::X, false); s->init(b3); ss += s;
+      s = new RelativePositionSensor(1.0, 1.0, Sensor::Y, false); s->init(b3); ss += s;
+      s = new RelativePositionSensor(1.0, 1.0, Sensor::Z, false); s->init(b3); ss += s;
+      s = new RelativePositionSensor(2.0, 1.0, Sensor::Z, false); s->init(b3); ss += s;
+      s = new RelativePositionSensor(2.0, 2.0, Sensor::Z, false); s->init(b3); ss += s;
+      s = new RelativePositionSensor(1.0, 1.0, Sensor::XYZ, true); s->init(b3); ss += s;
     }
 
+  }
+
+  bool compare_lists(std::list<double> a, std::list<double> b, double eps){
+    FOREACH2(a,b, i,j){
+      if(fabs(*i-*j)>eps) {
+        printf("expected %f, got %f\n", *i, *j);
+        return false;
+      }
+    }
+    return true;
   }
 
   virtual void addCallback(GlobalData& globalData, bool draw, bool pause, bool control) {
     FOREACH(std::list<Primitive*>, primitives,p){
       (*p)->update();
     }
-    FOREACH(std::list<SpeedSensor*>, ss,s){
+    FOREACH(std::list<Sensor*>, ss,s){
       (*s)->sense(globalData);
     }
     if(globalData.sim_step==20){
       int i=0;
-      if(control){
-        FOREACH(std::list<SpeedSensor*>, ss,s){
-          std::list<sensor> vals = (*s)->get();
-          printf("Sensor %i: ", i);
-          FOREACHC(std::list<sensor>, vals,v){
-            printf("\t%f",*v);
-          }
-          printf("\n");
-          i++;
+      bool succ=true;
+      // rough targets
+      double m=1.86;
+      double p=1.813;
+      std::list<double> zneg = {0, 0, -m};
+      std::list<double> x    = {m, 0, 0};
+      std::list<double> yz   = {0, -m/sqrt(2), -m/sqrt(2)};
+      std::list<double> posx = {-2, 0, -1.81};
+
+      std::vector<std::list<double> > targets = {zneg, zneg, zneg, x, zneg, yz,
+                                                 {-2,0,-p}, {-2}, {0}, {-p},{-p/2}, {-p/2*p/2},
+                                                 {-2,-p/sqrt(2),-p/sqrt(2)}};
+      FOREACH(std::list<Sensor*>, ss,s){
+        std::list<sensor> vals = (*s)->getList();
+        printf("Sensor %i: ", i);
+        FOREACHC(std::list<sensor>, vals,v){
+          printf("\t%f",*v);
         }
+        succ &= compare_lists(targets[i],vals,0.01);
+        printf("\n");
+        i++;
       }
+      if(!succ) printf("Unsuccessful!\n");
+
+
     }
     if(globalData.sim_step>40){
       simulation_time_reached=true;

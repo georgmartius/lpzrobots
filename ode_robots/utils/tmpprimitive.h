@@ -127,8 +127,6 @@ namespace lpzrobots {
     bool initialized;
   };
 
-
-
 }
 
 #endif

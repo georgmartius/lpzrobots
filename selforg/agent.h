@@ -83,6 +83,7 @@ public:
   /** Sends only last motor commands again to robot.  */
   virtual void onlyControlRobot();
 
+
   /** Returns a pointer to the robot.
    */
   virtual AbstractRobot* getRobot() { return robot;}

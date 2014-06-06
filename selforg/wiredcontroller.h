@@ -76,7 +76,10 @@ public:
        if not given (0) rand() is used to create one
   */
   virtual bool init(AbstractController* controller, AbstractWiring* wiring,
-                    int robotsensornumber, int robotmotornumber, RandGen* randGen=0);
+                    int robotsensornumber, int robotmotornumber,
+                    const std::list<SensorMotorInfo>& robotSensorInfos,
+                    const std::list<SensorMotorInfo>& robotMotorInfos,
+                    RandGen* randGen=0);
 
   /** Performs an step of the controller, which includes
       pushing sensor values through the wiring,
@@ -137,7 +140,6 @@ public:
   /** Returns a pointer to the wiring.
    */
   virtual AbstractWiring* getWiring() { return wiring;}
-
 
 protected:
   /**

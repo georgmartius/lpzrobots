@@ -45,6 +45,7 @@ namespace osg
 namespace lpzrobots
 {
 
+
   /**
    * Class which holds all data used by CameraManipulators.
    * The avoidance of static variables enables multithreaded (tasked)
@@ -70,6 +71,7 @@ namespace lpzrobots
     ManipulationType doManipulation;
     osg::Vec3 manipulationPoint;
     OSGPrimitive* manipulationViz;
+    OSGPrimitive* manipulationViz2;
     double manipulationForce;
 
     osg::Camera* cam;

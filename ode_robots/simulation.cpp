@@ -118,9 +118,6 @@ namespace lpzrobots {
 
     addParameterDef("DefaultFPS",&defaultFPS,25);
 
-    //     nextLeakAnnounce = 20;
-    //     leakAnnCounter = 1;
-
     truerealtimefactor = 1;
     state    = none;
     pause    = false;
@@ -132,6 +129,16 @@ namespace lpzrobots {
     arguments= 0;
     startConfigurator = false;
     drawContacts = false;
+
+    realtimeoffset = 0;
+    simtimeoffset  = 0;
+    justresettimes = false;
+    guiloggerinterval = 1;   // overwritten in cmdline
+    filelogginginterval = 1; // overwritten in cmdline
+    matrixvizinterval   = 1; // overwritten in cmdline
+    memset(odeRobotsCfg,0,sizeof(odeRobotsCfg));
+    keyswitchManipulator = 0;
+    orig_argv = 0;
 
     // we have to count references by our selfes
     osg::Referenced::ref();
@@ -388,7 +395,7 @@ namespace lpzrobots {
       keyswitchManipulator->addMatrixManipulator( '2', "Follow", cm[1]);
       keyswitchManipulator->addMatrixManipulator( '3', "TV",     cm[2]);
       //    keyswitchManipulator->addMatrixManipulator( '4', "Race",   cm[3]);
-      for(int i=0; i< 3; i++){
+      for(int i=0; i< 3; ++i){
         globalData.agents.addCallbackable(cm[i], OdeAgentList::BACKCALLER_VECTOR_MODIFIED);
       }
 
@@ -433,7 +440,7 @@ namespace lpzrobots {
 
     // add command line to agents log files
     string commandline;
-    for(int i=0; i< argc; i++){
+    for(int i=0; i< argc; ++i){
       commandline = commandline + argv[i] + " ";
     }
     for(auto &a : globalData.agents){
@@ -550,7 +557,7 @@ namespace lpzrobots {
 
 //         SEQUENCIAL VERSION
 //         // for all agents: robots internal stuff and control step if at controlInterval
-//         for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+//         for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); ++i) {
 //           if ( (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0 ) {
 //             (*i)->step(globalData.odeConfig.noise, globalData.time);
 //             (*i)->getRobot()->doInternalStuff(globalData);
@@ -633,6 +640,9 @@ namespace lpzrobots {
         }
         addCallback(globalData, t==(globalData.odeConfig.drawInterval-1), pause,
                     (globalData.sim_step % globalData.odeConfig.controlInterval ) == 0);
+        // initialize those objects that are not yet initialized
+        globalData.initializeTmpObjects(odeHandle, osgHandle);
+
         QP(PROFILER.endBlock("internalstuff_and_addcallback"));
 
         // manipulate agents (with mouse)
@@ -758,8 +768,6 @@ namespace lpzrobots {
       (*i)->getRobot()->update();
     }
 
-    // initialize those objects that are not yet initialized
-    globalData.initializeTmpObjects(odeHandle, osgHandle);
     // draw/update temporary objects and sound blobs
     globalData.updateTmpObjects(osgHandle);
   }
@@ -782,7 +790,7 @@ namespace lpzrobots {
         }
         break;
       case 6 : // Ctrl - f
-        for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+        for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); ++i) {
           if(!(*i)->removePlotOption(File)) {
             PlotOption po(File, filelogginginterval);
             (*i)->addAndInitPlotOption(po);
@@ -791,7 +799,7 @@ namespace lpzrobots {
         handled= true;
         break;
       case 7 : // Ctrl - g
-        for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+        for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); ++i) {
           if(!(*i)->removePlotOption(GuiLogger)) {
             PlotOption po(GuiLogger, guiloggerinterval,
                           "-geometry +" + std::itos(windowWidth+12) + "+0");
@@ -801,7 +809,7 @@ namespace lpzrobots {
         handled=true;
         break;
       case 13 : // Ctrl - m
-        for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); i++) {
+        for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); ++i) {
           if(!(*i)->removePlotOption(MatrixViz)) {
             PlotOption po(MatrixViz, matrixvizinterval);
             (*i)->addAndInitPlotOption(po);
@@ -813,7 +821,7 @@ namespace lpzrobots {
         {
           OdeAgent* agent = getWatchedAgent();
           if(agent && agent->getRobot()){
-            agent->getRobot()->moveToPosition(Pos(0,0,.5),-2); // move lowest body part to center
+            agent->getRobot()->moveToPose(agent->getRobot()->getInitialPose());
           }
         }
         handled=true;
@@ -1010,13 +1018,13 @@ namespace lpzrobots {
     //        viewer->getEventHandlerList().clear();
 
     // clear obstacles list
-    for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); i++) {
+    for(ObstacleList::iterator i=global.obstacles.begin(); i != global.obstacles.end(); ++i) {
       delete (*i);
     }
     global.obstacles.clear();
 
     // clear agents list
-    for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); i++) {
+    for(OdeAgentList::iterator i=global.agents.begin(); i != global.agents.end(); ++i) {
       delete (*i);
     }
     if(global.environment) {
@@ -1168,7 +1176,7 @@ namespace lpzrobots {
 
     int resolindex = contains(argv, argc, "-x");
     if(resolindex && argc > resolindex) {
-      sscanf(argv[resolindex],"%ix%i", &windowWidth,&windowHeight);
+      sscanf(argv[resolindex],"%5ix%5i", &windowWidth,&windowHeight);
     }
     windowWidth = windowWidth < 64 ? 64 : (windowWidth > 3200 ? 3200 : windowWidth);
     windowHeight = windowHeight < 64 ? 64 : (windowHeight > 2400 ? 2400 : windowHeight);
@@ -1268,14 +1276,14 @@ namespace lpzrobots {
 
   // This function is called, if there was a possible Collision detected (in a space used at call of dSpaceCollide (0))
   void Simulation::nearCallback_TopLevel(void *data, dGeomID o1, dGeomID o2) {
-    Simulation* me = (Simulation*) data;
+    Simulation* me = static_cast<Simulation*>(data);
     if (!me)
       return;
 
     bool collision_treated=false;
     // call robots collision treatments (old stuff, should be removed at some point)
     for(OdeAgentList::iterator i= me->globalData.agents.begin();
-        (i != me->globalData.agents.end()) && !collision_treated; i++) {
+        (i != me->globalData.agents.end()) && !collision_treated; ++i) {
       collision_treated=(*i)->getRobot()->collisionCallback(data, o1, o2);
     }
 
@@ -1287,7 +1295,7 @@ namespace lpzrobots {
 
 
   void Simulation::nearCallback (void *data, dGeomID o1, dGeomID o2) {
-    Simulation* me = (Simulation*) data;
+    Simulation* me = static_cast<Simulation*>(data);
     if (!me)
       return;
     if (dGeomIsSpace (o1) || dGeomIsSpace (o2)) {
@@ -1315,10 +1323,10 @@ namespace lpzrobots {
         return;
       }
 
-      int i,n;
+
       const int N = 80;
       dContact contact[N];
-      n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
+      int n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));
       if(n>0) {
         const Substance& s1 = p1->substance;
         const Substance& s2 = p2->substance;
@@ -1337,14 +1345,14 @@ namespace lpzrobots {
         }
         if(callbackrv==0)
           return;
-        for (i=0; i < n; i++) {
+        for (int i=0; i < n; ++i) {
           contact[i].surface = surfParams;
           dJointID c = dJointCreateContact (me->odeHandle.world,
                                             me->odeHandle.jointGroup,&contact[i]);
           dJointAttach ( c , dGeomGetBody(contact[i].geom.g1) , dGeomGetBody(contact[i].geom.g2));
         }
         if(me->drawContacts){
-          for (i=0; i < n; i++) {
+          for (int i=0; i < n; ++i) {
             me->globalData.addTmpObject(new TmpDisplayItem(new OSGBox(0.02,0.02,0.02),
                                                            TRANSM(Pos(contact[i].geom.pos)),
                                                            Color(1.0,0,0)),
@@ -1514,7 +1522,7 @@ namespace lpzrobots {
 
   void createNewDir(const char* base, char *newdir) {
     struct stat s;
-    for(int i=0; i<1000; i++) {
+    for(int i=0; i<1000; ++i) {
       if(i==0)
         sprintf(newdir,"%s", base);
       else
@@ -1556,7 +1564,7 @@ namespace lpzrobots {
 
   /// redirection function, because we can't call member function direct
   static void* odeStep_run(void* p) {
-    Simulation* sim = dynamic_cast<Simulation*>((Simulation*)p);
+    Simulation* sim = dynamic_cast<Simulation*>(static_cast<Simulation*>(p));
     if(sim)
       sim->odeStep();
     else{
@@ -1567,7 +1575,7 @@ namespace lpzrobots {
 
   /// redirection function, because we can't call member function direct
   static void* osgStep_run(void* p) {
-    Simulation* sim = dynamic_cast<Simulation*>((Simulation*)p);
+    Simulation* sim = dynamic_cast<Simulation*>(static_cast<Simulation*>(p));
     if(sim)
       sim->osgStep();
     else{
@@ -1585,5 +1593,3 @@ namespace lpzrobots {
 
 
 }
-
-

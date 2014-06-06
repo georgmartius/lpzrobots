@@ -44,7 +44,7 @@ namespace lpzrobots {
    *@param motors pointer to the array, motor values are scaled to [-1,1]
    *@param motornumber length of the motor array
    **/
-  void SchlangeVelocity::setMotors ( const motor* motors, int motornumber )
+  void SchlangeVelocity::setMotorsIntern( const double* motors, int motornumber )
   {
     assert(created);
     // there will always be an even number of motors
@@ -68,7 +68,7 @@ namespace lpzrobots {
    *@param sensornumber length of the sensor array
    *@return number of actually written sensors
    **/
-  int SchlangeVelocity::getSensors ( sensor* sensors, int sensornumber )
+  int SchlangeVelocity::getSensorsIntern( sensor* sensors, int sensornumber )
   {
     assert(created);
     // there will always be an even number of senors

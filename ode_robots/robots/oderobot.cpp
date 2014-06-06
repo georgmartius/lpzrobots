@@ -26,6 +26,7 @@
 #include "joint.h"
 #include "primitive.h"
 #include "mathutils.h"
+#include "torquesensor.h"
 
 using namespace std;
 
@@ -37,7 +38,11 @@ namespace lpzrobots {
    */
   OdeRobot::OdeRobot(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
                      const std::string& name,const std::string& revision)
-    : AbstractRobot(name, revision), odeHandle(odeHandle), osgHandle(osgHandle) {
+    : AbstractRobot(name, revision),
+      initialPose(osg::Matrix::identity()),
+      initialRelativePose(osg::Matrix::identity()),
+      odeHandle(odeHandle), osgHandle(osgHandle),
+      initialized(false), askedfornumber(false) {
     parentspace = odeHandle.space;
     fixationTmpJoint = 0;
   };
@@ -46,7 +51,141 @@ namespace lpzrobots {
     cleanup();
   }
 
+  void OdeRobot::placeIntern(const osg::Matrix& pose){
+    assert("should never be called"); // just to satisfy linker (really weird linker error)
+  };
+
+
+  int  OdeRobot::getSensors(sensor* sensors_, int sensornumber) {
+    assert(initialized);
+    int len = 0;
+    len += getSensorsIntern(sensors_,sensornumber);
+    for(auto& i: sensors){
+      len += i.first->get(sensors_ + len, sensornumber - len);
+    }
+    return len;
+  }
+
+  void OdeRobot::setMotors(const double* motors_, int motornumber) {
+    assert(initialized);
+    int len = 0;
+    len = getMotorNumberIntern();
+    setMotorsIntern(motors_, len);
+    for(auto& i: motors){
+      len += i.first->set(motors_ + len, motornumber - len);
+    }
+  }
+
+  int  OdeRobot::getSensorNumber() {
+    assert(initialized);
+    int s=0;
+    for ( auto &i: sensors){
+      s += i.first->getSensorNumber();
+    }
+    askedfornumber=true;
+    return getSensorNumberIntern()  + s;
+  }
+
+  int  OdeRobot::getMotorNumber() {
+    assert(initialized);
+    int s=0;
+    for(auto& i: motors){
+      s += i.first->getMotorNumber();
+    }
+    askedfornumber=true;
+    return getMotorNumberIntern() + s;
+  }
+
+  list<SensorMotorInfo> OdeRobot::getSensorInfos(){
+    list<SensorMotorInfo> l;
+    int num = getSensorNumberIntern();
+    for(int k=0; k<num; k++){ l += SensorMotorInfo(); }
+    for ( auto &i: sensors){
+      l += i.first->getSensorInfos();
+    }
+    return l;
+  }
+
+  list<SensorMotorInfo> OdeRobot::getMotorInfos(){
+    list<SensorMotorInfo> l;
+    int num = getMotorNumberIntern();
+    for(int k=0; k<num; k++){ l += SensorMotorInfo(); }
+    for ( auto &i: motors){
+      l += i.first->getMotorInfos();
+    }
+    return l;
+  }
+
+
+  void OdeRobot::attachSensor(SensorAttachment& sa){
+    Primitive* p;
+    if(sa.second.primitiveIndex<0){
+      p = getMainPrimitive();
+    } else {
+      assert((int)getAllPrimitives().size() > sa.second.primitiveIndex);
+      p = getAllPrimitives()[sa.second.primitiveIndex];
+    }
+    Joint* j=0;
+    if(sa.second.jointIndex>=0){
+      assert((int)getAllJoints().size() > sa.second.jointIndex);
+      j = getAllJoints()[sa.second.jointIndex];
+    }
+    sa.first->init(p, j);
+  }
+
+  void OdeRobot::attachMotor(MotorAttachment& ma){
+    Primitive* p;
+    if(ma.second.primitiveIndex<0){
+      p = getMainPrimitive();
+    } else {
+      assert((int)getAllPrimitives().size() > ma.second.primitiveIndex);
+      p = getAllPrimitives()[ma.second.primitiveIndex];
+    }
+    Joint* j=0;
+    if(ma.second.jointIndex>=0){
+      assert((int)getAllJoints().size() > ma.second.jointIndex);
+      j = getAllJoints()[ma.second.jointIndex];
+    }
+    ma.first->init(p, j);
+  }
+
+  void OdeRobot::addSensor(std::shared_ptr<Sensor> sensor, Attachment attachment){
+    assert(!askedfornumber);
+    assert(sensor);
+    SensorAttachment sa(std::shared_ptr<Sensor>(sensor),attachment);
+    if(initialized){
+      attachSensor(sa);
+    }
+    sensors.push_back(sa);
+  }
+
+  void OdeRobot::addMotor(std::shared_ptr<Motor> motor, Attachment attachment){
+    assert(!askedfornumber);
+    assert(motor);
+    MotorAttachment ma(std::shared_ptr<Motor>(motor),attachment);
+    if(initialized){
+      attachMotor(ma);
+    }
+    motors.push_back(ma);
+  }
+
+  void OdeRobot::addTorqueSensors(double maxtorque, int avg ){
+    if(!initialized){
+      cerr << "call addTorqueSensors() after place()!";
+      assert(initialized);
+    }
+    int numJoints = getAllJoints().size();
+    for(int j=0; j<numJoints; j++){
+      addSensor(std::make_shared<TorqueSensor>(maxtorque, avg), Attachment(-1,j));
+    }
+  }
+
+
+
+
   void OdeRobot::cleanup(){
+    sensors.clear();
+    motors.clear(); // this also deletes the pointers
     FOREACH(std::vector<Joint*>, joints, j){
       if(*j) delete *j;
     }
@@ -68,8 +207,48 @@ namespace lpzrobots {
   /** sets the vehicle to position pos
       @param pos desired position of the robot
   */
-  void OdeRobot::place(const Pos& pos){
+  void OdeRobot::place(const Pos& pos) {
     place(osg::Matrix::translate(pos));
+  }
+
+  void OdeRobot::place(const osg::Matrix& pose) {
+    placeIntern(pose);
+    for( auto &i: sensors){
+      attachSensor(i);
+    }
+    for( auto &i: motors){
+      attachMotor(i);
+    }
+    assert(getMainPrimitive());
+    initialPose=getMainPrimitive()->getPose();
+    Pose inv;
+    inv.invert(pose);
+    initialRelativePose=getMainPrimitive()->getPose() * inv;
+    initialized=true;
+  }
+
+  void OdeRobot::sense(GlobalData& globalData){
+    for(auto& i: sensors){
+      i.first->sense(globalData);
+    }
+  }
+
+  void OdeRobot::doInternalStuff(GlobalData& globalData){
+    for(auto &i: motors){
+      i.first->act(globalData);
+    }
+  }
+
+  void OdeRobot::update(){
+    for(auto& i : objects){
+      if(i) i->update();
+    }
+    for(auto& i : joints){
+      if(i) i->update();
+    }
+    for(auto& i: sensors){
+      i.first->update();
+    }
   }
 
 
@@ -81,8 +260,8 @@ namespace lpzrobots {
   }
 
   bool OdeRobot::isGeomInPrimitiveList(std::list<Primitive*> ps, dGeomID geom){
-    for(list<Primitive*>::iterator i=ps.begin(); i != ps.end(); i++){
-      if(geom == (*i)->getGeom()) return true;
+    for( auto& i : ps){
+      if(geom == i->getGeom()) return true;
     }
     return false;
   }
@@ -111,23 +290,51 @@ namespace lpzrobots {
     FOREACHC(vector<Primitive*>, ps, p){
       Pos local = (*p)->getPosition() - robpos; // relative local position of that primitive
       (*p)->setPosition(pos+local);
+      dBodySetLinearVel((*p)->getBody(), 0, 0, 0);
+      dBodySetAngularVel((*p)->getBody(),0, 0, 0);
     }
   }
 
+  void OdeRobot::moveToPose(Pose pose, int primitiveID){
+    const vector<Primitive*>& ps = this->getAllPrimitives();
+    Primitive* ref;
+    Pose robpose; // reference pose of primitive
+    if(primitiveID==-1){
+      if(!getMainPrimitive()) return;
+      ref = getMainPrimitive();
+    }else if(primitiveID>=0 && primitiveID < (signed)ps.size()){
+        if(!ps[primitiveID]) return;
+        ref = ps[primitiveID];
+    }else {
+      fprintf(stderr,"primitive index out of bounds %i (of %lui)", primitiveID, ps.size());
+      return;
+    }
+    // move robot
+    // calc transformation on robot
+    Pose refInvertPose;
+    refInvertPose.invert(ref->getPose());
+    Pose transformation = refInvertPose*pose;
+    FOREACHC(vector<Primitive*>, ps, p){
+      (*p)->setPose((*p)->getPose()*transformation);
+      dBodySetLinearVel((*p)->getBody(), 0, 0, 0);
+      dBodySetAngularVel((*p)->getBody(),0, 0, 0);
+    }
+  }
+
+
   void OdeRobot::fixate(GlobalData& global, int primitiveID, double duration){
-    Primitive* p; // primitive to fix
+    Primitive* p=0; // primitive to fix
     if(primitiveID==-1){
       p = getMainPrimitive();
     }else{
       const vector<Primitive*>& ps = this->getAllPrimitives();
       if(primitiveID>=0 && primitiveID < (signed)ps.size()){
-        if(!ps[primitiveID]) return;
         p = ps[primitiveID];
-      }else return;
+      }
     }
     if(p){
       unFixate(global); // unfixate in case we are already fixated
-      fixationTmpJoint = new TmpJoint(new FixedJoint(p, global.environment), "robot1");
+      fixationTmpJoint = new TmpJoint(new FixedJoint(p, global.environment), "joint");
       if(duration<=0) duration=1e12; // some large number will do
       global.addTmpObject(fixationTmpJoint, duration);
     }

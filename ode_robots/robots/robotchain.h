@@ -90,15 +90,15 @@ namespace lpzrobots {
     /** sets the pose of the vehicle
         @param pose desired pose matrix
     */
-    virtual void place(const osg::Matrix& pose);
+    virtual void placeIntern(const osg::Matrix& pose);
 
-    virtual int getSensors(sensor* sensors, int sensornumber);
+    virtual int getSensorsIntern(sensor* sensors, int sensornumber);
 
-    virtual void setMotors(const motor* motors, int motornumber);
+    virtual void setMotorsIntern(const double* motors, int motornumber);
 
-    virtual int getSensorNumber();
+    virtual int getSensorNumberIntern();
 
-    virtual int getMotorNumber();
+    virtual int getMotorNumberIntern();
 
     virtual void doInternalStuff(GlobalData& globalData);
 

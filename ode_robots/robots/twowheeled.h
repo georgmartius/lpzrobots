@@ -87,9 +87,9 @@ namespace lpzrobots {
 
     virtual void update();
 
-    virtual int getSensorNumber();
+    virtual int getSensorNumberIntern();
 
-    virtual int getSensors(sensor* sensors, int sensornumber);
+    virtual int getSensorsIntern(double* sensors, int sensornumber);
 
     virtual void sense(GlobalData& globalData);
 

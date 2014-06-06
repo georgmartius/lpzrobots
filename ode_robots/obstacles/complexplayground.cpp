@@ -38,12 +38,12 @@ namespace lpzrobots {
     int pen_color, fill_color;
     list<char*>::iterator l = lines.begin();
     if(lines.size()<2) return 1;
-    int r = sscanf(*l,"%i %i %i %i %i %i %i", &object_code, &sub_type,&line_style, &thickness,
+    int r = sscanf(*l,"%2i %2i %2i %4i %6i %6i %6i", &object_code, &sub_type,&line_style, &thickness,
                    &pen_color, &fill_color, &depth);
-    int i=0;
-    int dat[2];
     if(r==7 && object_code==2){
-      l++;
+      ++l;
+      int i=0;
+      int dat[2];
       int linecnt=1;
       while(l!=lines.end()){
         char* line = *l;
@@ -62,7 +62,7 @@ namespace lpzrobots {
             }
           };
         }else break;
-        l++;
+        ++l;
         linecnt++;
       }
       return linecnt;
@@ -82,7 +82,7 @@ namespace lpzrobots {
 
   ComplexPlayground::ComplexPlayground(const OdeHandle& odeHandle,
                                        const OsgHandle& osgHandle ,
-                                       const std::string filename,
+                                       const std::string& filename,
                                        double factor, double heightfactor, bool createGround)
     : AbstractGround(odeHandle, osgHandle, createGround, 1,1,0.1),
       filename(filename), factor(factor), heightfactor(heightfactor) {
@@ -98,7 +98,7 @@ namespace lpzrobots {
       lines.push_back(buffer);
       buffer = (char*)malloc(sizeof(char)*4096);
     }
-    while(lines.size()>0){
+    while(!lines.empty()){
       PolyLine p;
       int consumed = p.parse(lines);
       if(consumed>1){
@@ -112,6 +112,7 @@ namespace lpzrobots {
 //     FOREACH(list<PolyLine>, polylines, p){
 //       p->print();
 //     }
+    fclose(f);
   };
 
 

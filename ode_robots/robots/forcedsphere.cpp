@@ -67,7 +67,7 @@ namespace lpzrobots {
     if(object[0]) object[0]->update();
   }
 
-  int ForcedSphere::getSensors ( sensor* sensors, int sensornumber )
+  int ForcedSphere::getSensorsIntern( sensor* sensors, int sensornumber )
   {
     assert(created);
     int len=0;
@@ -77,7 +77,7 @@ namespace lpzrobots {
     return len;
   }
 
-  void ForcedSphere::setMotors ( const motor* motors, int motornumber ) {
+  void ForcedSphere::setMotorsIntern( const double* motors, int motornumber ) {
     assert(created);
     if (motornumber==getMotorNumber()){
       int i=0;
@@ -104,7 +104,7 @@ namespace lpzrobots {
   }
 
 
-  void ForcedSphere::place(const osg::Matrix& pose){
+  void ForcedSphere::placeIntern(const osg::Matrix& pose){
     osg::Matrix p2;
     p2 = pose * osg::Matrix::translate(osg::Vec3(0, 0, conf.radius));
     create(p2);
@@ -112,6 +112,7 @@ namespace lpzrobots {
 
 
   void ForcedSphere::doInternalStuff(GlobalData& global){
+    OdeRobot::doInternalStuff(global);
     FOREACH(list<Motor*>, conf.motors, i){
       (*i)->act(global);
     }
@@ -132,7 +133,7 @@ namespace lpzrobots {
 
   }
 
-  int ForcedSphere::getMotorNumber(){
+  int ForcedSphere::getMotorNumberIntern(){
     int s = 0;
     FOREACHC(list<Motor*>, conf.motors, i){
       s += (*i)->getMotorNumber();
@@ -141,7 +142,7 @@ namespace lpzrobots {
       ((conf.drivenDimensions & Z) >> 2);
   }
 
-  int ForcedSphere::getSensorNumber() {
+  int ForcedSphere::getSensorNumberIntern() {
     int s = 0;
     FOREACHC(list<Sensor*>, conf.sensors, i){
       s += (*i)->getSensorNumber();

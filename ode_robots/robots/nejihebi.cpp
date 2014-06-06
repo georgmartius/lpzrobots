@@ -343,15 +343,15 @@ namespace lpzrobots {
     return head;
   }
 
-  int Nejihebi::getMotorNumber() {
+  int Nejihebi::getMotorNumberIntern() {
     return 5*conf.numberOfScrews-4;
   }
 
-  int Nejihebi::getSensorNumber() {
+  int Nejihebi::getSensorNumberIntern() {
     return 5*conf.numberOfScrews-4;
   }
 
-  int Nejihebi::getSensors(sensor* sensors, int sensornumber) {
+  int Nejihebi::getSensorsIntern(sensor* sensors, int sensornumber) {
     assert(sensornumber == 5*conf.numberOfScrews-4);
     const unsigned int noScrews = screws.size();
     const unsigned int noServos = servos.size();
@@ -377,11 +377,11 @@ namespace lpzrobots {
     addInspectableDescription("y["+std::itos(motorNo)+"]", "motor: "+name);
   }
 
-  void Nejihebi::place(const osg::Matrix& pose) {
+  void Nejihebi::placeIntern(const osg::Matrix& pose) {
     create(pose);
   }
 
-  void Nejihebi::setMotors(const motor* motors, int motornumber) {
+  void Nejihebi::setMotorsIntern(const double* motors, int motornumber) {
     assert(motornumber == 5*conf.numberOfScrews-4);
     // for each motor the motorcommand (between -1 and 1) multiplied with max
     // speed is set and the maximal force to realize this command are set
@@ -409,10 +409,6 @@ namespace lpzrobots {
     }
   }
 
-  void Nejihebi::update() {
-    for (unsigned int i=0; i<objects.size(); i++) objects[i]->update();
-    for (unsigned int i=0; i<joints.size(); i++) joints[i]->update();
-  }
 }
 
 

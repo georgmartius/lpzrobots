@@ -24,12 +24,15 @@
 #ifndef           MOTOR_H_
 #define           MOTOR_H_
 
+#include "globaldata.h"
+#include "sensormotorinfoable.h"
+
 namespace lpzrobots {
 
   /**
       Abstact base class for attachable motors
   */
-  class Motor{
+  class Motor : public virtual SensorMotorInfoAble {
   public:
     Motor() {
     }
@@ -41,6 +44,11 @@ namespace lpzrobots {
 
     /// return the dimensionality of this motor
     virtual int getMotorNumber() const =0;
+
+    /** returns a list of motor names  (@see SensorMotorNaming how to change the names) */
+    virtual std::list<SensorMotorInfo> getMotorInfos() const {
+      return getInfos(getMotorNumber());
+    };
 
     /** performs the actions, This is usually called in
         doInternalStuff() from the robot */

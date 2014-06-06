@@ -95,13 +95,8 @@ namespace lpzrobots {
   }
 
 
-  std::list<sensor> TorqueSensor::get() const {
-    int num = getSensorNumber();
-    std::list<sensor> l;
-    for(int i=0; i<num; i++){
-      l.push_back(values[i]);
-    }
-    return l;
+  std::list<sensor> TorqueSensor::getList() const {
+    return getListOfArray();
   }
 
 }

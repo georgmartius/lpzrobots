@@ -127,6 +127,12 @@ depend:
 .PHONY: check-syntax
 check-syntax:
 	$(CXX) $(CPPFLAGS) -Wextra -S -fsyntax-only $(CHK_SOURCES)
+	cppcheck --std=c++11 --std=posix --enable=performance,information,portability --suppress=incorrectStringBooleanError --suppress=invalidscanf --quiet --template={file}:{line}:{severity}:{message} $(CHK_SOURCES)
+
+
+.PHONY: cppcheck
+cppcheck:
+	cppcheck --std=c++11 --std=posix --enable=performance,information,portability --suppress=incorrectStringBooleanError --suppress=invalidscanf  --quiet --template={file}:{line}:{severity}:{message} $(HFILES) $(CPPFILES)
 
 # Workaroud for bug in etags: filenames should not have leading ./
 CPPFILESNoDot := $(subst ./,,$(CPPFILES))

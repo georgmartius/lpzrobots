@@ -88,7 +88,7 @@ public:
     // - create pointer to spherical robot (with odeHandle, osgHandle and configuration)
     // - place robot (unfortunatelly there is a type cast necessary, which is not quite understandable)
     Sphererobot3MassesConf conf = Sphererobot3Masses::getDefaultConf();
-    conf.addSensor(new AxisOrientationSensor(AxisOrientationSensor::ZProjection));
+    conf.addSensor(std::make_shared<Sensor>(AxisOrientationSensor(AxisOrientationSensor::ZProjection)));
     conf.diameter=1.0;
     conf.pendularrange= 0.35;
     robot = new Sphererobot3Masses ( odeHandle, osgHandle.changeColor(Color(1.0,0.0,0)),

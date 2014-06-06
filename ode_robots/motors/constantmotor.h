@@ -21,62 +21,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
+#ifndef           CONSTANTMOTOR_H_
+#define           CONSTANTMOTOR_H_
 
-#include "camerasensor.h"
+#include <memory>
+
+#include "motor.h"
+
 
 namespace lpzrobots {
 
+  /**
+      Wrapper for Motor to have a constant set value (resulting in getMotorNumber()=0)
+  */
+  class ConstantMotor : public Motor {
+  public:
+    /// motor to wrap and constant values (for first and second motor value, all others = value1)
+    ConstantMotor(std::shared_ptr<Motor> motor, double value1=0.0, double value2=0.0)
+      : motor(motor), value1(value1), value2(value2)
+    { }
 
-  CameraSensor::CameraSensor()
-    : camera(0), isInitDataSet(false) {
-    setBaseInfo(SensorMotorInfo("Cam").changequantity(SensorMotorInfo::Other));
+    virtual void init(Primitive* own, Joint* joint = 0) override {
+      motor->init(own, joint);
+    }
 
-  }
+    virtual int getMotorNumber() const override { return 0; };
 
-  void CameraSensor::setInitData(Camera* camera, const OdeHandle& odeHandle,
-                                 const OsgHandle& osgHandle, const osg::Matrix& pose){
-    assert(camera);
-    this->camera    = camera;
-    this->odeHandle = odeHandle;
-    this->osgHandle = osgHandle;
-    this->pose      = pose;
-    isInitDataSet   = true;
-  }
+    virtual bool act(GlobalData& globaldata) {
+      int len = motor->getMotorNumber();
+      double* dat = new double[len];
+      std::fill_n( dat, len, value1);
+      if(len>1) dat[1]=value2;
+      motor->set(dat,len);
+      return true;
+    };
 
-
-  CameraSensor::~CameraSensor() {
-    if(camera) delete camera;
-  }
-
-  /// changes the relative pose of the camera
-  void CameraSensor::setPose(const osg::Matrix& pose){
-    if(camera)
-      camera->setPose(pose);
-  }
-
-  /// returns the relative pose of the camera
-  osg::Matrix CameraSensor::getPose(){
-    if(camera)
-      return camera->getPose();
-    else
-      return osg::Matrix();
-  }
-
-  std::list<sensor> CameraSensor::CameraSensor::getList() const {
-    return getListOfArray();
-  }
-
-  void CameraSensor::init(Primitive* own, Joint* joint){
-    assert(isInitDataSet && "initialize the camerasensor with setInitData()!");
-    camera->init(odeHandle, osgHandle, own, pose);
-    intern_init();
-  }
-
-  /// we update the camera's visual appearance
-  void CameraSensor::update(){
-    camera->update();
-  }
-
-
+    // does nothing. the actions are done in act
+    virtual int set(const motor* values, int length) { return 0;};
+  protected:
+    std::shared_ptr<Motor> motor;
+    double value1;
+    double value2;
+  };
 
 }
+
+#endif /* !MOTOR_H_ */

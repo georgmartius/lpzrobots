@@ -36,7 +36,7 @@ namespace lpzrobots {
 
   class TraceDrawer {
   public:
-    TraceDrawer() : obj(0){}
+    TraceDrawer() : obj(0), initialized(false) {}
     Position lastpos;
     Trackable* obj;
     TrackRobot tracker;
@@ -150,13 +150,6 @@ namespace lpzrobots {
     /// removes (and deletes) all operators
     virtual void removeOperators();
 
-  protected:
-
-    /**
-     * continues the trace by one segment
-     */
-    virtual void trace(GlobalData& global);
-
     /** fixates the given primitive of the robot at its current position to the world
         for a certain time.
         Hint: use getRobot()->moveToPosition() to get the robot relocated
@@ -166,6 +159,13 @@ namespace lpzrobots {
     virtual void fixateRobot(GlobalData& global, int primitiveID=-1, double time = 0);
     /// release the robot in case it is fixated and turns true in this case
     virtual bool unfixateRobot(GlobalData& global);
+
+  protected:
+
+    /**
+     * continues the trace by one segment
+     */
+    virtual void trace(GlobalData& global);
 
   private:
     void constructor_helper(const GlobalData* globalData);

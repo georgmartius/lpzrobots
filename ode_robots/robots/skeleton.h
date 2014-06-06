@@ -25,7 +25,6 @@
 #define __SKELETON_H
 
 #include <ode_robots/oderobot.h>
-#include <ode_robots/raysensorbank.h>
 #include <ode_robots/gripper.h>
 
 namespace lpzrobots {
@@ -253,43 +252,16 @@ namespace lpzrobots {
     }
 
 
-    /**
-     * updates the OSG nodes of the vehicle
-     */
-    virtual void update();
-
-
     /** sets the pose of the vehicle
         @param pose desired pose matrix
     */
-    virtual void place(const osg::Matrix& pose);
+    virtual void placeIntern(const osg::Matrix& pose);
 
-    /** returns actual sensorvalues
-        @param sensors sensors scaled to [-1,1]
-        @param sensornumber length of the sensor array
-        @return number of actually written sensors
-    */
-    virtual int getSensors(sensor* sensors, int sensornumber);
+    virtual int getSensorsIntern(sensor* sensors, int sensornumber);
+    virtual void setMotorsIntern(const motor* motors, int motornumber);
+    virtual int getSensorNumberIntern();
+    virtual int getMotorNumberIntern();
 
-    /** sets actual motorcommands
-        @param motors motors scaled to [-1,1]
-        @param motornumber length of the motor array
-    */
-    virtual void setMotors(const motor* motors, int motornumber);
-
-    /** returns number of sensors
-     */
-    virtual int getSensorNumber();
-
-    /** returns number of motors
-     */
-    virtual int getMotorNumber();
-
-    /** this function is called in each timestep. It should perform robot-internal checks,
-        like space-internal collision detection, sensor resets/update etc.
-        @param globalData structure that contains global data from the simulation environment
-    */
-    virtual void doInternalStuff(GlobalData& globalData);
 
     /******** CONFIGURABLE ***********/
     virtual void notifyOnChange(const paramkey& key);
@@ -338,8 +310,8 @@ namespace lpzrobots {
 
     std::vector<AngularMotor*> frictionmotors;
 
-    RaySensorBank irSensorBank;
     GripperList grippers;
+    int backbendindex;
   };
 
 }

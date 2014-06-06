@@ -54,7 +54,7 @@ namespace lpzrobots {
   {
   }
 
-  int Barrel2Masses::getSensors ( sensor* sensors, int sensornumber )
+  int Barrel2Masses::getSensorsIntern( sensor* sensors, int sensornumber )
   {
     int len=0;
     matrix::Matrix A = odeRto3x3RotationMatrix ( dBodyGetRotation ( objects[Base]->getBody() ) );
@@ -140,7 +140,8 @@ namespace lpzrobots {
     double sensorrange = conf.irsensorscale * conf.diameter;
     RaySensor::rayDrawMode drawMode = conf.drawIRs ? RaySensor::drawAll : RaySensor::drawSensor;
 
-    irSensorBank.init(odeHandle, osgHandle );
+    irSensorBank.setInitData(odeHandle, osgHandle, TRANSM(0,0,0) );
+    irSensorBank.init(0);
     if (conf.irAxis1){
       for(int i=-1; i<2; i+=2){
         IRSensor* sensor = new IRSensor(1.5);

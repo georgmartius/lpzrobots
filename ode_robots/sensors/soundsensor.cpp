@@ -41,6 +41,7 @@ namespace lpzrobots {
     memset(val,0,sizeof(double)*len);
     oldangle = new double[levels];
     memset(oldangle,0,sizeof(double)*levels);
+    setBaseInfo(SensorMotorInfo("Sound").changequantity(SensorMotorInfo::Other));
   }
 
   SoundSensor::~SoundSensor() {

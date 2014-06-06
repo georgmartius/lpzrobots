@@ -141,17 +141,19 @@ public:
 
   virtual void update();
 
-  virtual void place(const osg::Matrix& pose);
+  virtual void placeIntern(const osg::Matrix& pose);
 
   virtual void doInternalStuff(GlobalData& globalData);
 
-  virtual int getSensors ( sensor* sensors, int sensornumber );
+  virtual void sense(GlobalData& globalData) override;
 
-  virtual void setMotors ( const motor* motors, int motornumber );
+  virtual int getSensorsIntern( sensor* sensors, int sensornumber );
 
-  virtual int getMotorNumber();
+  virtual void setMotorsIntern( const double* motors, int motornumber );
 
-  virtual int getSensorNumber();
+  virtual int getMotorNumberIntern();
+
+  virtual int getSensorNumberIntern();
 
   virtual Primitive* getMainPrimitive() const { return object[Base]; }
 

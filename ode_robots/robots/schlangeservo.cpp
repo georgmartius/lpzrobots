@@ -45,7 +45,7 @@ SchlangeServo::~SchlangeServo() { }
  *@param motors pointer to the array, motor values are scaled to [-1,1]
  *@param motornumber length of the motor array
  **/
-void SchlangeServo::setMotors ( const motor* motors, int motornumber )
+void SchlangeServo::setMotorsIntern( const double* motors, int motornumber )
 {
   assert(created);
   int len = min(motornumber, (int)servos.size());
@@ -62,10 +62,10 @@ void SchlangeServo::setMotors ( const motor* motors, int motornumber )
  *@param sensornumber length of the sensor array
  *@return number of actually written sensors
  **/
-int SchlangeServo::getSensors ( sensor* sensors, int sensornumber )
+int SchlangeServo::getSensorsIntern( sensor* sensors, int sensornumber )
 {
   assert(created);
-  int len = min(sensornumber, getSensorNumber());
+  int len = min(sensornumber, getSensorNumberIntern());
 
   for (int n = 0; n < len; n++) {
     sensors[n] = servos[n]->get();

@@ -154,7 +154,13 @@ namespace lpzrobots {
       case Operator::Move:
         if(d.show){
           global.addTmpObject(new TmpDisplayItem(new OSGSphere(d.size.x()),
-                                                 TRANSM(d.pos), "manipmove"),0.5);
+                                                 TRANSM(d.pos), "manipmove"),
+                              global.odeConfig.simStepSize*5);
+          if(d.show>1)
+            global.addTmpObject(new TmpDisplayItem(new OSGLine({d.posStart,d.pos}),
+                                                   TRANSM(0,0,0), "manipmove"),
+                                global.odeConfig.simStepSize
+                                );
         }
         break;
       case Operator::Limit:
@@ -198,7 +204,7 @@ namespace lpzrobots {
 
   class TrackablePrimitive : public Trackable {
   public:
-    TrackablePrimitive(Primitive* p, const std::string name)
+    TrackablePrimitive(Primitive* p, const std::string& name)
       : p(p), name(name) { }
     virtual std::string getTrackableName() const { return name; };
     virtual Position getPosition() const  { return p->getPosition().toPosition(); };
@@ -221,7 +227,7 @@ namespace lpzrobots {
     TraceDrawer td;
     Primitives ps = ((OdeRobot*)robot)->getAllPrimitives();
     if(primitiveIndex >= ps.size()){
-      fprintf(stderr, "OdeAgent::addTracking(): primitive index out of bounds %i", primitiveIndex);
+      fprintf(stderr, "OdeAgent::addTracking(): primitive index out of bounds %ui", primitiveIndex);
       return;
     }
     td.obj=new TrackablePrimitive(ps[primitiveIndex],
@@ -301,5 +307,3 @@ namespace lpzrobots {
 
 
 }
-
-

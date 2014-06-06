@@ -107,12 +107,10 @@ public:
   /** sets the pose of the vehicle
       @param pose desired 4x4 pose matrix
   */
-  virtual void place(const osg::Matrix& pose);
+  virtual void placeIntern(const osg::Matrix& pose);
 
   /// update all primitives and joints
   virtual void update();
-
-  virtual void doInternalStuff(GlobalData& global);
 
   /**
    *Reads the actual motor commands from an array,
@@ -121,7 +119,7 @@ public:
    *@param motors pointer to the array, motor values are scaled to [-1,1]
    *@param motornumber length of the motor array
    **/
-  virtual void setMotors ( const motor* motors, int motornumber ) = 0;
+  virtual void setMotorsIntern( const double* motors, int motornumber ) = 0;
 
   /**
    *Writes the sensor values to an array in the memory.
@@ -129,15 +127,15 @@ public:
    *@param sensornumber length of the sensor array
    *@return number of actually written sensors
    **/
-  virtual int getSensors ( sensor* sensors, int sensornumber ) = 0;
+  virtual int getSensorsIntern( double* sensors, int sensornumber ) = 0;
 
   /** returns number of sensors
    */
-  virtual int getSensorNumber() = 0;
+  virtual int getSensorNumberIntern() = 0;
 
   /** returns number of motors
    */
-  virtual int getMotorNumber() = 0;
+  virtual int getMotorNumberIntern() = 0;
 
   /** returns a vector with the positions of all segments of the robot
       @param poslist vector of positions (of all robot segments)

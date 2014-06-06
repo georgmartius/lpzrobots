@@ -71,7 +71,7 @@ namespace lpzrobots {
   OSGPrimitive::~OSGPrimitive(){
     if(transform.get()){
       Node::ParentList l = transform->getParents();
-      for(Node::ParentList::iterator i = l.begin(); i != l.end(); i++){
+      for(Node::ParentList::iterator i = l.begin(); i != l.end(); ++i){
         (*i)->removeChild(transform.get());
       }
     }
@@ -234,7 +234,7 @@ namespace lpzrobots {
 
   /******************************************************************************/
   OSGBox::OSGBox(float lengthX, float lengthY, float lengthZ)
-    : dim(lengthX, lengthY, lengthZ) {
+    : dim(lengthX, lengthY, lengthZ), box(0) {
   }
   OSGBox::OSGBox(Vec3 dim)
     : dim(dim){

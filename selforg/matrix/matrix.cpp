@@ -416,7 +416,7 @@ namespace matrix {
 
   bool Matrix::hasNormalEntries() const {
     for(I i=0; i < m*n; i++){
-      if(!std::isnormal(data[i])) return false;
+      if(std::isinf(data[i]) || std::isnan(data[i]) ) return false;
     }
     return true;
   }

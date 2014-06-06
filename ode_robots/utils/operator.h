@@ -47,21 +47,22 @@ namespace lpzrobots {
     enum ManipType {None, Limit, Move, RemoveOperator};
     /// description of action (for visualization)
     struct ManipDescr {
-      ManipDescr() : show(false), size(0.05,0.05,0.05){        
+      ManipDescr() : show(1), size(0.05,0.05,0.05){
       }
-      bool show; 
+      short show;
       Pos pos;
+      Pos posStart;
       Pose orientation;
       Pos size;
 
     };
-    
+
     Operator( const std::string& name, const std::string& revision)
       : Configurable(name, revision)
-    {      
+    {
     }
 
-    virtual ~Operator(){      
+    virtual ~Operator(){
     }
 
     /** called every simulation step

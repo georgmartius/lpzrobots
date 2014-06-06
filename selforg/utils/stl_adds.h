@@ -9,21 +9,21 @@
 
 // iterators for stl containers. Do not use for removal because the end is determined at the beginning.
 //  use C++11 syntax now: for( auto &val : coll)
-#define FOREACH(colltype, coll, it) for( colltype::iterator it = (coll).begin(), __end=(coll).end(); it!= __end; it++)
+#define FOREACH(colltype, coll, it) for( colltype::iterator it = (coll).begin(), __end=(coll).end(); it!= __end; ++it)
 
 // Iteration with index
 // unfortunatelly we cannot initialize the index within the for loop (different type than iterator)
-#define FOREACHI(colltype, coll, it, index) int index=0; for( colltype::iterator it = (coll).begin(), __end=(coll).end(); it!= __end; it++, index++)
+#define FOREACHI(colltype, coll, it, index) int index=0; for( colltype::iterator it = (coll).begin(), __end=(coll).end(); it!= __end; ++it, ++index)
 // using C++11 auto typing!
-#define FOREACHIa(coll, it, index) int index=0; for( auto it = (coll).begin(), __end=(coll).end(); it!= __end; it++, index++)
+#define FOREACHIa(coll, it, index) int index=0; for( auto it = (coll).begin(), __end=(coll).end(); it!= __end; ++it, ++index)
 
 
-#define FOREACHC(colltype, coll, it) for( colltype::const_iterator it = (coll).begin(), __end=(coll).end(); it!= __end ; it++ )
-#define FOREACHCI(colltype, coll, it, index) int index=0;for( colltype::const_iterator it = (coll).begin(), __end=(coll).end(); it!= __end; it++, index++)
+#define FOREACHC(colltype, coll, it) for( colltype::const_iterator it = (coll).begin(), __end=(coll).end(); it!= __end ; ++it )
+#define FOREACHCI(colltype, coll, it, index) int index=0;for( colltype::const_iterator it = (coll).begin(), __end=(coll).end(); it!= __end; ++it, ++index)
 
 // using C++11 auto typing!
 #define FOREACH2(coll1,coll2, it1,it2) \
-  for( auto it1 = (coll1).begin(), __end1=(coll1).end(), it2 = (coll2).begin(), __end2=(coll2).end(); it1!= __end1 && it2!= __end2; it1++ , it2++)
+  for( auto it1 = (coll1).begin(), __end1=(coll1).end(), it2 = (coll2).begin(), __end2=(coll2).end(); it1!= __end1 && it2!= __end2; ++it1 , ++it2)
 
 
 

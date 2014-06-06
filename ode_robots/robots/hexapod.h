@@ -174,37 +174,12 @@ namespace lpzrobots {
       return c;
     }
 
-    /**
-     * updates the OSG nodes of the vehicle
-     */
-    virtual void update();
-
 
     /** sets the pose of the vehicle
         @param pose desired pose matrix
     */
-    virtual void place(const osg::Matrix& pose);
+    virtual void placeIntern(const osg::Matrix& pose);
 
-    /** returns actual sensorvalues
-        @param sensors sensors scaled to [-1,1]
-        @param sensornumbHexapod::getDefaultConf()er length of the sensor array
-        @return number of actually written sensors
-    */
-    virtual int getSensors(sensor* sensors, int sensornumber);
-
-    /** sets actual motorcommands
-        @param motors motors scaled to [-1,1]
-        @param motornumber length of the motor array
-    */
-    virtual void setMotors(const motor* motors, int motornumber);
-
-    /** returns number of sensors
-     */
-    virtual int getSensorNumber();
-
-    /** returns number of motors
-     */
-    virtual int getMotorNumber();
 
     /** this function is called in each timestep. It should perform robot-internal checks,
         like space-internal collision detection, sensor resets/update etc.
@@ -212,8 +187,6 @@ namespace lpzrobots {
     */
     virtual void doInternalStuff(GlobalData& globalData);
 
-
-   // virtual void Hexapod::updateLegTouch(int);
 
     /**
      * calculates the total energy consumption of all servos.
@@ -257,9 +230,7 @@ namespace lpzrobots {
 public:
     HexapodConf conf;
     double legmass;    // leg mass
-    int        countt;
     bool created;      // true if robot was created
-    RaySensorBank irSensorBank; // a collection of ir sensors
 
   public:
     double costOfTran;
@@ -273,14 +244,11 @@ public:
     bool *dones;
     bool check;
     double t;
-    FILE* f;
     double timeCounter;
     double *position;
     std::vector<dReal*> pos_record;
     dMass *massOfobject;
     bool getPos1;
-    double distance;
-    double time;
     double speed;
 
     std::vector<Leg> legContact;
@@ -293,13 +261,9 @@ public:
     std::vector<Primitive*> thorax;
     std::vector<Pos> thoraxPos;
 
-    std::vector <ContactSensor*> contactsensors;
-
-    std::vector <TwoAxisServo*> hipservos;
-    std::vector <OneAxisServo*> tebiaservos;
-    std::vector <OneAxisServo*> tarsussprings;
-    std::vector <OneAxisServo*> whiskerservos;
-
+    std::vector <std::shared_ptr<TwoAxisServo> > hipservos;
+    std::vector <std::shared_ptr<OneAxisServo> > tebiaservos;
+    std::vector <std::shared_ptr<OneAxisServo> > tarsussprings;
   };
 
 }

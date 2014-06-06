@@ -41,9 +41,9 @@ namespace lpzrobots {
    * be used for creation of obstacles
    */
   AbstractObstacle::AbstractObstacle(const OdeHandle& odeHandle, const OsgHandle& osgHandle)
-    : odeHandle(odeHandle), osgHandle(osgHandle) {
+    : pose(osg::Matrix::translate(0,0,0)), odeHandle(odeHandle), osgHandle(osgHandle)
+  {
     // initialize the pose matrix correctly
-    pose=osg::Matrix::translate(0,0,0);
     obstacle_exists=false;
   };
 

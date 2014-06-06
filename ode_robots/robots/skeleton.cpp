@@ -32,7 +32,6 @@
 #include <ode_robots/oneaxisservo.h>
 #include <ode_robots/twoaxisservo.h>
 #include <ode_robots/angularmotor.h>
-#include <ode_robots/raysensorbank.h>
 #include <ode_robots/irsensor.h>
 
 // include header file
@@ -148,7 +147,7 @@ namespace lpzrobots {
     }
   };
 
-  int Skeleton::getMotorNumber(){
+  int Skeleton::getMotorNumberIntern(){
     if(conf.onlyPrimaryFunctions)
       return hipservos.size() + kneeservos.size() + ankleservos.size() + armservos.size()+ 1/*pelvis*/ ;
     else
@@ -160,7 +159,7 @@ namespace lpzrobots {
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void Skeleton::setMotors(const motor* motors, int motornumber){
+  void Skeleton::setMotorsIntern(const double* motors, int motornumber){
     assert(created); // robot must exist
 
     // controller output as torques
@@ -230,10 +229,10 @@ namespace lpzrobots {
       (*s)->set(1, 0.0);
     }
 
-    assert(min(motornumber, getMotorNumber())==n);
+    assert(min(motornumber, getMotorNumberIntern())==n);
   };
 
-  int Skeleton::getSensorNumber(){
+  int Skeleton::getSensorNumberIntern(){
     int numberSensors=0;
 
     if(conf.onlyPrimaryFunctions){
@@ -246,8 +245,6 @@ namespace lpzrobots {
         1/*pelvis*/+ backservos.size() + 2*backservos2.size() + 2*headservos.size() ;
     }
 
-    numberSensors += irSensorBank.size();
-
 //     // add new one!
 //     // head and trunk position (z): +2
 //     //    numberSensors+=2;
@@ -257,8 +254,8 @@ namespace lpzrobots {
 
   /*****************************
 GUIDE adding new sensors
-1. in getSensorNumber() Anzahl der Sensoren korrigieren: numberSensors+=1;
-2. in getSensors() dem Array sensors neue Sensorwerte zuweisen, z.B: sensors[n++]=getHeadPosition().z;
+1. in getSensorNumberIntern() Anzahl der Sensoren korrigieren: numberSensors+=1;
+2. in getSensorsIntern().z;
 
 
    ****************************/
@@ -268,7 +265,7 @@ GUIDE adding new sensors
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  int Skeleton::getSensors(sensor* sensors, int sensornumber){
+  int Skeleton::getSensorsIntern(sensor* sensors, int sensornumber){
     assert(created);
     int n=0; // index variable
     FOREACHC(vector <TwoAxisServo*>, hipservos, s){ //0-3
@@ -303,7 +300,6 @@ GUIDE adding new sensors
     }
     sensors[n] = pelvisservo->get(); // 14
     n++;
-    if(!conf.onlyPrimaryFunctions){
       if(conf.useBackJoint){            // 15 - 16 (or 15 (torsion))
         FOREACHC(vector <OneAxisServo*>, backservos, s){
           sensors[n]   = (*s)->get();
@@ -321,50 +317,22 @@ GUIDE adding new sensors
         sensors[n+1]   = (*s)->get2();
         n+=2;
       }
-    }
-    n += irSensorBank.get(sensors+n, sensornumber-n);
-
     //   // add z-headPosition as sensor and increment n!
     //   sensors[n++]=getHeadPosition().z;
     //    sensors[n++]=getTrunkPosition().z;
 
-    assert(min(sensornumber, getSensorNumber())==n);
+    assert(min(sensornumber, getSensorNumberIntern())==n);
     return n;
   };
 
 
-  void Skeleton::place(const Matrix& pose){
+  void Skeleton::placeIntern(const Matrix& pose){
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position is 0
     //    Matrix p2;
     //    p2 = pose * Matrix::translate(Vec3(0, 0, conf.legLength + conf.legLength/8));
     create(pose);
   };
-
-
-  /**
-   * updates the osg notes
-   */
-  void Skeleton::update(){
-    assert(created); // robot must exist
-
-    for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-      if(*i) (*i)->update();
-    }
-    for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-      if(*i) (*i)->update();
-    }
-    irSensorBank.update();
-  };
-
-
-  /** this function is called in each timestep. It should perform robot-internal checks,
-      like space-internal collision detection, sensor resets/update etc.
-      @param GlobalData structure that contains global data from the simulation environment
-  */
-  void Skeleton::doInternalStuff(GlobalData& global){
-    irSensorBank.reset();
-  }
 
 
   /** creates vehicle at desired position
@@ -490,17 +458,21 @@ GUIDE adding new sensors
                                  osg::Matrix::translate(0, 0, -(.05)));
     t->init(ignoreColSpace, 1,osgHandle.changeColor(conf.headColor));
     objects[Head_comp] = t;
-    irSensorBank.init(odeHandle, osgHandle);
+
+
     if(conf.irSensors){
       // add Eyes ;-)
-      RaySensor* sensor = new IRSensor(1,0.02);
+      RaySensor* sensor = new IRSensor(1,0.02 , 1.0, RaySensor::drawAll );
       Matrix R = Matrix::translate(0,0,headsize) * Matrix::rotate(M_PI/10, 0, 1, 0) *
         Matrix::translate(0,headsize/10,0);
-      irSensorBank.registerSensor(sensor, objects[Head_comp], R, 1.0, RaySensor::drawAll);
-      sensor = new IRSensor(1,0.02);
+      sensor->setInitData(odeHandle, osgHandle, R);
+      addSensor(std::shared_ptr<RaySensor>(sensor), Attachment(Head_comp));
+
+      sensor = new IRSensor(1,0.02, 1.0, RaySensor::drawAll);
       R = Matrix::translate(0,0,headsize) * Matrix::rotate(-M_PI/10, 0, 1, 0)*
         Matrix::translate(0,headsize/10,0);
-      irSensorBank.registerSensor(sensor, objects[Head_comp], R, 1.0, RaySensor::drawAll);
+      sensor->setInitData(odeHandle, osgHandle, R);
+      addSensor(std::shared_ptr<RaySensor>(sensor), Attachment(Head_comp));
     }
 
 
@@ -688,6 +660,7 @@ GUIDE adding new sensors
           servo1 = new OneAxisServoVel(odeHandle, j, -DONT, DONT, DONT, DONT, DONT, conf.jointLimitFactor);
         else
           servo1 = new OneAxisServoCentered(j, -DONT, DONT, DONT, DONT, 2, 20, conf.jointLimitFactor);
+        backbendindex=backservos.size();
         backservos.push_back(servo1);
       }else{
         uj = new UniversalJoint(objects[Belly], objects[Thorax],
@@ -1040,7 +1013,6 @@ GUIDE adding new sensors
       grippers.clear();
 
       cleanup();
-      irSensorBank.clear();
       //      ignoreColSpace.deleteSpace();
       odeHandle.deleteSpace();
 
@@ -1114,17 +1086,16 @@ GUIDE adding new sensors
     pelvisservo->setMaxVel(conf.pelvisVelocity);
     pelvisservo->setMinMax(-conf.pelvisJointLimit,+conf.pelvisJointLimit);
 
-    int fst = true;
-    FOREACH(vector<OneAxisServo*>, backservos, i){
+
+    FOREACHI(vector<OneAxisServo*>, backservos, i, index){
       if(*i){
         (*i)->setPower(conf.backPower * conf.powerFactor);
         (*i)->setDamping(conf.backDamping * conf.dampingFactor);
         (*i)->setMaxVel(conf.backVelocity);
-        if(fst) //bend
-          (*i)->setMinMax(-0.9*conf.backJointLimit, 1.5*conf.backJointLimit);
-        else // torsion
+       if(index==backbendindex) //bend
+          (*i)->setMinMax(-0.7*conf.backJointLimit, 1.5*conf.backJointLimit);
+        else // torsion and sidebend
           (*i)->setMinMax(-conf.backJointLimit, conf.backJointLimit);
-        fst = false;
       }
     }
     FOREACH(vector<TwoAxisServo*>, backservos2, i){
@@ -1133,7 +1104,7 @@ GUIDE adding new sensors
         (*i)->setDamping1(conf.backDamping * conf.dampingFactor);
         (*i)->setDamping2(conf.backDamping * conf.dampingFactor);
         (*i)->setMaxVel(conf.backVelocity);
-        (*i)->setMinMax1(-0.9*conf.backJointLimit, 1.5*conf.backJointLimit); // bend
+        (*i)->setMinMax1(-0.7*conf.backJointLimit, 1.5*conf.backJointLimit); // bend
         (*i)->setMinMax2(-conf.backJointLimit, conf.backJointLimit); // bend/sideways
       }
     }

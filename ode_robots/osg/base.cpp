@@ -131,16 +131,7 @@ namespace lpzrobots {
    */
   osgShadow::ShadowedScene* Base::createShadowedScene(osg::Node* sceneToShadow, LightSource* lightSource, int shadowType)
 {
-  // some conf variables for ShadowVolume
-  bool twoSided=false;
-  bool twoPass=false;
-  bool updateLightPosition = false;
 
-  // some conf variables for ParallelSplitShadowMap
-  int mapCount =3;
-  bool debugColor=false;
-  int minNearSplit=3;
-  int maxFarDist=50;
   // int moveVCamFactor = 0;
   // double polyoffsetfactor = -0.02;
   // double polyoffsetunit = 1.0;
@@ -148,7 +139,6 @@ namespace lpzrobots {
 
   // some conf variables for SoftShadowMap
   // make the shadow prenumba a little bit sharper then default (0.005)
-  float softnessWidth = 0.002;
 
   osgShadow::ShadowedScene* shadowedScene = new osgShadow::ShadowedScene;
 
@@ -179,6 +169,11 @@ namespace lpzrobots {
 //     }
   case 1: /// ShadowVolume
     {
+      bool twoSided=false;
+      bool twoPass=false;
+      // some conf variables for ShadowVolume
+      bool updateLightPosition = false;
+
       // hint to tell viewer to request stencil buffer when setting up windows
       osg::DisplaySettings::instance()->setMinimumNumStencilBits(8);
 
@@ -199,6 +194,12 @@ namespace lpzrobots {
     break;
   case 3: /// ParallelSplitShadowMap
     {
+      // some conf variables for ParallelSplitShadowMap
+      int mapCount =3;
+      bool debugColor=false;
+      int minNearSplit=3;
+      int maxFarDist=50;
+
         osg::ref_ptr<osgShadow::ParallelSplitShadowMap> pssm = new osgShadow::ParallelSplitShadowMap(NULL,mapCount);
         //        std::cout << pssm->getAmbientBias().x  << " " << pssm->getAmbientBias().y << std::endl
         pssm->setAmbientBias(Vec2(0,.3));
@@ -252,6 +253,7 @@ namespace lpzrobots {
     break;
   case 4: /// SoftShadowMap
     {
+      float softnessWidth = 0.002;
       osg::ref_ptr<osgShadow::SoftShadowMap> sm = new osgShadow::SoftShadowMap;
       sm->setSoftnessWidth(softnessWidth);
       sm->setTextureSize(osg::Vec2s((int)shadowTexSize,(int)shadowTexSize));

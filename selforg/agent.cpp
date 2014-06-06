@@ -73,7 +73,6 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot,
   memset(rsensors,0, sizeof(motor)*rsensornumber);
   memset(rmotors,0, sizeof(motor)*rmotornumber);
 
-
   // add robot to inspectables
   Inspectable* in = dynamic_cast<Inspectable*>(robot);
   if(in) addInspectable(in);
@@ -82,7 +81,8 @@ bool Agent::init(AbstractController* controller, AbstractRobot* robot,
   setName(robot->getName() + "'s Agent");
   setNameOfInspectable(getName());
 
-  return WiredController::init(controller,wiring, rsensornumber, rmotornumber, &randGen);
+  return WiredController::init(controller,wiring, rsensornumber, rmotornumber,
+                               robot->getSensorInfos(), robot->getMotorInfos(), &randGen);
 }
 
 

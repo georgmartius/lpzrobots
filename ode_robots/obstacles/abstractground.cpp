@@ -73,7 +73,6 @@ namespace lpzrobots {
   void AbstractGround::changeGeometry(double length, double width, double height, double factorxy){
     this->groundLength = length;
     this->groundWidth = length*factorxy;
-    this->wallThickness = wallThickness;
   }
 
   Primitive* AbstractGround::getMainPrimitive() const {

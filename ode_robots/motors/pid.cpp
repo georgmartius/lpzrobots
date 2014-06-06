@@ -34,14 +34,17 @@ namespace lpzrobots {
     : KP(KP), KI(KI), KD(KD)
   {
     P=D=I=0;
-    
+
     targetposition = 0;
     derivative     = 0;
     position       = 0;
     lastposition   = 0;
     error          = 0;
     tau            = 1000;
-    lasttime       = -1; 
+    lasttime       = -1;
+    last2position  = 0;
+    lasterror      = 0;
+    force          = 0;
   }
 
   void PID::setKP(double KP){
@@ -58,27 +61,27 @@ namespace lpzrobots {
     return targetposition;
   }
 
-  /* This is the old implementation. Do not change in order not to brake all 
+  /* This is the old implementation. Do not change in order not to brake all
       the simulations
    */
   double PID::step ( double newsensorval, double time)
-  { 
+  {
     if(lasttime != -1 && time - lasttime > 0 ){
       lastposition = position;
       position = newsensorval;
       double stepsize=time-lasttime;
-      
+
       lasterror = error;
       error = targetposition - position;
-      derivative = (lasterror - error) / stepsize;      
-      
+      derivative = (lasterror - error) / stepsize;
+
       P = error;
-      //      I += (1/tau) * (error * KI - I); // I+=error * KI       
-      I += stepsize * error * KI;      
+      //      I += (1/tau) * (error * KI - I); // I+=error * KI
+      I += stepsize * error * KI;
       I = min(0.5,max(-0.5,I)); // limit I to 0.5
-      D = -derivative * KD; 
+      D = -derivative * KD;
       D = min(0.9,max(-0.9,D)); // limit D to 0.9
-      force = KP*(P + I + D);     
+      force = KP*(P + I + D);
     } else {
       force=0;
     }
@@ -88,21 +91,21 @@ namespace lpzrobots {
 
   // This is the new implementation used by the center and velocity servos
   double PID::stepNoCutoff ( double newsensorval, double time)
-  { 
+  {
     if(lasttime != -1 && time - lasttime > 0 ){
       lastposition = position;
       position = newsensorval;
       double stepsize=time-lasttime;
-      
+
       lasterror = error;
       error = targetposition - position;
       derivative += ((lasterror - error) / stepsize - derivative)*0.2; // Georg: Who put the 0.2 here!?
 
       P = error;
       I*= (1-1/tau);
-      I += stepsize * error * KI;      
-      D = -derivative * KD; 
-      force = KP*(P + I + D);     
+      I += stepsize * error * KI;
+      D = -derivative * KD;
+      force = KP*(P + I + D);
     } else {
       force=0;
     }
@@ -113,24 +116,24 @@ namespace lpzrobots {
   // This is the new implementation used for the velocity servos (velocity control)
   // no I term and velocity is bound such that we cannot overshoot in one step
   double PID::stepVelocity ( double newsensorval, double time)
-  { 
+  {
     // force is here a nominal velocity
 
     if(lasttime != -1 && time - lasttime > 0 ){
       lastposition = position;
       position = newsensorval;
       double stepsize=time-lasttime;
-      
+
       lasterror = error;
       error = targetposition - position;
 
       P = error;
       if(KD!=0.0){
         derivative += ((lasterror - error) / stepsize - derivative);
-        D = -derivative * KD; 
-        force = KP*(P + D);     
-      } else 
-        force = KP*P;     
+        D = -derivative * KD;
+        force = KP*(P + D);
+      } else
+        force = KP*P;
       // limit the velocity
       if(stepsize*fabs(force) > fabs(error)){
         force = error/stepsize;
@@ -138,7 +141,7 @@ namespace lpzrobots {
     } else {
       force=0;
     }
-    lasttime=time;    
+    lasttime=time;
     return force;
   }
 

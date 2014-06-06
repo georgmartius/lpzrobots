@@ -36,7 +36,7 @@ namespace lpzrobots {
 
     sensorno = sensornumber;
     motorno  = motornumber;
-    motors = (motor*)malloc(motorno * sizeof(motor));
+    motors = (double*)malloc(motorno * sizeof(motor));
     for(int i=0; i < motorno; i++){
       motors[i]=0.0;
     }
@@ -52,7 +52,7 @@ namespace lpzrobots {
       @param _motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void ShortCircuit::setMotors(const motor* _motors, int motornumber){
+  void ShortCircuit::setMotorsIntern(const double* _motors, int motornumber){
     assert(motornumber == motorno);
     memcpy(motors, _motors, sizeof(motor) * motornumber);
   };
@@ -62,7 +62,7 @@ namespace lpzrobots {
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  int ShortCircuit::getSensors(sensor* sensors, int sensornumber){
+  int ShortCircuit::getSensorsIntern(sensor* sensors, int sensornumber){
     assert(sensornumber == sensorno);
     int mini = min(sensorno,motorno);
     for (int i=0; i< mini; i++){

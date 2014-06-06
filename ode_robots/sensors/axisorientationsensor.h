@@ -53,7 +53,7 @@ namespace lpzrobots {
     virtual int getSensorNumber() const;
 
     virtual bool sense(const GlobalData& globaldata);
-    virtual std::list<sensor> get() const;
+    virtual std::list<sensor> getList() const;
     virtual int get(sensor* sensors, int length) const;
 
   private:

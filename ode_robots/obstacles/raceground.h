@@ -52,18 +52,18 @@ class RaceGround : public AbstractObstacle {
  public:
 
   RaceGround(const OdeHandle& odehandle):
-    AbstractObstacle(odehandle) {
+  AbstractObstacle(odehandle), length(0), width(0), height(0) {
     setParameters(pose);
   };
 
 
   RaceGround(const OdeHandle& odehandle,const Matrix& pose):
-    AbstractObstacle(odehandle) {
+    AbstractObstacle(odehandle), length(0), width(0), height(0) {
     setParameters(pose);
   };
 
   RaceGround(const OdeHandle& odehandle,const Position& pos, double angle):
-    AbstractObstacle(odehandle) {
+    AbstractObstacle(odehandle), length(0), width(0), height(0) {
     setParameters(getTranslationRotationMatrix(pos,angle));
  };
 
@@ -146,7 +146,7 @@ class RaceGround : public AbstractObstacle {
       // now get the angle and the radius
       char* d = (char*)malloc(name.length()*sizeof(char));
       double angle, radius;
-      if (sscanf(name.c_str(),"%s %lf %lf",d,&angle,&radius)!=3)
+      if (sscanf(name.c_str(),"%1000s %6lf %6lf",d,&angle,&radius)!=3)
         std::cout << "parameter parsing invalid!: " << name << "\n";
       else {
         std::cout << "parameters " << d << "," << angle << " " << radius << "\n";

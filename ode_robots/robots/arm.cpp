@@ -92,7 +92,7 @@ namespace lpzrobots{
    * sets the pose of the vehicle
    * @param pose desired 4x4 pose matrix
    */
-  void Arm::place(const osg::Matrix& pose)
+  void Arm::placeIntern(const osg::Matrix& pose)
   {
     // the position of the robot is the center of the body
     // to set the arm on the ground when the z component of the position is 0
@@ -126,7 +126,7 @@ namespace lpzrobots{
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  int Arm::getSensors(sensor* sensors, int sensornumber)
+  int Arm::getSensorsIntern(sensor* sensors, int sensornumber)
   {
     assert(created); // robot must exist
     unsigned int len=0;
@@ -171,10 +171,10 @@ namespace lpzrobots{
    *  @param motors motors scaled to [-1,1]
    *  @param motornumber length of the motor array
    */
-  void Arm::setMotors(const motor* motors, int motornumber)
+  void Arm::setMotorsIntern(const double* motors, int motornumber)
   {
     assert(created); // robot must exist
-    unsigned int len = min(motornumber, getMotorNumber());// /2;  // <- 2FELHAFT
+    unsigned int len = min(motornumber, getMotorNumberIntern());// /2;  // <- 2FELHAFT
     // controller output as torques
     for(unsigned int i=0; (i<len) && (i<hingeServos.size()); i++)
       {

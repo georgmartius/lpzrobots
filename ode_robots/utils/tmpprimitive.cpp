@@ -33,7 +33,7 @@ namespace lpzrobots {
 
   TmpPrimitive::TmpPrimitive(Primitive* p, char mode, double mass, const Pose& pose,
                              const Color& color)
-    : item(p), mode(mode), mass(mass), pose(pose), color(color), initialized(false)
+    : item(p), mode(mode), mass(mass), pose(pose), color(color), alpha(1.0), initialized(false)
   {
     useColorName=false;
     if(!item)
@@ -75,7 +75,7 @@ namespace lpzrobots {
 
   TmpDisplayItem::TmpDisplayItem(OSGPrimitive* p, const Pose& pose,
                                  const Color& color, OSGPrimitive::Quality quality)
-    : item(p), pose(pose), color(color), quality(quality), initialized(false)
+    : item(p), pose(pose), color(color), alpha(1.0), quality(quality), initialized(false)
   {
     useColorName=false;
     if(!item)

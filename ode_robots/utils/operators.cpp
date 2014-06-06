@@ -26,9 +26,9 @@
 #include "odeagent.h"
 
 namespace lpzrobots {
-  
-  Operator::ManipType LimitOrientationOperator::observe(OdeAgent* agent, 
-                                                        GlobalData& global, 
+
+  Operator::ManipType LimitOrientationOperator::observe(OdeAgent* agent,
+                                                        GlobalData& global,
                                                         ManipDescr& descr){
     OdeRobot* r = agent->getRobot();
     Primitive* p  = r->getMainPrimitive();
@@ -46,7 +46,7 @@ namespace lpzrobots {
       p->applyTorque(torque*currentforce*(angle-maxAngle));
       currentforce=currentforce*1.01;
       descr.pos  = p->getPosition() + rpose.vec3()*0.5;
-      descr.show = true;
+      descr.show = 1;
       return Move;
     }else{
       currentforce=force;
@@ -61,11 +61,11 @@ namespace lpzrobots {
     ManipType rv;
     rv = None;
     if(!p) return rv;
-    if(conf.intervalMode){      
+    if(conf.intervalMode){
       /// time in units of interval
       double intTime = global.time/conf.interval;
       // ration of the duration w.r.t interval;
-      double durRatio = conf.duration / conf.interval; 
+      double durRatio = conf.duration / conf.interval;
       double timeInInt = intTime - int(intTime); // from 0-1
       if(timeInInt > durRatio){ // do nothing
         currentforce = conf.force;
@@ -75,7 +75,7 @@ namespace lpzrobots {
 
     const Pos& pos = p->getPosition();
     // printf("test %f \t %f\n", angle, currentforce);
-    if(pos.z() < conf.height){     
+    if(pos.z() < conf.height){
       double f = 1;
       if(conf.propControl)
         f = conf.height-pos.z();
@@ -84,7 +84,8 @@ namespace lpzrobots {
         currentforce=currentforce*1.01;
       }
       descr.pos  = p->getPosition() + Pos(0,0,conf.visualHeight);
-      descr.show = true;
+      descr.posStart = p->getPosition();
+      descr.show = 2;
       return Move;
     }else{
       if(conf.increaseForce){
@@ -98,7 +99,7 @@ namespace lpzrobots {
   }
 
 
-  Operator::ManipType PullToPointOperator::observe(OdeAgent* agent, GlobalData& global, 
+  Operator::ManipType PullToPointOperator::observe(OdeAgent* agent, GlobalData& global,
                                                    ManipDescr& descr){
     OdeRobot* r = agent->getRobot();
     Primitive* p  = r->getMainPrimitive();
@@ -121,7 +122,8 @@ namespace lpzrobots {
       }
 
       descr.pos  = pos + vec;
-      descr.show = showPoint;
+      descr.posStart = pos;
+      descr.show = showPoint ? 2 : 0;
       return Move;
     }
     return rv;
@@ -138,7 +140,7 @@ namespace lpzrobots {
   }
 
 
-  Operator::ManipType BoxRingOperator::observe(OdeAgent* agent, GlobalData& global, 
+  Operator::ManipType BoxRingOperator::observe(OdeAgent* agent, GlobalData& global,
                                                ManipDescr& descr){
     OdeRobot* r = agent->getRobot();
     Primitive* p  = r->getMainPrimitive();
@@ -151,14 +153,14 @@ namespace lpzrobots {
       double max = 0;
       int idx=0;
       for(int i=0; i < 3; i++ ){
-        if(fabs(vec.ptr()[i]) > fabs(max)){ 
+        if(fabs(vec.ptr()[i]) > fabs(max)){
           max = vec.ptr()[i];
           idx = i;
         }
         vec.ptr()[i] = 0;
       }
       vec.ptr()[idx] = max; // all but the one component is 0;
-    }    
+    }
     if(vec.length() > size - offset){
       p->applyForce(vec*force);
       Pos p(vec);
@@ -166,7 +168,7 @@ namespace lpzrobots {
       descr.pos          = pos  - p*offset;
       descr.orientation  = Pose::rotate(osg::Vec3(0,0,1), vec);
       descr.size         = Pos(0.3,0,0.05);
-      descr.show = true;
+      descr.show = 1;
       return Limit;
     }
     return rv;

@@ -21,62 +21,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
+#ifndef __PHYSICALSENSOR_H
+#define __PHYSICALSENSOR_H
 
-#include "camerasensor.h"
+#include "sensor.h"
+#include "odehandle.h"
+#include "osghandle.h"
 
 namespace lpzrobots {
 
+  /** Abstract class for sensors that have a physical representation
+  */
+  class PhysicalSensor : public Sensor {
+  public:
 
-  CameraSensor::CameraSensor()
-    : camera(0), isInitDataSet(false) {
-    setBaseInfo(SensorMotorInfo("Cam").changequantity(SensorMotorInfo::Other));
+    PhysicalSensor() : isInitDataSet(false) {}
+    virtual ~PhysicalSensor() {}
 
-  }
+    /** sets the initial data structures
+        @param pose position and orientation of camera wrt.
+        the primitive that is given at init()
+     */
+    virtual void setInitData(const OdeHandle& odeHandle,
+                             const OsgHandle& osgHandle,
+                             const osg::Matrix& pose) {
+      this->odeHandle = odeHandle;
+      this->osgHandle = osgHandle;
+      this->pose      = pose;
+      isInitDataSet   = true;
+    }
 
-  void CameraSensor::setInitData(Camera* camera, const OdeHandle& odeHandle,
-                                 const OsgHandle& osgHandle, const osg::Matrix& pose){
-    assert(camera);
-    this->camera    = camera;
-    this->odeHandle = odeHandle;
-    this->osgHandle = osgHandle;
-    this->pose      = pose;
-    isInitDataSet   = true;
-  }
+    /// changes the relative pose of the sensor
+    virtual void setPose(const osg::Matrix& pose) { this->pose= pose; };
 
-
-  CameraSensor::~CameraSensor() {
-    if(camera) delete camera;
-  }
-
-  /// changes the relative pose of the camera
-  void CameraSensor::setPose(const osg::Matrix& pose){
-    if(camera)
-      camera->setPose(pose);
-  }
-
-  /// returns the relative pose of the camera
-  osg::Matrix CameraSensor::getPose(){
-    if(camera)
-      return camera->getPose();
-    else
-      return osg::Matrix();
-  }
-
-  std::list<sensor> CameraSensor::CameraSensor::getList() const {
-    return getListOfArray();
-  }
-
-  void CameraSensor::init(Primitive* own, Joint* joint){
-    assert(isInitDataSet && "initialize the camerasensor with setInitData()!");
-    camera->init(odeHandle, osgHandle, own, pose);
-    intern_init();
-  }
-
-  /// we update the camera's visual appearance
-  void CameraSensor::update(){
-    camera->update();
-  }
+    /// relative pose of the sensor
+    virtual osg::Matrix getPose() { return pose; };
 
 
-
+  protected:
+    OdeHandle odeHandle;
+    OsgHandle osgHandle;
+    osg::Matrix pose;
+    bool isInitDataSet;
+  };
 }
+
+#endif

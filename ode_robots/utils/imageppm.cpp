@@ -142,6 +142,7 @@ int ImagePPM::storeImage(const std::string& filename) {
   // write data
   if (fwrite( image_data, image_width*image_height*3, 1, f) != 1){
     std::cerr << "Can't write to image file '" <<  filename <<  "'" << std::endl;
+    fclose (f);
     return 0;
   }
   fclose (f);

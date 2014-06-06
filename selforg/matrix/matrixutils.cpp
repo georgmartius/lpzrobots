@@ -26,6 +26,7 @@ namespace matrix {
     // check if m is square
     assert(m.getM() == m.getN());
     gsl_matrix* m_gsl = toGSL(m);
+    gsl_set_error_handler_off();
 
     gsl_eigen_symm_workspace* w = gsl_eigen_symm_alloc (m.getM());
     gsl_vector *eval = gsl_vector_alloc (m.getM());
@@ -45,6 +46,7 @@ namespace matrix {
     // check if m is square
     assert(m.getM() == m.getN());
     gsl_matrix* m_gsl = toGSL(m);
+    gsl_set_error_handler_off();
 
     gsl_eigen_symmv_workspace* w = gsl_eigen_symmv_alloc (m.getM());
     gsl_vector *eval = gsl_vector_alloc (m.getM());
@@ -62,10 +64,14 @@ namespace matrix {
     return true;
   }
 
+  // check for exception:
+  // gsl: francis.c:210: ERROR: maximum iterations reached without finding all eigenvalues
+  //Default GSL error handler invoked.
   bool eigenValues(const Matrix &m, Matrix& real, Matrix& imag){
     // check if m is square
     assert(m.getM() == m.getN());
     gsl_matrix* m_gsl = toGSL(m);
+    gsl_set_error_handler_off();
 
     gsl_eigen_nonsymm_workspace* w = gsl_eigen_nonsymm_alloc (m.getM());
     gsl_vector_complex *eval = gsl_vector_complex_alloc (m.getM());
@@ -87,6 +93,7 @@ namespace matrix {
     // check if m is square
     assert(m.getM() == m.getN());
     gsl_matrix* m_gsl = toGSL(m);
+    gsl_set_error_handler_off();
 
     gsl_eigen_nonsymmv_workspace* w = gsl_eigen_nonsymmv_alloc (m.getM());
     gsl_vector_complex *eval = gsl_vector_complex_alloc (m.getM());

@@ -29,6 +29,9 @@
 #include <ode_robots/odeagent.h>
 // The robot
 #include "differential.h"
+// Speed sensor
+#include <ode_robots/speedsensor.h>
+
 // Robot's controller
 #include "basiccontroller.h"
 // Robot's wiring
@@ -43,7 +46,10 @@ using namespace lpzrobots;
 class ThisSim : public Simulation
 {
   public:
-    ThisSim() { }
+    ThisSim() {
+      // set Title of simulation
+      setTitle("BASIC SIM by Simon");
+    }
     ~ThisSim() { }
 
     /// start() is called at the start and should create all the object (obstacles, agents...).
@@ -61,16 +67,20 @@ class ThisSim : public Simulation
       // Values can be modified locally
       conf.wheelMass = .5;
       // Instantiating the robot
-      OdeRobot* robot = new Differential(odeHandle, osgHandle, conf, "Differential robot");
-      // Placing the robot in the scene
-      ((OdeRobot*)robot)->place(Pos(.0, .0, .2));
-      // Instantiatign the controller
+      auto robot = new Differential(odeHandle, osgHandle, conf, "Differential robot");
+      // add a speed sensor to the robot (attached to the "main primitive" (-1)
+      //  (specifiy index if needed)
+      robot->addSensor(std::make_shared<SpeedSensor>(1), Attachment(-1));
 
-      AbstractController* controller = new BasicController("Basic Controller", "$ID$");
+      // Placing the robot in the scene
+      robot->place(Pos(.0, .0, .2));
+
+      // Instantiatign the controller
+      auto controller = new BasicController("Basic Controller", "$ID$");
       // Create the wiring with color noise
-      AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(.1));
+      auto wiring = new One2OneWiring(new ColorUniformNoise(.1));
       // Create Agent
-      OdeAgent* agent = new OdeAgent(global);
+      auto agent = new OdeAgent(global);
       // Agent initialisation
       agent->init(controller, robot, wiring);
       // Adding the agent to the agents list
@@ -79,7 +89,7 @@ class ThisSim : public Simulation
 
       /** Environment and obstacles */
       // New playground
-      Playground* playground = new Playground(odeHandle, osgHandle,osg::Vec3(15., .2, 1.2), 1);
+      auto playground = new Playground(odeHandle, osgHandle,osg::Vec3(15., .2, 1.2), 1);
       // Set colours
       playground->setGroundColor(Color(.784, .784, .0));
       playground->setColor(Color(1., .784, .082, .3));
@@ -89,7 +99,7 @@ class ThisSim : public Simulation
       global.obstacles.push_back(playground);
 
       // Add a new box obstacle (or use 'o' to drop random obstacles)
-      //PassiveBox* box = new PassiveBox(odeHandle, osgHandle, osg::Vec3(1., 1., 1.), 2.);
+      //auto box = new PassiveBox(odeHandle, osgHandle, osg::Vec3(1., 1., 1.), 2.);
       //box->setPose(osg::Matrix::translate(-.5, 4., .7));
       //global.obstacles.push_back(box);
     }
@@ -110,8 +120,6 @@ int main (int argc, char **argv)
 {
   // New simulation
   ThisSim sim;
-  // set Title of simulation
-  sim.setTitle("BASIC SIM by Simon");
   // Simulation begins
   return sim.run(argc, argv) ? 0 : 1;
 }

@@ -78,7 +78,10 @@ WiredController::~WiredController(){
 /// initializes the object with the given controller, robot and wiring
 //  and initializes pipe to guilogger
 bool WiredController::init(AbstractController* controller, AbstractWiring* wiring,
-                           int robotsensornumber, int robotmotornumber, RandGen* randGen){
+                           int robotsensornumber, int robotmotornumber,
+                           const std::list<SensorMotorInfo>& robotSensorInfos,
+                           const std::list<SensorMotorInfo>& robotMotorInfos,
+                           RandGen* randGen){
   this->controller = controller;
   this->wiring     = wiring;
   assert(controller && wiring);
@@ -93,6 +96,14 @@ bool WiredController::init(AbstractController* controller, AbstractWiring* wirin
   csensors      = (sensor*) malloc(sizeof(sensor) * csensornumber);
   cmotors       = (motor*)  malloc(sizeof(motor)  * cmotornumber);
 
+  // wire infos and send to controller and for plotting
+  const std::list<SensorMotorInfo>& controllerSensorInfos = wiring->wireSensorInfos(robotSensorInfos);
+  const std::list<SensorMotorInfo>& controllerMotorInfos  = wiring->wireMotorInfos( robotMotorInfos);
+
+  controller->sensorInfos(controllerSensorInfos);
+  controller->motorInfos(controllerMotorInfos);
+  wiring->addSensorMotorInfosToInspectable(robotSensorInfos, robotMotorInfos,
+                                           controllerSensorInfos, controllerMotorInfos);
 
   plotEngine.addInspectable(this, true);
   plotEngine.addConfigurable(this);

@@ -45,26 +45,19 @@ namespace lpzrobots {
   }
 
 
-  void Schlange::place(const osg::Matrix& pose){
+  void Schlange::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the body (without wheels)
     // to set the vehicle on the ground when the z component of the position is 0
     // width*0.6 is added (without this the wheels and half of the robot will be in the ground)
     create(pose * osg::Matrix::translate(osg::Vec3(0, 0, conf.segmDia/2)));
   }
 
-  void Schlange::update(){
+  void Schlange::update() {
+    OdeRobot::update();
     assert(created); // robot must exist
-    for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-      if(*i) (*i)->update();
-    }
-    for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-      if(*i) (*i)->update();
-    }
-  }
 
-  void Schlange::doInternalStuff(GlobalData& global){
-  }
 
+  }
 
 
   int Schlange::getSegmentsPosition(std::vector<Position> &poslist){
@@ -167,7 +160,7 @@ namespace lpzrobots {
   Primitive* Schlange::createSegment(int index, const OdeHandle& odeHandle){
     Primitive* p;
     p = new Capsule(conf.segmDia * 0.8, conf.segmLength);
-    // if (index==0) 
+    // if (index==0)
     //   p = new Box(conf.segmLength*.1,conf.segmLength*.9, conf.segmLength*.6);
     p->setTexture("Images/whitemetal_farbig_small.rgb");
     p->init(odeHandle, conf.segmMass, osgHandle);

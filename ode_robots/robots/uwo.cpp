@@ -57,11 +57,11 @@ namespace lpzrobots {
   };
 
 
-  int Uwo::getMotorNumber(){
+  int Uwo::getMotorNumberIntern(){
     return servos.size()*2 + sliderservos.size();
   };
 
-  int Uwo::getSensorNumber(){
+  int Uwo::getSensorNumberIntern(){
     return servos.size()*2 + sliderservos.size();
   };
 
@@ -69,7 +69,7 @@ namespace lpzrobots {
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void Uwo::setMotors(const motor* motors, int motornumber){
+  void Uwo::setMotorsIntern(const double* motors, int motornumber){
     assert(created); // robot must exist
     // controller output as torques
     int n=0;
@@ -88,7 +88,7 @@ namespace lpzrobots {
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  int Uwo::getSensors(sensor* sensors, int sensornumber){
+  int Uwo::getSensorsIntern(sensor* sensors, int sensornumber){
     assert(created);
     int n=0;
     FOREACHC(vector <TwoAxisServo*>, servos, s){
@@ -102,7 +102,7 @@ namespace lpzrobots {
   };
 
 
-  void Uwo::place(const osg::Matrix& pose){
+  void Uwo::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position is 0
     Matrix p2;
@@ -110,21 +110,6 @@ namespace lpzrobots {
     create(p2);
   };
 
-
-  void Uwo::update(){
-    assert(created); // robot must exist
-
-    for (vector<Primitive*>::iterator i = objects.begin(); i!= objects.end(); i++){
-      if(*i) (*i)->update();
-    }
-    for (vector<Joint*>::iterator i = joints.begin(); i!= joints.end(); i++){
-      if(*i) (*i)->update();
-    }
-
-  };
-
-
-  void Uwo::doInternalStuff(GlobalData& global){}
 
   void Uwo::create( const osg::Matrix& pose ){
     if (created) {

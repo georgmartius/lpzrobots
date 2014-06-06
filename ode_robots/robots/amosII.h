@@ -50,7 +50,7 @@ namespace lpzrobots {
 }
 
 namespace lpzrobots {
-  
+
   struct AmosIIConf {
       /**
        * @name flags
@@ -295,7 +295,7 @@ namespace lpzrobots {
       int amos_version;
 
   };
-  
+
   class AmosII : public OdeRobot, public Inspectable {
     public:
       enum LegPos {
@@ -352,7 +352,7 @@ namespace lpzrobots {
        * sets the pose of the vehicle
        * @param pose desired pose matrix
        */
-      virtual void place(const osg::Matrix& pose);
+      virtual void placeIntern(const osg::Matrix& pose);
 
       /**
        * returns actual sensorvalues
@@ -360,24 +360,24 @@ namespace lpzrobots {
        * @param sensornumber length of the sensor array
        * @return number of actually written sensors
        */
-      virtual int getSensors(sensor* sensors, int sensornumber);
+      virtual int getSensorsIntern(sensor* sensors, int sensornumber);
 
       /**
        * sets actual motorcommands
        * @param motors motors scaled to [-1,1]
        * @param motornumber length of the motor array
        */
-      virtual void setMotors(const motor* motors, int motornumber);
+      virtual void setMotorsIntern(const double* motors, int motornumber);
 
       /**
        * returns number of sensors
        */
-      virtual int getSensorNumber();
+      virtual int getSensorNumberIntern();
 
       /**
        * returns number of motors
        */
-      virtual int getMotorNumber();
+      virtual int getMotorNumberIntern();
 
       /**
        * this function is called in each timestep. It should perform
@@ -387,6 +387,8 @@ namespace lpzrobots {
        *                   simulation environment
        */
       virtual void doInternalStuff(GlobalData& globalData);
+
+      virtual void sense(GlobalData& globalData) override;
 
       virtual double getMassOfRobot();
 
@@ -436,7 +438,7 @@ namespace lpzrobots {
       static LegPos getMotorLegPos(MotorName);
 
     protected:
-      
+
       struct Leg {
           Leg();
           HingeJoint * tcJoint;
@@ -487,7 +489,7 @@ namespace lpzrobots {
       void nameSensor(const int sensorNo, const char* name);
 
     private:
-      
+
       /** typedefs */
       typedef std::map<LegPos, HingeJoint*> HingeJointMap;
       typedef std::map<LegPos, Leg> LegMap;
@@ -505,7 +507,7 @@ namespace lpzrobots {
 
       AmosIIConf conf;
       bool created; // true if robot was created
-      
+
       /** a collection of ir sensors **/
       RaySensorBank * irSensorBank;
 
@@ -552,12 +554,6 @@ namespace lpzrobots {
 
       // back bone joint
       OneAxisServo * backboneServo;
-
-      // all the objects
-      PrimitiveList objects;
-
-      // all the joints
-      JointList joints;
 
       // passive servos without a Motorname
       ServoList passiveServos;
