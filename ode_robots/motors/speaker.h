@@ -36,8 +36,8 @@ namespace lpzrobots {
   class Speaker: public Motor {
   public:
     Speaker(float frequency, double visualSize = 0.5, Pos visualOffset = Pos(0,0,1))
-      : frequency(frequency), visualSize(visualSize), visualOffset(visualOffset),
-        own(0), intensity(0.0) {
+      : own(0), frequency(frequency), intensity(0.0),
+        visualSize(visualSize), visualOffset(visualOffset) {
     }
     virtual ~Speaker() {};
 

@@ -40,7 +40,6 @@
 
 // used robot
 #include <ode_robots/fourwheeled.h>
-#include <ode_robots/addsensors2robotadapter.h>
 
 #include <ode_robots/speaker.h>
 #include <ode_robots/soundsensor.h>
@@ -78,12 +77,10 @@ public:
     fc.twoWheelMode = true;
     fc.useBumper    = false;
     fc.irFront      = false;
-    FourWheeled* fw = new FourWheeled(odeHandle, osgHandle,
+    FourWheeled* vehicle = new FourWheeled(odeHandle, osgHandle,
                                         fc, "TestVehicle");
-    std::list<Sensor*> sensors;
-    sensors.push_back(new SoundSensor(Sensor::X, SoundSensor::Angle, 1, 1, 5));
-    AddSensors2RobotAdapter* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle,
-                                                                   fw, sensors);
+
+    vehicle->addSensor(std::make_shared<SoundSensor>(Sensor::X, SoundSensor::Angle, 1, 1, 5));
     vehicle->place(osg::Matrix::translate(0,0,0));
     global.configs.push_back(vehicle);
 
@@ -153,4 +150,3 @@ int main (int argc, char **argv)
   return sim.run(argc, argv) ? 0 : 1;
 
 }
-

@@ -133,7 +133,7 @@ namespace lpzrobots {
     return 0;
   }
 
-  std::list<sensor> SoundSensor::get() const{
+  std::list<sensor> SoundSensor::getList() const{
     int len = getSensorNumber();
     std::list<sensor> s;
     for(int i=0; i<len; i++){
