@@ -160,6 +160,7 @@ namespace lpzrobots {
   };
 
   void Discus::sense(GlobalData& globalData) {
+    OdeRobot::sense(globalData);
     // reset ir sensors to maximum value
     irSensorBank.sense(globalData);
   }

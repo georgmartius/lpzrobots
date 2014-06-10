@@ -114,6 +114,7 @@ namespace lpzrobots {
   void Hand::sense(GlobalData& globalData) {
     // reset ir sensors to maximum value
     irSensorBank.sense(globalData);
+    OdeRobot::sense(globalData);
   }
 
   // internal collisions

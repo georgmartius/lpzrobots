@@ -317,7 +317,7 @@ namespace lpzrobots {
 #endif
     assert(created);
     // robot must exist
-    assert(motornumber==getMotorNumber());
+    assert(motornumber >= getMotorNumberIntern());
     for (MotorMap::iterator it = servos.begin(); it != servos.end(); it++) {
       MotorName const name = it->first;
       OneAxisServo * const servo = it->second;
@@ -352,7 +352,7 @@ namespace lpzrobots {
     std::cerr << "AmosII::getSensors BEGIN\n";
 #endif
     assert(created);
-    assert(sensornumber == getSensorNumberIntern());
+    assert(sensornumber >= getSensorNumberIntern());
 
     // angle sensors
     //We multiple with -1 to map to real hexapod
@@ -620,6 +620,7 @@ namespace lpzrobots {
   }
 
   void AmosII::sense(GlobalData& globalData) {
+    OdeRobot::sense(globalData);
     // reset ir sensors to maximum value
     irSensorBank->sense(globalData);
 
@@ -1161,10 +1162,11 @@ namespace lpzrobots {
       //------------------ delete GoalSensor here by Ren--------------------
 
       // deleting pointers to GoalSensor_references
-      for (std::vector<Primitive*>::iterator i = conf.GoalSensor_references.begin(); i != conf.GoalSensor_references.end(); i++) {
-        if (*i)
-          delete *i;
-      }
+      // Georg: you do not want to delete the Goal object from here
+      // for (std::vector<Primitive*>::iterator i = conf.GoalSensor_references.begin(); i != conf.GoalSensor_references.end(); i++) {
+      //   if (*i)
+      //     delete *i;
+      // }
 
       GoalSensor.clear();
       //------------------ delete GoalSensor here by Ren--------------------

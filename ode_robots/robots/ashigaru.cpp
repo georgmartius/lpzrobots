@@ -425,7 +425,8 @@ namespace lpzrobots {
   }
 
   void Ashigaru::sense(GlobalData& globalData){
-
+    OdeRobot::sense(globalData);
+    
       // reset contact sensors
     for (int i = 0; i < LEG_POS_MAX; i++) {
       if (legContactSensors[LegPos(i)])

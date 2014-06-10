@@ -623,6 +623,7 @@ namespace lpzrobots {
   }
 
   void AmosFour::sense(GlobalData& globalData) {
+    OdeRobot::sense(globalData);
     irSensorBank->sense(globalData);
 
     for (int i = 0; i < LEG_POS_MAX; i++) {
