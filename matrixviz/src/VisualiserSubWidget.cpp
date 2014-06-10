@@ -109,6 +109,40 @@ void VisualiserSubWidget::updateViewableChannels(){
   update();
 }
 
+void VisualiserSubWidget::sourceName(QString name){
+  srcName=name;
+  setWindowTitle(QString(matrixChannel->getChannelName().c_str()) + " - " + srcName);
+}
+
+void VisualiserSubWidget::captureFrame(long idx, QString directory){
+  //  QApplication::instance()->postEvent(this,new CaptureFrameEvent(idx, directory));
+  //std::cout << "capture frame " << idx << " " << directory.toStdString() << std::endl;
+  // directory and filename generation:
+  QString channelname = QString(matrixChannel->getChannelName().c_str());
+  QString framename;
+  framename.sprintf("frame_%06ld.jpg", idx);
+  QDir dir(directory + "/" + srcName + "/" + channelname);
+  if (!dir.exists()) {
+    dir.mkpath(".");
+  }
+  QString fileName = dir.path() + "/" + framename;
+  QPixmap pixmap = QPixmap::grabWidget ( this );
+  if(!pixmap.save(fileName)){
+    std::cerr << "could not write to file " << fileName.toStdString() << endl;
+  };
+
+}
+
+// bool VisualiserSubWidget::event(QEvent* event){
+//   if (event->type() == CaptureFrameEvent::type) {
+//     CaptureFrameEvent *myEvent = static_cast<CaptureFrameEvent *>(event);
+//     internCaptureFrame(myEvent->idx, myEvent->directory);
+//     return true;
+//   }
+//   return QWidget::event(event);
+// }
+
+
 void VisualiserSubWidget::initVisTypes(){
    QMenu *visMenu = new QMenu(tr("&vis mode"), this);
   /*
@@ -132,7 +166,7 @@ void VisualiserSubWidget::switchVisMode(int index){
   visMode = index;
 
   visLayout->removeWidget(visualisation);
-  delete visualisation; 
+  delete visualisation;
   visualisation=0;
   /*
    * change visualisation
@@ -151,7 +185,6 @@ void VisualiserSubWidget::switchVisMode(int index){
       this->visualisation = new VectorPlotVisualisation(matrixChannel, colorPalette, this);
       break;
   }
-
   visLayout->insertWidget(0, visualisation, Qt::AlignLeft);
   updateViewableChannels();
   repaint();

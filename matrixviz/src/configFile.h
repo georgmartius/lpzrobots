@@ -47,6 +47,7 @@ public:
   void save();
   void newOpenedWindow(VisualiserSubWidget* window);
   static const bool debug = false;
+  QList<VisualiserSubWidget*> getOpenWindows() {return openWindows;}
 
 public slots:
   void doQuit();

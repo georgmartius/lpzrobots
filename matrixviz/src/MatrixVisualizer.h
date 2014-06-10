@@ -68,9 +68,12 @@ private:
         QVBoxLayout* main_layout;
         QComboBox *matChoice;
         QComboBox *vizChoice;
+        QLabel *nameLabel;
 
         QHBoxLayout* makeButtons();
         configFile* config;
+
+        QString srcName;
 
         void initGui();
         void linkChannels();
@@ -81,6 +84,7 @@ protected:
 
 private slots:
   void visualize(QAbstractButton * button);
+  void sourceName(QString name);
 
 signals:
   void sendQuit();

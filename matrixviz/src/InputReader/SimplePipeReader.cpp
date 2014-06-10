@@ -25,47 +25,53 @@ void SimplePipeReader::run()
   QByteArray charList;
 //   int counter = 0;
   while ( !closing ) {
-      usleep(1000);
-      QString line = input_line->readLine ();
-//       std::cout << "SimplePipeReader: read " << line.size() << " chars" << std::endl;
-      if ( line.isEmpty() ) continue;
-
-    if ( line.startsWith ( "#QUIT" ) ) {
+    usleep(1000);
+    QString line = input_line->readLine ();
+    //       std::cout << "SimplePipeReader: read " << line.size() << " chars" << std::endl;
+    if ( line.isEmpty() ) continue;
+    else if ( line.startsWith ( "#QUIT" ) ) {
       if(debug)  std::cout << "SimplePipeReader: have seen #QUIT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
       closing = true;
       break;
-    }
-
-    if ( line.startsWith ( "#RESET" ) ) {
+    } else if ( line.startsWith ( "#RESET" ) ) {
       if(debug) std::cout << "SimplePipeReader: have seen #RESET **************************" << std::endl;
 
 
+    } else if ( line.startsWith ( "#V" ) ) { // video recording -> capture frames
+      QStringList pieces = line.split(" ");
+      if(pieces.length()<3) { std::cout << "got" << line.toStdString()
+                                        << ", but missing parameters expect \"#V idx directory\"" << std::endl;
+      }else{
+        long int cnt=pieces.at(1).toLong();
+        emit captureFrame(cnt, pieces.at(2));
+      }
+    } else if ( line.startsWith ( "#IN" ) ) {  // Name
+      emit sourceName(line.mid(4));
     }
-
 
     if (debug) std::cout << "currDatalin: " << (currentDataLine.section(' ', 0, 0)).toDouble();
     if (debug) std::cout << "oldline: " << (line.section(' ', 0, 0)).toDouble() << std::endl;
-    if ( (currentChannelLine.size() > 2)
-         && (line.section(' ', 0, 0) != currentDataLine.section(' ', 0, 0))) {
-          currentDataLine = line;
-       //std::cout << "SimplePipeReader currentDataLine: [" << currentDataLine.toStdString() << "]" << std::endl;
-          emit newData(); //wenn timestamp geändert (erstes element)
-          //std::cout << "emit!!" << std::endl;
-        }
 
-      if ( line.startsWith ( "#C" ) ) {
-          //cut the first 2 chars (#C)
-          line = line.mid ( 3 );
-          currentChannelLine = line;
-//         std::cout << "SimplePipeReader currentChannelLine: [" << currentChannelLine.toStdString() << "]" << std::endl;
-        }
-//      if ( line.startsWith ( "#D" ) ) {
-//          //cut the first 2 chars (#C)
-//          line = line.mid ( 3 );
-//          currentDescriptionLine = line;
-////         printf("SimplePipeReader currentDescriptionLine: [%s]\r\n",currentDescriptionLine.toStdString().c_str());
-//      }
+    if ( line.startsWith ( "#C" ) ) {
+      //cut the first 2 chars (#C)
+      line = line.mid ( 3 );
+      currentChannelLine = line;
+      //         std::cout << "SimplePipeReader currentChannelLine: [" << currentChannelLine.toStdString() << "]" << std::endl;
+    } else if ( line.startsWith ( "#" ) ) {
+      continue;
+    } else if ( (currentChannelLine.size() > 2)
+                && (line.section(' ', 0, 0) != currentDataLine.section(' ', 0, 0))) {
+      currentDataLine = line;
+      emit newData(); //wenn timestamp geändert (erstes element)
     }
+
+    //      if ( line.startsWith ( "#D" ) ) {
+    //          //cut the first 2 chars (#C)
+    //          line = line.mid ( 3 );
+    //          currentDescriptionLine = line;
+    ////         printf("SimplePipeReader currentDescriptionLine: [%s]\r\n",currentDescriptionLine.toStdString().c_str());
+    //      }
+  }
 
   if(debug) std::cout << "SimplePipeReader SIGNAL(finished())" << std::endl;
   emit(finished());
@@ -145,4 +151,3 @@ SimplePipeReader:: ~SimplePipeReader()
 {
         std::cout << "SimplePipeReader: ByeBye()" << std::endl;
 }
-

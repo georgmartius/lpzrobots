@@ -39,6 +39,18 @@
 
 #include <iostream>
 
+// class CaptureFrameEvent : public QEvent {
+// public:
+//   CaptureFrameEvent(long idx, QString directory)
+//     : QEvent((Type)type), idx(idx), directory(directory) {
+
+//   }
+//   static const int type = QEvent::User+9891;
+// public:
+//   long idx;
+//   QString directory;
+// };
+
 
 class VisualiserSubWidget: public AbstractRobotSubWidget {
 
@@ -57,6 +69,8 @@ public:
 
 public slots:
   void updateViewableChannels();
+  void captureFrame(long idx, QString directory);
+  void sourceName(QString name);
   void switchVisMode(int index);
   void switchVisMode(QAction *action);
   void toggleOptions(QAction *action = 0);
@@ -66,7 +80,7 @@ protected:
 
   QComboBox *vizChoice;
   virtual void closeEvent(QCloseEvent * event);
-
+  //  virtual bool event(QEvent* event);
 private:
 
   AbstractVisualisation *visualisation;
@@ -77,6 +91,7 @@ private:
 
   MatrixPlotChannel *matrixChannel;
   ColorPalette *colorPalette;
+  QString srcName;
 
   void initGui();
   void initVisTypes();

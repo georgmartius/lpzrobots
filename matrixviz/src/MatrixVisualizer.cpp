@@ -38,6 +38,7 @@ MatrixVisualizer::MatrixVisualizer(QWidget *parent) : AbstractRobotGUI(parent) {
 
   // if '#QUIT' matrixvis quits too
   connect(pipe_reader, SIGNAL(finished()), this, SLOT(close()));
+  connect(pipe_reader, SIGNAL(sourceName(QString)), this, SLOT(sourceName(QString)));
 
   pipe_reader->start();
   if (debug) cout << "Here I AM!!!" << endl;
@@ -58,12 +59,22 @@ MatrixVisualizer::~MatrixVisualizer() {
 void MatrixVisualizer::initGui() {
 
   main_layout = new QVBoxLayout;
+  nameLabel = new QLabel();
+  main_layout->addWidget(nameLabel);
   main_layout->addLayout(makeButtons());
-
   setLayout(main_layout);
   // nach pack() ähnlichem gucken!
   resize(150,150); //adjustSize ();
   show();
+}
+
+void MatrixVisualizer::sourceName(QString name){
+  srcName=name;
+  QList<VisualiserSubWidget*> openWindows=config->getOpenWindows();
+  for (QList<VisualiserSubWidget*>::iterator it = openWindows.begin(); it != openWindows.end(); it++) {
+    if(*it) (*it)->sourceName(srcName);
+  }
+  if(nameLabel) nameLabel->setText(srcName);
 }
 
 QHBoxLayout* MatrixVisualizer::makeButtons(){
@@ -124,6 +135,9 @@ void MatrixVisualizer::linkChannels() { //not needed
 
 void MatrixVisualizer::connectWindowForUpdate(VisualiserSubWidget *vis){
   connect( pipe_reader, SIGNAL(newData()), vis, SLOT(updateViewableChannels()), Qt::DirectConnection);
+  connect( pipe_reader, SIGNAL(captureFrame(long,QString)), vis, SLOT(captureFrame(long,QString)));
+  connect( pipe_reader, SIGNAL(sourceName(QString)), vis, SLOT(sourceName(QString)));
+  vis->sourceName(srcName);
 }
 
 VectorPlotChannel* MatrixVisualizer::getVectorPlotChannel(QString name){

@@ -32,6 +32,8 @@ protected:
 
 signals:
   void newData();
+  void captureFrame(long index, QString directory);
+  void sourceName(QString name);
 
 private:
 

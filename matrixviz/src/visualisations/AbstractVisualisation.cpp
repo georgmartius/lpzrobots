@@ -36,5 +36,3 @@ AbstractVisualisation::AbstractVisualisation(MatrixPlotChannel *channel, ColorPa
 }
 
 AbstractVisualisation::~AbstractVisualisation(){}
-
-
