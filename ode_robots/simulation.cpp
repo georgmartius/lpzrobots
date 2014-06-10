@@ -151,6 +151,7 @@ namespace lpzrobots {
     osgThreadCreated=false;
 
     videostream = new VideoStream();
+    videostream->addCallbackable(this, VideoStream::FRAMECAPTURE);
 
     currentCycle = 1;
     windowName = "Lpzrobots - Selforg";
@@ -979,11 +980,9 @@ namespace lpzrobots {
     } else{
       globalData.odeConfig.videoRecordingMode=true;
       char dir[1024];
-      char filename[2048];
       createNewDir(name, dir);
       printf("Start video recording in %s!\n", dir);
-      sprintf(filename, "%s/frame", dir);
-      videostream->open(filename);
+      videostream->open(dir,"frame");
       return true;
     }
   }
@@ -997,6 +996,18 @@ namespace lpzrobots {
     }else{
       printf("No Video recording in progress, cannot stop!\n");
       return false;
+    }
+  }
+
+  void Simulation::doOnCallBack(BackCaller *src,
+                                BackCaller::CallbackableType type) {
+    if(type==VideoStream::FRAMECAPTURE){
+      assert(src==videostream && videostream!=0);
+      // notify all plotoptionengines
+      for(auto &a : globalData.agents){
+        a->writePlotComment(("V " + itos(videostream->getCounter()) + " "
+                             +  videostream->getDirectory()).c_str(), false);
+      }
     }
   }
 

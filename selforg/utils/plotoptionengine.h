@@ -99,8 +99,9 @@ public:
 
   /**
      write comment to output streams (PlotOptions). For instance changes in parameters.
+     If addSpace then "# CMT" is output otherwise "#CMT".
   */
-  virtual void writePlotComment(const char* cmt);
+  virtual void writePlotComment(const char* cmt, bool addSpace=true );
 
   virtual void plot(double time);
 
@@ -112,7 +113,7 @@ protected:
   std::list<const Inspectable* > inspectables;
   std::list< const Configurable* > configureables;
   long int t;
-  
+
   bool initialised;
 
 

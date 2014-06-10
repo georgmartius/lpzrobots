@@ -129,8 +129,9 @@ public:
 
   /**
      write comment to output streams (PlotOptions). For instance changes in parameters.
+     see PlotOptionEngine
   */
-  virtual void writePlotComment(const char* cmt);
+  virtual void writePlotComment(const char* cmt, bool addSpace=true);
 
   /** Returns a pointer to the controller.
    */

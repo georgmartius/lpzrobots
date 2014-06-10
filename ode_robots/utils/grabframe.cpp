@@ -22,7 +22,8 @@
  *                                                                         *
  ***************************************************************************/
 #include <assert.h>
-#include <string.h>
+#include <stdio.h>
+// #include <string.h>
 #include <osgDB/WriteFile>
 #include "grabframe.h"
 
@@ -36,29 +37,26 @@ namespace lpzrobots {
       VideoStream * vs = (VideoStream *)this; // this is a dirty hack to get rid of the const
       if(!vs->grabAndWriteFrame(c)) {
         fprintf(stderr,"Video recording failure!\n");
-         vs->close();
-       }
+        vs->close();
+      }
     }
   }
 
 
-  void VideoStream::open(const char* _filename){
-    assert (_filename);
-    filename = new char[strlen(_filename) + 1];
-    strcpy(filename, _filename);
+  void VideoStream::open(const std::string& _dir, const std::string& _filename){
+    directory = _dir;
+    filename  = _filename;
     counter  = 0;
     opened = true;
   }
 
   void VideoStream::close(){
-    if(filename) delete[] filename;
-    filename = 0;
     opened   = false;
   }
 
   bool VideoStream::grabAndWriteFrame(const osg::Camera& camera) {
     if(!opened) return false;
-    char name[128];
+    char name[1024];
     osg::ref_ptr<osg::Image>image = new osg::Image;
     // test
     const osg::Viewport* vp = camera.getViewport();
@@ -70,11 +68,12 @@ namespace lpzrobots {
 
     //    image->readPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE);
     image->readPixels( 0, 0, (int)vp->width(), (int)vp->height(), GL_RGB, GL_UNSIGNED_BYTE);
-    sprintf(name,"%s_%06ld.jpg", filename, counter);
+    sprintf(name,"%s/%s_%06ld.jpg", directory.c_str(),filename.c_str(), counter);
     if(!osgDB::writeImageFile( *(image.get()), name )){
       fprintf(stderr, "VideoStream: Cannot write to file %s\n", name);
       return false;
     }
+    callBack(FRAMECAPTURE);
     counter++;
     return true;
   }
@@ -149,4 +148,3 @@ namespace lpzrobots {
 //  BQSCALE         26
 
 //  REFERENCE_FRAME ORIGINAL
-

@@ -171,12 +171,15 @@ void PlotOptionEngine::addConfigurable(const Configurable* c){
   configureables.push_back(c);
 }
 
-void PlotOptionEngine::writePlotComment(const char* cmt){
+void PlotOptionEngine::writePlotComment(const char* cmt, bool addSpace){
   assert(initialised);
   for(auto &po : plotOptions){
     if( (po.pipe) && (strlen(cmt)>0)){ // for the guilogger pipe
       char last = cmt[strlen(cmt)-1];
-      fprintf(po.pipe, "# %s", cmt);
+      if(addSpace)
+        fprintf(po.pipe, "# %s", cmt);
+      else
+        fprintf(po.pipe, "#%s", cmt);
       if(last!=10 && last!=13) // print with or without new line
         fprintf(po.pipe, "\n");
     }

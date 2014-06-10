@@ -146,8 +146,8 @@ bool WiredController::removePlotOption(PlotMode mode){
   return plotEngine.removePlotOption(mode);
 }
 
-void WiredController::writePlotComment(const char* cmt){
-  plotEngine.writePlotComment(cmt);
+void WiredController::writePlotComment(const char* cmt, bool addSpace){
+  plotEngine.writePlotComment(cmt, addSpace);
 }
 
 
@@ -187,4 +187,3 @@ void WiredController::step(const sensor* sensors, int sensornumber,
   callBack();
   t++;
 }
-

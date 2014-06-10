@@ -55,7 +55,7 @@ namespace lpzrobots {
 
 namespace lpzrobots {
 
-  class Simulation : public Base, public osgGA::GUIEventHandler
+  class Simulation : public Base, public osgGA::GUIEventHandler, public Callbackable
   {
   public:
 
@@ -135,6 +135,8 @@ namespace lpzrobots {
     virtual void odeStep();
 
     virtual void osgStep();
+
+    virtual void doOnCallBack(BackCaller *src, BackCaller::CallbackableType type=BackCaller::DEFAULT_CALLBACKABLE_TYPE) override;
 
   protected:
     // GUIEventHandler

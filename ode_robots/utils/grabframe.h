@@ -24,17 +24,19 @@
 #ifndef __GRABFRAME_H
 #define __GRABFRAME_H
 
-#include <stdio.h>
+#include <string>
 #include <osg/Image>
 #include <osg/Camera>
+#include <selforg/backcaller.h>
 
 namespace lpzrobots{
 
-  class VideoStream : public osg::Camera::DrawCallback {
+  class VideoStream : public osg::Camera::DrawCallback, public BackCaller {
   public:
-    VideoStream(){ filename=0; opened=false; pause = false;}
+    static const BackCaller::CallbackableType FRAMECAPTURE = 898989;
+    VideoStream(){ opened=false; pause = false;}
 
-    void open(const char* filename);
+    void open(const std::string& dir, const std::string& filename);
     void close();
     bool grabAndWriteFrame(const osg::Camera& camera);
 
@@ -43,10 +45,14 @@ namespace lpzrobots{
     // DrawCallback interface
     virtual void operator() (const osg::Camera &) const ;
 
+    virtual long int getCounter() { return counter; }
+    virtual const std::string& getDirectory() { return directory; }
+
     bool pause;
   private:
     bool opened;
-    char* filename;
+    std::string filename;
+    std::string directory;
     unsigned int w;
     unsigned int h;
     long int counter;
