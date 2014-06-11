@@ -47,19 +47,21 @@ void signal_handler_init(){
 int main(int argc, char *argv[])
 {
 
-  if(argc>1 && (strcmp(argv[1],"--help")==0 || strcmp(argv[1],"-h")==0)){ 
-    printf("Usage: yourprog | %s [-noCtrlC]\n\t-noCtrlC will catch ctrlC and the program only terminates via the pipe\n",argv[0]);
+  if(argc>1 && (strcmp(argv[1],"--help")==0 || strcmp(argv[1],"-h")==0)){
+    printf("Usage: yourprog | %s [-noCtrlC] [-novideo]\n",argv[0]);
+    printf("\t-noCtrlC will catch ctrlC and the program only terminates via the pipe\n");
+    printf("\t-novideo will not record frames on #V lines (because it slows down significantly)\n");
     return 0;
   }
 
   if(argc>1 && strcmp(argv[1],"-noCtrlC")==0)
-      signal_handler_init();
+    signal_handler_init();
+  bool novideo = argc>1 && strcmp(argv[1],"-novideo")==0;
 
   QApplication app(argc, argv);
-  MatrixVisualizer gui;
+  MatrixVisualizer gui(0, novideo);
   int rv = app.exec();
 
   signal_handler_exit();
   return rv;
 }
-

@@ -49,7 +49,7 @@ class MatrixVisualizer: public AbstractRobotGUI
 
 
 public:
-        MatrixVisualizer(QWidget *parent = 0);
+        MatrixVisualizer(QWidget *parent = 0, bool novideo = false);
         virtual ~MatrixVisualizer();
 
          VectorPlotChannel* getVectorPlotChannel(QString name);
@@ -69,6 +69,7 @@ private:
         QComboBox *matChoice;
         QComboBox *vizChoice;
         QLabel *nameLabel;
+        bool noVideo;
 
         QHBoxLayout* makeButtons();
         configFile* config;

@@ -66,7 +66,7 @@ bool PlotOption::open(){
     pipe=popen(cmd,"w");
     break;
   case MatrixViz:
-    pipe=popen("matrixviz -noCtrlC","w");
+    pipe=popen("matrixviz -noCtrlC -novideo","w");
     if (pipe) std::cout << "MatrixViz-Sream opened" << std::endl;
     else std::cout << "MatrixViz-Sream open failed" << std::endl;
     break;
@@ -317,4 +317,3 @@ void PlotOption::printNetworkDescription(const string& name, const Inspectable* 
   fprintf(pipe,"#N nn_end\n");
 
 }
-

@@ -30,7 +30,8 @@
 using namespace std;
 
 
-MatrixVisualizer::MatrixVisualizer(QWidget *parent) : AbstractRobotGUI(parent) {
+MatrixVisualizer::MatrixVisualizer(QWidget *parent, bool noVideo)
+  : AbstractRobotGUI(parent), noVideo(noVideo) {
 
   pipe_reader = new SimplePipeReader();
 //  vector_filter = new VectorPipeFilter(pipe_reader);
@@ -135,7 +136,8 @@ void MatrixVisualizer::linkChannels() { //not needed
 
 void MatrixVisualizer::connectWindowForUpdate(VisualiserSubWidget *vis){
   connect( pipe_reader, SIGNAL(newData()), vis, SLOT(updateViewableChannels()), Qt::DirectConnection);
-  connect( pipe_reader, SIGNAL(captureFrame(long,QString)), vis, SLOT(captureFrame(long,QString)));
+  if(!noVideo)
+    connect( pipe_reader, SIGNAL(captureFrame(long,QString)), vis, SLOT(captureFrame(long,QString)));
   connect( pipe_reader, SIGNAL(sourceName(QString)), vis, SLOT(sourceName(QString)));
   vis->sourceName(srcName);
 }
