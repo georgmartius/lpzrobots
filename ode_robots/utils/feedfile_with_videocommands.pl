@@ -32,6 +32,7 @@ if(defined $ARGV[0] && defined $ARGV[1]){
             print "#V " . $framenr . " " . $name . "\n";
         }
     }
+    print "#QUIT\n";
 
 }else{
     print "Usage: feedfile_with_videocommands.pl videoname delay [every] [start] < logfile\n";
