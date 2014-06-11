@@ -177,6 +177,7 @@ install_scripts:
 	install -d $(PREFIX)/bin
 	install -m 755 ode_robots-config $(PREFIX)/bin/
 	install -m 755 utils/feedfile.pl $(PREFIX)/bin/
+	install -m 755 utils/feedfile_with_videocommands.pl $(PREFIX)/bin/
 	install -m 755 utils/encodevideo.sh $(PREFIX)/bin/
 	install -m 755 utils/writeTextToFrames.sh $(PREFIX)/bin/
 	install -m 755 utils/selectcolumns.pl $(PREFIX)/bin/
