@@ -228,7 +228,6 @@ namespace matrix {
       unsigned int k=0;
       if(fabs(vecs_real.val(0,i))<0.1) {
         while(fabs(vecs_real.val(k,i))<0.1 && k<vecs_real.getN()-1) k++;
-        if(i==0) std::cout << k << std::endl;
       }
       if(vecs_real.val(k,i)<0) {
         signs[i]=-1;
