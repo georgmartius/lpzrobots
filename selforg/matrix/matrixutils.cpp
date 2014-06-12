@@ -5,6 +5,7 @@
 ***************************************************************************/
 
 #include "matrixutils.h"
+#include <cmath>
 
 #ifndef NO_GSL
 #include <gsl/gsl_matrix.h>
@@ -116,21 +117,6 @@ namespace matrix {
 
   }
 
-  std::vector<int> toPositiveSignEigenVectors(Matrix& vecs_real, Matrix& vecs_imag){
-    std::vector<int> signs(vecs_real.getN());
-    for(unsigned int i=0; i< vecs_real.getN(); i++){
-      if(vecs_real.val(0,i)<0) {
-        signs[i]=-1;
-        for(unsigned int j=0; j < vecs_real.getM(); j++){
-          vecs_real.val(j,i)*=-1;
-          vecs_imag.val(j,i)*=-1;
-        }
-      }else{
-        signs[i]=1;
-      }
-    }
-    return signs;
-  }
 
 /******************** local functions *************************************/
 
@@ -233,3 +219,38 @@ namespace matrix {
 }
 
 #endif
+
+namespace matrix {
+
+  std::vector<int> toPositiveSignEigenVectors(Matrix& vecs_real, Matrix& vecs_imag){
+    std::vector<int> signs(vecs_real.getN());
+    for(unsigned int i=0; i< vecs_real.getN(); i++){
+      unsigned int k=0;
+      if(fabs(vecs_real.val(0,i))<0.1) {
+        while(fabs(vecs_real.val(k,i))<0.1 && k<vecs_real.getN()-1) k++;
+        if(i==0) std::cout << k << std::endl;
+      }
+      if(vecs_real.val(k,i)<0) {
+        signs[i]=-1;
+        for(unsigned int j=0; j < vecs_real.getM(); j++){
+          vecs_real.val(j,i)*=-1;
+          vecs_imag.val(j,i)*=-1;
+        }
+      }else{
+        signs[i]=1;
+      }
+    }
+    return signs;
+  }
+
+  double __matutils_euklidlen(double a, double b) { return sqrt(a*a+b*b);}
+
+  Matrix scaleEigenVectorsWithValue(const Matrix& vals_real, const Matrix& vals_imag,
+                                  Matrix& vecs_real, Matrix& vecs_imag){
+    const Matrix& factors = Matrix::map2(__matutils_euklidlen, vals_real, vals_imag);
+    vecs_real= ((vecs_real^T)&factors)^T;
+    vecs_imag= ((vecs_imag^T)&factors)^T;
+    return factors;
+  }
+
+}

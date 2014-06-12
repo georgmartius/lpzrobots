@@ -49,11 +49,19 @@ namespace matrix{
 
 
   /**
-     flips the signs of the eigenvectors such that their first entry is positive.
-     The eigenvectors are assumed to be columnwise.
+     flips the signs of the eigenvectors such that their first entry has positive real part.
+     If the first entry is very small the first no-vanishing entry is used.
+     The eigenvectors are assumed to be columnwise (as returned by eigenValues() etc).
      Returns the original signs (1 or -1 per column)
    */
   std::vector<int> toPositiveSignEigenVectors(Matrix& vecs_real, Matrix& vecs_imag);
+
+  /**
+     scales the eigenvectors with the absolute value of the eigenvalues.
+     returns vector with factors
+   */
+  Matrix scaleEigenVectorsWithValue(const Matrix& vals_real, const Matrix& vals_imag,
+                                  Matrix& vecs_real, Matrix& vecs_imag);
 
 }
 
