@@ -41,6 +41,7 @@ MatrixVisualizer::MatrixVisualizer(QWidget *parent, bool noVideo)
   connect(pipe_reader, SIGNAL(finished()), this, SLOT(close()));
   connect(pipe_reader, SIGNAL(sourceName(QString)), this, SLOT(sourceName(QString)));
 
+  // let pipe reader start
   pipe_reader->start();
   if (debug) cout << "Here I AM!!!" << endl;
 
@@ -52,6 +53,7 @@ MatrixVisualizer::MatrixVisualizer(QWidget *parent, bool noVideo)
   config = new configFile();
   config->load(this);
   connect(this, SIGNAL(sendQuit()), config, SLOT(doQuit()));
+  pipe_reader->goReadData();
 }
 
 MatrixVisualizer::~MatrixVisualizer() {

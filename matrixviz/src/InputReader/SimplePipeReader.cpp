@@ -12,7 +12,7 @@ SimplePipeReader::SimplePipeReader()
   input_line = new QTextStream ( stdin, QIODevice::ReadOnly );
   currentChannelLine = "";
   currentDataLine = "";
-
+  waitForGui = true;
 
 //   if (dynamic_cast<QFile*>(input_line->device()))
 //      QObject::connect(input_line->device() ,SIGNAL(), this, SLOT());
@@ -61,6 +61,7 @@ void SimplePipeReader::run()
       continue;
     } else if ( (currentChannelLine.size() > 2)
                 && (line.section(' ', 0, 0) != currentDataLine.section(' ', 0, 0))) {
+      while(waitForGui){ msleep(100); }
       currentDataLine = line;
       emit newData(); //wenn timestamp geändert (erstes element)
     }

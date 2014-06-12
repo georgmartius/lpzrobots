@@ -28,8 +28,8 @@ if(defined $ARGV[0] && defined $ARGV[1]){
         $cnt+=1;
         if($cmt || ($cnt % $every == 0 && $cnt >= $start)){
             print $_;
-            $framenr=$framenr+1;
             print "#V " . $framenr . " " . $name . "\n";
+            $framenr=$framenr+1;
         }
     }
     print "#QUIT\n";

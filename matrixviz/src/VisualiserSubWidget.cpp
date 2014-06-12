@@ -126,8 +126,8 @@ void VisualiserSubWidget::captureFrame(long idx, QString directory){
     dir.mkpath(".");
   }
   QString fileName = dir.path() + "/" + framename;
-  QPixmap pixmap = QPixmap::grabWidget ( this, 0, menuBar->height() );
-  if(!pixmap.save(fileName)){
+  QPixmap pixmap = QPixmap::grabWidget ( this, 0, menuBar->height()-1 );
+  if(!pixmap.save(fileName,0,90)){
     std::cerr << "could not write to file " << fileName.toStdString() << endl;
   };
 }

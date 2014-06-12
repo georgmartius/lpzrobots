@@ -15,30 +15,33 @@
 class AbstractPipeReader : public QThread
 {
 //   Q_OBJECT
-  
+
 public:
 //   AbstractPipeReader() = 0;
 //   virtual ~AbstractPipeReader() {};
-  
+
   virtual void run()=0;
-  
+
   virtual std::list<std::string> getChannelLine() = 0;
 
-  
+
   virtual std::list<std::string> getDescriptionLine() = 0;
 
   virtual std::list<double> getDataLine() = 0;
-  
+
 //   virtual void waitForChannelData() = 0;
   virtual bool readyForData() = 0;
+  // the thread should go ahead with reading data. (allowing the gui to fire up)
+  virtual void goReadData() = 0;
+
 // signals:
 //   void newData() {};
-//   
+//
 protected:
-  
+
 private:
 
-  
+
 };
 
 #endif

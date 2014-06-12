@@ -20,6 +20,7 @@ public:
 //   virtual void waitForChannelData();
   virtual bool readyForData();
 
+  virtual void goReadData() { waitForGui = false;};
 protected:
 
   virtual std::list<std::string> getChannelLine();
@@ -43,6 +44,7 @@ private:
   QString currentChannelLine;
   QString currentDescriptionLine;
   static const bool debug = false;
+  bool waitForGui;
 
 //   QMutex* mutex;
 
