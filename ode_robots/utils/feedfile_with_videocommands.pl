@@ -16,20 +16,20 @@ if(defined $ARGV[0] && defined $ARGV[1]){
     my $cnt=0;
     my $framenr=0;
     while (<>) {
-        my $cmt=0;
         if(/^#V / ){ # skip original video tags
             next;
         }elsif(/^#/ ){
-          $cnt-=1;
-          $cmt=1;
-        }else{
-          select(undef,undef,undef,$delay/1000) if($delay);
-        }
-        $cnt+=1;
-        if($cmt || ($cnt % $every == 0 && $cnt >= $start)){
             print $_;
-            print "#V " . $framenr . " " . $name . "\n";
-            $framenr=$framenr+1;
+        }else{
+            if($cnt >= $start){
+                select(undef,undef,undef,$delay/1000) if($delay);
+                if($cnt % $every == 0){
+                    print $_;
+                    print "#V " . $framenr . " " . $name . "\n";
+                    $framenr=$framenr+1;
+                }
+            }
+            $cnt+=1;
         }
     }
     print "#QUIT\n";
@@ -39,5 +39,5 @@ if(defined $ARGV[0] && defined $ARGV[1]){
     print "\t outputs the logfile with \"#V CNT videoname\" lines every given line\n";
     print "\t for video recording with matrixviz etc. if no video was recorded in the simulation.\n";
     print "\t otherwise use feedfile.pl directly\n";
-    print "\tdelay in milliseconds\n\tevery xth dataset to use for the video\n\tstart dataset number to start with\n";
+    print "\tdelay in milliseconds (on original data)\n\tevery xth dataset to use for the video\n\tstart dataset number to start with\n";
 }

@@ -15,19 +15,19 @@ if(defined $ARGV[0]){
     my $cnt=0;
 
     while (<>) {
-        my $cmt=0;
         if(/^#/ ){
-          $cnt-=1;
-          $cmt=1;
-        }else{
-          select(undef,undef,undef,$delay/1000) if($delay);
-        }
-        $cnt+=1;
-        if($cmt || ($cnt % $every == 0 && $cnt >= $start)){
             print $_;
+        }else{
+            if($cnt >= $start){
+                select(undef,undef,undef,$delay/1000) if($delay);
+                if($cnt % $every == 0){
+                    print $_;
+                }
+            }
+            $cnt+=1;
         }
     }
 
 }else{
-    print "Usage: feedfile.pl delay [every] [start] < logfile\n\tdelay in milliseconds\n\tevery xth dataset to use\n\tstart dataset number to start with\n";
+    print "Usage: feedfile.pl delay [every] [start] < logfile\n\tdelay in milliseconds (on original data)\n\tevery xth dataset to use\n\tstart dataset number to start with\n";
 }

@@ -132,8 +132,6 @@ void VisualiserSubWidget::captureFrame(long idx, QString directory){
   };
 }
 
-// Event stuff not needed if slots are not "DirectConnect" but "SimpleConnect"
-// then it is automatically in the gui thread.
 // bool VisualiserSubWidget::event(QEvent* event){
 //   if (event->type() == CaptureFrameEvent::type) {
 //     CaptureFrameEvent *myEvent = static_cast<CaptureFrameEvent *>(event);

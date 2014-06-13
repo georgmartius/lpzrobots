@@ -33,6 +33,8 @@ public:
   virtual bool readyForData() = 0;
   // the thread should go ahead with reading data. (allowing the gui to fire up)
   virtual void goReadData() = 0;
+  // causes the reader to wait before reading more data before goReadData is called
+  virtual void waitUntilGo() = 0;
 
 // signals:
 //   void newData() {};

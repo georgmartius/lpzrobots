@@ -152,13 +152,13 @@ void TextureVisualisation::mouseMoveEvent ( QMouseEvent *event ){
   if(n >= maxX) n=maxX-1;
   if(n < 0) n=0;
   if(m >= maxY) m=maxY-1;
-  if(m < 0) m=0;  
+  if(m < 0) m=0;
 
   VectorPlotChannel *vectorPC = dynamic_cast<VectorPlotChannel *> (channel);
   if ( vectorPC == NULL){
     MatrixElementPlotChannel *elem = channel->getChannel(n, m);
     tTip = QString(elem->getChannelName().c_str()) + ": " + QString::number(elem->getValue());
-    
+
   }else{
     VectorElementPlotChannel * elem = vectorPC->getChannel(n);
     //    tTip += QString(elem->getChannelName().c_str()) + ", " + QString::number(m) + ": " + QString::number(elem->getValue());
@@ -167,4 +167,3 @@ void TextureVisualisation::mouseMoveEvent ( QMouseEvent *event ){
   }
   setToolTip((const QString) tTip);  // shows up ToolTip "M[x,y]"
 }
-

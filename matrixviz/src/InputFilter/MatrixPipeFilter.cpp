@@ -46,7 +46,7 @@ AbstractPlotChannel* MatrixPipeFilter::createChannel(std::string name)
 {
         if (debug) cout << name << endl;
   bool hasBrace = false, hasComma = false;
-  int bracePos, commaPos;
+  int bracePos=0, commaPos=0;
   for(unsigned int i = 0; i < name.size(); i++){
     if(name.at(i) == '['){
       hasBrace = true;
@@ -114,24 +114,24 @@ std::vector<VectorPlotChannel*> MatrixPipeFilter::getVectorChannels(){
 void MatrixPipeFilter::updateChannels() {
     if (debug) std::cout << "MatrixPipeFilter: updateChannels()" << std::endl;
 
-    std::list<double> dataList = (apr->getDataLine());
+    const std::list<double>& dataList = (apr->getDataLine());
     std::list<int>::const_iterator index_it=channelIndexList.begin();
     std::list<AbstractPlotChannel*>::const_iterator channel_it=channelList.begin();
 
-    int tmp_i=0;
-    for(std::list<double>::iterator i=dataList.begin(); i != dataList.end(); i++) {
-      if (debug) printf("[% .1f]",(*i));
-      if (tmp_i > 5) break;
-      tmp_i++;
-    }
-    if (debug) printf("\r\n");
+    // int tmp_i=0;
+    // for(std::list<double>::const_iterator i=dataList.begin(); i != dataList.end(); i++) {
+    //   if (debug) printf("[% .1f]",(*i));
+    //   if (tmp_i > 5) break;
+    //   ++tmp_i;
+    // }
+    // if (debug) printf("\r\n");
 
     //int printedIndex = 0;
 
-    for(std::list<double>::iterator i=dataList.begin(); i != dataList.end() && index_it!=channelIndexList.end() && channel_it!=channelList.end() ; i++)
+    for(std::list<double>::const_iterator i=dataList.begin(); i != dataList.end() && index_it!=channelIndexList.end() && channel_it!=channelList.end() ; ++i)
     {
       (*channel_it)->setValue((*i));
-      channel_it++;
+      ++channel_it;
 //      if (index == (*index_it)){
 ////         std::cout << "[" << (*channel_it)->getChannelName() << "=" << index << "]";
 //        (*channel_it)->setValue((*i));

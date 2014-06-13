@@ -69,7 +69,6 @@ private:
         QComboBox *matChoice;
         QComboBox *vizChoice;
         QLabel *nameLabel;
-        bool noVideo;
 
         QHBoxLayout* makeButtons();
         configFile* config;
@@ -86,6 +85,7 @@ protected:
 private slots:
   void visualize(QAbstractButton * button);
   void sourceName(QString name);
+  void captureFrame(long idx, QString directory);
 
 signals:
   void sendQuit();

@@ -4,7 +4,8 @@
 #include <signal.h>
 
 
-SimplePipeReader::SimplePipeReader()
+SimplePipeReader::SimplePipeReader(bool noVideo)
+  : noVideo(noVideo)
 {
 
 //   signal(SIGPIPE,SIG_IGN);
@@ -12,7 +13,7 @@ SimplePipeReader::SimplePipeReader()
   input_line = new QTextStream ( stdin, QIODevice::ReadOnly );
   currentChannelLine = "";
   currentDataLine = "";
-  waitForGui = true;
+  waitForGui = false;
 
 //   if (dynamic_cast<QFile*>(input_line->device()))
 //      QObject::connect(input_line->device() ,SIGNAL(), this, SLOT());
@@ -38,12 +39,15 @@ void SimplePipeReader::run()
 
 
     } else if ( line.startsWith ( "#V" ) ) { // video recording -> capture frames
-      QStringList pieces = line.split(" ");
-      if(pieces.length()<3) { std::cout << "got" << line.toStdString()
-                                        << ", but missing parameters expect \"#V idx directory\"" << std::endl;
-      }else{
-        long int cnt=pieces.at(1).toLong();
-        emit captureFrame(cnt, pieces.at(2));
+      if(!noVideo){
+        QStringList pieces = line.split(" ");
+        if(pieces.length()<3) { std::cout << "got" << line.toStdString()
+                                          << ", but missing parameters expect \"#V idx directory\"" << std::endl;
+        }else{
+          long int cnt=pieces.at(1).toLong();
+          emit captureFrame(cnt, pieces.at(2));
+          waitUntilGo(); // wait for gui thread
+        }
       }
     } else if ( line.startsWith ( "#IN" ) ) {  // Name
       emit sourceName(line.mid(4));

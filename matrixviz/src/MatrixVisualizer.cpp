@@ -31,16 +31,17 @@ using namespace std;
 
 
 MatrixVisualizer::MatrixVisualizer(QWidget *parent, bool noVideo)
-  : AbstractRobotGUI(parent), noVideo(noVideo) {
+  : AbstractRobotGUI(parent) {
 
-  pipe_reader = new SimplePipeReader();
+  pipe_reader = new SimplePipeReader(noVideo);
+  pipe_reader->waitUntilGo();
 //  vector_filter = new VectorPipeFilter(pipe_reader);
   matrix_filter = new MatrixPipeFilter(pipe_reader);
 
   // if '#QUIT' matrixvis quits too
   connect(pipe_reader, SIGNAL(finished()), this, SLOT(close()));
   connect(pipe_reader, SIGNAL(sourceName(QString)), this, SLOT(sourceName(QString)));
-
+  connect( pipe_reader, SIGNAL(captureFrame(long,QString)), this, SLOT(captureFrame(long,QString)));
   // let pipe reader start
   pipe_reader->start();
   if (debug) cout << "Here I AM!!!" << endl;
@@ -136,10 +137,16 @@ void MatrixVisualizer::linkChannels() { //not needed
 
 }
 
+void MatrixVisualizer::captureFrame(long idx, QString directory){
+  QList<VisualiserSubWidget*> openWindows=config->getOpenWindows();
+  for (QList<VisualiserSubWidget*>::iterator it = openWindows.begin(); it != openWindows.end(); it++) {
+    if(*it) (*it)->captureFrame(idx, directory);
+  }
+  pipe_reader->goReadData();
+}
+
 void MatrixVisualizer::connectWindowForUpdate(VisualiserSubWidget *vis){
-  connect( pipe_reader, SIGNAL(newData()), vis, SLOT(updateViewableChannels()), Qt::DirectConnection);
-  if(!noVideo)
-    connect( pipe_reader, SIGNAL(captureFrame(long,QString)), vis, SLOT(captureFrame(long,QString)));
+  connect( pipe_reader, SIGNAL(newData()), vis, SLOT(updateViewableChannels())/*, Qt::DirectConnection*/);
   connect( pipe_reader, SIGNAL(sourceName(QString)), vis, SLOT(sourceName(QString)));
   vis->sourceName(srcName);
 }

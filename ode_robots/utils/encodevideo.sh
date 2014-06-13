@@ -40,7 +40,7 @@ cp "$FRAME" "$TARGET.jpg";
 
 echo -e "*********************** mjpeg encoding **************************";
 #mencoder mf://$NAME*.jpg -mf fps=25:type=sgi -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o $NAME.mjpeg
-mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o "$TARGET.mjpeg"
+nice -10 mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o "$TARGET.mjpeg"
 
 #echo -e "*********************** to wmv **************************";
 #mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=wmv2:vbitrate=600 -oac copy -o "${TARGET}.wmv.avi"
@@ -49,17 +49,17 @@ mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=mjpeg -o
 #transcode -i "$TARGET.mjpeg" -o "$TARGET.avi" -y xvid4,null -w 800
 if which x264; then
     echo -e "******************** to high quality mp4 and flv (h264) ***************";
-    x264 --crf 15 -o "${TARGET}_hq.mp4" "$TARGET.mjpeg";
-    x264 --crf 15 -o "${TARGET}_hq.flv" "$TARGET.mjpeg";
+    nice -10 x264 --crf 15 -o "${TARGET}_hq.mp4" "$TARGET.mjpeg";
+    nice -10 x264 --crf 15 -o "${TARGET}_hq.flv" "$TARGET.mjpeg";
 else
     echo -e "******************** to high quality avi (msmpeg4) ***************";
-    ffmpeg -i "$TARGET.mjpeg" -vcodec msmpeg4 -sameq  "${TARGET}_hq.avi"
+    nice -10 ffmpeg -i "$TARGET.mjpeg" -vcodec msmpeg4 -sameq  "${TARGET}_hq.avi"
     echo -e "******************** to flash video (high quality) ***************";
-    ffmpeg -i "$TARGET.mjpeg" -b 2500k  "${TARGET}_hq.flv"
+    nice -10 ffmpeg -i "$TARGET.mjpeg" -b 2500k  "${TARGET}_hq.flv"
 fi
 
 echo -e "******************** to flash video (web version)  ***************";
-ffmpeg -i "$TARGET.mjpeg" -b 800k  "${TARGET}.flv"
+nice -10 ffmpeg -i "$TARGET.mjpeg" -b 800k  "${TARGET}.flv"
 
 #echo -e "******************** to mpeg4 xvid 4 small variant ***************";
 #transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.avi -y xvid4,null -w 100 -r 2

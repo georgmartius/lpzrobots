@@ -12,7 +12,7 @@ class SimplePipeReader : public AbstractPipeReader
 
 public:
 
-  SimplePipeReader();
+  SimplePipeReader(bool noVideo);
   virtual ~SimplePipeReader();
 
   virtual void run();
@@ -21,6 +21,7 @@ public:
   virtual bool readyForData();
 
   virtual void goReadData() { waitForGui = false;};
+  virtual void waitUntilGo() { waitForGui = true;};
 protected:
 
   virtual std::list<std::string> getChannelLine();
@@ -45,6 +46,7 @@ private:
   QString currentDescriptionLine;
   static const bool debug = false;
   bool waitForGui;
+  bool noVideo;
 
 //   QMutex* mutex;
 

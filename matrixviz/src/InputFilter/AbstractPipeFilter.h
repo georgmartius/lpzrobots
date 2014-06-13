@@ -44,8 +44,15 @@ class AbstractPipeFilter : public QObject {
       channelIndexList.clear();
     }
 
-  public slots:
+  class MySleep : public QThread
+  {
+  public:
+    static void msleep(unsigned long msecs) {
+      QThread::msleep(msecs);
+    }
+  };
 
+  public slots:
   /**
    * The dataLine from PipeReader will be iterate to set the new channel-value.
    * The order of the value-input-list (dataList) is important and the index of it
@@ -113,6 +120,7 @@ class AbstractPipeFilter : public QObject {
       if(debug) std::cout << "AbstractPipeFilter: createChannelList()" << std::endl;
 
       while (!(apr->readyForData())) {
+        MySleep::msleep(50);
       }
 
       std::list<std::string> tmp_list;
