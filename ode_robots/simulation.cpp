@@ -436,18 +436,20 @@ namespace lpzrobots {
     // default camera position
     setCameraHomePos (Pos(0, -20, 3),  Pos(0, 0, 0));
 
-    start(odeHandle, osgHandle, globalData);
-
-    // add command line to agents log files
     string commandline;
     for(int i=0; i< argc; ++i){
       commandline = commandline + argv[i] + " ";
     }
+    // add the commandline as a parameter to the config, so that it is present everywhere
+    globalData.odeConfig.addParameterDef("commandline",&commandline_param_dummy,true,commandline.c_str());
+
+    start(odeHandle, osgHandle, globalData);
+
+    // add command line to agents log files (which is now allready done with the odeConfig parameter)
     for(auto &a : globalData.agents){
       a->writePlotComment(commandline.c_str());
     }
-    // add the commandline as a parameter to the config, so that it is present everywhere
-    globalData.odeConfig.addParameterDef("commandline",&commandline_param_dummy,true,commandline.c_str());
+
     // set parameters from commandline to configurables
     auto kvPairs = parseKeyValuePairs(initConfParams);
     for(auto &c : globalData.configs){
@@ -459,6 +461,12 @@ namespace lpzrobots {
     printConfigs(globalData.configs);
 
     if(!noGraphics) {
+      // start video is requested on cmd line (cannot do it in processCmdLine because to early)
+      int index = contains(argv, argc, "-video");
+      if(index && (argc > index)) {
+        startVideoRecording(argv[index]);
+      }
+
       // optimize the scene graph, remove redundant nodes and state etc.
       // osgUtil::Optimizer optimizer;
       // optimizer.optimize(osgHandle.scene->root);
@@ -1261,10 +1269,6 @@ namespace lpzrobots {
       printf("simtime=%li\n",simulation_time);
     }
 
-    index = contains(argv, argc, "-video");
-    if(index && (argc > index)) {
-      startVideoRecording(argv[index]);
-    }
     if (contains(argv, argc, "-drawcontacts")) {
       drawContacts=true;
     }
