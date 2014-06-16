@@ -48,7 +48,7 @@ bool PlotOption::open(){
       t = localtime(&tnow);
       char logfilename[255];
       if (!parameter.empty()){
-        sprintf(logfilename,"%s_%s.log",name.c_str(), parameter.c_str());
+        sprintf(logfilename,"%s_%s.log", parameter.c_str(), name.c_str());
       } else{
         sprintf(logfilename,"%s_%02i-%02i-%02i_%02i-%02i-%02i.log",
               name.c_str(), t->tm_year%100, t->tm_mon+1 , t->tm_mday,
