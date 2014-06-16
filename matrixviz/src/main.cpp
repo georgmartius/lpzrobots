@@ -44,19 +44,28 @@ void signal_handler_init(){
   signal(SIGPIPE, SIG_DFL);
 }
 
+int contains(char **list, int len,  const char *str) {
+  for(int i=0; i<len; i++) {
+    if(strcmp(list[i],str) == 0)
+      return i+1;
+  }
+  return 0;
+}
+
 int main(int argc, char *argv[])
 {
 
-  if(argc>1 && (strcmp(argv[1],"--help")==0 || strcmp(argv[1],"-h")==0)){
+
+  if(contains(argv,argc,"--help")!=0 || contains(argv,argc,"-h")!=0){
     printf("Usage: yourprog | %s [-noCtrlC] [-novideo]\n",argv[0]);
     printf("\t-noCtrlC will catch ctrlC and the program only terminates via the pipe\n");
     printf("\t-novideo will not record frames on #V lines (because it slows down significantly)\n");
     return 0;
   }
 
-  if(argc>1 && strcmp(argv[1],"-noCtrlC")==0)
+  if(contains(argv,argc,"-noCtrlC"))
     signal_handler_init();
-  bool novideo = argc>1 && strcmp(argv[1],"-novideo")==0;
+  bool novideo = contains(argv,argc,"-novideo")!=0;
 
   QApplication app(argc, argv);
   MatrixVisualizer gui(0, novideo);
