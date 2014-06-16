@@ -82,7 +82,10 @@ bool PlotOptionEngine::initPlotOption(PlotOption& po){
       po.printNetworkDescription(maybe_controller->getName(), maybe_controller);
     }
     // print interval
-    fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
+    if(po.interval==1)
+      fprintf(po.pipe, "# Recording every dataset\n");
+    else
+      fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
     // print all configureables
     FOREACHC(list<const Configurable*>, configureables, i){
       (*i)->print(po.pipe, "# ");
@@ -125,34 +128,35 @@ void PlotOptionEngine::setName(const string& _name){
   }
 }
 
-PlotOption& PlotOptionEngine::addPlotOption(PlotOption& plotOption) {
+PlotOption& PlotOptionEngine::addPlotOption(const PlotOption& plotOption) {
   PlotOption po = plotOption;
   // set name of PlotOption if not existent
-  if (po.getName().size()==0)
+  if (po.getName().empty())
     po.setName(name);
+  // Georg: no we do not delete it anymore. Allowing for more multiple
+  //  (e.g. file logging with different interval)
   // if plotoption with the same mode exists -> delete it
-  removePlotOption(po.mode);
+  // removePlotOption(po.mode);
 
   plotOptions.push_back(po);
 
   return plotOptions.back();
 }
 
-bool PlotOptionEngine::addAndInitPlotOption(PlotOption& plotOption, bool forceInit) {
+bool PlotOptionEngine::addAndInitPlotOption(const PlotOption& plotOption, bool forceInit) {
   PlotOption& po = addPlotOption(plotOption);
   if (initialised || forceInit)
-    return initPlotOption(addPlotOption(po));
+    return initPlotOption(po);
   else
     return true;
 }
 
 bool PlotOptionEngine::removePlotOption(PlotMode mode) {
   // if plotoption with the same mode exists -> delete it
-  list<PlotOption>::iterator po
-    = find_if(plotOptions.begin(), plotOptions.end(), PlotOption::matchMode(mode));
-  if(po != plotOptions.end()){
+  auto po = find_if(plotOptions.rbegin(), plotOptions.rend(), PlotOption::matchMode(mode));
+  if(po != plotOptions.rend()){
     (*po).close();
-    plotOptions.erase(po);
+    plotOptions.erase(--po.base());
     return true;
   }
   return false;

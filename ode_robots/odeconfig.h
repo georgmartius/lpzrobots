@@ -34,14 +34,14 @@ namespace lpzrobots {
   */
   class OdeConfig : public Configurable {
   public:
-    
+
     // creates new instance of OdeConfig with default values
     OdeConfig();
-    
+
     virtual ~OdeConfig() {}
-        
+
     virtual long int getRandomSeed() const { return randomSeed; }
-        
+
     virtual void setRandomSeed(long int randomSeed){
       this->randomSeed=randomSeed;
       randomSeedCopy = randomSeed;
@@ -52,10 +52,10 @@ namespace lpzrobots {
     virtual void setVideoRecordingMode(bool mode);
 
     virtual void calcAndSetDrawInterval(double Hz, double rtf);
-    
+
     /******** CONFIGURABLE ***********/
     virtual void notifyOnChange(const paramkey& key);
-    
+
 
   private:
     /// calculates the draw interval with simStepSize and realTimeFactor so that we have the Hz frames/sec
@@ -63,8 +63,8 @@ namespace lpzrobots {
 
   public:
     bool videoRecordingMode;
+    bool logWhileRecording;
     double simStepSize;
-    double motionPersistence;
     int drawInterval;
     int controlInterval;
     double noise;

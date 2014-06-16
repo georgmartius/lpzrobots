@@ -32,7 +32,6 @@ namespace lpzrobots {
   {
     addParameterDef("noise",            &noise,0.1, 0, 1, "global noise strength");
     addParameterDef("cameraspeed",      &cameraSpeed,100, 1,1000, "camera speed");
-    addParameterDef("motionpersistence",&motionPersistence,0.0,0,10,"motion blur strength");
     addParameterDef("controlinterval"  ,&controlInterval,1, 1, 100,
                     "interval in steps between subsequent controller calls");
 
@@ -45,6 +44,8 @@ namespace lpzrobots {
     addParameterDef("randomseed"          ,&randomSeedCopy,   0,
                     "random number seed (cmdline -r) (readonly)");
     addParameterDef("fps"              ,&fps,            25,0.0001,200, "frames per second");
+    addParameterDef("logwhilerecording",&logWhileRecording, true,
+                    "record log file and store agents while recording a video");
 
     drawInterval = calcDrawInterval(fps,realTimeFactor);
     // prepare name;

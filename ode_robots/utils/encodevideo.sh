@@ -33,9 +33,8 @@ if test -n "$2"; then
     TARGET=$2;
 fi
 
-# for F in $NAME*.bmp; do echo "convert $F"; convert "$F" "${F%bmp}sgi"; rm "$F"; done
-# copy first frame as screenshot
-FRAME=`ls $NAME* -1 | head -1`;
+# copy 20th frame as screenshot
+FRAME=`ls $NAME* -1 | head -20 | tail -n 1`;
 cp "$FRAME" "$TARGET.jpg";
 
 echo -e "*********************** mjpeg encoding **************************";
@@ -66,5 +65,14 @@ nice -10 ffmpeg -i "$TARGET.mjpeg" -b 800k  "${TARGET}.flv"
 
 #echo -e "******************** to wmv small variant ***************";
 #transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.wmv.avi -y ffmpeg,null -F wmv2 -w 100 -r 2
+
+# copy src and log files into src folder and tar them
+DATAFOLDER=${TARGET}_src
+mkdir "$DATAFOLDER";
+cp ../*.cpp ../*.h ../Makefile.conf "$DATAFOLDER"
+mv *.log *.agent "$DATAFOLDER"
+echo "create $DATAFOLDER for log files and sources";
+tar -czf "${DATAFOLDER}.tar.gz" "$DATAFOLDER";
+
 
 rm -f "$TARGET.mjpeg";

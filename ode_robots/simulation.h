@@ -286,6 +286,9 @@ namespace lpzrobots {
     bool odeThreadCreated;
     bool osgThreadCreated;
 
+  private:
+    bool commandline_param_dummy;
+
   };
 
   /** creates a new directory with the stem base, which is not yet there

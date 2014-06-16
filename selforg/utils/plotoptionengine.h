@@ -69,7 +69,7 @@ public:
   /** adds the PlotOptions to the list of plotoptions
       If a plotoption with the same Mode exists, then the old one is deleted first
    */
-  virtual PlotOption& addPlotOption(PlotOption& plotoption);
+  virtual PlotOption& addPlotOption(const PlotOption& plotoption);
 
   /**
    * Adds the PlotOptions to the list of plotoptions
@@ -81,7 +81,7 @@ public:
    *        This may cause problems. Use this at your own risk.
    * @return
    */
-  virtual bool addAndInitPlotOption(PlotOption& plotoption, bool forceInit = false);
+  virtual bool addAndInitPlotOption(const PlotOption& plotoption, bool forceInit = false);
 
   /** removes the PlotOptions with the given type
       @return true if sucessful, false otherwise

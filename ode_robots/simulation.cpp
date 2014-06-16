@@ -63,7 +63,6 @@
 #include "cameramanipulatorTV.h"
 #include "cameramanipulatorFollow.h"
 //#include "cameramanipulatorRace.h"
-#include "motionblurcallback.h"
 
 #include "randomobstacles.h"
 
@@ -447,6 +446,8 @@ namespace lpzrobots {
     for(auto &a : globalData.agents){
       a->writePlotComment(commandline.c_str());
     }
+    // add the commandline as a parameter to the config, so that it is present everywhere
+    globalData.odeConfig.addParameterDef("commandline",&commandline_param_dummy,true,commandline.c_str());
     // set parameters from commandline to configurables
     auto kvPairs = parseKeyValuePairs(initConfParams);
     for(auto &c : globalData.configs){
@@ -478,10 +479,9 @@ namespace lpzrobots {
       viewer->getWindows(windows);
       assert(windows.size()>0);
 
-      // set our motion blur callback as the draw operator on each window
       FOREACH(osgViewer::Viewer::Windows, windows, itr){
-        if(globalData.odeConfig.motionPersistence > 0)
-          (*itr)->add(new MotionBlurOperation(globalData));
+        // if(globalData.odeConfig.motionPersistence > 0)
+        //   (*itr)->add(new MotionBlurOperation(globalData));
         (*itr)->setWindowName(windowName);
       }
     }
@@ -792,9 +792,13 @@ namespace lpzrobots {
         break;
       case 6 : // Ctrl - f
         for(OdeAgentList::iterator i=globalData.agents.begin(); i != globalData.agents.end(); ++i) {
-          if(!(*i)->removePlotOption(File)) {
-            PlotOption po(File, filelogginginterval);
-            (*i)->addAndInitPlotOption(po);
+          if(globalData.odeConfig.videoRecordingMode && globalData.odeConfig.logWhileRecording){
+            std::cerr << "cannot start/stop file - logging while recording video. It is automatically recorded" << std::endl;
+          }else{
+            if(!(*i)->removePlotOption(File)) {
+              PlotOption po(File, filelogginginterval);
+              (*i)->addAndInitPlotOption(po);
+            }
           }
         }
         handled= true;
@@ -983,6 +987,15 @@ namespace lpzrobots {
       createNewDir(name, dir);
       printf("Start video recording in %s!\n", dir);
       videostream->open(dir,"frame");
+      // start recording log files, store agents, etc
+      if(globalData.odeConfig.logWhileRecording){
+        for (auto& a: globalData.agents){
+          std::string robname = a->getRobot()->getName();
+          a->storeToFile((std::string(dir) + "/" + robname + std::string("_start.agent")).c_str());
+          PlotOption po(File, 1, std::string(dir) + "/");
+          a->addAndInitPlotOption(po);
+        }
+      }
       return true;
     }
   }
@@ -992,6 +1005,11 @@ namespace lpzrobots {
       printf("Stop video recording!\n");
       videostream->close();
       globalData.odeConfig.videoRecordingMode=false;
+      if(globalData.odeConfig.logWhileRecording){
+        for (auto& a: globalData.agents){
+          a->removePlotOption(File); // pops the last added file logging
+        }
+      }
       return true;
     }else{
       printf("No Video recording in progress, cannot stop!\n");
