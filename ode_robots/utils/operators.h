@@ -30,14 +30,19 @@
 namespace lpzrobots {
   /**
      An Operator for limiting the orientation of the main primitive of a robot.
+     If the robot axis has a larger enclosing angle with the global axis than
+     maxAngle the force is applied until the angle is lower than minAngle.
+     If minAngle<0 then minAngle=maxAngle/2.
    */
   class LimitOrientationOperator : public Operator {
   public:
     LimitOrientationOperator(const Axis& robotAxis, const Axis& globalAxis,
-                             double maxAngle, double force)
+                             double maxAngle, double force, double minAngle=-1)
       : Operator("LimitOrientationOperator","1.0"),
         robotAxis(robotAxis), globalAxis(globalAxis),
-        maxAngle(maxAngle), force(force), currentforce(force) {
+        maxAngle(maxAngle), force(force), minAngle(minAngle),
+        currentforce(force), active(false) {
+      if(this->minAngle<0) this->minAngle=maxAngle/2;
     }
 
     virtual ManipType observe(OdeAgent* agent, GlobalData& global, ManipDescr& descr);
@@ -45,9 +50,10 @@ namespace lpzrobots {
     Axis robotAxis;
     Axis globalAxis;
     double maxAngle;
-
     double force;
+    double minAngle;
     double currentforce;
+    bool active;
   };
 
 

@@ -38,17 +38,19 @@ namespace lpzrobots {
     const Axis& rpose = p->toGlobal(robotAxis);
     double angle = rpose.enclosingAngle(globalAxis);
     // printf("test %f \t %f\n", angle, currentforce);
-    if(angle>maxAngle){
+    if(angle>maxAngle || (active && angle>minAngle)){
       // get orthogonal axis
       const Axis& rot = rpose.crossProduct(globalAxis);
       osg::Vec3 torque = rot.vec3();
       torque.normalize();
-      p->applyTorque(torque*currentforce*(angle-maxAngle));
+      p->applyTorque(torque*currentforce*(angle-minAngle));
       currentforce=currentforce*1.01;
       descr.pos  = p->getPosition() + rpose.vec3()*0.5;
       descr.show = 1;
+      active=true;
       return Move;
     }else{
+      active=false;
       currentforce=force;
     }
     return rv;
