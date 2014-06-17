@@ -57,8 +57,8 @@ else
     nice -10 ffmpeg -i "$TARGET.mjpeg" -b 2500k  "${TARGET}_hq.flv"
 fi
 
-echo -e "******************** to flash video (web version)  ***************";
-nice -10 ffmpeg -i "$TARGET.mjpeg" -b 800k  "${TARGET}.flv"
+# echo -e "******************** to flash video (web version)  ***************";
+# nice -10 ffmpeg -i "$TARGET.mjpeg" -b 800k  "${TARGET}.flv"
 
 #echo -e "******************** to mpeg4 xvid 4 small variant ***************";
 #transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.avi -y xvid4,null -w 100 -r 2
@@ -66,13 +66,20 @@ nice -10 ffmpeg -i "$TARGET.mjpeg" -b 800k  "${TARGET}.flv"
 #echo -e "******************** to wmv small variant ***************";
 #transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.wmv.avi -y ffmpeg,null -F wmv2 -w 100 -r 2
 
+echo "#!/bin/bash" > __cleanup.sh
+echo "rm -f frame_*.jpg" >> __cleanup.sh
+
 # copy src and log files into src folder and tar them
-DATAFOLDER=${TARGET}_src
-mkdir "$DATAFOLDER";
-cp ../*.cpp ../*.h ../Makefile.conf "$DATAFOLDER"
-mv *.log *.agent "$DATAFOLDER"
-echo "create $DATAFOLDER for log files and sources";
-tar -czf "${DATAFOLDER}.tar.gz" "$DATAFOLDER";
+if test -e ../main.cpp; then
+    DATAFOLDER=${TARGET}_src
+    echo "create $DATAFOLDER for log files and sources";
+    mkdir "$DATAFOLDER";
+    cp ../*.cpp ../*.h ../Makefile.conf "$DATAFOLDER"
+    mv *.log *.agent "$DATAFOLDER"
+    tar -czf "${DATAFOLDER}.tar.gz" "$DATAFOLDER";
+    echo "rm -rf $DATAFOLDER" >> __cleanup.sh
+fi
 
-
-rm -f "$TARGET.mjpeg";
+echo "rm -f $TARGET.mjpeg" >> __cleanup.sh
+echo "rm -f __cleanup.sh" >> __cleanup.sh
+chmod u+x __cleanup.sh
