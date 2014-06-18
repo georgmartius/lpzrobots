@@ -67,7 +67,7 @@ fi
 #transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.wmv.avi -y ffmpeg,null -F wmv2 -w 100 -r 2
 
 echo "#!/bin/bash" > __cleanup.sh
-echo "rm -f frame_*.jpg" >> __cleanup.sh
+echo "rm -f $NAME*.jpg" >> __cleanup.sh
 
 # copy src and log files into src folder and tar them
 if test -e ../main.cpp; then
