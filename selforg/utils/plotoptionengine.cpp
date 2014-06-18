@@ -88,7 +88,7 @@ bool PlotOptionEngine::initPlotOption(PlotOption& po){
       fprintf(po.pipe, "# Recording every %dth dataset\n", po.interval);
     // print all configureables
     FOREACHC(list<const Configurable*>, configureables, i){
-      (*i)->print(po.pipe, "# ");
+      (*i)->print(po.pipe, "# ", 1000); // do not wrap descriptions (up to len 1000)
     }
     // print infolines of all inspectables
     fprintf(po.pipe,"#I D t time (s)\n"); // add description for time
