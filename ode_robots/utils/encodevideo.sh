@@ -76,7 +76,7 @@ if test -e ../main.cpp; then
     mkdir "$DATAFOLDER";
     cp ../*.cpp ../*.h ../Makefile.conf "$DATAFOLDER"
     mv *.log *.agent "$DATAFOLDER"
-    tar -czf "${DATAFOLDER}.tar.gz" "$DATAFOLDER";
+    tar -cjf "${DATAFOLDER}.tar.bz2" "$DATAFOLDER";
     echo "rm -rf $DATAFOLDER" >> __cleanup.sh
 fi
 
