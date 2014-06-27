@@ -12,6 +12,10 @@ if(defined $ARGV[0]){
     if($ARGV[0]){
        $start = shift;
     }
+    my $noquit=0;
+    if($ARGV[0]){
+       $noquit = shift;
+    }
     my $cnt=0;
 
     while (<>) {
@@ -27,7 +31,10 @@ if(defined $ARGV[0]){
             $cnt+=1;
         }
     }
+    if(!$noquit){
+        print "#QUIT\n";
+    }
 
 }else{
-    print "Usage: feedfile.pl delay [every] [start] < logfile\n\tdelay in milliseconds (on original data)\n\tevery xth dataset to use\n\tstart dataset number to start with\n";
+    print "Usage: feedfile.pl delay [every] [start] [noquit] < logfile\n\tdelay in milliseconds (on original data)\n\tevery xth dataset to use\n\tstart dataset number to start with\n\tif not noquit then the quit command is send at the end\n";
 }
