@@ -43,7 +43,7 @@ namespace lpzrobots {
       const Axis& rot = rpose.crossProduct(globalAxis);
       osg::Vec3 torque = rot.vec3();
       torque.normalize();
-      p->applyTorque(torque*currentforce*(angle-minAngle));
+      p->applyTorque(torque*currentforce*(angle-minAngle+0.1));
       currentforce=currentforce*1.01;
       descr.pos  = p->getPosition() + rpose.vec3()*0.5;
       descr.show = 1;
