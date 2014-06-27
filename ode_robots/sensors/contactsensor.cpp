@@ -60,9 +60,10 @@ namespace lpzrobots {
 
   ContactSensor::ContactSensor(bool binary /*=true*/,
                                double forcescale /*= 1*/, double radius /*= 0.05*/,
-                               bool createSphere /*= false*/, bool colorObject/* = true*/)
+                               bool createSphere /*= false*/, bool colorObject/* = true*/,
+                               Color contactColor /* = Color(-1,0,0)*/)
     : binary(binary), forcescale(forcescale), size(radius),
-      createSphere(createSphere), colorObject(colorObject) {
+      createSphere(createSphere), colorObject(colorObject), touchColor(contactColor) {
     reference = 0;
     value = 0;
     lastvalue=-1;
@@ -105,6 +106,10 @@ namespace lpzrobots {
       else
         colorObject = false;
     }
+    if(touchColor.r()<0){
+      touchColor=origColor;
+      touchColor.r()=origColor.r() >0.5 ? 0 : 1;
+    }
 
     update();
     initialised = true;
@@ -144,10 +149,15 @@ namespace lpzrobots {
     return transform;
   }
 
+  static Color getColorBlend(const Color& a, const Color& b, double value){
+    value=std::max(std::min(value,1.0),0.0);
+    return a*(1-value) + b*value;
+  }
+
   void ContactSensor::update(){
     if(value!=lastvalue){
       if(colorObject){
-        const Color& col = value > 0 ? Color(value,0,0) : origColor;
+        const Color& col = getColorBlend(origColor, touchColor, value);
         if(sensorBody){
           sensorBody->setColor(col);
         }else{

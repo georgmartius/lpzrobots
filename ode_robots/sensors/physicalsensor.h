@@ -39,7 +39,7 @@ namespace lpzrobots {
     virtual ~PhysicalSensor() {}
 
     /** sets the initial data structures
-        @param pose position and orientation of camera wrt.
+        @param pose position and orientation of sensor (e.g. camera) wrt.
         the primitive that is given at init()
      */
     virtual void setInitData(const OdeHandle& odeHandle,

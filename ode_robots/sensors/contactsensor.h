@@ -48,10 +48,15 @@ namespace lpzrobots {
     /**
        @param binary if true then the sensor is 0 or 1 (for contact), no force value returned
        @param forcescale scale of the measured collision force (default: 1)
-       @param size size of little box representing the sensor (if it has an own body) (default: 0.05)
+       @param size size of little sphere representing the sensor (if it has an own body) (default: 0.05)
+       @param createSphere if true then a little sphere is created otherwise the reference body is directly used
+       @param colorObject if true then the object (sphere or reference) is colored according to contact state
+       @param contactColor color if contact sensor values is 1. In between it is blend with original color.
+        (default: inverse red channle or original color)
     */
     ContactSensor(bool binary=true, double forcescale = 1, double radius = 0.05,
-                  bool createSphere = false, bool colorObject = true);
+                  bool createSphere = false, bool colorObject = true,
+                  Color contactColor = Color(-1,0,0));
 
     virtual ~ContactSensor();
 
@@ -95,6 +100,7 @@ namespace lpzrobots {
     bool createSphere;
     bool colorObject;
     Color origColor;
+    Color touchColor;
     bool initialised;
   };
 
