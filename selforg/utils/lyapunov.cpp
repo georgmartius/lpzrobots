@@ -48,7 +48,7 @@ Lyapunov::~Lyapunov(){
 
 void Lyapunov::init(const std::list<int>& hs, int dim){
   list<int> myhs = hs;
-  if(myhs.size() == 0) myhs += 0; // add infinit horizon
+  if(myhs.empty()) myhs += 0; // add infinit horizon
   list<int>::const_iterator it = max_element(myhs.begin(), myhs.end());
   buffersize = *it;
   if(buffersize < 1) buffersize = 1;
@@ -106,4 +106,3 @@ const Matrix& Lyapunov::getLyapunovExp(int horizon){
     return horizons.begin()->second->Exp;
   }
 }
-

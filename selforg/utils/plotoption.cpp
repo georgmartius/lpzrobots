@@ -167,7 +167,7 @@ void PlotOption::setFilter(const list<string>& accept, const list<string>& ignor
 }
 
 /// sets a filter to this plotoption: syntax: +acceptregexp -ignoreregexp ...
-void PlotOption::setFilter(const std::string filter){
+void PlotOption::setFilter(const std::string& filter){
   //  cout << filter << endl;
   istringstream iss(filter);
   do {
@@ -191,7 +191,7 @@ void PlotOption::setFilter(const std::string filter){
 }
 
 bool PlotOption::useChannel(const string& name){
-  bool rv= accept.size()==0 ? true : false;
+  bool rv= accept.empty() ? true : false;
   for (auto& r:accept){
     if (name.find(r)==0){
       rv=true;
@@ -214,7 +214,7 @@ int PlotOption::printInspectableNames(const list<const Inspectable*>& inspectabl
     if(*insp){
       // then the internal parameters
       list<Inspectable::iparamkey> l = (*insp)->getInternalParamNames();
-      for(list<Inspectable::iparamkey>::iterator i = l.begin(); i != l.end(); i++){
+      for(list<Inspectable::iparamkey>::iterator i = l.begin(); i != l.end(); ++i){
         const string& str = (*i);
         if((int)mask.size()<=cnt) {
           mask.resize(cnt*2);
@@ -282,7 +282,7 @@ void PlotOption::printNetworkDescription(const string& name, const Inspectable* 
   list< Inspectable::ILayer> layers      = inspectable->getStructuralLayers();
   list< Inspectable::IConnection> conns  = inspectable->getStructuralConnections();
   // print layers with neurons
-  for(list<Inspectable::ILayer>::iterator i = layers.begin(); i != layers.end(); i++){
+  for(list<Inspectable::ILayer>::iterator i = layers.begin(); i != layers.end(); ++i){
     Inspectable::ILayer& l = (*i);
     fprintf(pipe, "#N layer %s %i\n", l.layername.c_str(), l.rank);
     for(int n = 0; n < l.dimension; n++){
@@ -295,7 +295,7 @@ void PlotOption::printNetworkDescription(const string& name, const Inspectable* 
   }
 
   // print connections
-  for(list<Inspectable::IConnection>::iterator i = conns.begin(); i != conns.end(); i++){
+  for(list<Inspectable::IConnection>::iterator i = conns.begin(); i != conns.end(); ++i){
     Inspectable::IConnection& c = (*i);
     // find the layers refered in the connection description
     list<Inspectable::ILayer>::iterator l1it

@@ -99,7 +99,7 @@ public:
   /// sets a filter to this plotoption: To export only selected channels
   virtual void setFilter(const std::list<std::string>& accept, const std::list<std::string>& ignore);
   /// sets a filter to this plotoption: syntax: +accept_substr -ignore_substr ...
-  virtual void setFilter(const std::string filter);
+  virtual void setFilter(const std::string& filter);
 
   // flushes pipe (depending on mode)
   virtual void flush(long step);
