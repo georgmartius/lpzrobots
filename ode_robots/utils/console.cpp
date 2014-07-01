@@ -83,7 +83,7 @@ COMMAND commands[] = {
   { (char *)NULL, (commandfunc_t)NULL, (char *)NULL }
 };
 
-  typedef std::list<std::string> ParameterList;
+typedef std::list<std::string> ParameterList;
 ParameterList parameters; // used for completion
 
 /* Forward declarations. */
@@ -92,6 +92,7 @@ COMMAND *find_command (char *name);
 bool execute_line (GlobalData& globalData, char *line);
 int valid_argument ( const char *caller, const char *arg);
 
+int _quit_request=false;
 
 void printConfigs(const ConfigList& configs)
 {
@@ -144,7 +145,6 @@ vector<string> splitstring(string s){
 
 bool handleConsole(GlobalData& globalData){
   char *line, *s;
-  bool rv = true;
 
   //  initialize_readline ();       /* Bind our completer. */
   // move to beginning of line (clear the ^C)
@@ -159,7 +159,7 @@ bool handleConsole(GlobalData& globalData){
   line = readline ("> ");
 
   if (!line)
-    return rv;
+    return true;
 
   /* Remove leading and trailing whitespace from the line.
      Then, if there is anything left, add it to the history list
@@ -167,18 +167,24 @@ bool handleConsole(GlobalData& globalData){
   s = stripwhite (line);
   if (*s) {
     add_history (s);
-    rv = execute_line (globalData,s);
+    bool success = execute_line (globalData,s);
+    if(success){
+      FOREACH(OdeAgentList, globalData.agents, i){
+        (*i)->writePlotComment(s);
+      }
+    }
   }
 
   free (line);
-  return rv;
+  return !_quit_request;
 }
 
 /* Execute a command line. */
-bool execute_line (GlobalData& globalData, char *line) {
+bool execute_line (GlobalData& globalData, char *_line) {
   register int i;
   COMMAND *command;
   char *word;
+  char *line = strdup(_line);
 
   /* Isolate the command word. */
   i = 0;
@@ -201,7 +207,7 @@ bool execute_line (GlobalData& globalData, char *line) {
   if (!command)
     {
       fprintf (stderr, "%s: No such command\n", word);
-      return (-1);
+      return false;
     }
 
   /* Get argument to command, if any. */
@@ -211,7 +217,9 @@ bool execute_line (GlobalData& globalData, char *line) {
   word = line + i;
 
   /* Call the function. */
-  return ((*(command->func)) (globalData, line, word));
+  bool rv = ((*(command->func)) (globalData, line, word));
+  free(line);
+  return rv;
 }
 
 /* Look up NAME as the name of a command, and return a pointer to that
@@ -429,9 +437,9 @@ bool com_show (GlobalData& globalData, char* line, char* arg) {
 
 bool com_set (GlobalData& globalData, char* line, char* arg) {
   if(strstr(line,"set")!=line) arg=line; // if it is not invoked with set then it was param=val
+  bool changed=false;
   if (valid_argument("set", arg)){
     /* Isolate the command word. */
-    bool changed=false;
 
     char * equalpos = strchr(arg,'=');
     if(equalpos) {
@@ -474,17 +482,18 @@ bool com_set (GlobalData& globalData, char* line, char* arg) {
       printf("\n");
       break;
     }
-    if(changed){
-      *equalpos='=';
-      FOREACH(OdeAgentList, globalData.agents, i){
-        (*i)->writePlotComment(arg);
-      }
-    }
+    // if(changed){ // now done for every command
+    //   *equalpos='=';
+    //   FOREACH(OdeAgentList, globalData.agents, i){
+    //     (*i)->writePlotComment(arg);
+    //   }
+    // }
   }
-  return true;
+  return changed; // true;
 }
 
 bool com_store (GlobalData& globalData, char* line, char* arg) {
+  bool success=false;
   if (valid_argument("store", arg)){
     char* filename;
     short sub=0;
@@ -502,19 +511,22 @@ bool com_store (GlobalData& globalData, char* line, char* arg) {
         if(f){
           switch(sub){
           case 0: // store agent
-            if(globalData.agents[id-1]->store(f))
+            if(globalData.agents[id-1]->store(f)){
               printf("Agent stored\n");
-            else printf("Error occured while storing agent\n");
+              success = true;
+            } else printf("Error occured while storing agent\n");
             break;
           case 1: // store controller
-            if(globalData.agents[id-1]->getController()->store(f))
+            if(globalData.agents[id-1]->getController()->store(f)){
               printf("Controller stored\n");
-            else printf("Error occured while storing contoller\n");
+              success = true;
+            } else printf("Error occured while storing contoller\n");
             break;
           case 2: // store robot
-            if(globalData.agents[id-1]->getRobot()->store(f))
+            if(globalData.agents[id-1]->getRobot()->store(f)){
               printf("Robot stored\n");
-            else printf("Error occured while storing robot\n");
+              success = true;
+            }else printf("Error occured while storing robot\n");
             break;
           }
           fclose(f);
@@ -522,10 +534,11 @@ bool com_store (GlobalData& globalData, char* line, char* arg) {
       } else printf("Agent with ID: %i not found\n", id);
     }else printf("syntax error , see >help store\n");
   }
-  return true;
+  return success;
 }
 
 bool com_load (GlobalData& globalData, char* line, char* arg) {
+  bool success=false;
   if (valid_argument("load", arg)){
     char* filename;
     short sub=0;
@@ -543,18 +556,24 @@ bool com_load (GlobalData& globalData, char* line, char* arg) {
         if(f){
           switch(sub){
           case 0: // store agent
-            if(globalData.agents[id-1]->restore(f))
+            if(globalData.agents[id-1]->restore(f)){
               printf("Agent restored\n");
+              success = true;
+            }
             else printf("Error occured while restoring agent\n");
             break;
           case 1: // store controller
-            if(globalData.agents[id-1]->getController()->restore(f))
+            if(globalData.agents[id-1]->getController()->restore(f)){
               printf("Controller restored\n");
+              success = true;
+            }
             else printf("Error occured while restoring contoller\n");
             break;
           case 2: // store robot
-            if(globalData.agents[id-1]->getRobot()->restore(f))
+            if(globalData.agents[id-1]->getRobot()->restore(f)){
               printf("Robot restored\n");
+              success = true;
+            }
             else printf("Error occured while restoring robot\n");
             break;
           }
@@ -563,10 +582,11 @@ bool com_load (GlobalData& globalData, char* line, char* arg) {
       } else printf("Agent with ID: %i not found\n", id);
     }else printf("syntax error , see >help load\n");
   }
-  return true;
+  return success;
 }
 
 bool com_storecfg (GlobalData& globalData, char* line, char* arg) {
+  bool success=false;
   if (valid_argument("storecfg", arg)){
     char* filename;
     filename = strchr(arg,' ');
@@ -575,17 +595,19 @@ bool com_storecfg (GlobalData& globalData, char* line, char* arg) {
       filename++;
       int id = atoi(arg);
       if(id>=1 && id <= (signed)globalData.configs.size()){
-        if(globalData.configs[id-1]->storeCfg(filename))
+        if(globalData.configs[id-1]->storeCfg(filename)){
           printf("Configuration stored\n");
-        else
+          success = true;
+        }else
           printf("Error occured while storing configuration\n");
       } else printf("Configurable with ID: %i not found\n", id);
     }else printf("syntax error , see >help storecfg\n");
   }
-  return true;
+  return success;
 }
 
 bool com_loadcfg (GlobalData& globalData, char* line, char* arg) {
+  bool success=false;
   if (valid_argument("loadcfg", arg)){
     char* filename;
     filename = strchr(arg,' ');
@@ -594,14 +616,15 @@ bool com_loadcfg (GlobalData& globalData, char* line, char* arg) {
       filename++;
       int id = atoi(arg);
       if(id>=1 && id <= (signed)globalData.configs.size()){
-        if(globalData.configs[id-1]->restoreCfg(filename))
+        if(globalData.configs[id-1]->restoreCfg(filename)){
           printf("Configuration restored\n");
-        else
+          success = true;
+        } else
           printf("Error occured while restoring configuration\n");
       } else printf("Configurable with ID: %i not found\n", id);
     }else printf("syntax error , see >help loadcfg\n");
   }
-  return true;
+  return success;
 }
 
 bool com_contrs (GlobalData& globalData, char* line, char* arg) {
@@ -630,7 +653,8 @@ bool com_contrs (GlobalData& globalData, char* line, char* arg) {
 
 
 bool com_quit (GlobalData& globalData, char *, char *){
-  return false;
+  _quit_request=true;
+  return true;
 }
 
 /* Print out help for ARG, or for all of the commands if ARG is
