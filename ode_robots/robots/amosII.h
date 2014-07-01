@@ -294,8 +294,16 @@ namespace lpzrobots {
       // Internal variable storing the currently used version
       int amos_version;
 
-  };
+      /***
+       * Author: Subhi Shaker Barikhan
+       * Date:03.06.2014
+       * highFootContactsensoryFeedback=true ==> the threshold  of foot contact sensor signal is 4
+       * otherwise is 1
+       */
+      bool highFootContactsensoryFeedback;
 
+  };
+  
   class AmosII : public OdeRobot, public Inspectable {
     public:
       enum LegPos {
@@ -323,13 +331,20 @@ namespace lpzrobots {
        * Returns the default configuration values
        */
       static AmosIIConf getDefaultConf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,
-          bool _useBack = 0);
+    		  bool _useBack = 0,bool _highFootContactsensoryFeedback=false);
 
       static AmosIIConf getAmosIIv1Conf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,
-          bool _useBack = 0);
+    		  bool _useBack = 0,bool _highFootContactsensoryFeedback=false);
 
       static AmosIIConf getAmosIIv2Conf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,
-          bool _useBack = 0);
+    		  bool _useBack = 0, bool _highFootContactsensoryFeedback=false);
+
+      /*
+       * Coordinated locomotion between two hexapod robots
+       * */
+
+      Primitive* getTibiaPrimitive(LegPos leg);
+      Primitive* getShoulderPrimitive(LegPos leg);
 
       /**
        * constructor
@@ -554,6 +569,7 @@ namespace lpzrobots {
 
       // back bone joint
       OneAxisServo * backboneServo;
+
 
       // passive servos without a Motorname
       ServoList passiveServos;

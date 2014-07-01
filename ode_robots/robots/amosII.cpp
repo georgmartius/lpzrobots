@@ -22,6 +22,17 @@
  *                                                                         *
  **************************************************************************/
 
+
+// Adding sensors
+// 1) Include header file
+// 2) In--> getSensors(sensor* sensors, int sensornumber),
+// add your sensor to send sensory signal to a controller, e.g., "sensors[xx] = sensor->get();"
+// 3) In--> doInternalStuff(GlobalData& global)
+// add your sensor for sensing environment, e.g., "sensor->sense(global);"
+// 4) In--> create(const osg::Matrix& pose), attache your sensor to the robot, e.g., "soundsensor1->init(legs[L0].shoulder);"
+// 5) In--> destroy(), delete your sensor values, e.g., "delete sensor"
+
+
 //#define VERBOSE
 #include <cmath>
 #include <assert.h>
@@ -112,7 +123,6 @@ namespace lpzrobots {
 
     // name the sensors
     nameSensor(TR0_as, "*TR0 angle sensor");
-    nameSensor(TR0_as, "*TR0 angle sensor");
     nameSensor(TR1_as, "*TR1 angle sensor");
     nameSensor(TR2_as, "*TR2 angle sensor");
     nameSensor(TL0_as, "*TL0 angle sensor");
@@ -178,6 +188,7 @@ namespace lpzrobots {
     nameSensor(G0y_s, "*goal0 orientation y");
     nameSensor(G0z_s, "*goal0 orientation z");
     nameSensor(A_cs, "average motor current sensor");
+    nameSensor(B_cs, "average sensor and board current sensor");
     nameSensor(BX_spd, "body speed sensor x");
     nameSensor(BY_spd, "body speed sensor y");
     nameSensor(BZ_spd, "body speed sensor z");
@@ -222,9 +233,9 @@ namespace lpzrobots {
     nameSensor(L2X_acs, "L2 accelerometer x");
     nameSensor(L2Y_acs, "L2 accelerometer y");
     nameSensor(L2Z_acs, "L2 accelerometer z");
-    nameSensor(Microphone0_s, "microphone 0");
-    nameSensor(Microphone1_s, "microphone 1");
-    nameSensor(Microphone2_s, "microphone 2");
+    nameSensor(Microphone0_s, "*microphone 0");
+    nameSensor(Microphone1_s, "*microphone 1");
+    nameSensor(Microphone2_s, "*microphone 2");
     nameSensor(In_x, "inclinometer x");
     nameSensor(In_y, "inclinometer y");
     nameSensor(BX_pos, "*body position sensor x");
@@ -427,9 +438,19 @@ namespace lpzrobots {
       sensors[L2_fs] =
           legContactSensors[L2] ? ((legContactSensors[L2]->get() - min.at(5)) / (max.at(5) - min.at(5))) : 0;
 
-      for (int i = R0_fs; i <= L2_fs; i++) {
-        if (sensors[i] > 1.0)
-          sensors[i] = 1.0;
+      if (conf.highFootContactsensoryFeedback)
+      {
+    	  for (int i = R0_fs; i <= L2_fs; i++) {
+    		  if (sensors[i] > 4.0)
+    			  sensors[i] = 4.0;
+    	  }
+      }
+      else
+      {
+    	  for (int i = R0_fs; i <= L2_fs; i++) {
+    		  if (sensors[i] > 1.0)
+    			  sensors[i] = 1.0;
+    	  }
       }
 
     }
@@ -487,8 +508,8 @@ namespace lpzrobots {
     sensors[G0z_s] = 0;
 
     // average current sensor
-    sensors[A_cs] = 0;
-
+    sensors[A_cs] = 0; // average motor current
+    sensors[B_cs] = 0; // average sensor and board current
     // Body speed sensors
     sensor speedsens[3] = { 0, 0, 0 };
     if (speedsensor)
@@ -1378,11 +1399,45 @@ namespace lpzrobots {
     legPosUsage[leg] = usage;
   }
 
-  AmosIIConf AmosII::getDefaultConf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack) {
-    return getAmosIIv2Conf(_scale, _useShoulder, _useFoot, _useBack);
+  /*
+   * Author:Subhi Shaker Barikhan
+   * Date: 03.06.2014
+   * Coordinated locomotion (two connected robots)
+   * **/
+
+
+  Primitive* AmosII::getShoulderPrimitive(LegPos leg)
+  {
+	  assert(created);
+	  if(leg < LEG_POS_MAX){
+		  return legs[leg].shoulder;
+	  }else{
+		  return 0;
+	  }
+
+  }
+  /*
+   * Author:Subhi Shaker Barikhan
+   * Date: 03.06.2014
+   * Coordinated locomotion (two connected robots)
+   * **/
+  Primitive* AmosII::getTibiaPrimitive(LegPos leg)
+  {
+	  assert(created);
+	  if(leg < LEG_POS_MAX){
+		  return legs[leg].tibia;
+	  }else{
+		  return 0;
+	  }
+
   }
 
-  AmosIIConf AmosII::getAmosIIv2Conf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack) {
+
+  AmosIIConf AmosII::getDefaultConf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack,bool _highFootContactsensoryFeedback) {
+	  return getAmosIIv2Conf(_scale, _useShoulder, _useFoot, _useBack,_highFootContactsensoryFeedback);
+  }
+
+  AmosIIConf AmosII::getAmosIIv2Conf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack, bool _highFootContactsensoryFeedback) {
 
     AmosIIConf c;
 
@@ -1395,6 +1450,7 @@ namespace lpzrobots {
     c.useFoot = _useFoot;
     //create a joint in the back
     c.useBack = _useBack;
+    c.highFootContactsensoryFeedback=_highFootContactsensoryFeedback; // if highFootContactsensoryFeedback is true, then amplitude of foot sensory signal is higher
     c.rubberFeet = false;
     c.useLocalVelSensor = 0;
     c.legContactSensorIsBinary = false;
@@ -1596,13 +1652,16 @@ namespace lpzrobots {
     return c;
   }
 
-  AmosIIConf AmosII::getAmosIIv1Conf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack) {
-    // Take basic configuration from amosiiv2
-    // and then make necessary changes
-    AmosIIConf c = getAmosIIv2Conf(_scale, _useShoulder, _useFoot, _useBack);
+
+
+  AmosIIConf AmosII::getAmosIIv1Conf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack, bool _highFootContactsensoryFeedback) {
+	  // Take basic configuration from amosiiv2
+	  // and then make necessary changes
+	  AmosIIConf c = getAmosIIv2Conf(_scale, _useShoulder, _useFoot, _useBack, _highFootContactsensoryFeedback);
 
     // "Internal" variable storing the currently used version
     c.amos_version = 1;
+    c.highFootContactsensoryFeedback=_highFootContactsensoryFeedback; //  if highFootContactsensoryFeedback is true, then amplitude of foot sensory signal is higher
 
     //trunk height
     c.height = /*6.5*/8.5 / 43.0 * c.size; //---------------------------------------------------AMOSIIv1
