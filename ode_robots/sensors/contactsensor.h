@@ -52,11 +52,12 @@ namespace lpzrobots {
        @param createSphere if true then a little sphere is created otherwise the reference body is directly used
        @param colorObject if true then the object (sphere or reference) is colored according to contact state
        @param contactColor color if contact sensor values is 1. In between it is blend with original color.
-        (default: inverse red channle or original color)
+        If a channel is negative: use original color and invert those channels that are negative.
+        (default: (-1,-1,-1) : invert all channels)
     */
     ContactSensor(bool binary=true, double forcescale = 1, double radius = 0.05,
                   bool createSphere = false, bool colorObject = true,
-                  Color contactColor = Color(-1,0,0));
+                  Color contactColor = Color(-1,-1,-1));
 
     virtual ~ContactSensor();
 

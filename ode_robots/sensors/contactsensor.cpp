@@ -106,10 +106,12 @@ namespace lpzrobots {
       else
         colorObject = false;
     }
-    if(touchColor.r()<0){
-      touchColor=origColor;
-      touchColor.r()=origColor.r() >0.5 ? 0 : 1;
-    }
+    // if a channel is negative use original color and invert those channels that are negative.
+    Color tmp=touchColor;
+    if(tmp.r()<0 || tmp.g()<0 || tmp.b()<0) touchColor=origColor;
+    if(tmp.r()<0) touchColor.r()=origColor.r() >0.5 ? 0 : 1;
+    if(tmp.g()<0) touchColor.g()=origColor.g() >0.5 ? 0 : 1;
+    if(tmp.b()<0) touchColor.b()=origColor.b() >0.5 ? 0 : 1;
 
     update();
     initialised = true;
