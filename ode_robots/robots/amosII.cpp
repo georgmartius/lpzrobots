@@ -48,6 +48,9 @@
 #include <ode_robots/irsensor.h>
 #include <ode_robots/speedsensor.h>
 
+// Added sound sensors (1) --header file
+#include <ode_robots/soundsensor.h>
+
 // include joints
 #include <ode_robots/joint.h>
 #include <ode_robots/oneaxisservo.h>
@@ -579,6 +582,12 @@ namespace lpzrobots {
     Ori_lst.clear();
     //------------------------Add Orientation Sensor by Ren-------------------
 
+
+    //Added sound sensors (2) // get sensor signals and send to controller
+    sensors[Microphone0_s] = soundsensors.at(0)->getList().front();
+    sensors[Microphone1_s] = soundsensors.at(1)->getList().front();
+    sensors[Microphone2_s] = soundsensors.at(2)->getList().front();
+
 #ifdef VERBOSE
     std::cerr << "AmosII::getSensors END\n";
 #endif
@@ -649,6 +658,11 @@ namespace lpzrobots {
       if (legContactSensors[LegPos(i)])
         legContactSensors[LegPos(i)]->sense(globalData);
     }
+
+     // Added sound sensors (3) // sense from environment
+    for(SoundSensor* sensor: soundsensors)
+      sensor->sense(globalData);
+
   }
 
 
@@ -1124,6 +1138,28 @@ namespace lpzrobots {
     //-----------Add Orientation Sensor by Ren----------------
 
 
+    // Added sound sensors (4) // attach the two sound sensors to the robot
+    // sound sensor 1
+    SoundSensor* soundsensor1 = new SoundSensor(Sensor::X);
+    //soundsensor1->init(legs[L0].shoulder); // attache to the robot part
+    soundsensor1->init(legs[L0].coxa); // attache to the robot part
+    //soundsensor1->init(legs[L0].second); // attache to the robot part
+    //soundsensor1->init(legs[L0].tibia); // attache to the robot part
+    //soundsensor1->init(legs[L0].foot); // attache to the robot part
+    //soundsensor1->init(front); // attache to the robot part
+    soundsensors.push_back(soundsensor1);
+
+    // sound sensor 2
+    SoundSensor* soundsensor2 = new SoundSensor(Sensor::X);
+    soundsensor2->init(legs[R0].coxa); // attache to the robot part
+    soundsensors.push_back(soundsensor2);
+
+    // sound sensor 3
+    SoundSensor* soundsensor3 = new SoundSensor(Sensor::X);
+    soundsensor3->init(front); // attache to the robot part
+    soundsensors.push_back(soundsensor3);
+
+
     setParam("dummy", 0); // apply all parameters.
 
     created = true;
@@ -1191,6 +1227,11 @@ namespace lpzrobots {
 
       GoalSensor.clear();
       //------------------ delete GoalSensor here by Ren--------------------
+
+      // Added sound sensor (5)// delete sensor
+      for (SoundSensor* sensor : soundsensors)
+        delete sensor;
+
 
       odeHandle.deleteSpace();
 #ifdef VERBOSE

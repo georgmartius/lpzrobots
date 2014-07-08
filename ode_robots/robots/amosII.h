@@ -47,6 +47,8 @@ namespace lpzrobots {
   class SpeedSensor;
   class Spring;
   class TwoAxisServo;
+  // Added sound sensors (2) class
+  class SoundSensor;
 }
 
 namespace lpzrobots {
@@ -528,6 +530,9 @@ namespace lpzrobots {
 
       /** speed sensor */
       SpeedSensor * speedsensor;
+
+      /** sound sensors */ // Added sound sensors (3) --vector
+      std::vector<SoundSensor*> soundsensors;
 
       /**
        * statistics
