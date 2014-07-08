@@ -4,13 +4,16 @@
 	generic sensor and motors can not be used widely, (Servo motors as well)
 	Sensor and motor descriptions routed from robots to controllers
 	Generic set of config variables from console -set "{key1=val1 key2=val2 ...}"
-	Bugfixes: Following camera mode,...
+	Ctrl-h resets robots to initial pose (of main primitive)
+	Fixation and displacement of robots integrated
+	video recording also records logfiles and saves agents automatically
+	encodevideo.sh creates a src archive with sources and logfiles
+	PlotOptions allow filtering. From commandline e.g. -g 10 "{+x,+y}" or "{-C}"
+	Bugfixes: Following camera mode, irsensor-nographics-crash,...
 	RelatvePositionSensor fixed
 	TorqueSensors added
-	Fixation and displacement of robots integrated
 	Contacts can be drawn with -drawcontacts
-	PlotOptions allow filtering. From commandline e.g. -g 10 "{+x,+y}" or "{-C}"
-	commandline goes into logfiles
+	commandline inputs go into logfiles
 	Matrix uses move-assignment from C++11, speedup
 
 2011-11-11 martius (0.7)
