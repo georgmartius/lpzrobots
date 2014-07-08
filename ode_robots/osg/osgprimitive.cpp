@@ -481,6 +481,8 @@ namespace lpzrobots {
   }
 
   void OSGLine::updatePoints(){
+    if (!osgHandle.cfg || osgHandle.cfg->noGraphics)
+      return;
     osg::Vec3Array *v = new osg::Vec3Array;
     FOREACHC(std::list<osg::Vec3>, points, p){
       v->push_back(*p);
