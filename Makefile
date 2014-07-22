@@ -11,7 +11,7 @@ USAGE2  = "lpzrobots Makefile Targets:"
 USAGE3  = "Usually you do: \nmake all\n see the above description for a step by step process\n"
 
 ##!help		show this help text (default)
-help: 
+help:
 	@cat logo.txt
 	@echo $(USAGE2)
 	@grep -E "^\#\#\!.*" Makefile | sed -e "s/##!/   /"
@@ -27,11 +27,11 @@ all:
 all_intern:
 	$(MAKE) utils
 	$(SUDO) $(MAKE) install_utils
-	$(MAKE) selforg                
+	$(MAKE) selforg
 	$(SUDO) $(MAKE) install_selforg
-	$(MAKE) ode                
-	$(SUDO) $(MAKE) install_ode 
-	$(MAKE) ode_robots                
+	$(MAKE) ode
+	$(SUDO) $(MAKE) install_ode
+	$(MAKE) ode_robots
 	$(SUDO) $(MAKE) install_ode_robots
 	$(MAKE) ga_tools
 	$(SUDO) $(MAKE) install_ga_tools
@@ -41,14 +41,14 @@ all_intern:
 ##!conf		reconfigure the installation prefix and type (done automatically at first call)
 conf: usage
 	-mv Makefile.conf Makefile.conf.bak
-# automatically creates Makefile.conf since it is included 
+# automatically creates Makefile.conf since it is included
 	$(MAKE) PREFIX=$(PREFIX) TYPE=$(TYPE) Makefile.conf
 
 ##!
 ##!******* The following targets are called by "all" in this order ************
 .PHONY: utils
 ##!utils	   build utilitytools and tags (do that first)
-utils: usage 
+utils: usage
 	-$(MAKE) guilogger
 	-$(MAKE) matrixviz
 	-$(MAKE) soundman
@@ -62,20 +62,20 @@ utils: usage
 
 .PHONY: install_utils
 ##!install_utils   installs the utility tools and scripts
-install_utils:	
-	install -d $(PREFIX)/bin $(PREFIX)/lib/soundMan $(PREFIX)/share/lpzrobots $(PREFIX)/include 
+install_utils:
+	install -d $(PREFIX)/bin $(PREFIX)/lib/soundMan $(PREFIX)/share/lpzrobots $(PREFIX)/include
 	-@if [ -d matrixviz/bin/matrixviz.app ]; then \
           cp matrixviz/bin/matrixviz.app/Contents/MacOS/matrixviz $(PREFIX)/bin/ && echo "===> copied matrixviz.app to $(PREFIX)/bin/"; \
          elif [ -e matrixviz/bin/matrixviz ]; then \
 	   cp matrixviz/bin/matrixviz $(PREFIX)/bin/ && echo "===> copied matrixviz to $(PREFIX)/bin/"; \
 	 fi
-	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX)/ install	
+	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX)/ install
 	-@if [ -d guilogger/bin/guilogger.app ]; then \
           cp guilogger/bin/guilogger.app/Contents/MacOS/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
          elif [ -e guilogger/src/bin/guilogger ]; then \
 	   cp guilogger/src/bin/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
 	 else cp guilogger/bin/guilogger $(PREFIX)/bin/ && echo "===> copied guilogger to $(PREFIX)/bin/"; \
-	fi	
+	fi
 	-@if [ -e configurator/libconfigurator.a -o -e configurator/libconfigurator.so ]; then install --mode 644 configurator/libconfigurator.* $(PREFIX)/lib/ && install --mode 755 configurator/configurator-config $(PREFIX)/bin/ && echo "===> copied libconfigurator to $(PREFIX)/lib/"; fi
 	-@cp -r configurator/include/configurator $(PREFIX)/include/ && echo "===> copied configurator bins, includes and libs $(PREFIX)"
 	-cp soundman/class/*.class $(PREFIX)/lib/soundMan/
@@ -90,13 +90,13 @@ selforg: usage
 	$(MAKE) MODULE=selforg confsubmodule
 	@echo "*************** Compile selforg *****************"
 	cd selforg && $(MAKE) depend
-	cd selforg && $(MAKE) 
+	cd selforg && $(MAKE)
 
 
 .PHONY: install_selforg
 ##!install_selforg install selforg
 install_selforg: usage
-	cd selforg && make install 
+	cd selforg && make install
 
 .PHONY: ode
 ##!ode		   compile open dynamics engine in double precession (custom version)
@@ -122,7 +122,7 @@ ode_robots: usage
 .PHONY: install_ode_robots
 ##!install_ode_robots install ode_robots
 install_ode_robots: usage
-	cd ode_robots && make install 
+	cd ode_robots && make install
 
 .PHONY: ga_tools
 ##!ga_tools	   compile ga_tools libaries in optimized and debug version
@@ -136,7 +136,7 @@ ga_tools: usage
 .PHONY: install_ga_tools
 ##!install_ga_tools install ga_tools
 install_ga_tools: usage
-	cd ga_tools && make install 
+	cd ga_tools && make install
 
 ##!  *** You can find example simulations in $(PREFIX)/share/lpzrobots/, but copy
 ##!  *** them first to your home directory to work with them.
@@ -145,9 +145,9 @@ install_ga_tools: usage
 
 ##!clean	  removed the object files and libs
 clean: usage
-	cd guilogger && $(MAKE) clean
-	cd matrixviz && $(MAKE) clean
-	cd configurator && $(MAKE) clean
+	-cd guilogger && $(MAKE) clean
+	-cd matrixviz && $(MAKE) clean
+	-cd configurator && $(MAKE) clean
 	cd opende && $(MAKE) clean
 	cd ode_robots && $(MAKE) clean
 	cd selforg && $(MAKE) clean
@@ -156,9 +156,9 @@ clean: usage
 
 ##!clean-all	  like clean but also removes the libraries and clears simulations
 clean-all: usage
-	cd guilogger && $(MAKE) distclean
-	cd matrixviz && $(MAKE) distclean
-	cd opende && $(MAKE) distclean
+	-cd guilogger && $(MAKE) distclean
+	-cd matrixviz && $(MAKE) distclean
+	-cd opende && $(MAKE) distclean
 	cd ode_robots && $(MAKE) clean-all
 	cd ode_robots/simulations && $(MAKE) clean
 	cd selforg && $(MAKE) clean-all
@@ -213,7 +213,7 @@ soundman:
 
 
 .PHONY: confsubmodule
-confsubmodule:	
+confsubmodule:
 	@if [ `uname` = "Linux" ]; then \
 		System="LINUX"; else System="MAC"; fi; \
 	if [ -n "$(MODULE)" ]; then \
@@ -241,15 +241,15 @@ confsubmodule:
 .PHONY: install_libs
 install_libs:
 	@echo "*************** Install selforg *********************"
-	cd selforg/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) install 
+	cd selforg/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) install
 #	     $(PREFIX)/share/lpzrobots/ga_tools
 	@echo "*************** Install ode_robots ******************"
-	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) install 
+	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) install
 ifeq ($(TYPE),user)
 	@echo "*************** Install ga_tools ******************"
 	cp ga_tools/libga_tools.a $(PREFIX)/lib
 #	cp ga_tools/libga_tools_opt.a $(PREFIX)/lib
-	cp -RL ga_tools/include/ga_tools $(PREFIX)/include/	
+	cp -RL ga_tools/include/ga_tools $(PREFIX)/include/
 	@echo "*************** Install example simulations ******************"
 	cp -RL ga_tools/simulations $(PREFIX)/share/lpzrobots/ga_tools/
 	-chmod -R ugo+r $(PREFIX)/share/lpzrobots
@@ -263,11 +263,11 @@ endif
 .PHONY: uninstall_intern
 uninstall_intern:
 	@echo "*************** Uninstall selforg *********************"
-	cd selforg/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
+	cd selforg/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall
 	@echo "*************** Uninstall ode_robots ******************"
-	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
+	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall
 	@echo "*************** Uninstall ga_tools ******************"
-	cd ga_tools/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall 
+	cd ga_tools/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall
 	-rm -f $(PREFIX)/bin/guilogger
 	-rm -f $(PREFIX)/lib/libconfigurator.*
 	-rm -f $(PREFIX)/bin/configurator-config
@@ -282,13 +282,13 @@ endif
 	$(MAKE) uninstall_ode
 
 
-Makefile.conf:	
+Makefile.conf:
 	@bash createMakefile.conf.sh $(PREFIX) $(TYPE)
 
 
 .PHONY: tags
 ##!tags           create TAGS file for emacs
-tags: 
+tags:
 	@if type etags; then $(MAKE) tags_internal ; else \
 	 echo "etags program not found. If you use emacs install emacs-common-bin" ; fi
 
@@ -302,24 +302,24 @@ tags_internal:
 .PHONY: doc
 ##!doc            generate doxygen documentation in html folder
 doc:
-	doxygen Doxyfile	
+	doxygen Doxyfile
 
 .PHONY: docintern
 docintern:
 	date "+PROJECT_NUMBER=%2d-%B-%Y" > builddate
-	cat builddate Doxyfile.intern | nice -19 doxygen -	
+	cat builddate Doxyfile.intern | nice -19 doxygen -
 	find doc/html -type f | xargs chmod ug+rw
 	find doc/html -type f | xargs chmod o+r
 
 
-.PHONY: todo 
+.PHONY: todo
 ##!todo           show the marked todos in the sourcecode
 todo:
 	cd ode_robots && make todo
 	cd selforg && make todo
 
 usage:
-# The logo was creates with >$ figlet "LPZRobots" > logo.txt 
+# The logo was creates with >$ figlet "LPZRobots" > logo.txt
 #  plus some editing
 	@cat logo.txt
 	@echo $(USAGE)
