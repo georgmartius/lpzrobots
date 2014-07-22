@@ -66,6 +66,7 @@ namespace lpzrobots {
       createSphere(createSphere), colorObject(colorObject), touchColor(contactColor) {
     reference = 0;
     value = 0;
+    detection=0;
     lastvalue=-1;
     initialised = false;
     sensorBody = 0;
@@ -120,16 +121,19 @@ namespace lpzrobots {
   void ContactSensor::setDepth(float depth, long int time){
     this->time = time;
     if(binary && depth>0)
-      value=1.0;
+      detection=1.0;
     else
-      value = std::max(value,depth*forcescale);
+      // we use the max here to deal with several collisions within a time slot
+      detection = std::max(detection,depth*forcescale);
     //    printf("depth= %f, value: %f, \n",depth, value);
   }
 
   bool ContactSensor::sense(const GlobalData& globaldata){
     if(time<globaldata.sim_step - globaldata.odeConfig.controlInterval){
       value     = 0;
-    }
+    }else
+      value     = detection;
+    detection=0;
     return true;
   }
 

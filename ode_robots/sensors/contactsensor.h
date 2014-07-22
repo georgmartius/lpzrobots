@@ -89,6 +89,7 @@ namespace lpzrobots {
   protected:
     bool   binary;              ///< if contact sensor is a switch
     double forcescale;
+    double detection;           ///<  currently detected value
     double value;               ///<  actual sensor value
     double lastvalue;           ///< last value
     double size;                ///< size of graphical sensor
