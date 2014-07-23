@@ -399,6 +399,7 @@ namespace lpzrobots {
       sensors[L1_fs] = legContactSensors[L1] ? legContactSensors[L1]->get() : 0;
       sensors[L2_fs] = legContactSensors[L2] ? legContactSensors[L2]->get() : 0;
     } else { // Scaling since analog signals are used then we scale them to the range of [0,..,1]
+      // Koh! Georg: What are the different values
       std::vector<double> max, min;
       if (conf.amos_version == 2) {
         max.push_back(0.16);
@@ -428,6 +429,7 @@ namespace lpzrobots {
         min.push_back(0.0);
         min.push_back(0.0);
       }
+      // Georg: this normalization does not make sense to me.
       sensors[R0_fs] =
           legContactSensors[R0] ? ((legContactSensors[R0]->get() - min.at(0)) / (max.at(0) - min.at(0))) : 0;
       sensors[R1_fs] =
@@ -440,21 +442,31 @@ namespace lpzrobots {
           legContactSensors[L1] ? ((legContactSensors[L1]->get() - min.at(4)) / (max.at(4) - min.at(4))) : 0;
       sensors[L2_fs] =
           legContactSensors[L2] ? ((legContactSensors[L2]->get() - min.at(5)) / (max.at(5) - min.at(5))) : 0;
+      // Koh! Georg: overwrite the rescaling
+      double footContactFactor = conf.highFootContactsensoryFeedback ? 4.0 : 1.0;
 
-      if (conf.highFootContactsensoryFeedback)
-      {
-    	  for (int i = R0_fs; i <= L2_fs; i++) {
-    		  if (sensors[i] > 4.0)
-    			  sensors[i] = 4.0;
-    	  }
-      }
-      else
-      {
-    	  for (int i = R0_fs; i <= L2_fs; i++) {
-    		  if (sensors[i] > 1.0)
-    			  sensors[i] = 1.0;
-    	  }
-      }
+      sensors[R0_fs] = legContactSensors[R0]->get()*footContactFactor;
+      sensors[R1_fs] = legContactSensors[R1]->get()*footContactFactor;
+      sensors[R2_fs] = legContactSensors[R2]->get()*footContactFactor;
+      sensors[L0_fs] = legContactSensors[L0]->get()*footContactFactor;
+      sensors[L1_fs] = legContactSensors[L1]->get()*footContactFactor;
+      sensors[L2_fs] = legContactSensors[L2]->get()*footContactFactor;
+
+      // Koh! Georg: I added this as a factor above
+      // if (conf.highFootContactsensoryFeedback)
+      // {
+      //        for (int i = R0_fs; i <= L2_fs; i++) {
+      //      	  if (sensors[i] > 4.0)
+      //      		  sensors[i] = 4.0;
+      //        }
+      // }
+      // else
+      // {
+      //        for (int i = R0_fs; i <= L2_fs; i++) {
+      //      	  if (sensors[i] > 1.0)
+      //      		  sensors[i] = 1.0;
+      //        }
+      // }
 
     }
     // Front Ultrasonic sensors (right and left)
@@ -1064,10 +1076,11 @@ namespace lpzrobots {
           passiveServos.push_back(spring);
           odeHandle.addIgnoredPair(secondThorax, foot);
 
-          legContactSensors[LegPos(i)] = new ContactSensor(conf.legContactSensorIsBinary, 50, 1.01 * t4, true);
-          legContactSensors[LegPos(i)]->setInitData(odeHandle, osgHandle, TRANSM(0, 0, -0.5 * l4));
+          // Koh!
+          legContactSensors[LegPos(i)] = new ContactSensor(conf.legContactSensorIsBinary, 100, 1.01 * t4, false, true, Color(0,0,0));
+          legContactSensors[LegPos(i)]->setInitData(odeHandle, osgHandle, TRANSM(0, 0, -(0.5) * l4));
           legContactSensors[LegPos(i)]->init(foot);
-          odeHandle.addIgnoredPair(tebia, legContactSensors[LegPos(i)]->getTransformObject());
+          //odeHandle.addIgnoredPair(tebia, legContactSensors[LegPos(i)]->getTransformObject());
         }
       } else if (legPosUsage[leg] == WHEEL) {
         //Sphere* sph = new Sphere(radius);

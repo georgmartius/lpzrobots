@@ -39,8 +39,7 @@ namespace lpzrobots {
       is recommended if you want very localized force sensors.
       The information of a collision comes to the sensor via the
       collision callback of the substance used for the primitive.
-      However if no collision is detected the sensor needs to adjust its output as well.
-      Therefore a reset function is provided.
+      The sensor returns the maximum forces since the last sense() call.
   */
   class ContactSensor : public PhysicalSensor{
   public:

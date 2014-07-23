@@ -305,7 +305,7 @@ namespace lpzrobots {
       bool highFootContactsensoryFeedback;
 
   };
-  
+
   class AmosII : public OdeRobot, public Inspectable {
     public:
       enum LegPos {
@@ -461,7 +461,7 @@ namespace lpzrobots {
           HingeJoint * tcJoint;
           HingeJoint * ctrJoint;
           HingeJoint * ftiJoint;
-          SliderJoint * footJoint;
+        /*Slider*/Joint * footJoint;
           OneAxisServo * tcServo;
           OneAxisServo * ctrServo;
           OneAxisServo * ftiServo;
