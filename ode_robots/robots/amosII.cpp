@@ -402,7 +402,22 @@ namespace lpzrobots {
       // Koh! Georg: What are the different values
       std::vector<double> max, min;
       if (conf.amos_version == 2) {
-        max.push_back(0.16);
+
+        // Koh Corrected to have all equal max force in all legs
+         max.push_back(0.2);
+         max.push_back(0.2);
+         max.push_back(0.2);
+         max.push_back(0.2);
+         max.push_back(0.2);
+         max.push_back(0.2);
+         min.push_back(0.0);
+         min.push_back(0.0);
+         min.push_back(0.0);
+         min.push_back(0.0);
+         min.push_back(0.0);
+         min.push_back(0.0);
+
+       /* max.push_back(0.16);
         max.push_back(0.20);
         max.push_back(0.14);
         max.push_back(0.24);
@@ -413,10 +428,10 @@ namespace lpzrobots {
         min.push_back(0.0);
         min.push_back(0.0);
         min.push_back(0.0);
-        min.push_back(0.0);
+        min.push_back(0.0);*/
       } else {
         //TODO: need to be recalibrated for amos version 1
-        max.push_back(0.30);
+        max.push_back(0.22); //0.30
         max.push_back(0.22);
         max.push_back(0.22);
         max.push_back(0.22);
@@ -1077,7 +1092,7 @@ namespace lpzrobots {
           odeHandle.addIgnoredPair(secondThorax, foot);
 
           // Koh!
-          legContactSensors[LegPos(i)] = new ContactSensor(conf.legContactSensorIsBinary, 100, 1.01 * t4, false, true, Color(0,0,0));
+          legContactSensors[LegPos(i)] = new ContactSensor(conf.legContactSensorIsBinary, 65/*koh changed 100*/, 1.01 * t4, false, true, Color(0,5,0));
           legContactSensors[LegPos(i)]->setInitData(odeHandle, osgHandle, TRANSM(0, 0, -(0.5) * l4));
           legContactSensors[LegPos(i)]->init(foot);
           //odeHandle.addIgnoredPair(tebia, legContactSensors[LegPos(i)]->getTransformObject());
