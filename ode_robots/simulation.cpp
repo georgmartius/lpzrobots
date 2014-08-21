@@ -452,11 +452,16 @@ namespace lpzrobots {
 
     // set parameters from commandline to configurables
     auto kvPairs = parseKeyValuePairs(initConfParams);
-    for(auto &c : globalData.configs){
-      for(auto &p : kvPairs){
-        cout << p.first << "->" << p.second << endl;
-        c->setParam(p.first, p.second);
+    if(!kvPairs.empty()) cout << "Set parameters specified on command line" << endl;
+    for(auto &p : kvPairs){
+      bool set=false;
+      for(auto &c : globalData.configs){
+        if(c->setParam(p.first, p.second)) {
+          set=true;
+          cout << p.first << "->" << p.second << "\t " << c->getName() << endl;
+        }
       }
+      if(!set) cout << "!! Parameter: " << p.first << " unknown!" << endl;
     }
     printConfigs(globalData.configs);
 
