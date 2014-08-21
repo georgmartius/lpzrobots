@@ -61,7 +61,7 @@ namespace lpzrobots{
    * Differential robot: two separated wheel on each side of the body
    * Inherit from OdeRobot
    */
-  class Differential: public OdeRobot{
+  class Differential: public OdeRobot {
     public:
       // Structure to hold the configuration of the robot
       DifferentialConf conf;

@@ -40,10 +40,8 @@ void BasicController::stepNoLearning(const sensor* sensors, int number_sensors,
                                      motor* motors, int number_motors) {
   // Very simple controller, if IR sensors are higher than threshold then
   // the robot will turn oposite direction, or backward when to close
-  // Sensors index 0 and 1 are wheel speeds
-  // Sensors index from 2 to 4 are left front IR sensors
-  // from 5 to 7 are the font right infra red sensors (4,5 being in the center)
-  // from 8 and 9 are the back sensors
+  // Sensors indices and motor indices can be accessed by the SIdx and MIdx functions
+  // provided by the controller base class
   if (sensors[SIdx("IR front left")] > 2*threshold ||
       sensors[SIdx("IR front right")] > 2*threshold) { // move backward
     motors[MIdx("left motor")] = -1.;
@@ -90,10 +88,13 @@ int BasicController::getMotorNumber() const {
 }
 
 bool BasicController::store(FILE* f) const {
+  //  S.store(f); // if S is a matrix::Matrix
+  Configurable::print(f,0);
   return true;
 }
 
 bool BasicController::restore(FILE* f) {
+  //  S.restore(f); // if S is a matrix::Matrix
+  Configurable::parse(f);
   return true;
 }
-

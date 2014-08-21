@@ -133,8 +133,8 @@ namespace lpzrobots{
     irSensorBank->setNames({"left", "left front", "front left","front right",
           "right front", "right","back left", "back right"});
 
-    // Registering the sensor in the bank, fixed to body
-    // For the first sensor it is rotated to point frontward
+    // Registering the sensor in the bank (set of ir sensors), fixed to body
+    // For the first sensor it is rotated to point forward
     // translation from center of body to outside and middle of height
     // pose is relative to the parent body - no need to multiply by 'pose'.
     // Maximum range of sensor value.
@@ -152,21 +152,24 @@ namespace lpzrobots{
                                 Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
                                 Matrix::rotate( M_PI / 3.5, 0, 0, 1) *
                                 Matrix::translate(-conf.bodyRadius * sin(M_PI * .25),
-                                                  conf.bodyRadius * cos(M_PI * .25), conf.bodyHeight / 2.0),
+                                                  conf.bodyRadius * cos(M_PI * .25),
+                                                  conf.bodyHeight / 2.0),
                                 conf.irRange,
                                 RaySensor::drawAll);
 
     irSensorBank->registerSensor(new IRSensor(), body,
                                 Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
                                 Matrix::translate(-conf.bodyRadius * sin(M_PI * .05),
-                                                  conf.bodyRadius * cos(M_PI * .05), conf.bodyHeight / 2.0),
+                                                  conf.bodyRadius * cos(M_PI * .05),
+                                                  conf.bodyHeight / 2.0),
                                 conf.irRange,
                                 RaySensor::drawAll);
 
     irSensorBank->registerSensor(new IRSensor(), body,
                                 Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
                                 Matrix::translate(conf.bodyRadius * sin(M_PI * .05),
-                                                  conf.bodyRadius * cos(M_PI * .05), conf.bodyHeight / 2.0),
+                                                  conf.bodyRadius * cos(M_PI * .05),
+                                                  conf.bodyHeight / 2.0),
                                 conf.irRange,
                                 RaySensor::drawAll);
 
@@ -174,7 +177,8 @@ namespace lpzrobots{
                                 Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
                                 Matrix::rotate(-M_PI / 3.5, 0, 0, 1) *
                                 Matrix::translate(conf.bodyRadius * sin(M_PI * .25),
-                                                  conf.bodyRadius * cos(M_PI * .25), conf.bodyHeight / 2.0),
+                                                  conf.bodyRadius * cos(M_PI * .25),
+                                                  conf.bodyHeight / 2.0),
                                 conf.irRange,
                                 RaySensor::drawAll);
 
@@ -182,26 +186,27 @@ namespace lpzrobots{
                                 Matrix::rotate(-M_PI / 2.0, 1, 0, 0) *
                                 Matrix::rotate(-M_PI / 2.0, 0, 0, 1) *
                                 Matrix::translate(conf.bodyRadius * sin(M_PI * .4),
-                                                  conf.bodyRadius * cos(M_PI * .4), conf.bodyHeight / 2.0),
+                                                  conf.bodyRadius * cos(M_PI * .4),
+                                                  conf.bodyHeight / 2.0),
                                 conf.irRange,
                                 RaySensor::drawAll);
 
     irSensorBank->registerSensor(new IRSensor(), body,
                                 Matrix::rotate(M_PI / 2.0, 1, 0, 0) *
                                 Matrix::translate(-conf.bodyRadius * sin(M_PI * .9),
-                                                  conf.bodyRadius * cos(M_PI * .9), conf.bodyHeight / 2.0),
+                                                  conf.bodyRadius * cos(M_PI * .9),
+                                                  conf.bodyHeight / 2.0),
                                 conf.irRange,
                                 RaySensor::drawAll);
 
     irSensorBank->registerSensor(new IRSensor(), body,
                                 Matrix::rotate(M_PI / 2.0, 1, 0, 0) *
                                 Matrix::translate(conf.bodyRadius * sin(M_PI * .9),
-                                                  conf.bodyRadius * cos(M_PI * .9), conf.bodyHeight / 2.0),
+                                                  conf.bodyRadius * cos(M_PI * .9),
+                                                  conf.bodyHeight / 2.0),
                                 conf.irRange,
                                 RaySensor::drawAll);
     addSensor(irSensorBank);
 
   }
-
 }
-
