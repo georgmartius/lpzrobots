@@ -55,7 +55,6 @@
 #include <ode_robots/imageprocessors.h>
 #include <ode_robots/camerasensors.h>
 
-#include <ode_robots/addsensors2robotadapter.h>
 #include <ode_robots/fourwheeled.h>
 
 #include <ode_robots/operators.h>
@@ -319,6 +318,15 @@ public:
 
     /// FOURWHEELED
     for(int i=0; i<numSeeing4wheeled; i++){
+      FourWheeledConf fwc = FourWheeled::getDefaultConf();
+      fwc.twoWheelMode = true;
+      fwc.useBumper    = false;
+      fwc.useButton    = useBottom;
+      fwc.force        = 5;
+      OdeRobot* robot = new FourWheeled(odeHandle, osgHandle,
+                                        fwc, "4W_" + string(VersionStrings[version]) + "_CamRobot_" +
+                                        itos(teaching*1000) + "_"  + itos(i) + "_" + itos(::id));
+
       CameraConf camcfg = Camera::getDefaultConf();
       camcfg.width  = 256;
       camcfg.height = 128;
@@ -338,7 +346,7 @@ public:
       mc.border = 0.25;
       mc.sizeExponent = 0.5; // 4th root
 
-      CameraSensor* camSensor = new MotionCameraSensor(mc);
+      auto camSensor = std::make_shared<MotionCameraSensor>(mc);
       addInspectableDescription("x[2]","Vision: MotionH");
       addInspectableDescription("x[3]","Vision: MotionV");
       addInspectableDescription("x[4]","Vision: PosH");
@@ -354,27 +362,17 @@ public:
 
       camSensor->setInitData(cam, odeHandle, osgHandle, osg::Matrix::rotate(-M_PI/2,0,0,1)
                              * osg::Matrix::translate(0.2,0, 0.40) );
-      std::list<Sensor*> sensors;
-      sensors.push_back(camSensor);
-      FourWheeledConf fwc = FourWheeled::getDefaultConf();
-      fwc.twoWheelMode = true;
-      fwc.useBumper    = false;
-      fwc.useButton    = useBottom;
-      fwc.force        = 5;
-      OdeRobot* robot = new FourWheeled(odeHandle, osgHandle,
-                                        fwc, "4W_" + string(VersionStrings[version]) + "_CamRobot_" +
-                                        itos(teaching*1000) + "_"  + itos(i) + "_" + itos(::id));
-      OdeRobot* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle, robot, sensors);
+      robot->addSensor(camSensor);
       if(seeingAreRed)
-        vehicle->setColor(Color(1,0,0));
+        robot->setColor(Color(1,0,0));
       else
-        vehicle->setColor(Color(1,.7,0));
+        robot->setColor(Color(1,.7,0));
       if(arena == Bone || arena == Arena)
-        vehicle->place(osg::Vec3(0,-i-2,0.1));
+        robot->place(osg::Vec3(0,-i-2,0.1));
       else if(arena==Corridor)
-        vehicle->place(osg::Vec3(sin(i/2.0+.5)*radiusCorr,cos(i/2.0+.5)*radiusCorr,0.3));
+        robot->place(osg::Vec3(sin(i/2.0+.5)*radiusCorr,cos(i/2.0+.5)*radiusCorr,0.3));
       else
-        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1)
+        robot->place(osg::Matrix::rotate(M_PI, 0,0,1)
                        * osg::Matrix::translate(3-2*(i/5),-4+2*(i%5),0.3));
 
 
@@ -412,7 +410,7 @@ public:
       else
         agent = new OdeAgent( global, PlotOption(NoPlot), 1.0);
       agent->addInspectable(this);
-      agent->init(controller, vehicle, wiring);
+      agent->init(controller, robot, wiring);
 
       agent->addOperator(new LimitOrientationOperator(Axis(1,0,0), Axis(0,0,1), M_PI/3.0, 100));
 
@@ -428,13 +426,13 @@ public:
       fwc.twoWheelMode = true;
       fwc.useBumper    = false;
       fwc.force        = 5;
-      OdeRobot* vehicle = new FourWheeled(odeHandle, osgHandle, fwc,
+      OdeRobot* robot = new FourWheeled(odeHandle, osgHandle, fwc,
                                           "BlindRobot_" + itos(i) + "_" + itos(::id));
-      vehicle->setColor(Color(1,1,0));
+      robot->setColor(Color(1,1,0));
       if(arena==Corridor){
-        vehicle->place(osg::Vec3(sin(i/2.0+.5)*radiusCorr,cos(i/2.0+.5)*radiusCorr,0.3));
+        robot->place(osg::Vec3(sin(i/2.0+.5)*radiusCorr,cos(i/2.0+.5)*radiusCorr,0.3));
       }else{
-        vehicle->place(Pos(-3,-4+2*i,0.3));
+        robot->place(Pos(-3,-4+2*i,0.3));
       }
       AbstractController* controller;
       if(blind_straight) {
@@ -470,7 +468,7 @@ public:
         agent->addInspectable(this);
       }
 
-      agent->init(controller, vehicle, wiring);
+      agent->init(controller, robot, wiring);
       agent->addOperator(new LimitOrientationOperator(Axis(1,0,0), Axis(0,0,1), M_PI/3.0, 100));
 
       global.agents.push_back(agent);
@@ -579,12 +577,11 @@ public:
 
   virtual void changeCameraPose(GlobalData& global, osg::Matrix posefactor){
     FOREACH(OdeAgentList, global.agents, a){
-      AddSensors2RobotAdapter* robad =
-        dynamic_cast<AddSensors2RobotAdapter*>((*a)->getRobot());
-      if(robad){
-        list<Sensor*> ss = robad->getAttachedSensors();
+      auto robot = (*a)->getRobot();
+      if(robot){
+        auto ss = robot->getAttachedSensors();
         if(ss.size()>0){
-          CameraSensor* cs = dynamic_cast<CameraSensor*>(*ss.begin());
+          auto cs = dynamic_pointer_cast<CameraSensor>((*ss.begin()).first);
               if(cs){
                 osg::Matrix pose = cs->getPose();
                 cs->setPose(posefactor*pose);
@@ -711,4 +708,3 @@ int main (int argc, char **argv)
   return sim.run(argc, argv) ? 0 : 1;
 
 }
-

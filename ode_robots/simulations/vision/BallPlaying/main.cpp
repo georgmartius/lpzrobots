@@ -21,58 +21,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.10  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.9  2011/01/02 23:09:52  martius
- *   texture handling of boxes changed
- *   playground walls changed
- *
- *   Revision 1.8  2010/09/30 17:07:08  martius
- *   tests and vision experiments improved
- *
- *   Revision 1.7  2010/09/16 15:20:35  martius
- *   simulation improved
- *
- *   Revision 1.6  2010/09/13 09:16:00  martius
- *   *** empty log message ***
- *
- *   Revision 1.5  2010/05/19 11:43:13  martius
- *   new Makefile system using m4
- *
- *   Revision 1.4  2010/03/31 11:31:51  martius
- *   4 experiments working
- *
- *   Revision 1.3  2010/03/30 14:33:05  martius
- *   nice working version for fourwheeled
- *
- *   Revision 1.2  2010/03/29 17:19:59  martius
- *   added two wheeled
- *
- *   Revision 1.1  2010/03/29 16:26:45  martius
- *   new simulation for Ball playing
- *
- *   Revision 1.3  2010/03/29 07:17:36  martius
- *   nimm4 body inverted
- *
- *   Revision 1.2  2010/03/26 14:17:15  martius
- *   fourwheeled in 2wheeled mode addded
- *
- *   Revision 1.1  2010/03/25 16:38:07  martius
- *   vision experiments
- *
- *   Revision 1.2  2010/03/24 16:51:38  martius
- *   QuickMP uses now the number of processors in the system
- *   optical flow improved
- *   video recording works with offscreen rendering
- *   Make system: Optimization -O1 is switched on by default (add a debug version without optimization)
- *
- *   Revision 1.1  2010/03/23 18:42:26  martius
- *   new simulation for vision
- *
- *
  ***************************************************************************/
 #include <stdio.h>
 
@@ -109,7 +57,6 @@
 #include <ode_robots/camerasensors.h>
 
 #include <ode_robots/twowheeled.h>
-#include <ode_robots/addsensors2robotadapter.h>
 #include <ode_robots/fourwheeled.h>
 
 
@@ -384,6 +331,15 @@ public:
 
     /// FOURWHEELED
     for(int i=0; i<numSeeing4wheeled; i++){
+      FourWheeledConf fwc = FourWheeled::getDefaultConf();
+      fwc.twoWheelMode = true;
+      fwc.useBumper    = false;
+      fwc.force        = 5;
+
+      OdeRobot* robot = new FourWheeled(odeHandle, osgHandle,
+                                        fwc, "4W_" + string(VersionStrings[version]) + "_CamRobot_" +
+                                        itos(teaching*1000) + "_"  + itos(i) + "_" + itos(::id));
+
       CameraConf camcfg = Camera::getDefaultConf();
       camcfg.width  = 256;
       camcfg.height = 128;
@@ -394,31 +350,25 @@ public:
       camcfg.processors.push_back(new ColorFilterImgProc(true, .5,
                                   HSVImgProc::Yellow-10, HSVImgProc::Yellow+10,100));
       Camera* cam = new Camera(camcfg);
+      MotionCameraSensorConf mc = MotionCameraSensor::getDefaultConf();
       mc.values = MotionCameraSensor::Position |
         MotionCameraSensor::Size | MotionCameraSensor::SizeChange;
-      CameraSensor* camSensor = new MotionCameraSensor(mc);
+      auto camSensor = std::make_shared<MotionCameraSensor>(mc);
       camSensor->setInitData(cam, odeHandle, osgHandle, osg::Matrix::rotate(-M_PI/2,0,0,1)
                              * osg::Matrix::translate(0.2,0, 0.40) );
-      std::list<Sensor*> sensors;
-      sensors.push_back(camSensor);
-      FourWheeledConf fwc = FourWheeled::getDefaultConf();
-      fwc.twoWheelMode = true;
-      fwc.useBumper    = false;
-      fwc.force        = 5;
-      OdeRobot* robot = new FourWheeled(odeHandle, osgHandle,
-                                        fwc, "4W_" + string(VersionStrings[version]) + "_CamRobot_" +
-                                        itos(teaching*1000) + "_"  + itos(i) + "_" + itos(::id));
-      OdeRobot* vehicle = new AddSensors2RobotAdapter(odeHandle, osgHandle, robot, sensors);
+
+      robot->addSensor(camSensor);
+
       if(seeingAreRed)
-        vehicle->setColor(Color(1,0,0));
+        robot->setColor(Color(1,0,0));
       else
-        vehicle->setColor(Color(1,.7,0));
+        robot->setColor(Color(1,.7,0));
       if(arena == Bone || arena == Arena)
-        vehicle->place(osg::Vec3(0,-i-2,0.1));
+        robot->place(osg::Vec3(0,-i-2,0.1));
       else if(arena==Corridor)
-        vehicle->place(osg::Vec3(sin(i/2.0+.5)*radiusCorr,cos(i/2.0+.5)*radiusCorr,0.3));
+        robot->place(osg::Vec3(sin(i/2.0+.5)*radiusCorr,cos(i/2.0+.5)*radiusCorr,0.3));
       else
-        vehicle->place(osg::Matrix::rotate(M_PI, 0,0,1)
+        robot->place(osg::Matrix::rotate(M_PI, 0,0,1)
                        * osg::Matrix::translate(3,-4+2*i,0.3));
 
 
@@ -441,7 +391,7 @@ public:
       //    AbstractWiring* wiring = new One2OneWiring(new WhiteUniformNoise());
       OdeAgent* agent = i==0 ? new OdeAgent(global) : new OdeAgent(global,PlotOption(NoPlot));
       agent->addInspectable(this);
-      agent->init(controller, vehicle, wiring);
+      agent->init(controller, robot, wiring);
       global.configs.push_back(controller);
       global.agents.push_back(agent);
     }
@@ -454,10 +404,10 @@ public:
       fwc.twoWheelMode = true;
       fwc.useBumper    = false;
       fwc.force        = 4;
-      OdeRobot* vehicle = new FourWheeled(odeHandle, osgHandle, fwc,
+      OdeRobot* robot = new FourWheeled(odeHandle, osgHandle, fwc,
                                           "BlindRobot_" + itos(i));
-      vehicle->setColor(Color(1,1,0));
-      vehicle->place(Pos(-3,-4+2*i,0.3));
+      robot->setColor(Color(1,1,0));
+      robot->place(Pos(-3,-4+2*i,0.3));
       //      AbstractController *controller = new InvertMotorSpace(10);
       SeMoX *semox = new SeMoX();
       CrossMotorCoupling* controller = new CrossMotorCoupling(semox, semox, 0.0);
@@ -469,7 +419,7 @@ public:
 
       One2OneWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
       OdeAgent* agent = new OdeAgent(global,PlotOption(NoPlot));
-      agent->init(controller, vehicle, wiring);
+      agent->init(controller, robot, wiring);
       global.agents.push_back(agent);
     }
 
@@ -613,4 +563,3 @@ int main (int argc, char **argv)
   return sim.run(argc, argv) ? 0 : 1;
 
 }
-
