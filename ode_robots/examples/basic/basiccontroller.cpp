@@ -27,8 +27,8 @@
 using namespace std;
 using namespace matrix;
 
-BasicController::BasicController(const std::string& name, const std::string& revision)
-  : AbstractController(name, revision) {
+BasicController::BasicController(const std::string& name)
+  : AbstractController(name, "1.0") {
   initialised=false;
   // add threshold parameter to configurable parameters, setable on console
   addParameterDef("threshold", &threshold, 0.2, 0, 1, "threshold for IR-sensor");

@@ -30,7 +30,7 @@ namespace lpzrobots{
 
   Differential::Differential(const OdeHandle& odeHandle, const OsgHandle& osgHandle,
                              const DifferentialConf& conf, const string& name)
-    : OdeRobot(odeHandle, osgHandle, name, "revision 1.0"), conf(conf){
+    : OdeRobot(odeHandle, osgHandle, name, "2.0"), conf(conf){
   }
 
 
@@ -41,7 +41,7 @@ namespace lpzrobots{
   void Differential::placeIntern(const Matrix& pose){
     // Configuration check: wheels have to be bigger than the body
     assert(2. * conf.wheelRadius > conf.bodyHeight);
-    // Movig robot upward so wheel are not stuck on the ground
+    // Moving robot upward such that the wheel are not stuck on the ground
     Matrix initialPose;
     initialPose = Matrix::translate(Vec3(0, 0, conf.wheelRadius) * pose);
     // Creating the robot
@@ -115,7 +115,6 @@ namespace lpzrobots{
     motor->setVelovityFactor(conf.wheelMotorMaxSpeed);
     addSensor(motor);
     addMotor(motor);
-
 
     // Right wheel motor
     motor = std::make_shared<AngularMotor1Axis>(odeHandle, bodyRightWheelJoint,

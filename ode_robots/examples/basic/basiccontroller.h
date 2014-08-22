@@ -29,7 +29,7 @@
 class BasicController : public AbstractController{
   public:
 
-    BasicController(const std::string& name, const std::string& revision);
+    BasicController(const std::string& name);
 
     /** initialisation of the controller with the given sensor/ motornumber
       Must be called before use. The random generator is optional.
