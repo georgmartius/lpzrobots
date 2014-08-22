@@ -134,6 +134,8 @@ namespace lpzrobots {
       : conf(conf), oldsize(0) {
       num = (bool(conf.dims & X) + bool(conf.dims & Y))* bool(conf.values & Position) +
         bool(conf.values & Size) + bool(conf.values & SizeChange);
+      std::vector<std::string> names;
+      setNamesIntern(names);
     }
 
     static PositionCameraSensorConf getDefaultConf(){
@@ -145,6 +147,18 @@ namespace lpzrobots {
       c.clipsize         = 1.5;
       c.border           = 0;
       return c;
+    }
+
+    /// sets the names of the sensors and starts with the given names (for subclasses)
+    virtual void setNamesIntern(std::vector<std::string>& names){
+      setBaseInfo(SensorMotorInfo("CamAvg: ").changequantity(SensorMotorInfo::Other));
+      if(conf.values & Position) {
+        if(conf.dims & X) names.push_back("PosH");
+        if(conf.dims & Y) names.push_back("PosV");
+      }
+      if(conf.values & Size) names.push_back("Size");
+      if(conf.values & SizeChange) names.push_back("Size Change");
+      setNames(names);
     }
 
     virtual ~PositionCameraSensor(){
@@ -296,6 +310,10 @@ namespace lpzrobots {
       if(this->mconf.avg<1) this->mconf.avg=1;
       lambda = 1/(double)this->mconf.avg;
       num   += bool(this->mconf.dims & X) + bool(this->mconf.dims & Y);
+      std::vector<std::string> names;
+      if(mconf.dims & X) names.push_back("MotionH");
+      if(mconf.dims & Y) names.push_back("MotionV");
+      setNamesIntern(names);
     }
 
     static MotionCameraSensorConf getDefaultConf(){
