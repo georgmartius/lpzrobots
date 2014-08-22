@@ -719,9 +719,7 @@ namespace lpzrobots {
 #ifdef VERBOSE
     std::cerr << "AmosII::create BEGIN\n";
 #endif
-    if (created) {
-      destroy();
-    }
+    assert(!created); // cannot be recreated, use relocation via moveToPose or store and restore
 
     // we want legs colliding with other legs, so we set internal collision
     // flag to "false".
