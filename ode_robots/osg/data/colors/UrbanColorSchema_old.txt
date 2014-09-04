@@ -1,0 +1,67 @@
+sky1            MilchblauLSHV
+sky2            MilchblauLSHV
+sky3            MilchblauLS
+sky4            Milchblau
+sky5            MilchblauHSLV
+sky6            MilchblauHSLV
+sky7            MilchblauHSLV
+#ground          Olivgruen Fichtenholz
+ground          Bastgelb
+text            lpztext
+hud             lpzhud
+arenaground     Bastgelb
+#wall            lpzwall
+#wall            Golden_Nugget
+wall            Zartgrau
+# colors for manipulation by operators
+manipmove       Narzissengelb
+maniplimit      Silbergrau
+# ######### Robot sets ##########
+# robot1 is the salient color
+# robot2 is is a darker color
+# robot3 is another light, possibly unsaturated color
+# robot4 is a pale color (skin color)
+# Robot Set 0
+robot1          Mandarin            0
+robot2          Capriblau           0
+#robot2          Imperial_Blue           0
+robot3          Gelbgruen           0
+robot4          Vanille             0
+joint           Zartgrau            0
+# Robot Set 1
+robot1          Ledersofablau       1
+robot2          Narzissengelb       1
+robot3          Milchblau           1
+robot4          Vanille             1
+# Robot Set 2
+robot1          Gelbgruen           2
+robot2          Kaltes_Fahlschwarz  2
+robot3          Inforot             2
+robot4          Vanille             2
+# Robot Set 3
+robot1          Columbine_Pink      3
+robot2          Schmutzigblau       3
+robot3          Renaissancegruen    3
+robot4          Rauchgrau           3
+joint           Koenigspurpur       3
+# Robot Set 4
+robot1          Schmutzigblau       4
+robot2          Pinkorange          4
+robot3          Moosgelb            4
+robot4          Rauchgrau           4
+# Robot Set 5
+robot1          Schieferviolett     5
+robot2          Neutralgruen        5
+robot3          Neutralgruen        5
+robot4          Bastgelb            5
+# Robot Set 6
+robot1          Ockergelb           6
+robot2          Ledersofablau       6
+robot3          Warm_Blue           6
+robot4          Vanille             6
+# Robot Set 1 orig
+robot1          Blaucyan            10
+robot2          Sommergelb          10
+robot3          Capriblau           10
+robot4          Vanille             10
+joint           Schwarz             10
