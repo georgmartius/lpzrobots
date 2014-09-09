@@ -71,6 +71,7 @@ public:
 protected:
   int number_sensors;
   int number_motors;
+  bool gotmotor;
   ros::Publisher sensor_pub;
   ros::Subscriber motor_sub;
   motor* motorValues;
