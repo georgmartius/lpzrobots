@@ -59,6 +59,10 @@ namespace lpzrobots {
       this->func=func;
     }
 
+    NamingFunction  getNamingFunc() const {
+      return this->func;
+    }
+
     /// set names explicitly (basename is anyway suffixed)
     void setNames(const std::vector<std::string>& names){
       this->func=[names](int index) {
