@@ -21,41 +21,62 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
  ***************************************************************************/
-#include "irsensor.h"
+#ifndef __ROSCONTROLLER_H
+#define __ROSCONTROLLER_H
 
-namespace lpzrobots {
+#include <stdio.h>
+#include <selforg/abstractcontroller.h>
+#include <std_msgs/Float64MultiArray.h>
+#include <ros/ros.h>
 
-  IRSensor::IRSensor(double exponent, double size, double range, rayDrawMode drawMode)
-  : RaySensor(size, range, drawMode) {
+/**
+ * class for robot control via ROS
+ *
+ */
+class ROSController : public AbstractController {
+public:
+  /**
+     @param port Port number to listen for controller
+     @param robotname name of robot to send to controller
+   */
+  ROSController(const std::string& name);
 
-    this->exponent = exponent;
-    value = 0;
-  }
+  virtual ~ROSController();
 
+  virtual void init(int sensornumber, int motornumber, RandGen* randGen = 0);
 
-  bool IRSensor::sense(const GlobalData& globaldata){
-    RaySensor::sense(globaldata);
-    value = characteritic(len);
+  virtual int getSensorNumber() const {return number_sensors;}
+  virtual int getMotorNumber() const {return number_motors;}
+
+  virtual void step(const sensor* sensors, int sensornumber,
+                    motor* motors, int motornumber);
+  virtual void stepNoLearning(const sensor* , int number_sensors,
+                              motor* , int number_motors);
+
+  void motorsCallback(const std_msgs::Float64MultiArray::ConstPtr& motormsg);
+
+  /********* STORABLE INTERFACE ******/
+  /// @see Storable
+  virtual bool store(FILE* f) const {
+    Configurable::print(f,"");
     return true;
   }
 
-  double IRSensor::getValue(){
-    return value;
+  /// @see Storable
+  virtual bool restore(FILE* f) {
+    Configurable::parse(f);
+    return true;
   }
 
-  int IRSensor::get(sensor* sensors, int length) const {
-    assert(length>0);
-    sensors[0]=value;
-    return 1;
-  }
+protected:
+  int number_sensors;
+  int number_motors;
+  ros::Publisher sensor_pub;
+  ros::Subscriber motor_sub;
+  motor* motorValues;
+};
 
-  std::list<sensor> IRSensor::getList() const {
-    return {value};
-  }
+#endif
 
-  double IRSensor::characteritic(double len){
-    double v = (range - len)/range;
-    return v < 0 ? 0 : pow(v, exponent);
-  }
 
-}
+

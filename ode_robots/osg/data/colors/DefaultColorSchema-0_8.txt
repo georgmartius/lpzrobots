@@ -1,0 +1,29 @@
+Black           Lackschwarz
+Blue            RGB-Blau
+Red             RGB-Rot
+Yellow          RGB-Gelb
+Green           RGB-Gruen
+White           Weiss
+sky1            lpzsky1
+sky2            lpzsky1
+sky3            lpzsky2
+sky4            lpzsky3
+sky5            lpzsky4
+sky6            lpzsky4
+sky7            lpzsky4
+ground          Weiss
+text            lpztext
+hud             lpzhud
+arenaground     lpzarenaground
+wall            lpzwall
+manipmove       Safrangelb
+maniplimit      Magenta
+# robot1 is the salient color
+robot1          lpzblue         0
+robot1          Zinnoberrot     1
+robot1          lpzgreen        2
+robot1          Violett         3
+robot2          Sandgelb        0
+robot3          Absinthgruen    0
+robot4          Maiskorngelb    0
+joint           Rot
