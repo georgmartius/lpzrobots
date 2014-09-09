@@ -59,12 +59,12 @@ namespace lpzrobots {
 
     /**
      * @param size size of sensor in simulation
-     * @param range maximum range of the IR sensor
+     * @param range maximum range of the Ray sensor
      * @param drawMode draw mode of the sensor
      */
-  	RaySensor(double size , double range, rayDrawMode drawMode);
+    RaySensor(double size , double range, rayDrawMode drawMode);
 
-  	~RaySensor();
+    ~RaySensor();
 
     ///Create a copy of this without initialization
     virtual RaySensor* clone() const;
@@ -84,13 +84,13 @@ namespace lpzrobots {
     virtual void update() override;
 
     ///Set maximum range of ray
-    virtual void setRange(float range);
+    virtual void setRange(double range);
 
     ///Set draw mode of ray
     virtual void setDrawMode(rayDrawMode drawMode);
 
     ///Set length of ray (needed for callback)
-    void setLength(float len, long int time);
+    void setLength(double len, long int time);
 
   protected:
     //Initialize variables of ray sensor. Should be called
@@ -103,7 +103,8 @@ namespace lpzrobots {
 
     double len;   // measured length
     double lastlen; //last measured length
-    long  time;  // time of last measurement
+    double detection;   // detected length (internally used)
+    long lasttimeasked; // used to make sense return the same number if called two times in one timestep
 
     OSGCylinder* sensorBody;
     Transform* transform;

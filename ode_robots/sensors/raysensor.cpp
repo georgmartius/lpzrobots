@@ -25,137 +25,139 @@
 
 namespace lpzrobots {
 
-	// this function is called if the ray has a collision. In the userdata we get the
-	//  RaySensor and the depth is in the contact information
-	int irCollCallback(dSurfaceParameters& params, GlobalData& globaldata, void *userdata,
-			dContact* contacts, int numContacts,
-			dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
+  // this function is called if the ray has a collision. In the userdata we get the
+  //  RaySensor and the depth is in the contact information
+  int rayCollCallback(dSurfaceParameters& params, GlobalData& globaldata, void *userdata,
+                     dContact* contacts, int numContacts,
+                     dGeomID o1, dGeomID o2, const Substance& s1, const Substance& s2){
 
-		RaySensor* sensor = (RaySensor*)userdata;
-		sensor->setLength(contacts[0].geom.depth, globaldata.sim_step);
-		return 0;
-	}
+    RaySensor* sensor = (RaySensor*)userdata;
+    sensor->setLength(contacts[0].geom.depth, globaldata.sim_step);
+    return 0;
+  }
 
-	void RaySensor::defaultInit(){
-		initialised = false;
-		len=0;
-		time=-10;
-		lastlen=-1;
-		sensorBody = 0;
-		ray=0;
-		transform=0;
-		setBaseInfo(SensorMotorInfo("Ray Sensor").changequantity(SensorMotorInfo::Distance).changemin(0));
-	}
+  void RaySensor::defaultInit(){
+    initialised = false;
+    len=0;
+    lastlen=-1;
+    sensorBody = 0;
+    ray=0;
+    transform=0;
+    detection=10^5;
+    lasttimeasked=-1;
 
-	RaySensor::RaySensor(){
-		this->defaultInit();
-	}
+    setBaseInfo(SensorMotorInfo("Ray Sensor").changequantity(SensorMotorInfo::Distance).changemin(0));
+  }
 
-	RaySensor::RaySensor(double size , double range, rayDrawMode drawMode)
-	: size(size), range(range), drawMode(drawMode)
-	{
-		this->defaultInit();
-	}
+  RaySensor::RaySensor(){
+    this->defaultInit();
+  }
 
-	RaySensor::~RaySensor(){
-		if(transform) delete(transform);
+  RaySensor::RaySensor(double size , double range, rayDrawMode drawMode)
+    : size(size), range(range), drawMode(drawMode)
+  {
+    this->defaultInit();
+  }
 
-		//   dGeomDestroy(transform);
-		if(sensorBody) delete sensorBody;
-	}
+  RaySensor::~RaySensor(){
+    if(transform) delete(transform);
 
-	RaySensor* RaySensor::clone() const {
-		RaySensor* w = new RaySensor(size, range, drawMode);
-		w->setInitData(odeHandle, osgHandle, pose);
-		return w;
-	}
+    //   dGeomDestroy(transform);
+    if(sensorBody) delete sensorBody;
+  }
 
-	int RaySensor::getSensorNumber() const{
-		return 1;
-	}
+  RaySensor* RaySensor::clone() const {
+    RaySensor* w = new RaySensor(size, range, drawMode);
+    w->setInitData(odeHandle, osgHandle, pose);
+    return w;
+  }
 
-	void RaySensor::setPose(const osg::Matrix& pose) {
-		this->pose=pose;
-		if(transform) {
-			// Transform SetPose not implemented. it is easy to do...
-			assert("not yet implemented" == 0);
-		}
-	}
+  int RaySensor::getSensorNumber() const{
+    return 1;
+  }
 
-	void RaySensor::init(Primitive* own, Joint* joint) {
-		assert(isInitDataSet);
-		len   = range;
-		ray = new Ray(range, 0 /*0.005*/, len); // 0 means that we use a line
-		transform = new Transform(own, ray, pose);
-		OdeHandle myOdeHandle(odeHandle);
-		transform->init(odeHandle, 0, osgHandle,
-				(drawMode==drawAll || drawMode==drawRay) ? (Primitive::Draw | Primitive::Geom) : Primitive::Geom );
-		transform->substance.setCollisionCallback(irCollCallback,this);
+  void RaySensor::setPose(const osg::Matrix& pose) {
+    this->pose=pose;
+    if(transform) {
+      // Transform SetPose not implemented. it is easy to do...
+      assert("not yet implemented" == 0);
+    }
+  }
 
-		switch(drawMode){
-		case drawAll:
-		case drawSensor:
-			sensorBody = new OSGCylinder(size, size / 5.0);
-			sensorBody->init(osgHandle);
-			break;
-		default:
-			break;
-		}
-		update();
-		initialised = true;
-	};
+  void RaySensor::init(Primitive* own, Joint* joint) {
+    assert(isInitDataSet);
+    len   = range;
+    ray = new Ray(range, 0 /*0.005*/, len); // 0 means that we use a line
+    transform = new Transform(own, ray, pose);
+    OdeHandle myOdeHandle(odeHandle);
+    transform->init(odeHandle, 0, osgHandle,
+                    (drawMode==drawAll || drawMode==drawRay) ? (Primitive::Draw | Primitive::Geom) : Primitive::Geom );
+    transform->substance.setCollisionCallback(rayCollCallback,this);
 
-	void RaySensor::setLength(float len, long int time){
-		this->len = len;
-		this->time = time;
-		// printf("len= %f, value: %f, \n",len, value);
-	}
+    switch(drawMode){
+    case drawAll:
+    case drawSensor:
+      sensorBody = new OSGCylinder(size, size / 5.0);
+      sensorBody->init(osgHandle);
+      break;
+    default:
+      break;
+    }
+    update();
+    initialised = true;
+  };
 
-	void RaySensor::setRange(float range){
-		assert(!initialised);
-		this->range = range;
-	}
+  void RaySensor::setLength(double len, long int time){
+    detection = std::min(this->detection,len);
+  }
 
-	void RaySensor::setDrawMode(rayDrawMode drawMode){
-		assert(!initialised);
-		this->drawMode = drawMode;
-	}
+  void RaySensor::setRange(double range){
+    assert(!initialised);
+    this->range = range;
+  }
 
-
-	bool RaySensor::sense(const GlobalData& globaldata){
-		if(time<globaldata.sim_step - globaldata.odeConfig.controlInterval){
-			len     = range;
-		}
-		ray->setLength(len);
-		return true;
-	}
-
-	int RaySensor::get(sensor* sensors, int length) const {
-		assert(length>0);
-		sensors[0]=len;
-		return 1;
-	}
-
-	std::list<sensor> RaySensor::getList() const {
-		return {len};
-	}
+  void RaySensor::setDrawMode(rayDrawMode drawMode){
+    assert(!initialised);
+    this->drawMode = drawMode;
+  }
 
 
-	void RaySensor::update(){
-		if(len!=lastlen){
-			ray->setColor(Color(len*1.5, 0.0, 0.0));
-			if(sensorBody) {
-				sensorBody->setColor(Color(len*2.0, 0.0, 0.0));
-			}
-			lastlen=len;
-		}
-		ray->update();
+  bool RaySensor::sense(const GlobalData& globaldata){
+    if(globaldata.sim_step != lasttimeasked) {
+      len     = std::max(0.0,std::min(detection,range));
+      detection=range;
+    }
+    lasttimeasked=globaldata.sim_step;
+    return true;
+  }
 
-		if(sensorBody) {
-			sensorBody->setMatrix(osg::Matrix::translate(0,0,0.005) *
-					ray->getPose() * transform->getPose());
-		}
+  int RaySensor::get(sensor* sensors, int length) const {
+    assert(length>0);
+    sensors[0]=len;
+    return 1;
+  }
 
-	}
+  std::list<sensor> RaySensor::getList() const {
+    return {len};
+  }
+
+
+  void RaySensor::update(){
+    if(len!=lastlen){
+      ray->setLength(len);
+      ray->setColor(Color(len*1.5, 0.0, 0.0));
+      if(sensorBody) {
+        sensorBody->setColor(Color(len*2.0, 0.0, 0.0));
+      }
+      lastlen=len;
+    }
+    ray->update();
+
+    if(sensorBody) {
+      sensorBody->setMatrix(osg::Matrix::translate(0,0,0.005) *
+                            ray->getPose() * transform->getPose());
+    }
+
+  }
 
 }
