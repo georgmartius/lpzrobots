@@ -30,8 +30,8 @@
 namespace lpzrobots {
 
 /** Class for a bank (collection) of ray sensors.
-    Ray sensors can be registered at the bank. Methods for resetting,
-    sensing and reading the sensor values of all sensors are provided.
+    Ray sensors can be registered at the bank. Methods for sensing
+    and reading the sensor values of all sensors are provided.
  */
   class RaySensorBank  : public PhysicalSensor {
   public:
