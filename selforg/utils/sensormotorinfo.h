@@ -39,6 +39,7 @@ public:
     : name(name), min(-1.0), max(1.0), index(0), quantity(Position), type(Continuous)
   {}
 
+  CHANGER( SensorMotorInfo, std::string, name);
   CHANGER( SensorMotorInfo, double, min);
   CHANGER( SensorMotorInfo, double, max);
   CHANGER( SensorMotorInfo, Quantity, quantity);

@@ -23,10 +23,12 @@
  ***************************************************************************/
 
 #include <assert.h>
+#include <string>
 
 #include "primitive.h"
 #include "speedsensor.h"
 #include "mathutils.h"
+
 
 using namespace matrix;
 
@@ -36,7 +38,17 @@ namespace lpzrobots {
                            short dimensions /* = X | Y | Z */ )
     : maxSpeed(maxSpeed), mode(mode), dimensions (dimensions) {
     own=0;
-    setBaseInfo(SensorMotorInfo("Speed").changequantity(SensorMotorInfo::Velocity));
+    std::string name = "Speed";
+    switch(mode){
+    case Translational:   name += "Translational";
+    case TranslationalRel:name += "TranslationalRel";
+    case Rotational:      name += "Rotational";
+    case RotationalRel:   name += "RotationalRel";
+    }
+    setBaseInfo(SensorMotorInfo(name).changequantity(SensorMotorInfo::Velocity));
+#if (__GNUC__ > 4 ) || (__GNUC__ == 4 && __GNUC_MINOR__ > 7)
+    setNamingFunc([dimensions](int index) {return dimensions2String(dimensions).substr(index,1);});
+#endif
   }
 
   void SpeedSensor::init(Primitive* own, Joint* joint){

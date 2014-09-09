@@ -71,7 +71,7 @@ namespace lpzrobots {
     initialised = false;
     sensorBody = 0;
     transform=0;
-    time=-10;
+    lasttimeasked=-1;
     setBaseInfo(SensorMotorInfo("Contact").changequantity(SensorMotorInfo::Force).changemin(0)
                 .changetype(binary? SensorMotorInfo::Binary : SensorMotorInfo::Continuous));
   }
@@ -119,7 +119,6 @@ namespace lpzrobots {
   };
 
   void ContactSensor::setDepth(float depth, long int time){
-    this->time = time;
     if(binary && depth>0)
       detection=1.0;
     else
@@ -129,11 +128,11 @@ namespace lpzrobots {
   }
 
   bool ContactSensor::sense(const GlobalData& globaldata){
-    if(time<globaldata.sim_step - globaldata.odeConfig.controlInterval){
-      value     = 0;
-    }else
+    if(globaldata.sim_step != lasttimeasked) {
       value     = detection;
-    detection=0;
+      detection=0;
+    }
+    lasttimeasked=globaldata.sim_step;
     return true;
   }
 

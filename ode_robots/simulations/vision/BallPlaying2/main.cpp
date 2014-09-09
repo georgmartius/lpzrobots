@@ -347,12 +347,6 @@ public:
       mc.sizeExponent = 0.5; // 4th root
 
       auto camSensor = std::make_shared<MotionCameraSensor>(mc);
-      addInspectableDescription("x[2]","Vision: MotionH");
-      addInspectableDescription("x[3]","Vision: MotionV");
-      addInspectableDescription("x[4]","Vision: PosH");
-      addInspectableDescription("x[5]","Vision: PosV");
-      addInspectableDescription("x[6]","Vision: Size");
-      addInspectableDescription("x[7]","Vision: Size Change");
       motionIndex1    = 2;
       motionIndex2    = 3;
       posIndex1       = 4;

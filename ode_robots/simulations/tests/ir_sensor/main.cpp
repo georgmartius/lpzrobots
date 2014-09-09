@@ -40,8 +40,6 @@
 #include <selforg/onecontrollerperchannel.h>
 #include <ode_robots/substance.h>
 
-#include <ode_robots/sensormotornaming.h>
-
 
 #include <stdio.h>
 #include <iostream>
