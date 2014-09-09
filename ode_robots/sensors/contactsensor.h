@@ -92,7 +92,7 @@ namespace lpzrobots {
     double value;               ///<  actual sensor value
     double lastvalue;           ///< last value
     double size;                ///< size of graphical sensor
-    long int time;
+    long int lasttimeasked;     // used to make sense return the same number if called two times in one timestep
 
     Primitive* reference;       ///< primitive to which the sensor is bound
     Sphere* sensorBody;
