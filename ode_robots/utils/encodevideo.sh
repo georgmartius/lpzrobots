@@ -37,25 +37,35 @@ fi
 FRAME=`ls $NAME* -1 | head -20 | tail -n 1`;
 cp "$FRAME" "$TARGET.jpg";
 
-echo -e "*********************** mjpeg encoding **************************";
+#echo -e "*********************** mjpeg encoding **************************";
 #mencoder mf://$NAME*.jpg -mf fps=25:type=sgi -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o $NAME.mjpeg
-nice -10 mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o "$TARGET.mjpeg"
+#nice -10 mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o "$TARGET.mjpeg"
 
-#echo -e "*********************** to wmv **************************";
-#mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=wmv2:vbitrate=600 -oac copy -o "${TARGET}.wmv.avi"
+if which ffmpeg; then
+    cat $NAME*.jpg | ffmpeg -y -f image2pipe -r 25 -vcodec mjpeg -i - -vcodec libx264 -crf 15 -pix_fmt yuv420p "${TARGET}_hq.mp4"
+    cat $NAME*.jpg | ffmpeg -y -f image2pipe -r 25 -vcodec mjpeg -i - -vcodec libx264 -crf 15 -pix_fmt yuv420p  "${TARGET}_hq.flv"
+else
+    if which avconv; then
+        cat $NAME*.jpg | avconv -y -f image2pipe -r 25 -vcodec mjpeg -i - -vcodec libx264 -pix_fmt yuv420p -crf 15 "${TARGET}_hq.mp4"
+        cat $NAME*.jpg | avconv -y -f image2pipe -r 25 -vcodec mjpeg -i - -vcodec libx264 -pix_fmt yuv420p -crf 15 "${TARGET}_hq.flv"
+
+    else
+        echo "cannot find ffmpeg or avconv! Install ffmpeg or libav-tools.";
+    fi
+fi
 
 #echo -e "*********************** to mpeg4 xvid 4 **************************";
 #transcode -i "$TARGET.mjpeg" -o "$TARGET.avi" -y xvid4,null -w 800
-if which x264; then
-    echo -e "******************** to high quality mp4 and flv (h264) ***************";
-    nice -10 x264 --crf 15 -o "${TARGET}_hq.mp4" "$TARGET.mjpeg";
-    nice -10 x264 --crf 15 -o "${TARGET}_hq.flv" "$TARGET.mjpeg";
-else
-    echo -e "******************** to high quality avi (msmpeg4) ***************";
-    nice -10 ffmpeg -i "$TARGET.mjpeg" -vcodec msmpeg4 -sameq  "${TARGET}_hq.avi"
-    echo -e "******************** to flash video (high quality) ***************";
-    nice -10 ffmpeg -i "$TARGET.mjpeg" -b 2500k  "${TARGET}_hq.flv"
-fi
+# if which x264; then
+#     echo -e "******************** to high quality mp4 and flv (h264) ***************";
+#     nice -10 x264 --crf 15 -o "${TARGET}_hq.mp4" "$TARGET.mjpeg";
+#     nice -10 x264 --crf 15 -o "${TARGET}_hq.flv" "$TARGET.mjpeg";
+# else
+#     echo -e "******************** to high quality avi (msmpeg4) ***************";
+#     nice -10 ffmpeg -i "$TARGET.mjpeg" -vcodec msmpeg4 -sameq  "${TARGET}_hq.avi"
+#     echo -e "******************** to flash video (high quality) ***************";
+#     nice -10 ffmpeg -i "$TARGET.mjpeg" -b 2500k  "${TARGET}_hq.flv"
+# fi
 
 # echo -e "******************** to flash video (web version)  ***************";
 # nice -10 ffmpeg -i "$TARGET.mjpeg" -b 800k  "${TARGET}.flv"
