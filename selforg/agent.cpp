@@ -109,6 +109,7 @@ void Agent::onlyControlRobot(){
 
 // sets the trackoptions which enable tracking of a robot
 void Agent::setTrackOptions(const TrackRobot& trackrobot){
+  this->trackrobot.close(); // close in case it is open.
   this->trackrobot = trackrobot;
   if(!robot){
     fprintf(stderr, "Agent.cpp: call setTrackOptions after init! <<<<<<<<<<<<<\n");
@@ -127,3 +128,9 @@ void Agent::setTrackOptions(const TrackRobot& trackrobot){
   }
 }
 
+// sets the trackoptions which enable tracking of a robot
+bool Agent::stopTracking(){
+  bool rv =  trackrobot.isEnabled();
+  trackrobot.close();
+  return rv;
+}

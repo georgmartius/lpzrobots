@@ -1007,6 +1007,19 @@ namespace lpzrobots {
           a->storeToFile((std::string(dir) + "/" + robname + std::string("_start.agent")).c_str());
           PlotOption po(File, 1, std::string(dir) + "/");
           a->addAndInitPlotOption(po);
+          // add tracking
+          TrackRobot tr = a->getTrackOptions();
+          if(!tr.isEnabled()) { // tracking is not on yet
+            tr.conf.writeFile        = true;
+            tr.conf.trackPos         = true;
+            tr.conf.trackSpeed       = true;
+            tr.conf.trackOrientation = true;
+            tr.conf.interval         = 1;
+            tr.conf.autoFilename     = false;
+            tr.conf.scene            = std::string(dir) + "/" +  robname + "_track";
+            tr.enabledDuringVideo    = true;
+            a->setTrackOptions(tr);
+          }
         }
       }
       return true;
@@ -1021,6 +1034,10 @@ namespace lpzrobots {
       if(globalData.odeConfig.logWhileRecording){
         for (auto& a: globalData.agents){
           a->removePlotOption(File); // pops the last added file logging
+          TrackRobot tr = a->getTrackOptions();
+          if(tr.enabledDuringVideo) { // remove tracking
+            a->stopTracking();
+          }
         }
       }
       return true;

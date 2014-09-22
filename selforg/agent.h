@@ -86,10 +86,16 @@ public:
 
   /** Returns a pointer to the robot.
    */
-  virtual AbstractRobot* getRobot() { return robot;}
+  virtual AbstractRobot* getRobot() { return robot; }
 
-  /// sets the trackoptions which enable tracking of a robot
+  /// sets the trackoptions which starts spatial tracking of a robot
   virtual void setTrackOptions(const TrackRobot& trackrobot);
+
+  /// stop tracking (returns true of tracking was on);
+  virtual bool stopTracking();
+
+  /// returns the tracking options
+  virtual TrackRobot getTrackOptions() const { return trackrobot; }
 
 protected:
 

@@ -202,6 +202,15 @@ namespace lpzrobots {
     }
   }
 
+  bool OdeAgent::stopTracking(){
+    bool rv=Agent::stopTracking();
+    // we also want to stop the trace:
+    mainTrace.close();
+
+    return rv;
+
+  }
+
   class TrackablePrimitive : public Trackable {
   public:
     TrackablePrimitive(Primitive* p, const std::string& name)

@@ -111,6 +111,7 @@ public:
     conf.id               = -1; // whole robot, not individual parts
     file = 0;
     cnt  = 1;
+    enabledDuringVideo = false;
   }
 
   ~TrackRobot()
@@ -125,8 +126,13 @@ public:
     return conf.trackPos || conf.trackOrientation || conf.trackSpeed;
   };
 
+  bool isEnabled() {
+    return file!=0 && isTrackingSomething();
+  }
+
   TrackRobotConf conf;
 
+  bool enabledDuringVideo;
  protected:
   bool open(const Trackable* robot);
   void track(const Trackable* robot, double time);

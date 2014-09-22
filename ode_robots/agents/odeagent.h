@@ -133,6 +133,8 @@ namespace lpzrobots {
     virtual void addTracking(unsigned int primitiveIndex,const TrackRobot& trackrobot,
                              const Color& color);
     virtual void setTrackOptions(const TrackRobot& trackrobot);
+    virtual bool stopTracking();
+
 
     /****** STOREABLE **********/
     virtual bool store(FILE* f) const;
