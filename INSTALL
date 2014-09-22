@@ -32,7 +32,3 @@ again.
 
 UBUNTU 14.04 issues:
 - The freetype plugin for openscenegraph is missing. on 14.10 it is fixed. (you can extract the osgdb_freetype.so from there and copy it by and or try to use the new packages right away, but you need libopenscenegragh and openscenegraph and libopenscenegraph-dev)
-- x264 is not linked against ffmpeg anymore ?! Let's see whether they fix it.
-I added the repo: ppa:djcj/vlc-stable via
- sudo add-apt-repository ppa:djcj/vlc-stable
-then then updated x264 and ffmpeg etc.
