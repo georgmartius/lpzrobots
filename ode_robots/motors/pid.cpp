@@ -99,7 +99,8 @@ namespace lpzrobots {
 
       lasterror = error;
       error = targetposition - position;
-      derivative += ((lasterror - error) / stepsize - derivative)*0.2; // Georg: Who put the 0.2 here!?
+      derivative = ((lasterror - error) / stepsize);
+      //derivative += ((lasterror - error) / stepsize - derivative)*0.2; // Georg: Who put the 0.2 here!?
 
       P = error;
       I*= (1-1/tau);
