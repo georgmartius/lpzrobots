@@ -1,9 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2005-2011 LpzRobots development team                    *
- *    Georg Martius  <georg dot martius at web dot de>                     *
- *    Frank Guettler <guettler at informatik dot uni-leipzig dot de        *
- *    Frank Hesse    <frank at nld dot ds dot mpg dot de>                  *
- *    Ralf Der       <ralfder at mis dot mpg dot de>                       *
+ *   Yuichi Ambe  <amby dot yu at gmail dot com>                           *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -63,13 +60,13 @@ namespace lpzrobots {
 //
 class ImpTransform2 : public Transform{
 public:
-	// constructor
-    ImpTransform2(Primitive* parent, Primitive* child, const Pose& pose);
-	// destructor
-    virtual ~ImpTransform2();
+  // constructor
+  ImpTransform2(Primitive* parent, Primitive* child, const Pose& pose);
+  // destructor
+  virtual ~ImpTransform2();
 
-	// get Child pose
-	Pose getChildPose();
+  // get Child pose
+  Pose getChildPose();
 };
 
 
@@ -77,7 +74,7 @@ public:
 
  Here, I determine the parameters of the robot Hexabot
 
- 	  _	    Joint Joint Joint
+    _     Joint Joint Joint
    /     \    TC    CT    FT
   |       |== o === | === | ======  Leg
    \  _  / Shld Coxa  Femur  Tibia
@@ -93,45 +90,44 @@ public:
 */
 class Hexabot : public OdeRobot, public Inspectable {
 public:
-	// Leg location enum
-    enum LegPos {
-      L1, L2, L3, L4, L5, L6, LEG_POS_MAX
-    };
-    // leg use mode (only Leg in this simulation)
-    enum LegPosUsage {
-      LEG, WHEEL, UNUSED
-    };
-    // Leg joint type enum
-    enum LegJointType {
-      // thoroca-coxal joint for forward (+) and backward (-) movements
-      TC,
-      // coxa-trochanteral joint for elevation (+) and depression (-) of
-      // the leg
-      CT,
-      // femur-tibia joints for extension (+) and flexion (-) of the
-      // tibia
-      FT,
-      // maximum value, used for iteration
-      LEG_JOINT_TYPE_MAX
-    };
-    // motor name of hexabot
-    typedef HexabotMotorNames MotorName;
-    // sensor name of hexabot
-    typedef HexabotSensorNames SensorName;
+  // Leg location enum
+  enum LegPos {
+    L1, L2, L3, L4, L5, L6, LEG_POS_MAX
+  };
+  // leg use mode (only Leg in this simulation)
+  enum LegPosUsage {
+    LEG, WHEEL, UNUSED
+  };
+  // Leg joint type enum
+  enum LegJointType {
+    // thoroca-coxal joint for forward (+) and backward (-) movements
+    TC,
+    // coxa-trochanteral joint for elevation (+) and depression (-) of
+    // the leg
+    CT,
+    // femur-tibia joints for extension (+) and flexion (-) of the
+    // tibia
+    FT,
+    // maximum value, used for iteration
+    LEG_JOINT_TYPE_MAX
+  };
+  // motor name of hexabot
+  typedef HexabotMotorNames MotorName;
+  // sensor name of hexabot
+  typedef HexabotSensorNames SensorName;
 
 public: // Functions
-    // Constructor
-    Hexabot(const OdeHandle& odehandle, const OsgHandle& osgHandle,
-            const HexabotConf& conf, const std::string& name);
+  // Constructor
+  Hexabot(const OdeHandle& odehandle, const OsgHandle& osgHandle,
+          const HexabotConf& conf, const std::string& name);
+  // get default configuration (static func because it could be used before construction of the class)
+  static HexabotConf getDefaultConf();
 
-    // get default configuration (static func because it could be used before construction of the class)
-    static HexabotConf getDefaultConf();
+  // get Motor name from legPos and joint name
+  static MotorName getMotorName(LegPos leg, LegJointType joint);
 
-    // get Motor name from legPos and joint name
-    static MotorName getMotorName(LegPos leg, LegJointType joint);
-
-    //destructor
-    virtual ~Hexabot();
+  //destructor
+  virtual ~Hexabot();
 
   /**
    * updates the OSG nodes of the vehicle
@@ -181,10 +177,10 @@ public: // Functions
   virtual int getSegmentsPosition(std::vector<Position> &poslist);
 
 
-    /** this function is called in each timestep. It should perform robot-internal checks,
-      like space-internal collision detection, sensor resets/update etc.
-      @param globalData structure that contains global data from the simulation environment
-   */
+  /** this function is called in each timestep. It should perform robot-internal checks,
+    like space-internal collision detection, sensor resets/update etc.
+    @param globalData structure that contains global data from the simulation environment
+  */
   virtual void doInternalStuff(GlobalData& globalData);
 
   virtual void sense(GlobalData &globalData) override;
@@ -235,18 +231,18 @@ protected: // Functions
   osg::Vec3d calc_COGPosition(void);
 
 
-	/**
-	 * Inspectable interface
-	 */
-	/*
-	virtual std::list<iparamkey> getInternalParamNames() const  { return std::list<iparamkey>(); }
+  /**
+   * Inspectable interface
+   */
+  /*
+  virtual std::list<iparamkey> getInternalParamNames() const  { return std::list<iparamkey>(); }
 
-	virtual std::list<iparamval> getInternalParams() const { return std::list<iparamval>(); }*/
-	/*
-	virtual std::list<Inspectable::iparamkey> getInternalParamNames() const;
+  virtual std::list<iparamval> getInternalParams() const { return std::list<iparamval>(); }*/
+  /*
+  virtual std::list<Inspectable::iparamkey> getInternalParamNames() const;
 
-	virtual std::list<Inspectable::iparamval> getInternalParams() const;
-	*/
+  virtual std::list<Inspectable::iparamval> getInternalParams() const;
+  */
 
 protected: // Values
   // config param
@@ -255,32 +251,32 @@ protected: // Values
   //! Leg struct
   // Contains Objects, joints and servos for each Leg
   struct Leg{
-      Leg(); // constructor, it make all of the value "0" !!
-      HingeJoint* tcJoint;
-      HingeJoint* ctJoint;
-      HingeJoint* ftJoint;
-      SliderJoint* footJoint;
-      OneAxisServo* tcServo;
-      OneAxisServo* ctServo;
-      OneAxisServo* ftServo;
-      Spring* footSpring;
-      ImpTransform2* shoulder;//shoulder trans thats object
-      Primitive* shoulderBox;
-      Primitive* coxa;
-      Primitive* femur;
-      Primitive* tibia;
-      ImpTransform2* foot;
-      Primitive* footSphere;
+    Leg(); // constructor, it make all of the value "0" !!
+    HingeJoint* tcJoint;
+    HingeJoint* ctJoint;
+    HingeJoint* ftJoint;
+    SliderJoint* footJoint;
+    OneAxisServo* tcServo;
+    OneAxisServo* ctServo;
+    OneAxisServo* ftServo;
+    Spring* footSpring;
+    ImpTransform2* shoulder;//shoulder trans thats object
+    Primitive* shoulderBox;
+    Primitive* coxa;
+    Primitive* femur;
+    Primitive* tibia;
+    ImpTransform2* foot;
+    Primitive* footSphere;
   };
 
   //! Trunk struct
   // Contains Objects for Body (two hexagonal plate)
 
   struct Trunk{
-  	  Trunk(); // constructor, it make all of the value "0"
-      Primitive* tPlate[2];
-      Primitive* tTrans;
-      ImpTransform2* tUpTrans;
+    Trunk(); // constructor, it make all of the value "0"
+    Primitive* tPlate[2];
+    Primitive* tTrans;
+    ImpTransform2* tUpTrans;
   };
 
 
@@ -346,3 +342,4 @@ protected: // Values
 
 
 #endif
+
