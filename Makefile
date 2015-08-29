@@ -161,6 +161,7 @@ clean: usage
 clean-all: usage
 	-+$(MAKE) -C guilogger distclean
 	-+$(MAKE) -C matrixviz distclean
+	-+$(MAKE) -C configurator distclean
 	-+$(MAKE) -C opende distclean
 	+$(MAKE) -C ode_robots clean-all
 	+$(MAKE) -C ode_robots/simulations clean
