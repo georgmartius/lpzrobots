@@ -59,32 +59,32 @@ AR = ar -rcs
 .PHONY: lib opt clean clean-all distclean todo depend tags search find findi install install_scripts install_lib uninstall uninstall_lib
 
 libs: lib opt dbg
-	$(MAKE) shared
+	+$(MAKE) shared
 # the shared lib cannot be done as a dependency because with -j 2 it collides with the lib target
 
 lib: $(UTILS) 
 ifeq ($(TYPE),DEVEL)
-	cd $(SELFORG) && $(MAKE) lib
+	+$(MAKE) -C $(SELFORG) lib
 endif
-	$(MAKE) library
+	+$(MAKE) library
 
 dbg: $(UTILS)
 ifeq ($(TYPE),DEVEL)
-	cd $(SELFORG) && $(MAKE) dbg
+	+$(MAKE) -C $(SELFORG) dbg
 endif
-	$(MAKE) BUILD_DIR=build_dbg CFGOPTS=--dbg library
+	+$(MAKE) BUILD_DIR=build_dbg CFGOPTS=--dbg library
 
 opt: $(UTILS)
 ifeq ($(TYPE),DEVEL)
-	cd $(SELFORG) && $(MAKE) opt
+	+$(MAKE) -C $(SELFORG) opt
 endif
-	$(MAKE) BUILD_DIR=build_opt CFGOPTS=--opt STRIP="yes" library
+	+$(MAKE) BUILD_DIR=build_opt CFGOPTS=--opt STRIP="yes" library
 
 shared:
 ifeq ($(TYPE),DEVEL)
-	cd $(SELFORG) && $(MAKE) shared
+	+$(MAKE) -C $(SELFORG) shared
 endif
-	$(MAKE) $(SHAREDLIB)
+	+$(MAKE) $(SHAREDLIB)
 
 library: $(LIB)
 
@@ -115,7 +115,7 @@ Makefile.depend:
 
 depend: 
 	rm Makefile.depend
-	make Makefile.depend
+	+$(MAKE) Makefile.depend
 
 
 # Workaroud for bug in etags: filenames should not have leading ./
@@ -166,9 +166,9 @@ install: Makefile.depend install_scripts
 ifneq ($(TYPE),DEVEL)
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
 	install -d  $(PREFIX)/lib $(PREFIX)/include/$(PACKAGE) 
-	$(MAKE) lib install_lib
-	$(MAKE) CFGOPTS=--dbg dbg install_lib
-	$(MAKE) CFGOPTS=--opt opt install_lib
+	+$(MAKE) lib install_lib
+	+$(MAKE) CFGOPTS=--dbg dbg install_lib
+	+$(MAKE) CFGOPTS=--opt opt install_lib
 	install -m 644 include/$(PACKAGE)/*.h $(PREFIX)/include/$(PACKAGE)
 endif
 	install -d $(PREFIX)/share/lpzrobots $(PREFIX)/share/lpzrobots/$(PACKAGE)
@@ -183,9 +183,9 @@ uninstall_lib:
 
 uninstall:
 ifneq ($(TYPE),DEVEL)
-	$(MAKE) uninstall_lib
-	$(MAKE) CFGOPTS=--dbg uninstall_lib
-	$(MAKE) CFGOPTS=--opt uninstall_lib
+	+$(MAKE) uninstall_lib
+	+$(MAKE) CFGOPTS=--dbg uninstall_lib
+	+$(MAKE) CFGOPTS=--opt uninstall_lib
 	-rm -rf $(PREFIX)/include/$(PACKAGE)
 endif
 	-rm -rf $(PREFIX)/share/lpzrobots/$(PACKAGE)/

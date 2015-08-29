@@ -25,16 +25,16 @@ all:
 
 .PHONY: all_intern
 all_intern:
-	$(MAKE) utils
-	$(SUDO) $(MAKE) install_utils
-	$(MAKE) selforg
-	$(SUDO) $(MAKE) install_selforg
-	$(MAKE) ode
-	$(SUDO) $(MAKE) install_ode
-	$(MAKE) ode_robots
-	$(SUDO) $(MAKE) install_ode_robots
-	$(MAKE) ga_tools
-	$(SUDO) $(MAKE) install_ga_tools
+	+$(MAKE) utils
+	+$(SUDO) $(MAKE) install_utils
+	+$(MAKE) selforg
+	+$(SUDO) $(MAKE) install_selforg
+	+$(MAKE) ode
+	+$(SUDO) $(MAKE) install_ode
+	+$(MAKE) ode_robots
+	+$(SUDO) $(MAKE) install_ode_robots
+	+$(MAKE) ga_tools
+	+$(SUDO) $(MAKE) install_ga_tools
 	@echo "**** Done, you can go and compile your simulations ****"
 
 .PHONY: conf
@@ -42,19 +42,19 @@ all_intern:
 conf: usage
 	-mv Makefile.conf Makefile.conf.bak
 # automatically creates Makefile.conf since it is included
-	$(MAKE) PREFIX=$(PREFIX) TYPE=$(TYPE) Makefile.conf
+	+$(MAKE) PREFIX=$(PREFIX) TYPE=$(TYPE) Makefile.conf
 
 ##!
 ##!******* The following targets are called by "all" in this order ************
 .PHONY: utils
 ##!utils	   build utilitytools and tags (do that first)
 utils: usage
-	-$(MAKE) guilogger
-	-$(MAKE) matrixviz
-	-$(MAKE) soundman
-	-$(MAKE) javacontroller
-	-$(MAKE) configurator
-	-$(MAKE) tags
+	-+$(MAKE) guilogger
+	-+$(MAKE) matrixviz
+	-+$(MAKE) soundman
+	-+$(MAKE) javacontroller
+	-+$(MAKE) configurator
+	-+$(MAKE) tags
 	@echo "********************************************************************************"
 	@echo "Don't worry if you have seen a lot of errors above."
 	@echo "This is all optional stuff which is not stricly required."
@@ -87,56 +87,59 @@ install_utils:
 ##!selforg	   compile selforg libaries in optimized and debug version
 selforg: usage
 	@echo "*************** Configure selforg ***************"
-	$(MAKE) MODULE=selforg confsubmodule
+	+$(MAKE) MODULE=selforg confsubmodule
 	@echo "*************** Compile selforg *****************"
-	cd selforg && $(MAKE) depend
-	cd selforg && $(MAKE)
+	+$(MAKE) -C selforg depend
+	+$(MAKE) -C selforg
 
 
 .PHONY: install_selforg
 ##!install_selforg install selforg
 install_selforg: usage
-	cd selforg && make install
+	+$(MAKE) -C selforg install
 
 .PHONY: ode
 ##!ode		   compile open dynamics engine in double precession (custom version)
 ode:
-	cd opende; sh autogen.sh && ./configure --disable-asserts --enable-shared --enable-double-precision --prefix=$(PREFIX) --disable-demos && $(MAKE) && echo "you probably want to run \"make install_ode\" now (possibly as root)"
+	cd opende && sh autogen.sh
+	cd opende && ./configure --disable-asserts --enable-shared --enable-double-precision --prefix=$(PREFIX) --disable-demos 
+	+$(MAKE) -C opende
+	echo "you probably want to run \"make install_ode\" now (possibly as root)"
 
 
 .PHONY: install_ode
 ##!install_ode	   install the customized ode library (libode_dbl)
 install_ode:
 	@echo "*************** Install ode -double version**********"
-	cd opende && $(MAKE) install
+	+$(MAKE) -C opende install
 
 .PHONY: ode_robots
 ##!ode_robots	   compile ode_robots libaries in optimized and debug version
 ode_robots: usage
 	@echo "*************** Configure ode_robots ************"
-	$(MAKE) MODULE=ode_robots confsubmodule
+	+$(MAKE) MODULE=ode_robots confsubmodule
 	@echo "*************** Compile ode_robots **************"
-	cd ode_robots && $(MAKE) depend
-	cd ode_robots && $(MAKE)
+	+$(MAKE) -C ode_robots depend
+	+$(MAKE) -C ode_robots
 
 .PHONY: install_ode_robots
 ##!install_ode_robots install ode_robots
 install_ode_robots: usage
-	cd ode_robots && make install
+	+$(MAKE) -C ode_robots install
 
 .PHONY: ga_tools
 ##!ga_tools	   compile ga_tools libaries in optimized and debug version
 ga_tools: usage
 	@echo "*************** Configure ga_tools ************"
-	$(MAKE) MODULE=ga_tools confsubmodule
+	+$(MAKE) MODULE=ga_tools confsubmodule
 	@echo "*************** Compile ga_tools **************"
-	cd ga_tools && $(MAKE) depend
-	cd ga_tools && $(MAKE)
+	+$(MAKE) -C ga_tools depend
+	+$(MAKE) -C ga_tools
 
 .PHONY: install_ga_tools
 ##!install_ga_tools install ga_tools
 install_ga_tools: usage
-	cd ga_tools && make install
+	+ $(MAKE) -C ga_tools install
 
 ##!  *** You can find example simulations in $(PREFIX)/share/lpzrobots/, but copy
 ##!  *** them first to your home directory to work with them.
@@ -145,27 +148,27 @@ install_ga_tools: usage
 
 ##!clean	  removed the object files and libs
 clean: usage
-	-cd guilogger && $(MAKE) clean
-	-cd matrixviz && $(MAKE) clean
-	-cd configurator && $(MAKE) clean
-	cd opende && $(MAKE) clean
-	cd ode_robots && $(MAKE) clean
-	cd selforg && $(MAKE) clean
-	cd ga_tools && $(MAKE) clean
+	-+$(MAKE) -C guilogger clean
+	-+$(MAKE) -C matrixviz clean
+	-+$(MAKE) -C configurator clean
+	+$(MAKE) -C opende clean
+	+$(MAKE) -C ode_robots clean
+	+$(MAKE) -C selforg clean
+	+$(MAKE) -C ga_tools clean
 
 
 ##!clean-all	  like clean but also removes the libraries and clears simulations
 clean-all: usage
-	-cd guilogger && $(MAKE) distclean
-	-cd matrixviz && $(MAKE) distclean
-	-cd opende && $(MAKE) distclean
-	cd ode_robots && $(MAKE) clean-all
-	cd ode_robots/simulations && $(MAKE) clean
-	cd selforg && $(MAKE) clean-all
-	cd selforg/simulations && $(MAKE) clean
-	cd selforg/examples && $(MAKE) clean
-	cd ga_tools && $(MAKE) clean-all
-	cd ga_tools/simulations && $(MAKE) clean
+	-+$(MAKE) -C guilogger distclean
+	-+$(MAKE) -C matrixviz distclean
+	-+$(MAKE) -C opende distclean
+	+$(MAKE) -C ode_robots clean-all
+	+$(MAKE) -C ode_robots/simulations clean
+	+$(MAKE) -C selforg clean-all
+	+$(MAKE) -C selforg/simulations clean
+	+$(MAKE) -C selforg/examples clean
+	+$(MAKE) -C ga_tools clean-all
+	+$(MAKE) -C ga_tools/simulations clean
 	rm -f Makefile.conf
 
 ##!distclean	  see clean-all
@@ -241,10 +244,10 @@ confsubmodule:
 .PHONY: install_libs
 install_libs:
 	@echo "*************** Install selforg *********************"
-	cd selforg/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) install
+	+$(MAKE) -C selforg TYPE=$(TYPE) PREFIX=$(PREFIX) install
 #	     $(PREFIX)/share/lpzrobots/ga_tools
 	@echo "*************** Install ode_robots ******************"
-	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) install
+	+$(MAKE) -C ode_robots TYPE=$(TYPE) PREFIX=$(PREFIX) install
 ifeq ($(TYPE),user)
 	@echo "*************** Install ga_tools ******************"
 	cp ga_tools/libga_tools.a $(PREFIX)/lib
@@ -263,23 +266,23 @@ endif
 .PHONY: uninstall_intern
 uninstall_intern:
 	@echo "*************** Uninstall selforg *********************"
-	cd selforg/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall
+	+$(MAKE) -C selforg TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall
 	@echo "*************** Uninstall ode_robots ******************"
-	cd ode_robots/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall
+	+$(MAKE) -C ode_robots TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall
 	@echo "*************** Uninstall ga_tools ******************"
-	cd ga_tools/ && $(MAKE) TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall
+	+$(MAKE) -C ga_tools TYPE=$(TYPE) PREFIX=$(PREFIX) uninstall
 	-rm -f $(PREFIX)/bin/guilogger
 	-rm -f $(PREFIX)/lib/libconfigurator.*
 	-rm -f $(PREFIX)/bin/configurator-config
 	-rm -fr $(PREFIX)/include/configurator
 	-rm -f $(PREFIX)/bin/matrixviz
-	-cd javacontroller/src && $(MAKE) PREFIX=$(PREFIX) uninstall
+	-+$(MAKE) -C javacontroller/src PREFIX=$(PREFIX) uninstall
 	-rm -f $(PREFIX)/lib/soundMan/SoundMan*.class
 	-rm -f $(PREFIX)/bin/soundMan
 ifeq ($(TYPE),user)
 	-rm -rf $(PREFIX)/share/lpzrobots
 endif
-	$(MAKE) uninstall_ode
+	+$(MAKE) uninstall_ode
 
 
 Makefile.conf:
@@ -295,9 +298,9 @@ tags:
 .PHONY: tags_internal
 tags_internal:
 	rm -f TAGS
-	cd selforg && $(MAKE) tags
-	cd ode_robots && $(MAKE) tags
-#	cd ga_tools && $(MAKE) tags
+	+$(MAKE) -C selforg tags
+	+$(MAKE) -C ode_robots tags
+#	+$(MAKE) -C ga_tools tags
 
 .PHONY: doc
 ##!doc            generate doxygen documentation in html folder
