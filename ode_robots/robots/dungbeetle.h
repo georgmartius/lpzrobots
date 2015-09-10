@@ -30,7 +30,7 @@
 #include <ode_robots/contactsensor.h>
 //-------------Add by Ren relativepositionsensor.h-------
 #include <ode_robots/relativepositionsensor.h>
-#include <ode_robots/dungbeetlesensormotordefinition.h>
+#include <ode_robots/amosiisensormotordefinition.h>
 #include <ode_robots/axisorientationsensor.h>
 
 /**
@@ -326,8 +326,8 @@ namespace lpzrobots {
         // maximum value, used for iteration
         LEG_JOINT_TYPE_MAX
       };
-      typedef dungbeetleMotorNames MotorName;
-      typedef dungbeetleSensorNames SensorName;
+      typedef AmosIIMotorNames MotorName;
+      typedef AmosIISensorNames SensorName;
 
       /**
        * Returns the default configuration values

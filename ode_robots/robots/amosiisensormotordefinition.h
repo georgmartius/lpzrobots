@@ -214,6 +214,7 @@ enum AmosIISensorNames{
 
         //Changing according to the maximum sensor number
         AMOSII_SENSOR_MAX = 122,
+        dungbeetle_SENSOR_MAX = 122,
 
 };
 
@@ -245,6 +246,7 @@ enum AmosIIMotorNames{
 
         //Changing according to the maximum motor number
         AMOSII_MOTOR_MAX = 19,
+        dungbeetle_MOTOR_MAX = 19,
 
 
 
