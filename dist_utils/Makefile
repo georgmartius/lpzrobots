@@ -62,42 +62,42 @@ createDist: $(filter-out $(wildcard lpzrobots), lpzrobots) $(filter-out $(wildca
 ##!deb-packs  (2) create debian and ubuntu packages
 deb-packs: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) 
 ifdef BUILDGUILOGGER
-	$(MAKE) guilogger-deb
-	$(MAKE) install-guilogger
+	+$(MAKE) guilogger-deb
+	+$(MAKE) install-guilogger
 endif
 ifdef BUILDMATRIXVIZ
-	$(MAKE) matrixviz-deb
-	$(MAKE) install-matrixviz
+	+$(MAKE) matrixviz-deb
+	+$(MAKE) install-matrixviz
 endif
-#	$(MAKE) lpzrobots-configurator-deb
-#	$(MAKE) install-lpzrobots-configurator
-	$(MAKE) selforg-deb 
-	$(MAKE) install-selforg
+#	+$(MAKE) lpzrobots-configurator-deb
+#	+$(MAKE) install-lpzrobots-configurator
+	+$(MAKE) selforg-deb 
+	+$(MAKE) install-selforg
 ifdef BUILDODE
-	$(MAKE) ode-deb 
-	$(MAKE) install-ode
+	+$(MAKE) ode-deb 
+	+$(MAKE) install-ode
 endif
-	$(MAKE) oderobots-deb 
-	$(MAKE) install-oderobots
-	$(MAKE) doc
+	+$(MAKE) oderobots-deb 
+	+$(MAKE) install-oderobots
+	+$(MAKE) doc
 
 ##!upload    (3) upload packages to launchpad this will sleep for 1h in between 
 ##!              in order to give launchpad enough time to generate the packages
 upload: 
-	$(MAKE) upload-lpzrobots
+	+$(MAKE) upload-lpzrobots
 ifdef BUILDGUILOGGER
-	-$(MAKE) upload-guilogger
+	-+$(MAKE) upload-guilogger
 endif
 ifdef BUILDMATRIXVIZ
-	-$(MAKE) upload-matrixviz
+	-+$(MAKE) upload-matrixviz
 endif
-	$(MAKE) upload-selforg
+	+$(MAKE) upload-selforg
 ifdef BUILDODE
-	-$(MAKE) upload-ode
+	-+$(MAKE) upload-ode
 endif
 	sleep 3600
-	$(MAKE) upload-oderobots
-	$(MAKE) changepermissions
+	+$(MAKE) upload-oderobots
+	+$(MAKE) changepermissions
 
 ##! ------ fine grain targets, which are called by the above targets ----
 
@@ -115,8 +115,8 @@ $(DISTDIR): $(filter-out $(wildcard lpzrobots), lpzrobots)
 	cd lpzrobots/dist_utils && ./createDist.sh $(VERSION)
 # call make to config
 	cd $(DISTDIR) && rm -rf Makefile.conf && echo -e "/usr\nu\ny\n" | \
-		make Makefile.conf
-	cd $(DISTDIR) && make MODULE=selforg confsubmodule && make PATH=selforg:$$PATH MODULE=ode_robots confsubmodule && make PATH=selforg:ode_robots:$$PATH MODULE=ga_tools confsubmodule
+		$(MAKE) Makefile.conf
+	cd $(DISTDIR) && $(MAKE) MODULE=selforg confsubmodule && $(MAKE) PATH=selforg:$$PATH MODULE=ode_robots confsubmodule && $(MAKE) PATH=selforg:ode_robots:$$PATH MODULE=ga_tools confsubmodule
 # advance version numbers # also add lpzrobots/ga_tools 
 	for dir in $(DISTDIR)/selforg $(DISTDIR)/ode_robots $(DISTDIR)/guilogger $(DISTDIR)/matrixviz; \
 		do pushd $$dir && $(DCH) -v $(VERSION)-1 "New Release"; \
@@ -126,10 +126,10 @@ $(DISTDIR): $(filter-out $(wildcard lpzrobots), lpzrobots)
 
 ##!deb-packs-noutils  create debian and ubuntu packages without utils (guilogger and ode)
 deb-packs-noutils: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) 
-	$(MAKE) selforg-deb 
-	$(MAKE) install-selforg
-	$(MAKE) oderobots-deb 
-	$(MAKE) install-oderobots
+	+$(MAKE) selforg-deb 
+	+$(MAKE) install-selforg
+	+$(MAKE) oderobots-deb 
+	+$(MAKE) install-oderobots
 
 ##!selforg-deb        create debian and ubuntu packages for selforg
 .PHONY: selforg-deb
@@ -137,7 +137,7 @@ selforg-deb: PackName=lpzrobots-selforg
 selforg-deb: PackVersion=$(VERSION)
 selforg-deb: PackFolder=selforg
 selforg-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packages.sh
-	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz
+	+$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz
 	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
 
 
@@ -147,7 +147,7 @@ ode-deb: PackName=ode-dbl
 ode-deb: PackVersion=$(ODEVERSION)
 ode-deb: PackFolder=opende
 ode-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packages.sh
-	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
+	+$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
 	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
 
 ##!guilogger-deb        create debian and ubuntu packages for guilogger
@@ -156,7 +156,7 @@ guilogger-deb: PackName=guilogger
 guilogger-deb: PackVersion=$(VERSION)
 guilogger-deb: PackFolder=guilogger
 guilogger-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packages.sh
-	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
+	+$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
 	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
 
 ##!matrixviz-deb        create debian and ubuntu packages for matrixviz
@@ -165,7 +165,7 @@ matrixviz-deb: PackName=matrixviz
 matrixviz-deb: PackVersion=$(VERSION)
 matrixviz-deb: PackFolder=matrixviz
 matrixviz-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packages.sh
-	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
+	+$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
 	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
 
 ##!oderobots-deb        create debian and ubuntu packages for ode_robots
@@ -174,7 +174,7 @@ oderobots-deb: PackName=lpzrobots-oderobots
 oderobots-deb: PackVersion=$(VERSION)
 oderobots-deb: PackFolder=ode_robots
 oderobots-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packages.sh 
-	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz $(PACKDIR)/$(PackFolder)
+	+$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz $(PACKDIR)/$(PackFolder)
 	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
 
 ##!gatools-deb        create debian and ubuntu packages for ga_tools
@@ -183,7 +183,7 @@ gatools-deb: PackName=lpzrobots-gatools
 gatools-deb: PackVersion=$(VERSION)
 gatools-deb: PackFolder=ga_tools
 gatools-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_packages.sh 
-	$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
+	+$(MAKE) PackName=$(PackName) PackVersion=$(PackVersion) PackFolder=$(PackFolder) $(PACKDIR)/$(PackName)_$(PackVersion).orig.tar.gz  $(PACKDIR)/$(PackFolder)
 	./create_deb_packages.sh $(PACKDIR) $(PackName) $(PackVersion) $(PackFolder) $(DebFull)
 
 
@@ -191,7 +191,7 @@ gatools-deb: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) create_deb_package
 .PHONY: doc
 doc: $(filter-out $(wildcard $(DISTDIR)), $(DISTDIR)) 
 	cp -r $(DISTDIR)/doc $(DISTDIR)/doc.orig
-	$(MAKE) -C $(DISTDIR) doc
+	+$(MAKE) -C $(DISTDIR) doc
 	mv $(DISTDIR)/doc lpzrobots-$(MAJOR)-doc
 	mv $(DISTDIR)/doc.orig $(DISTDIR)/doc
 	tar -czf lpzrobots-$(MAJOR)-doc.tgz lpzrobots-$(MAJOR)-doc
