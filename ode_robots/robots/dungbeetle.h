@@ -1,38 +1,23 @@
-/***************************************************************************
- *   Copyright (C) 2012 by                                                 *
- *    Martin Biehl <mab@physik3.gwdg.de>                                   *
- *    Guillaume de Chambrier <s0672742@sms.ed.ac.uk>                       *
- *    martius@informatik.uni-leipzig.de                                    *
- *    Timo Nachstedt <nachstedt@physik3.gwdg.de>                           *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- *                                                                         *
- **************************************************************************/
+/*
+ * dungBeetle.h
+ *
+ *  Created on: Sep 5, 2015
+ *      Author: giuliano
+ */
 
-#ifndef __DUNGBEETLE_H
-#define __DUNGBEETLE_H
+#ifndef __DUNGBEETLE_H_
+#define __DUNGBEETLE_H_
 
 #include <ode_robots/oderobot.h>
 #include <selforg/inspectable.h>
 #include <ode_robots/contactsensor.h>
+#include <ode_robots/constantmotor.h>
+
 //-------------Add by Ren relativepositionsensor.h-------
 #include <ode_robots/relativepositionsensor.h>
-#include <ode_robots/amosiisensormotordefinition.h>
+//#include <ode_robots/dungBeetlesensormotordefinition.h>
 #include <ode_robots/axisorientationsensor.h>
-
+#include "ode_robots/dungbeetlesensormotordefinition.h"
 /**
  * forward declarations
  */
@@ -53,7 +38,7 @@ namespace lpzrobots {
 
 namespace lpzrobots {
 
-  struct dungbeetleConf {
+  struct DungBeetleConf {
       /**
        * @name flags
        *
@@ -96,6 +81,11 @@ namespace lpzrobots {
       /** mass of a wheel */
       double wheel_mass;
 
+      //TARSUS
+      bool tarsus=true;
+
+      //TARSUS
+
       /** trunk mass */
       double trunkMass;
       /** mass of the front part of the robot (if backboine joint is used) */
@@ -122,7 +112,7 @@ namespace lpzrobots {
 
       /** @name Leg extension from trunk
        *
-       *  dungbeetle has a fixed but adjustable joint that decides how the legs
+       *  II has a fixed but adjustable joint that decides how the legs
        *  extend from the trunk.here you can adjust these joints, if
        *  shoulder = 0 this still influences how the legs extend (the coxa-trunk
        *  connection in that case)
@@ -212,10 +202,32 @@ namespace lpzrobots {
        *  (zero specified by fcoxaZero) */
       double rcoxaJointLimitB;
       /** lower limit of the CTr joints, positive is down */
+      //added
+      double fsecondJointLimitD;
+      double fsecondJointLimitU;
+
+      double msecondJointLimitD;
+      double msecondJointLimitU;
+
+      double rsecondJointLimitD;
+      double rsecondJointLimitU;
+
+      double ftebiaJointLimitD;
+      double ftebiaJointLimitU;
+
+      double mtebiaJointLimitD;
+      double mtebiaJointLimitU;
+
+      double rtebiaJointLimitD;
+      double rtebiaJointLimitU;
+
+
+      //added
       double secondJointLimitD;
       /** upper limit of the CTr joints, positive is down */
       double secondJointLimitU;
       /** lower limit of the FTi joints, positive is down */
+
       double tebiaJointLimitD;
       /** upper limit of the FTi joints, positive is down */
       double tebiaJointLimitU;
@@ -294,7 +306,7 @@ namespace lpzrobots {
 
 
       // Internal variable storing the currently used version
-      int beetle_version;
+      int dungBeetle_version;
 
       /***
        * Author: Subhi Shaker Barikhan
@@ -306,7 +318,7 @@ namespace lpzrobots {
 
   };
 
-  class dungbeetle : public OdeRobot, public Inspectable {
+  class dungBeetle : public OdeRobot, public Inspectable {
     public:
       enum LegPos {
         L0, L1, L2, R0, R1, R2, LEG_POS_MAX
@@ -326,20 +338,19 @@ namespace lpzrobots {
         // maximum value, used for iteration
         LEG_JOINT_TYPE_MAX
       };
-      typedef AmosIIMotorNames MotorName;
-      typedef AmosIISensorNames SensorName;
+      typedef DungBeetleMotorNames MotorName;
+      typedef DungBeetleSensorNames SensorName;
 
       /**
        * Returns the default configuration values
        */
-      static dungbeetleConf getDefaultConf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,
+      static DungBeetleConf getDefaultConf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,
     		  bool _useBack = 0,bool _highFootContactsensoryFeedback=false);
 
-      static dungbeetleConf getdungbeetlev1Conf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,
+      static DungBeetleConf getDungBeetleConf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,
     		  bool _useBack = 0,bool _highFootContactsensoryFeedback=false);
 
-      static dungbeetleConf getdungbeetlev2Conf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,
-    		  bool _useBack = 0, bool _highFootContactsensoryFeedback=false);
+
 
       /*
        * Coordinated locomotion between two hexapod robots
@@ -355,10 +366,10 @@ namespace lpzrobots {
        * @param conf configuration object
        * @param name name to display for this robot
        */
-      dungbeetle(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const dungbeetleConf& conf = getDefaultConf(),
-          const std::string& name = "dungbeetle robot");
+      dungBeetle(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const DungBeetleConf& conf = getDefaultConf(),
+          const std::string& name = "DungBeetle robot");
 
-      virtual ~dungbeetle();
+      virtual ~dungBeetle();
 
       /**
        * updates the OSG nodes of the vehicle
@@ -422,12 +433,12 @@ namespace lpzrobots {
 
       /**
        * returns the MotorName enum value for the given joint at the given
-       * leg. If the value for leg or joint are not valid dungbeetle_MOTOR_MAX
+       * leg. If the value for leg or joint are not valid dungBeetle_MOTOR_MAX
        * is returned.
        *
        * @param leg leg position
        * @param joint leg joint type
-       * @return the motor name value or dungbeetle_MOTOR_MAX if parameters are
+       * @return the motor name value or dungBeetle_MOTOR_MAX if parameters are
        *         invalid
        */
       static MotorName getMotorName(LegPos leg, LegJointType joint);
@@ -491,6 +502,7 @@ namespace lpzrobots {
        *
        * @param motorNo index of the motor (for standard motors defined by
        *        the MotorName enum)
+       *
        * @param name human readable name for the motor
        */
       void nameMotor(const int motorNo, const char* name);
@@ -522,7 +534,7 @@ namespace lpzrobots {
       AxisOrientationSensor* OrientationSensor;
       //-----------Add Orientation Sensor by Ren----------------
 
-      dungbeetleConf conf;
+      DungBeetleConf conf;
       bool created; // true if robot was created
 
       /** a collection of ir sensors **/
@@ -533,7 +545,7 @@ namespace lpzrobots {
 
       /** sound sensors */ // Added sound sensors (3) --vector
       std::vector<SoundSensor*> soundsensors;
-
+      std::vector<std::shared_ptr<OneAxisServo> > tarsussprings; //tarsus joint
       /**
        * statistics
        * theses values are updated in every timestep and have to be updated
@@ -584,6 +596,7 @@ namespace lpzrobots {
 
       //---------------Add GoalSensor by Ren---------------
       std::vector<RelativePositionSensor> GoalSensor; // Relative position sensors
+
       bool GoalSensor_active;
       //---------------Add GoalSensor by Ren---------------
 
