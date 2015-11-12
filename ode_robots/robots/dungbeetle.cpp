@@ -105,6 +105,7 @@ namespace lpzrobots {
     usSensorFrontRight = 0;
     speedsensor = 0;
 
+
     addParameter("coxaPower", &conf.coxaPower);
     addParameter("secondPower", &conf.secondPower);
     addParameter("coxaDamp", &conf.coxaDamping);
@@ -580,13 +581,13 @@ namespace lpzrobots {
     const osg::Matrix trunkPos = pose;
 
 
-
-
     if (conf.useBack) {
       front = new Box(conf.frontLength, conf.width, conf.height);
       //front->setTexture(conf.bodyTexture);
       front->init(odeHandleBody, conf.frontMass, osgHandle.changeColor("robot2"));
       osg::Matrix frontPos = TRANSM(conf.size / 2 - conf.frontLength / 2, 0, 0) * trunkPos;
+
+
       front->setPose(frontPos);
       objects.push_back(front);
 
@@ -595,6 +596,8 @@ namespace lpzrobots {
       center->setTexture(conf.bodyTexture);
       center->init(odeHandleBody, conf.trunkMass - conf.frontMass, osgHandle.changeColor("robot2"));
       osg::Matrix centerPos = TRANSM(-conf.size / 2 + (conf.size - conf.frontLength) / 2, 0, 0) * trunkPos;
+
+
       center->setPose(centerPos);
       objects.push_back(center);
       const Axis axis = Axis(0, 1, 0) * frontPos;
@@ -606,10 +609,14 @@ namespace lpzrobots {
       OneAxisServo* servo = new OneAxisServoVel(odeHandle, k, -1, 1, 1, 0.01, 0, 1.0);
       servos[BJ_m] = servo;
       backboneServo = servo;
+
+
+
+
     } else {
       trunk = new Box(conf.size, conf.width, conf.height);
       trunk->setTexture(conf.bodyTexture);
-      trunk->init(odeHandleBody, conf.trunkMass, osgHandle.changeColor("robot2"));
+      trunk->init(odeHandleBody, conf.trunkMass, osgHandle.changeColor("robot3"));
       trunk->setPose(trunkPos);
       objects.push_back(trunk);
       front = trunk;
@@ -716,13 +723,19 @@ namespace lpzrobots {
 */
 
           legtrunkconnections[R2] = ROTM(conf.rLegRotAngle, 0, 0, 1) * ROTM(conf.rLegTrunkAngleH, 1, 0, 0)//001 100
-                  * ROTM(conf.rLegTrunkAngleV, 1, 1, 0) * legtrunkconnections[R2];
+                  * ROTM(conf.rLegTrunkAngleV, 1, 1, 0) *
+
+				  legtrunkconnections[R2];
+
           legtrunkconnections[L2] = ROTM(conf.rLegRotAngle, 0, 0, -1) * ROTM(conf.rLegTrunkAngleH, -1, 0, 0)
                   * ROTM(conf.rLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[L2];
+
           legtrunkconnections[R1] = ROTM(conf.mLegRotAngle, 0, 0, 1) * ROTM(conf.mLegTrunkAngleH, 1, 0, 0)
                   * ROTM(conf.mLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[R1];
           legtrunkconnections[L1] = ROTM(conf.mLegRotAngle, 0, 0, -1) * ROTM(conf.mLegTrunkAngleH, -1, 0, 0)
                   * ROTM(conf.mLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[L1];
+
+
 
 
           legtrunkconnections[R0] = ROTM(conf.fLegRotAngle, 0, 0, 1) * ROTM(conf.fLegTrunkAngleH+100, 1, 0, 0)
@@ -801,7 +814,25 @@ namespace lpzrobots {
         // (local) coordinate system it is)
 
 
-        const Axis axis1 = Axis(0,0,backLeg+frontL) * c1;
+        Axis axis1 = Axis(0,0,backLeg+frontL) * c1;
+
+        switch (i)
+        {
+        case 0: axis1=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis1;//front left
+        break;
+        case 1: axis1=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis1;//middle left
+        break;
+        case 2: axis1=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis1; //rear left ok
+        break;
+        case 3: axis1=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis1; //front right
+        break;
+        case 4: axis1=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis1;  // middle right
+        break;
+        case 5: axis1=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis1;  // rear right ok
+        break;
+        default: axis1=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis1;
+        break;
+        }
         //Qconst Axis axis1 = Axis(0, 0,  leg==L0 || -leg==R0 || tib2) * c1;
 
         // proceed along the leg (and the respective z-axis) for second
@@ -815,15 +846,54 @@ namespace lpzrobots {
         //const Axis axis2 = Axis(-leg==R2 || leg==L1||leg==L2 || leg==R0 || leg==L0,leg==L0 || -leg==L1 || -leg==R2 || leg==R0, leg==L0 || -leg==R0) * c2;
 
 
-        const Axis axis2 = Axis(backLeg+frontL,backLegInverse,backLeg) * c2;
+         Axis axis2 = Axis(backLeg+frontL,backLegInverse,backLeg) * c2;
 
+         switch (i)
+         {
+         case 0: axis2=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis2;//front left
+         break;
+         case 1:axis2=ROTM(M_PI/180,1,0,0)*ROTM(M_PI/180*-100,0,1,0)*ROTM(M_PI/180*30+M_PI/2,0,0,1)*axis2; //midle left ok
+         break;
+         case 2: axis2=ROTM(M_PI/180,1,0,0)*ROTM(M_PI/180*-80,0,1,0)*ROTM(M_PI/180*30+M_PI/2,0,0,1)*axis2; //rear left ok
+         break;
+         case 3: axis2=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis2; //front right
+         break;
+         case 4: axis2=ROTM(M_PI/180*180,1,0,0)*ROTM(-95*(M_PI/180-100)+M_PI,0,1,0)*ROTM(-(M_PI/180*30+M_PI/2),0,0,1)*axis2;  // middle right
+         break;
+         case 5: axis2=ROTM(M_PI/180,1,0,0)*ROTM((M_PI/180*-80),0,1,0)*ROTM(-(M_PI/180*30+M_PI/2),0,0,1)*axis2;  // rear right ok
+         break;
+         default: axis2=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis2;
+         break;
+         }
         //Qconst Axis axis2 = Axis(-leg==L0 || leg==R0 || leg==L2 || -leg==R2 || leg==L1 || leg==R1,leg==L0 || -leg==R0 || -leg==L2 || leg==R2 || -leg==L1 || -leg==R1,-leg==L0 || leg==R0) * c2;
 
         //and third
         osg::Matrix c3 = TRANSM(0, 0, -l2 / 2) * m2;
         osg::Matrix m3 = TRANSM(0, 0, -l3 / 2) * c3;
         const osg::Vec3 anchor3 = nullpos * c3;
-        const Axis axis3 = Axis(backLeg+frontL,backLegInverse-frontInverse,-frontL) * c3;
+        Axis axis3 = Axis(backLeg+frontL,backLegInverse-frontInverse,-frontL) * c3;
+
+        switch (i)
+        {
+        case 0: axis3=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis3;//front left
+        break;
+        case 1: axis3=ROTM(0,1,0,0)*ROTM(M_PI/180*-50,0,1,0)*ROTM(0,0,0,1)*axis3;//middle left
+        break;
+        case 2: axis3=ROTM(0,1,0,0)*ROTM(M_PI/180*-30,0,1,0)*ROTM(0,0,0,1)*axis3; //rear left ok
+        break;
+        case 3: axis3=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis3; //front right
+        break;
+        case 4: axis3=ROTM(0,1,0,0)*ROTM(M_PI/180*-50,0,1,0)*ROTM(0,0,0,1)*axis3;  // middle right
+        break;
+        case 5: axis3=ROTM(0,1,0,0)*ROTM(M_PI/180*-30,0,1,0)*ROTM(0,0,0,1)*axis3; // rear right ok
+        break;
+        default:axis3=ROTM(0,1,0,0)*ROTM(0,0,1,0)*ROTM(0,0,0,1)*axis3;
+        break;
+        }
+
+
+
+
         //Qconst Axis axis3 = Axis(leg==L1||leg==L2 || -leg==R1 || -leg==R2 || -leg==L0 || leg==R0, leg==L1||leg==L2 || leg==R1 || leg==R2 || -leg==L0 || -leg==R0,leg==-R1 || -leg==R2 || leg==L0 || -leg==R0) * c3;
 
 
@@ -868,6 +938,7 @@ namespace lpzrobots {
         HingeJoint* k = new HingeJoint(coxaThorax, secondThorax, anchor2, -axis2);
         k->init(odeHandle, osgHandleJoint, true, t1 * 2.1);
         legs[leg].ctrJoint = k;
+
         joints.push_back(k);
         /** parameters are set later */
         OneAxisServo * servo2 = new OneAxisServoVel(odeHandle, k, -1, 1, 1, 0.01, 0, 1.0);
@@ -988,13 +1059,15 @@ namespace lpzrobots {
 
         	 double angleTarsus=0;
 
+
         	 //rotate manually tarsus here
 
         	 switch (i)
         	 {
         	 case 0: angleTarsus=0;//front left
         	 break;
-        	 case 1: angleTarsus=(M_PI/180)*300+M_PI+(M_PI/180)*20;//middle left
+        	 case 1: angleTarsus=(M_PI/180)*300+M_PI+(M_PI/180)*20;
+        	 	 //middle left
         	 break;
         	 case 2: angleTarsus=0; //rear left ok
         	 break;
@@ -1015,7 +1088,7 @@ namespace lpzrobots {
         	 }else{
         		 m6 = m5;
         	 }
-        	 m6 = ROTM(angleTarsus,0,0,1) * TRANSM(0,0,-length/2) * m6 ;
+        	 m6 = ROTM(0,1,0,0) *ROTM(0,0,1,0)*ROTM(angleTarsus,0,0,1)* TRANSM(0,0,-length/2) * m6 ;
         	 //m6 =   TRANSM(0,0,-length/2) * m6 ;
 
         	 std::cout << "leg number     " << i << std::endl;
@@ -1684,22 +1757,22 @@ namespace lpzrobots {
     c.fsecondJointLimitD = M_PI / 180.0 * 80.0;
 	c.fsecondJointLimitU = -M_PI / 180.0 * 30.0;
 
-	c.msecondJointLimitD = M_PI / 180.0 * 80.0;
-	c.msecondJointLimitU = -M_PI / 180.0 * 30.0;
+	c.msecondJointLimitD = M_PI / 180.0 * 10.0;
+	c.msecondJointLimitU = -M_PI / 180.0 * 80.0;
 
-	c.rsecondJointLimitD = M_PI / 180.0 * 80.0;
-	c.msecondJointLimitU = -M_PI / 180.0 * 30.0;
+	c.rsecondJointLimitD = M_PI / 180.0 * 10.0;
+	c.rsecondJointLimitU = -M_PI / 180.0 * 80.0;
 
     //FT JOINT front middle rear max min
 
     c.ftebiaJointLimitD = M_PI / 180.0 *70.0;
     c.ftebiaJointLimitU = M_PI / 180.0 *150.0;
 
-    c.mtebiaJointLimitD = M_PI / 180.0 *180.0;
-    c.mtebiaJointLimitU = M_PI / 180.0 *40.0;
+    c.mtebiaJointLimitD = M_PI / 180.0 *90.0;
+    c.mtebiaJointLimitU = M_PI / 180.0 *0.0;
 
-    c.rtebiaJointLimitD = M_PI / 180.0 *200.0;
-    c.rtebiaJointLimitU = M_PI / 180.0 *40.0;
+    c.rtebiaJointLimitD = M_PI / 180.0 *90.0;
+    c.rtebiaJointLimitU = M_PI / 180.0 *0.0;
 
 /*
 
