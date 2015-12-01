@@ -174,7 +174,41 @@ namespace lpzrobots {
     nameSensor(L1_irs, "*L1 IR sensor");
     nameSensor(L2_irs, "*L2 IR sensor");
 
+    nameSensor(L0_s1, "*L0 Tarsus seg1 sensor");
+	nameSensor(L0_s2, "*L0 Tarsus seg2 sensor");
+	nameSensor(L0_s3, "*L0 Tarsus seg3 sensor");
+	nameSensor(L0_s4, "*L0 Tarsus seg4 sensor");
+	nameSensor(L0_s5, "*L0 Tarsus seg5 sensor");
 
+	nameSensor(R0_s1, "*R0 Tarsus seg1 sensor");
+	nameSensor(R0_s2, "*R0 Tarsus seg2 sensor");
+	nameSensor(R0_s3, "*R0 Tarsus seg3 sensor");
+	nameSensor(R0_s4, "*R0 Tarsus seg4 sensor");
+	nameSensor(R0_s5, "*R0 Tarsus seg5 sensor");
+
+	nameSensor(L1_s1, "*L1 Tarsus seg1 sensor");
+	nameSensor(L1_s2, "*L1 Tarsus seg2 sensor");
+	nameSensor(L1_s3, "*L1 Tarsus seg3 sensor");
+	nameSensor(L1_s4, "*L1 Tarsus seg4 sensor");
+	nameSensor(L1_s5, "*L1 Tarsus seg5 sensor");
+
+	nameSensor(R1_s1, "*R1 Tarsus seg1 sensor");
+	nameSensor(R1_s2, "*R1 Tarsus seg2 sensor");
+	nameSensor(R1_s3, "*R1 Tarsus seg3 sensor");
+	nameSensor(R1_s4, "*R1 Tarsus seg4 sensor");
+	nameSensor(R1_s5, "*R1 Tarsus seg5 sensor");
+
+	nameSensor(L2_s1, "*L2 Tarsus seg1 sensor");
+	nameSensor(L2_s2, "*L2 Tarsus seg2 sensor");
+	nameSensor(L2_s3, "*L2 Tarsus seg3 sensor");
+	nameSensor(L2_s4, "*L2 Tarsus seg4 sensor");
+	nameSensor(L2_s5, "*L2 Tarsus seg5 sensor");
+
+	nameSensor(R2_s1, "*R2  Tarsus seg1 sensor");
+	nameSensor(R2_s2, "*R2  Tarsus seg2 sensor");
+	nameSensor(R2_s3, "*R2  Tarsus seg3 sensor");
+	nameSensor(R2_s4, "*R2  Tarsus seg4 sensor");
+	nameSensor(R2_s5, "*R2  Tarsus seg5 sensor");
 
 
 
@@ -320,100 +354,52 @@ namespace lpzrobots {
     sensors[FL2_as] = servos[FL2_m] ? -servos[FL2_m]->get() : 0;
     sensors[BJ_as] = servos[BJ_m] ? -servos[BJ_m]->get() : 0;
 
-    // foot contact sensors
-    if (conf.legContactSensorIsBinary) { // No scaling since binary signals are already in the range of [0,..,1]
-      sensors[R0_fs] = legContactSensors[R0] ? legContactSensors[R0]->get() : 0;
-      sensors[R1_fs] = legContactSensors[R1] ? legContactSensors[R1]->get() : 0;
-      sensors[R2_fs] = legContactSensors[R2] ? legContactSensors[R2]->get() : 0;
-      sensors[L0_fs] = legContactSensors[L0] ? legContactSensors[L0]->get() : 0;
-      sensors[L1_fs] = legContactSensors[L1] ? legContactSensors[L1]->get() : 0;
-      sensors[L2_fs] = legContactSensors[L2] ? legContactSensors[L2]->get() : 0;
-    } else { // Scaling since analog signals are used then we scale them to the range of [0,..,1]
-      // Koh! Georg: What are the different values
-      std::vector<double> max, min;
-      if (conf.dungBeetle_version == 2) {
 
-        // Koh Corrected to have all equal max force in all legs
-         max.push_back(0.2);
-         max.push_back(0.2);
-         max.push_back(0.2);
-         max.push_back(0.2);
-         max.push_back(0.2);
-         max.push_back(0.2);
-         min.push_back(0.0);
-         min.push_back(0.0);
-         min.push_back(0.0);
-         min.push_back(0.0);
-         min.push_back(0.0);
-         min.push_back(0.0);
+    if(conf.tarsus == true)
+    {
+      sensors[L0_s1] = tarsusContactSensors[std::make_pair(L0,1)]->get();
+      sensors[L0_s2] = tarsusContactSensors[std::make_pair(L0,2)]->get();
+      sensors[L0_s3] = tarsusContactSensors[std::make_pair(L0,3)]->get();
+      sensors[L0_s4] = tarsusContactSensors[std::make_pair(L0,4)]->get();
+      sensors[L0_s5] = tarsusContactSensors[std::make_pair(L0,5)]->get();
 
-       /* max.push_back(0.16);
-        max.push_back(0.20);
-        max.push_back(0.14);
-        max.push_back(0.24);
-        max.push_back(0.20);
-        max.push_back(0.14);
-        min.push_back(0.0);
-        min.push_back(0.0);
-        min.push_back(0.0);
-        min.push_back(0.0);
-        min.push_back(0.0);
-        min.push_back(0.0);*/
-      } else {
-        //TODO: need to be recalibrated for amos version 1
-        max.push_back(0.22); //0.30
-        max.push_back(0.22);
-        max.push_back(0.22);
-        max.push_back(0.22);
-        max.push_back(0.22);
-        max.push_back(0.22);
-        min.push_back(0.0);
-        min.push_back(0.0);
-        min.push_back(0.0);
-        min.push_back(0.0);
-        min.push_back(0.0);
-        min.push_back(0.0);
-      }
-      // Georg: this normalization does not make sense to me.
-      sensors[R0_fs] =
-          legContactSensors[R0] ? ((legContactSensors[R0]->get() - min.at(0)) / (max.at(0) - min.at(0))) : 0;
-      sensors[R1_fs] =
-          legContactSensors[R1] ? ((legContactSensors[R1]->get() - min.at(1)) / (max.at(1) - min.at(1))) : 0;
-      sensors[R2_fs] =
-          legContactSensors[R2] ? ((legContactSensors[R2]->get() - min.at(2)) / (max.at(2) - min.at(2))) : 0;
-      sensors[L0_fs] =
-          legContactSensors[L0] ? ((legContactSensors[L0]->get() - min.at(3)) / (max.at(3) - min.at(3))) : 0;
-      sensors[L1_fs] =
-          legContactSensors[L1] ? ((legContactSensors[L1]->get() - min.at(4)) / (max.at(4) - min.at(4))) : 0;
-      sensors[L2_fs] =
-          legContactSensors[L2] ? ((legContactSensors[L2]->get() - min.at(5)) / (max.at(5) - min.at(5))) : 0;
-      // Koh! Georg: overwrite the rescaling
-      double footContactFactor = conf.highFootContactsensoryFeedback ? 4.0 : 1.0;
+      sensors[R0_s1] = tarsusContactSensors[std::make_pair(R0,1)]->get();
+      sensors[R0_s2] = tarsusContactSensors[std::make_pair(R0,2)]->get();
+      sensors[R0_s3] = tarsusContactSensors[std::make_pair(R0,3)]->get();
+      sensors[R0_s4] = tarsusContactSensors[std::make_pair(R0,4)]->get();
+      sensors[R0_s5] = tarsusContactSensors[std::make_pair(R0,5)]->get();
 
-      sensors[R0_fs] = legContactSensors[R0]->get()*footContactFactor;
-      sensors[R1_fs] = legContactSensors[R1]->get()*footContactFactor;
-      sensors[R2_fs] = legContactSensors[R2]->get()*footContactFactor;
-      sensors[L0_fs] = legContactSensors[L0]->get()*footContactFactor;
-      sensors[L1_fs] = legContactSensors[L1]->get()*footContactFactor;
-      sensors[L2_fs] = legContactSensors[L2]->get()*footContactFactor;
+      sensors[L1_s1] = tarsusContactSensors[std::make_pair(L1,1)]->get();
+      sensors[L1_s2] = tarsusContactSensors[std::make_pair(L1,2)]->get();
+      sensors[L1_s3] = tarsusContactSensors[std::make_pair(L1,3)]->get();
+      sensors[L1_s4] = tarsusContactSensors[std::make_pair(L1,4)]->get();
+      sensors[L1_s5] = tarsusContactSensors[std::make_pair(L1,5)]->get();
 
-      // Koh! Georg: I added this as a factor above
-      // if (conf.highFootContactsensoryFeedback)
-      // {
-      //        for (int i = R0_fs; i <= L2_fs; i++) {
-      //      	  if (sensors[i] > 4.0)
-      //      		  sensors[i] = 4.0;
-      //        }
-      // }
-      // else
-      // {
-      //        for (int i = R0_fs; i <= L2_fs; i++) {
-      //      	  if (sensors[i] > 1.0)
-      //      		  sensors[i] = 1.0;
-      //        }
-      // }
+      sensors[R1_s1] = tarsusContactSensors[std::make_pair(R1,1)]->get();
+      sensors[R1_s2] = tarsusContactSensors[std::make_pair(R1,2)]->get();
+      sensors[R1_s3] = tarsusContactSensors[std::make_pair(R1,3)]->get();
+      sensors[R1_s4] = tarsusContactSensors[std::make_pair(R1,4)]->get();
+      sensors[R1_s5] = tarsusContactSensors[std::make_pair(R1,5)]->get();
+
+      sensors[L2_s1] = tarsusContactSensors[std::make_pair(L2,1)]->get();
+      sensors[L2_s2] = tarsusContactSensors[std::make_pair(L2,2)]->get();
+      sensors[L2_s3] = tarsusContactSensors[std::make_pair(L2,3)]->get();
+      sensors[L2_s4] = tarsusContactSensors[std::make_pair(L2,4)]->get();
+      sensors[L2_s5] = tarsusContactSensors[std::make_pair(L2,5)]->get();
+
+      sensors[R2_s1] = tarsusContactSensors[std::make_pair(R2,1)]->get();
+      sensors[R2_s2] = tarsusContactSensors[std::make_pair(R2,2)]->get();
+      sensors[R2_s3] = tarsusContactSensors[std::make_pair(R2,3)]->get();
+      sensors[R2_s4] = tarsusContactSensors[std::make_pair(R2,4)]->get();
+      sensors[R2_s5] = tarsusContactSensors[std::make_pair(R2,5)]->get();
 
     }
+
+
+
+    // foot contact sensors
+
+
     // Front Ultrasonic sensors (right and left)
     sensors[FR_us] = usSensorFrontRight->getValue();
     sensors[FL_us] = usSensorFrontLeft->getValue();
@@ -425,6 +411,11 @@ namespace lpzrobots {
     sensors[L0_irs] = irLegSensors[L0] ? irLegSensors[L0]->getValue() : 0;
     sensors[L1_irs] = irLegSensors[L1] ? irLegSensors[L1]->getValue() : 0;
     sensors[L2_irs] = irLegSensors[L2] ? irLegSensors[L2]->getValue() : 0;
+
+
+
+
+
 
         // Body speed sensors
     sensor speedsens[3] = { 0, 0, 0 };
@@ -471,10 +462,19 @@ namespace lpzrobots {
     // update the graphical representation of the sensorbank
     irSensorBank->update();
 
-    for (int i = 0; i < LEG_POS_MAX; i++) {
-      if (legContactSensors[LegPos(i)])
-        legContactSensors[LegPos(i)]->update();
-    }
+
+    for (int i = 0; i < LEG_POS_MAX; i++)
+          {
+        	 for(int j=1;j<6;j++)
+        	 {
+        		 if (tarsusContactSensors[std::make_pair(LegPos(i),j)])
+        			 tarsusContactSensors[std::make_pair(LegPos(i),j)]->update();
+        	 }
+          }
+
+
+
+
 
 #ifdef VERBOSE
     std::cerr << "dungBeetle::update END\n";
@@ -499,10 +499,18 @@ namespace lpzrobots {
     // reset ir sensors to maximum value
     irSensorBank->sense(globalData);
 
-    for (int i = 0; i < LEG_POS_MAX; i++) {
-      if (legContactSensors[LegPos(i)])
-        legContactSensors[LegPos(i)]->sense(globalData);
-    }
+
+    for (int i = 0; i < LEG_POS_MAX; i++)
+          {
+        	 for(int j=1;j<6;j++)
+        	 {
+        		 if (tarsusContactSensors[std::make_pair(LegPos(i),j)])
+        			  tarsusContactSensors[std::make_pair(LegPos(i),j)]->sense(globalData);
+        	 }
+          }
+
+
+
 
      // Added sound sensors (3) // sense from environment
     for(SoundSensor* sensor: soundsensors)
@@ -1034,10 +1042,7 @@ namespace lpzrobots {
           odeHandle.addIgnoredPair(secondThorax, foot);
 
           // Koh!
-         legContactSensors[LegPos(i)] = new ContactSensor(conf.legContactSensorIsBinary, 65/*koh changed 100*/, 1.01 * t4, false, true, Color(0,5,0));
-         legContactSensors[LegPos(i)]->setInitData(odeHandle, osgHandle, TRANSM(0, 0, -(0.5) * l4));
-         legContactSensors[LegPos(i)]->init(foot);
-          //odeHandle.addIgnoredPair(tebia, legContactSensors[LegPos(i)]->getTransformObject());
+         //odeHandle.addIgnoredPair(tebia, legContactSensors[LegPos(i)]->getTransformObject());
 
          if(conf.tarsus == true){
         	 // New: tarsus
@@ -1071,7 +1076,7 @@ namespace lpzrobots {
         	 break;
         	 case 2: angleTarsus=0; //rear left ok
         	 break;
-        	 case 3: angleTarsus=0; //front right
+        	 case 3: angleTarsus=(M_PI/180)*20; //front right
         	 break;
         	 case 4: angleTarsus=(M_PI/180)*140;  // middle right
         	 break;
@@ -1107,7 +1112,7 @@ namespace lpzrobots {
 
         	 Primitive *section = tarsus;
 
-        	 for(int j = 1; j < 5; j++){
+        	 for(int j = 1; j < 6; j++){
 
         		 double lengthS = length/1.9;
         		 double radiusS = radius/1.5;
@@ -1177,7 +1182,7 @@ namespace lpzrobots {
         					 Axis(i%2==0 ? -1 : 1,0,0) * m7);
         			 k->init(odeHandle, osgHTarsus, true, lengthS/16 * 2.1);
         			 // servo used as a spring
-					 auto servo = std::make_shared<OneAxisServoVel>(odeHandle,k, -1, 1, 1, 0.05); // parameters are set later
+					 auto servo = std::make_shared<OneAxisServoVel>(odeHandle,k, -1, 1, 1, 0.01); // parameters are set later
 					 joints.push_back(k);
 					 auto spring = std::make_shared<ConstantMotor>(servo, 0.0);
 					 tarsussprings.push_back(servo);
@@ -1188,14 +1193,22 @@ namespace lpzrobots {
 
 
 
-        		// FixedJoint* fj = new FixedJoint(tarsusParts[j-1], tarsusParts[j]);
-        	    // fj->init(odeHandle, osgHTarsus, false);
-        		// joints.push_back(fj);
+        	//	FixedJoint* fj = new FixedJoint(tarsusParts[j-1], tarsusParts[j]);
+        	//    fj->init(odeHandle, osgHTarsus, false);
+        //		joints.push_back(fj);
 
 
         		 m6 = m7;
 
+        		 //legContactSensors[LegPos(i)] = new ContactSensor(conf.legContactSensorIsBinary, 65/*koh changed 100*/, 1.01 * t4, false, true, Color(1,9,3));
+        		 //legContactSensors[LegPos(i)]->setInitData(odeHandle, osgHandle, TRANSM(0, 0, -(0.5) * l4));
+        		 //legContactSensors[LegPos(i)]->init(tarsusParts.at(j));
+        		 tarsusContactSensors[std::make_pair(LegPos(i),j)] = new ContactSensor(true, 65/*koh changed 100*/, 1.5 * radiusS, false, true, Color(1,9,3));
+        		 tarsusContactSensors[std::make_pair(LegPos(i),j)]->setInitData(odeHandle, osgHandle, TRANSM(0, 0, -(0.5) * lengthS));
+        		 tarsusContactSensors[std::make_pair(LegPos(i),j)]->init(tarsusParts.at(j));
         	 }
+
+
 
 			 tarsusParts.clear();
 
@@ -1283,12 +1296,19 @@ namespace lpzrobots {
 #ifdef VERBOSE
       std::cerr << "begin dungBeetle::destroy\n";
 #endif
+
       // delete contact sensors
-      for (int i = 0; i < LEG_POS_MAX; i++) {
-        if (legContactSensors[LegPos(i)])
-          delete legContactSensors[LegPos(i)];
+
+      for (int i = 0; i < LEG_POS_MAX; i++)
+      {
+    	 for(int j=1;j<6;j++)
+    	 {
+    		 if (tarsusContactSensors[std::make_pair(LegPos(i),j)])
+    			 delete tarsusContactSensors[std::make_pair(LegPos(i),j)];
+    	 }
       }
-      legContactSensors.clear();
+      tarsusContactSensors.clear();
+
 
       // remove all ignored pairs (brute force method)
       for (PrimitiveList::iterator i = objects.begin(); i != objects.end(); i++) {
@@ -1620,7 +1640,6 @@ namespace lpzrobots {
     c.highFootContactsensoryFeedback=_highFootContactsensoryFeedback; // if highFootContactsensoryFeedback is true, then amplitude of foot sensory signal is higher
     c.rubberFeet = false;
     c.useLocalVelSensor = 0;
-    c.legContactSensorIsBinary = false;
 
     // the trunk length. this scales the whole robot! all parts' sizes,
     // masses, and forces will be adapted!!
@@ -1738,40 +1757,40 @@ namespace lpzrobots {
     //modified Giuliano
     //TC JOINT
     // 70 deg; forward (-) MAX --> normal walking range 60 deg MAX
-    c.fcoxaJointLimitF = -M_PI / 180.0 * 50.0;
+    c.fcoxaJointLimitF = -M_PI / 180.0 * 100.0;
     //-70 deg; backward (+) MIN --> normal walking range -10 deg MIN
-    c.fcoxaJointLimitB = M_PI / 180.0 * -10.0;
+    c.fcoxaJointLimitB = M_PI / 180.0 * 90.0;
 
     //60 deg; forward (-) MAX --> normal walking range 30 deg MAX
-    c.mcoxaJointLimitF = -M_PI / 180.0 * 50.0;
+    c.mcoxaJointLimitF = -M_PI / 180.0 * 100.0;
     //60 deg; backward (+) MIN --> normal walking range -40 deg MIN
-    c.mcoxaJointLimitB = M_PI / 180 * 20.0;
+    c.mcoxaJointLimitB = M_PI / 180 * 30.0;
 
     //70 deg; forward (-) MAX --> normal walking range 60 deg MAX
-    c.rcoxaJointLimitF = -M_PI / 180.0 * 50.0;
+    c.rcoxaJointLimitF = -M_PI / 180.0 * 80.0;
     //70 deg; backward (+) MIN --> normal walking range -10 deg MIN
-    c.rcoxaJointLimitB = M_PI / 180.0 * 20.0;
+    c.rcoxaJointLimitB = M_PI / 180.0 * 50.0;
 
     //CT JOINT front, middle, rear max min
 
-    c.fsecondJointLimitD = M_PI / 180.0 * 80.0;
-	c.fsecondJointLimitU = -M_PI / 180.0 * 30.0;
+    c.fsecondJointLimitD = M_PI / 180.0 * 110.0;
+	c.fsecondJointLimitU = -M_PI / 180.0 * 0.0;
 
-	c.msecondJointLimitD = M_PI / 180.0 * 10.0;
+	c.msecondJointLimitD = M_PI / 180.0 * 0.0;
 	c.msecondJointLimitU = -M_PI / 180.0 * 80.0;
 
-	c.rsecondJointLimitD = M_PI / 180.0 * 10.0;
-	c.rsecondJointLimitU = -M_PI / 180.0 * 80.0;
+	c.rsecondJointLimitD = M_PI / 180.0 * 20.0;
+	c.rsecondJointLimitU = -M_PI / 180.0 * 100.0;
 
     //FT JOINT front middle rear max min
 
-    c.ftebiaJointLimitD = M_PI / 180.0 *70.0;
+    c.ftebiaJointLimitD = M_PI / 180.0 *0.0;
     c.ftebiaJointLimitU = M_PI / 180.0 *150.0;
 
-    c.mtebiaJointLimitD = M_PI / 180.0 *90.0;
+    c.mtebiaJointLimitD = M_PI / 180.0 *100.0;
     c.mtebiaJointLimitU = M_PI / 180.0 *0.0;
 
-    c.rtebiaJointLimitD = M_PI / 180.0 *90.0;
+    c.rtebiaJointLimitD = M_PI / 180.0 *100.0;
     c.rtebiaJointLimitU = M_PI / 180.0 *0.0;
 
 /*

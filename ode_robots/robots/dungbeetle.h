@@ -17,7 +17,7 @@
 #include <ode_robots/relativepositionsensor.h>
 //#include <ode_robots/dungBeetlesensormotordefinition.h>
 #include <ode_robots/axisorientationsensor.h>
-#include "ode_robots/dungbeetlesensormotordefinition.h"
+#include "dungbeetlesensormotordefinition.h"
 /**
  * forward declarations
  */
@@ -63,7 +63,7 @@ namespace lpzrobots {
        *  sensorvalues */
       bool useLocalVelSensor;
       /** Use binary leg contact sensors. If false, a force sensor is used. */
-      bool legContactSensorIsBinary;
+
       /**@}*/
 
       /** scaling factor for robot (length of body) */
@@ -85,6 +85,8 @@ namespace lpzrobots {
       bool tarsus=true;
 
       //TARSUS
+
+
 
       /** trunk mass */
       double trunkMass;
@@ -522,10 +524,10 @@ namespace lpzrobots {
       /** typedefs */
       typedef std::map<LegPos, HingeJoint*> HingeJointMap;
       typedef std::map<LegPos, Leg> LegMap;
-      typedef std::map<LegPos, ContactSensor*> LegContactMap;
       typedef std::map<MotorName, OneAxisServo*> MotorMap;
       typedef std::map<LegPos, LegPosUsage> LegPosUsageMap;
       typedef std::map<LegPos, IRSensor*> LegIRSensorMap;
+      typedef std::map<std::pair<LegPos, int>, ContactSensor*> TarsusContactMap;
       typedef std::vector<Primitive*> PrimitiveList;
       typedef std::vector<Joint*> JointList;
       typedef std::vector<OneAxisServo*> ServoList;
@@ -563,7 +565,11 @@ namespace lpzrobots {
       /**
        * used for detection of leg contacts
        */
-      LegContactMap legContactSensors;
+
+
+      //detect tarsus contact
+      TarsusContactMap tarsusContactSensors;
+      //
 
       // this map knows which IR sensor to find at which leg
       LegIRSensorMap irLegSensors;
