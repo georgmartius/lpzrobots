@@ -77,9 +77,11 @@ protected:
   int number_sensors;
   int number_motors;
 
-  paramval speed;
+  paramval minPeriod;
+  paramval maxPeriod;
   paramval amplitude;
   paramint resampling;
+  paramint mask;
   matrix::Matrix phases;
   matrix::Matrix frequencies;
 
