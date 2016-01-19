@@ -19,95 +19,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.7  2011-06-03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.6  2011/06/01 22:02:56  martius
- *   getAllPrimitives changed to vector return type
- *   inspectables infolines are printed without name again (for guilogger)
- *
- *   Revision 1.5  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.4  2010/12/16 14:57:30  der
- *   humanoid gets changeable power and joint factor
- *
- *   Revision 1.3  2010/11/05 13:54:05  martius
- *   store and restore for robots implemented
- *
- *   Revision 1.2  2010/10/21 14:25:42  martius
- *   is inspectable
- *
- *   Revision 1.1  2010/10/21 12:53:06  martius
- *   new simulation for sox controller
- *
- *   Revision 1.1  2010/10/20 15:47:04  martius
- *   added humanoid from bambi simulation
- *
- *   Revision 1.3  2009/11/26 14:21:54  der
- *   Larger changes
- *   :wq
- *
- *   wq
- *
- *   Revision 1.2  2009/08/12 10:30:25  der
- *   skeleton has belly joint
- *   works fine with centered servos
- *
- *   Revision 1.1  2009/08/10 15:00:46  der
- *   version that Ralf did at home
- *   Skeleton bugfixing, works now fine with ServoVel
- *
- *   Revision 1.12  2009/08/09 20:21:03  der
- *   From PC home
- *
- *   Revision 1.11  2009/05/11 17:01:20  martius
- *   new velocity servos implemented
- *   reorganized parameters, now also neck and elbows are configurable
- *
- *   Revision 1.10  2009/01/20 17:29:52  martius
- *   cvs commit
- *
- *   Revision 1.9  2008/11/14 11:23:05  martius
- *   added centered Servos! This is useful for highly nonequal min max values
- *   skeleton has now also a joint in the back
- *
- *   Revision 1.8  2008/06/20 14:03:01  guettler
- *   reckturner
- *
- *   Revision 1.7  2008/05/27 13:25:12  guettler
- *   powerfactor moved to skeleton
- *
- *   Revision 1.6  2008/05/27 10:35:03  guettler
- *   include corrected
- *
- *   Revision 1.5  2008/04/10 12:27:32  der
- *   just a few changes
- *
- *   Revision 1.4  2008/03/14 08:04:23  der
- *   Some changes in main and skeleton (with new outfit)
- *
- *   Revision 1.3  2008/02/08 13:35:10  der
- *   satelite teaching
- *
- *   Revision 1.2  2008/02/07 14:25:02  der
- *   added setTexture and setColor for skeleton
- *
- *   Revision 1.1  2008/01/29 09:52:16  der
- *   first version
- *
- *   Revision 1.2  2007/11/07 13:27:28  martius
- *   doInternalstuff changed
- *
- *   Revision 1.1  2007/07/17 07:25:26  martius
- *   first attempt to build a two legged robot (humanoid)
- *
- *
- *
  *                                                                 *
  ***************************************************************************/
 #ifndef __SKELETON_H
@@ -331,28 +242,28 @@ namespace lpzrobots {
     /** sets the pose of the vehicle
         @param pose desired pose matrix
     */
-    virtual void place(const osg::Matrix& pose);
+    virtual void placeIntern(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
         @param sensors sensors scaled to [-1,1]
         @param sensornumber length of the sensor array
         @return number of actually written sensors
     */
-    virtual int getSensors(sensor* sensors, int sensornumber);
+    virtual int getSensorsIntern(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
         @param motors motors scaled to [-1,1]
         @param motornumber length of the motor array
     */
-    virtual void setMotors(const motor* motors, int motornumber);
+    virtual void setMotorsIntern(const motor* motors, int motornumber);
 
     /** returns number of sensors
      */
-    virtual int getSensorNumber();
+    virtual int getSensorNumberIntern();
 
     /** returns number of motors
      */
-    virtual int getMotorNumber();
+    virtual int getMotorNumberIntern();
 
     /** this function is called in each timestep. It should perform robot-internal checks,
         like space-internal collision detection, sensor resets/update etc.

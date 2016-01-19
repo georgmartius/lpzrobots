@@ -52,7 +52,6 @@
 #include <ode_robots/octaplayground.h>
 #include <ode_robots/passivebox.h>
 
-#include <ode_robots/addsensors2robotadapter.h>
 #include <ode_robots/sliderwheelie.h>
 #include <ode_robots/plattfussschlange.h>
 #include <ode_robots/schlangeservo.h>
@@ -69,12 +68,12 @@ public:
   enum Grounds { Normal, Octa, Pit, Uterus, Stacked };
 
   // playground parameter
-  const static double widthground = 10;//1025.85;// 100; //1.3;
-  const static double heightground = .1;// 1.2;
-  const static double diamOcta = 2;
-  const static double pitsize = 2;
-  const static double pitheight = 2;
-  const static double uterussize = 1;
+  constexpr const static double widthground = 10;//1025.85;// 100; //1.3;
+  constexpr const static double heightground = .1;// 1.2;
+  constexpr const static double diamOcta = 2;
+  constexpr const static double pitsize = 2;
+  constexpr const static double pitheight = 2;
+  constexpr const static double uterussize = 1;
 
 
   // starting function (executed once at the beginning of the simulation loop)
@@ -450,7 +449,7 @@ public:
         int anzgrounds=2;
         for (int i=0; i< anzgrounds; i++){
           playground = new Playground(odeHandle, osgHandle, osg::Vec3(10+4*i, .2, .95+0.15*i), 1, i==(anzgrounds-1));
-          OdeHandle myhandle = odeHandle;
+          // OdeHandle myhandle = odeHandle;
           //      myhandle.substance.toFoam(10);
           // playground = new Playground(myhandle, osgHandle, osg::Vec3(/*base length=*/50.5,/*wall = */.1, /*height=*/1));
           playground->setPosition(osg::Vec3(0,0,0.2)); // playground positionieren und generieren
@@ -489,4 +488,3 @@ int main (int argc, char **argv)
   return sim.run(argc, argv) ? 0 : 1;
 
 }
-

@@ -19,118 +19,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
- *   $Log$
- *   Revision 1.8  2011-10-12 13:34:51  der
- *   constructor
- *
- *   Revision 1.7  2011/06/03 13:42:48  martius
- *   oderobot has objects and joints, store and restore works automatically
- *   removed showConfigs and changed deprecated odeagent calls
- *
- *   Revision 1.6  2011/06/01 22:02:56  martius
- *   getAllPrimitives changed to vector return type
- *   inspectables infolines are printed without name again (for guilogger)
- *
- *   Revision 1.5  2011/05/30 13:56:42  martius
- *   clean up: moved old code to oldstuff
- *   configable changed: notifyOnChanges is now used
- *    getParam,setParam, getParamList is not to be overloaded anymore
- *
- *   Revision 1.4  2010/12/16 14:57:30  der
- *   humanoid gets changeable power and joint factor
- *
- *   Revision 1.3  2010/11/05 13:54:05  martius
- *   store and restore for robots implemented
- *
- *   Revision 1.2  2010/10/21 14:19:14  martius
- *   added description of joints
- *
- *   Revision 1.1  2010/10/21 12:53:06  martius
- *   new simulation for sox controller
- *
- *   Revision 1.1  2010/10/20 15:47:04  martius
- *   added humanoid from bambi simulation
- *
- *   Revision 1.4  2010/03/09 11:53:41  martius
- *   renamed globally ode to ode-dbl
- *
- *   Revision 1.3  2009/11/26 14:21:54  der
- *   Larger changes
- *   :wq
- *
- *   wq
- *
- *   Revision 1.2  2009/08/12 10:30:25  der
- *   skeleton has belly joint
- *   works fine with centered servos
- *
- *   Revision 1.1  2009/08/10 15:00:46  der
- *   version that Ralf did at home
- *   Skeleton bugfixing, works now fine with ServoVel
- *
- *   Revision 1.16  2009/08/09 20:20:37  der
- *   From PC home
- *
- *   Revision 1.15  2009/05/11 17:01:20  martius
- *   new velocity servos implemented
- *   reorganized parameters, now also neck and elbows are configurable
- *
- *   Revision 1.14  2009/04/26 10:29:21  martius
- *   moved setcolor for boxed to osgHandle.changeColor
- *
- *   Revision 1.13  2009/03/30 13:56:07  martius
- *   fixed textures
- *
- *   Revision 1.12  2009/01/20 17:29:52  martius
- *   cvs commit
- *
- *   Revision 1.11  2008/11/14 11:23:05  martius
- *   added centered Servos! This is useful for highly nonequal min max values
- *   skeleton has now also a joint in the back
- *
- *   Revision 1.10  2008/11/11 19:42:20  der
- *   Some changes
- *
- *   Revision 1.9  2008/06/20 14:03:01  guettler
- *   reckturner
- *
- *   Revision 1.8  2008/05/27 13:25:12  guettler
- *   powerfactor moved to skeleton
- *
- *   Revision 1.7  2008/05/01 22:03:55  martius
- *   build system expanded to allow system wide installation
- *   that implies  <ode_robots/> for headers in simulations
- *
- *   Revision 1.6  2008/04/10 12:27:13  der
- *   some changes
- *
- *   Revision 1.5  2008/03/14 08:04:23  der
- *   Some changes in main and skeleton (with new outfit)
- *
- *   Revision 1.4  2008/02/28 07:43:03  der
- *   small changes
- *
- *   Revision 1.3  2008/02/08 13:35:10  der
- *   satelite teaching
- *
- *   Revision 1.2  2008/02/07 14:25:02  der
- *   added setTexture and setColor for skeleton
- *
- *   Revision 1.1  2008/01/29 09:52:16  der
- *   first version
- *
- *   Revision 1.4  2007/11/07 13:27:28  martius
- *   doInternalstuff changed
- *
- *   Revision 1.3  2007/09/06 18:50:33  martius
- *   *** empty log message ***
- *
- *   Revision 1.2  2007/07/31 08:35:28  martius
- *   addSpace
- *
- *   Revision 1.1  2007/07/17 07:25:26  martius
- *   first attempt to build a two legged robot (humanoid)
- *
  * *
  *
  ***************************************************************************/
@@ -267,7 +155,7 @@ namespace lpzrobots {
   };
 
 
-  int Skeleton::getMotorNumber(){
+  int Skeleton::getMotorNumberIntern(){
     if(conf.onlyPrimaryFunctions)
       return hipservos.size() + kneeservos.size() + armservos.size() + arm1servos.size() + 1/*pelvis*/ ;
     else
@@ -279,10 +167,10 @@ namespace lpzrobots {
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void Skeleton::setMotors(const motor* motors, int motornumber){
+  void Skeleton::setMotorsIntern(const motor* motors, int motornumber){
     assert(created); // robot must exist
 
-    int len = min(motornumber, getMotorNumber());
+    int len = min(motornumber, getMotorNumberIntern());
     // controller output as torques
     int n=0;
     FOREACH(vector <TwoAxisServo*>, hipservos, s){
@@ -355,7 +243,7 @@ namespace lpzrobots {
     assert(len==n);
   };
 
-  int Skeleton::getSensorNumber(){
+  int Skeleton::getSensorNumberIntern(){
     int numberSensors=0;
 
     if(conf.onlyPrimaryFunctions){
@@ -393,9 +281,9 @@ GUIDE adding new sensors
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  int Skeleton::getSensors(sensor* sensors, int sensornumber){
+  int Skeleton::getSensorsIntern(sensor* sensors, int sensornumber){
     assert(created);
-    int len = min(sensornumber, getSensorNumber());
+    int len = min(sensornumber, getSensorNumberIntern());
     int n=0; // index variable
     FOREACHC(vector <TwoAxisServo*>, hipservos, s){ //0-3
       sensors[n]   = (*s)->get1();
@@ -464,7 +352,7 @@ GUIDE adding new sensors
   };
 
 
-  void Skeleton::place(const Matrix& pose){
+  void Skeleton::placeIntern(const Matrix& pose){
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position is 0
     //    Matrix p2;
@@ -494,7 +382,7 @@ GUIDE adding new sensors
       @param GlobalData structure that contains global data from the simulation environment
   */
   void Skeleton::doInternalStuff(GlobalData& global){
-    irSensorBank.reset();
+    irSensorBank.sense(global);
   }
 
 
@@ -615,7 +503,8 @@ GUIDE adding new sensors
     t->init(odeHandle, 1,osgHandle);
     objects[Head_trans] = t;
 
-    irSensorBank.init(odeHandle, osgHandle);
+    irSensorBank.setInitData(odeHandle, osgHandle,Matrix::translate(0,0,0));
+    irSensorBank.init(0,0);
     if(conf.irSensors){
       // add Eyes ;-)
       RaySensor* sensor = new IRSensor(1,0.02);

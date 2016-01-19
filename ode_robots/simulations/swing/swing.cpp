@@ -153,7 +153,7 @@ namespace lpzrobots {
 
   };
 
-  int Swing::getMotorNumber(){
+  int Swing::getMotorNumberIntern(){
     if(conf.onlyPrimaryFunctions)
       return hipservos.size() + kneeservos.size() + arm1servos.size() + 1/*pelvis*/ ;
     else
@@ -165,10 +165,10 @@ namespace lpzrobots {
       @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
-  void Swing::setMotors(const motor* motors, int motornumber){
+  void Swing::setMotorsIntern(const motor* motors, int motornumber){
     assert(created); // robot must exist
     if( fixating ) return;
-    int len = min(motornumber, getMotorNumber());
+    int len = min(motornumber, getMotorNumberIntern());
     // controller output as torques
     int n=0;
     FOREACH(vector <TwoAxisServo*>, hipservos, s){
@@ -240,7 +240,7 @@ namespace lpzrobots {
     assert(len==n);
   };
 
-  int Swing::getSensorNumber(){
+  int Swing::getSensorNumberIntern(){
     int numberSensors=0;
 
     if(conf.onlyPrimaryFunctions){
@@ -280,9 +280,9 @@ GUIDE adding new sensors
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
-  int Swing::getSensors(sensor* sensors, int sensornumber){
+  int Swing::getSensorsIntern(sensor* sensors, int sensornumber){
     assert(created);
-    int len = min(sensornumber, getSensorNumber());
+    int len = min(sensornumber, getSensorNumberIntern());
     int n=0; // index variable
     FOREACHC(vector <TwoAxisServo*>, hipservos, s){ //0-3
       sensors[n]   = (*s)->get1();
@@ -390,7 +390,7 @@ GUIDE adding new sensors
       @param GlobalData structure that contains global data from the simulation environment
   */
   void Swing::doInternalStuff(GlobalData& global){
-    irSensorBank.reset();
+    irSensorBank.sense(global);
     if(t<20){
       FOREACHC(vector <OneAxisServo*>, arm1servos, s){//12-13
         (*s)->set(.2);
@@ -537,7 +537,8 @@ GUIDE adding new sensors
                                  osg::Matrix::translate(0, 0, -(.05)));
     t->init(odeHandle, 1,osgHandle);
     objects[Head_trans] = t;
-    irSensorBank.init(odeHandle, osgHandle);
+    irSensorBank.setInitData(odeHandle, osgHandle, Matrix::translate(0,0,0));
+    irSensorBank.init(0,0);
     if(conf.irSensors){
       // add Eyes ;-)
       RaySensor* sensor = new IRSensor(1,0.02);

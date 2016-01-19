@@ -264,34 +264,28 @@ namespace lpzrobots {
     /** sets the pose of the vehicle
         @param pose desired pose matrix
     */
-    virtual void place(const osg::Matrix& pose);
+    virtual void placeIntern(const osg::Matrix& pose);
 
     /** returns actual sensorvalues
         @param sensors sensors scaled to [-1,1]
         @param sensornumber length of the sensor array
         @return number of actually written sensors
     */
-    virtual int getSensors(sensor* sensors, int sensornumber);
+    virtual int getSensorsIntern(sensor* sensors, int sensornumber);
 
     /** sets actual motorcommands
         @param motors motors scaled to [-1,1]
         @param motornumber length of the motor array
     */
-    virtual void setMotors(const motor* motors, int motornumber);
+    virtual void setMotorsIntern(const motor* motors, int motornumber);
 
     /** returns number of sensors
      */
-    virtual int getSensorNumber();
+    virtual int getSensorNumberIntern();
 
     /** returns number of motors
      */
-    virtual int getMotorNumber();
-    /** checks for internal collisions and treats them.
-     *  In case of a treatment return true (collision will be ignored by other objects
-     *  and the default routine)  else false (collision is passed to other objects and
-     *  (if not treated) to the default routine).
-     */
-    virtual bool collisionCallback(void *data, dGeomID o1, dGeomID o2) {return false;}
+    virtual int getMotorNumberIntern();
 
     /** this function is called in each timestep. It should perform robot-internal checks,
         like space-internal collision detection, sensor resets/update etc.
