@@ -40,10 +40,10 @@ namespace lpzrobots {
     own=0;
     std::string name = "Speed";
     switch(mode){
-    case Translational:   name += "Translational";
-    case TranslationalRel:name += "TranslationalRel";
-    case Rotational:      name += "Rotational";
-    case RotationalRel:   name += "RotationalRel";
+    case Translational:   name += "Translational"; break;
+    case TranslationalRel:name += "TranslationalRel"; break;
+    case Rotational:      name += "Rotational"; break;
+    case RotationalRel:   name += "RotationalRel"; break;
     }
     setBaseInfo(SensorMotorInfo(name).changequantity(SensorMotorInfo::Velocity));
 #if (__GNUC__ > 4 ) || (__GNUC__ == 4 && __GNUC_MINOR__ > 7)
