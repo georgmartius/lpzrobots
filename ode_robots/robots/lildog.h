@@ -258,9 +258,9 @@ namespace lpzrobots {
       /**
        * Returns the default configuration values
        */
-      static LilDogConf getDefaultConf(double _scale = 1.0, bool _useShoulder = 1,bool _useHip = 1, bool _useFoot = 1,bool _highFootContactsensoryFeedback=false);
+      static LilDogConf getDefaultConf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,bool _highFootContactsensoryFeedback=false);
 
-      static LilDogConf getLilDogConf(double _scale = 1.0, bool _useShoulder = 1,bool _useHip = 1, bool _useFoot = 1,bool _highFootContactsensoryFeedback=false);
+      static LilDogConf getLilDogConf(double _scale = 1.0, bool _useShoulder = 1, bool _useFoot = 1,bool _highFootContactsensoryFeedback=false);
 
 
 

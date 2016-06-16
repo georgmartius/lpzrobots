@@ -258,19 +258,6 @@ void LilDog::nameSensor(const int sensorNo, const char* name) {
          min.push_back(0.0);
          min.push_back(0.0);
 
-       /* max.push_back(0.16);
-        max.push_back(0.20);
-        max.push_back(0.14);
-        max.push_back(0.24);
-        max.push_back(0.20);
-        max.push_back(0.14);
-        min.push_back(0.0);
-        min.push_back(0.0);
-        min.push_back(0.0);
-        min.push_back(0.0);
-        min.push_back(0.0);
-        min.push_back(0.0);*/
-      // Georg: this normalization does not make sense to me.
       sensors[R0_fs] =
           legContactSensors[R0] ? ((legContactSensors[R0]->get() - min.at(0)) / (max.at(0) - min.at(0))) : 0;
       sensors[R1_fs] =
@@ -290,22 +277,6 @@ void LilDog::nameSensor(const int sensorNo, const char* name) {
       sensors[L0_fs] = legContactSensors[L0]->get()*footContactFactor;
       sensors[L1_fs] = legContactSensors[L1]->get()*footContactFactor;
       
-
-      // Koh! Georg: I added this as a factor above
-      // if (conf.highFootContactsensoryFeedback)
-      // {
-      //        for (int i = R0_fs; i <= L2_fs; i++) {
-      //      	  if (sensors[i] > 4.0)
-      //      		  sensors[i] = 4.0;
-      //        }
-      // }
-      // else
-      // {
-      //        for (int i = R0_fs; i <= L2_fs; i++) {
-      //      	  if (sensors[i] > 1.0)
-      //      		  sensors[i] = 1.0;
-      //        }
-      // }
 
     }
 
@@ -327,7 +298,6 @@ void LilDog::nameSensor(const int sensorNo, const char* name) {
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position
     // is 0
-    //Matrix p2 = pose * ROTM(0, 0, conf.legLength + conf.legLength/8);
     osg::Matrix p = pose
         * TRANSM(0, 0, conf.forearmLength - conf.shoulderHeight + 2 * conf.tibiaRadius + conf.footRadius);
     create(p);
@@ -473,7 +443,7 @@ void LilDog::create(const osg::Matrix& pose) {
     const double t1 = conf.humerusRadius;
     const double l2 = conf.forearmLength;
     const double t2 = conf.forearmRadius;
-    const double l3 = conf.tibiaLength - 2 * conf.tibiaRadius - conf.footRange;
+    const double l3 = conf.tibiaLength ;
     const double t3 = conf.tibiaRadius;
     const double l4 = 2 * conf.tibiaRadius + conf.footRange - conf.footRadius;
     const double t4 = conf.footRadius;
@@ -484,33 +454,32 @@ void LilDog::create(const osg::Matrix& pose) {
     for (int i = 0; i < LEG_POS_MAX; i++) {
       LegPos leg = LegPos(i);
 
-      // +1 for L1,L2,L3, -1 for R1,R2,R3
-      //const double lr = (leg == L0 || leg == L1 || leg == L2) - (leg == R0 || leg == R1 || leg == R2);
+      // +1 for L0,L1 -1 for R0,R1
       const double lr = (leg == L0 || leg == L1 )- (leg == R0 || leg == R1 );
       // create 3d-coordinates for the leg-trunk connection:
 
       Pos pos = Pos(
           // from (0,0,0) we go down x-axis, make two legs then up
-          // legdist1 and so on
-          -conf.size * 10 / 43.0
-           + (leg == L1 || leg == R1) * 0 + (leg == L0 || leg == R0) * (conf.legdist),
+          // legdist2 and so on
+          -conf.size/2.12
+           + (leg == L1 || leg == R1) *0 + (leg == L0 || leg == R0) * (conf.legdist),
           // switch left or right side of trunk for each leg
-          lr * conf.width / 2, // /2
+          lr * conf.width/2.5 , 
           // height of leg fixation to trunk (trunk bottom sits at
           // total legLength)
-          -conf.height / 2 + conf.shoulderHeight*0.4);//SET HERE TRUNK HEIGHT....GIULIANO 0.2
+          -conf.height / 2 );
 
 
       // get a coordinate system at the position pos by rotating such that
       // z-axis points toward trunk, pose is where the robot will be
       // placed so we begin there.
-      legtrunkconnections[leg] = ROTM(M_PI/2, lr, 0, 0) * TRANSM(pos) * pose;
+      legtrunkconnections[leg] = ROTM(M_PI, lr, 0, 0) * TRANSM(pos) * pose;
 
       // we create a transformation matrix that represents the
       // transformation from the trunk center to the trunk-shoulder
       // connections. we need it because we need the coordinates relative
       // to the trunk to create one body including the shoulders
-        shouldertrunkconnections[leg] = ROTM(M_PI/2, lr, 0, 0) * TRANSM(pos);
+        shouldertrunkconnections[leg] = ROTM(M_PI, lr, 0, 0) * TRANSM(pos);
     }
 
 
@@ -524,10 +493,6 @@ void LilDog::create(const osg::Matrix& pose) {
             * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[R0];
     legtrunkconnections[L0] = ROTM(conf.fLegRotAngle, 0, 0, -1) * ROTM(conf.fLegTrunkAngleH, -1, 0, 0)
             * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[L0];
-//    legtrunkconnections[R0] = ROTM(conf.fLegRotAngle, 0, 0, 1) * ROTM(conf.fLegTrunkAngleH, 1, 0, 0)
-//            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[R0];
-//    legtrunkconnections[L0] = ROTM(conf.fLegRotAngle, 0, 0, -1) * ROTM(conf.fLegTrunkAngleH, -1, 0, 0)
-//            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * legtrunkconnections[L0];
 
     // also the relative coordinates for the shoulders
     shouldertrunkconnections[R1] = ROTM(conf.rLegRotAngle, 0, 0, 1) * ROTM(conf.rLegTrunkAngleH, 1, 0, 0)
@@ -538,14 +503,6 @@ void LilDog::create(const osg::Matrix& pose) {
             * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * shouldertrunkconnections[R0];
     shouldertrunkconnections[L0] = ROTM(conf.fLegRotAngle, 0, 0, -1) * ROTM(conf.fLegTrunkAngleH, -1, 0, 0)
             * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * shouldertrunkconnections[L0];
-//    shouldertrunkconnections[R0] = ROTM(conf.fLegRotAngle, 0, 0, 1) * ROTM(conf.fLegTrunkAngleH, 1, 0, 0)
-//            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * shouldertrunkconnections[R0];
-//    shouldertrunkconnections[L0] = ROTM(conf.fLegRotAngle, 0, 0, -1) * ROTM(conf.fLegTrunkAngleH, -1, 0, 0)
-//            * ROTM(conf.fLegTrunkAngleV, 0, 1, 0) * shouldertrunkconnections[L0];
-
-
-
-
 
     // create the legs
     for (int i = 0; i < LEG_POS_MAX; i++) {
@@ -554,7 +511,7 @@ void LilDog::create(const osg::Matrix& pose) {
         // get a representation of the origin
         const Pos nullpos(0, 0, 0);
 
-        // +1 for R1,R2,R3, -1 for L1,L2,L3
+        // +1 for R0,R1 -1 for L0,L1
         const double pmrl = (leg == R0 || leg == R1 ) - (leg == L0 || leg == L1);
 
 
@@ -585,7 +542,7 @@ void LilDog::create(const osg::Matrix& pose) {
           c1 = legtrunkconnections[leg];
         }
 
-     osg::Matrix m1 = TRANSM(0, 0, -l0/3) * c1;
+     osg::Matrix m1 = ROTM(M_PI, 0, pmrl, 0) *TRANSM(0, 0, -l0/5) * c1;
 
         // calculate anchor of the first joint
         const osg::Vec3 anchor1 = nullpos * c1;
@@ -595,15 +552,15 @@ void LilDog::create(const osg::Matrix& pose) {
 
         // proceed along the leg (and the respective z-axis) for second
         // limb
-        osg::Matrix c2 = ROTM(M_PI/2, pmrl, 0, 0)*TRANSM(0, 0, -l1 / 3) * m1;
-        osg::Matrix m2 = TRANSM(0, 0, -l2 / 2) * c2;
+        osg::Matrix c2 = TRANSM(0, 0, -l0/2) * m1;
+        osg::Matrix m2 = TRANSM(0, 0, -l2/3) * c2;
         const osg::Vec3 anchor2 = nullpos * c2;
         const Axis axis2 = Axis(0, 1, 0) * c2;
 
         //and third
-        osg::Matrix c3 = TRANSM(0, 0, -l2 / 2) * m2;
-        osg::Matrix m3 = TRANSM(0, 0, -l3 / 2) * c3;
-        const osg::Vec3 anchor3 = nullpos * c3;
+        osg::Matrix c3 = TRANSM(0, 0, -l3/4) * m2;
+        osg::Matrix m3 = TRANSM(0, 0, -l1) * c3;
+        const osg::Vec3 anchor3 = nullpos *TRANSM(0, 0, -l1/2)*m2;
         const Axis axis3 = Axis(0, 1, 0) * c3;
 
         // now create first limp
@@ -635,7 +592,7 @@ void LilDog::create(const osg::Matrix& pose) {
 
         // second limb
         Primitive* humerus;
-        humerus = new Capsule(t2, l2);
+        humerus = new Capsule(t1, l1);
         humerus->setTexture(conf.texture);
         humerus->init(odeHandle, conf.humerusMass, osgHandle);
         humerus->setPose(m2);
@@ -660,7 +617,6 @@ void LilDog::create(const osg::Matrix& pose) {
         forearm->setTexture(conf.texture);
         forearm->init(odeHandle, conf.forearmMass, osgHandle);
         forearm->setPose(m3);
-        //        tebiaPos.push_back(tebia->getPosition());
         legs[leg].forearm = forearm;
         objects.push_back(forearm);
 
@@ -680,8 +636,8 @@ void LilDog::create(const osg::Matrix& pose) {
           OdeHandle my_odeHandle = odeHandle;
 		//spring foot at the end
         if (conf.useFoot) {
-          osg::Matrix c4 = TRANSM(0, 0, -l3 / 2 - 2 * conf.tibiaRadius - conf.footRange + conf.footRadius) * m3;
-          osg::Matrix m4 = TRANSM(0, 0, -conf.footSpringPreload) * c4;
+          osg::Matrix c4 = TRANSM(0, 0, -l3/2.5 - 2 * conf.tibiaRadius - conf.footRange + conf.footRadius) * m3;
+          osg::Matrix m4 = TRANSM(0, 0, -conf.footSpringPreload*1.2) * c4;
 
           const osg::Vec3 anchor4 = nullpos * m4;
           const Axis axis4 = Axis(0, 0, -1) * c4;
@@ -697,7 +653,6 @@ void LilDog::create(const osg::Matrix& pose) {
           foot->setTexture(conf.texture);
           foot->init(my_odeHandle, conf.footMass, osgHandle);
           foot->setPose(m4);
-          //            footPos.push_back(foot->getPosition());
           legs[leg].foot = foot;
           objects.push_back(foot);
 
@@ -717,34 +672,7 @@ void LilDog::create(const osg::Matrix& pose) {
           legContactSensors[LegPos(i)]->init(foot);
           odeHandle.addIgnoredPair(forearm, legContactSensors[LegPos(i)]->getTransformObject());
       }
-      else if (legPosUsage[leg] == WHEEL) 
-      {
-        //Sphere* sph = new Sphere(radius);
-        Cylinder* wheel = new Cylinder(conf.wheel_radius, conf.wheel_width);
-        wheel->setTexture(conf.texture);
-        OsgHandle bosghandle = osgHandle;
-        wheel->init(odeHandle, conf.wheel_mass, // mass
-            bosghandle.changeColor("robot2"));
-        const double pmlr = (leg == L0 || leg == L1) - (leg == R0 || leg == R1);
-        Pos pos = Pos(
-            // from (0,0,0) we go down x-axis, make two legs then up
-            // legdist1 and so on
-            -conf.size * 16.5 / 43.0 + (leg == L1 || leg == R1) * conf.legdist
-            + (leg == L0 || leg == R0) * (conf.legdist),
-            // switch left or right side of trunk for each leg
-            pmlr * conf.width,
-            // height of wheel fixation to trunk
-            -0.7 * conf.height + conf.wheel_radius);
 
-        wheel->setPose(ROTM(0.5 * M_PI, 1, 0, 0) * TRANSM(pos) * trunkPos);
-        objects.push_back(wheel);
-        // generate  joints to connect the wheels to the body
-        Pos anchor(dBodyGetPosition(wheel->getBody()));
-        anchor -= Pos(0, 0, 0);
-        HingeJoint * wheeljoint = new HingeJoint(objects[0], wheel, anchor, Axis(0, 1, 0) * trunkPos);
-        wheeljoint->init(odeHandle, osgHandleJoint, true, 1.1 * conf.wheel_width);
-        joints.push_back(wheeljoint);
-      }
      }
     }
 
@@ -883,7 +811,7 @@ void LilDog::destroy() {
         //yes, min is up, up is negative
         footspring->setMinMax(conf.footSpringLimitD, conf.footSpringLimitU);
       }
-
+      if(it->first == R0 || it->first == L0 ){
       OneAxisServo * shoulder1Servo = it->second.shoulder1Servo;
       if (shoulder1Servo) {
         shoulder1Servo->setPower(conf.shoulder1Power);
@@ -908,6 +836,33 @@ void LilDog::destroy() {
         elbowServo->setMaxVel(conf.elbowMaxVel);
         //yes, min is up, up is negative
         elbowServo->setMinMax(conf.elbowJointLimitU, conf.elbowJointLimitD);
+      }
+      }else{
+              OneAxisServo * shoulder1Servo = it->second.shoulder1Servo;
+      if (shoulder1Servo) {
+        shoulder1Servo->setPower(conf.shoulder1Power);
+        shoulder1Servo->setDamping(conf.shoulder1Damping);
+        shoulder1Servo->setMaxVel(conf.shoulder1MaxVel);
+        shoulder1Servo->setMinMax(conf.hipJoint1LimitU, conf.hipJoint1LimitD);
+      }
+
+      OneAxisServo * shoulder2Servo = it->second.shoulder2Servo;
+      if (shoulder2Servo) {
+        shoulder2Servo->setPower(conf.shoulder2Power);
+        shoulder2Servo->setDamping(conf.shoulder2Damping);
+        shoulder2Servo->setMaxVel(conf.shoulder2MaxVel);
+        //yes, min is up, up is negative
+        shoulder2Servo->setMinMax(conf.hipJoint2LimitF, conf.hipJoint2LimitB);
+      }
+
+      OneAxisServo * elbowServo = it->second.elbowServo;
+      if (elbowServo) {
+        elbowServo->setPower(conf.elbowPower);
+        elbowServo->setDamping(conf.elbowDamping);
+        elbowServo->setMaxVel(conf.elbowMaxVel);
+        //yes, min is up, up is negative
+        elbowServo->setMinMax(conf.kneeJointLimitU, conf.kneeJointLimitD);
+      }
       }
     }
 
@@ -1064,11 +1019,11 @@ void LilDog::destroy() {
   }
 
 
- LilDogConf LilDog::getDefaultConf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack,bool _highFootContactsensoryFeedback) {
-	  return getLilDogConf(_scale, _useShoulder, _useFoot, _useBack,_highFootContactsensoryFeedback);
+ LilDogConf LilDog::getDefaultConf(double _scale, bool _useShoulder, bool _useFoot,bool _highFootContactsensoryFeedback) {
+	  return getLilDogConf(_scale, _useShoulder, _useFoot,_highFootContactsensoryFeedback);
   }
 
-  LilDogConf LilDog::getLilDogConf(double _scale, bool _useShoulder, bool _useFoot, bool _useBack, bool _highFootContactsensoryFeedback) {
+  LilDogConf LilDog::getLilDogConf(double _scale, bool _useShoulder, bool _useFoot, bool _highFootContactsensoryFeedback) {
 
     LilDogConf c;
 
@@ -1084,23 +1039,16 @@ void LilDog::destroy() {
     c.legContactSensorIsBinary = true;
 
     // the trunk length. this scales the whole robot! all parts' sizes,
-    // masses, and forces will be adapted!!
-    c.size = 0.34 * _scale;
+    // masses and forces have to be adapted,setting the mass too high breaks the simulation
+    c.size = 1.066;
     //trunk width
-    c.width = 7.0/ 43.0 * c.size;
+    c.width = 0.5639;
     //trunk height
-    c.height = 6.5 / 43.0 * c.size;
-    // we use as density the original trunk weight divided by the original
-    // volume
+    c.height = .320;
 
-    //Change mass by KOH to 3.0
-    const double density = 3.0 / (0.43 * 0.07 * 0.065); //2.2 / (0.43 * 0.07 * 0.065);
-
-    c.trunkMass = density * c.size * c.width * c.height;
-    // use the original trunk to total mass ratio
-    const double mass = 5.758 / 2.2 * c.trunkMass;
+    c.trunkMass = 115.22/20;
     // distribute the rest of the weight like this for now */
-    c.shoulderMass = (mass - c.trunkMass) / (6 * (3.0 + c.useShoulder)) * (20.0 - c.useFoot) / 20.0;
+    c.shoulderMass = 6.5/20;
     c.humerusMass = c.shoulderMass;
     c.forearmMass = c.shoulderMass;
    
@@ -1109,29 +1057,24 @@ void LilDog::destroy() {
     c.tibiaMass = c.shoulderMass;
     // foot gets 3 or 4 times 1/20 of shoulderMass (divide and multiply by
     // 3 or 4)
-    c.footMass = (mass - c.trunkMass) / 6 * c.useFoot / 20.0;
+    c.footMass = 0.3/20;//c.trunkMass / 4 * c.useFoot / 20.0;
 
-    //As real robot!!
+  
     const double shoulderHeight_cm = 2.1;
     //shoulder height "4.5 wrong" --> correct=6.5 cm from rotating point
     c.shoulderHeight = shoulderHeight_cm / 2.1 * c.height;
 
-    // distance between hindlegs and middle legs
-    c.legdist = 20.0 / 43.0 * c.size;
+    // distance between legss
+    c.legdist = 1;
 
-    // configure the wheels (if used). They don't have any counterpart in
-    // reality, so the chosen values are arbitrary
-    c.wheel_radius = 0.10 * c.size;
-    c.wheel_width = 0.04 * c.size;
-    c.wheel_mass = (mass - c.trunkMass) / 6.0;
-
+ 
     // -----------------------
     // 1) Biomechanics
     // Manual setting adjustable joint positions at the body
     // -----------------------
 
-    // amosII has a fixed but adjustable joint that decides how the legs
-    // extend from the trunk. Here you can adjust these joints
+    // 
+    //
 
     // ------------- Front legs -------------
     // angle (in rad) around vertical axis at leg-trunk fixation 0:
@@ -1154,65 +1097,80 @@ void LilDog::destroy() {
 
     // be careful changing the following dimension, they may break the
     // simulation!! (they shouldn't but they do)
-    const double shoulderLength_cm = 2.5;
-    c.shoulderLength = shoulderLength_cm / 43.0 * c.size;
-    c.shoulderRadius = .03 * c.size;
+    const double shoulderLength_cm = 0.05;
+    c.shoulderLength = shoulderLength_cm  ;
+    c.shoulderRadius = .03 ;
 
-    const double humerusLength_cm = 10.1;
-    c.humerusLength = humerusLength_cm / 43.0 * c.size;
-    c.humerusRadius = .04 * c.size;
+    const double humerusLength_cm = .3575;
+    c.humerusLength = humerusLength_cm ;
+    c.humerusRadius = .03 ;
 
-    const double forearmLength_cm = 10.1;
-    c.forearmLength = forearmLength_cm / 43.0 * c.size;
-    c.forearmRadius = .03 * c.size;
+    const double forearmLength_cm = .6058;
+    c.forearmLength = forearmLength_cm  ;
+    c.forearmRadius = .03 ;
 
-    const double hipLength_cm = 4.5;
-    c.hipLength = hipLength_cm / 43.0 * c.size;
-    c.hipRadius = .03 * c.size;
+    const double hipLength_cm = 0.045;
+    c.hipLength = hipLength_cm  ;
+    c.hipRadius = .03 ;
 
-    const double femurLength_cm = 3.5;
-    c.femurLength = femurLength_cm / 43.0 * c.size;
-    c.femurRadius = .04 * c.size;
+    const double femurLength_cm = 0.3574;
+    c.femurLength = femurLength_cm ;
+    c.femurRadius = .04 ;
 
-    const double tibiaLength_cm = 11.5; // 3)
-    c.tibiaLength = tibiaLength_cm / 43.0 * c.size;
-    c.tibiaRadius = 1.3 / 43.0 * c.size;
+    const double tibiaLength_cm = 0.5858; // 3)
+    c.tibiaLength = tibiaLength_cm ;
+    c.tibiaRadius = 0.02  ;
     // this determines the limit of the footspring
-    c.footRange = .2 / 43.0 * c.size;
-    c.footRadius = 1.5 / 43.0 * c.size;
-
+    c.footRange = .02  ;
+    c.footRadius = 0.02 ;
     // -----------------------
     // 2) Joint Limits
     // Setting Max, Min of each joint with respect to real
     // -----------------------
 
-    // 70 deg; forward (-) MAX --> normal walking range 60 deg MAX
+    // 60 deg; upward (-) MAX 
     c.shoulderJoint1LimitU = -M_PI / 180.0 *60.0;
-    //-70 deg; backward (+) MIN --> normal walking range -10 deg MIN
+    //-60 deg; downward (+) MIN 
     c.shoulderJoint1LimitD = M_PI / 180.0 * 60.0;
 
-    //60 deg; forward (-) MAX --> normal walking range 30 deg MAX
-    c.shoulderJoint2LimitF = -M_PI / 180.0 * 60.0;
-    //60 deg; backward (+) MIN --> normal walking range -40 deg MIN
-    c.shoulderJoint2LimitB = M_PI / 180 * 60.0;
+    //0 deg; forward (-) MAX 
+    c.shoulderJoint2LimitF = -M_PI / 180 * 0.0;
+    //-80 deg; backward (+) MIN 
+    c.shoulderJoint2LimitB = -M_PI / 180 * 80.0;
 
-    //70 deg; forward (-) MAX --> normal walking range 60 deg MAX
-    c.elbowJointLimitU = -M_PI / 180.0 * 70.0;
-    //70 deg; backward (+) MIN --> normal walking range -10 deg MIN
-    c.elbowJointLimitD = M_PI / 180.0 * 70.0;
+    //90 deg; forward (-) MAX 
+    c.elbowJointLimitU = M_PI/180 *90;
+    //30 deg; backward (+) MIN 
+    c.elbowJointLimitD = M_PI/180 *30;
+
+    //60 deg; upward (-) MAX 
+    c.hipJoint1LimitU = -M_PI / 180.0 *60.0;
+    //-60deg; downward (+) MIN
+    c.hipJoint1LimitD = M_PI / 180.0 * 60.0;
+
+    //80 deg; forward (-) MAX 
+    c.hipJoint2LimitF = M_PI / 180.0 * 80.0;
+    //0 deg; backward (+) MIN 
+    c.hipJoint2LimitB = M_PI / 180.0 * 0.0;
+
+    //-30 deg; forward (-) MAX 
+    c.kneeJointLimitU = -M_PI/180 *30;
+    //-90 deg; backward (+) MIN 
+    c.kneeJointLimitD = -M_PI/180 *90;
 
     // -----------------------
     // 3) Motors
     // Motor power and joint stiffness
+    // The values are set in order to make the simulation work correctly---they have to be changed----
     // -----------------------
 
-    c.footSpringPreload = 8.0 / 43.0 * c.size;
+    c.footSpringPreload = 0.08*c.size;
     // negative is downwards (spring extends)
     c.footSpringLimitD = c.footSpringPreload;
     c.footSpringLimitU = c.footSpringPreload + c.footRange;
 
-    const double shoulderPower_scale = 10.0;
-    const double springstiffness = 350.0;
+    const double shoulderPower_scale = 20.0;
+    const double springstiffness = 1000.0;
 
     // use an original radius and mass and scale original torque by their
     // new values to keep acceleration constant
