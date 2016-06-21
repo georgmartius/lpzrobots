@@ -54,7 +54,7 @@ namespace lpzrobots {
 
  LilDog::LilDog(const OdeHandle& odeHandle, const OsgHandle& osgHandle, const LilDogConf& c, const std::string& name) :
           OdeRobot(odeHandle, osgHandle, name, "LilDog"), conf(c) {
-          	    legPosUsage[L0] = LEG;
+          legPosUsage[L0] = LEG;
     			legPosUsage[L1] = LEG;
     			legPosUsage[R0] = LEG;
     			legPosUsage[R1] = LEG;
@@ -222,7 +222,7 @@ void LilDog::nameSensor(const int sensorNo, const char* name) {
     // angle sensors
     //We multiple with -1 to map to real hexapod
     sensors[S1R0_as] = servos[S1R0_m] ? -servos[S1R0_m]->get() : 0;
-    sensors[S2R0_as] = servos[S2R0_m] ? -servos[S1R0_m]->get() : 0;
+    sensors[S2R0_as] = servos[S2R0_m] ? -servos[S2R0_m]->get() : 0;
     sensors[ELR0_as] = servos[ELR0_m] ? -servos[ELR0_m]->get() : 0;
     sensors[S1L0_as] = servos[S1L0_m] ? -servos[S1L0_m]->get() : 0;
     sensors[S2L0_as] = servos[S2L0_m] ? -servos[S2L0_m]->get() : 0;
@@ -542,7 +542,7 @@ void LilDog::create(const osg::Matrix& pose) {
           c1 = legtrunkconnections[leg];
         }
 
-     osg::Matrix m1 = ROTM(M_PI, 0, pmrl, 0) *TRANSM(0, 0, -l0/5) * c1;
+     osg::Matrix m1 = ROTM(M_PI, 0, pmrl, 0) *TRANSM(0, 0, l0) * c1;
 
         // calculate anchor of the first joint
         const osg::Vec3 anchor1 = nullpos * c1;
@@ -1141,7 +1141,7 @@ void LilDog::destroy() {
     //90 deg; forward (-) MAX 
     c.elbowJointLimitU = M_PI/180 *90;
     //30 deg; backward (+) MIN 
-    c.elbowJointLimitD = M_PI/180 *30;
+    c.elbowJointLimitD = M_PI/180 *0;
 
     //60 deg; upward (-) MAX 
     c.hipJoint1LimitU = -M_PI / 180.0 *60.0;
@@ -1154,7 +1154,7 @@ void LilDog::destroy() {
     c.hipJoint2LimitB = M_PI / 180.0 * 0.0;
 
     //-30 deg; forward (-) MAX 
-    c.kneeJointLimitU = -M_PI/180 *30;
+    c.kneeJointLimitU = -M_PI/180 *0;
     //-90 deg; backward (+) MIN 
     c.kneeJointLimitD = -M_PI/180 *90;
 
@@ -1169,7 +1169,7 @@ void LilDog::destroy() {
     c.footSpringLimitD = c.footSpringPreload;
     c.footSpringLimitU = c.footSpringPreload + c.footRange;
 
-    const double shoulderPower_scale = 20.0;
+    const double shoulderPower_scale = 30.0;
     const double springstiffness = 1000.0;
 
     // use an original radius and mass and scale original torque by their
