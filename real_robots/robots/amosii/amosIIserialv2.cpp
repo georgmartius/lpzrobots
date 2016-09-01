@@ -376,7 +376,7 @@ void AmosIISerialV2::setMotors(const motor* motors, int motornumber){
 	//CR0
 	serialPos[23] = (int) (double)(((motorCom[6]+1.0)/2.0)*(servoPosMax[6]-servoPosMin[6])+servoPosMin[6]) ;
 	serialPos[30] = (int) (double)(((motorCom[7]+1.0)/2.0)*(servoPosMax[7]-servoPosMin[7])+servoPosMin[7]) ;
-	serialPos[13] = (int) (double)(((motorCom[8]+1.0)/2.0)*(servoPosMax[8]-servoPosMin[8])+servoPosMin[8]) ;
+	serialPos[15] = (int) (double)(((motorCom[8]+1.0)/2.0)*(servoPosMax[8]-servoPosMin[8])+servoPosMin[8]) ; // 13
 	serialPos[19] = (int) (double)(((motorCom[9]+1.0)/2.0)*(servoPosMax[9]-servoPosMin[9])+servoPosMin[9]) ;
 	serialPos[28] = (int) (double)(((motorCom[10]+1.0)/2.0)*(servoPosMax[10]-servoPosMin[10])+servoPosMin[10]) ;
 	serialPos[9] = (int) (double)(((motorCom[11]+1.0)/2.0)*(servoPosMax[11]-servoPosMin[11])+servoPosMin[11]) ;
@@ -385,7 +385,7 @@ void AmosIISerialV2::setMotors(const motor* motors, int motornumber){
 	serialPos[24] = (int) (double)(((motorCom[12]+1.0)/2.0)*(servoPosMax[12]-servoPosMin[12])+servoPosMin[12]) ;
 	serialPos[25] = (int) (double)(((motorCom[13]+1.0)/2.0)*(servoPosMax[13]-servoPosMin[13])+servoPosMin[13]) ;
 	serialPos[14] = (int) (double)(((motorCom[14]+1.0)/2.0)*(servoPosMax[14]-servoPosMin[14])+servoPosMin[14]) ;
-	serialPos[20] = (int) (double)(((motorCom[15]+1.0)/2.0)*(servoPosMax[15]-servoPosMin[15])+servoPosMin[15]) ;
+	serialPos[2] = (int) (double)(((motorCom[15]+1.0)/2.0)*(servoPosMax[15]-servoPosMin[15])+servoPosMin[15]) ;//20
 	serialPos[27] = (int) (double)(((motorCom[16]+1.0)/2.0)*(servoPosMax[16]-servoPosMin[16])+servoPosMin[16]) ;
 	serialPos[10] = (int) (double)(((motorCom[17]+1.0)/2.0)*(servoPosMax[17]-servoPosMin[17])+servoPosMin[17]) ;
 
