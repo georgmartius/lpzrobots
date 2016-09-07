@@ -62,6 +62,8 @@ namespace lpzrobots {
       return pos;
     }
 
+
+
     // --- Sensor interface ---
     virtual void init(Primitive* own, Joint* joint = 0) override { // and Motor interface
       if(joint!=0) {
@@ -80,6 +82,8 @@ namespace lpzrobots {
       sensors[0]=get();
       return 1;
     }
+
+
 
     // --- Motor interface ---
     virtual int getMotorNumber() const override { return 1;};
@@ -126,6 +130,11 @@ namespace lpzrobots {
     /** sets the damping of the servo*/
     virtual void setDamping(double damp) {
       pid.KD = damp;
+    };
+
+    /** returns the integration term of the PID controller of the servo*/
+    virtual void setIntegration(double integration) {
+      pid.KI = integration;
     };
 
     /** returns the integration term of the PID controller of the servo*/
@@ -186,13 +195,89 @@ namespace lpzrobots {
 
   };
 
+
+
   /** general servo motor to achieve position control.
-   *  It internally controls the velocity of the motor (much more stable)
-   *  with centered zero position.
-   *  The amount of body feeling can be adjusted by the damping parameter
-   *   which is understood as a stiffness parameter
-   */
+ *  Controlled by a velocity motor.
+ *  -1 for "reverse" and +1 for "forward".
+ */
   class OneAxisServoVel : public OneAxisServo {
+    public:
+      /** min and max values are understood as travel bounds.
+          The zero position is (max-min)/2
+          @param power is the maximal torque the servo can generate
+          @param maxVel is understood as a speed parameter of the servo.
+          @param damp adjusts the power of the servo in dependence of the distance
+           to the set point (current control error).
+           This regulates the stiffness and the body feeling
+            0: the servo has no power at the set point (maximal body feeling);
+            1: is servo has full power at the set point: maximal stiffness, perfectly damped.
+      */
+      OneAxisServoVel(const OdeHandle& odeHandle,
+                      OneAxisJoint* joint, double _min, double _max,
+                      double power, double damp=0.05, double maxVel=20,
+                      double jointLimit = 1.3);
+
+      virtual ~OneAxisServoVel();
+
+      virtual void init(Primitive* own, Joint* joint = 0) override {
+        if(joint) { assert(joint==this->joint); } // we cannot attach the servo to a new joint
+      }
+
+      /** adjusts the power of the servo*/
+      virtual void setPower(double _power) override;
+
+      /** returns the power of the servo*/
+      virtual double getPower() override {
+        return power;
+      };
+      virtual double getDamping() override {
+        return damp;
+      };
+      virtual void setDamping(double _damp) override {
+        damp = clip(_damp,0.0,1.0);
+      };
+      /** offetCanceling does not exist for this type of servo */
+      virtual double& offsetCanceling() override {
+        dummy=0;
+        return dummy;
+      };
+
+      /** adjusts maximal speed of servo*/
+      virtual void setMaxVel(double maxVel) override {
+        this->maxVel = maxVel;
+        pid.KP=maxVel/2;
+      };
+      /** adjusts maximal speed of servo*/
+      virtual double getMaxVel() override {
+        return maxVel;
+      };
+
+      /** sets the set point of the servo.
+          Position must be between -1 and 1. It is scaled to fit into min, max,
+          however 0 is just in the center of min and max
+      */
+      virtual void set(double pos) override ;
+
+      /** returns the position of the servo in ranges [-1, 1] (scaled by min, max, centered)*/
+      virtual double get() const override {
+        double pos =  joint->getPosition1();
+        return 2*(pos-min)/(max-min) - 1;
+      }
+    protected:
+      AngularMotor1Axis motor;
+      double dummy;
+      double power;
+      double damp;
+    };
+
+
+
+  /** general servo motor to achieve position control.
+   *  Controlled by a velocity motor.
+   *  -1 for "reverse" and +1 for "forward".
+   */
+  class OneAxisServoVelocityControlled : public OneAxisServo {
   public:
     /** min and max values are understood as travel bounds.
         The zero position is (max-min)/2
@@ -204,12 +289,12 @@ namespace lpzrobots {
           0: the servo has no power at the set point (maximal body feeling);
           1: is servo has full power at the set point: maximal stiffness, perfectly damped.
     */
-    OneAxisServoVel(const OdeHandle& odeHandle,
+    OneAxisServoVelocityControlled(const OdeHandle& odeHandle,
                     OneAxisJoint* joint, double _min, double _max,
                     double power, double damp=0.05, double maxVel=20,
                     double jointLimit = 1.3);
 
-    virtual ~OneAxisServoVel();
+    virtual ~OneAxisServoVelocityControlled();
 
     virtual void init(Primitive* own, Joint* joint = 0) override {
       if(joint) { assert(joint==this->joint); } // we cannot attach the servo to a new joint
@@ -236,12 +321,11 @@ namespace lpzrobots {
 
     /** adjusts maximal speed of servo*/
     virtual void setMaxVel(double maxVel) override {
-      this->maxVel = maxVel;
-      pid.KP=maxVel/2;
+      maxPower = maxVel;
     };
     /** adjusts maximal speed of servo*/
     virtual double getMaxVel() override {
-      return maxVel;
+      return maxPower;
     };
 
     /** sets the set point of the servo.
@@ -260,6 +344,7 @@ namespace lpzrobots {
     double dummy;
     double power;
     double damp;
+    double maxPower;
   };
 
 
@@ -332,6 +417,80 @@ namespace lpzrobots {
     double power;
     double damp;
   };
+
+
+
+	class OneAxisServoPosForce : public OneAxisServo
+	{
+		public:
+			/** min and max values are understood as travel bounds.
+			The zero position is (max-min)/2
+			@param maxVel is understood as a speed parameter of the servo.
+			to the set point (current control error).
+			This regulates the stiffness and the body feeling
+			0: the servo has no power at the set point (maximal body feeling);
+			1: is servo has full power at the set point: maximal stiffness, perfectly damped.
+			*/
+			OneAxisServoPosForce(const OdeHandle& odeHandle,
+									OneAxisJoint* joint, double _min, double _max,
+									double power_pos=10, double damp_pos=0.05, double integration_pos=2,
+									double maxVel=20, double jointLimit=1.3, bool minmaxCheck=true );
+
+			virtual ~OneAxisServoPosForce();
+
+			virtual void init(Primitive* own, Joint* joint = 0) override
+			{
+				if(joint)
+				{
+					assert( joint==this->joint );
+				}// we cannot attach the servo to a new joint
+			}
+
+			// --- Parameters ---
+			virtual void setMinMax(double _min, double _max){
+			  min=_min;
+			  max=_max;
+			  joint->setParam(dParamLoStop, min  - abs(min) * (jointLimit-1));
+			  joint->setParam(dParamHiStop, max  + abs(max) * (jointLimit-1));
+			}
+
+			/** adjusts the power of the servo*/
+			virtual void setPower(double power){
+			  pid.KP = power;
+			};
+			virtual double getPower() override{
+			  return pid.KP;
+			};
+			virtual void setDamping(double damp) override{
+			  pid.KD = damp;
+			};
+			virtual double getDamping() override{
+			  return pid.KD;
+			}
+			virtual void setIntegration(double integration) override{
+			  pid.KI = integration;
+			};
+			virtual double& offsetCanceling() override{
+			  return pid.KI;
+			};
+			virtual void setMaxVel(double maxVel) override{
+				maxPower = maxVel;
+			};
+			virtual double getMaxVel() override{
+				return maxPower;
+			};
+
+			virtual void set(double pos) override ;
+			virtual double get() const override
+			{
+				double pos =  joint->getPosition1();
+				return 2*(pos-min)/(max-min) - 1;
+			}
+			protected:
+				AngularMotor1Axis motor;
+				PID pid;
+				double maxPower;
+	};
 
 }
 #endif
