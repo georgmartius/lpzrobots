@@ -48,9 +48,9 @@ class PassiveSphere : public AbstractObstacle{
   /**
    * Constructor
    */
-  PassiveSphere(const OdeHandle& odeHandle, const OsgHandle& osgHandle, double radius = 0.3, double mass = 1.0):
+  PassiveSphere(const OdeHandle& odeHandle, const OsgHandle& osgHandle, double radius = 0.3, double mass = 1.0, bool flag = false):
     AbstractObstacle::AbstractObstacle(odeHandle, osgHandle), radius(radius), mass(mass), texture(0) {
-    sphere = new Sphere(radius);
+    sphere = new Sphere(radius, flag);
     obst.push_back(sphere);
     obstacle_exists=false;
   };
