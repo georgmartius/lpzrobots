@@ -181,11 +181,31 @@ private:
 		L_ps_real=32,
 
 		//Average current sensor of all motors [ZAP25]
-		A_cs_real= 29,
+		A_cs_real= 24,
 
-		//Inclinometer sensor
+		//Inclinometer sensors
 		In_x_real=8,
 		In_y_real=7,
+		
+		//Compass Sensors
+		BX_ori_real = 4, // around x axis
+		BY_ori_real = 5, // around y axis
+		        
+		
+		 TR0_as_real = 6,
+		 Microphone0_s_real = 29, // free port
+		 
+		 
+		 //Accelerometer Sensors
+		 R0Z_acs_real =22,
+		 R1Z_acs_real =19,
+		 R2Z_acs_real =17,
+		 
+		 L0Z_acs_real =20,
+		 L1Z_acs_real =21,
+	     L2Z_acs_real =3,  //gray
+				 
+			
 
 		//Port 7 on the Mboard = Inclinometer y NOT yet install
 		//Port 8 on the Mboard = Inclinometer x NOT yet install
