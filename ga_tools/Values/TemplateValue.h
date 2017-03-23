@@ -182,19 +182,19 @@ public:
     }
 
     for(toread=0;toread<(int)sizeof(RESTORE_GA_TEMPLATE<int>);toread++){
-      fscanf(f,"%c",&integer.buffer[toread]);
+      if(fscanf(f,"%c",&integer.buffer[toread])!=1) return false;
     }
     toread=integer.value;
     buffer=new char[toread];
     for(int y=0;y<toread;y++){
-      fscanf(f,"%c",&buffer[y]);
+      if(fscanf(f,"%c",&buffer[y])!=1) return false;
     }
     buffer[toread]='\0';
     m_name=buffer;
     delete[] buffer;
 
     for(unsigned int x=0;x<sizeof(RESTORE_GA_TEMPLATE<Typ>);x++) {
-      fscanf(f,"%c",&temp.buffer[x]);
+      if(fscanf(f,"%c",&temp.buffer[x])!=1) return false;
     }
 
     m_value = temp.value;

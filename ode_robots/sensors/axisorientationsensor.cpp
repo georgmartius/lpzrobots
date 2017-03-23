@@ -64,13 +64,16 @@ namespace lpzrobots {
     switch (mode) {
     case OnlyZAxis:
       if(dimensions == (X | Y | Z)) return A.column(2).convertToList();
-      else return selectrows(A.column(2),dimensions); break;
+      else return selectrows(A.column(2),dimensions);
+      break;
     case ZProjection:
       if(dimensions == (X | Y | Z)) return A.row(2).convertToList();
-      else return selectrows(A.row(2)^(matrix::T),dimensions);  break;
+      else return selectrows(A.row(2)^(matrix::T),dimensions);
+      break;
     case Axis:
       if(dimensions == (X | Y | Z)) return A.convertToList();
-      else return selectrows(A,dimensions); break;
+      else return selectrows(A,dimensions);
+      break;
     }
     return std::list<sensor>();
   }
@@ -81,16 +84,18 @@ namespace lpzrobots {
     switch (mode) {
     case OnlyZAxis:
       if(dimensions == (X | Y | Z)) return A.column(2).convertToBuffer(sensors, length);
-      else return selectrows(sensors, length, A.column(2),dimensions); break;
+      else return selectrows(sensors, length, A.column(2),dimensions);
+      break;
     case ZProjection:
       if(dimensions == (X | Y | Z)) return A.row(2).convertToBuffer(sensors, length);
-      else return selectrows(sensors, length, A.row(2)^(matrix::T),dimensions);  break;
+      else return selectrows(sensors, length, A.row(2)^(matrix::T),dimensions);
+      break;
     case Axis:
       if(dimensions == (X | Y | Z)) return A.convertToBuffer(sensors, length);
-      else return selectrows(sensors, length, A,dimensions); break;
+      else return selectrows(sensors, length, A,dimensions);
+      break;
     }
     return 0;
   }
 
 }
-

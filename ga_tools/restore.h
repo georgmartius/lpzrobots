@@ -23,7 +23,7 @@ struct RESTORE_GA_HEAD {
       int numGeneration;
       int numGenes;
     };
-    char buffer[];
+    char* buffer;
   };
 };
 
@@ -45,7 +45,7 @@ struct RESTORE_GA_GENERATION {
       double best;*/
     };
 
-    char buffer[];
+    char* buffer;
   };
 
   //std::vector<int> idsOfIndividual;
@@ -65,7 +65,7 @@ struct RESTORE_GA_INDIVIDUAL {
       double fitness;
     };
 
-    char buffer[];
+    char* buffer;
   };
 
   //std::vector<int> idsOfGenes;
@@ -79,7 +79,7 @@ struct RESTORE_GA_GENE {
       int ID;
     };
 
-    char buffer[];
+    char* buffer;
   };
 };
 
@@ -87,7 +87,7 @@ template<class Typ>
 struct RESTORE_GA_TEMPLATE {
   union {
     Typ value;
-    char buffer[];
+    char* buffer;
   };
 };
 
