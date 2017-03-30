@@ -484,19 +484,19 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
     gene = new RESTORE_GA_GENE;
 
     for(z=0;z<(int)sizeof(RESTORE_GA_TEMPLATE<int>);z++){
-      if(fscanf(f,"%c",&integer.buffer[z])!=1) return false
+      if(fscanf(f,"%c",&integer.buffer[z])!=1) return false;
     }
     toread=integer.value;
     buffer = new char[toread];
     for(x=0;x<(unsigned int)toread;x++) {
-      if(fscanf(f,"%c",&buffer[x])!=1) return false
+      if(fscanf(f,"%c",&buffer[x])!=1) return false;
     }
     buffer[x]='\0';
     nameGenePrototype = buffer;
     delete[] buffer;
 
     for(x=0;x<sizeof(RESTORE_GA_GENE);x++) {
-      if(fscanf(f, "%c", &gene->buffer[x])!=1) return false
+      if(fscanf(f, "%c", &gene->buffer[x])!=1) return false;
     }
 
     //find prototype
