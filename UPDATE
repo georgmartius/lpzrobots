@@ -1,3 +1,15 @@
+0.8->0.81
+* Changed default colors and ground texture
+  - in order to get the old look and feel use
+  in ThisSim() constructor:
+   setGroundTexture("Images/greenground.rgb");
+   addPaletteFile("colors/DefaultColors-0_8.gpl");
+   addColorAliasFile("colors/DefaultColorSchema-0_8.txt");
+  for UrbanColorScheme:
+   addColorAliasFile("colors/UrbanColorSchema_old.txt");
+
+
+
 0.7->0.8
 
 * All OdeRobots subclasses have to be changed:
