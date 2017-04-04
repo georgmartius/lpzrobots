@@ -103,7 +103,7 @@ namespace lpzrobots {
      Base::Base(const std::string& caption)
        : Configurable("lpzrobots-ode_robots", "0.7"), ground(0),
          caption(caption), title(""),
-         groundTexture("Images/greenground.rgb"),
+         groundTexture("Images/whiteground.jpg"),
          dummy(0), hud(0), timestats(0), captionline(0), titleline(0),
          statlineprop(11,12,"text"),
          plane(0), hUDStatisticsManager(0), ReceivesShadowTraversalMask(0x1),
