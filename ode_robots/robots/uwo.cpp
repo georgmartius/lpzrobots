@@ -53,60 +53,18 @@ namespace lpzrobots {
     conf.motorPower *= conf.mass;
     conf.legLength *= conf.size;
     legmass=conf.mass * conf.relLegmass / conf.legNumber;    // mass of each legs
-    addParameter("motorpower",&conf.motorPower,0,100);
-  };
-
-
-  int Uwo::getMotorNumberIntern(){
-    return servos.size()*2 + sliderservos.size();
-  };
-
-  int Uwo::getSensorNumberIntern(){
-    return servos.size()*2 + sliderservos.size();
-  };
-
-  /** sets actual motorcommands
-      @param motors motors scaled to [-1,1]
-      @param motornumber length of the motor array
-  */
-  void Uwo::setMotorsIntern(const double* motors, int motornumber){
-    assert(created); // robot must exist
-    // controller output as torques
-    int n=0;
-    FOREACH(vector <TwoAxisServo*>, servos, s){
-      (*s)->set(motors[n],motors[n+1]);
-      n+=2;
-    }
-    FOREACH(vector <OneAxisServo*>, sliderservos, s){
-      (*s)->set(motors[n++]);
-    }
+    addParameter("motorpower",&conf.motorPower,0,100, "power of servo motors");
+    addParameter("sliderpowerfactor",&conf.sliderPowerFactor,0,100, "power factor for slider servos");
+    addParameter("jointlimit", &conf.jointLimit, 0,1,"joint limit for leg joints");
+    addParameter("sliderlength", &conf.sliderLength, 0,1,"length of slider");
 
   };
-
-  /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] (more or less)
-      @param sensornumber length of the sensor array
-      @return number of actually written sensors
-  */
-  int Uwo::getSensorsIntern(sensor* sensors, int sensornumber){
-    assert(created);
-    int n=0;
-    FOREACHC(vector <TwoAxisServo*>, servos, s){
-      sensors[n++]   = (*s)->get1();
-      sensors[n++]   = (*s)->get2();
-    }
-    FOREACHC(vector <OneAxisServo*>, sliderservos, s){
-      sensors[n++]   = (*s)->get();
-    }
-    return n;
-  };
-
 
   void Uwo::placeIntern(const osg::Matrix& pose){
     // the position of the robot is the center of the body
     // to set the vehicle on the ground when the z component of the position is 0
     Matrix p2;
-    p2 = pose * Matrix::translate(Vec3(0, 0, conf.legLength + conf.legLength/8));
+    p2 = pose * Matrix::translate(Vec3(0, 0, conf.legLength + conf.legLength/8 +  + (conf.useSliders ?  conf.sliderLength/2 : 0.0 )));
     create(p2);
   };
 
@@ -151,32 +109,39 @@ namespace lpzrobots {
       }
       j->init(odeHandle, osgHandle, true, conf.legLength/5 * 1.1);
       joints.push_back(j);
-      // setting stops at universal joints
-      TwoAxisServo* servo =  new TwoAxisServoVel(odeHandle,
-                                                 j, -conf.jointLimit, conf.jointLimit,
-                                                 conf.motorPower,
-                                                 -conf.jointLimit, conf.jointLimit,
-                                                 conf.motorPower);
+
+      auto servo = std::make_shared<TwoAxisServoVel>(odeHandle, j,-conf.jointLimit, conf.jointLimit, 1,
+                                                     -conf.jointLimit, conf.jointLimit, 1);
+
+      servo->setBaseName("leg " + itos(n));
+      if(conf.radialLegs)
+        servo->setNamingFunc([](int i){ return i==0? " in+/out-" : " clockwise+/counter-cw-";});
+      else
+        servo->setNamingFunc([](int i){ return i==0? "x" : "y";});
       servos.push_back(servo);
+      addSensor(servo);
+      addMotor(servo);
 
       if(conf.useSliders){
         Primitive* f;
         f = new Sphere(conf.legLength/8);
         f->init(odeHandle, legmass/8, osgHandle);
-        Pos pos = Pos(0,0,-(conf.legLength/2+0.2));
+        Pos pos = Pos(0,0,-(conf.legLength/2+conf.sliderLength/1.6));
         f->setPose( osg::Matrix::translate(pos) * p->getPose());
         objects.push_back(f);
         SliderJoint* sj = new SliderJoint(p, f, pos * p->getPose(), Axis(0,0,1)* p->getPose());
-        sj->init(odeHandle, osgHandle, true, 0.2);
+        sj->init(odeHandle, osgHandle, true, conf.sliderLength+conf.legLength/16);
         joints.push_back(sj);
-        OneAxisServo* sliderservo =  new SliderServoVel(odeHandle,
-                                                        sj, -0.1, 0.1,
-                                                        conf.motorPower);
+        // limits etc will be set in notify()
+        auto sliderservo = std::make_shared<SliderServoVel>(odeHandle, sj,-1,1, 1);
+
+        sliderservo->setBaseName("leg " + itos(n) + " slider");
         sliderservos.push_back(sliderservo);
+        addSensor(sliderservo);
+        addMotor(sliderservo);
       }
-
     }
-
+    notifyOnChange(""); // set parameters
     created=true;
   };
 
@@ -185,28 +150,23 @@ namespace lpzrobots {
    */
   void Uwo::destroy(){
     if (created){
-      FOREACH(vector<UniversalServo*>, servos, i){
-        if(*i) delete *i;
-      }
-      FOREACH(vector<OneAxisServo*>, sliderservos, i){
-        if(*i) delete *i;
-      }
-      servos.clear();
-      sliderservos.clear();
       cleanup();
       odeHandle.deleteSpace();
+      servos.clear();
+      sliderservos.clear();
     }
     created=false;
   }
 
-
-
   void  Uwo::notifyOnChange(const paramkey& key){
-    for (vector<UniversalServo*>::iterator i = servos.begin(); i!= servos.end(); i++){
-      if(*i) (*i)->setPower(conf.motorPower, conf.motorPower);
+    for(auto& i : servos){
+      i->setPower(conf.motorPower, conf.motorPower);
+      i->setMinMax1(-conf.jointLimit,+conf.jointLimit);
+      i->setMinMax2(-conf.jointLimit,+conf.jointLimit);
     }
-    for (vector<OneAxisServo*>::iterator i = sliderservos.begin(); i!= sliderservos.end(); i++){
-      if(*i) (*i)->setPower(conf.motorPower);
+    for(auto& i : sliderservos){
+      i->setPower(conf.sliderPowerFactor*conf.motorPower);
+      i->setMinMax(-conf.sliderLength/2,conf.sliderLength/2);
     }
   }
 
