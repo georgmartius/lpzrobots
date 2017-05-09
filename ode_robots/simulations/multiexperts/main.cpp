@@ -24,102 +24,6 @@
  *   oderobot has objects and joints, store and restore works automatically
  *   removed showConfigs and changed deprecated odeagent calls
  *
- *   Revision 1.14  2008/11/14 11:23:05  martius
- *   added centered Servos! This is useful for highly nonequal min max values
- *   skeleton has now also a joint in the back
- *
- *   Revision 1.13  2008/05/01 22:03:55  martius
- *   build system expanded to allow system wide installation
- *   that implies  <ode_robots/> for headers in simulations
- *
- *   Revision 1.12  2007/12/13 16:57:40  martius
- *   new variation of the multisat controller
- *
- *   Revision 1.11  2007/09/06 18:48:38  martius
- *   *** empty log message ***
- *
- *   Revision 1.10  2007/08/24 11:50:03  martius
- *   with 4 wheeled now
- *
- *   Revision 1.9  2007/08/06 14:25:57  martius
- *   new version without gating network
- *
- *   Revision 1.8  2007/07/19 15:44:32  martius
- *   new multisat version without gating
- *
- *   Revision 1.7  2007/06/22 14:25:07  martius
- *   *** empty log message ***
- *
- *   Revision 1.6  2007/06/21 16:31:54  martius
- *   *** empty log message ***
- *
- *   Revision 1.5  2007/06/18 08:11:22  martius
- *   nice version with many agents
- *
- *   Revision 1.4  2007/06/14 08:01:45  martius
- *   Pred error modulation by distance to minimum works
- *
- *   Revision 1.3  2007/06/08 15:37:22  martius
- *   random seed into OdeConfig -> logfiles
- *
- *   Revision 1.2  2007/05/23 14:07:34  martius
- *   *** empty log message ***
- *
- *   Revision 1.14  2007/03/26 13:15:51  martius
- *   new makefile with readline support
- *
- *   Revision 1.13  2007/02/23 19:36:42  martius
- *   useSD
- *
- *   Revision 1.12  2007/02/23 15:14:17  martius
- *   *** empty log message ***
- *
- *   Revision 1.11  2007/01/26 12:07:08  martius
- *   orientationsensor added
- *
- *   Revision 1.10  2006/12/21 11:43:05  martius
- *   commenting style for doxygen //< -> ///<
- *   new sensors for spherical robots
- *
- *   Revision 1.9  2006/12/01 16:19:05  martius
- *   barrel in use
- *
- *   Revision 1.8  2006/11/29 09:16:09  martius
- *   modell stuff
- *
- *   Revision 1.7  2006/07/14 12:23:52  martius
- *   selforg becomes HEAD
- *
- *   Revision 1.6.4.6  2006/05/15 13:11:29  robot3
- *   -handling of starting guilogger moved to simulation.cpp
- *    (is in internal simulation routine now)
- *   -CTRL-F now toggles logging to the file (controller stuff) on/off
- *   -CTRL-G now restarts the GuiLogger
- *
- *   Revision 1.6.4.5  2006/05/15 12:29:43  robot3
- *   handling of starting the guilogger moved to simulation.cpp
- *   (is in internal simulation routine now)
- *
- *   Revision 1.6.4.4  2006/03/29 15:10:22  martius
- *   *** empty log message ***
- *
- *   Revision 1.6.4.3  2006/02/17 16:47:55  martius
- *   moved to new system
- *
- *   Revision 1.15.4.3  2006/01/12 15:17:39  martius
- *   *** empty log message ***
- *
- *   Revision 1.15.4.2  2006/01/10 20:33:50  martius
- *   moved to osg
- *
- *   Revision 1.15.4.1  2005/11/15 12:30:17  martius
- *   new selforg structure and OdeAgent, OdeRobot ...
- *
- *   Revision 1.15  2005/11/09 14:54:46  fhesse
- *   nchannelcontroller used
- *
- *   Revision 1.14  2005/11/09 13:41:25  martius
- *   GPL'ised
  *
  ***************************************************************************/
 
@@ -142,11 +46,10 @@
 #include <selforg/selectiveone2onewiring.h>
 #include <selforg/derivativewiring.h>
 
-#include <ode_robots/forcedsphere.h>
+//#include <ode_robots/forcedsphere.h>
 #include <ode_robots/sphererobot3masses.h>
 #include <ode_robots/barrel2masses.h>
 #include <ode_robots/fourwheeled.h>
-#include <ode_robots/addsensors2robotadapter.h>
 
 #include <ode_robots/axisorientationsensor.h>
 #include <ode_robots/speedsensor.h>
@@ -164,7 +67,6 @@ public:
   AbstractController *controller;
   MultiSat *multisat;
   AbstractGround* playground;
-  Sensor* sensor;
   int useReinforcement;
 
   // starting function (executed once at the beginning of the simulation loop)
@@ -190,7 +92,6 @@ public:
     bool longsquarecorridor=false;
 
     playground=0;
-    sensor=0;
     if(longsquarecorridor){
       playground = new Playground(odeHandle, osgHandle,osg::Vec3(500, 0.2, 1.2 ),
                                   5000/500, false);
@@ -351,8 +252,8 @@ public:
       //       fwc.irBack=true;
       //       fwc.irSide=true;
       OdeRobot* nimm4 = new FourWheeled ( odeHandle, osgHandle, fwc, "Multi8_2h_Nimm4_nogat_noy_sqrt");
-      nimm4->addSensor(std::make_shared<Sensor>(SpeedSensor(1,SpeedSensor::TranslationalRel, Sensor::Z)));
-      nimm4->addSensor(std::make_shared<Sensor>(SpeedSensor(1,SpeedSensor::RotationalRel, Sensor::X)));
+      nimm4->addSensor(std::make_shared<SpeedSensor>(SpeedSensor(1,SpeedSensor::TranslationalRel, Sensor::Z)));
+      nimm4->addSensor(std::make_shared<SpeedSensor>(SpeedSensor(1,SpeedSensor::RotationalRel, Sensor::X)));
       robot = nimm4;
       robot->place ( osg::Matrix::translate(0,0,0.2));
 
@@ -410,14 +311,14 @@ public:
 //       matrix::Matrix m(3,1, dBodyGetLinearVel( sphere->getMainPrimitive()->getBody()));
 //       c->setReinforcement(m.map(abs).elementSum()/3 - 1);
 //     }
-    if(useReinforcement==4){ // for FourWheelie
-      InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
-      if(c && sensor){
-         double dat[1];
-        sensor->get(dat, 1);
-         c->setReinforcement(fabs(dat[0]));
-      }
-    }
+    // if(useReinforcement==4){ // for FourWheelie
+    //   InvertMotorNStep* c = dynamic_cast<InvertMotorNStep*>(controller);
+    //   if(c && sensor){
+    //      double dat[1];
+    //     sensor->get(dat, 1);
+    //      c->setReinforcement(fabs(dat[0]));
+    //   }
+    // }
 
 
   }
@@ -477,4 +378,3 @@ int main (int argc, char **argv)
 
 // nice regular behaving sphere
 // Use random number seed: 1181566764
-
