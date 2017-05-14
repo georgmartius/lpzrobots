@@ -420,7 +420,7 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
 
   //head
   for(x=0;x<sizeof(RESTORE_GA_HEAD);x++) {
-    fscanf(f, "%c", &head.buffer[x]);
+    if(fscanf(f, "%c", &head.buffer[x])!=1) return false;
   }
   m_actualGeneration = head.generationNumber;
   m_cleanStrategies = head.cleanStrategies;
@@ -433,14 +433,14 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
     generation = new RESTORE_GA_GENERATION;
 
     for(x=0;x<sizeof(RESTORE_GA_GENERATION);x++) {
-      fscanf(f, "%c", &generation->buffer[x]);
+      if(fscanf(f, "%c", &generation->buffer[x])!=1) return false;
     }
 
     m_restoreGeneration[generation->number] = generation;
 
     for(x=0;x<(unsigned int)generation->numberIndividuals;x++) {
       for(z=0;z<(int)sizeof(RESTORE_GA_TEMPLATE<int>);z++){
-        fscanf(f,"%c",&integer.buffer[z]);
+        if(fscanf(f,"%c",&integer.buffer[z])!=1) return false;
       }
       z=integer.value;
       m_restoreIndividualInGeneration[generation->number].push_back(z);
@@ -452,19 +452,19 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
     individual = new RESTORE_GA_INDIVIDUAL;
 
     for(z=0;z<(int)sizeof(RESTORE_GA_TEMPLATE<int>);z++){
-      fscanf(f,"%c",&integer.buffer[z]);
+      if(fscanf(f,"%c",&integer.buffer[z])!=1) return false;
     }
     toread=integer.value;
     buffer = new char[toread];
     for(x=0;x<(unsigned int)toread;x++) {
-      fscanf(f,"%c",&buffer[x]);
+      if(fscanf(f,"%c",&buffer[x])!=1) return false;
     }
     buffer[x]='\0';
     name = buffer;
     delete[] buffer;
 
     for(x=0;x<sizeof(RESTORE_GA_INDIVIDUAL);x++) {
-      fscanf(f, "%c", &individual->buffer[x]);
+      if(fscanf(f, "%c", &individual->buffer[x])!=1) return false;
     }
 
     m_restoreIndividual[individual->ID] = individual;
@@ -472,7 +472,7 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
 
     for(x=0;x<(unsigned int)individual->numberGenes;x++) {
       for(z=0;z<(int)sizeof(RESTORE_GA_TEMPLATE<int>);z++){
-        fscanf(f,"%c",&integer.buffer[z]);
+        if(fscanf(f,"%c",&integer.buffer[z])!=1) return false;
       }
       z=integer.value;
       m_restoreGeneInIndividual[individual->ID].push_back(z);
@@ -484,19 +484,19 @@ bool SingletonGenEngine::restore(FILE* f, InspectableProxy*& proxyGeneration, In
     gene = new RESTORE_GA_GENE;
 
     for(z=0;z<(int)sizeof(RESTORE_GA_TEMPLATE<int>);z++){
-      fscanf(f,"%c",&integer.buffer[z]);
+      if(fscanf(f,"%c",&integer.buffer[z])!=1) return false;
     }
     toread=integer.value;
     buffer = new char[toread];
     for(x=0;x<(unsigned int)toread;x++) {
-      fscanf(f,"%c",&buffer[x]);
+      if(fscanf(f,"%c",&buffer[x])!=1) return false;
     }
     buffer[x]='\0';
     nameGenePrototype = buffer;
     delete[] buffer;
 
     for(x=0;x<sizeof(RESTORE_GA_GENE);x++) {
-      fscanf(f, "%c", &gene->buffer[x]);
+      if(fscanf(f, "%c", &gene->buffer[x])!=1) return false;
     }
 
     //find prototype

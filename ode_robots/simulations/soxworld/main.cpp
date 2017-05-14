@@ -49,7 +49,6 @@
 #include <ode_robots/octaplayground.h>
 #include <ode_robots/passivebox.h>
 
-#include <ode_robots/addsensors2robotadapter.h>
 #include <ode_robots/sliderwheelie.h>
 #include <ode_robots/plattfussschlange.h>
 #include <ode_robots/schlangeservo.h>
@@ -70,12 +69,12 @@ public:
   enum Grounds { Normal, Octa, Pit, Uterus, Stacked };
 
   // playground parameter
-  const static double widthground = 25.85;// 100; //1.3;
-  const static double heightground = .8;// 1.2;
-  const static double diamOcta = 2;
-  const static double pitsize = 1;
-  const static double pitheight = 2;
-  const static double uterussize = 1;
+  constexpr static double widthground = 25.85;// 100; //1.3;
+  constexpr static double heightground = .8;// 1.2;
+  constexpr static double diamOcta = 2;
+  constexpr static double pitsize = 1;
+  constexpr static double pitheight = 2;
+  constexpr static double uterussize = 1;
 
   OdeRobot* robot;
 
@@ -173,17 +172,12 @@ public:
 
      //    conf.bodyTexture="Images/whitemetal_farbig_small.rgb";
      //     conf.bodyColor=Color(1.0,1.0,0.0);
-     std::list<Sensor*> sensors;
-     // additional sensor
-     //     sensors.push_back(new AxisOrientationSensor(AxisOrientationSensor::OnlyZAxis));
      OdeHandle skelHandle=odeHandle;
      // skelHandle.substance.toMetal(1);
     //     skelHandle.substance.toPlastic(.5);//TEST sonst 40
      // skelHandle.substance.toRubber(5.00);//TEST sonst 40
-     Skeleton* human0 = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");
-     robot=human0;
-     AddSensors2RobotAdapter* human =
-       new AddSensors2RobotAdapter(skelHandle, osgHandle, human0, sensors);
+     Skeleton* human = new Skeleton(skelHandle, osgHandle,conf, "Humanoid");
+     //     human->addSensor(new AxisOrientationSensor(AxisOrientationSensor::OnlyZAxis))
      human->place(osg::Matrix::rotate(M_PI_2,1,0,0)*osg::Matrix::rotate(M_PI,0,0,1)
                   //   *osg::Matrix::translate(-.2 +2.9*i,0,1));
                   *osg::Matrix::translate(.2*i,2*i,.841/*7*/ +2*i));
@@ -196,8 +190,8 @@ public:
        //       // fixator = new UniversalJoint(trunk, global.environment, Pos(0, 1.2516, 0.0552) ,                    Axis(0,0,1), Axis(0,1,0));
        fixator->init(odeHandle, osgHandle);
      }else if(reckturner){
-       Primitive* leftHand = human0->getAllPrimitives()[Skeleton::Left_Hand];
-       Primitive* rightHand = human0->getAllPrimitives()[Skeleton::Right_Hand];
+       Primitive* leftHand = human->getAllPrimitives()[Skeleton::Left_Hand];
+       Primitive* rightHand = human->getAllPrimitives()[Skeleton::Right_Hand];
 
        reckLeft = new SliderJoint(leftHand, global.environment, leftHand->getPosition(), Axis(1,0,0));
        reckLeft->init(odeHandle, osgHandle,false);
@@ -829,4 +823,3 @@ int main (int argc, char **argv)
   return sim.run(argc, argv) ? 0 : 1;
 
 }
-

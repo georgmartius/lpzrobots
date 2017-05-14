@@ -1103,9 +1103,10 @@ namespace lpzrobots {
   }
 
   // constructor of struct trunk
-  Hexabot::Trunk::Trunk():
-          tPlate({0}),tTrans(0){
+  Hexabot::Trunk::Trunk() {
+    tPlate[0]=0;
+    tPlate[1]=0;
+    tTrans=0;
   }
 
 }
-

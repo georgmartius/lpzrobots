@@ -323,7 +323,7 @@ namespace lpzrobots {
 
       // construct the viewer.
       viewer = new LPZViewer(*arguments);
-      if(useOsgThread && !osgHandle.cfg->shadowType==3){ // ParallelSplitShadowMap does not support threads
+      if(useOsgThread && !(osgHandle.cfg->shadowType==3)){ // ParallelSplitShadowMap does not support threads
         viewer->setThreadingModel(Viewer::CullDrawThreadPerContext);
       }else{
         viewer->setThreadingModel(Viewer::SingleThreaded);

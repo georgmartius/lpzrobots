@@ -41,15 +41,11 @@ while(<>){
    } else{ # normal data line
        $line =~ s/^\s+//; # remove leading space
        chomp $line;       # remove tailing space
-       my @values=split(/\s/, $line);
+       my @values=split(/\s+/, $line);
        foreach my $i (@columns) {
-	   print $values[$i] . " ";
+           print $values[$i] . " ";
        }
        print "\n";
    }
 
 }
-
-
-
-

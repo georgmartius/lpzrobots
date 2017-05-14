@@ -112,13 +112,12 @@ namespace lpzrobots
   // removes a space from the list of ignored spaces for collision detection
   void OdeHandle::removeSpace(dSpaceID g)
   {
-    if(!spaces)
-      return;
+    if(!spaces) return;
 
-      std::vector<dSpaceID>::iterator i = std::find(spaces->begin(), spaces->end(),g);
-      if(i!=spaces->end()){
-        spaces->erase(i);
-      }
+    std::vector<dSpaceID>::iterator i = std::find(spaces->begin(), spaces->end(),g);
+    if(i!=spaces->end()){
+      spaces->erase(i);
+    }
   }
 
   // returns list of all spaces
@@ -131,17 +130,15 @@ namespace lpzrobots
   // adds a pair of geoms to the list of ignored geom pairs for collision detection
   void OdeHandle::addIgnoredPair(dGeomID g1, dGeomID g2)
   {
-    if (!ignoredPairs)
-      return;
+    if (!ignoredPairs) return;
 
-      ignoredPairs->insert(std::pair<long, long>((long)g1,(long)g2));
-      ignoredPairs->insert(std::pair<long, long>((long)g2,(long)g1));
+    ignoredPairs->insert(std::pair<long, long>((long)g1,(long)g2));
+    ignoredPairs->insert(std::pair<long, long>((long)g2,(long)g1));
   }
   // removes pair of geoms from the list of ignored geom pairs for collision detection
   void OdeHandle::removeIgnoredPair(dGeomID g1, dGeomID g2)
   {
-    if (!ignoredPairs)
-      return;
+    if (!ignoredPairs)  return;
     if(isIgnoredPair(g1,g2)){
       ignoredPairs->erase(std::pair<long, long>((long)g1,(long)g2));
       ignoredPairs->erase(std::pair<long, long>((long)g2,(long)g1));
@@ -150,19 +147,15 @@ namespace lpzrobots
   // adds a pair of Primitives to the list of ignored geom pairs for collision detection
   void OdeHandle::addIgnoredPair(Primitive* p1, Primitive* p2)
   {
-    if (!ignoredPairs)
-      return;
-    if(!p1->getGeom() || !p2->getGeom())
-      return;
+    if (!ignoredPairs)  return;
+    if(!p1->getGeom() || !p2->getGeom()) return;
     addIgnoredPair(p1->getGeom(), p2->getGeom());
   }
   // removes pair of geoms from the list of ignored geom pairs for collision detection
   void OdeHandle::removeIgnoredPair(Primitive* p1, Primitive* p2)
   {
-    if (!ignoredPairs)
-      return;
-    if(!p1->getGeom() || !p2->getGeom())
-      return;
+    if (!ignoredPairs) return;
+    if(!p1->getGeom() || !p2->getGeom()) return;
     removeIgnoredPair(p1->getGeom(),p2->getGeom());
   }
 
