@@ -5,8 +5,7 @@ sky4            Milchblau
 sky5            MilchblauHSLV
 sky6            MilchblauHSLV
 sky7            MilchblauHSLV
-#ground          Olivgruen Fichtenholz
-ground          Bastgelb
+ground          Olivgruen
 text            lpztext
 hud             lpzhud
 arenaground     Bastgelb

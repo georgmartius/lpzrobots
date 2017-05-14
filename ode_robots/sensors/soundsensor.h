@@ -43,6 +43,7 @@ namespace lpzrobots {
         AngleVel: for each level we get a tuple (intensity, angle-velocity)
      */
     enum Measure { Segments, Angle, AngleVel };
+    // TODO: add simple Microphone and probably some timing
 
     /** @param dim Up-axis of the robot (sometimes it is not Z)
         @param measure what to measure @see Measure

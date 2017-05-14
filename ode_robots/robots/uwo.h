@@ -43,7 +43,9 @@ namespace lpzrobots {
     double mass;       ///< chassis mass
     double relLegmass; ///< relative overall leg mass
     double jointLimit; ///< angle range for legs
+    double sliderLength;///< length of sliders at legs
     double motorPower; ///< maximal force for motors
+    double sliderPowerFactor; ///< power factor for slider motors
   } UwoConf;
 
 
@@ -73,8 +75,10 @@ namespace lpzrobots {
       c.mass       = 1;
       c.useSliders = true;
       c.relLegmass = 1;
-      c.motorPower = 0.5;
+      c.motorPower = 1;
+      c.sliderPowerFactor = 3;
       c.jointLimit = M_PI/12; // +- 15 degree
+      c.sliderLength=c.legLength/2;
       c.radialLegs = true;
       return c;
     }
@@ -83,27 +87,6 @@ namespace lpzrobots {
         @param pose desired pose matrix
     */
     virtual void placeIntern(const osg::Matrix& pose);
-
-    /** returns actual sensorvalues
-        @param sensors sensors scaled to [-1,1]
-        @param sensornumber length of the sensor array
-        @return number of actually written sensors
-    */
-    virtual int getSensorsIntern(sensor* sensors, int sensornumber);
-
-    /** sets actual motorcommands
-        @param motors motors scaled to [-1,1]
-        @param motornumber length of the motor array
-    */
-    virtual void setMotorsIntern(const double* motors, int motornumber);
-
-    /** returns number of sensors
-     */
-    virtual int getSensorNumberIntern();
-
-    /** returns number of motors
-     */
-    virtual int getMotorNumberIntern();
 
 
     /******** CONFIGURABLE ***********/
@@ -127,10 +110,8 @@ namespace lpzrobots {
 
     bool created;      // true if robot was created
 
-
-    std::vector <TwoAxisServo*> servos; // motors
-    std::vector <OneAxisServo*> sliderservos; // motors
-
+    std::vector <std::shared_ptr<TwoAxisServo> > servos;
+    std::vector <std::shared_ptr<OneAxisServo> > sliderservos;
   };
 
 }

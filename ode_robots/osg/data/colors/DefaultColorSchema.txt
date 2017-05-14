@@ -11,14 +11,18 @@ sky4            lpzsky3
 sky5            lpzsky4
 sky6            lpzsky4
 sky7            lpzsky4
-ground          Weiss
+ground          lpzground
 text            lpztext
 hud             lpzhud
 arenaground     lpzarenaground
 wall            lpzwall
 manipmove       Safrangelb
 maniplimit      Magenta
+# ######### Robot sets ##########
 # robot1 is the salient color
+# robot2 is is a darker color
+# robot3 is another light, possibly unsaturated color
+# robot4 is a pale color (skin color)
 robot1          lpzblue         0
 robot1          Zinnoberrot     1
 robot1          lpzgreen        2
