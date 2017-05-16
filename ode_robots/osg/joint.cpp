@@ -499,7 +499,7 @@ namespace lpzrobots {
 
       double len = getPosition1();
       delete visual;
-      visual = new OSGCylinder(visualSize/10, fabs(len)+visualSize);
+      visual = new OSGCylinder(visualSize/10, std::max(len+visualSize,0.001));
       visual->init(osgHandle, OSGPrimitive::Low);
       Matrix t = anchorAxisPose(anchor, axis1);
       visual->setMatrix(t);

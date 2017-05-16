@@ -2,14 +2,14 @@ GIMP Palette
 Name: DefaultColors
 Columns: 0
 #
-128	128	166	lpzsky1
+128     128     166     lpzsky1
 102     102     179     lpzsky2
 51      51      154     lpzsky3
 26      26      154     lpzsky4
-42      121     40      lpzground
+221     207     180     lpzground
 51      51      0       lpztext
 255     255     204     lpzhud
-42      121     40      lpzarenaground
-255     255     255     lpzwall
+244     217     146     lpzarenaground
+209     210     209     lpzwall
 25      76      204     lpzblue
 25      191     25      lpzgreen
