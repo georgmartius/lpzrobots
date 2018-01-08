@@ -25,7 +25,7 @@
 #include <iostream>
 #include <assert.h>
 #include <osg/Node>
-#include <osg/CameraNode>
+#include <osg/Camera>
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Texture2D>
@@ -371,7 +371,7 @@ namespace lpzrobots {
       createHUDManager(geode,font);
     }
 
-    osg::CameraNode* camera = new osg::CameraNode;
+    osg::Camera* camera = new osg::Camera;
 
     // set the projection matrix
     camera->setProjectionMatrix(osg::Matrix::ortho2D(0,512,0,384));
@@ -384,7 +384,7 @@ namespace lpzrobots {
     camera->setClearMask(GL_DEPTH_BUFFER_BIT);
 
     // draw subgraph after main camera view.
-    camera->setRenderOrder(osg::CameraNode::POST_RENDER);
+    camera->setRenderOrder(osg::Camera::POST_RENDER);
 
     camera->addChild(geode);
     scene->hud = geode;
