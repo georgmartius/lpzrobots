@@ -24,24 +24,25 @@
 
 #include "lpzhelphandler.h"
 
+#include <osg/Version>
 #include <osg/PolygonMode>
 #include <osgText/Text>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgViewer/Renderer>
 
 
-namespace lpzrobots{  
+namespace lpzrobots{
 
-  /* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield 
+  /* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield
    *
-   * This library is open source and may be redistributed and/or modified under  
-   * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or 
+   * This library is open source and may be redistributed and/or modified under
+   * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
    * (at your option) any later version.  The full license is in LICENSE file
    * included with this distribution, and on the openscenegraph.org website.
-   * 
+   *
    * This library is distributed in the hope that it will be useful,
    * but WITHOUT ANY WARRANTY; without even the implied warranty of
-   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    * OpenSceneGraph Public License for more details.
    */
 
@@ -76,10 +77,10 @@ namespace lpzrobots{
   {
     osgViewer::View* view = dynamic_cast<osgViewer::View*>(&aa);
     if (!view) return false;
-    
+
     osgViewer::ViewerBase* viewer = view->getViewerBase();
     if (!viewer) return false;
-    
+
     if (ea.getHandled()) return false;
 
     switch(ea.getEventType())
@@ -119,7 +120,7 @@ namespace lpzrobots{
     osgViewer::GraphicsWindow* window = dynamic_cast<osgViewer::GraphicsWindow*>(_camera->getGraphicsContext());
 
     if (!window)
-      {    
+      {
         osgViewer::Viewer::Windows windows;
         viewer->getWindows(windows);
 
@@ -186,12 +187,16 @@ namespace lpzrobots{
         label->setPosition(pos);
         label->setText(_applicationUsage->getDescription());
 
+#if OPENSCENEGRAPH_MAJOR_VERSION <= 3 &&  OPENSCENEGRAPH_MINOR_VERSION < 4
+        pos.x() = label->getBound().xMax();
+#else
         pos.x() = label->getBoundingBox().xMax();
+#endif
         pos.y() -= characterSize*2.0f;
       }
 
     const osg::ApplicationUsage::UsageMap& keyboardBinding = _applicationUsage->getKeyboardMouseBindings();
-    
+
     for(osg::ApplicationUsage::UsageMap::const_iterator itr = keyboardBinding.begin();
         itr != keyboardBinding.end();
         ++itr)
@@ -232,9 +237,9 @@ namespace lpzrobots{
         if (width > 1200.0f) ratio = 1200.0f/width;
         if (height*ratio > 950.0f) ratio = 950.0f/height;
         printf("ratio %f\n", ratio);
-        
-        _camera->setViewMatrix(osg::Matrix::translate(-bb.center()) * 
-                               osg::Matrix::scale(ratio,ratio,ratio) * 
+
+        _camera->setViewMatrix(osg::Matrix::translate(-bb.center()) *
+                               osg::Matrix::scale(ratio,ratio,ratio) *
                                osg::Matrix::translate(osg::Vec3(640.0f, 540.0f, 0.0f)));
       }
   }
