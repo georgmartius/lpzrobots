@@ -20,6 +20,8 @@
 #include "dep.h"
 #include <selforg/matrixutils.h>
 
+#include <numeric>
+
 using namespace matrix;
 using namespace std;
 

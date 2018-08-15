@@ -165,7 +165,7 @@ namespace lpzrobots {
     dsBox.setToolTip(toolTipVals);
     dsBox.setDecimals(calcNumberDecimals());
     dsBox.setValue(value);
-    dsBox.setSingleStep(1 / pow10(dsBox.decimals()));
+    dsBox.setSingleStep(1 / exp10(dsBox.decimals()));
     dsBox.setFont(QFont("Courier", 11, QFont::Normal));
 
     slider.setOrientation(Qt::Horizontal);
@@ -288,7 +288,7 @@ namespace lpzrobots {
     dsBox.setDecimals(calcNumberDecimals());
     dsBox.setMinimum(minBound);
     dsBox.setMaximum(maxBound);
-    dsBox.setSingleStep(1 / pow10(dsBox.decimals()));
+    dsBox.setSingleStep(1 / exp10(dsBox.decimals()));
 //    dsBox.setSingleStep((maxBound - minBound) / SCALE_FACTOR_SPINBOX);
     dsBox.setToolTip(toolTipVals);
     slider.setMinimum(minBound * SCALE_FACTOR_SLIDER);

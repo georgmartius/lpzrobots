@@ -986,10 +986,6 @@ namespace lpzrobots {
     bindingDescription(au);
   }
 
-  void Simulation::accept(osgGA::GUIEventHandlerVisitor& v) {
-    v.visit(*this);
-  }
-
   bool Simulation::startVideoRecording(const char* name){
     if(videostream->isOpen()) {
       printf("Video recording in progress, stop before start again!\n");

@@ -142,7 +142,6 @@ namespace lpzrobots {
     // GUIEventHandler
     virtual bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter&);
     virtual void getUsage (osg::ApplicationUsage & au) const;
-    virtual void accept(osgGA::GUIEventHandlerVisitor& v);
     virtual bool init(int argc, char** argv);
 
     virtual void updateGraphics(); ///< update the graphics objects
