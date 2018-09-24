@@ -17,6 +17,9 @@
 *                                                                         *
 ***************************************************************************/
 
+#include <algorithm>
+#include <numeric>
+
 #include "dep.h"
 #include <selforg/matrixutils.h>
 
@@ -37,7 +40,7 @@ DEP::DEP(const DEPConf& conf)
   addParameterDef("damping",   &damping,     0.0001, 0,0.01, "forgetting term for model");
 
   addParameterDef("learningrule",  (int*)(&this->conf.learningRule),
-                  false,              string("which learning rule to use: ") +
+                  false,              std::string("which learning rule to use: ") +
                   std::accumulate(conf.LearningRuleNames.begin(),conf.LearningRuleNames.end(),
                                   std::string(),[](std::string a, std::pair<DEPConf::LearningRule,std::string> lr){return a + itos((int)lr.first) + ": " + lr.second + ", ";}));
   addParameterDef("timedist", &timedist, 1,     0,10, "time distance of product terms in learning rule");
@@ -148,7 +151,7 @@ void DEP::stepNoLearning(const sensor* x_, int number_sensors_robot,
   // Controller function
   Matrix y =   (C*x_smooth  + h  ).map(g);
 
-  y_buffer[t] = y;
+  // y_buffer[t] = y;
   // the motors have their own maximal speed, so there should be no need
   // //protecting the robot motors:
   // double maxDy = maxSpeed;

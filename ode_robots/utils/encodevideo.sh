@@ -23,7 +23,7 @@
 #**************************************************************************
 
 if test -z "$1"; then
-    echo -e "USAGE: $0: BaseName [Target]\n\tExample: $0 frame_00 SuperVideo";
+    echo -e "USAGE: $0: BaseName [Target]\n\tExample: $0 frame_00 SuperVideo [EXTENSION]";
     exit 1;
 fi
 
@@ -31,6 +31,10 @@ NAME=$1;
 TARGET=$1;
 if test -n "$2"; then
     TARGET=$2;
+fi
+EXTENSION
+if test -n "$3"; then
+    EXTENSION=$3;
 fi
 
 # copy 20th frame as screenshot
@@ -42,12 +46,12 @@ cp "$FRAME" "$TARGET.jpg";
 #nice -10 mencoder mf://$NAME*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=mjpeg -oac copy -o "$TARGET.mjpeg"
 
 if which ffmpeg; then
-    cat $NAME*.jpg | ffmpeg -y -f image2pipe -r 25 -vcodec mjpeg -i - -vcodec libx264 -crf 15 -pix_fmt yuv420p "${TARGET}_hq.mp4"
-    cat $NAME*.jpg | ffmpeg -y -f image2pipe -r 25 -vcodec mjpeg -i - -vcodec libx264 -crf 15 -pix_fmt yuv420p  "${TARGET}_hq.flv"
+    cat $NAME*.${EXTENSION} | ffmpeg -y -f image2pipe -r 25 -i - -vcodec libx264 -crf 15 -pix_fmt yuv420p "${TARGET}_hq.mp4"
+#    cat $NAME*.${EXTENSION} | ffmpeg -y -f image2pipe -r 25 -vcodec mjpeg -i - -vcodec libx264 -crf 15 -pix_fmt yuv420p  "${TARGET}_hq.flv"
 else
     if which avconv; then
-        cat $NAME*.jpg | avconv -y -f image2pipe -r 25 -vcodec mjpeg -i - -vcodec libx264 -pix_fmt yuv420p -crf 15 "${TARGET}_hq.mp4"
-        cat $NAME*.jpg | avconv -y -f image2pipe -r 25 -vcodec mjpeg -i - -vcodec libx264 -pix_fmt yuv420p -crf 15 "${TARGET}_hq.flv"
+        cat $NAME*.${EXTENSION} | avconv -y -f image2pipe -r 25 -i - -vcodec libx264 -pix_fmt yuv420p -crf 15 "${TARGET}_hq.mp4"
+#        cat $NAME*.${EXTENSION} | avconv -y -f image2pipe -r 25 -vcodec mjpeg -i - -vcodec libx264 -pix_fmt yuv420p -crf 15 "${TARGET}_hq.flv"
 
     else
         echo "cannot find ffmpeg or avconv! Install ffmpeg or libav-tools.";
@@ -77,7 +81,7 @@ fi
 #transcode -i "$TARGET.mjpeg" -o "$TARGET"_small.wmv.avi -y ffmpeg,null -F wmv2 -w 100 -r 2
 
 echo "#!/bin/bash" > __cleanup.sh
-echo "rm -f $NAME*.jpg" >> __cleanup.sh
+echo "rm -f $NAME*.$EXTENSION" >> __cleanup.sh
 
 # copy src and log files into src folder and tar them
 if test -e ../main.cpp; then
@@ -90,6 +94,6 @@ if test -e ../main.cpp; then
     echo "rm -rf $DATAFOLDER" >> __cleanup.sh
 fi
 
-echo "rm -f $TARGET.mjpeg" >> __cleanup.sh
+#echo "rm -f $TARGET.mjpeg" >> __cleanup.sh
 echo "rm -f __cleanup.sh" >> __cleanup.sh
 chmod u+x __cleanup.sh
