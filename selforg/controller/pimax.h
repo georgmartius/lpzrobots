@@ -169,6 +169,8 @@ protected:
   paramint tau;            // length of time window
 
 
+  virtual matrix::Matrix smoothing_s(const matrix::Matrix &new_s, const matrix::Matrix &old_s, const int steps);
+
   /// learn values model and controller (A,b,C,h)
   virtual void learn();
 

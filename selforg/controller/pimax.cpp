@@ -147,6 +147,14 @@ void PiMax::seth(const matrix::Matrix& _h){
   h=_h;
 }
 
+matrix::Matrix PiMax::smoothing_s(const matrix::Matrix &new_s, const matrix::Matrix &old_s, const int steps) {
+
+  if(steps > 1)
+    return old_s + (new_s - old_s)*(1.0/steps);
+  else
+    return new_s;
+}
+
 // performs one step (includes learning). Calculates motor commands from sensor inputs.
 void PiMax::step(const sensor* s_, int number_sensors,
                        motor* a_, int number_motors){
@@ -157,16 +165,12 @@ void PiMax::step(const sensor* s_, int number_sensors,
     return;
   }
 
-  s.set(number_sensors,1,s_); // store sensor values
-
+  // store sensor values
+  s.set(number_sensors,1,s_);
   // averaging over the last s4avg values of s_buffer
-  conf.steps4Averaging = ::clip(conf.steps4Averaging,1,buffersize-1);
-  if(conf.steps4Averaging > 1)
-    s_smooth += (s - s_smooth)*(1.0/conf.steps4Averaging);
-  else
-    s_smooth = s;
-
-  s_buffer[t%buffersize] = s_smooth; // we store the smoothed sensor value
+  s_smooth = smoothing_s(s, s_smooth, ::clip(conf.steps4Averaging,1,buffersize-1));
+  // we store the smoothed sensor value
+  s_buffer[t%buffersize] = s_smooth;
 
   // learn controller and model
   learn();
@@ -191,16 +195,12 @@ void PiMax::stepNoLearning(const sensor* s_, int number_sensors,
   assert((unsigned)number_sensors <= this->number_sensors
          && (unsigned)number_motors <= this->number_motors);
 
-  s.set(number_sensors,1,s_); // store sensor values
-
+  // store sensor values
+  s.set(number_sensors,1,s_);
   // averaging over the last s4avg values of s_buffer
-  conf.steps4Averaging = ::clip(conf.steps4Averaging,1,buffersize-1);
-  if(conf.steps4Averaging > 1)
-    s_smooth += (s - s_smooth)*(1.0/conf.steps4Averaging);
-  else
-    s_smooth = s;
-
-  s_buffer[t%buffersize] = s_smooth; // we store the smoothed sensor value
+  s_smooth = smoothing_s(s, s_smooth, ::clip(conf.steps4Averaging,1,buffersize-1));
+  // we store the smoothed sensor value
+  s_buffer[t%buffersize] = s_smooth;
 
   // calculate controller values based on current input values (smoothed)
   Matrix a =   (C*(s_smooth) + h).map(g);
