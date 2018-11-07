@@ -240,6 +240,7 @@ void PiMax::learn(){
 
   const Matrix& z       = (C * (s) + h);
   const Matrix& a       = z.map(g); // actually the same as a_tm1
+  assert(a == a_tm1);
   const Matrix& g_prime = z.map(g_s);
   gs_buffer[(t-1) % buffersize] = g_prime;
 
