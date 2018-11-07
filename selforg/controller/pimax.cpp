@@ -150,13 +150,36 @@ void PiMax::seth(const matrix::Matrix& _h){
 // performs one step (includes learning). Calculates motor commands from sensor inputs.
 void PiMax::step(const sensor* s_, int number_sensors,
                        motor* a_, int number_motors){
-  stepNoLearning(s_, number_sensors, a_, number_motors);
-  if(t<=buffersize) return;
-  t--; // stepNoLearning increases the time by one - undo here
+
+  // fill buffers without learning first
+  if(t<=buffersize) {
+    stepNoLearning(s_, number_sensors, a_, number_motors);
+    return;
+  }
+
+  s.set(number_sensors,1,s_); // store sensor values
+
+  // averaging over the last s4avg values of s_buffer
+  conf.steps4Averaging = ::clip(conf.steps4Averaging,1,buffersize-1);
+  if(conf.steps4Averaging > 1)
+    s_smooth += (s - s_smooth)*(1.0/conf.steps4Averaging);
+  else
+    s_smooth = s;
+
+  s_buffer[t%buffersize] = s_smooth; // we store the smoothed sensor value
 
   // learn controller and model
   if(epsC!=0 || epsA!=0)
     learn();
+
+  // calculate controller values based on current input values (smoothed)
+  Matrix a =   (C*(s_smooth) + h).map(g);
+
+  // Put new output vector in ring buffer a_buffer
+  a_buffer[t%buffersize] = a;
+
+  // convert a to motor*
+  a.convertToBuffer(a_, number_motors);
 
   // update step counter
   t++;
