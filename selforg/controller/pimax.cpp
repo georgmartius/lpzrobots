@@ -169,8 +169,7 @@ void PiMax::step(const sensor* s_, int number_sensors,
   s_buffer[t%buffersize] = s_smooth; // we store the smoothed sensor value
 
   // learn controller and model
-  if(epsC!=0 || epsA!=0)
-    learn();
+  learn();
 
   // calculate controller values based on current input values (smoothed)
   Matrix a =   (C*(s_smooth) + h).map(g);
