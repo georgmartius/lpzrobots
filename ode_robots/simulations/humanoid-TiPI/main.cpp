@@ -40,8 +40,6 @@
 
 #include <ode_robots/operators.h>
 
-// #include "pimax.h"
-
 #include "environment.h"
 
 // fetch all the stuff of lpzrobots into scope
