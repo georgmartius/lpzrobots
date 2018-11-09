@@ -306,6 +306,11 @@ void PiMax::learn(){
     double epsCN = epsC/(100.0*(tau-1));
     // l means: time point t-l
     // x,y, L and g' are to be taken at t-l
+
+    // $\Delta C$ and $\Delta h$
+    matrix::Matrix dC(C.getM(), C.getN());
+    matrix::Matrix dh(h.getM(), 1);
+
     for(int l=1; l<tau; l++){
 
       const Matrix& al      = a_buffer[(t-l)%buffersize];
@@ -316,11 +321,14 @@ void PiMax::learn(){
 
       const Matrix& metric = useMetric ? gs.map(one_over).map(sqr) : gs.mapP(1, constant);
 
-      C += ((( dmu * (ds[l]^T) - (epsrel & al) * (sl^T)) & metric) * epsCN
+      dC += ((( dmu * (ds[l]^T) - (epsrel & al) * (sl^T)) & metric) * epsCN
             ).mapP(.015, clip);
-      h += ((((epsrel & al)) & metric) * (-epsCN*factorH) ).mapP(.05, clip);
+      dh += ((((epsrel & al)) & metric) * (-epsCN*factorH) ).mapP(.05, clip);
 
     }
+    C = C + dC;
+    h = h + dh;
+
     if(damping)
       C += (((C_native-C).map(power3))*damping           ).mapP(.05, clip);
   }
