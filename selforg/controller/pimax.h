@@ -144,6 +144,7 @@ protected:
   matrix::Matrix s_buffer[buffersize]; // buffer of sensor values
   matrix::Matrix xi_buffer[buffersize]; // buffer of pred errors
   matrix::Matrix gs_buffer[buffersize]; // buffer of g'
+  matrix::Matrix C_buffer[buffersize];  // buffer of C
   matrix::Matrix L_buffer[buffersize]; // buffer of Jacobians
 
   matrix::Matrix s;        // current sensor value vector

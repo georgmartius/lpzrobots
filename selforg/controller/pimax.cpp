@@ -302,6 +302,9 @@ void PiMax::learn(){
   for(int l=2; l<tau; l++){
     du[l] = (L_buffer[(t-l)%buffersize]^T) * du[l-1];
   }
+
+  C_buffer[(t-1)%buffersize] = C;
+
   if(epsC > 0){
     double epsCN = epsC/(100.0*(tau-1));
     // l means: time point t-l
@@ -316,8 +319,9 @@ void PiMax::learn(){
       const Matrix& al      = a_buffer[(t-l)%buffersize];
       const Matrix& sl      = s_buffer[(t-l)%buffersize];
       const Matrix& gs      = gs_buffer[(t-l)%buffersize];
+      const Matrix& Cl      = C_buffer[(t-l)%buffersize];
       const Matrix& dmu     = ((A^T)*du[l]) & gs;
-      const Matrix& epsrel  = (C*ds[l]) & dmu * 2 * sense;
+      const Matrix& epsrel  = (Cl*ds[l]) & dmu * 2 * sense;
 
       const Matrix& metric = useMetric ? gs.map(one_over).map(sqr) : gs.mapP(1, constant);
 
