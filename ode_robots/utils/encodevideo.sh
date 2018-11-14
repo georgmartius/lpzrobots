@@ -32,7 +32,7 @@ TARGET=$1;
 if test -n "$2"; then
     TARGET=$2;
 fi
-EXTENSION
+EXTENSION="jpg"
 if test -n "$3"; then
     EXTENSION=$3;
 fi
