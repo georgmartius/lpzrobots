@@ -147,16 +147,42 @@ void PiMax::seth(const matrix::Matrix& _h){
   h=_h;
 }
 
+matrix::Matrix PiMax::smoothing_s(const matrix::Matrix &new_s, const matrix::Matrix &old_s, const int steps) {
+
+  if(steps > 1)
+    return old_s + (new_s - old_s)*(1.0/steps);
+  else
+    return new_s;
+}
+
 // performs one step (includes learning). Calculates motor commands from sensor inputs.
 void PiMax::step(const sensor* s_, int number_sensors,
                        motor* a_, int number_motors){
-  stepNoLearning(s_, number_sensors, a_, number_motors);
-  if(t<=buffersize) return;
-  t--; // stepNoLearning increases the time by one - undo here
+
+  // fill buffers without learning first
+  if(t<=buffersize) {
+    stepNoLearning(s_, number_sensors, a_, number_motors);
+    return;
+  }
+
+  // store sensor values
+  s.set(number_sensors,1,s_);
+  // averaging over the last s4avg values of s_buffer
+  s_smooth = smoothing_s(s, s_smooth, ::clip(conf.steps4Averaging,1,buffersize-1));
+  // we store the smoothed sensor value
+  s_buffer[t%buffersize] = s_smooth;
 
   // learn controller and model
-  if(epsC!=0 || epsA!=0)
-    learn();
+  learn();
+
+  // calculate controller values based on current input values (smoothed)
+  Matrix a =   (C*(s_smooth) + h).map(g);
+
+  // Put new output vector in ring buffer a_buffer
+  a_buffer[t%buffersize] = a;
+
+  // convert a to motor*
+  a.convertToBuffer(a_, number_motors);
 
   // update step counter
   t++;
@@ -169,16 +195,12 @@ void PiMax::stepNoLearning(const sensor* s_, int number_sensors,
   assert((unsigned)number_sensors <= this->number_sensors
          && (unsigned)number_motors <= this->number_motors);
 
-  s.set(number_sensors,1,s_); // store sensor values
-
+  // store sensor values
+  s.set(number_sensors,1,s_);
   // averaging over the last s4avg values of s_buffer
-  conf.steps4Averaging = ::clip(conf.steps4Averaging,1,buffersize-1);
-  if(conf.steps4Averaging > 1)
-    s_smooth += (s - s_smooth)*(1.0/conf.steps4Averaging);
-  else
-    s_smooth = s;
-
-  s_buffer[t%buffersize] = s_smooth; // we store the smoothed sensor value
+  s_smooth = smoothing_s(s, s_smooth, ::clip(conf.steps4Averaging,1,buffersize-1));
+  // we store the smoothed sensor value
+  s_buffer[t%buffersize] = s_smooth;
 
   // calculate controller values based on current input values (smoothed)
   Matrix a =   (C*(s_smooth) + h).map(g);
@@ -240,6 +262,7 @@ void PiMax::learn(){
 
   const Matrix& z       = (C * (s) + h);
   const Matrix& a       = z.map(g); // actually the same as a_tm1
+  assert(a == a_tm1);
   const Matrix& g_prime = z.map(g_s);
   gs_buffer[(t-1) % buffersize] = g_prime;
 
@@ -279,25 +302,37 @@ void PiMax::learn(){
   for(int l=2; l<tau; l++){
     du[l] = (L_buffer[(t-l)%buffersize]^T) * du[l-1];
   }
+
+  C_buffer[(t-1)%buffersize] = C;
+
   if(epsC > 0){
     double epsCN = epsC/(100.0*(tau-1));
     // l means: time point t-l
     // x,y, L and g' are to be taken at t-l
+
+    // $\Delta C$ and $\Delta h$
+    matrix::Matrix dC(C.getM(), C.getN());
+    matrix::Matrix dh(h.getM(), 1);
+
     for(int l=1; l<tau; l++){
 
       const Matrix& al      = a_buffer[(t-l)%buffersize];
       const Matrix& sl      = s_buffer[(t-l)%buffersize];
       const Matrix& gs      = gs_buffer[(t-l)%buffersize];
+      const Matrix& Cl      = C_buffer[(t-l)%buffersize];
       const Matrix& dmu     = ((A^T)*du[l]) & gs;
-      const Matrix& epsrel  = (C*ds[l]) & dmu * 2 * sense;
+      const Matrix& epsrel  = (Cl*ds[l]) & dmu * 2 * sense;
 
       const Matrix& metric = useMetric ? gs.map(one_over).map(sqr) : gs.mapP(1, constant);
 
-      C += ((( dmu * (ds[l]^T) - (epsrel & al) * (sl^T)) & metric) * epsCN
+      dC += ((( dmu * (ds[l]^T) - (epsrel & al) * (sl^T)) & metric) * epsCN
             ).mapP(.015, clip);
-      h += ((((epsrel & al)) & metric) * (-epsCN*factorH) ).mapP(.05, clip);
+      dh += ((((epsrel & al)) & metric) * (-epsCN*factorH) ).mapP(.05, clip);
 
     }
+    C = C + dC;
+    h = h + dh;
+
     if(damping)
       C += (((C_native-C).map(power3))*damping           ).mapP(.05, clip);
   }
