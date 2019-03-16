@@ -147,6 +147,7 @@ public:
           nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2Yellow");
           nimm2->setColor(Color(1.0,1.0,0));
           global.configs.push_back(controller);
+          nimm2->place(Pos(j*(2.5+distance),i*1.26,0));
           agent->init(controller, nimm2, wiring);
           controller->setParam("adaptrate", 0.000);
           //    controller->setParam("nomupdate", 0.0005);
@@ -162,6 +163,7 @@ public:
           contrl = new InvertNChannelController(10);
           agent = new OdeAgent(global,PlotOption(NoPlot));
           nimm2 = new Nimm2(odeHandle, osgHandle, conf, "Nimm2_" + std::itos(i) + "_" + std::itos(j));
+          nimm2->place(Pos(j*(2.5+distance),i*1.26,0));
           agent->init(contrl, nimm2, wiring);
           contrl->setParam("adaptrate", 0.000);
           //    controller->setParam("nomupdate", 0.0005);
@@ -172,7 +174,6 @@ public:
           contrl->setParam("s4avg", 5);
           contrl->setParam("factorB",0);
         }
-        nimm2->place(Pos(j*(2.5+distance),i*1.26,0));
         global.agents.push_back(agent);
         robots[j]=nimm2;
       }

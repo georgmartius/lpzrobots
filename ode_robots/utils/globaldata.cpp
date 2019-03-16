@@ -50,6 +50,7 @@ namespace lpzrobots {
     if(!tmpObjects.empty()){
       FOREACH(TmpObjectMap, tmpObjects, i){
         i->second->update();
+        std::cout << "1" << std::endl;
       }
     }
   }

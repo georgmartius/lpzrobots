@@ -288,7 +288,7 @@ protected:
 /** Sphere primitive */
 class Sphere : public Primitive {
 public:
-  Sphere(float radius);
+  Sphere(float radius, bool flag = false);
   virtual ~Sphere();
 
   virtual void init(const OdeHandle& odeHandle, double mass,
@@ -302,6 +302,9 @@ public:
 
 protected:
   OSGSphere* osgsphere;
+
+private:
+  bool flag;
 };
 
 /** Capsule primitive */

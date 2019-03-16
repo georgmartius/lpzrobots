@@ -167,6 +167,26 @@ int AmosIISerialV2::getSensors(sensor* sensors, int sensornumber){
 	sensors[In_x]=potValue[In_x_real]; //around x axis (forward walking direction)
 	sensors[In_y]=potValue[In_y_real]; //around y axis (sideward walking direction)
 
+	//Compass sensors (INS, group 7)
+	sensors[BX_ori]=potValue[BX_ori_real]; // East
+	sensors[BY_ori]=potValue[BY_ori_real]; // North
+
+	//Sensors (INS, group 8)
+	sensors[TR0_as]=potValue[TR0_as_real]; // Joint Angle
+	sensors[Microphone0_s]=potValue[Microphone0_s_real]; // Free port
+
+	//Accelerometer Sensors (INS, group 9)		
+	sensors[R0Z_acs]=potValue[R0Z_acs_real]; //
+	sensors[R1Z_acs]=potValue[R1Z_acs_real]; //
+	sensors[R2Z_acs]=potValue[R2Z_acs_real]; //
+	sensors[L0Z_acs]=potValue[L0Z_acs_real]; //
+	sensors[L1Z_acs]=potValue[L1Z_acs_real]; //
+	sensors[L2Z_acs]=potValue[L2Z_acs_real]; //
+
+
+
+
+
 	//Conversion to positive range [0,..,255]
 	for(int i=0; i<=AMOSII_SENSOR_MAX;i++){
 		if (sensors[i] < 0){
@@ -181,6 +201,7 @@ int AmosIISerialV2::getSensors(sensor* sensors, int sensornumber){
 	}
 
 	//Your own,e.g.,
+	//For Kang experiment, testing force sensor for terrain recognition set "bool koh_preprocessing = true but default_preprocessing = false;"
 	bool koh_preprocessing = false;
 	if (koh_preprocessing){
 		processSensorsKOH(sensors);
@@ -263,6 +284,8 @@ void AmosIISerialV2::processSensors(sensor* psensors){
 	psensors[R_ps]=((psensors[R_ps]-1)/(250-1));//[min = 1 (very dark), max 250 (detect light (very bright))
 	psensors[L_ps]=((psensors[L_ps]-1)/(250-1));//[min = 1 (very dark), max 250 (detect light (very bright))
 
+	psensors[BX_ori]= psensors[BX_ori]; 
+	psensors[BY_ori]= psensors[BY_ori]; 
 
 }
 
@@ -376,16 +399,16 @@ void AmosIISerialV2::setMotors(const motor* motors, int motornumber){
 	//CR0
 	serialPos[23] = (int) (double)(((motorCom[6]+1.0)/2.0)*(servoPosMax[6]-servoPosMin[6])+servoPosMin[6]) ;
 	serialPos[30] = (int) (double)(((motorCom[7]+1.0)/2.0)*(servoPosMax[7]-servoPosMin[7])+servoPosMin[7]) ;
-	serialPos[13] = (int) (double)(((motorCom[8]+1.0)/2.0)*(servoPosMax[8]-servoPosMin[8])+servoPosMin[8]) ;
+	serialPos[15] = (int) (double)(((motorCom[8]+1.0)/2.0)*(servoPosMax[8]-servoPosMin[8])+servoPosMin[8]) ; // 13
 	serialPos[19] = (int) (double)(((motorCom[9]+1.0)/2.0)*(servoPosMax[9]-servoPosMin[9])+servoPosMin[9]) ;
 	serialPos[28] = (int) (double)(((motorCom[10]+1.0)/2.0)*(servoPosMax[10]-servoPosMin[10])+servoPosMin[10]) ;
-	serialPos[9] = (int) (double)(((motorCom[11]+1.0)/2.0)*(servoPosMax[11]-servoPosMin[11])+servoPosMin[11]) ;
+	serialPos[13] = (int) (double)(((motorCom[11]+1.0)/2.0)*(servoPosMax[11]-servoPosMin[11])+servoPosMin[11]) ; //9
 
 	//FR0
 	serialPos[24] = (int) (double)(((motorCom[12]+1.0)/2.0)*(servoPosMax[12]-servoPosMin[12])+servoPosMin[12]) ;
 	serialPos[25] = (int) (double)(((motorCom[13]+1.0)/2.0)*(servoPosMax[13]-servoPosMin[13])+servoPosMin[13]) ;
 	serialPos[14] = (int) (double)(((motorCom[14]+1.0)/2.0)*(servoPosMax[14]-servoPosMin[14])+servoPosMin[14]) ;
-	serialPos[20] = (int) (double)(((motorCom[15]+1.0)/2.0)*(servoPosMax[15]-servoPosMin[15])+servoPosMin[15]) ;
+	serialPos[2] = (int) (double)(((motorCom[15]+1.0)/2.0)*(servoPosMax[15]-servoPosMin[15])+servoPosMin[15]) ;//20
 	serialPos[27] = (int) (double)(((motorCom[16]+1.0)/2.0)*(servoPosMax[16]-servoPosMin[16])+servoPosMin[16]) ;
 	serialPos[10] = (int) (double)(((motorCom[17]+1.0)/2.0)*(servoPosMax[17]-servoPosMin[17])+servoPosMin[17]) ;
 
@@ -421,6 +444,7 @@ void AmosIISerialV2::setMotors(const motor* motors, int motornumber){
 
 /*Process your sensor signals here to match to your need*/
 void AmosIISerialV2::processSensorsKOH(sensor* sensors){
+
 
 }
 

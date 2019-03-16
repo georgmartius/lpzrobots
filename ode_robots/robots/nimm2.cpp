@@ -391,10 +391,10 @@ namespace lpzrobots {
    */
   void Nimm2::destroy(){
     if (created){
-      for (int i=0; i<2; i++){
-        //        if(bumper[i].bump) delete bumper[i].bump; is done by transform primitive
-        if(bumper[i].trans) delete bumper[i].trans;
-      }
+      /* bumper[i].trans is deleted in OdeRobot::cleanup()
+       * The previous commmentor states, that bumber[i].bump is deleted by .trans.
+       * So we do nothing about our two bumpers.
+       */
       cleanup();
       odeHandle.deleteSpace();
     }

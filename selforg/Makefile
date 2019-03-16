@@ -58,13 +58,13 @@ libs: lib opt dbg
 lib: $(LIB)
 
 opt: $(UTILS)
-	$(MAKE) BUILD_DIR=build_opt CFGOPTS=--opt STRIP="yes" lib
+	+$(MAKE) BUILD_DIR=build_opt CFGOPTS=--opt STRIP="yes" lib
 
 dbg: $(UTILS)
-	$(MAKE) BUILD_DIR=build_dbg CFGOPTS=--dbg lib
+	+$(MAKE) BUILD_DIR=build_dbg CFGOPTS=--dbg lib
 
 shared: $(UTILS)
-	$(MAKE) $(SHAREDLIB)
+	+$(MAKE) $(SHAREDLIB)
 
 
 $(LIB):  $(UTILS) Makefile.depend $(OFILES)
@@ -93,10 +93,10 @@ install: Makefile.depend install_scripts
 ifneq ($(TYPE),DEVEL)
 	@echo "*************** Install libs and includes $(PREFIX)*********************"
 	install -d $(PREFIX)/lib/ $(PREFIX)/include/selforg $(PREFIX)/share/lpzrobots/selforg
-	$(MAKE) install_lib
-	$(MAKE) CFGOPTS=--dbg install_lib
-	$(MAKE) CFGOPTS=--opt install_lib
-	$(MAKE) LIB=$(SHAREDLIB) install_lib
+	+$(MAKE) install_lib
+	+$(MAKE) CFGOPTS=--dbg install_lib
+	+$(MAKE) CFGOPTS=--opt install_lib
+	+$(MAKE) LIB=$(SHAREDLIB) install_lib
 	install -m 644 include/selforg/*.h $(PREFIX)/include/selforg
 	@echo "*************** Install example simulations ******************"
 	cp -RL simulations $(PREFIX)/share/lpzrobots/selforg/
@@ -109,10 +109,10 @@ uninstall_lib:
 uninstall:
 	-rm -f $(PREFIX)/bin/selforg-config
 ifneq ($(TYPE),DEVEL)
-	$(MAKE) uninstall_lib
-	$(MAKE) CFGOPTS=--dbg uninstall_lib
-	$(MAKE) CFGOPTS=--opt uninstall_lib
-	$(MAKE) LIB=$(SHAREDLIB) uninstall_lib
+	+$(MAKE) uninstall_lib
+	+$(MAKE) CFGOPTS=--dbg uninstall_lib
+	+$(MAKE) CFGOPTS=--opt uninstall_lib
+	+$(MAKE) LIB=$(SHAREDLIB) uninstall_lib
 	-rm -rf $(PREFIX)/include/selforg
 	-rm -rf $(PREFIX)/share/lpzrobots/selforg/
 endif
@@ -126,7 +126,7 @@ Makefile.depend:
 
 depend:
 	rm Makefile.depend
-	make Makefile.depend
+	+$(MAKE) Makefile.depend
 
 
 .PHONY: check-syntax

@@ -20,70 +20,68 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  *                                                                         *
+ *   Modified by Leon Bonde Larsen <lelar@mmmi.sdu.dk>                     *
  ***************************************************************************/
-#ifndef __PID_H
-#define __PID_H
+
+#ifndef __AXISORIENTATIONSENSOR_H
+#define __AXISORIENTATIONSENSOR_H
+
+#include <ode_robots/sensor.h>
+#include <selforg/matrix.h>
+
+#include <ode_robots/primitive.h>
+#include <ode_robots/mathutils.h>
+
+#include <string.h>
+#include <cmath>
+#include <algorithm>
+#include <string.h>
+#include <assert.h>
+#include <list>
+#include <vector>
+#include <cstdlib>
+#include <iostream>
 
 namespace lpzrobots {
 
-  class PID
-  {
-    //*********************attributes***************
-    //private:
+  /** Class for sensing the axis orienation of a primitive (robot)
+  */
+  class RPYsensor : public Sensor {
   public:
-    double P;
-    double D;
-    double I;
+    /// Sensor mode
+    enum Mode { /** Z axis (of robot) in word coordinates (relative to body center)
+                    (Dimensions select components of this vector) */
+                OnlyZAxis,
+                ZProjection, ///< z-component of each axis (Dimension select components of this vector)
+                Axis ///< for each dimension one orienation vector, i.e. for X | Y | Z it is a 3x3 rotation matrix
+    };
 
-    double KP;
-	double KI;
-	double KD;
-
-	double targetposition;
-	double integrator;
-	double derivative;
-
-	double position;
-	double lastposition;
-	double last2position;
-
-	double error;
-	double lasterror;
-
-    double tau;
-    double lasttime;  // last update time (to calc stepsize)
-    double force;
-
-    //*********************methods******************
-  public :
-    /// KP is used as a general koefficient. KI and KD can be tuned without dependence of KP
-    PID ( double KP = 100 , double KI = 2.0 , double KD = 0.3);
-
-    void setKP(double KP);
-    void setKI(double KI);
-    void setKD(double KD);
-
-    void setTargetPosition ( double newpos );
-
-    double getTargetPosition ();
-
-    /// perform one step of the PID controller with cutoff for large forces
-    double step ( double newsensorval, double time);
-    /// perform one step of the PID controller without cutoffs used for Center-Servos
-    double stepNoCutoff ( double newsensorval, double time);
-    /** perform one step of the PID controller for velocity control.
-        Meaning the misfit is in position space but the output is
-        the nominal velocity. The velocity is also limited. such that
-        the maximal velocity cannot be so that the error is overcompenstated
-        in one timestep.
-     */
-    double stepVelocity ( double newsensorval, double time);
     /**
-     *	Double PID loop. Set a position, and use the velocity motor.
+       @param mode how to measure the axis orientation
+       @param dimensions bit mask for the dimensions to sense. Default: X | Y | Z (all dimensions)
+       @see Sensor::Dimensions
+       @see Mode
      */
-    double stepPositionForce ( double newsensorval, double time);
+    RPYsensor(Mode mode, short dimensions = X | Y | Z );
+    virtual ~RPYsensor() {}
 
+    virtual void init(Primitive* own, Joint* joint = 0);
+    virtual int getSensorNumber() const;
+
+    virtual bool sense(const GlobalData& globaldata);
+    virtual std::list<sensor> getList() const;
+    virtual int get(sensor* sensors, int length) const;
+
+    double getRoll(matrix::Matrix) const;
+    double getPitch(matrix::Matrix) const;
+    double getYaw(matrix::Matrix) const;
+
+  private:
+    Mode mode;
+    short dimensions;
+    Primitive* own;
   };
+
 
 }
 

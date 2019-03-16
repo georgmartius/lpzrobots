@@ -286,9 +286,8 @@ namespace lpzrobots{
       vel = getAngularVel();
       applyTorque(vel*(-factorAng));
     }
+
   }
-
-
 
   osg::Vec3 Primitive::toLocal(const osg::Vec3& pos) const {
     const Pose& m = Pose::inverse(getPose());
@@ -457,8 +456,9 @@ namespace lpzrobots{
   }
 
   /******************************************************************************/
-  Sphere::Sphere(float radius) {
+  Sphere::Sphere(float radius, bool flag) {
     osgsphere = new OSGSphere(radius);
+    this->flag = flag;
   }
 
   Sphere::~Sphere(){
@@ -489,6 +489,7 @@ namespace lpzrobots{
   }
 
   void Sphere::update(){
+	if( flag ) this->decellerate(0,1);
     if(mode & Draw) {
       if(body)
         osgsphere->setMatrix(osgPose(body));
