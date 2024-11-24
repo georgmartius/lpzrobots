@@ -8,8 +8,7 @@
 
 #include <selforg/agent.h>
 #include <selforg/abstractrobot.h>
-// #include <selforg/invertmotorspace.h>
-#include <selforg/invertmotornstep.h>
+#include <selforg/pimax.h>
 #include <selforg/one2onewiring.h>
 
 #include "cmdline.h"
@@ -49,7 +48,7 @@ public:
   // robot interface
 
   /** returns actual sensorvalues
-      @param sensors sensors scaled to [-1,1] 
+      @param sensors sensors scaled to [-1,1]
       @param sensornumber length of the sensor array
       @return number of actually written sensors
   */
@@ -60,7 +59,7 @@ public:
   }
 
   /** sets actual motorcommands
-      @param motors motors scaled to [-1,1] 
+      @param motors motors scaled to [-1,1]
       @param motornumber length of the motor array
   */
   virtual void setMotors(const motor* motors, int motornumber){
@@ -68,7 +67,7 @@ public:
     memcpy(y, motors, sizeof(motor) * motornumber);
 
     // motor values are now stored in y, sensor values are expected to be stored in x
-    
+
     // perform robot action here
     /*  simple discrete simulation
         a = F*m - \mu v_0 // friction approximation
@@ -83,7 +82,7 @@ public:
     // environment is cyclic
     if(pos.x>1) pos.x-=2;
     if(pos.x<-1) pos.x+=2;
-    
+
 //     //  position sensor
 //     for(int i=0; i<sensornumber; i++){
 //       x[i] = pos.toArray()[i];
@@ -105,7 +104,7 @@ public:
       len++;
       if(len>=sensornumber) return;
     }
-   
+
   }
 
   /** returns number of sensors */
@@ -132,7 +131,7 @@ public:
   virtual matrix::Matrix getOrientation() const {
     matrix::Matrix m(3,3);
     m.toId();
-    return m; 
+    return m;
   };
 
   virtual void addOtherRobot(const MyRobot* otherRobot){
@@ -153,8 +152,8 @@ private:
   Position pos;
   Position speed;
 
-  list<const MyRobot*> otherRobots;    
-}; 
+  list<const MyRobot*> otherRobots;
+};
 
 
 void printRobots(list<MyRobot*> robots){
@@ -162,15 +161,15 @@ void printRobots(list<MyRobot*> robots){
   memset(line,'_', sizeof(char)*80);
   line[80]=0;
   int k=0;
-  FOREACH(list<MyRobot*>, robots, i) {    
+  FOREACH(list<MyRobot*>, robots, i) {
     double x = (*i)->getPosition().x;
     line[int((x+1)/2.0*80.0)]='0'+ k;
     k++;
   }
-  
+
   printf("\033[1G%s",line);
   fflush(stdout);
-  
+
 }
 
 // Helper
@@ -195,38 +194,38 @@ int main(int argc, char** argv){
     printf("\t-g\tstart guilogger\n\t-f\twrite logfile\n\t-h\tdisplay this help\n");
     exit(0);
   }
-  
+
   printf("\nPress Ctrl-c to invoke parameter input shell\n");
 
   list<MyRobot*> robots;
-  
+
   for(int i=0; i<2; i++){
-    AbstractController* controller = new InvertMotorNStep();
-    controller->setParam("s4delay",1.0);
-    controller->setParam("s4avg",2.0);  
-    controller->setParam("adaptrate",0.0);  
-    controller->setParam("factorB",0.01);  
-  
+    AbstractController* controller = new PiMax();
+    // controller->setParam("s4delay",1.0);
+    // controller->setParam("s4avg",2.0);
+    // controller->setParam("adaptrate",0.0);
+    // controller->setParam("factorB",0.01);
+
     MyRobot* robot         = new MyRobot("Robot" + itos(i), Position(0,0,0));
     Agent* agent           = new Agent(i==0 ? plotoptions : list<PlotOption>());
-    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));  
+    AbstractWiring* wiring = new One2OneWiring(new ColorUniformNoise(0.1));
     agent->init(controller, robot, wiring);
-    // if you like, you can keep track of the robot use the following line. 
+    // if you like, you can keep track of the robot use the following line.
     agent->setTrackOptions(TrackRobot(true,false,false, false,"mutual"));
-  
+
     globaldata.configs.push_back(robot);
     globaldata.configs.push_back(controller);
     robots.push_back(robot);
     globaldata.agents.push_back(agent);
   }
-  
+
   showParams(globaldata.configs);
-  
+
   // connect robots to each other
   FOREACH (list<MyRobot*>, robots, i){
     FOREACH (list<MyRobot*>, robots, k){
       (*i)->addOtherRobot(*k);
-    }    
+    }
   }
 
   cmd_handler_init();
@@ -235,17 +234,17 @@ int main(int argc, char** argv){
     FOREACH (vector<Agent*>, globaldata.agents, i){
       (*i)->step(0.1);
     }
-    if(control_c_pressed()){   
+    if(control_c_pressed()){
       if(!handleConsole(globaldata)){
         stop=1;
       }
       cmd_end_input();
     }
-    printRobots(robots);    
+    printRobots(robots);
   };
-  
+
   FOREACH (vector<Agent*>, globaldata.agents, i){
-    delete (*i); 
+    delete (*i);
   }
   closeConsole();
   fprintf(stderr,"terminating\n");
