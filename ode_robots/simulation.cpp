@@ -502,7 +502,7 @@ namespace lpzrobots {
       globalData.createConfigurator();
 
     while ( ( noGraphics || !viewer->done()) &&
-            (!simulation_time_reached || restart(odeHandle,osgHandle,globalData)) ) {
+            !simulation_time_reached && !restart(odeHandle,osgHandle,globalData) ) {
       if (simulation_time_reached) {
         printf("%li min simulation time reached (%li steps) -> simulation cycle (%i) stopped\n",
                (globalData.sim_step/6000), globalData.sim_step, currentCycle);
