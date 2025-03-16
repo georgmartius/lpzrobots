@@ -59,8 +59,8 @@
 #include <selforg/callbackable.h>
 
 #include <osgShadow/ShadowedScene>
-#include <osgShadow/ShadowVolume>
-//#include <osgShadow/LightSpacePerspectiveShadowMap>
+// #include <osgShadow/ShadowVolume>
+// #include <osgShadow/LightSpacePerspectiveShadowMap>
 #include <osgShadow/ShadowTexture>
 #include <osgShadow/ShadowMap>
 #include <osgShadow/SoftShadowMap>
@@ -167,25 +167,25 @@ namespace lpzrobots {
 //       sm->setBaseTextureUnit( baseTexUnit );
 
 //     }
-  case 1: /// ShadowVolume
-    {
-      bool twoSided=false;
-      bool twoPass=false;
-      // some conf variables for ShadowVolume
-      bool updateLightPosition = false;
+  // case 1: /// ShadowVolume
+  //   {
+  //     bool twoSided=false;
+  //     bool twoPass=false;
+  //     // some conf variables for ShadowVolume
+  //     bool updateLightPosition = false;
 
-      // hint to tell viewer to request stencil buffer when setting up windows
-      osg::DisplaySettings::instance()->setMinimumNumStencilBits(8);
+  //     // hint to tell viewer to request stencil buffer when setting up windows
+  //     osg::DisplaySettings::instance()->setMinimumNumStencilBits(8);
 
-      osg::ref_ptr<osgShadow::ShadowVolume> sv = new osgShadow::ShadowVolume;
-      sv->setDynamicShadowVolumes(updateLightPosition);
-      if (twoSided)
-        sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_SIDED);
-      if (twoPass)
-        sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_PASS);
-      shadowedScene->setShadowTechnique(sv.get());
-    }
-    break;
+  //     osg::ref_ptr<osgShadow::ShadowVolume> sv = new osgShadow::ShadowVolume;
+  //     sv->setDynamicShadowVolumes(updateLightPosition);
+  //     if (twoSided)
+  //       sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_SIDED);
+  //     if (twoPass)
+  //       sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_PASS);
+  //     shadowedScene->setShadowTechnique(sv.get());
+  //   }
+  //   break;
   case 2: /// ShadowTexture
     {
       osg::ref_ptr<osgShadow::ShadowTexture> st = new osgShadow::ShadowTexture;

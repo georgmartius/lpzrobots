@@ -173,7 +173,7 @@ namespace lpzrobots {
     int n=0;
     FOREACH(vector <TwoAxisServo*>, hipservos, s){
       if(conf.onlyPrimaryFunctions){
-        (*s)->set(motors[n],0);
+        (*s)->set(motors[n],0.0);
       } else {
         (*s)->set(motors[n],motors[n+1]);
         n++;
@@ -193,7 +193,7 @@ namespace lpzrobots {
     }
     FOREACH(vector <TwoAxisServo*>, armservos, s){
       if(conf.onlyPrimaryFunctions){
-        (*s)->set(0 ,0); //0         n++;
+        (*s)->set(0.0 , 0.0); //0  n++;
       } else {
         (*s)->set(motors[n],motors[n+1]);
         n+=2;
@@ -396,7 +396,7 @@ GUIDE adding new sensors
         (*s)->set(.2);
       }
       FOREACHC(vector <TwoAxisServo*>, armservos, s){
-        (*s)->set(0,0);
+        (*s)->set(0.0,0.0);
       }
     }else{
       if(conf.fixArms){

@@ -125,7 +125,7 @@ public:
      conf.swingSize= 2.3; //3;
      conf.swingWidth   = 1.2;
 
-     conf.fixArms=false;
+     conf.fixArms=true; // false
 
      conf.powerFactor = .02; //.02;//.04;// .95;//.65;//5;
      conf.onlyPrimaryFunctions = true;
